@@ -20,7 +20,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.kaazing.gateway.util.Utils.asByteBuffer;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 import java.nio.ByteBuffer;
@@ -30,7 +29,6 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.CloseFuture;
@@ -43,13 +41,12 @@ import org.apache.mina.core.session.IoSession;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
-import org.junit.rules.Timeout;
 import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -73,10 +70,9 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsnConnectorTest {
-    private static final boolean DEBUG = false;
 
     @Rule
-    public MethodExecutionTrace testExecutionTrace = DEBUG ? new MethodExecutionTrace(null) : new MethodExecutionTrace();
+    public MethodExecutionTrace testExecutionTrace = new MethodExecutionTrace();
 
     @Rule
     public TestRule timeoutRule = new DisableOnDebug(new Timeout(10, SECONDS));
@@ -96,13 +92,6 @@ public class WsnConnectorTest {
     private HttpAcceptor httpAcceptor;
     private WsnAcceptor wsnAcceptor;
 
-    @BeforeClass
-    public static void initLogging() throws Exception {
-
-        if (DEBUG) {
-            PropertyConfigurator.configure("src/test/resources/log4j-diagnostic.properties");
-        }
-    }
     @Before
     public void init() {
         schedulerProvider = new SchedulerProvider();
@@ -140,7 +129,7 @@ public class WsnConnectorTest {
         wsnAcceptor.setWsAcceptor(wsAcceptor);
 
         wsnConnector = (WsnConnector)transportFactory.getTransport("wsn").getConnector();
-		wsnConnector.setConfiguration(new Properties());
+        wsnConnector.setConfiguration(new Properties());
         wsnConnector.setBridgeServiceFactory(serviceFactory);
         wsnConnector.setSchedulerProvider(schedulerProvider);
         wsnConnector.setResourceAddressFactory(addressFactory);
@@ -171,7 +160,7 @@ public class WsnConnectorTest {
     @Test
     public void shouldCloseWsnSessionWhenTransportClosesCleanlyButUnexpectedly() throws Exception {
 
-        URI location = URI.create("wsn://localhost:8000/echo");
+        String location = "wsn://localhost:8000/echo";
         Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
         ResourceAddress address = addressFactory.newResourceAddress(location, addressOptions);
         final CountDownLatch waitForClientParentSessionCloseListenerEstabished = new CountDownLatch(1);
@@ -247,7 +236,7 @@ public class WsnConnectorTest {
     @Test
     public void shouldCorrectlyConstructLocalAndRemoteAddressesForConnectedWsnSessions() throws Exception {
 
-        final URI location = URI.create("ws://localhost:8000/echo");
+        final String location = "ws://localhost:8000/echo";
         Map<String, Object> addressOptions = Collections.emptyMap();
         ResourceAddress address = addressFactory.newResourceAddress(location, addressOptions);
         TransportTestIoHandlerAdapter acceptHandler = new TransportTestIoHandlerAdapter(1) {
@@ -269,8 +258,9 @@ public class WsnConnectorTest {
                     @Override
                     public void operationComplete(WriteFuture future) {
                         BridgeSession bridgeSession = (BridgeSession) session;
-                        assertEquals("remote address of accept session was not "+location, location, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
-                        assertEquals("local  address of accept session was not "+location, location, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
+                        URI locationURI = URI.create(location);
+                        assertEquals("remote address of accept session was not "+location, locationURI, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
+                        assertEquals("local  address of accept session was not "+location, locationURI, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
                         checkpoint();
                     }
                 });
@@ -293,8 +283,9 @@ public class WsnConnectorTest {
                     @Override
                     public void operationComplete(IoFuture future) {
                         BridgeSession bridgeSession = (BridgeSession) session;
-                        assertEquals("remote address of connect session was not " + location, location, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
-                        assertEquals("local  address of connect session was not " + location, location, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
+                        URI locationURI = URI.create(location);
+                        assertEquals("remote address of connect session was not " + location, locationURI, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
+                        assertEquals("local  address of connect session was not " + location, locationURI, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
                         checkpoint();
                     }
                 });
@@ -317,7 +308,7 @@ public class WsnConnectorTest {
 
         long iterations = 100;
 
-        final URI location = URI.create("wsn://localhost:8000/echo");
+        final String location = "wsn://localhost:8000/echo";
         Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
         ResourceAddress address = addressFactory.newResourceAddress(location, addressOptions);
 

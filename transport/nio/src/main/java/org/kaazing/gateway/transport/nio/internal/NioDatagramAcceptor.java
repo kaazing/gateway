@@ -16,7 +16,6 @@
 package org.kaazing.gateway.transport.nio.internal;
 
 import java.net.InetAddress;
-import java.net.URI;
 import java.util.Properties;
 
 import javax.annotation.Resource;
@@ -26,11 +25,12 @@ import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.transport.BridgeAcceptHandler;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
+import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.NioBindException;
 import org.kaazing.gateway.transport.bio.MulticastAcceptor;
-import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.mina.core.service.IoAcceptorEx;
 import org.slf4j.LoggerFactory;
 
@@ -109,8 +109,8 @@ public class NioDatagramAcceptor extends AbstractNioAcceptor {
                      BridgeSessionInitializer<? extends IoFuture> initializer) throws NioBindException {
         boolean useMCP = false;
         try {
-            URI uri = address.getExternalURI();
-            InetAddress inet = InetAddress.getByName(uri.getHost());
+            String uri = address.getExternalURI();
+            InetAddress inet = InetAddress.getByName(URIUtils.getHost(uri));
             if (inet.isMulticastAddress()) {
                 useMCP = true;
             }

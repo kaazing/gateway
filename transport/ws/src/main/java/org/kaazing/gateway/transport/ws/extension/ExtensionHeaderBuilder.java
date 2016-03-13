@@ -22,9 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
-
 /**
  * This class assists in parsing a WebSocket xtensions HTTP header which has the following syntax (a comma-separated list
  * Of extensions with optional parameters):

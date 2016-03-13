@@ -17,6 +17,7 @@ package org.kaazing.gateway.transport.http;
 
 import static java.lang.String.format;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolCompatibilityFilter.HttpConditionalWrappedResponseFilter.conditionallyWrappedResponsesRequired;
+import static org.kaazing.gateway.util.InternalSystemProperty.HTTPXE_SPECIFICATION;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -30,8 +31,11 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.security.auth.Subject;
@@ -100,28 +104,32 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     private IoHandler upgradeHandler;
     private final UpgradeFuture upgradeFuture;
     private final CommitFuture commitFuture;
+    private final ResponseFuture responseFuture;
     private final AtomicBoolean committing;
     private final AtomicBoolean connectionClose;
     private ResultAwareLoginContext loginContext;
     private final AtomicBoolean shutdownWrite;
-    private IoBufferEx readRequest;
+    private Queue<IoBufferEx> deferredReads = new ConcurrentLinkedQueue<IoBufferEx>();
 
 	private boolean isChunked;
 
 	private boolean isGzipped;
+    private boolean httpxeSpecCompliant;
 
+    @SuppressWarnings("deprecation")
     private DefaultHttpSession(IoServiceEx service,
                                IoProcessorEx<DefaultHttpSession> processor,
                                ResourceAddress address,
                                ResourceAddress remoteAddress,
                                IoSessionEx parent,
                                IoBufferAllocatorEx<HttpBuffer> allocator,
-                               Direction direction) {
+                               Direction direction,
+                               Properties configuration) {
         super(service, processor, address, remoteAddress, parent, allocator, direction);
 
         writeHeaders = new LinkedHashMap<>();
         writeCookies = new HashSet<>();
-        status = HttpStatus.SUCCESS_OK;
+        status = direction == Direction.READ ? HttpStatus.SUCCESS_OK : null;
         reason = null;
 
         secure = SslUtils.isSecure(parent);
@@ -131,6 +139,9 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 
         upgradeFuture = new DefaultUpgradeFuture(parent);
         commitFuture = new DefaultCommitFuture(this);
+        responseFuture = direction == Direction.READ ? null : new DefaultResponseFuture(this);
+
+        httpxeSpecCompliant = configuration == null ? false : HTTPXE_SPECIFICATION.getBooleanProperty(configuration);
     }
 
     public DefaultHttpSession(IoServiceEx service,
@@ -138,8 +149,9 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
                               ResourceAddress address,
                               ResourceAddress remoteAddress,
                               IoSessionEx parent,
-                              IoBufferAllocatorEx<HttpBuffer> allocator) {
-        this(service, processor, address, remoteAddress, parent, allocator, Direction.WRITE);
+                              IoBufferAllocatorEx<HttpBuffer> allocator,
+                              Properties configuration) {
+        this(service, processor, address, remoteAddress, parent, allocator, Direction.WRITE, configuration);
 
         requestURL = remoteAddress.getResource();
 
@@ -240,8 +252,9 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
                               IoSessionEx parent,
                               IoBufferAllocatorEx<HttpBuffer> allocator,
                               HttpRequestMessage request,
-                              URI serviceURI) {
-        this(service, processor, address, remoteAddress, parent, allocator, Direction.READ);
+                              URI serviceURI,
+                              Properties configuration) {
+        this(service, processor, address, remoteAddress, parent, allocator, Direction.READ, configuration);
 
         // Never elevate the X-Next-Protocol header from HTTP request to the session.
         // It will already be captured in this session's local address anyhow. (address.getOption(NEXT_PROTOCOL))
@@ -488,6 +501,11 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         return committing.get() || commitFuture.isCommitted();
     }
 
+    @Override
+    public ResponseFuture getResponseFuture() {
+        return responseFuture;
+    }
+
     public IoHandler getUpgradeHandler() {
         return upgradeHandler;
     }
@@ -541,12 +559,12 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         return super.getRemoteAddress();
     }
 
-    public IoBufferEx getCurrentReadRequest() {
-        return readRequest;
+    public Queue<IoBufferEx> getDeferredReads() {
+        return deferredReads;
     }
 
-    public void setCurrentReadRequest(IoBufferEx buffer) {
-        readRequest = buffer;
+    public void addDeferredRead(IoBufferEx buffer) {
+        deferredReads.add(buffer);
     }
 
     public boolean isConnectionClose() {
@@ -591,6 +609,10 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         return address != null &&
                 ( ! "httpxe/1.1".equals(address.getOption(ResourceAddress.NEXT_PROTOCOL)) &&
                   ! conditionallyWrappedResponsesRequired(this));
+    }
+
+    public boolean isHttpxeSpecCompliant() {
+        return httpxeSpecCompliant;
     }
 
 

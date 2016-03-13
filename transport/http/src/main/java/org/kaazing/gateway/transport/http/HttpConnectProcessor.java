@@ -18,6 +18,7 @@ package org.kaazing.gateway.transport.http;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONNECTION;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
 import static org.kaazing.gateway.transport.http.HttpStatus.INFO_SWITCHING_PROTOCOLS;
+import static org.kaazing.gateway.transport.http.HttpUtils.hasCloseHeader;
 
 import java.net.URI;
 import java.nio.ByteBuffer;
@@ -25,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.core.future.CloseFuture;
+import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -65,6 +68,9 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
         // when payload is empty, proactively send the request start
         // as there will be no subsequent writes to trigger the send
         boolean isChunked = "chunked".equals(session.getWriteHeader("Transfer-Encoding"));
+        if (isChunked) {
+            session.setChunked(true);
+        }
         if (session.getMethod() == HttpMethod.GET || session.getMethod() == HttpMethod.HEAD || "0".equals(session.getWriteHeader(HEADER_CONTENT_LENGTH)) || isChunked) {
             URI resource = session.getRemoteAddress().getResource();
 
@@ -130,11 +136,12 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
                     if (remaining == 0 && buf != WRITE_COMPLETE) {
                         throw new IllegalStateException("Unexpected empty buffer");
                     }
-                    
+
                     // TODO: may want to fragment outbound buffer here in the future
                     if (session.isCommitting()) {
                         // create HttpContentMessage
-                        HttpContentMessage content = new HttpContentMessage(buf, buf == WRITE_COMPLETE);
+                        HttpContentMessage content = new HttpContentMessage(buf, buf == WRITE_COMPLETE,
+                                session.isChunked(), false);
                         flushNowInternal(parent, content, buf, filterChain, request);
                     }
                     else {
@@ -176,11 +183,20 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
         } while (true);
     }
 
+    protected void doFireSessionDestroyed(DefaultHttpSession session) {
+        if (session.getStatus() != null) {
+            super.doFireSessionDestroyed(session);
+        }
+    }
+
     @Override
     protected void removeInternal(DefaultHttpSession httpSession) {
         // Make sure the closeFuture fires now since the listener on the CloseFuture
         // is where the decision to upgrade or not occurs.
-        httpSession.getCloseFuture().setClosed();
+        // But only fire it if have an http response from the other end.
+        if (httpSession.getStatus() != null) {
+            httpSession.getCloseFuture().setClosed();
+        }
 
         IoHandler upgradeHandler = httpSession.getUpgradeHandler();
         if (upgradeHandler == null) {
@@ -249,47 +265,42 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
             }
 
             // Clean up the transport session before recycling
+            session.getCloseFuture().addListener(new IoFutureListener<CloseFuture>() {
+                @Override
+                public void operationComplete(CloseFuture future) {
+                    // Remove all the http filters on the transport session (including idleFilter)
+                    IoFilterChain filterChain = parent.getFilterChain();
+                    List<IoFilterChain.Entry> filterList = filterChain.getAll();
+                    for(IoFilterChain.Entry e : filterList) {
+                        if (e.getName().startsWith(FILTER_PREFIX)) {        // http# prefixed filter
+                            filterChain.remove(e.getName());
+                        }
+                    }
 
-            // Remove all the http filters on the transport session
-            IoFilterChain filterChain = parent.getFilterChain();
-            List<IoFilterChain.Entry> filterList = filterChain.getAll();
-            for(IoFilterChain.Entry e : filterList) {
-                if (e.getName().startsWith(FILTER_PREFIX)) {        // http# prefixed filter
-                    filterChain.remove(e.getName());
+                    // Remove any HTTP related attributes ??
+
+                    // recycle the transport connection
+                    if (!persistentConnectionPool.recycle(session)) {
+                        // Not added to keepalive connection pool. so just close the transport connection
+                        HttpConnectProcessor.super.removeInternal(session);
+                    }
+
                 }
+            });
+
+            // Wait for server to respond to our http request. Add idle filter to close the connection,
+            // in case server doesn't respond.
+            if (!session.getCloseFuture().isClosed()) {
+                parent.getConfig().setBothIdleTime(keepAliveTimeout);
+                parent.getFilterChain().addLast(IDLE_FILTER, idleFilter);
             }
 
-            // Remove any HTTP related attributes ??
-            // TODO should we make sure that complete response is read before recycling ??
-
-            // recycle the transport connection
-            if (!persistentConnectionPool.recycle(session)) {
-                // Not added to keepalive connection pool. so just close the transport connection
-                super.removeInternal(session);
-            }
         }
     }
 
     /*
-     * Returns whether there is Connection: close header
-     *
-     * @param list of Connection header values
-     * @return true if Connection: close header is part of the values
-     */
-    private boolean hasCloseHeader(List<String> connectionValues) {
-        if (connectionValues != null) {
-            for (String value : connectionValues) {
-                if (value.equalsIgnoreCase("close")) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /*
-     * Server indicated that it would close transport session. In case it doesn't, this filter would close
-     * the connection
+     * Server indicated that it would close transport session or server should response to a completed http request.
+     * In case it doesn't, this filter will close the connection.
      */
     private static class HttpConnectIdleFilter extends HttpFilterAdapter<IoSessionEx> {
         private final Logger logger;
@@ -301,7 +312,7 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
         @Override
         public void sessionIdle(NextFilter nextFilter, IoSession session, IdleStatus status) throws Exception {
             if (logger.isDebugEnabled()) {
-                logger.debug(String.format("Server didn't close the connection within idle timeout. Closing %s", session));
+                logger.debug(String.format("Server didn't close the connection or respond to an http request within idle timeout. Closing %s", session));
             }
             session.close(false);
             super.sessionIdle(nextFilter, session, status);

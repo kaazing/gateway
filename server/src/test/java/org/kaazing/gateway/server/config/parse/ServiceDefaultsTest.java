@@ -19,7 +19,6 @@ import static org.kaazing.gateway.service.TransportOptionNames.HTTP_KEEP_ALIVE;
 import static org.kaazing.gateway.service.TransportOptionNames.HTTP_KEEP_ALIVE_TIMEOUT_KEY;
 import static org.kaazing.gateway.service.TransportOptionNames.HTTP_SERVER_HEADER_ENABLED;
 
-import java.net.URI;
 import java.util.Map;
 
 import org.junit.Assert;
@@ -53,7 +52,7 @@ public class ServiceDefaultsTest {
             .service()
                 .type("echo")
                 .name("test1")
-                .accept(URI.create("ws://localhost:8000"))
+                .accept("ws://localhost:8000")
             .done()
         .done();
         //@formatter:on
@@ -89,7 +88,7 @@ public class ServiceDefaultsTest {
                 .service()
                     .type("echo")
                     .name("test1")
-                    .accept(URI.create("ws://localhost:8000"))
+                    .accept("ws://localhost:8000")
                 .done()
         .done();
         //@formatter:on

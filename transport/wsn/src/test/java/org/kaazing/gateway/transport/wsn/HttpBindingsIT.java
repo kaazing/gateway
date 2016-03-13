@@ -17,8 +17,6 @@ package org.kaazing.gateway.transport.wsn;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -36,7 +34,7 @@ public class HttpBindingsIT {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                     .service()
-                        .accept(URI.create("ws://localhost:8001/echo"))
+                        .accept("ws://localhost:8001/echo")
                         .type("echo")
                         .crossOrigin()
                             .allowOrigin("*")
@@ -44,7 +42,7 @@ public class HttpBindingsIT {
                         .acceptOption("ws.inactivity.timeout", "2sec")
                     .done()
                     .service()
-                        .accept(URI.create("ws://localhost:80/echo80"))
+                        .accept("ws://localhost:80/echo80")
                         .type("echo")
                         .crossOrigin()
                             .allowOrigin("*")

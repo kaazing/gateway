@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.wseb;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
-import java.net.URI;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,7 +43,7 @@ public class WseHandshakeIT {
                             .webRootDirectory(new File("src/test/webapp"))
                             .property(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY,"src/test/resources/gateway/conf")
                             .service()
-                                .accept(URI.create(ECHO_SERVICE_ACCEPT))
+                                .accept(ECHO_SERVICE_ACCEPT)
                                 .type("echo")
                             .done()
                         .done();

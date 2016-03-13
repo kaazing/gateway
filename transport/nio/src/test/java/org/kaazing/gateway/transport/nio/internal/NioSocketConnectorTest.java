@@ -19,7 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.net.ServerSocket;
-import java.net.URI;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -41,8 +40,6 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.TransportFactory;
-import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
-import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class NioSocketConnectorTest {
@@ -93,7 +90,7 @@ public class NioSocketConnectorTest {
 
         try {
             for (int i=0; i<NB_WORKERS; i++) {
-                ResourceAddress bindAddress = addressFactory.newResourceAddress(new URI("tcp://localhost:" + port));
+                ResourceAddress bindAddress = addressFactory.newResourceAddress("tcp://localhost:" + port);
                 connector.connect(bindAddress, handler, new IoSessionInitializer<ConnectFuture>() {
 
                     @Override

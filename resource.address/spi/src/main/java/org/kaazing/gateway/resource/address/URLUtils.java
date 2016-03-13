@@ -19,6 +19,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 
+import org.kaazing.gateway.resource.address.uri.URIUtils;
+
 public class URLUtils {
 
     private static final Pattern MULTIPLE_SLASHES = Pattern.compile("/[/]+");
@@ -102,6 +104,25 @@ public class URLUtils {
         }
     }
 
+    public static String modifyURIPath(String uri, String newPath) {
+        String path = URIUtils.getPath(uri);
+        if (newPath.equals(path)) {
+            return uri;
+        }
+        String scheme = URIUtils.getScheme(uri);
+        String authority = URIUtils.getAuthority(uri);
+        String query = URIUtils.getQuery(uri);
+        String fragment = URIUtils.getFragment(uri);
+
+        try {
+            return URIUtils.buildURIAsString(scheme, authority, newPath, query, fragment);
+        } catch (URISyntaxException x) {
+            IllegalArgumentException y = new IllegalArgumentException();
+            y.initCause(x);
+            throw y;
+        }
+    }
+
     public static URI ensureTrailingSlash(URI uri) {
         String newPath = uri.getPath();
         if ( newPath == null || newPath.equals("")) {
@@ -120,6 +141,24 @@ public class URLUtils {
         }
     }
 
+    public static String ensureTrailingSlash(String uri) {
+        String newPath = URIUtils.getPath(uri);
+        if ( newPath == null || newPath.equals("")) {
+            newPath = "/";
+        }
+        try {
+            String scheme = URIUtils.getScheme(uri);
+            String authority = URIUtils.getAuthority(uri);
+            String query = URIUtils.getQuery(uri);
+            String fragment = URIUtils.getFragment(uri);
+            return URIUtils.buildURIAsString(scheme, authority, newPath, query, fragment);
+        } catch (URISyntaxException x) {
+            IllegalArgumentException y = new IllegalArgumentException();
+            y.initCause(x);
+            throw y;
+        }
+    }
+
     public static URI appendURI(URI uri, String postfix) {
         String scheme = uri.getScheme();
         String authority = uri.getAuthority();
@@ -129,6 +168,22 @@ public class URLUtils {
 
         try {
             return new URI(scheme, authority, MULTIPLE_SLASHES.matcher(path + postfix).replaceAll(SINGLE_SLASH), query, fragment);
+        } catch (URISyntaxException x) {
+            IllegalArgumentException y = new IllegalArgumentException();
+            y.initCause(x);
+            throw y;
+        }
+    }
+
+    public static String appendURI(String uri, String postfix) {
+        String scheme = URIUtils.getScheme(uri);
+        String authority = URIUtils.getAuthority(uri);
+        String path = URIUtils.getPath(uri);
+        String query = URIUtils.getQuery(uri);
+        String fragment = URIUtils.getFragment(uri);
+
+        try {
+            return URIUtils.buildURIAsString(scheme, authority, MULTIPLE_SLASHES.matcher(path + postfix).replaceAll(SINGLE_SLASH), query, fragment);
         } catch (URISyntaxException x) {
             IllegalArgumentException y = new IllegalArgumentException();
             y.initCause(x);

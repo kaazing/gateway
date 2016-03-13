@@ -16,17 +16,14 @@
 
 package org.kaazing.gateway.management.jmx;
 
+import static java.lang.System.currentTimeMillis;
+import static org.junit.Assert.assertTrue;
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.getKeystoreFileLocation;
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.keyStore;
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.password;
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.trustStore;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import static java.lang.System.currentTimeMillis;
-import static java.net.URI.create;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
 import java.security.KeyStore;
 import java.util.Set;
 
@@ -36,13 +33,12 @@ import javax.management.ObjectName;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-import org.kaazing.k3po.junit.annotation.Specification;
-import org.kaazing.k3po.junit.rules.K3poRule;
-
 import org.kaazing.gateway.management.test.util.JmxRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class JmxRoundTripLatencyIT {
 
@@ -64,12 +60,12 @@ public class JmxRoundTripLatencyIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(create(WSE_URI))
+                            .accept(WSE_URI)
                             .acceptOption("ws.inactivityTimeout", "2sec")
                             .type("echo")
                         .done()
                         .service()
-                            .accept(create(WS_URI))
+                            .accept(WS_URI)
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("*")

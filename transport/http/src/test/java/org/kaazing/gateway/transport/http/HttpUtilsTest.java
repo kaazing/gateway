@@ -15,7 +15,7 @@
  */
 package org.kaazing.gateway.transport.http;
 
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
@@ -23,6 +23,7 @@ import static org.junit.Assert.assertSame;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 
 import org.apache.mina.core.session.DummySession;
 import org.apache.mina.core.session.IoSession;
@@ -32,132 +33,142 @@ import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 
 
 public class HttpUtilsTest {
-    
+
     @Test
-    public void getCanonicalURI_lower() throws Exception { 
+    public void getCanonicalURI_lower() throws Exception {
         assertLowerCase(HttpUtils.getCanonicalURI("wss://localhost:8001/echo", true).getHost());
     }
-    
+
     @Test
-    public void getCanonicalURI_mixed() throws Exception { 
+    public void getCanonicalURI_mixed() throws Exception {
         URI result = HttpUtils.getCanonicalURI("ws://LocalHost:8001/echo", true);
         assertLowerCase(result.getHost());
         assertEquals("/echo", result.getPath());
     }
-    
+
     @Test
-    public void getCanonicalURI_mixedSSE() throws Exception { 
+    public void getCanonicalURI_mixedSSE() throws Exception {
         URI result = HttpUtils.getCanonicalURI("sse://LocalHost:8001/echo", false);
         assertLowerCase(result.getHost());
         assertEquals("/echo", result.getPath());
     }
-    
+
     @Test
-    public void getCanonicalURI_mixedSecureSSE() throws Exception { 
+    public void getCanonicalURI_mixedSecureSSE() throws Exception {
         URI result = HttpUtils.getCanonicalURI("sse+ssl://LocalHost:8001/echo", true);
         assertLowerCase(result.getHost());
         assertEquals("/echo", result.getPath());
     }
-    
+
     @Test
-    public void getCanonicalURI_mixedTCP() throws Exception { 
+    public void getCanonicalURI_mixedTCP() throws Exception {
         URI result = HttpUtils.getCanonicalURI("tcp://my.Server.com:8001", false);
         assertLowerCase(result.getHost());
         assertEquals("", result.getPath());
     }
-    
+
     @Test
-    public void getCanonicalURI_upper() throws Exception { 
+    public void getCanonicalURI_upper() throws Exception {
         URI result = HttpUtils.getCanonicalURI("wse+ssl://US.KAAZING.COM:8001/my/Path", true);
         assertLowerCase(result.getHost());
         assertEquals("/my/Path", result.getPath());
     }
-    
+
     @Test
-    public void getCanonicalURI_empty() throws Exception { 
+    public void getCanonicalURI_empty() throws Exception {
         assertNull(HttpUtils.getCanonicalURI("", true));
     }
-    
+
     @Test // Make sure URI without host doesn't cause an NPE
-    public void getCanonicalURI_invalid_no_host1() throws Exception {        
+    public void getCanonicalURI_invalid_no_host1() throws Exception {
         URI result = HttpUtils.getCanonicalURI("ws:localhost:8026/", true);
         assertNull(result.getHost());
     }
-    
+
     @Test // Make sure URI without host doesn't cause an NPE
-    public void getCanonicalURI_invalid_no_host2() throws Exception {        
+    public void getCanonicalURI_invalid_no_host2() throws Exception {
         URI result = HttpUtils.getCanonicalURI("ws://:8026", true);
         assertNull(result.getHost());
     }
-    
+
     @Test
-    public void getCanonicalURI_null() throws Exception { 
+    public void getCanonicalURI_null() throws Exception {
         assertNull(HttpUtils.getCanonicalURI((String)null, false));
     }
 
     @Test
-    public void getCanonicalURI_http_nopath() throws Exception { 
+    public void getCanonicalURI_http_nopath() throws Exception {
         URI result = HttpUtils.getCanonicalURI("http://LocalHost:8001", true);
         assertLowerCase(result.getHost());
         assertEquals("/", result.getPath());
     }
 
     @Test
-    public void getCanonicalURI_https_nopath() throws Exception { 
+    public void getCanonicalURI_https_nopath() throws Exception {
         URI result = HttpUtils.getCanonicalURI("https://LocalHost:8001", true);
         assertLowerCase(result.getHost());
         assertEquals("/", result.getPath());
     }
 
     @Test
-    public void getCanonicalURI_tcp_nopath() throws Exception { 
+    public void getCanonicalURI_tcp_nopath() throws Exception {
         URI result = HttpUtils.getCanonicalURI("tcp://LocalHost:8001", true);
         assertLowerCase(result.getHost());
         assertEquals("", result.getPath());
     }
 
     @Test
-    public void getCanonicalURI_sse_nopath() throws Exception { 
+    public void getCanonicalURI_sse_nopath() throws Exception {
         URI result = HttpUtils.getCanonicalURI("sse://LocalHost:8001", true);
         assertLowerCase(result.getHost());
         assertEquals("/", result.getPath());
     }
 
     @Test
-    public void getCanonicalURI_secure_sse_nopath() throws Exception { 
+    public void getCanonicalURI_secure_sse_nopath() throws Exception {
         URI result = HttpUtils.getCanonicalURI("sse+ssl://LocalHost:8001", true);
         assertLowerCase(result.getHost());
         assertEquals("/", result.getPath());
     }
 
     @Test
-    public void getCanonicalURI_ws_nopath() throws Exception { 
+    public void getCanonicalURI_ws_nopath() throws Exception {
         URI result = HttpUtils.getCanonicalURI("ws://LocalHost:8001", true);
         assertLowerCase(result.getHost());
         assertEquals("/", result.getPath());
     }
 
     @Test
-    public void getCanonicalURI_wss_nopath() throws Exception { 
+    public void getCanonicalURI_wss_nopath() throws Exception {
         URI result = HttpUtils.getCanonicalURI("wss://LocalHost:8001", true);
         assertLowerCase(result.getHost());
         assertEquals("/", result.getPath());
     }
-    
-    @Test 
-    public void getCanonicalURI_dontCanonicalizePath_http() throws Exception { 
+
+    @Test
+    public void getCanonicalURI_dontCanonicalizePath_http() throws Exception {
         URI result = HttpUtils.getCanonicalURI("Http://US.KAAZING.COM:8001", false);
         assertLowerCase(result.getHost());
         assertEquals("", result.getPath());
     }
-    
-    @Test 
-    public void getCanonicalURI_dontCanonicalizePath_https() throws Exception { 
+
+    @Test
+    public void getCanonicalURI_dontCanonicalizePath_https() throws Exception {
         URI result = HttpUtils.getCanonicalURI("Http://US.KAAZING.COM:8001", false);
         assertLowerCase(result.getHost());
         assertEquals("", result.getPath());
     }
-    
+
+    @Test
+    public void hasCloseHeadersShouldDetectCaseCloseOutOfMany() {
+        assertTrue(HttpUtils.hasCloseHeader(Arrays.asList(new String[]{"doodah",  "close"})));
+    }
+
+    @Test
+    public void hasCloseHeadersShouldDetectCaseInsensitiveClose() {
+        assertTrue(HttpUtils.hasCloseHeader(Arrays.asList(new String[]{"cLosE"})));
+    }
+
     @Test
     public void testRequestWithSpace() {
         HttpRequestMessage request = new HttpRequestMessage();
@@ -174,8 +185,8 @@ public class HttpUtilsTest {
 
     @Test
     public void testNullFromURIGetsMergedCorrectly() throws Exception {
-        final URI into = URI.create("http://www.example.com/");
-        final URI actual = HttpUtils.mergeQueryParameters(null, into);
+        final String into = "http://www.example.com/";
+        final String actual = HttpUtils.mergeQueryParameters(null, into);
         assertEquals(into, actual);
         assertSame(into, actual);
     }
@@ -185,55 +196,55 @@ public class HttpUtilsTest {
 
         // from has no query param, into has none
         URI from = URI.create("http://from.example.com/path#fragment");
-        URI into = URI.create("http://into.example.com/path#fragment");
-        URI expected = into;
+        String into = "http://into.example.com/path#fragment";
+        String expected = into;
         verifyMergedURI(from, into, expected);
 
         // from has one query param, into has none
         from = URI.create("http://from.example.com/path?from1=value1#fragment");
-        into = URI.create("http://into.example.com/path#fragment");
-        expected = URI.create("http://into.example.com/path?from1=value1#fragment");
+        into = "http://into.example.com/path#fragment";
+        expected = "http://into.example.com/path?from1=value1#fragment";
         verifyMergedURI(from, into, expected);
 
         // from has 2 query param, into has none
         from = URI.create("http://from.example.com/path?from1=value1&from2=value2#fragment");
-        into = URI.create("http://into.example.com/path#fragment");
-        expected = URI.create("http://into.example.com/path?from1=value1&from2=value2#fragment");
+        into = "http://into.example.com/path#fragment";
+        expected = "http://into.example.com/path?from1=value1&from2=value2#fragment";
         verifyMergedURI(from, into, expected);
 
         // from has no query param, into has one
         from = URI.create("http://from.example.com/path#fragment");
-        into = URI.create("http://into.example.com/path?in1=value1#fragment");
-        expected = URI.create("http://into.example.com/path?in1=value1#fragment");
+        into = "http://into.example.com/path?in1=value1#fragment";
+        expected = "http://into.example.com/path?in1=value1#fragment";
         verifyMergedURI(from, into, expected);
 
         // from has one query param, into has one, from gets put at the end
         from = URI.create("http://from.example.com/path?from1=value1#fragment");
-        into = URI.create("http://into.example.com/path?in1=value1#fragment");
-        expected = URI.create("http://into.example.com/path?in1=value1&from1=value1#fragment");
+        into = "http://into.example.com/path?in1=value1#fragment";
+        expected = "http://into.example.com/path?in1=value1&from1=value1#fragment";
         verifyMergedURI(from, into, expected);
 
         // from has just ?
         from = URI.create("http://from.example.com/path?#fragment");
-        into = URI.create("http://into.example.com/path?in1=value1#fragment");
-        expected = URI.create("http://into.example.com/path?in1=value1#fragment");
+        into = "http://into.example.com/path?in1=value1#fragment";
+        expected = "http://into.example.com/path?in1=value1#fragment";
         verifyMergedURI(from, into, expected);
 
         // from has param= with no value
         from = URI.create("http://from.example.com/path?from1=#fragment");
-        into = URI.create("http://into.example.com/path?in1=value1#fragment");
-        expected = URI.create("http://into.example.com/path?in1=value1&from1=#fragment");
+        into = "http://into.example.com/path?in1=value1#fragment";
+        expected = "http://into.example.com/path?in1=value1&from1=#fragment";
         verifyMergedURI(from, into, expected);
 
         // from has param= with no value
         from = URI.create("http://from.example.com/path?from1=#fragment");
-        into = URI.create("http://into.example.com/path#fragment");
-        expected = URI.create("http://into.example.com/path?from1=#fragment");
+        into = "http://into.example.com/path#fragment";
+        expected = "http://into.example.com/path?from1=#fragment";
         verifyMergedURI(from, into, expected);
     }
 
-    private void verifyMergedURI(URI from, URI into, URI expected) throws URISyntaxException {
-        final URI actual = HttpUtils.mergeQueryParameters(from, into);
+    private void verifyMergedURI(URI from, String into, String expected) throws URISyntaxException {
+        final String actual = HttpUtils.mergeQueryParameters(from, into);
         assertEquals(expected, actual);
         assertNotSame(expected, actual);
     }
@@ -258,7 +269,7 @@ public class HttpUtilsTest {
         uri = URI.create("ssl://www.example.com");
         Assert.assertTrue(HttpUtils.hasStreamingScheme(uri));
     }
-    
+
     public void assertLowerCase(String value) {
         assertTrue(value + " should be lower case", value.equals(value.toLowerCase()));
     }

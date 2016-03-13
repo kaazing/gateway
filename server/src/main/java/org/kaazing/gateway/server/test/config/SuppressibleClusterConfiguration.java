@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.server.test.config;
 
-import java.net.URI;
 import java.util.Set;
 
 public abstract class SuppressibleClusterConfiguration implements SuppressibleConfiguration {
@@ -32,12 +31,12 @@ public abstract class SuppressibleClusterConfiguration implements SuppressibleCo
 
     public abstract void setName(Suppressible<String> name);
 
-    public abstract Set<Suppressible<URI>> getConnects();
+    public abstract Set<Suppressible<String>> getConnects();
 
-    public abstract void addConnect(Suppressible<URI> connect);
+    public abstract void addConnect(Suppressible<String> connect);
 
-    public abstract Set<Suppressible<URI>> getAccepts();
+    public abstract Set<Suppressible<String>> getAccepts();
 
-    public abstract void addAccept(Suppressible<URI> accept);
+    public abstract void addAccept(Suppressible<String> accept);
 
 }

@@ -15,8 +15,8 @@
  */
 package org.kaazing.gateway.server.test.config.builder;
 
-import java.net.URI;
 import java.util.Set;
+
 import org.kaazing.gateway.server.test.config.ClusterConfiguration;
 import org.kaazing.gateway.server.test.config.Suppressible;
 import org.kaazing.gateway.server.test.config.SuppressibleConfiguration.Suppression;
@@ -34,12 +34,12 @@ public abstract class AbstractClusterConfigurationBuilder<R> extends
         return this;
     }
 
-    public AbstractClusterConfigurationBuilder<R> accept(URI accept) {
+    public AbstractClusterConfigurationBuilder<R> accept(String accept) {
         configuration.getSuppressibleConfiguration().addAccept(new Suppressible<>(accept, getCurrentSuppressions()));
         return this;
     }
 
-    public AbstractClusterConfigurationBuilder<R> connect(URI connect) {
+    public AbstractClusterConfigurationBuilder<R> connect(String connect) {
         configuration.getSuppressibleConfiguration().addConnect(
                 new Suppressible<>(connect, getCurrentSuppressions()));
         return this;

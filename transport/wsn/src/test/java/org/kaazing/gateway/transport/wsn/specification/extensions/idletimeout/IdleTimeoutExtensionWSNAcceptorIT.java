@@ -17,7 +17,6 @@ package org.kaazing.gateway.transport.wsn.specification.extensions.idletimeout;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,7 +52,7 @@ public class IdleTimeoutExtensionWSNAcceptorIT {
         Map<String, Object> options = new HashMap<String, Object>();
         options.put("ws.inactivityTimeout", 2000L);
         ResourceAddress address = addressFactory.newResourceAddress(
-                new URI("ws://localhost:8001/echo"), options);
+                "ws://localhost:8001/echo", options);
         acceptor.bind(address, new IoHandlerAdapter<IoSessionEx>());
         k3po.start();        
         Thread.sleep(700);
@@ -74,7 +73,7 @@ public class IdleTimeoutExtensionWSNAcceptorIT {
     	Map<String, Object> options = new HashMap<String, Object>();
         options.put("ws.inactivityTimeout", 2000L);
         ResourceAddress address = addressFactory.newResourceAddress(
-                new URI("ws://localhost:8001/echo"), options);
+                "ws://localhost:8001/echo", options);
         acceptor.bind(address, new IoHandlerAdapter<IoSessionEx>());
         k3po.start();        
         Thread.sleep(700);
