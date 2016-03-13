@@ -17,8 +17,6 @@ package org.kaazing.gateway.service.http.proxy;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -38,14 +36,14 @@ public class HttpProxyChainedProxiesViaHeaderIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("http://localhost:8010/client"))
-                            .connect(URI.create("http://localhost:8020/proxy1"))
+                            .accept("http://localhost:8010/client")
+                            .connect("http://localhost:8020/proxy1")
                             .type("http.proxy")
                             .connectOption("http.keepalive", "disabled")
                             .done()
                         .service()
-                            .accept(URI.create("http://localhost:8020/proxy1"))
-                            .connect(URI.create("http://localhost:8030/proxy2"))
+                            .accept("http://localhost:8020/proxy1")
+                            .connect("http://localhost:8030/proxy2")
                             .type("http.proxy")
                             .connectOption("http.keepalive", "disabled")
                             .done()

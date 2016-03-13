@@ -62,8 +62,6 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("service.http.proxy");
     private static final String VIA_HEADER_FORMATTER = "1.1 kaazing-%s";
-
-    private final String viaHeader;
     private static final Set KNOWN_SIMPLE_PROPERTIES;
     static {
         Set<String> set = new HashSet<>();
@@ -72,7 +70,6 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         set.add("rewrite-location");
         KNOWN_SIMPLE_PROPERTIES = Collections.unmodifiableSet(set);
     }
-
     private static final Set KNOWN_NESTED_PROPERTIES;
     static {
         Set<String> set = new HashSet<>();
@@ -82,7 +79,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         KNOWN_NESTED_PROPERTIES = Collections.unmodifiableSet(set);
     }
 
-
+    private final String viaHeader;
     private String connectURI;
     private boolean rewriteCookieDomain;
     private boolean rewriteCookiePath;
@@ -90,10 +87,10 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
     private Map<String, String> cookieDomainMap;
     private Map<String, String> cookiePathMap;
     private Map<String, String> locationMap;
+
     public HttpProxyServiceHandler() {
         viaHeader = String.format(VIA_HEADER_FORMATTER, UUID.randomUUID());
     }
-
 
     void init() {
         ServiceContext serviceContext = getServiceContext();
