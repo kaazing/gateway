@@ -112,9 +112,9 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
                         " failed due to loop detection [" + acceptSession + "->]");
                 acceptSession.setStatus(HttpStatus.SERVER_LOOP_DETECTED);
                 acceptSession.close(true);
-                return true;
+                return false;
             }
-        return false;
+        return true;
     }
 
     /*
