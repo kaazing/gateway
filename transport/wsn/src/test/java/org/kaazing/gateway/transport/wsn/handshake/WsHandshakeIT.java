@@ -17,8 +17,6 @@ package org.kaazing.gateway.transport.wsn.handshake;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -38,7 +36,7 @@ public class WsHandshakeIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("ws://localhost:8010/jms"))
+                            .accept("ws://localhost:8010/jms")
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("http://localhost:8000")
@@ -46,8 +44,8 @@ public class WsHandshakeIT {
                         .done()
                         .service()
                             .name("jms")
-                            .accept(URI.create("ws://localhost:8005/jms"))
-                            .accept(URI.create("wss://foo.example.com:443/jms"))
+                            .accept("ws://localhost:8005/jms")
+                            .accept("wss://foo.example.com:443/jms")
                             .type("echo")
                             .acceptOption("ssl.encryption", "disabled")
                             .acceptOption("wss.bind", "8011")

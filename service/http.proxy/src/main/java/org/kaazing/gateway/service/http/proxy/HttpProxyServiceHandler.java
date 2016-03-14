@@ -15,6 +15,27 @@
  */
 package org.kaazing.gateway.service.http.proxy;
 
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONNECTION;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_LOCATION;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_SET_COOKIE;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_UPGRADE;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_VIA;
+import static org.kaazing.gateway.transport.http.HttpStatus.CLIENT_NOT_FOUND;
+import static org.kaazing.gateway.transport.http.HttpStatus.INFO_SWITCHING_PROTOCOLS;
+
+import java.net.URI;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
@@ -35,33 +56,6 @@ import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.URI;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import static java.lang.String.format;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONNECTION;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_FORWARDED;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_LOCATION;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_SET_COOKIE;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_UPGRADE;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_VIA;
-import static org.kaazing.gateway.transport.http.HttpStatus.CLIENT_NOT_FOUND;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_FOR;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_HOST;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_PROTO;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_SERVER;
-import static org.kaazing.gateway.transport.http.HttpStatus.INFO_SWITCHING_PROTOCOLS;
 
 class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
@@ -105,7 +99,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         USE_FORWARDED_VALUES = Collections.unmodifiableSet(set);
     }
 
-    private URI connectURI;
+    private String connectURI;
     private String useForwarded;
     private boolean rewriteCookieDomain;
     private boolean rewriteCookiePath;
@@ -117,10 +111,10 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
     void init() {
         ServiceContext serviceContext = getServiceContext();
 
-        Collection<URI> acceptURIs = serviceContext.getAccepts();
-        Collection<URI> connectURIs = serviceContext.getConnects();
+        Collection<String> acceptURIs = serviceContext.getAccepts();
+        Collection<String> connectURIs = serviceContext.getConnects();
 
-        URI acceptURI = acceptURIs.iterator().next();
+        String acceptURI = acceptURIs.iterator().next();
         connectURI = connectURIs.iterator().next();
 
         validateProperties(serviceContext);

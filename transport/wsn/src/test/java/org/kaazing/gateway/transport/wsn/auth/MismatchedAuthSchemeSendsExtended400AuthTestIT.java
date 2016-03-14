@@ -19,7 +19,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.FileInputStream;
-import java.net.URI;
 import java.security.KeyStore;
 
 import org.junit.Rule;
@@ -50,7 +49,7 @@ public class MismatchedAuthSchemeSendsExtended400AuthTestIT {
 
 			GatewayConfiguration configuration = new GatewayConfigurationBuilder()
 					.service()
-			            .accept(URI.create("ws://localhost:8001/echoAuth"))
+			            .accept("ws://localhost:8001/echoAuth")
 			            .type("echo")
 			            .realmName("demo")
 			            .authorization()

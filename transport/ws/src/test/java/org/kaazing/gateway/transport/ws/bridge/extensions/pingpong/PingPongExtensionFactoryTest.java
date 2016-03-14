@@ -17,7 +17,6 @@ package org.kaazing.gateway.transport.ws.bridge.extensions.pingpong;
 
 import static org.junit.Assert.assertEquals;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,7 +57,7 @@ public class PingPongExtensionFactoryTest {
 
     @Before
     public void setUp() {
-        URI addressURI = URI.create("ws://localhost:2020/");
+        String addressURI = "ws://localhost:2020/";
         Map<String, Object> options = new HashMap<>();
         options.put("ws.inactivityTimeout", 2500L);
         address = (WsResourceAddress) ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(addressURI, options);

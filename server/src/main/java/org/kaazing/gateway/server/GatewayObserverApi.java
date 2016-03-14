@@ -15,6 +15,7 @@
  */
 package org.kaazing.gateway.server;
 
+import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.ServiceContext;
 
 /**
@@ -86,12 +87,14 @@ public interface GatewayObserverApi {
 
     /**
      * Notification that the gateway is starting
+     * @param gatewayContext
      */
-    void startingGateway();
+    void startingGateway(GatewayContext gatewayContext);
 
     /**
      * Notification that the gateway is stopped
+     * @param gatewayContext
      */
-    void stoppedGateway();
+    void stoppedGateway(GatewayContext gatewayContext);
 
 }

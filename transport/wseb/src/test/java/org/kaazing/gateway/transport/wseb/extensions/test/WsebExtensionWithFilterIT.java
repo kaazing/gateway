@@ -19,7 +19,6 @@ import static org.kaazing.gateway.util.Utils.asByteArray;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.ProtocolException;
-import java.net.URI;
 import java.nio.ByteBuffer;
 
 import org.apache.mina.core.filterchain.IoFilter;
@@ -52,7 +51,7 @@ public class WsebExtensionWithFilterIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("wse://localhost:8000/echo"))
+                            .accept("wse://localhost:8000/echo")
                             .type("echo")
                         .done()
                     .done();

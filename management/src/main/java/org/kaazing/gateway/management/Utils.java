@@ -15,10 +15,11 @@
  */
 package org.kaazing.gateway.management;
 
-import java.net.URI;
 import java.util.List;
 import java.util.concurrent.Future;
+
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
 import org.kaazing.gateway.transport.AbstractBridgeConnector;
 import org.kaazing.gateway.transport.wseb.WsebSession;
@@ -58,8 +59,8 @@ public class Utils {
      * we're using BridgeSession.LOCAL_ADDRESS.get(session) to retrieve the address to send to management.
      */
     public static String getSessionTypeName(ResourceAddress address) {
-        URI externalURI = address.getExternalURI();
-        return externalURI.getScheme();
+        String externalURI = address.getExternalURI();
+        return URIUtils.getScheme(externalURI);
     }
 
     /**

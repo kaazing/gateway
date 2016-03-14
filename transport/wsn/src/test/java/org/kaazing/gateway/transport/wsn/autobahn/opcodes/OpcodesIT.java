@@ -17,8 +17,6 @@ package org.kaazing.gateway.transport.wsn.autobahn.opcodes;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -36,7 +34,7 @@ public class OpcodesIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("ws://localhost:8555/echo"))
+                            .accept("ws://localhost:8555/echo")
                             .type("echo")
                         .done()
                     .done();

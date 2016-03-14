@@ -22,7 +22,6 @@ import static org.kaazing.test.util.ITUtil.createRuleChain;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.net.URI;
 import java.net.URL;
 import java.security.KeyStore;
 
@@ -81,8 +80,8 @@ public class HttpProxySecureIT {
         GatewayConfiguration configuration =
                 new GatewayConfigurationBuilder()
                     .service()
-                        .accept(URI.create("https://localhost:8110"))
-                        .connect(URI.create("https://localhost:8080"))
+                        .accept("https://localhost:8110")
+                        .connect("https://localhost:8080")
                         .connectOption("ssl.encryption", "disabled")
                         .type("http.proxy")
                         .connectOption("http.keepalive", "disabled")

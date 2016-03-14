@@ -21,7 +21,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
-import java.net.URI;
 import java.security.KeyStore;
 import java.util.Collections;
 import java.util.HashMap;
@@ -239,7 +238,7 @@ public class WsnBindingsTest {
         final String connectURIString = "wsn://localhost:8000/echo";
         final ResourceAddress bindAddress =
                 addressFactory.newResourceAddress(
-                        URI.create(connectURIString),
+                        connectURIString,
                         acceptOptions);
 
         final IoHandler ioHandler = new IoHandlerAdapter();
@@ -269,7 +268,7 @@ public class WsnBindingsTest {
         final String connectURIString = "wsn+ssl://localhost:8000/echo";
         final ResourceAddress bindAddress =
                 addressFactory.newResourceAddress(
-                        URI.create(connectURIString),
+                        connectURIString,
                         acceptOptions);
 
         final IoHandler ioHandler = new IoHandlerAdapter();

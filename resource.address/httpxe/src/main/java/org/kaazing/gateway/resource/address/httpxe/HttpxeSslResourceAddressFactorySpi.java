@@ -18,7 +18,6 @@ package org.kaazing.gateway.resource.address.httpxe;
 import static org.kaazing.gateway.resource.address.ResourceFactories.changeSchemeOnly;
 import static org.kaazing.gateway.resource.address.httpxe.HttpxeResourceAddressFactorySpi.PROTOCOL_NAME;
 
-import java.net.URI;
 import java.util.Map;
 
 import org.kaazing.gateway.resource.address.ResourceFactory;
@@ -46,7 +45,7 @@ public class HttpxeSslResourceAddressFactorySpi extends HttpsResourceAddressFact
     }
 
     @Override
-    protected void setAlternateOption(URI location,
+    protected void setAlternateOption(String location,
                                       ResourceOptions options,
                                       Map<String, Object> optionsByName) {
         // do not make alternates for httpxe addresses

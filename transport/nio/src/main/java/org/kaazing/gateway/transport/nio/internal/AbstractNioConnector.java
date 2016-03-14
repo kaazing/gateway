@@ -49,8 +49,8 @@ import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.IoSessionAdapterEx;
-import org.kaazing.gateway.transport.NamedPipeAddress;
 import org.kaazing.gateway.transport.LoggingFilter;
+import org.kaazing.gateway.transport.NamedPipeAddress;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.filterchain.DefaultIoFilterChain;
 import org.kaazing.mina.core.service.IoConnectorEx;
@@ -243,7 +243,7 @@ public abstract class AbstractNioConnector implements BridgeConnector {
         String transportName = getTransportName();
         String addressFormat = "%s://%s";
         String pipeName = namedPipeAddress.getPipeName();
-        URI transport = URI.create(format(addressFormat, transportName, pipeName));
+        String transport = format(addressFormat, transportName, pipeName);
         return addressFactory.newResourceAddress(transport, nextProtocol);
     }
     
@@ -253,7 +253,7 @@ public abstract class AbstractNioConnector implements BridgeConnector {
         String hostAddress = inetAddress.getHostAddress();
         String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
         int port = inetSocketAddress.getPort();
-        URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
+        String transport = format(addressFormat, transportName, hostAddress, port);
         return addressFactory.newResourceAddress(transport, nextProtocol);
     }
     
@@ -438,7 +438,7 @@ public abstract class AbstractNioConnector implements BridgeConnector {
                                                                final String transportName) {
                         String addressFormat = "%s://%s";
                         String pipeName = namedPipeAddress.getPipeName();
-                        URI transport = URI.create(format(addressFormat, transportName, pipeName));
+                        String transport = format(addressFormat, transportName, pipeName);
                         return addressFactory.newResourceAddress(transport);
                     }
 
@@ -448,7 +448,7 @@ public abstract class AbstractNioConnector implements BridgeConnector {
                         String hostAddress = inetAddress.getHostAddress();
                         String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
                         int port = inetSocketAddress.getPort();
-                        URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
+                        String transport = format(addressFormat, transportName, hostAddress, port);
                         return addressFactory.newResourceAddress(transport);
                     }
 

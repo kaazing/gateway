@@ -17,7 +17,6 @@ package org.kaazing.gateway.resource.address.sse;
 
 import static org.kaazing.gateway.resource.address.ResourceFactories.changeSchemeOnly;
 
-import java.net.URI;
 import java.util.Map;
 
 import org.kaazing.gateway.resource.address.ResourceFactory;
@@ -39,7 +38,7 @@ public class SseHttpxeResourceAddressFactorySpi extends SseResourceAddressFactor
     }
 
     @Override
-    protected void setAlternateOption(URI location,
+    protected void setAlternateOption(String location,
                                       ResourceOptions options,
                                       Map<String, Object> optionsByName) {
         // no-op (no alternate addresses for this scheme)

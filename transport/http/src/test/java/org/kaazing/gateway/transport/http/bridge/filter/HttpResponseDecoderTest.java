@@ -20,11 +20,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -199,11 +199,11 @@ public class HttpResponseDecoderTest {
         }});
 
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-        ResourceAddress address = addressFactory.newResourceAddress(URI.create("http://localhost:4232/"));
-        ResourceAddress remoteAddress = addressFactory.newResourceAddress(URI.create("http://localhost:8080/"));
+        ResourceAddress address = addressFactory.newResourceAddress("http://localhost:4232/");
+        ResourceAddress remoteAddress = addressFactory.newResourceAddress("http://localhost:8080/");
 
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
-        DefaultHttpSession httpSession = new DefaultHttpSession(httpService, processor, address, remoteAddress, session, null);
+        DefaultHttpSession httpSession = new DefaultHttpSession(httpService, processor, address, remoteAddress, session, null, new Properties());
         httpSession.setMethod(HttpMethod.HEAD);
         HttpConnector.HTTP_SESSION_KEY.set(session, httpSession);
         ProtocolDecoder decoder = new HttpResponseDecoder();

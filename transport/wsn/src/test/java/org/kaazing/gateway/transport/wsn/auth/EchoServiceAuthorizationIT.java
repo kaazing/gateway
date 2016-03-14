@@ -19,7 +19,6 @@ import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.net.URI;
 import java.security.KeyStore;
 
 import org.junit.Rule;
@@ -60,11 +59,11 @@ public class EchoServiceAuthorizationIT {
                         .webRootDirectory(new File("src/test/webapp"))
                         .property(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY,"src/test/resources/gateway/conf")
                         .service()
-                            .accept(URI.create(ECHO_SERVICE_ACCEPT))
+                            .accept(ECHO_SERVICE_ACCEPT)
                             .type("echo")
                         .done()
                         .service()
-                            .accept(URI.create(APP_BASIC_AUTH_ECHO_SERVICE_ACCEPT))
+                            .accept(APP_BASIC_AUTH_ECHO_SERVICE_ACCEPT)
                             .type("echo")
                             .realmName("application-basic")
                             .crossOrigin()
@@ -75,7 +74,7 @@ public class EchoServiceAuthorizationIT {
                             .done()
                         .done()
                         .service()
-                            .accept(URI.create(APP_TOKEN_AUTH_ECHO_SERVICE_ACCEPT))
+                            .accept(APP_TOKEN_AUTH_ECHO_SERVICE_ACCEPT)
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("http://localhost:8001")

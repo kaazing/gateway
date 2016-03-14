@@ -48,7 +48,7 @@ public final class SslResourceAddress extends ResourceAddress {
     private boolean needClientAuth;
     private KeySelector keySelector;
 
-	SslResourceAddress(ResourceAddressFactorySpi factory, URI original, URI resource) {
+	SslResourceAddress(ResourceAddressFactorySpi factory, String original, URI resource) {
 		super(factory, original, resource);
 	}
 
