@@ -55,6 +55,7 @@ write "\r\n"
 
 # Response 1
 read "HTTP/1.1 200 OK\r\n"
+read "Cache-Control: max-age=0\r\n"
 read "Content-Length: 2777\r\n"
 read /Date: .*/ "\r\n"
 read /ETag: .*/ "\r\n"

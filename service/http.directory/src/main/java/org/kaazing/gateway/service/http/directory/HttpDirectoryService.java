@@ -134,7 +134,7 @@ public class HttpDirectoryService implements Service {
     private List<PatternCacheControl> buildPatternsList(ServiceProperties properties) {
         Map<String, PatternCacheControl> patterns = new LinkedHashMap<String, PatternCacheControl>();
         List<ServiceProperties> locationsList = properties.getNested("location");
-        if (locationsList.size() != 0) {
+        if (locationsList != null && locationsList.size() != 0) {
             for (ServiceProperties location : locationsList) {
                 String directiveList = location.get("cache-control");
                 String[] patternList = location.get("patterns").split("\\s+");
