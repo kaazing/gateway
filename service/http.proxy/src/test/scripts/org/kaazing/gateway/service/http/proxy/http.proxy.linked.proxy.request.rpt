@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-connect http://localhost:8111/a/foo/
+connect http://localhost:8010/client
 connected
 
 write method "GET"
@@ -34,27 +34,4 @@ read "Hello world\r\n"
 read closed
 
 close
-closed
-
-
-accept http://localhost:8081/b/c/foo/
-accepted
-connected
-
-read method "GET"
-read parameter "name" "value"
-read header "Via" /1.1 kaazing-.+/
-read header "User-Agent" "curl/7.37.1"
-read header "Host" "localhost:8081"
-read header "Forwarded" "for=127.0.0.1"
-read header "Accept" "*/*"
-read closed
-
-write status "200" "OK"
-write version "HTTP/1.1"
-write header "Content-Type" "text/html"
-write header content-length
-write "Hello world\r\n"
-write close
-
 closed

@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -60,9 +61,7 @@ import org.slf4j.LoggerFactory;
 class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("service.http.proxy");
-    
-    private static final String VIA_HEADER_VALUE = "1.1 kaazing";
-
+    private static final String VIA_HEADER_FORMATTER = "1.1 kaazing-%s";
     private static final Set KNOWN_SIMPLE_PROPERTIES;
     static {
         Set<String> set = new HashSet<>();
@@ -71,7 +70,6 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         set.add("rewrite-location");
         KNOWN_SIMPLE_PROPERTIES = Collections.unmodifiableSet(set);
     }
-
     private static final Set KNOWN_NESTED_PROPERTIES;
     static {
         Set<String> set = new HashSet<>();
@@ -81,7 +79,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         KNOWN_NESTED_PROPERTIES = Collections.unmodifiableSet(set);
     }
 
-
+    private final String viaHeader;
     private String connectURI;
     private boolean rewriteCookieDomain;
     private boolean rewriteCookiePath;
@@ -89,6 +87,10 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
     private Map<String, String> cookieDomainMap;
     private Map<String, String> cookiePathMap;
     private Map<String, String> locationMap;
+
+    public HttpProxyServiceHandler() {
+        viaHeader = String.format(VIA_HEADER_FORMATTER, UUID.randomUUID());
+    }
 
     void init() {
         ServiceContext serviceContext = getServiceContext();
@@ -167,6 +169,9 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
                 acceptSession.close(false);
                 return;
             }
+            if (!validateNoLoopDetected(acceptSession)) {
+                return;
+            }
 
             ConnectSessionInitializer sessionInitializer = new ConnectSessionInitializer(acceptSession);
             ConnectFuture future = getServiceContext().connect(connectURI, getConnectHandler(), sessionInitializer);
@@ -183,11 +188,29 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         return requestPath.startsWith(acceptPath);
     }
 
+
+    /**
+     * Helper method performing loop detection
+     * @param acceptSession - session parameter
+     * @return - whether a loop was detected or not
+     */
+    private boolean validateNoLoopDetected(DefaultHttpSession acceptSession) {
+        List<String> viaHeaders = acceptSession.getReadHeaders(HEADER_VIA);
+        if (viaHeaders != null && viaHeaders.stream().anyMatch(h -> h.equals(viaHeader))) {
+                LOGGER.warn("Connection to " + getConnectURIs().iterator().next() +
+                        " failed due to loop detection [" + acceptSession + "->]");
+                acceptSession.setStatus(HttpStatus.SERVER_LOOP_DETECTED);
+                acceptSession.close(true);
+                return false;
+            }
+        return true;
+    }
+
     /*
      * Initializer for connect session. It adds the processed accept session headers
      * on the connect session
      */
-    private static class ConnectSessionInitializer implements IoSessionInitializer<ConnectFuture> {
+    private class ConnectSessionInitializer implements IoSessionInitializer<ConnectFuture> {
         private final DefaultHttpSession acceptSession;
 
         ConnectSessionInitializer(DefaultHttpSession acceptSession) {
@@ -387,7 +410,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
      * Write all (except hop-by-hop) request headers from accept session to connect session. If the request is an
      * upgrade one, let the Upgrade header go through as this service supports upgrade
      */
-    private static void processRequestHeaders(HttpAcceptSession acceptSession, HttpConnectSession connectSession) {
+    private void processRequestHeaders(HttpAcceptSession acceptSession, HttpConnectSession connectSession) {
         boolean upgrade = processHopByHopHeaders(acceptSession, connectSession);
 
         // Add Connection: upgrade or Connection: close header
@@ -401,8 +424,8 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             }
         }
 
-        // Add Via: 1.1 kaazing header
-        connectSession.addWriteHeader(HEADER_VIA, VIA_HEADER_VALUE);
+        // Add Via: 1.1 kaazing + uuid header
+        connectSession.addWriteHeader(HEADER_VIA, viaHeader);
     }
     
     /*
