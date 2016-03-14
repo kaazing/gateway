@@ -15,8 +15,6 @@
  */
 package org.kaazing.gateway.transport.wseb;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -35,12 +33,12 @@ public class DuplicateBindTest {
                     .service()
                         .name("echo1")
                         .type("echo")
-                        .accept(URI.create("wse://localhost:8000/"))
+                        .accept("wse://localhost:8000/")
                     .done()
                     .service()
                         .name("echo2")
                         .type("echo")
-                        .accept(URI.create("wse://localhost:8000/"))
+                        .accept("wse://localhost:8000/")
                     .done()
                     .done();
             // @formatter:on

@@ -40,6 +40,8 @@ import static org.kaazing.gateway.transport.http.HttpStatus.CLIENT_NOT_FOUND;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolHeaderFilter.PROTOCOL_HTTPXE_1_1;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter.PROTOCOL_HTTP_1_1;
 import static org.kaazing.gateway.transport.http.resource.HttpDynamicResourceFactory.newHttpDynamicResourceFactory;
+import static org.kaazing.gateway.util.InternalSystemProperty.HTTPXE_SPECIFICATION;
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -47,6 +49,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -66,6 +69,7 @@ import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
 import org.kaazing.gateway.transport.Bindings;
@@ -107,6 +111,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
     public static final String MERGE_REQUEST_LOGGER_NAME = format("%s.mergeRequest", LOGGER_NAME);
     public static final AttributeKey SERVICE_REGISTRATION_KEY = new AttributeKey(HttpAcceptor.class, "serviceRegistration");
 
+    public static final TypedAttributeKey<Boolean> HTTPXE_SPEC_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "httpxeSpec");
     static final TypedAttributeKey<DefaultHttpSession> SESSION_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "session");
 
     private final Map<String, Set<HttpAcceptFilter>> acceptFiltersByProtocol;
@@ -119,9 +124,19 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
     private SchedulerProvider schedulerProvider;
 
+    private Properties configuration;
+
+    private boolean httpxeSpecCompliant;
+
     @Resource(name = "schedulerProvider")
     public void setSchedulerProvider(SchedulerProvider provider) {
         this.schedulerProvider = provider;
+    }
+
+    @Resource(name = "configuration")
+    public void setConfiguration(Properties configuration) {
+        this.configuration = configuration;
+        httpxeSpecCompliant = HTTPXE_SPECIFICATION.getBooleanProperty(configuration);
     }
 
     public HttpAcceptor() {
@@ -186,8 +201,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
             private ResourceAddress getResourcesAddress(HttpBinding newHttpBinding) {
                 ResourceAddress bindAddress = newHttpBinding.bindAddress();
-                URI location = bindAddress.getExternalURI();
-                URI resourcesURI = location.resolve("/;resource");
+                String location = bindAddress.getExternalURI();
+                String resourcesURI = URIUtils.resolve(location, "/;resource");
                 ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
                 options.setOption(TRANSPORT_URI, bindAddress.getOption(TRANSPORT_URI));
                 options.setOption(TRANSPORT, bindAddress.getOption(TRANSPORT));
@@ -310,6 +325,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
         @Override
         protected void doSessionCreated(IoSessionEx session) throws Exception {
+            HTTPXE_SPEC_KEY.set(session, httpxeSpecCompliant);
             IoFilterChain filterChain = session.getFilterChain();
             addBridgeFilters(filterChain);
         }
@@ -438,7 +454,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                                 session,
                                 new HttpBufferAllocator(parentAllocator),
                                 httpRequest,
-                                localAddress.getResource());
+                                localAddress.getResource(),
+                                configuration);
 
                         IoHandler handler = getHandler(newHttpSession.getLocalAddress());
                         if ( handler == null && logger.isTraceEnabled() ) {

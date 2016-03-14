@@ -23,7 +23,6 @@ import static org.kaazing.gateway.transport.wsn.WsnSession.SESSION_KEY;
 
 import java.io.IOException;
 import java.net.ConnectException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -47,6 +46,7 @@ import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.AbstractBridgeConnector;
 import org.kaazing.gateway.transport.BridgeConnector;
@@ -326,10 +326,10 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 // emulation sends same-origin header
                 // TODO: determine appropriate HTML5 Origin header for desktop
                 // clients
-                URI resource = wsnConnectAddress.getExternalURI();
-                Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(resource.getScheme());
+                String resource = wsnConnectAddress.getExternalURI();
+                Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(URIUtils.getScheme(resource));
                 String wsScheme = protocol.isSecure() ? "https" : "http";
-                String origin = wsScheme + "://" + resource.getAuthority();
+                String origin = wsScheme + "://" + URIUtils.getAuthority(resource);
 
                 // note: WebSocket Version 13 upgrades to "websocket" (not "WebSocket")
                 // see http://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-13

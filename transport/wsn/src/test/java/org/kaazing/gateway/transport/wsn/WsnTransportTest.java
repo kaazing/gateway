@@ -153,7 +153,7 @@ public class WsnTransportTest {
     @Test
     public void connectorShouldReceiveMessageFromAcceptor() throws Exception {
 
-        URI location = URI.create("ws://localhost:8000/echo");
+        String location = "ws://localhost:8000/echo";
         Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
         ResourceAddress address = addressFactory.newResourceAddress(location, addressOptions);
         final CountDownLatch acceptSessionClosed = new CountDownLatch(1);
@@ -246,7 +246,7 @@ public class WsnTransportTest {
     @Test
     public void connectorShouldWriteAndReceiveMessage() throws Exception {
 
-        URI location = URI.create("wsn://localhost:8000/echo");
+        String location = "wsn://localhost:8000/echo";
         Map<String, Object> addressOptions = Collections.emptyMap(); // Collections.<String,
                                                                                       // Object>singletonMap("http.transport",
                                                                                       // URI.create("pipe://internal"));

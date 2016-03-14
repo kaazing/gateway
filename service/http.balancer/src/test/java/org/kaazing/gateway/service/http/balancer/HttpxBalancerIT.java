@@ -19,8 +19,6 @@ package org.kaazing.gateway.service.http.balancer;
 
 import static org.junit.rules.RuleChain.outerRule;
 
-import java.io.File;
-import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Ignore;
@@ -29,12 +27,12 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.kaazing.k3po.junit.annotation.Specification;
-import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.gateway.server.test.GatewayRule;
-import org.kaazing.test.util.MethodExecutionTrace;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.test.util.MethodExecutionTrace;
 @Ignore//https://github.com/k3po/k3po/issues/297
 public class HttpxBalancerIT {
 
@@ -49,7 +47,7 @@ public class HttpxBalancerIT {
                     // balancer service to echo
                     .service()
                         .type("balancer")
-                        .accept(URI.create("ws://localhost:8001/echo"))
+                        .accept("ws://localhost:8001/echo")
                         .crossOrigin()
                             .allowOrigin("*")
                         .done()
@@ -57,8 +55,8 @@ public class HttpxBalancerIT {
                     // echo service
                     .service()
                         .type("echo")
-                        .accept(URI.create("ws://localhost:8001/echo1"))
-                        .balance(URI.create("ws://localhost:8001/echo"))
+                        .accept("ws://localhost:8001/echo1")
+                        .balance("ws://localhost:8001/echo")
                         .crossOrigin()
                             .allowOrigin("*")
                         .done()

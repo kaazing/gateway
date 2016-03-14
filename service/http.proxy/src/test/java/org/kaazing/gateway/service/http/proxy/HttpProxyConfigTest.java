@@ -16,20 +16,19 @@
 
 package org.kaazing.gateway.service.http.proxy;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URI;
+import java.net.URL;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.test.Gateway;
-import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.test.util.MethodExecutionTrace;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.URI;
-import java.net.URL;
 
 public class HttpProxyConfigTest {
 
@@ -56,8 +55,8 @@ public class HttpProxyConfigTest {
                 new GatewayConfigurationBuilder()
                         .service()
                             .name("simple")
-                            .accept(URI.create("http://localhost:8110"))
-                            .connect(URI.create("http://localhost:8080"))
+                            .accept("http://localhost:8110")
+                            .connect("http://localhost:8080")
                             .type("http.proxy")
                             .property("foo", "enabled")
                             .property("bar", "100")
@@ -79,8 +78,8 @@ public class HttpProxyConfigTest {
                 new GatewayConfigurationBuilder()
                         .service()
                             .name("nested")
-                            .accept(URI.create("http://localhost:8110"))
-                            .connect(URI.create("http://localhost:8080"))
+                            .accept("http://localhost:8110")
+                            .connect("http://localhost:8080")
                             .type("http.proxy")
                             .nestedProperty("cookie-domain-mapping1")
                                 .property("from", "a.b")

@@ -15,8 +15,6 @@
  */
 package org.kaazing.gateway.resource.address.tcp;
 
-import java.net.URI;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -58,7 +56,7 @@ public class TcpResourceAddressFactorySpiPreferIPV4Test {
         thrown.expectMessage("Option java.net.preferIPv4Stack is set to true and an IPv6 address was provided in the config."
                 + " No addresses available for binding for URI: tcp://[::1]:8000");
 
-        factory.newResourceAddress(URI.create("tcp://[::1]:8000"));
+        factory.newResourceAddress("tcp://[::1]:8000");
 
     }
 
@@ -67,7 +65,7 @@ public class TcpResourceAddressFactorySpiPreferIPV4Test {
         // set the IPV4 flag to false
         System.setProperty(JAVA_NET_PREFER_IPV4_STACK, "false");
 
-        factory.newResourceAddress(URI.create("tcp://[::1]:8000"));
+        factory.newResourceAddress("tcp://[::1]:8000");
 
     }
 

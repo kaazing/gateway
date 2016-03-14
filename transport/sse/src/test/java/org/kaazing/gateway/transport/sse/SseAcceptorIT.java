@@ -22,7 +22,6 @@ import static org.jmock.lib.script.ScriptedAction.perform;
 import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.INJECTABLE_HEADERS;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
@@ -95,7 +94,7 @@ public class SseAcceptorIT {
         tcpAcceptor.setResourceAddressFactory(addressFactory);
         tcpAcceptor.setBridgeServiceFactory(serviceFactory);
 
-        URI location = URI.create("sse://localhost:8000/path");
+        String location = "sse://localhost:8000/path";
         Map<String, Object> options = new HashMap<>();
         options.put(format("http.%s", INJECTABLE_HEADERS.name()), emptySet());
         ResourceAddress sseAddress = addressFactory.newResourceAddress(location, options);

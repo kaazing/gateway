@@ -19,7 +19,6 @@ import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.net.URI;
 import java.security.KeyStore;
 
 import org.junit.Rule;
@@ -51,7 +50,7 @@ public class FlashWseEmulatedResponseOnChromeTestIT {
 
 			GatewayConfiguration configuration = new GatewayConfigurationBuilder()
 	                .service()
-	                    .accept(URI.create("wse://localhost:8003/echo8003"))
+	                    .accept("wse://localhost:8003/echo8003")
 	                    .type("echo")
 	                    .crossOrigin()
 	                        .allowOrigin("*")

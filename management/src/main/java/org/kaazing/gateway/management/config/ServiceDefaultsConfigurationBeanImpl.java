@@ -17,7 +17,6 @@ package org.kaazing.gateway.management.config;
 
 import static java.util.Arrays.asList;
 
-import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -100,22 +99,22 @@ public class ServiceDefaultsConfigurationBeanImpl implements ServiceDefaultsConf
                     jsonOptions.put("http.keepalive.timeout", httpKeepAlive);
                 }
 
-                URI pipeTransport = (URI) acceptOptions.remove("pipe.transport");
+                String pipeTransport = (String) acceptOptions.remove("pipe.transport");
                 if (pipeTransport != null) {
                     jsonOptions.put("pipe.transport", pipeTransport.toString());
                 }
 
-                URI tcpTransport = (URI) acceptOptions.remove("tcp.transport");
+                String tcpTransport = (String) acceptOptions.remove("tcp.transport");
                 if (tcpTransport != null) {
                     jsonOptions.put("tcp.transport", tcpTransport.toString());
                 }
 
-                URI sslTransport = (URI) acceptOptions.remove("ssl.transport");
+                String sslTransport = (String) acceptOptions.remove("ssl.transport");
                 if (sslTransport != null) {
                     jsonOptions.put("ssl.transport", sslTransport.toString());
                 }
 
-                URI httpTransport = (URI) acceptOptions.remove("http.transport");
+                String httpTransport = (String) acceptOptions.remove("http.transport");
                 if (httpTransport != null) {
                     jsonOptions.put("http.transport", httpTransport.toString());
                 }
@@ -177,22 +176,22 @@ public class ServiceDefaultsConfigurationBeanImpl implements ServiceDefaultsConf
                     jsonOptions.put("ws.version", wsVersion);
                 }
 
-                URI pipeTransport = (URI) connectOptions.remove("pipe.transport");
+                String pipeTransport = (String) connectOptions.remove("pipe.transport");
                 if (pipeTransport != null) {
                     jsonOptions.put("pipe.transport", pipeTransport.toString());
                 }
 
-                URI tcpTransport = (URI) connectOptions.remove("tcp.transport");
+                String tcpTransport = (String) connectOptions.remove("tcp.transport");
                 if (tcpTransport != null) {
                     jsonOptions.put("tcp.transport", tcpTransport.toString());
                 }
 
-                URI sslTransport = (URI) connectOptions.remove("ssl.transport");
+                String sslTransport = (String) connectOptions.remove("ssl.transport");
                 if (sslTransport != null) {
                     jsonOptions.put("ssl.transport", sslTransport.toString());
                 }
 
-                URI httpTransport = (URI) connectOptions.remove("http.transport");
+                String httpTransport = (String) connectOptions.remove("http.transport");
                 if (httpTransport != null) {
                     jsonOptions.put("http.transport", httpTransport.toString());
                 }

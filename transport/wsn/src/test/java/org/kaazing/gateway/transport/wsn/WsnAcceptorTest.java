@@ -15,7 +15,10 @@
  */
 package org.kaazing.gateway.transport.wsn;
 
-import java.net.URI;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertTrue;
+import static org.kaazing.test.util.ITUtil.timeoutRule;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,10 +44,6 @@ import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.future.UnbindFuture;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertTrue;
-import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 public class WsnAcceptorTest {
 
@@ -136,7 +135,7 @@ public class WsnAcceptorTest {
         final String connectURIString = "ws://localhost:8000/echo";
         final ResourceAddress bindAddress =
                 addressFactory.newResourceAddress(
-                        URI.create(connectURIString),
+                        connectURIString,
                         acceptOptions);
 
         final IoHandler ioHandler = new IoHandlerAdapter();
@@ -160,11 +159,11 @@ public class WsnAcceptorTest {
     @Test
     public void shouldBeAbleToBindAndUnbindWsxAndWsnAddresses() throws Exception {
 
-        URI location = URI.create("wsn://localhost:8000/echo");
+        String location = "wsn://localhost:8000/echo";
         Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
         ResourceAddress wsnAddress = addressFactory.newResourceAddress(location, addressOptions);
 
-        location = URI.create("wsx://localhost:8000/echo");
+        location = "wsx://localhost:8000/echo";
         addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
         ResourceAddress wsxAddress = addressFactory.newResourceAddress(location, addressOptions);
 
@@ -182,11 +181,11 @@ public class WsnAcceptorTest {
 
     @Test
     public void shouldBindWsxAddressesWithTcpBind() throws Exception {
-        URI uri1 = URI.create("wsx://localhost:8001/");
+        String uri1 = "wsx://localhost:8001/";
         HashMap<String, Object> options1 = new HashMap<String, Object>();
         options1.put("tcp.bind", "7777");
 
-        URI uri2 = URI.create("wsx://localhost:8001/");
+        String uri2 = "wsx://localhost:8001/";
         HashMap<String, Object> options2 = new HashMap<String, Object>();
 
         ResourceAddress address1 = addressFactory.newResourceAddress(uri1, options1);

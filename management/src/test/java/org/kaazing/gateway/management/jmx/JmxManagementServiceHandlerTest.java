@@ -18,8 +18,6 @@ package org.kaazing.gateway.management.jmx;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,10 +28,10 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 
 public class JmxManagementServiceHandlerTest {
 
-    private final URI FRONTEND_URI_1 = URI.create("tcp://localhost:8123");
-    private final URI FRONTEND_URI_2 = URI.create("tcp://localhost:8124");
-    private final URI BACKEND_URI_1 = URI.create("tcp://localhost:9123");
-    private final URI BACKEND_URI_2 = URI.create("tcp://localhost:9124");
+    private final String FRONTEND_URI_1 = "tcp://localhost:8123";
+    private final String FRONTEND_URI_2 = "tcp://localhost:8124";
+    private final String BACKEND_URI_1 = "tcp://localhost:9123";
+    private final String BACKEND_URI_2 = "tcp://localhost:9124";
     private final String PROXY = "proxy";
 
     @Rule

@@ -18,8 +18,6 @@ package org.kaazing.gateway.management.impl;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -29,7 +27,7 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 
 public class ServiceDefaultsConfigurationBeanImplTest {
 
-    private final URI SNMP_SERVICE_ACCEPT_URL = URI.create("ws://localhost:8000/snmp");
+    private final String SNMP_SERVICE_ACCEPT_URL = "ws://localhost:8000/snmp";
     private final String SNMP_SERVICE_NAME = "SNMP Management Service";
     private final String SNMP_SERVICE_TYPE = "management.snmp";
 

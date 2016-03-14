@@ -82,7 +82,7 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void parseNamedOptions0(URI location,
+    protected void parseNamedOptions0(String location,
                                       ResourceOptions options,
                                       Map<String, Object> optionsByName) {
 
@@ -150,7 +150,7 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
         return this.alternateResourceFactories;
     }
 
-    protected void setAlternateOption(URI location,
+    protected void setAlternateOption(String location,
                                       ResourceOptions options,
                                       Map<String, Object> optionsByName) {
 
@@ -176,25 +176,24 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
     }
 
     @Override
-    protected WsResourceAddress newResourceAddress0(URI original, URI location) {
+    protected WsResourceAddress newResourceAddress0(String original, String location) {
 
-        String host = location.getHost();
-        int port = location.getPort();
-        String path = location.getPath();
+        URI uriLocation = URI.create(location);
+        String path = uriLocation.getPath();
 
-        if (host == null) {
+        if (uriLocation.getHost() == null) {
             throw new IllegalArgumentException(format("Missing host in URI: %s", location));
         }
 
-        if (port == -1) {
+        if (uriLocation.getPort() == -1) {
             throw new IllegalArgumentException(format("Missing port in URI: %s", location));
         }
-        
+
         if (path == null || path.length() == 0) {
             throw new IllegalArgumentException(format("Missing path in URI: %s", location));
         }
-        
-        return new WsResourceAddress(this, original, location);
+
+        return new WsResourceAddress(this, original, uriLocation);
     }
 
     @Override

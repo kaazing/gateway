@@ -206,6 +206,18 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         closeTimeout = Utils.parseTimeInterval(WS_CLOSE_TIMEOUT.getProperty(configuration), TimeUnit.MILLISECONDS);
     }
 
+    protected void setIoAlignment0(Thread ioThread, Executor ioExecutor) {
+        transportSession.setIoAlignment(ioThread, ioExecutor);
+        IoSessionEx reader = getReader();
+        if (reader != null) {
+            reader.setIoAlignment(ioThread, ioExecutor);
+        }
+        // No need to align writer here as it gets re-aligned since it is parent session
+        // should we detachReader()/detachWriter() too ?
+
+        super.setIoAlignment0(ioThread, ioExecutor);
+    }
+
     @Override
     public CachingMessageEncoder getMessageEncoder() {
         switch(this.encodeEscapeType) {

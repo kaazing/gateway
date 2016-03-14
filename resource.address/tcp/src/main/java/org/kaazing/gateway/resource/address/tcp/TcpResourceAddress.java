@@ -40,7 +40,7 @@ public final class TcpResourceAddress extends ResourceAddress {
 	private InetSocketAddress bindAddress;
 	private long maximumOutboundRate = MAXIMUM_OUTBOUND_RATE.defaultValue();
 
-	TcpResourceAddress(ResourceAddressFactorySpi factory, URI original, URI resource) {
+	TcpResourceAddress(ResourceAddressFactorySpi factory, String original, URI resource) {
 		super(factory, original, resource);
 	}
 
