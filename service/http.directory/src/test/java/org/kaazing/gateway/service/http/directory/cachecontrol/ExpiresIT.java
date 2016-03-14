@@ -20,7 +20,6 @@ package org.kaazing.gateway.service.http.directory.cachecontrol;
 import static org.junit.rules.RuleChain.outerRule;
 
 import java.io.File;
-import java.net.URI;
 
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -45,7 +44,7 @@ public class ExpiresIT {
                     new GatewayConfigurationBuilder()
                         .webRootDirectory(new File("src/test/webapp"))
                         .service()
-                            .accept(URI.create("http://localhost:8000/"))
+                            .accept("http://localhost:8000/")
                             .type("directory")
                             .property("directory", "/public")
                             .property("welcome-file", "index.html")
