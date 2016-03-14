@@ -42,7 +42,7 @@ public class LimitsSessionTimeoutIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("ws://localhost:8080/echoAuth"))
+                            .accept("ws://localhost:8080/echoAuth")
                             .type("echo")
                             .realmName("demo")
                                 .authorization()

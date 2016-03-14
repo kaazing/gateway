@@ -42,7 +42,7 @@ public class LimitsMaxSize126IT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create(WS_ECHO_SERVICE_ACCEPT))
+                            .accept(WS_ECHO_SERVICE_ACCEPT)
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("*")
