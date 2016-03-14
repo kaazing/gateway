@@ -27,9 +27,6 @@ import javax.security.auth.spi.LoginModule;
 import org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig;
 
 
-/**
- * Created by VStratan on 11-Mar-16.
- */
 public class BasicLoginModuleWithMultiplePrincipalsOnTheSubject implements LoginModule {
 
     private static final String TEST_PRINCIPAL_PASS = "testPrincipalPass";

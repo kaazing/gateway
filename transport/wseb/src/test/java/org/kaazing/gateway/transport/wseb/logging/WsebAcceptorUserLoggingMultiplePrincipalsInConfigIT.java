@@ -41,7 +41,7 @@ import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
  * WsebAcceptorUserLoggingIT - verifies that if multiple Principals are defined in the config
- * only the first one is be used
+ * only the first one is used
  *
  * Logging on different layers:
  * - TCP: hostname:port

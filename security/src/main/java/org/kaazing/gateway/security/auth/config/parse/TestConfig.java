@@ -20,9 +20,6 @@ import org.kaazing.gateway.security.auth.config.UserConfig;
 import java.util.Collection;
 import java.util.HashSet;
 
-/**
- * Created by VStratan on 09-Mar-16.
- */
 public class TestConfig implements UserConfig {
 
     private String name = "TestName";
