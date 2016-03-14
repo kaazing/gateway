@@ -22,6 +22,12 @@ import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_UPGRADE;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_VIA;
 import static org.kaazing.gateway.transport.http.HttpStatus.CLIENT_NOT_FOUND;
 import static org.kaazing.gateway.transport.http.HttpStatus.INFO_SWITCHING_PROTOCOLS;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_FORWARDED;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_FOR;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_HOST;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_PROTO;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_SERVER;
+import static java.lang.String.format;
 
 import java.net.URI;
 import java.util.Collection;
@@ -43,6 +49,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.service.proxy.AbstractProxyAcceptHandler;
@@ -253,7 +260,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
         @Override
         public void operationComplete(ConnectFuture future) {
-            URI connectURI = getConnectURIs().iterator().next();
+            String connectURI = getConnectURIs().iterator().next();
             if (future.isConnected()) {
                 DefaultHttpSession connectSession = (DefaultHttpSession) future.getSession();
 
@@ -475,9 +482,9 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             String protocol = acceptSession.isSecure() ? "https" : "http";
             connectSession.addWriteHeader(HEADER_X_FORWARDED_PROTO, protocol);
 
-            URI externalURI = acceptSession.getLocalAddress().getExternalURI();
-            String host = externalURI.getHost();
-            String port = format("%d", externalURI.getPort());
+            String externalURI = acceptSession.getLocalAddress().getExternalURI();
+            String host = URIUtils.getHost(externalURI);
+            String port = format("%d", URIUtils.getPort(externalURI));
             connectSession.addWriteHeader(HEADER_X_FORWARDED_HOST, format("%s:%s", host, port));
             
             connectSession.addWriteHeader(HEADER_FORWARDED,
