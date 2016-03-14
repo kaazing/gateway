@@ -23,7 +23,6 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.URI;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.mina.core.future.ConnectFuture;
@@ -36,15 +35,12 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeConnectHandler;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
+import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.NamedPipeAddress;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.SocketAddressFactory;
 import org.slf4j.Logger;
 
 public abstract class AbstractBioConnector<T extends SocketAddress> implements BridgeConnector {
-    private static final String FAULT_LOGGING_FILTER = "#fault";
-    private static final String TRACE_LOGGING_FILTER = "#logging";
 
     private IoConnector connector;
     private SocketAddressFactory<T> socketAddressFactory;
@@ -64,14 +60,7 @@ public abstract class AbstractBioConnector<T extends SocketAddress> implements B
         connector.setHandler(new BridgeConnectHandler() {
             @Override
             public void sessionCreated(IoSession session) throws Exception {
-                if (logger.isTraceEnabled()) {
-                    session.getFilterChain().addLast(getTransportName() + TRACE_LOGGING_FILTER,
-                            new ObjectLoggingFilter(logger, getTransportName() + "#%s"));
-                } else if (logger.isDebugEnabled()) {
-                    session.getFilterChain().addLast(getTransportName() + FAULT_LOGGING_FILTER,
-                            new ExceptionLoggingFilter(logger, getTransportName() + "#%s"));
-                }
-
+                LoggingFilter.addIfNeeded(logger, session, getTransportName());
                 super.sessionCreated(session);
             }
         });
@@ -87,9 +76,9 @@ public abstract class AbstractBioConnector<T extends SocketAddress> implements B
 
     @Override
     public void dispose() {
-    	if (connector != null) {
-    		connector.dispose();
-    	}
+        if (connector != null) {
+            connector.dispose();
+        }
     }
 
     @Override
@@ -117,6 +106,7 @@ public abstract class AbstractBioConnector<T extends SocketAddress> implements B
         
         ConnectFuture future;
 
+        final String nextProtocol = remoteAddress.getOption(ResourceAddress.NEXT_PROTOCOL);
         ResourceAddress transport = remoteAddress.getTransport();
         if (transport != null) {
             BridgeConnector connector = bridgeServiceFactory.newBridgeConnector(transport);
@@ -124,7 +114,7 @@ public abstract class AbstractBioConnector<T extends SocketAddress> implements B
                 @Override
                 public void initializeSession(IoSession session, F future) {
                     REMOTE_ADDRESS.set(session, remoteAddress);
-                    setLocalAddressFromSocketAddress(session, getTransportName());
+                    setLocalAddressFromSocketAddress(session, getTransportName(), nextProtocol);
 
                     if (initializer != null) {
                         initializer.initializeSession(session, future);
@@ -143,7 +133,7 @@ public abstract class AbstractBioConnector<T extends SocketAddress> implements B
                     // connectors don't need lookup so set this directly on the session
                     session.setAttribute(BridgeConnectHandler.DELEGATE_KEY, handler);
                     REMOTE_ADDRESS.set(session, remoteAddress);
-                    setLocalAddressFromSocketAddress(session, getTransportName());
+                    setLocalAddressFromSocketAddress(session, getTransportName(), nextProtocol);
 
                     if (initializer != null) {
                         initializer.initializeSession(session, future);
@@ -156,38 +146,36 @@ public abstract class AbstractBioConnector<T extends SocketAddress> implements B
     }
 
     private void setLocalAddressFromSocketAddress(final IoSession session,
-                                                  final String transportName) {
+                                                  final String transportName, String nextProtocol) {
         SocketAddress socketAddress = session.getLocalAddress();
         if (socketAddress instanceof InetSocketAddress) {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
-            ResourceAddress resourceAddress = newResourceAddress(inetSocketAddress,
-                                                                                transportName);
+            ResourceAddress resourceAddress = newResourceAddress(inetSocketAddress, transportName, nextProtocol);
             LOCAL_ADDRESS.set(session, resourceAddress);
         }
         else if (socketAddress instanceof NamedPipeAddress) {
             NamedPipeAddress namedPipeAddress = (NamedPipeAddress) socketAddress;
-            ResourceAddress resourceAddress = newResourceAddress(namedPipeAddress,
-                                                                                transportName);
+            ResourceAddress resourceAddress = newResourceAddress(namedPipeAddress, transportName, nextProtocol);
             LOCAL_ADDRESS.set(session, resourceAddress);
         }
     }
 
-    public  ResourceAddress newResourceAddress(NamedPipeAddress namedPipeAddress,
-                                               final String transportName) {
+    private  ResourceAddress newResourceAddress(NamedPipeAddress namedPipeAddress,
+                                               final String transportName, String nextProtocol) {
         String addressFormat = "%s://%s";
         String pipeName = namedPipeAddress.getPipeName();
-        URI transport = URI.create(format(addressFormat, transportName, pipeName));
-        return resourceAddressFactory.newResourceAddress(transport);
+        String transport = format(addressFormat, transportName, pipeName);
+        return resourceAddressFactory.newResourceAddress(transport, nextProtocol);
     }
 
-    public  ResourceAddress newResourceAddress(InetSocketAddress inetSocketAddress,
-                                               final String transportName) {
+    private  ResourceAddress newResourceAddress(InetSocketAddress inetSocketAddress,
+                                               final String transportName, String nextProtocol) {
         InetAddress inetAddress = inetSocketAddress.getAddress();
         String hostAddress = inetAddress.getHostAddress();
         String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
         int port = inetSocketAddress.getPort();
-        URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
-        return resourceAddressFactory.newResourceAddress(transport);
+        String transport = format(addressFormat, transportName, hostAddress, port);
+        return resourceAddressFactory.newResourceAddress(transport, nextProtocol);
     }
 
     protected abstract IoConnector initConnector();

@@ -21,8 +21,6 @@ package org.kaazing.gateway.service.broadcast;
 import static org.kaazing.gateway.util.Utils.parseBoolean;
 import static org.kaazing.gateway.util.Utils.parsePositiveInteger;
 
-import java.net.URI;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
@@ -36,13 +34,12 @@ import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Gateway service of type "broadcast".
@@ -65,8 +62,7 @@ public class BroadcastService implements Service {
     private ServiceContext serviceContext;
     private Properties configuration;
 
-    private URI acceptURI;
-    private URI connectURI;
+    private String connectURI;
     private int reconnectDelay;
 
     private final ConnectTask connectTask;
@@ -115,17 +111,14 @@ public class BroadcastService implements Service {
         this.handler = new BroadcastServiceHandler(disconnectClientsOnReconnect, maximumScheduledWriteBytes,
                 serviceContext.getLogger());
 
-        Collection<URI> connectURIs = serviceContext.getConnects();
+        Collection<String> connectURIs = serviceContext.getConnects();
         ServiceProperties properties = serviceContext.getProperties();
-        String accept = properties.get("accept");
         String reconnectDelay = properties.get("reconnect.delay");
-        // TODO: change error message when connect property is documented
-        if (accept == null && (connectURIs == null || connectURIs.isEmpty())) {
-            throw new IllegalArgumentException("Missing required property: accept");
+        if ((connectURIs == null || connectURIs.isEmpty())) {
+            throw new IllegalArgumentException("Missing required connect");
         }
 
-        this.acceptURI = (accept != null) ? URI.create(accept) : null;
-        this.connectURI = (connectURIs == null || connectURIs.isEmpty()) ? null : connectURIs.iterator().next();
+        this.connectURI = connectURIs.iterator().next();
         this.reconnectDelay = (reconnectDelay != null) ? Integer.parseInt(reconnectDelay) : 3000;
     }
 
@@ -137,15 +130,12 @@ public class BroadcastService implements Service {
         serviceContext.bindConnectsIfNecessary(serviceContext.getConnects());
 
         try {
-            if (acceptURI != null) {
-                serviceContext.bind(Arrays.asList(acceptURI), handler.getListenHandler());
-            }
-
+            
             if (connectURI != null) {
                 scheduler.schedule(connectTask, 0, TimeUnit.MILLISECONDS);
             }
         } catch (Exception e) {
-            logger.error("Unable to bind to resource: " + acceptURI, e);
+            logger.error("Unable to configure connectURI scheduler: " + e);
         }
     }
 
@@ -167,14 +157,10 @@ public class BroadcastService implements Service {
 
     @Override
     public void quiesce() throws Exception {
-        reconnect.set(true);
+        reconnect.set(false);
 
         if (serviceContext != null) {
-            serviceContext.unbind(serviceContext.getAccepts(), handler);
-
-            if (acceptURI != null) {
-                serviceContext.unbind(Arrays.asList(acceptURI), handler.getListenHandler());
-            }
+            serviceContext.unbind(serviceContext.getAccepts(), handler);           
         }
     }
 

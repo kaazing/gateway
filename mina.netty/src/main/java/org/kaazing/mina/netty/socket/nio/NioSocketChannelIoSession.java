@@ -28,7 +28,6 @@ import org.jboss.netty.channel.socket.nio.NioWorker;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.netty.ChannelIoService;
 import org.kaazing.mina.netty.ChannelIoSession;
-import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 
 /**
  * This session is always used in conjunction with an NioSocketChannel, which necessarily has an associated worker.
@@ -36,9 +35,6 @@ import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
  * is made in another thread).
  */
 public class NioSocketChannelIoSession extends ChannelIoSession<NioSocketChannelConfig> {
-
-    // TODO: move to non-static on NioSocketChannelIoAcceptor / NioSocketChannelIoConnector
-    private static final ThreadLocal<WorkerExecutor> WORKER_EXECUTOR = new VicariousThreadLocal<WorkerExecutor>();
 
     public NioSocketChannelIoSession(ChannelIoService service, IoProcessorEx<ChannelIoSession<? extends ChannelConfig>>
         processor, NioSocketChannel channel) {
@@ -52,6 +48,11 @@ public class NioSocketChannelIoSession extends ChannelIoSession<NioSocketChannel
         if (ioExecutor == NO_EXECUTOR) {
             channel.setWorker(null);
         }
+        else if (isClosedReceived()) {
+            // Process the closed event now that realignment is complete
+            // We must not register the channel with the worker since it is closed
+            getProcessor().remove(this);
+        }
         else {
             NioWorker newWorker = ((WorkerExecutor) ioExecutor).worker;
             channel.setWorker(newWorker);
@@ -59,11 +60,11 @@ public class NioSocketChannelIoSession extends ChannelIoSession<NioSocketChannel
     }
 
     private static Executor asExecutor(NioWorker worker) {
-        WorkerExecutor executor = WORKER_EXECUTOR.get();
+        WorkerExecutor executor = (WorkerExecutor) CURRENT_WORKER.get();
         if (executor == null) {
             assert isInIoThread(worker) : "Session created from non-I/O thread";
             executor = new WorkerExecutor(worker);
-            WORKER_EXECUTOR.set(executor);
+            CURRENT_WORKER.set(executor);
         }
         assert executor.worker == worker : "Worker does not match I/O thread";
         return executor;

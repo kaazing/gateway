@@ -17,8 +17,6 @@ package org.kaazing.gateway.transport.http;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -40,7 +38,7 @@ public class ClientAccessPolicyIT {
 
                         // allow *
                         .service()
-                            .accept(URI.create("http://localhost:8001/echo"))
+                            .accept("http://localhost:8001/echo")
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("*")
@@ -49,7 +47,7 @@ public class ClientAccessPolicyIT {
 
                         // allow specific origin
                         .service()
-                            .accept(URI.create("http://localhost:8002/echo"))
+                            .accept("http://localhost:8002/echo")
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("http://localhost:8000")
@@ -58,14 +56,14 @@ public class ClientAccessPolicyIT {
 
                         // overlapping services on specific origin
                         .service()
-                            .accept(URI.create("http://localhost:8003/echo2"))
+                            .accept("http://localhost:8003/echo2")
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("http://localhost:8000")
                             .done()
                         .done()
                         .service()
-                            .accept(URI.create("http://localhost:8003/echo3"))
+                            .accept("http://localhost:8003/echo3")
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("*")
@@ -74,7 +72,7 @@ public class ClientAccessPolicyIT {
 
                         // multiple origins allowed
                         .service()
-                            .accept(URI.create("http://localhost:8004/echo"))
+                            .accept("http://localhost:8004/echo")
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("http://localhost:8000")
@@ -89,7 +87,7 @@ public class ClientAccessPolicyIT {
 
                         // no cross-site-constraint
                         .service()
-                            .accept(URI.create("http://localhost:8005/echo"))
+                            .accept("http://localhost:8005/echo")
                             .type("echo")
                         .done()
 

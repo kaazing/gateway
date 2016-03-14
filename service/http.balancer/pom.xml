@@ -101,26 +101,55 @@
     </dependencies>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.kaazing</groupId>
-                <artifactId>k3po-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <skipTests>${skipITs}</skipTests>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+     <plugins>
+		<plugin>
+			<dependencies>
+				<dependency>
+					<groupId>org.kaazing</groupId>
+					<artifactId>specification.http</artifactId>
+					<version>${k3po.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.kaazing</groupId>
+					<artifactId>specification.httpx</artifactId>
+					<version>${k3po.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.kaazing</groupId>
+					<artifactId>specification.ws</artifactId>
+					<version>${k3po.version}</version>
+				</dependency>
+			</dependencies>
+			<groupId>org.kaazing</groupId>
+			<artifactId>k3po-maven-plugin</artifactId>
+			<version>${k3po.version}</version>
+			<configuration>
+				<skipTests>${skipITs}</skipTests>
+			</configuration>
+			<executions>
+				<execution>
+					<goals>
+						<goal>start</goal>
+						<goal>stop</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
+		<plugin>
+			<artifactId>maven-failsafe-plugin</artifactId>
+			<configuration>
+				<skipTests>${skipITs}</skipTests>
+			</configuration>
+			<executions>
+				<execution>
+					<goals>
+						<goal>integration-test</goal>
+						<goal>verify</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
+	</plugins>
+</build>
 
 </project>

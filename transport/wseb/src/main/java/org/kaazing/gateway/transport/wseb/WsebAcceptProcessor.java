@@ -15,7 +15,8 @@
  */
 package org.kaazing.gateway.transport.wseb;
 
-import org.kaazing.gateway.transport.http.HttpSession;
+import java.util.concurrent.ScheduledExecutorService;
+
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
@@ -23,55 +24,44 @@ import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
 import org.kaazing.gateway.transport.BridgeAcceptProcessor;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
+import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.gateway.transport.ws.Command;
-import org.kaazing.gateway.transport.ws.WsBinaryMessage;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
 import org.kaazing.gateway.transport.ws.WsMessage;
-import org.kaazing.gateway.transport.ws.WsPingMessage;
-import org.kaazing.gateway.transport.ws.WsPongMessage;
-import org.kaazing.gateway.transport.ws.WsTextMessage;
-import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
+import org.kaazing.gateway.transport.ws.WsMessage.Kind;
 import org.kaazing.gateway.transport.wseb.filter.WsebFrameEncoder;
-import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.ScheduledExecutorService;
 
 
 public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WsebAcceptProcessor.class);
+    private final Logger logger;
     private static final CheckInitialPadding CHECK_INITIAL_PADDING = new CheckInitialPadding();
     private final ScheduledExecutorService scheduler;
 
-    public WsebAcceptProcessor(ScheduledExecutorService scheduler) {
+    public WsebAcceptProcessor(ScheduledExecutorService scheduler, Logger logger) {
         this.scheduler = scheduler;
+        this.logger = logger;
+    }
+
+    @Override
+    protected void doFireSessionDestroyed(WsebSession session) {
+        // We must fire session destroyed on the wsebSession only when the close handshake is complete,
+        // which is when the transport session gets closed.
+        if (session.getTransportSession().isClosing()) {
+            super.doFireSessionDestroyed(session);
+        }
     }
 
     @Override
     protected void removeInternal(WsebSession session) {
         HttpSession writer = session.getWriter();
         if (writer != null ) {
-            if (!writer.isClosing()) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(String.format("CLOSE command is written to writer %d for wseb session %s", writer.getId(), session));
-                }
-                writer.write(WsCommandMessage.CLOSE);
-            } else {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(String.format("NOT sending CLOSE command as writer %s is closing for wseb session %s", writer, session));
-                }
-            }
             session.detachWriter(writer);
-        } else {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(String.format("NOT sending CLOSE command for session = %s as there is no attached writer", session));
-            }
         }
-
         // Shouldn't we detach any pending writer ?
         // session.detachPendingWriter();
+
         session.cancelTimeout();
     }
 
@@ -80,9 +70,9 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
         // get parent and check if null (no attached http session)
         final HttpAcceptSession writer = (HttpAcceptSession)session.getWriter();
         if (writer == null || writer.isClosing()) {
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace(String.format("WsebAcceptProcessor.flushInternal: returning because writer (%s) " +
-                                                   "is null or writer is closing(%s)",
+            if (logger.isTraceEnabled()) {
+                logger.trace(String.format("WsebAcceptProcessor.flushInternal: returning because writer (%s) " +
+                                           "is null or writer is closing(%s)",
                         writer, writer==null ? "n/a" : Boolean.valueOf(writer.isClosing()) ));
             }
             return;
@@ -138,8 +128,8 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
             // identity compare for our marker as a command to reconnect the
             // stream
             if (WsebSession.isReconnectRequest(request)) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(String.format("RECONNECT_REQUEST detected: closing writer %d", writer.getId()));
+                if (logger.isDebugEnabled()) {
+                    logger.debug(String.format("RECONNECT_REQUEST detected: closing writer %d", writer.getId()));
                 }
                 // detaching the writer nulls the parent reference
                 session.detachWriter(writer);
@@ -162,6 +152,14 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
                         break;
                     }
 
+                    if (frame.getKind() == Kind.CLOSE) {
+                        writer.write(WsCommandMessage.CLOSE);
+                        // Detach writer to send RECONNECT and because no more data can now be written to the client.
+                        session.detachWriter(writer);
+                        request.getFuture().setWritten();
+                        break;
+                    }
+
                     // hold current remaining bytes so we know how much was
                     // written
                     int remaining = buf.remaining();
@@ -174,6 +172,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
                     // or closing, there is a race condition that would permit
                     // writing data to the parent during this interim state
                     // resulting in a WriteToClosedSessionException and losing data
+
 
                     // flush the message out to the session
                     lastWrite = flushNowInternal(writer, frame, buf, filterChain, request);

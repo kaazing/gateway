@@ -17,8 +17,6 @@ package org.kaazing.gateway.transport.wsn.specification.ws.acceptor;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,14 +41,14 @@ public class OpeningHandshakeIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("ws://localhost:8080/path"))
+                            .accept("ws://localhost:8080/path")
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("*")
                             .done()
                         .done()
                         .service()
-                            .accept(URI.create("ws://localhost:8080/preflight"))
+                            .accept("ws://localhost:8080/preflight")
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("*")

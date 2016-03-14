@@ -43,302 +43,292 @@ import org.kaazing.mina.filter.codec.statemachine.FixedLengthDecodingState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class HttpResponseDecodingState extends DecodingStateMachine {
+    private static final int MAXIMUM_NON_STREAMING_CONTENT_LENGTH = 4096;
 
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(HttpResponseDecodingState.class);
-	private final HttpSession httpSession;
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpResponseDecodingState.class);
+    private final HttpSession httpSession;
 
-	public HttpResponseDecodingState(IoBufferAllocatorEx<?> allocator, HttpSession httpSession) {
+    public HttpResponseDecodingState(IoBufferAllocatorEx<?> allocator, HttpSession httpSession) {
         super(allocator);
-		this.httpSession = httpSession;
+        this.httpSession = httpSession;
     }
 
     private final DecodingState SKIP_EMPTY_LINES = new CrLfDecodingState() {
 
-		@Override
-		protected DecodingState finishDecode(boolean foundCRLF,
-				ProtocolDecoderOutput out) throws Exception {
-			if (foundCRLF) {
-				return this;
-			} else {
-				return READ_RESPONSE_MESSAGE;
-			}
-		}
-	};
+        @Override
+        protected DecodingState finishDecode(boolean foundCRLF, ProtocolDecoderOutput out) throws Exception {
+            if (foundCRLF) {
+                return this;
+            } else {
+                return READ_RESPONSE_MESSAGE;
+            }
+        }
+    };
 
-	protected final DecodingState FLUSH_MESSAGES = new DecodingState() {
+    protected final DecodingState FLUSH_MESSAGES = new DecodingState() {
 
-		public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out)
-				throws Exception {
-			return SKIP_EMPTY_LINES;
-		}
+        public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out) throws Exception {
+            return SKIP_EMPTY_LINES;
+        }
 
-		public DecodingState finishDecode(ProtocolDecoderOutput out)
-				throws Exception {
-			return SKIP_EMPTY_LINES;
-		}
+        public DecodingState finishDecode(ProtocolDecoderOutput out) throws Exception {
+            return SKIP_EMPTY_LINES;
+        }
 
-	};
+    };
 
-	private final DecodingState READ_RESPONSE_MESSAGE = new DecodingStateMachine(allocator) {
+    private final DecodingState READ_RESPONSE_MESSAGE = new DecodingStateMachine(allocator) {
 
-		@Override
-		protected DecodingState init() throws Exception {
-			return READ_RESPONSE_LINE;
-		}
+        @Override
+        protected DecodingState init() throws Exception {
+            return READ_RESPONSE_LINE;
+        }
 
-		@Override
-		protected void destroy() throws Exception {
-		}
+        @Override
+        protected void destroy() throws Exception {
+        }
 
-		@Override
-		@SuppressWarnings("unchecked")
-		protected DecodingState finishDecode(List<Object> childProducts,
-				ProtocolDecoderOutput out) throws Exception {
-			
-			if (childProducts.isEmpty()) {
-				return this;
-			}
+        @Override
+        @SuppressWarnings("unchecked")
+        protected DecodingState finishDecode(List<Object> childProducts, ProtocolDecoderOutput out) throws Exception {
 
-			HttpVersion version = (HttpVersion) childProducts.get(0);
-			HttpStatus status = (HttpStatus) childProducts.get(1);
-			String reason = (String) childProducts.get(2);
-			Map<String, List<String>> headers = (Map<String, List<String>>) childProducts
-					.get(3);
-			Set<HttpCookie> cookies = (Set<HttpCookie>) childProducts.get(4);
+            if (childProducts.isEmpty()) {
+                return this;
+            }
 
-			final HttpResponseMessage httpResponse = new HttpResponseMessage();
-			httpResponse.setVersion(version);
-			httpResponse.setStatus(status);
-			httpResponse.setReason(reason);
-			httpResponse.setHeaders(headers);
-			httpResponse.setCookies(cookies);
+            HttpVersion version = (HttpVersion) childProducts.get(0);
+            HttpStatus status = (HttpStatus) childProducts.get(1);
+            String reason = (String) childProducts.get(2);
+            Map<String, List<String>> headers = (Map<String, List<String>>) childProducts.get(3);
+            Set<HttpCookie> cookies = (Set<HttpCookie>) childProducts.get(4);
 
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("\"" + status + " " + httpResponse.getReason() + " "
-						+ version + "\"");
-			}
+            final HttpResponseMessage httpResponse = new HttpResponseMessage();
+            httpResponse.setVersion(version);
+            httpResponse.setStatus(status);
+            httpResponse.setReason(reason);
+            httpResponse.setHeaders(headers);
+            httpResponse.setCookies(cookies);
 
-			if (httpSession != null && httpSession.getMethod() == HttpMethod.HEAD) {
-				httpResponse.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), true));
-				out.write(httpResponse);
-				return null;
-			} else if ((version == HttpVersion.HTTP_1_1) && isChunked(httpResponse)) {
-				httpResponse.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), false));
-				out.write(httpResponse);
-				return READ_CHUNK;
-			} 
-			else {
-				String lengthValue = httpResponse.getHeader(HEADER_CONTENT_LENGTH);
-				if (lengthValue != null) {
-					int length = parseContentLength(lengthValue);
-					if (length > 0) {
-					    // TODO: fragment large content lengths
-						return new FixedLengthDecodingState(allocator, length) {
-							@Override
-							protected DecodingState finishDecode(
-									IoBuffer readData, ProtocolDecoderOutput out)
-									throws Exception {
-								HttpContentMessage content = new HttpContentMessage((IoBufferEx) readData, true);
-								httpResponse.setContent(content);
-								out.write(httpResponse);
-								return FLUSH_MESSAGES;
-							}
-						};
-					} 
-					else {
-						out.write(httpResponse);
-						return null;
-					}
-				}
-				else if (HttpPersistenceFilter.isClosing(httpResponse)) {
-					// missing content length
-					httpResponse.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), false));
-					out.write(httpResponse);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("\"" + status + " " + httpResponse.getReason() + " " + version + "\"");
+            }
 
-					// deliver each received IoBuffer as an HttpContentMessage until end-of-session
-					return READ_CONTENT;
-				}
+            if (httpSession != null && httpSession.getMethod() == HttpMethod.HEAD) {
+                httpResponse.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), true));
+                out.write(httpResponse);
+                return null;
+            } else if ((version == HttpVersion.HTTP_1_1) && isChunked(httpResponse)) {
+                httpResponse.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), false));
+                out.write(httpResponse);
+                return READ_CHUNK;
+            } else {
+                String lengthValue = httpResponse.getHeader(HEADER_CONTENT_LENGTH);
+                if (lengthValue != null) {
+                    int length = parseContentLength(lengthValue);
+                    if (length > 0) {
+                        if (length < MAXIMUM_NON_STREAMING_CONTENT_LENGTH) {
+                            return new FixedLengthDecodingState(allocator, length) {
+                                @Override
+                                protected DecodingState finishDecode(IoBuffer readData, ProtocolDecoderOutput out)
+                                        throws Exception {
+                                    HttpContentMessage content = new HttpContentMessage((IoBufferEx) readData, true);
+                                    httpResponse.setContent(content);
+                                    out.write(httpResponse);
+                                    return FLUSH_MESSAGES;
+                                }
+                            };
+                        } else {
+                            // down-streaming
+                            httpResponse
+                                    .setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), false));
+                            out.write(httpResponse);
+                            return new MaximumLengthDecodingState(length);
+                        }
+                    } else {
+                        out.write(httpResponse);
+                        return null;
+                    }
+                } else if (HttpPersistenceFilter.isClosing(httpResponse)) {
+                    // missing content length
+                    httpResponse.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), false));
+                    out.write(httpResponse);
 
-				// assume no content following
-				out.write(httpResponse);
-				
-				// handle 101 Switching Protocols upgrade
-				if (status == HttpStatus.INFO_SWITCHING_PROTOCOLS) {
-					// Note: the httpResponse above will be flushed first, triggering the upgrade
-					//       and remove the HTTP codec filter from the filter chain
-					//       but the codec filter will see bytes are remaining (if any WebSocket
-					//       frame bytes were passed into this HTTP decoder along with the preceding
-					//       HTTP 101 response bytes) and then continue to loop until all bytes are
-					//       consumed.  So, we return the after-upgrade decoder state to pass any
-					//       remaining bytes through to the WebSocket frame decoding logic.
-					//       These pass-through bytes will be flushed from the codec filter even
-					//       though it has already been removed from the filter chain while processing
-					//       the 101 HTTP response message.
-					return AFTER_UPGRADE;
-				}
-				
-				return null;
-			}
-		}
+                    // deliver each received IoBuffer as an HttpContentMessage until end-of-session
+                    return READ_CONTENT;
+                }
 
-		private int parseContentLength(String lengthValue)
-				throws ProtocolDecoderException {
-			try {
-				return Integer.parseInt(lengthValue);
-			} catch (NumberFormatException e) {
-				throw new ProtocolDecoderException("Invalid content length: " + lengthValue);
-			}
-		}
+                // assume no content following
+                out.write(httpResponse);
 
-		private boolean isChunked(HttpResponseMessage httpResponse) throws ProtocolDecoderException {
-			
-			String transferEncoding = httpResponse.getHeader("Transfer-Encoding");
-			if (transferEncoding != null) {
-				int semicolonAt = transferEncoding.indexOf(';');
-				if (semicolonAt != -1) {
-					transferEncoding = transferEncoding.substring(0, semicolonAt);
-				}
-				
-				if ("chunked".equalsIgnoreCase(transferEncoding)) {
-					return true;
-				} 
-				
-				throw new ProtocolDecoderException("Unexpected transfer coding: " + transferEncoding);
-			}
-			
-			return false;
-		}
-	};
-	
-	private final DecodingState READ_RESPONSE_LINE = new HttpResponseLineDecodingState(allocator) {
-		@Override
-		protected DecodingState finishDecode(List<Object> childProducts,
-				ProtocolDecoderOutput out) throws Exception {
+                // handle 101 Switching Protocols upgrade
+                if (status == HttpStatus.INFO_SWITCHING_PROTOCOLS) {
+                    // Note: the httpResponse above will be flushed first, triggering the upgrade
+                    // and remove the HTTP codec filter from the filter chain
+                    // but the codec filter will see bytes are remaining (if any WebSocket
+                    // frame bytes were passed into this HTTP decoder along with the preceding
+                    // HTTP 101 response bytes) and then continue to loop until all bytes are
+                    // consumed. So, we return the after-upgrade decoder state to pass any
+                    // remaining bytes through to the WebSocket frame decoding logic.
+                    // These pass-through bytes will be flushed from the codec filter even
+                    // though it has already been removed from the filter chain while processing
+                    // the 101 HTTP response message.
+                    return AFTER_UPGRADE;
+                }
 
-			if (childProducts.isEmpty()) {
-				return this;
-			}
+                return null;
+            }
+        }
 
-			HttpVersion httpVersion = (HttpVersion) childProducts.get(0);
-			HttpStatus httpStatus = (HttpStatus) childProducts.get(1);
-			String httpReason = (String) childProducts.get(2);
+        private int parseContentLength(String lengthValue) throws ProtocolDecoderException {
+            try {
+                return Integer.parseInt(lengthValue);
+            } catch (NumberFormatException e) {
+                throw new ProtocolDecoderException("Invalid content length: " + lengthValue);
+            }
+        }
 
-			out.write(httpVersion);
-			out.write(httpStatus);
-			out.write(httpReason);
+        private boolean isChunked(HttpResponseMessage httpResponse) throws ProtocolDecoderException {
 
-			return READ_HEADERS;
-		}
-	};
+            String transferEncoding = httpResponse.getHeader("Transfer-Encoding");
+            if (transferEncoding != null) {
+                int semicolonAt = transferEncoding.indexOf(';');
+                if (semicolonAt != -1) {
+                    transferEncoding = transferEncoding.substring(0, semicolonAt);
+                }
 
-	private final DecodingState READ_HEADERS = new HttpHeaderDecodingState(allocator) {
-		@Override
-		@SuppressWarnings("unchecked")
-		protected DecodingState finishDecode(List<Object> childProducts,
-				ProtocolDecoderOutput out) throws Exception {
-			Map<String, List<String>> headers = (Map<String, List<String>>) childProducts
-					.get(0);
+                if ("chunked".equalsIgnoreCase(transferEncoding)) {
+                    return true;
+                }
 
-			// parse cookies
-			Set<HttpCookie> cookies = new HashSet<>();
-			List<String> cookieHeaderValues = headers.get("Set-Cookie");
-			if (cookieHeaderValues != null && !cookieHeaderValues.isEmpty()) {
-				String cookieHeaderValue = cookieHeaderValues.get(0);
-				String[] cookieValues = cookieHeaderValue.split(",");
-				for (String cookieValue : cookieValues) {
-					String[] nvPairs = cookieValue.split(";");
-					int nvPairCount = nvPairs.length;
-					if (nvPairCount > 0) {
-						String[] nvPair = nvPairs[0].split("=");
+                throw new ProtocolDecoderException("Unexpected transfer coding: " + transferEncoding);
+            }
 
-						// create the cookie name and value
-						DefaultHttpCookie cookie = new DefaultHttpCookie(
-								nvPair[0].trim());
-						cookie.setValue(nvPair[1].trim());
+            return false;
+        }
+    };
 
-						// read the cookie properties
-						for (int i = 1; i < nvPairCount; i++) {
-							nvPair = nvPairs[i].split("=");
-							String avName = nvPair[0].trim();
-							if (avName.length() > 0) {
-								switch (avName.charAt(0)) {
-								case 'c':
-								case 'C':
-									if ("Comment".equalsIgnoreCase(avName)) {
-										cookie.setComment(nvPair[1].trim());
-									}
-									break;
-								case 'd':
-								case 'D':
-									if ("Domain".equalsIgnoreCase(avName)) {
-										cookie.setDomain(nvPair[1].trim());
-									}
-									break;
-								case 'm':
-								case 'M':
-									if ("Max-Age".equalsIgnoreCase(avName)) {
-										cookie.setMaxAge(Integer
-												.parseInt(nvPair[1].trim()));
-									}
-									break;
-								case 'p':
-								case 'P':
-									if ("Path".equalsIgnoreCase(avName)) {
-										cookie.setPath(nvPair[1].trim());
-									}
-									break;
-								case 's':
-								case 'S':
-									if ("Secure".equalsIgnoreCase(avName)) {
-										cookie.setSecure(true);
-									}
-									break;
-								case 'v':
-								case 'V':
-									if ("Version".equalsIgnoreCase(avName)) {
-										cookie.setVersion(Integer
-												.parseInt(nvPair[1].trim()));
-									}
-									break;
-								}
-							}
-						}
+    private final DecodingState READ_RESPONSE_LINE = new HttpResponseLineDecodingState(allocator) {
+        @Override
+        protected DecodingState finishDecode(List<Object> childProducts, ProtocolDecoderOutput out) throws Exception {
 
-						cookies.add(cookie);
-					}
-				}
-			}
+            if (childProducts.isEmpty()) {
+                return this;
+            }
 
-			out.write(headers);
-			out.write(cookies);
+            HttpVersion httpVersion = (HttpVersion) childProducts.get(0);
+            HttpStatus httpStatus = (HttpStatus) childProducts.get(1);
+            String httpReason = (String) childProducts.get(2);
 
-			return null;
-		}
-	};
+            out.write(httpVersion);
+            out.write(httpStatus);
+            out.write(httpReason);
 
-	private final DecodingState READ_CHUNK = new HttpChunkDecodingState(allocator) {
-		@Override
-		protected DecodingState finishDecode(List<Object> childProducts,
-				ProtocolDecoderOutput out) throws Exception {
+            return READ_HEADERS;
+        }
+    };
 
-		    if (childProducts.isEmpty()) {
-	            throw new ProtocolDecoderException("Expected a chunk");
-		    }
-		    
-			IoBufferEx data = (IoBufferEx) childProducts.get(0);
-			if (data.hasRemaining()) {
-	            out.write(new HttpContentMessage(data, false));
-	            return READ_CHUNK;
-			}
-			else {
-			    out.write(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), true));
-			    return null;
-			}
-		}
-	};
+    private final DecodingState READ_HEADERS = new HttpHeaderDecodingState(allocator) {
+        @Override
+        @SuppressWarnings("unchecked")
+        protected DecodingState finishDecode(List<Object> childProducts, ProtocolDecoderOutput out) throws Exception {
+            Map<String, List<String>> headers = (Map<String, List<String>>) childProducts.get(0);
+
+            // parse cookies
+            Set<HttpCookie> cookies = new HashSet<>();
+            List<String> cookieHeaderValues = headers.get("Set-Cookie");
+            if (cookieHeaderValues != null && !cookieHeaderValues.isEmpty()) {
+                String cookieHeaderValue = cookieHeaderValues.get(0);
+                String[] cookieValues = cookieHeaderValue.split(",");
+                for (String cookieValue : cookieValues) {
+                    String[] nvPairs = cookieValue.split(";");
+                    int nvPairCount = nvPairs.length;
+                    if (nvPairCount > 0) {
+                        String[] nvPair = nvPairs[0].split("=");
+
+                        // create the cookie name and value
+                        DefaultHttpCookie cookie = new DefaultHttpCookie(nvPair[0].trim());
+                        if (nvPair.length > 1) {
+                            cookie.setValue(nvPair[1].trim());
+                        }
+
+                        // read the cookie properties
+                        for (int i = 1; i < nvPairCount; i++) {
+                            nvPair = nvPairs[i].split("=");
+                            boolean hasValue = nvPair.length > 1 ? true : false;
+                            String avName = nvPair[0].trim();
+                            if (avName.length() > 0) {
+                                switch (avName.charAt(0)) {
+                                case 'c':
+                                case 'C':
+                                    if ("Comment".equalsIgnoreCase(avName) && hasValue) {
+                                        cookie.setComment(nvPair[1].trim());
+                                    }
+                                    break;
+                                case 'd':
+                                case 'D':
+                                    if ("Domain".equalsIgnoreCase(avName) && hasValue) {
+                                        cookie.setDomain(nvPair[1].trim());
+                                    }
+                                    break;
+                                case 'm':
+                                case 'M':
+                                    if ("Max-Age".equalsIgnoreCase(avName) && hasValue) {
+                                        cookie.setMaxAge(Integer.parseInt(nvPair[1].trim()));
+                                    }
+                                    break;
+                                case 'p':
+                                case 'P':
+                                    if ("Path".equalsIgnoreCase(avName) && hasValue) {
+                                        cookie.setPath(nvPair[1].trim());
+                                    }
+                                    break;
+                                case 's':
+                                case 'S':
+                                    if ("Secure".equalsIgnoreCase(avName)) {
+                                        cookie.setSecure(true);
+                                    }
+                                    break;
+                                case 'v':
+                                case 'V':
+                                    if ("Version".equalsIgnoreCase(avName) && hasValue) {
+                                        cookie.setVersion(Integer.parseInt(nvPair[1].trim()));
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+
+                        cookies.add(cookie);
+                    }
+                }
+            }
+
+            out.write(headers);
+            out.write(cookies);
+
+            return null;
+        }
+    };
+
+    private final DecodingState READ_CHUNK = new HttpChunkDecodingState(allocator) {
+        @Override
+        protected DecodingState finishDecode(List<Object> childProducts, ProtocolDecoderOutput out) throws Exception {
+
+            if (childProducts.isEmpty()) {
+                throw new ProtocolDecoderException("Expected a chunk");
+            }
+
+            IoBufferEx data = (IoBufferEx) childProducts.get(0);
+            if (data.hasRemaining()) {
+                out.write(new HttpContentMessage(data, false));
+                return READ_CHUNK;
+            } else {
+                out.write(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), true));
+                return null;
+            }
+        }
+    };
 
     private static final DecodingState READ_CONTENT = new DecodingState() {
         @Override
@@ -351,7 +341,7 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
 
         @Override
         public DecodingState finishDecode(ProtocolDecoderOutput out) throws Exception {
-//            out.write(TERMINATOR);
+            // out.write(TERMINATOR);
             return null;
         }
     };
@@ -370,36 +360,34 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
         }
     };
 
-	@Override
-	protected DecodingState init() throws Exception {
-		return SKIP_EMPTY_LINES;
-	}
+    @Override
+    protected DecodingState init() throws Exception {
+        return SKIP_EMPTY_LINES;
+    }
 
-	@Override
-	protected void destroy() throws Exception {
-	}
+    @Override
+    protected void destroy() throws Exception {
+    }
 
-	@Override
-	public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out)
-			throws Exception {
-		DecodingState decodingState = super.decode(in, out);
-		flush(childProducts, out);
-		return decodingState;
-	}
+    @Override
+    public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out) throws Exception {
+        DecodingState decodingState = super.decode(in, out);
+        flush(childProducts, out);
+        return decodingState;
+    }
 
-	@Override
-	protected DecodingState finishDecode(List<Object> childProducts,
-			ProtocolDecoderOutput out) throws Exception {
-		flush(childProducts, out);
-		return null;
-	}
+    @Override
+    protected DecodingState finishDecode(List<Object> childProducts, ProtocolDecoderOutput out) throws Exception {
+        flush(childProducts, out);
+        return null;
+    }
 
-	private void flush(List<Object> childProducts, ProtocolDecoderOutput out) {
-		// flush child products to parent output before decode is complete
-		for (Iterator<Object> i = childProducts.iterator(); i.hasNext();) {
-			Object product = i.next();
-			i.remove();
-			out.write(product);
-		}
-	}
+    private void flush(List<Object> childProducts, ProtocolDecoderOutput out) {
+        // flush child products to parent output before decode is complete
+        for (Iterator<Object> i = childProducts.iterator(); i.hasNext();) {
+            Object product = i.next();
+            i.remove();
+            out.write(product);
+        }
+    }
 }

@@ -28,7 +28,7 @@
         <maven.compiler.testSource>1.8</maven.compiler.testSource>
         <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
         <hazelcast.version>1.9.4.8</hazelcast.version>
-        <k3po.version>3.0.0-alpha-3</k3po.version>
+        <k3po.version>3.0.0-alpha-22</k3po.version>
         <jdom.version>1.1</jdom.version>
         <jmock.version>2.6.0</jmock.version>
         <slf4j.log4j.version>1.7.5</slf4j.log4j.version>
@@ -39,7 +39,7 @@
     <modules>
         <module>bridge</module>
         <module>bom</module>
-        <!--<module>docker</module>-->
+        <!--<module>docker</module> -->
         <module>distribution</module>
         <module>management</module>
         <module>resource.address/spi</module>
@@ -198,14 +198,43 @@
                 <version>[1.0.0.0,1.1.0.0)</version>
                 <type>jar</type>
             </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>specification.http</artifactId>
+                <version>${k3po.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>specification.httpxe</artifactId>
+                <version>${k3po.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
         <pluginManagement>
             <plugins>
+                <!-- Try to avoid huge heap size on Travis builds -->
+                <plugin>
+                  <artifactId>maven-failsafe-plugin</artifactId>
+                  <version>${failsafe.plugin.version}</version>
+                  <executions>
+                    <execution>
+                      <goals>
+                        <goal>integration-test</goal>
+                        <goal>verify</goal>
+                      </goals>
+                      <configuration>
+                        <argLine>-Xmx1024m</argLine>
+                      </configuration>
+                    </execution>
+                  </executions>
+                </plugin>
 
-                <!-- Adds properties to manifest which are used for finding duplicate jars on classpath -->
+                <!-- Adds properties to manifest which are used for finding 
+                    duplicate jars on classpath -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
@@ -214,10 +243,16 @@
                             <manifestEntries>
                                 <Implementation-Title>${project.name}</Implementation-Title>
                                 <Implementation-Version>${project.version}</Implementation-Version>
-                                <Artifact-Name>${groupId}:${artifactId}</Artifact-Name>
+                                <Artifact-Name>${project.groupId}:${project.artifactId}</Artifact-Name>
                             </manifestEntries>
                         </archive>
                     </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.19</version>
                 </plugin>
 
                 <!-- Ignore/Execute plugin execution by m2e in Eclipse -->
@@ -447,10 +482,9 @@
                     </instrumentation>
                 </configuration>
             </plugin>
-            <!--
-                Here only to turn off linting in Java Doc as for Java 8, this should
-                be removed when https://github.com/kaazing/gateway/issues/157 is fixed
-            -->
+            <!-- Here only to turn off linting in Java Doc as for Java 8, 
+                this should be removed when https://github.com/kaazing/gateway/issues/157 
+                is fixed -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>

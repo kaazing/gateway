@@ -24,6 +24,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_U
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.BridgeSession.NEXT_PROTOCOL_KEY;
 import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
+import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_IDLE_TIMEOUT;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -56,20 +57,20 @@ import org.kaazing.gateway.resource.address.Comparators;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.transport.Bindings;
 import org.kaazing.gateway.transport.Bindings.Binding;
 import org.kaazing.gateway.transport.BridgeAcceptHandler;
 import org.kaazing.gateway.transport.BridgeAcceptor;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.IoSessionAdapterEx;
+import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.NextProtocolBindings;
 import org.kaazing.gateway.transport.NextProtocolBindings.NextProtocolBinding;
 import org.kaazing.gateway.transport.NextProtocolFilter;
 import org.kaazing.gateway.transport.NioBindException;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.dispatch.ProtocolDispatcher;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferEx;
@@ -88,8 +89,6 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractNioAcceptor.class);
 
     private static final String NEXT_PROTOCOL_FILTER = "nio#next-protocol";
-    private static final String FAULT_LOGGING_FILTER = NioProtocol.TCP + "#fault";
-    private static final String TRACE_LOGGING_FILTER = NioProtocol.TCP + "#logging";
 
     private final AtomicBoolean started;
     private final NextProtocolBindings bindings;
@@ -104,6 +103,8 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
 
     protected final Properties configuration;
     protected final Logger logger;
+
+    private final Integer idleTimeout;
 
     public AbstractNioAcceptor(Properties configuration, Logger logger) {
         if (configuration == null) {
@@ -122,6 +123,8 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
         if ("true".equalsIgnoreCase(preferIPv4NetworkStack)) {
             skipIPv6Addresses = true;
         }
+
+        idleTimeout = TCP_IDLE_TIMEOUT.getIntProperty(configuration);
     }
 
     @Resource(name = "bridgeServiceFactory")
@@ -146,11 +149,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
     private final BridgeAcceptHandler tcpHandler = new BridgeAcceptHandler(this) {
         @Override
         public void sessionCreated(IoSession session) throws Exception {
-            if (logger.isTraceEnabled()) {
-                session.getFilterChain().addLast(TRACE_LOGGING_FILTER, new ObjectLoggingFilter(logger, NioProtocol.TCP.name().toLowerCase() + "#%s"));
-            } else if (logger.isDebugEnabled()) {
-                session.getFilterChain().addLast(FAULT_LOGGING_FILTER, new ExceptionLoggingFilter(logger, NioProtocol.TCP.name().toLowerCase() + "#%s"));
-            }
+            LoggingFilter.addIfNeeded(logger, session, getTransportName());
 
             ResourceAddress localAddress = asResourceAddress(session.getLocalAddress());
             NextProtocolBinding nioBinding = bindings.getBinding0(localAddress);
@@ -158,6 +157,10 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
                 // Not currently bound (A concurrent unbind may have removed the binding)
                 session.close(true);
                 return;
+            }
+
+            if (idleTimeout != null && idleTimeout > 0) {
+                session.getFilterChain().addLast("idle", new NioIdleFilter(logger, idleTimeout, session));
             }
 
             // note: defer sessionCreated until sessionOpened to support (optional) protocol dispatch
@@ -192,7 +195,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
         private void sessionCreated0(IoSession session) throws Exception {
             SocketAddress boundAddress0 = session.getLocalAddress();
             ResourceAddress boundAddress = asResourceAddress(boundAddress0);
-            URI candidateURI = boundAddress.getExternalURI();
+            String candidateURI = boundAddress.getExternalURI();
 
             ResourceOptions candidateOptions = ResourceOptions.FACTORY.newResourceOptions(boundAddress);
             String nextProtocol = NEXT_PROTOCOL_KEY.get(session);
@@ -218,7 +221,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             LOCAL_ADDRESS.set(session, localAddress);
 
             SocketAddress remoteSocketAddress = session.getRemoteAddress();
-            URI remoteExternalURI = asResourceURI((InetSocketAddress) remoteSocketAddress);
+            String remoteExternalURI = asResourceURI((InetSocketAddress) remoteSocketAddress);
             ResourceAddress remoteAddress = resourceAddressFactory.newResourceAddress(remoteExternalURI, nextProtocol);
             REMOTE_ADDRESS.set(session, remoteAddress);
 
@@ -253,17 +256,17 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
     };
 
     private ResourceAddress createResourceAddress(InetSocketAddress inetSocketAddress) {
-        URI transport = asResourceURI(inetSocketAddress);
+        String transport = asResourceURI(inetSocketAddress);
         return resourceAddressFactory.newResourceAddress(transport);
     }
 
-    private URI asResourceURI(InetSocketAddress inetSocketAddress) {
+    private String asResourceURI(InetSocketAddress inetSocketAddress) {
         String transportName = getTransportName();
         InetAddress inetAddress = inetSocketAddress.getAddress();
         String hostAddress = inetAddress.getHostAddress();
         String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
         int port = inetSocketAddress.getPort();
-        return URI.create(format(addressFormat, transportName, hostAddress, port));
+        return format(addressFormat, transportName, hostAddress, port);
     }
 
     protected final void init() {
@@ -548,11 +551,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
 
                 @Override
                 protected void doSessionCreated(IoSessionEx session) throws Exception {
-                    if (logger.isTraceEnabled()) {
-                        session.getFilterChain().addLast(TRACE_LOGGING_FILTER, new ObjectLoggingFilter(logger, NioProtocol.TCP.name().toLowerCase() + "#%s"));
-                    } else if (logger.isDebugEnabled()) {
-                        session.getFilterChain().addLast(FAULT_LOGGING_FILTER, new ExceptionLoggingFilter(logger, NioProtocol.TCP.name().toLowerCase() + "#%s"));
-                    }
+                    LoggingFilter.addIfNeeded(logger, session, getTransportName());
 
                     ResourceAddress candidateAddress = getCandidateResourceAddress(session);
                     NextProtocolBinding nextBinding = bindings.getBinding0(candidateAddress);
@@ -631,7 +630,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
 
                     candidateOptions.setOption(NEXT_PROTOCOL, NEXT_PROTOCOL_KEY.get(session));
                     candidateOptions.setOption(TRANSPORT, candidateTransportAddress);
-                    return resourceAddressFactory.newResourceAddress(candidateURI, candidateOptions);
+                    return resourceAddressFactory.newResourceAddress(URIUtils.uriToString(candidateURI), candidateOptions);
                 }
 
                 private IoSession getTcpBridgeSession(IoSession session) {

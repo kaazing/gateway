@@ -47,4 +47,8 @@ public interface SessionMXBean /*extends SessionManagementListener*/ {
     String getSessionTypeName();
 
     String getSessionDirection();
+
+    long getLastRoundTripLatency();
+
+    long getLastRoundTripLatencyTimestamp();
 }

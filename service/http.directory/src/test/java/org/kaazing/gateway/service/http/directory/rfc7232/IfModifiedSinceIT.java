@@ -20,7 +20,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.rules.RuleChain.outerRule;
 
 import java.io.File;
-import java.net.URI;
 
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -28,12 +27,11 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.kaazing.k3po.junit.annotation.Specification;
-import org.kaazing.k3po.junit.rules.K3poRule;
-
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 /**
  * RFC-7232, section 3.3 "If-Modified-Since"
@@ -51,7 +49,7 @@ public class IfModifiedSinceIT {
                     new GatewayConfigurationBuilder()
                         .webRootDirectory(new File("src/test/webapp"))
                         .service()
-                            .accept(URI.create(DIRECTORY_SERVICE_ACCEPT))
+                            .accept(DIRECTORY_SERVICE_ACCEPT)
                             .type("directory")
                             .property("directory", "/public")
                             .property("welcome-file", "index.html")
@@ -65,12 +63,14 @@ public class IfModifiedSinceIT {
     @Rule
     public final TestRule chain = outerRule(timeout).around(k3po).around(gateway);
 
+    @Ignore("https://github.com/kaazing/gateway/issues/383")
     @Test
     @Specification("condition.failed.get.status.304/request")
     public void shouldResultInNotModifiedResponseWithGetAndConditionFailed() throws Exception {
         k3po.finish();
     }
 
+    @Ignore("https://github.com/kaazing/gateway/issues/383")
     @Test
     @Specification("condition.failed.head.status.304/request")
     public void shouldResultInNotModifiedResponseWithHeadAndConditionFailed() throws Exception {

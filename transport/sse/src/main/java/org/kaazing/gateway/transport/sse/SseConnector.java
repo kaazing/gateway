@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.sse;
 import static java.lang.String.format;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -42,9 +41,7 @@ import org.kaazing.gateway.transport.AbstractBridgeConnector;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpSession;
@@ -55,8 +52,6 @@ import org.kaazing.gateway.transport.sse.bridge.filter.SseConnectCodecFilter;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SseConnector extends AbstractBridgeConnector<SseSession> {
 
@@ -65,12 +60,6 @@ public class SseConnector extends AbstractBridgeConnector<SseSession> {
     private static final TypedAttributeKey<SseSession> SSE_SESSION_KEY = new TypedAttributeKey<>(SseConnector.class, "sseSession");
 
     private static final String CODEC_FILTER = SseProtocol.NAME + "#codec";
-    private static final String FAULT_LOGGING_FILTER = SseProtocol.NAME + "#fault";
-    private static final String TRACE_LOGGING_FILTER = SseProtocol.NAME + "#logging";
-
-    private static final String LOGGER_NAME = String.format("transport.%s.connect", SseProtocol.NAME);
-
-	private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private ScheduledExecutorService scheduler;
 
@@ -112,25 +101,12 @@ public class SseConnector extends AbstractBridgeConnector<SseSession> {
 
     @Override
     public void addBridgeFilters(IoFilterChain filterChain) {
-        // setup default filters for bridge session
-        if (logger.isTraceEnabled()) {
-            filterChain.addFirst(TRACE_LOGGING_FILTER, new ObjectLoggingFilter(logger, SseProtocol.NAME + "#%s"));
-        } else if (logger.isDebugEnabled()) {
-            filterChain.addFirst(FAULT_LOGGING_FILTER, new ExceptionLoggingFilter(logger, SseProtocol.NAME + "#%s"));
-        }
-
         filterChain.addLast(CODEC_FILTER, sseCodec);
     }
 
     @Override
     public void removeBridgeFilters(IoFilterChain filterChain) {
         removeFilter(filterChain, CODEC_FILTER);
-
-        if (filterChain.contains(TRACE_LOGGING_FILTER)) {
-            filterChain.remove(TRACE_LOGGING_FILTER);
-        } else if (filterChain.contains(FAULT_LOGGING_FILTER)) {
-            filterChain.remove(FAULT_LOGGING_FILTER);
-        }
     }
 
     @Override
@@ -218,7 +194,7 @@ public class SseConnector extends AbstractBridgeConnector<SseSession> {
                         Callable<SseSession> sseSessionFactory = new Callable<SseSession>() {
                             @Override
                             public SseSession call() throws Exception {
-								return new SseSession(SseConnector.this, getProcessor(), connectAddress, connectAddress, httpSession, allocator);
+                                return new SseSession(SseConnector.this, getProcessor(), connectAddress, connectAddress, httpSession, allocator);
                             }
                         };
 
@@ -310,8 +286,7 @@ public class SseConnector extends AbstractBridgeConnector<SseSession> {
                 if (location == null) {
                     sseSession.reset(new Exception("Redirect attempted without Location header").fillInStackTrace());
                 } else {
-                    URI locationURI = URI.create(location);
-                    ResourceAddress newConnectAddress = resourceAddressFactory.newResourceAddress(locationURI);
+                    ResourceAddress newConnectAddress = resourceAddressFactory.newResourceAddress(location);
                     BridgeConnector connector = bridgeServiceFactory.newBridgeConnector(newConnectAddress);
                     connector.connect(newConnectAddress, httpHandler, new IoSessionInitializer<ConnectFuture>() {
                         @Override

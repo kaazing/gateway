@@ -138,7 +138,10 @@ public class HttpRequestDecodingState extends DecodingStateMachine {
                 hostHeaderValues.add(requestURI.getHost()
                         + (requestURI.getPort() == -1 ? "" : ":" + requestURI.getPort()));
                 headers.put(HEADER_HOST, hostHeaderValues);
-                requestURI = URI.create(requestURI.getPath());
+                String query = requestURI.getQuery();
+                requestURI = (query == null)
+                    ? URI.create(requestURI.getPath())
+                    : URI.create(requestURI.getPath() + "?" + query);
             }   
 
 			// KG-1469 Canonicalize Host header to make hostname lowercase to ensure correct lookup in service registry
@@ -475,49 +478,6 @@ public class HttpRequestDecodingState extends DecodingStateMachine {
         	}
         }
         return cookies;
-    }
-
-    private static final class MaximumLengthDecodingState implements DecodingState {
-        private long remaining;
-
-        private MaximumLengthDecodingState(long maximumLength) {
-            this.remaining = maximumLength;
-        }
-
-        @Override
-        public DecodingState decode(IoBuffer in,
-                ProtocolDecoderOutput out) throws Exception {
-        	IoBufferEx inEx = (IoBufferEx) in;
-            int length = inEx.remaining();
-			if (remaining > length) {
-				// more data will come in next IP packet
-                remaining -= length;
-                IoBufferEx slice = inEx.getSlice(length);
-                HttpContentMessage httpContent = new HttpContentMessage(slice, false);
-                out.write(httpContent);
-   
-                return this;
-            }
-            else if (remaining > 0L){
-                // remaining <= in.remaining() - data is completed
-            	int remainingAsInt = (int) remaining;
-                IoBufferEx slice = inEx.getSlice(remainingAsInt);
-            	remaining = 0L;
-            	
-                HttpContentMessage httpContent = new HttpContentMessage(slice, true);
-                out.write(httpContent);
-   
-                return finishDecode(out);
-            }
-            else {
-            	throw new ProtocolDecoderException("Content length exceeded: " + in.getHexDump());
-            }
-        }
-
-        @Override
-        public DecodingState finishDecode(ProtocolDecoderOutput out) throws Exception {
-            return null;
-        }
     }
 
 }

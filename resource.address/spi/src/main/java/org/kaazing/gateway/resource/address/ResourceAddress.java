@@ -34,14 +34,17 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 
 public abstract class ResourceAddress extends SocketAddress implements ResourceOptions {
 
     private static final long serialVersionUID = 1L;
 
     public static final ResourceOption<String> NEXT_PROTOCOL = new NextProtocolOption();
-    public static final ResourceOption<URI> TRANSPORT_URI = new TransportURIOption();
+    public static final ResourceOption<String> TRANSPORT_URI = new TransportURIStringOption();
     public static final ResourceOption<ResourceAddress> TRANSPORT = new TransportOption();
     public static final ResourceOption<ResourceAddress> ALTERNATE = new AlternateOption();
     public static final ResourceOption<NameResolver> RESOLVER = new ResolverOption(); // consider moving to TcpResourceAddress, ...
@@ -51,39 +54,38 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     @Deprecated // Move separately to WSEB, PROXY, etc (different types)
     public static final ResourceOption<Object> QUALIFIER = new QualifierOption();
     public static final ResourceOption<URI> TRANSPORTED_URI = new TransportedURIOption();
-    
-    private final URI externalURI;
+
+    private final ResourceAddressFactorySpi factory;
+    public static final DefaultResourceOption<IdentityResolver> IDENTITY_RESOLVER = new IdentityResolverOption();
+    private final String externalURI;
     private final URI resourceURI;
+
     private String nextProtocol;
     private ResourceAddress transport;
-    private URI transportURI;
+    private String transportURI;
     private ResourceAddress alternate;
     private NameResolver resolver;
     private Object qualifier;
     private Boolean bindAlternate;
     private Boolean connectRequiresInit;
+    private IdentityResolver identityResolver;
 
-    public ResourceAddress(URI externalURI, URI resourceURI) {
-        if (externalURI == null) {
-            throw new NullPointerException("externalURI");
-        }
-        if (resourceURI == null) {
-            throw new NullPointerException("resourceURI");
-        }
-        this.externalURI = externalURI;
-        this.resourceURI = resourceURI;
+    public ResourceAddress(ResourceAddressFactorySpi factory, String original, URI resourceURI) {
+        this.factory = Objects.requireNonNull(factory, "factory");
+        this.externalURI = Objects.requireNonNull(original, "externalURI");
+        this.resourceURI = Objects.requireNonNull(resourceURI, "resourceURI");
     }
 
     // note: used by pipe://
-    protected ResourceAddress(URI resourceURI) {
-        this(resourceURI, resourceURI);
+    protected ResourceAddress(ResourceAddressFactorySpi factory, URI resourceURI) {
+        this(factory, URIUtils.uriToString(resourceURI), resourceURI);
     }
     
     public URI getResource() {
         return resourceURI;
     }
     
-    public URI getExternalURI() {
+    public String getExternalURI() {
         return externalURI;
     }
     
@@ -161,6 +163,8 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                     return getTransportedURI() != null;
                 case CONNECT_REQUIRES_INIT:
                     return connectRequiresInit != null;
+                case IDENTITY_RESOLVER:
+                    return (identityResolver != null);
             }
         }
 
@@ -187,7 +191,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     }
 
 
-    public ResourceAddress resolve(String newPath) {
+    public final ResourceAddress resolve(String newPath) {
         if ( newPath == null ) {
             throw new NullPointerException(newPath);
         }
@@ -195,11 +199,9 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
         return resolve(addressURI.getPath(), newPath);
     }
 
-    protected ResourceAddress resolve(String oldPath, String newPath) {
-        ResourceAddress result;
-
+    protected final ResourceAddress resolve(String oldPath, String newPath) {
         URI addressURI = getResource();
-        URI externalURI = getExternalURI();
+        String externalURI = getExternalURI();
 
         boolean newPathDiffersFromOld = !oldPath.equals(newPath);
         if ( !newPathDiffersFromOld ) {
@@ -212,32 +214,24 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
         }
 
         URI newResourceURI = addressURI.resolve(newPath);
-        URI newExternalURI = externalURI.resolve(newPath);
+        String newExternalURI = URIUtils.resolve(externalURI, newPath);
+        ResourceOptions newOptions = FACTORY.newResourceOptions(this);
+        resolve(oldPath, newPath, newOptions);
+        String externalUriToString = newExternalURI;
+        String newResourceUriToString = URIUtils.uriToString(newResourceURI);
+        return factory.newResourceAddress0(externalUriToString, newResourceUriToString, newOptions);
+    }
 
-        final ResourceOptions newOptions =
-                ResourceOptions.FACTORY.newResourceOptions(ResourceAddress.this);
+    protected void resolve(String oldPath, String newPath, ResourceOptions newOptions) {
         ResourceAddress transport = getOption(TRANSPORT);
+        if (transport != null) {
+            newOptions.setOption(TRANSPORT, transport.resolve(oldPath, newPath));
+        }
+
         ResourceAddress alternate = getOption(ALTERNATE);
-        transport = (transport == null?transport:transport.resolve(oldPath, newPath));
-        alternate = (alternate == null?alternate:alternate.resolve(oldPath,newPath));
-        newOptions.setOption(TRANSPORT, transport);
-        newOptions.setOption(ALTERNATE, alternate);
-
-        result = new ResourceAddress(newExternalURI, newResourceURI) {
-            @Override
-            protected <V> V getOption0(ResourceOption<V> option) {
-                return newOptions.getOption(option);
-            }
-        };
-        result.transport = newOptions.getOption(TRANSPORT);
-        result.alternate = newOptions.getOption(ALTERNATE);
-        result.qualifier = newOptions.getOption(QUALIFIER);
-        result.resolver = newOptions.getOption(RESOLVER);
-        result.nextProtocol = newOptions.getOption(NEXT_PROTOCOL);
-        result.bindAlternate = newOptions.getOption(BIND_ALTERNATE);
-        result.transportURI = newOptions.getOption(TRANSPORT_URI);
-
-        return result;
+        if (alternate != null) {
+            newOptions.setOption(ALTERNATE, alternate.resolve(oldPath, newPath));
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -263,6 +257,8 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                     return (V) getTransportedURI();
                 case CONNECT_REQUIRES_INIT:
                     return (V) connectRequiresInit;
+                case IDENTITY_RESOLVER:
+                    return (V) identityResolver;
             }
         }
 
@@ -277,7 +273,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                     nextProtocol = (String) value;
                     return;
                 case TRANSPORT_URI:
-                    transportURI = (URI) value;
+                    transportURI = (String) value;
                     return;
                 case TRANSPORT:
                     transport = (ResourceAddress) value;
@@ -300,6 +296,9 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                 case CONNECT_REQUIRES_INIT:
                     connectRequiresInit = (Boolean) value;
                     return;
+                case IDENTITY_RESOLVER:
+                    identityResolver = (IdentityResolver) value;
+                    return;
             }
         }
 
@@ -308,16 +307,16 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     
     @Override
     public int hashCode() {
-    	int result = resourceURI.hashCode();
-    	result = 31 * result + (nextProtocol != null ? nextProtocol.hashCode() : 0);
+        int result = resourceURI.hashCode();
+        result = 31 * result + (nextProtocol != null ? nextProtocol.hashCode() : 0);
         result = 31 * result + (transport != null ? transport.hashCode() : 0);
         result = 31 * result + (transportURI != null ? transportURI.hashCode() : 0);
         result = 31 * result + (alternate != null ? alternate.hashCode() : 0);
         result = 31 * result + (resolver != null ? resolver.hashCode() : 0);
-    	result = 31 * result + (qualifier != null ? qualifier.hashCode() : 0);
+        result = 31 * result + (qualifier != null ? qualifier.hashCode() : 0);
         result = 31 * result + (getTransportedURI() != null ? getTransportedURI().hashCode() : 0);
 
-    	return result;
+        return result;
     }
     
     @Override
@@ -366,8 +365,8 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
             builder.append(' ');
         }
         if (nextProtocol != null) {
-	        builder.append(nextProtocol);
-	        builder.append(' ');
+            builder.append(nextProtocol);
+            builder.append(' ');
         }
         builder.setCharAt(builder.length() - 1, ']');
         if (qualifier != null) {
@@ -384,8 +383,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
         }
     }
 
-
-    static class DefaultResourceOption<T> extends ResourceOption<T> {
+    public static class DefaultResourceOption<T> extends ResourceOption<T> {
 
         enum Kind { NEXT_PROTOCOL,
                            TRANSPORT,
@@ -395,7 +393,8 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                            BIND_ALTERNATE,
                            QUALIFIER,
                            TRANSPORTED_URI,
-                           CONNECT_REQUIRES_INIT }
+                           CONNECT_REQUIRES_INIT,
+                           IDENTITY_RESOLVER}
         
         static final Map<String, ResourceOption<?>> OPTIONS = new HashMap<>();
 
@@ -417,8 +416,8 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
         }
     }
     
-    private static class TransportURIOption extends DefaultResourceOption<URI> {
-        private TransportURIOption() {
+    private static class TransportURIStringOption extends DefaultResourceOption<String> {
+        private TransportURIStringOption() {
             super(Kind.TRANSPORT_URI, "transportURI");
         }
     }
@@ -492,7 +491,6 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                     if (wildcard != null) {
                         return wildcard.getAllByName(host);
                     }
-
                     return asList(InetAddress.getAllByName(host));
                 }
             });
@@ -544,5 +542,10 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
             super(Kind.CONNECT_REQUIRES_INIT, "connectRequiresInit", Boolean.FALSE);
         }
     }
-    
+
+    private static final class IdentityResolverOption extends DefaultResourceOption<IdentityResolver> {
+        private IdentityResolverOption() {
+            super(Kind.IDENTITY_RESOLVER, "identityResolver");
+        }
+    }
 }

@@ -15,8 +15,8 @@
  */
 package org.kaazing.gateway.resource.address.http;
 
-
 import static java.lang.String.format;
+import static org.kaazing.gateway.resource.address.ResourceAddress.IDENTITY_RESOLVER;
 import static org.kaazing.gateway.resource.address.ResourceFactories.changeSchemeOnly;
 import static org.kaazing.gateway.resource.address.ResourceFactories.keepAuthorityOnly;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.AUTHENTICATION_CONNECT;
@@ -26,9 +26,9 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.ENCR
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.GATEWAY_ORIGIN_SECURITY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.INJECTABLE_HEADERS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_CONNECTIONS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_TIMEOUT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.LOGIN_CONTEXT_FACTORY;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_CONNECTIONS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.ORIGIN_SECURITY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES;
@@ -37,6 +37,7 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REAL
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_CHALLENGE_SCHEME;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_DESCRIPTION;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_NAME;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_USER_PRINCIPAL_CLASSES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REQUIRED_ROLES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.SERVER_HEADER_ENABLED;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.SERVICE_DOMAIN;
@@ -45,6 +46,7 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.TRAN
 
 import java.io.File;
 import java.net.URI;
+import java.security.Principal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -52,10 +54,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.kaazing.gateway.resource.address.IdentityResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.security.LoginContextFactory;
 
@@ -114,7 +118,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
     
     @SuppressWarnings("unchecked")
     @Override
-    protected void parseNamedOptions0(URI location, ResourceOptions options,
+    protected void parseNamedOptions0(String location, ResourceOptions options,
                                       Map<String, Object> optionsByName) {
 
         Boolean keepAlive = (Boolean) optionsByName.remove(KEEP_ALIVE.name());
@@ -212,12 +216,12 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
             options.setOption(TEMP_DIRECTORY, tempDirectory);
         }
 
-        List<Map<URI, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI = (List<Map<URI, Map<String, CrossSiteConstraintContext>>>) optionsByName.remove(GATEWAY_ORIGIN_SECURITY.name());
+        List<Map<String, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI = (List<Map<String, Map<String, CrossSiteConstraintContext>>>) optionsByName.remove(GATEWAY_ORIGIN_SECURITY.name());
         if (authorityToSetOfAcceptConstraintsByURI != null) {
             options.setOption(GATEWAY_ORIGIN_SECURITY, new GatewayHttpOriginSecurity(authorityToSetOfAcceptConstraintsByURI));
         }
 
-        Collection<URI> balanceOrigin = (Collection<URI>) optionsByName.remove(BALANCE_ORIGINS.name());
+        Collection<String> balanceOrigin = (Collection<String>) optionsByName.remove(BALANCE_ORIGINS.name());
         if (balanceOrigin != null) {
             options.setOption(BALANCE_ORIGINS, balanceOrigin);
         }
@@ -226,13 +230,29 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         if (serverHeaderEnabled != null) {
             options.setOption(SERVER_HEADER_ENABLED, serverHeaderEnabled);
         }
+
+        Collection<Class<? extends Principal>> realmUserPrincipalClasses = (Collection<Class<? extends Principal>>) optionsByName.remove(REALM_USER_PRINCIPAL_CLASSES.name());
+        if (realmUserPrincipalClasses != null) {
+            options.setOption(REALM_USER_PRINCIPAL_CLASSES, realmUserPrincipalClasses);
+        }
+
+        IdentityResolver httpIdentityResolver = (IdentityResolver) optionsByName.remove(IDENTITY_RESOLVER.name());
+        if (httpIdentityResolver != null) {
+            options.setOption(IDENTITY_RESOLVER, httpIdentityResolver);
+        }
+        else {
+            if (realmUserPrincipalClasses != null && realmUserPrincipalClasses.size() > 0) {
+                httpIdentityResolver = new HttpIdentityResolver(realmUserPrincipalClasses);
+                options.setOption(IDENTITY_RESOLVER, httpIdentityResolver);
+            }
+        }
     }
 
-    protected void setAlternateOption(final URI location,
+    protected void setAlternateOption(final String location,
                                       ResourceOptions options,
                                       Map<String, Object> optionsByName) {
         String key = options.getOption(HttpResourceAddress.NEXT_PROTOCOL);
-        String scheme = location.getScheme();
+        String scheme = URIUtils.getScheme(location);
         final boolean secureScheme = "https".equals(scheme) || scheme.contains("+ssl");
         if (key != null && secureScheme) {
             key = key + " secure";
@@ -261,11 +281,11 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
     }
 
     @Override
-    protected HttpResourceAddress newResourceAddress0(URI original, URI location) {
+    protected HttpResourceAddress newResourceAddress0(String original, String location) {
 
-        String host = location.getHost();
-        int port = location.getPort();
-        String path = location.getPath();
+        String host = URIUtils.getHost(location);
+        int port = URIUtils.getPort(location);
+        String path = URIUtils.getPath(location);
 
         if (host == null) {
             throw new IllegalArgumentException(format("Missing host in URI: %s", location));
@@ -279,7 +299,8 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
             throw new IllegalArgumentException(format("Missing path in URI: %s", location));
         }
         
-        return new HttpResourceAddress(original, location);
+        URI uriLocation = URI.create(location);
+        return new HttpResourceAddress(this, original, uriLocation);
     }
 
     @Override
@@ -309,6 +330,14 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         address.setOption0(ENCRYPTION_KEY_ALIAS, options.getOption(ENCRYPTION_KEY_ALIAS));
         address.setOption0(SERVICE_DOMAIN, options.getOption(SERVICE_DOMAIN));
         address.setOption0(SERVER_HEADER_ENABLED, options.getOption(SERVER_HEADER_ENABLED));
+        address.setOption0(REALM_USER_PRINCIPAL_CLASSES, options.getOption(REALM_USER_PRINCIPAL_CLASSES));
+        if (address.getOption(IDENTITY_RESOLVER) == null) {
+             Collection<Class<? extends Principal>> realmUserPrincipalClasses = address.getOption(REALM_USER_PRINCIPAL_CLASSES);
+             if (realmUserPrincipalClasses != null && realmUserPrincipalClasses.size() > 0) {
+                 IdentityResolver httpIdentityResolver = new HttpIdentityResolver(realmUserPrincipalClasses);
+                 address.setIdentityResolver(IDENTITY_RESOLVER, httpIdentityResolver);
+             }
+        }
     }
 
 }

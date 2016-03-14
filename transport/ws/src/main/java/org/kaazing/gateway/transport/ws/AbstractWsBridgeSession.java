@@ -33,6 +33,7 @@ import org.kaazing.gateway.server.spi.security.LoginResult;
 import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.Direction;
+import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
@@ -50,10 +51,15 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractWsBridgeSession<S extends IoSessionEx, B extends IoBufferEx> extends AbstractBridgeSession<S, B> {
 
     // This logger logs scheduled events, and must be mentioned explicitly to show up to customers.
-    protected static final Logger logger = LoggerFactory.getLogger("session.scheduled");
+    private static final Logger scheduledEventslogger = LoggerFactory.getLogger("session.scheduled");
 
     // This logger logs websocket logout events, and must be mentioned explicitly to show up to customers.
     protected static final Logger logoutLogger = LoggerFactory.getLogger("session.logout");
+
+    public static final TypedAttributeKey<Long> LAST_ROUND_TRIP_LATENCY =
+            new TypedAttributeKey<>(AbstractWsBridgeSession.class, "lastRoundTripLatency");
+    public static final TypedAttributeKey<Long> LAST_ROUND_TRIP_LATENCY_TIMESTAMP =
+            new TypedAttributeKey<>(AbstractWsBridgeSession.class, "lastRoundTripLatencyTimestamp");
 
     protected BridgeServiceFactory bridgeServiceFactory;
     protected ResourceAddressFactory resourceAddressFactory;
@@ -62,6 +68,7 @@ public abstract class AbstractWsBridgeSession<S extends IoSessionEx, B extends I
     protected ScheduledExecutorService scheduler;
     protected ResultAwareLoginContext loginContext;
     private List<WebSocketExtension> extensions;
+    private Throwable closeException;
 
     public AbstractWsBridgeSession(int ioLayer, Thread ioThread, Executor ioExecutor, IoServiceEx service, IoProcessorEx<S> sIoProcessor, ResourceAddress localAddress,
                                    ResourceAddress remoteAddress, IoBufferAllocatorEx<B> allocator,
@@ -137,8 +144,8 @@ public abstract class AbstractWsBridgeSession<S extends IoSessionEx, B extends I
         if (initSessionTimeoutCommand.compareAndSet(false, true)) {
             final Long sessionTimeout = getSessionTimeout();
             if ( sessionTimeout != null && sessionTimeout > 0) {
-                if ( logger.isTraceEnabled() ) {
-                    logger.trace( "Establishing a session timeout of " + sessionTimeout + " seconds for WebSocket session (" + getId() + ").");
+                if ( scheduledEventslogger.isTraceEnabled() ) {
+                    scheduledEventslogger.trace( "Establishing a session timeout of " + sessionTimeout + " seconds for WebSocket session (" + getId() + ").");
                 }
                 scheduleCommand(this.sessionTimeout, sessionTimeout);
             }
@@ -191,6 +198,21 @@ public abstract class AbstractWsBridgeSession<S extends IoSessionEx, B extends I
             }
         }
         loginContext = null;
+    }
+
+    public Throwable getCloseException() {
+        return closeException;
+    }
+
+    // Use this to prevent multiple reporting of the close exception
+    public Throwable getAndClearCloseException() {
+        Throwable result = closeException;
+        closeException = null;
+        return result;
+    }
+
+    public void setCloseException(Throwable t) {
+        this.closeException = t;
     }
 
 }

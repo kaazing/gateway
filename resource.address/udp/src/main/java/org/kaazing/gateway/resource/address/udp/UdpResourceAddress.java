@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceOption;
 
 public final class UdpResourceAddress extends ResourceAddress {
@@ -41,8 +42,8 @@ public final class UdpResourceAddress extends ResourceAddress {
 	private long maximumOutboundRate = MAXIMUM_OUTBOUND_RATE.defaultValue();
 	private NetworkInterface updInterface;
 
-	UdpResourceAddress(URI original, URI resource) {
-		super(original, resource);
+	UdpResourceAddress(ResourceAddressFactorySpi factory, String original, URI resource) {
+		super(factory, original, resource);
 	}
 
 	@Override

@@ -132,10 +132,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.11</version>
+                <version>${checkstyle.plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>validate</id>
                         <phase>validate</phase>
                         <configuration>
                             <encoding>UTF-8</encoding>
@@ -155,7 +154,7 @@
                     <dependency>
                         <groupId>org.kaazing</groupId>
                         <artifactId>code.quality</artifactId>
-                        <version>1.1</version>
+                        <version>${code.quality.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -186,6 +185,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
                 <extensions>false</extensions>
                 <inherited>false</inherited>
                 <configuration>
@@ -260,6 +260,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.2</version>
                 <configuration>
                     <dependencyReducedPomLocation>${basedir}/target/dependency-reduced-pom.xml</dependencyReducedPomLocation>
                     <createSourcesJar>${create.shaded.sources}</createSourcesJar>

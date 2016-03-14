@@ -16,6 +16,9 @@
 package org.kaazing.gateway.transport.wsn;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.kaazing.gateway.util.Utils.asByteBuffer;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
@@ -150,7 +153,7 @@ public class WsnTransportTest {
     @Test
     public void connectorShouldReceiveMessageFromAcceptor() throws Exception {
 
-        URI location = URI.create("ws://localhost:8000/echo");
+        String location = "ws://localhost:8000/echo";
         Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
         ResourceAddress address = addressFactory.newResourceAddress(location, addressOptions);
         final CountDownLatch acceptSessionClosed = new CountDownLatch(1);
@@ -159,6 +162,24 @@ public class WsnTransportTest {
 
             @Override
             public void doSessionOpened(final IoSessionEx session) throws Exception {
+                WsnSession wsnSession = (WsnSession) session;
+
+                ResourceAddress localWsnAddress = wsnSession.getLocalAddress();
+                ResourceAddress localHttpAddress = localWsnAddress.getTransport();
+                ResourceAddress localTcpAddress = localHttpAddress.getTransport();
+                assertEquals(localHttpAddress.getResource(), URI.create("http://localhost:8000/echo"));
+                assertEquals(localHttpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), "ws/rfc6455");
+                assertTrue(localTcpAddress.getResource().getAuthority().contains("8000"));
+                assertEquals(localTcpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), "http/1.1");
+
+                ResourceAddress remoteWsnAddress = wsnSession.getRemoteAddress();
+                ResourceAddress remoteHttpAddress = remoteWsnAddress.getTransport();
+                ResourceAddress remoteTcpAddress = remoteHttpAddress.getTransport();
+                assertEquals(remoteHttpAddress.getResource(), URI.create("http://localhost:8000/echo"));
+                assertEquals(remoteHttpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), "ws/rfc6455");
+                assertFalse(remoteTcpAddress.getResource().getAuthority().contains("8000"));
+                assertEquals(remoteTcpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), "http/1.1");
+
                 // send a message
                 session.write(SimpleBufferAllocator.BUFFER_ALLOCATOR.wrap(asByteBuffer("Message from acceptor")))
                         .addListener(new IoFutureListener<IoFuture>() {
@@ -188,6 +209,24 @@ public class WsnTransportTest {
 
             @Override
             public void doMessageReceived(IoSessionEx session, Object message) throws Exception {
+                WsnSession wsnSession = (WsnSession) session;
+
+                ResourceAddress localWsnAddress = wsnSession.getLocalAddress();
+                ResourceAddress localHttpAddress = localWsnAddress.getTransport();
+                ResourceAddress localTcpAddress = localHttpAddress.getTransport();
+                assertEquals(localHttpAddress.getResource(), URI.create("http://localhost:8000/echo"));
+                assertEquals(localHttpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), "ws/rfc6455");
+                assertFalse(localTcpAddress.getResource().getAuthority().contains("8000"));
+                assertEquals(localTcpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), "http/1.1");
+
+                ResourceAddress remoteWsnAddress = wsnSession.getRemoteAddress();
+                ResourceAddress remoteHttpAddress = remoteWsnAddress.getTransport();
+                ResourceAddress remoteTcpAddress = remoteHttpAddress.getTransport();
+                assertEquals(remoteHttpAddress.getResource(), URI.create("http://localhost:8000/echo"));
+                assertEquals(remoteHttpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), "ws/rfc6455");
+                assertTrue(remoteTcpAddress.getResource().getAuthority().contains("8000"));
+                assertEquals(remoteTcpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), "http/1.1");
+
                 messageReceived.countDown();
             }
 
@@ -207,7 +246,7 @@ public class WsnTransportTest {
     @Test
     public void connectorShouldWriteAndReceiveMessage() throws Exception {
 
-        URI location = URI.create("wsn://localhost:8000/echo");
+        String location = "wsn://localhost:8000/echo";
         Map<String, Object> addressOptions = Collections.emptyMap(); // Collections.<String,
                                                                                       // Object>singletonMap("http.transport",
                                                                                       // URI.create("pipe://internal"));

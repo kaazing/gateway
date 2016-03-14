@@ -19,7 +19,15 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.kaazing.gateway.resource.address.ResourceAddress.CONNECT_REQUIRES_INIT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
-import static org.kaazing.gateway.server.context.resolve.DefaultClusterContext.CLUSTER_LOGGER_NAME;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_USER_PRINCIPAL_CLASSES;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.buildURIAsString;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getAuthority;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getFragment;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getPath;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getQuery;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.modifyURIScheme;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.resolve;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -31,11 +39,11 @@ import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.security.Key;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -57,7 +65,6 @@ import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
-import org.kaazing.gateway.resource.address.URLUtils;
 import org.kaazing.gateway.security.AuthenticationContext;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.security.RealmContext;
@@ -125,18 +132,18 @@ public class DefaultServiceContext implements ServiceContext {
     private final Service service;
     private final File tempDir;
     private final File webDir;
-    private final Collection<URI> balances;
-    private final Collection<URI> accepts;
-    private final Collection<URI> connects;
+    private final Collection<String> balances;
+    private final Collection<String> accepts;
+    private final Collection<String> connects;
     private final ServiceProperties properties;
     private final Map<String, String> mimeMappings;
-    private final Map<URI, ? extends Map<String, ? extends CrossSiteConstraintContext>> acceptConstraintsByURI;
+    private final Map<String, ? extends Map<String, ? extends CrossSiteConstraintContext>> acceptConstraintsByURI;
     private final TransportFactory transportFactory;
-    private List<Map<URI, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI;
+    private List<Map<String, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI;
     private final String[] requireRoles;
-    private final Map<URI, ResourceAddress> bindings;
+    private final Map<String, ResourceAddress> bindings;
     private final ConcurrentMap<Long, IoSessionEx> activeSessions;
-    private final Map<URI, IoHandler> bindHandlers;
+    private final Map<String, IoHandler> bindHandlers;
     private final ClusterContext clusterContext;
     private final AcceptOptionsContext acceptOptionsContext;
     private final ConnectOptionsContext connectOptionsContext;
@@ -186,13 +193,13 @@ public class DefaultServiceContext implements ServiceContext {
                 service,
                 null,
                 null,
-                Collections.<URI>emptySet(),
-                Collections.<URI>emptySet(),
-                Collections.<URI>emptySet(),
+                Collections.<String>emptySet(),
+                Collections.<String>emptySet(),
+                Collections.<String>emptySet(),
                 new DefaultServiceProperties(),
                 EMPTY_REQUIRE_ROLES,
                 Collections.<String, String>emptyMap(),
-                Collections.<URI, Map<String, CrossSiteConstraintContext>>emptyMap(),
+                Collections.<String, Map<String, CrossSiteConstraintContext>>emptyMap(),
                 null,
                 new DefaultAcceptOptionsContext(),
                 new DefaultConnectOptionsContext(),
@@ -214,13 +221,13 @@ public class DefaultServiceContext implements ServiceContext {
                                  Service service,
                                  File webDir,
                                  File tempDir,
-                                 Collection<URI> balances,
-                                 Collection<URI> accepts,
-                                 Collection<URI> connects,
+                                 Collection<String> balances,
+                                 Collection<String> accepts,
+                                 Collection<String> connects,
                                  ServiceProperties properties,
                                  String[] requireRoles,
                                  Map<String, String> mimeMappings,
-                                 Map<URI, Map<String, CrossSiteConstraintContext>> crossSiteConstraints,
+                                 Map<String, Map<String, CrossSiteConstraintContext>> crossSiteConstraints,
                                  ClusterContext clusterContext,
                                  AcceptOptionsContext acceptOptionsContext,
                                  ConnectOptionsContext connectOptionsContext,
@@ -270,8 +277,8 @@ public class DefaultServiceContext implements ServiceContext {
         if (otherObject instanceof ServiceContext) {
             ServiceContext otherServiceContext = (ServiceContext) otherObject;
             if (this.serviceType.equals(otherServiceContext.getServiceType())) {
-                Collection<URI> otherAccepts = otherServiceContext.getAccepts();
-                for (URI uri : this.accepts) {
+                Collection<String> otherAccepts = otherServiceContext.getAccepts();
+                for (String uri : this.accepts) {
                     if (!otherAccepts.contains(uri)) {
                         return false;
                     }
@@ -370,17 +377,17 @@ public class DefaultServiceContext implements ServiceContext {
     }
 
     @Override
-    public Collection<URI> getAccepts() {
+    public Collection<String> getAccepts() {
         return accepts;
     }
 
     @Override
-    public Collection<URI> getBalances() {
+    public Collection<String> getBalances() {
         return balances;
     }
 
     @Override
-    public Collection<URI> getConnects() {
+    public Collection<String> getConnects() {
         return connects;
     }
 
@@ -411,7 +418,7 @@ public class DefaultServiceContext implements ServiceContext {
     }
 
     @Override
-    public Map<URI, ? extends Map<String, ? extends CrossSiteConstraintContext>> getCrossSiteConstraints() {
+    public Map<String, ? extends Map<String, ? extends CrossSiteConstraintContext>> getCrossSiteConstraints() {
         return acceptConstraintsByURI;
     }
 
@@ -436,25 +443,25 @@ public class DefaultServiceContext implements ServiceContext {
     }
 
     @Override
-    public void bind(Collection<URI> bindURIs, IoHandler handler) {
+    public void bind(Collection<String> bindURIs, IoHandler handler) {
         bind(bindURIs, handler, acceptOptionsContext);
     }
 
     @Override
-    public void bind(Collection<URI> bindURIs, IoHandler handler, AcceptOptionsContext acceptOptionsContext) {
+    public void bind(Collection<String> bindURIs, IoHandler handler, AcceptOptionsContext acceptOptionsContext) {
         bind(bindURIs, handler, acceptOptionsContext, null);
     }
 
     @Override
-    public void bind(Collection<URI> bindURIs, IoHandler handler, BridgeSessionInitializer<ConnectFuture>
+    public void bind(Collection<String> bindURIs, IoHandler handler, BridgeSessionInitializer<ConnectFuture>
             bridgeSessionInitializer) {
         bind(bindURIs, handler, acceptOptionsContext, bridgeSessionInitializer);
     }
 
     @Override
-    public void bindConnectsIfNecessary(Collection<URI> connectURIs) {
+    public void bindConnectsIfNecessary(Collection<String> connectURIs) {
 
-        for (URI connectURI : connectURIs) {
+        for (String connectURI : connectURIs) {
             // TODO: services should bind ResourceAddress directly, rather than passing URIs here
             Map<String, Object> connectOptions = buildResourceAddressOptions(connectURI, connectOptionsContext);
             ResourceAddress connectAddress = resourceAddressFactory.newResourceAddress(connectURI, connectOptions);
@@ -464,9 +471,9 @@ public class DefaultServiceContext implements ServiceContext {
     }
 
     @Override
-    public void unbindConnectsIfNecessary(Collection<URI> connectURIs) {
+    public void unbindConnectsIfNecessary(Collection<String> connectURIs) {
 
-        for (URI connectURI : connectURIs) {
+        for (String connectURI : connectURIs) {
             // TODO: services should bind ResourceAddress directly, rather than passing URIs here
             Map<String, Object> connectOptions = buildResourceAddressOptions(connectURI, connectOptionsContext);
             ResourceAddress connectAddress = resourceAddressFactory.newResourceAddress(connectURI, connectOptions);
@@ -506,7 +513,7 @@ public class DefaultServiceContext implements ServiceContext {
     }
 
     @Override
-    public void bind(Collection<URI> bindURIs,
+    public void bind(Collection<String> bindURIs,
                      IoHandler handler,
                      AcceptOptionsContext acceptOptionsContext,
                      final BridgeSessionInitializer<ConnectFuture> bridgeSessionInitializer) {
@@ -514,18 +521,18 @@ public class DefaultServiceContext implements ServiceContext {
             throw new IllegalArgumentException("Cannot bind without handler");
         }
 
-        for (URI uri : bindURIs) {
+        for (String uri : bindURIs) {
             bindHandlers.put(uri, handler);
         }
 
-        Map<Transport, List<URI>> bindsByTransport = getURIsByTransport(bindURIs);
+        Map<Transport, List<String>> bindsByTransport = getURIsByTransport(bindURIs);
 
         // for each transport group, create resource address for URIs and bind to transport.
-        for (Entry<Transport, List<URI>> entry : bindsByTransport.entrySet()) {
+        for (Entry<Transport, List<String>> entry : bindsByTransport.entrySet()) {
             Transport transport = entry.getKey();
-            List<URI> transportAccepts = entry.getValue();
+            List<String> transportAccepts = entry.getValue();
 
-            for (URI transportAccept : transportAccepts) {
+            for (String transportAccept : transportAccepts) {
 
                 Map<String, Object> options = buildResourceAddressOptions(transportAccept, acceptOptionsContext);
 
@@ -549,49 +556,52 @@ public class DefaultServiceContext implements ServiceContext {
 
             CollectionsFactory factory = clusterContext.getCollectionsFactory();
             if (factory != null) {
-                Map<MemberId, Map<URI, List<URI>>> memberIdBalancerUriMap = factory.getMap(MEMBERID_BALANCER_MAP_NAME);
+                Map<MemberId, Map<String, List<String>>> memberIdBalancerUriMap = factory.getMap(MEMBERID_BALANCER_MAP_NAME);
                 if (memberIdBalancerUriMap == null) {
                     throw new IllegalStateException("MemberId to BalancerMap is null");
                 }
 
                 MemberId localMember = clusterContext.getLocalMember();
-                Map<URI, List<URI>> memberBalanceUriMap = memberIdBalancerUriMap.get(localMember);
+                Map<String, List<String>> memberBalanceUriMap = memberIdBalancerUriMap.get(localMember);
                 if (memberBalanceUriMap == null) {
                     memberBalanceUriMap = new HashMap<>();
                 }
 
-                List<URI> acceptUris = new ArrayList<>();
+                List<String> acceptUris = new ArrayList<>();
                 if (accepts != null) {
                     acceptUris.addAll(accepts);
                 }
-                //Must use TreeSet , hazelcast map requires a ordered set to hash consistently.
-                IMap<URI, TreeSet<URI>> sharedBalanceUriMap = factory.getMap(BALANCER_MAP_NAME);
-                for (URI balanceURI : balances) {
+                // Must use TreeSet when replace(x,y,z) or remove(x,y) is used instead of remove(x) ,
+                // hazelcast map requires a ordered set to hash consistently.
+                IMap<String, TreeSet<String>> sharedBalanceUriMap = factory.getMap(BALANCER_MAP_NAME);
+                for (String balanceURI : balances) {
                     if (accepts != null) {
                         memberBalanceUriMap.put(balanceURI, acceptUris);
 
                         // get and add to the list here instead of overwriting it
-                        TreeSet<URI> balanceUris = null;
-                        TreeSet<URI> newBalanceUris = null;
+                        TreeSet<String> balanceUris = null;
+                        TreeSet<String> newBalanceUris = null;
                         do {
+                            GL.debug(GL.CLUSTER_LOGGER_NAME, "In Bind: While loop for balanceURI: " + balanceURI);
                             balanceUris = sharedBalanceUriMap.get(balanceURI);
                             if (balanceUris == null) {
-                                newBalanceUris = new TreeSet<URI>();
+                                newBalanceUris = new TreeSet<String>();
                                 newBalanceUris.addAll(accepts);
                                 balanceUris = sharedBalanceUriMap.putIfAbsent(balanceURI, newBalanceUris);
                                 if (balanceUris == null) {
+                                    GL.debug(GL.CLUSTER_LOGGER_NAME, "In bind: balancer uri == null");
                                     break;
                                 }
                             }
-                            newBalanceUris = new TreeSet<URI>(balanceUris);
+                            newBalanceUris = new TreeSet<String>(balanceUris);
                             newBalanceUris.addAll(accepts);
                             if (newBalanceUris.equals(balanceUris)) {
                                 break;
                             }
                         } while (!sharedBalanceUriMap.replace(balanceURI, balanceUris, newBalanceUris));
 
-                        GL.info(CLUSTER_LOGGER_NAME, "Cluster member {}: service {} bound", localMember, serviceType);
-                        GL.debug(CLUSTER_LOGGER_NAME, "Added balance URIs {}, new global list is {}",
+                        GL.info(GL.CLUSTER_LOGGER_NAME, "Cluster member {}: service {} bound", localMember, serviceType);
+                        GL.debug(GL.CLUSTER_LOGGER_NAME, "Added balance URIs {}, new global list is {}",
                                 acceptUris, newBalanceUris);
                     }
                 }
@@ -599,9 +609,11 @@ public class DefaultServiceContext implements ServiceContext {
                 memberIdBalancerUriMap.put(localMember, memberBalanceUriMap);
             }
         }
+        GL.debug(GL.CLUSTER_LOGGER_NAME, "Exit Bind");
+        clusterContext.logClusterState();
     }
 
-    private Map<String, Object> buildResourceAddressOptions(URI transportURI, AcceptOptionsContext acceptOptionsContext) {
+    private Map<String, Object> buildResourceAddressOptions(String transportURI, AcceptOptionsContext acceptOptionsContext) {
         // options is a new HashMap
         final Map<String, Object> options = acceptOptionsContext.asOptionsMap();
         injectServiceOptions(transportURI, options);
@@ -612,7 +624,7 @@ public class DefaultServiceContext implements ServiceContext {
         return options;
     }
 
-    private Map<String, Object> buildResourceAddressOptions(URI transportURI, ConnectOptionsContext connectOptionsContext) {
+    private Map<String, Object> buildResourceAddressOptions(String transportURI, ConnectOptionsContext connectOptionsContext) {
         // options is a new HashMap
         final Map<String, Object> options = connectOptionsContext.asOptionsMap();
         injectServiceOptions(transportURI, options);
@@ -623,17 +635,17 @@ public class DefaultServiceContext implements ServiceContext {
         return options;
     }
 
-    private void injectServiceOptions(URI transportURI, Map<String, Object> options) {
+    private void injectServiceOptions(String transportURI, Map<String, Object> options) {
 
         Map<String, ? extends CrossSiteConstraintContext> acceptConstraints = acceptConstraintsByURI.get(transportURI);
         if (acceptConstraints == null && "balancer".equals(serviceType)) {
-            if (transportURI.getPath() != null && transportURI.getPath().endsWith("/;e")) {
-                transportURI = transportURI
-                        .resolve(transportURI.getPath().substring(0, transportURI.getPath().length() - "/;e".length()));
+            if (getPath(transportURI) != null && getPath(transportURI).endsWith("/;e")) {
+                transportURI = resolve(transportURI, getPath(transportURI).
+                                substring(0, getPath(transportURI).length() - "/;e".length()));
             }
-            acceptConstraints = acceptConstraintsByURI.get(URLUtils.modifyURIScheme(transportURI, "ws"));
-            if (acceptConstraints == null && transportFactory.getProtocol(transportURI).isSecure()) {
-                acceptConstraints = acceptConstraintsByURI.get(URLUtils.modifyURIScheme(transportURI, "wss"));
+            acceptConstraints = acceptConstraintsByURI.get(modifyURIScheme(transportURI, "ws"));
+            if (acceptConstraints == null && transportFactory.getProtocol(getScheme(transportURI)).isSecure()) {
+                acceptConstraints = acceptConstraintsByURI.get(modifyURIScheme(transportURI, "wss"));
             }
         }
         if (acceptConstraints != null) {
@@ -651,7 +663,7 @@ public class DefaultServiceContext implements ServiceContext {
                 authorityToSetOfAcceptConstraintsByURI);
 
         //needed for correct enforcement of same origin in clustered gateway scenarios (KG-9686)
-        final Collection<URI> balanceOriginUris = toHttpBalanceOriginURIs(getBalances());
+        final Collection<String> balanceOriginUris = toHttpBalanceOriginURIs(getBalances());
 
         if (balanceOriginUris != null) {
             options.put(format("http[http/1.1].%s", BALANCE_ORIGINS), balanceOriginUris);
@@ -699,7 +711,8 @@ public class DefaultServiceContext implements ServiceContext {
                                 authenticationContext.getHttpCookieNames());
                         options.put(format(optionPattern, LOGIN_CONTEXT_FACTORY),
                                 serviceRealmContext.getLoginContextFactory());
-
+                        options.put(format(optionPattern, REALM_USER_PRINCIPAL_CLASSES.name()),
+                                getUserPrincipalClasses(serviceRealmContext.getUserPrincipalClasses()));
                         // We need this to support reading legacy service properties during authentication.
                         // authentication-connect, authentication-identifier, encryption.key.alias, service.domain
                         // The negotiate properties are replaced with client-side capabilities to use different
@@ -738,7 +751,8 @@ public class DefaultServiceContext implements ServiceContext {
                             authenticationContext.getHttpCookieNames());
                     options.put(format(optionPattern, LOGIN_CONTEXT_FACTORY),
                             serviceRealmContext.getLoginContextFactory());
-
+                    options.put(format(optionPattern, REALM_USER_PRINCIPAL_CLASSES.name()),
+                            getUserPrincipalClasses(serviceRealmContext.getUserPrincipalClasses()));
                     // see note above for why this is needed
                     options.put(format(optionPattern, AUTHENTICATION_CONNECT),
                             getProperties().get("authentication.connect"));
@@ -754,20 +768,43 @@ public class DefaultServiceContext implements ServiceContext {
         }
     }
 
-    private Collection<URI> toHttpBalanceOriginURIs(Collection<URI> balances) {
+    /**
+     * Method converting String[] userPrincipalClasses to Class[]
+     * @param userPrincipalClasses
+     * @return
+     */
+   private Collection<Class<? extends Principal>> getUserPrincipalClasses(String[] userPrincipalClasses) {
+       Collection<Class<? extends Principal>> userPrincipals = new ArrayList<Class<? extends Principal>>();
+       for (String item : serviceRealmContext.getUserPrincipalClasses()) {
+           try {
+               userPrincipals.add(Class.forName(item).asSubclass(Principal.class));
+           } catch (ClassNotFoundException e) {
+               throw new RuntimeException(
+                     format("%s%s%s", "Class ", item,
+                            " could not be loaded. Please check the gateway configuration xml and confirm that"
+                            + " user-principal-class value(s) are spelled correctly for realm "
+                            + serviceRealmContext.getName() + "."), new ClassNotFoundException(e.getMessage()));
+           }
+       }
+   return userPrincipals;
+    }
+
+    private Collection<String> toHttpBalanceOriginURIs(Collection<String> balances) {
         if (balances == null || balances.isEmpty()) {
             return balances;
         }
 
-        List<URI> result = new ArrayList<>(balances.size());
-        for (URI uri : balances) {
+        List<String> result = new ArrayList<>(balances.size());
+        for (String uri : balances) {
             if (uri != null) {
                 try {
-                    final String scheme = uri.getScheme();
+                    final String scheme = getScheme(uri);
                     if ("ws".equals(scheme)) {
-                        result.add(new URI("http", uri.getAuthority(), uri.getPath(), uri.getQuery(), uri.getFragment()));
+                        result.add(buildURIAsString("http", getAuthority(uri),
+                                  getPath(uri), getQuery(uri), getFragment(uri)));
                     } else if ("wss".equals(scheme)) {
-                        result.add(new URI("https", uri.getAuthority(), uri.getPath(), uri.getQuery(), uri.getFragment()));
+                        result.add(buildURIAsString("https", getAuthority(uri),
+                                  getPath(uri), getQuery(uri), getFragment(uri)));
                     } else {
                         result.add(uri);
                     }
@@ -820,14 +857,14 @@ public class DefaultServiceContext implements ServiceContext {
      * @param uris
      * @return
      */
-    private Map<Transport, List<URI>> getURIsByTransport(Collection<URI> uris) {
-        Map<Transport, List<URI>> urisByTransport = new HashMap<>();
+    private Map<Transport, List<String>> getURIsByTransport(Collection<String> uris) {
+        Map<Transport, List<String>> urisByTransport = new HashMap<>();
 
         // iterate over URIs and group them by transport
-        for (URI uri : uris) {
-            String uriScheme = uri.getScheme();
+        for (String uri : uris) {
+            String uriScheme = getScheme(uri);
             Transport transport = transportFactory.getTransportForScheme(uriScheme);
-            List<URI> list = urisByTransport.get(transport);
+            List<String> list = urisByTransport.get(transport);
             if (list == null) {
                 list = new ArrayList<>();
                 urisByTransport.put(transport, list);
@@ -838,11 +875,11 @@ public class DefaultServiceContext implements ServiceContext {
     }
 
     @Override
-    public void unbind(Collection<URI> bindURIs, IoHandler handler) {
+    public void unbind(Collection<String> bindURIs, IoHandler handler) {
         if (handler == null) {
             throw new IllegalArgumentException("Cannot unbind without handler");
         } else {
-            for (URI uri : bindURIs) {
+            for (String uri : bindURIs) {
                 IoHandler bindHandler = bindHandlers.get(uri);
                 if (bindHandler != null) {
                     if (!handler.equals(bindHandler)) {
@@ -864,7 +901,7 @@ public class DefaultServiceContext implements ServiceContext {
         if (balances != null && balances.size() > 0) {
             CollectionsFactory factory = clusterContext.getCollectionsFactory();
             if (factory != null) {
-                Map<MemberId, Map<URI, List<URI>>> memberIdBalancerUriMap = factory
+                Map<MemberId, Map<String, List<String>>> memberIdBalancerUriMap = factory
                         .getMap(MEMBERID_BALANCER_MAP_NAME);
                 if (memberIdBalancerUriMap == null) {
                     throw new IllegalStateException("MemberId to BalancerMap is null");
@@ -872,25 +909,33 @@ public class DefaultServiceContext implements ServiceContext {
 
                 MemberId localMember = clusterContext.getLocalMember();
 
-                Map<URI, List<URI>> memberBalanceUriMap = memberIdBalancerUriMap.get(localMember);
+                Map<String, List<String>> memberBalanceUriMap = memberIdBalancerUriMap.get(localMember);
                 if (memberBalanceUriMap == null) {
-                    throw new IllegalStateException("Member balancerMap is null for member " + localMember);
+                    IllegalStateException is = new IllegalStateException(
+                            "In unbind: Member balancerMap returned null for member " + localMember);
+                    GL.error(GL.CLUSTER_LOGGER_NAME, "In unbind: Member balancerMap returned null for member "
+                            + localMember + is);
+                    throw is;
                 }
-                //Must use TreeSet , hazelcast map requires a ordered set to hash consistently.
-                IMap<URI, TreeSet<URI>> sharedBalanceUriMap = factory.getMap(BALANCER_MAP_NAME);
-                for (URI balanceURI : balances) {
+                // Must use TreeSet when replace(x,y,z) or remove(x,y) is used instead of remove(x) , hazelcast map
+                // requires a ordered set to hash consistently.
+                IMap<String, TreeSet<String>> sharedBalanceUriMap = factory.getMap(BALANCER_MAP_NAME);
+                for (String balanceURI : balances) {
                     if (accepts != null) {
                         memberBalanceUriMap.remove(balanceURI);
 
                         // get and add to the list here instead of overwriting it
-                        TreeSet<URI> balanceUris = null;
-                        TreeSet<URI> newBalanceUris = null;
+                        TreeSet<String> balanceUris = null;
+                        TreeSet<String> newBalanceUris = null;
                         do {
+                            GL.debug(GL.CLUSTER_LOGGER_NAME,
+                                    "In unbind while loop for balanaceURI: " + balanceURI.toString());
                             boolean didRemove = false;
                             balanceUris = sharedBalanceUriMap.get(balanceURI);
                             if (balanceUris != null) {
-                                newBalanceUris = new TreeSet<URI>(balanceUris);
-                                for (URI acceptUri : accepts) {
+                                GL.debug(GL.CLUSTER_LOGGER_NAME, "In unbind: balanceUris.size() :" + balanceUris.size());
+                                newBalanceUris = new TreeSet<String>(balanceUris);
+                                for (String acceptUri : accepts) {
                                     didRemove = didRemove || newBalanceUris.remove(acceptUri);
                                 }
                             }
@@ -901,24 +946,30 @@ public class DefaultServiceContext implements ServiceContext {
                                 break;
                             }
                             if (newBalanceUris.isEmpty()) {
+                                GL.debug(GL.CLUSTER_LOGGER_NAME, "In unbind: newBalanceUris.isEmpty()");
                                 if (sharedBalanceUriMap.remove(balanceURI, balanceUris)) {
+                                    GL.debug(GL.CLUSTER_LOGGER_NAME, "In unbind: remove returned true now break");
                                     break;
                                 } else {
+                                    GL.debug(GL.CLUSTER_LOGGER_NAME, "In unbind: remove returned false now continue");
                                     continue; // start over to refresh the newBalanceUris
                                 }
                             }
                         } while (!sharedBalanceUriMap.replace(balanceURI, balanceUris, newBalanceUris));
 
-                        GL.info(CLUSTER_LOGGER_NAME, "Cluster member {}: service {} unbound", localMember, serviceType);
-                        GL.debug(CLUSTER_LOGGER_NAME, "Removed balance URIs {}, new global list is {}", accepts, newBalanceUris);
+                        GL.info(GL.CLUSTER_LOGGER_NAME, "Cluster member {}: service {} unbound", localMember, serviceType);
+                        GL.debug(GL.CLUSTER_LOGGER_NAME, "Removed balance URIs {}, new global list is {}", accepts,
+                                newBalanceUris);
                     }
                 }
                 memberIdBalancerUriMap.put(localMember, memberBalanceUriMap);
             }
+            GL.debug(GL.CLUSTER_LOGGER_NAME, "Exit Unbind");
+            clusterContext.logClusterState();
         }
 
-        for (URI uri : bindURIs) {
-            String uriScheme = uri.getScheme();
+        for (String uri : bindURIs) {
+            String uriScheme = getScheme(uri);
             Transport transport = transportFactory.getTransportForScheme(uriScheme);
             ResourceAddress address = bindings.remove(uri);
             if (address != null) {
@@ -928,7 +979,7 @@ public class DefaultServiceContext implements ServiceContext {
     }
 
     @Override
-    public ConnectFuture connect(URI connectURI, final IoHandler connectHandler,
+    public ConnectFuture connect(String connectURI, final IoHandler connectHandler,
                                  final IoSessionInitializer<ConnectFuture> connectSessionInitializer) {
         ResourceAddress address = resourceAddressFactory.newResourceAddress(connectURI, connectOptionsContext.asOptionsMap());
         return connect(address, connectHandler, connectSessionInitializer);
@@ -937,7 +988,7 @@ public class DefaultServiceContext implements ServiceContext {
     @Override
     public ConnectFuture connect(ResourceAddress address, final IoHandler connectHandler,
                                  final IoSessionInitializer<ConnectFuture> connectSessionInitializer) {
-        String uriScheme = address.getExternalURI().getScheme();
+        String uriScheme = getScheme(address.getExternalURI());
         Transport transport = transportFactory.getTransportForScheme(uriScheme);
 
         BridgeConnector connector = transport.getConnector(address);
@@ -1046,7 +1097,7 @@ public class DefaultServiceContext implements ServiceContext {
     }
 
     @Override
-    public void setListsOfAcceptConstraintsByURI(List<Map<URI, Map<String, CrossSiteConstraintContext>>>
+    public void setListsOfAcceptConstraintsByURI(List<Map<String, Map<String, CrossSiteConstraintContext>>>
                                                              authorityToSetOfAcceptConstraintsByURI) {
         this.authorityToSetOfAcceptConstraintsByURI = authorityToSetOfAcceptConstraintsByURI;
     }

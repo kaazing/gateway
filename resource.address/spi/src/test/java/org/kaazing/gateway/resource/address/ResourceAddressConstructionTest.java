@@ -22,6 +22,7 @@ import java.net.URI;
 import java.util.Map;
 
 import org.junit.Before;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 
 public class ResourceAddressConstructionTest {
 
@@ -92,7 +93,7 @@ public class ResourceAddressConstructionTest {
             String expectedNextProtocol = expectedStructure[2];
 
             assertEquals("resource mismatch\n"+address, URI.create(expectedResourceURI), cursor.getResource());
-            assertEquals("scheme mismatch\n"+address, expectedExternalScheme, cursor.getExternalURI().getScheme());
+            assertEquals("scheme mismatch\n"+address, expectedExternalScheme, URIUtils.getScheme(cursor.getExternalURI()));
             assertEquals("nextprotocol mismatch\n"+address, expectedNextProtocol, cursor.getOption(ResourceAddress.NEXT_PROTOCOL));
 
             cursor = cursor.getTransport();

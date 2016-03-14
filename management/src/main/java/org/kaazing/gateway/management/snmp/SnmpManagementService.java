@@ -15,11 +15,12 @@
  */
 package org.kaazing.gateway.management.snmp;
 
-import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
+
 import javax.annotation.Resource;
+
 import org.hyperic.sigar.Sigar;
 import org.hyperic.sigar.Uptime;
 import org.kaazing.gateway.management.ManagementService;
@@ -118,7 +119,7 @@ public class SnmpManagementService implements ManagementService {
         // create a map of management services that can then be navigated in the cluster
         ClusterContext clusterContext = managementContext.getCluster();
         CollectionsFactory factory = clusterContext.getCollectionsFactory();
-        Map<MemberId, Collection<URI>> managementServiceUriMap = factory.getMap(MANAGEMENT_SERVICE_MAP_NAME);
+        Map<MemberId, Collection<String>> managementServiceUriMap = factory.getMap(MANAGEMENT_SERVICE_MAP_NAME);
 
         managementServiceUriMap.put(clusterContext.getLocalMember(), serviceContext.getAccepts());
     }

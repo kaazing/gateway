@@ -23,7 +23,6 @@ import static org.kaazing.gateway.transport.wsn.WsnSession.SESSION_KEY;
 
 import java.io.IOException;
 import java.net.ConnectException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -47,6 +46,7 @@ import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.AbstractBridgeConnector;
 import org.kaazing.gateway.transport.BridgeConnector;
@@ -55,7 +55,6 @@ import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.UpgradeFuture;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
@@ -83,8 +82,6 @@ import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
 
@@ -93,18 +90,12 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
     private static final String BASE64_FILTER = WsnProtocol.NAME + "#base64";
 
     private static final String TEXT_FILTER = WsnProtocol.NAME + "#text";
-    private static final String FAULT_LOGGING_FILTER = WsnProtocol.NAME + "#fault";
-    private static final String TRACE_LOGGING_FILTER = WsnProtocol.NAME + "#logging";
 
     private static final TypedAttributeKey<Callable<WsnSession>> WSN_SESSION_FACTORY_KEY = new TypedAttributeKey<>(WsnConnector.class, "wsnSessionFactory");
     private static final AttributeKey ENCODING_KEY = new AttributeKey(WsnConnector.class, "encoding");
     private static final TypedAttributeKey<IoSessionInitializer<?>> WSN_SESSION_INITIALIZER_KEY = new TypedAttributeKey<>(WsnConnector.class, "wsnSessionInitializer");
     private static final TypedAttributeKey<ConnectFuture> WSN_CONNECT_FUTURE_KEY = new TypedAttributeKey<>(WsnConnector.class, "wsnConnectFuture");
     private static final TypedAttributeKey<ResourceAddress> WSN_CONNECT_ADDRESS_KEY = new TypedAttributeKey<>(WsnConnector.class, "wsnConnectAddress");
-
-    private static final String LOGGER_NAME = String.format("transport.%s.connect", WsnProtocol.NAME);
-
-	private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private final HttpPostUpgradeFilter postUpgrade;
     private final WsCodecFilter codec;
@@ -154,13 +145,6 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
 
     @Override
     public void addBridgeFilters(IoFilterChain filterChain) {
-        // setup logging filters for bridge session
-        if (logger.isTraceEnabled()) {
-            filterChain.addFirst(TRACE_LOGGING_FILTER, new ObjectLoggingFilter(logger, WsnProtocol.NAME + "#%s"));
-        } else if (logger.isDebugEnabled()) {
-            filterChain.addFirst(FAULT_LOGGING_FILTER, new ObjectLoggingFilter(logger, WsnProtocol.NAME + "#%s"));
-        }
-
         IoSession session = filterChain.getSession();
         Encoding encoding = (Encoding) session.getAttribute(ENCODING_KEY);
 
@@ -342,10 +326,10 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 // emulation sends same-origin header
                 // TODO: determine appropriate HTML5 Origin header for desktop
                 // clients
-                URI resource = wsnConnectAddress.getExternalURI();
-                Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(resource.getScheme());
+                String resource = wsnConnectAddress.getExternalURI();
+                Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(URIUtils.getScheme(resource));
                 String wsScheme = protocol.isSecure() ? "https" : "http";
-                String origin = wsScheme + "://" + resource.getAuthority();
+                String origin = wsScheme + "://" + URIUtils.getAuthority(resource);
 
                 // note: WebSocket Version 13 upgrades to "websocket" (not "WebSocket")
                 // see http://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-13
@@ -439,7 +423,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
         @Override
         protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
             if (logger.isDebugEnabled()) {
-                String message = format("Error on WebSocket connection attempt: %s", cause);
+                String message = format("Error on WebSocket connection: %s", cause);
                 if (logger.isTraceEnabled()) {
                     // note: still debug level, but with extra detail about the exception
                     logger.debug(message, cause);
@@ -471,8 +455,8 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
         protected void doSessionClosed(IoSessionEx session) throws Exception {
             WsnSession wsnSession = SESSION_KEY.remove(session);
             if (wsnSession != null && !wsnSession.isClosing()) {
-                // TODO: require WebSocket controlled close handshake
-                wsnSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
+                wsnSession.reset(new IOException("Early termination of IO session", wsnSession.getCloseException())
+                                 .fillInStackTrace());
             }
         }
 

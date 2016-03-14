@@ -28,24 +28,29 @@ import static org.kaazing.gateway.resource.address.URLUtils.modifyURIScheme;
 import static org.kaazing.gateway.resource.address.URLUtils.truncateURI;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.MAX_MESSAGE_SIZE;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CACHE_CONTROL;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_ACCEPT_COMMANDS;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_TYPE;
 import static org.kaazing.gateway.transport.ws.WsSystemProperty.WSE_IDLE_TIMEOUT;
 import static org.kaazing.gateway.transport.ws.bridge.filter.WsCheckAliveFilter.DISABLE_INACTIVITY_TIMEOUT;
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 import static org.kaazing.mina.core.future.DefaultUnbindFuture.combineFutures;
 
+import java.io.IOException;
 import java.net.ProtocolException;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.Resource;
+import javax.security.auth.Subject;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.CloseFuture;
@@ -57,12 +62,14 @@ import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.kaazing.gateway.resource.address.IdentityResolver;
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOption;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
@@ -76,19 +83,17 @@ import org.kaazing.gateway.transport.BridgeSessionInitializerAdapter;
 import org.kaazing.gateway.transport.CommitFuture;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptor;
 import org.kaazing.gateway.transport.http.HttpHeaders;
+import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolCompatibilityFilter;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
-import org.kaazing.gateway.transport.ws.WsProtocol;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
@@ -106,11 +111,11 @@ import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.netty.IoSessionIdleTracker;
 import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-// TODO: will need some sort of session cleanup timeout
+@SuppressWarnings("deprecation")
 public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
+
+    public static final String WSE_VERSION = "wseb-1.0";
 
     public static final AttributeKey CLIENT_BUFFER_KEY = new AttributeKey(WsebAcceptor.class, "clientBuffer");
     public static final AttributeKey CLIENT_PADDING_KEY = new AttributeKey(WsebAcceptor.class, "clientPadding");
@@ -146,7 +151,6 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     private static final String UPSTREAM_MIXED_TEXT_ESCAPED_SUFFIX = EMULATED_SUFFIX + "/utem";
     static final String DOWNSTREAM_MIXED_TEXT_ESCAPED_SUFFIX = EMULATED_SUFFIX + "/dtem";
 
-    private static final String HEADER_CONTENT_TYPE = "Content-Type";
     private static final Charset UTF_8 = Charset.forName("UTF-8");
     protected static final byte LINEFEED_BYTE = "\n".getBytes()[0];
 
@@ -160,25 +164,27 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     private static final TypedAttributeKey<Integer> CREATE_CONTENT_LENGTH_READ =
             new TypedAttributeKey<>(WsebAcceptor.class, "createContentLengthRead");
 
-    private static final String FAULT_LOGGING_FILTER = WsebProtocol.NAME + "#fault";
-    private static final String TRACE_LOGGING_FILTER = WsebProtocol.NAME + "#logging";
-    private static final String LOGGER_NAME = String.format("transport.%s.accept", WsebProtocol.NAME);
+    // GET is tolerated for non-spec compliant clients
+    private static final EnumSet<HttpMethod> PERMITTED_CREATE_METHODS = EnumSet.of(HttpMethod.POST, HttpMethod.GET);
+
+    private static final Long MAX_SEQUENCE_NUMBER = 0x1fffffffffffffL; // 2 ^ 53 - 1
 
     private Properties configuration;
-    private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
+    private boolean specCompliant;
 
     private ScheduledExecutorService scheduler;
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory resourceAddressFactory;
+
     private WebSocketExtensionFactory webSocketExtensionFactory;
 
     private final List<IoSessionIdleTracker> sessionInactivityTrackers
         = Collections.synchronizedList(new ArrayList<IoSessionIdleTracker>());
-    private final ThreadLocal<IoSessionIdleTracker> currentSessionInactivityTracker
+    private final ThreadLocal<IoSessionIdleTracker> currentSessionIdleTracker
         = new VicariousThreadLocal<IoSessionIdleTracker>() {
             @Override
             protected IoSessionIdleTracker initialValue() {
-                IoSessionIdleTracker result = new WsebInactivityTracker(logger);
+                IoSessionIdleTracker result = new WsebTransportSessionIdleTracker(logger);
                 sessionInactivityTrackers.add(result);
                 return result;
             }
@@ -192,12 +198,13 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
     @Override
     protected IoProcessorEx<WsebSession> initProcessor() {
-        return new WsebAcceptProcessor(scheduler);
+        return new WsebAcceptProcessor(scheduler, logger);
     }
 
     @Resource(name = "configuration")
     public void setConfiguration(Properties configuration) {
         this.configuration = configuration;
+        this.specCompliant = "true".equals(WSE_SPECIFICATION.getProperty(configuration));
     }
 
     @Resource(name = "bridgeServiceFactory")
@@ -226,25 +233,6 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     }
 
     @Override
-    public void addBridgeFilters(IoFilterChain filterChain) {
-        // setup logging filters for bridge session
-        if (logger.isTraceEnabled()) {
-            filterChain.addFirst(TRACE_LOGGING_FILTER, new ObjectLoggingFilter(logger, WsebProtocol.NAME + "#%s"));
-        } else if (logger.isDebugEnabled()) {
-            filterChain.addFirst(FAULT_LOGGING_FILTER, new ExceptionLoggingFilter(logger, WsebProtocol.NAME + "#%s"));
-        }
-    }
-
-    @Override
-    public void removeBridgeFilters(IoFilterChain filterChain) {
-        if (filterChain.contains(TRACE_LOGGING_FILTER)) {
-            filterChain.remove(TRACE_LOGGING_FILTER);
-        } else if (filterChain.contains(FAULT_LOGGING_FILTER)) {
-            filterChain.remove(FAULT_LOGGING_FILTER);
-        }
-    }
-
-    @Override
     protected boolean canBind(String transportName) {
         return transportName.equals("wse") || transportName.equals("ws");
     }
@@ -266,7 +254,6 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             bindCookiesHandler(address.findTransport("http[http/1.1]"));
 
             final ResourceAddress transportAddress = address.getTransport();
-            URI transportURI = transportAddress.getExternalURI();
 
             Protocol httpProtocol = bridgeServiceFactory.getTransportFactory().getProtocol(transportAddress.getResource().getScheme());
             final BridgeSessionInitializer<T> httpInitializer = (initializer != null) ? initializer.getParentInitializer(httpProtocol) : null;
@@ -327,9 +314,9 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     }
 
     private ResourceAddress createApiHttpAddress(ResourceAddress httpTransport) {
-        String path = appendURI(ensureTrailingSlash(httpTransport.getExternalURI()), HttpProtocolCompatibilityFilter.API_PATH).getPath();
+        String path = URIUtils.getPath(appendURI(ensureTrailingSlash(httpTransport.getExternalURI()), HttpProtocolCompatibilityFilter.API_PATH));
 
-        URI httpLocation = modifyURIPath(httpTransport.getExternalURI(), path);
+        String httpLocation = modifyURIPath(httpTransport.getExternalURI(), path);
         ResourceOptions httpOptions = ResourceOptions.FACTORY.newResourceOptions(httpTransport);
         httpOptions.setOption(NEXT_PROTOCOL, null);       // terminal endpoint, so next protocol null
         httpOptions.setOption(ALTERNATE, null);
@@ -337,10 +324,10 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     }
 
     private ResourceAddress createApiHttpxeAddress(ResourceAddress httpxeTransport) {
-        String path = appendURI(ensureTrailingSlash(httpxeTransport.getExternalURI()), HttpProtocolCompatibilityFilter.API_PATH).getPath();
+        String path = URIUtils.getPath(appendURI(ensureTrailingSlash(httpxeTransport.getExternalURI()), HttpProtocolCompatibilityFilter.API_PATH));
 
         httpxeTransport = httpxeTransport.resolve(path);
-        URI httpxeLocation = modifyURIPath(httpxeTransport.getExternalURI(), path);
+        String httpxeLocation = modifyURIPath(httpxeTransport.getExternalURI(), path);
         ResourceOptions httpxeOptions = ResourceOptions.FACTORY.newResourceOptions(httpxeTransport);
         httpxeOptions.setOption(NEXT_PROTOCOL, null);       // terminal endpoint, so next protocol null
         return resourceAddressFactory.newResourceAddress(httpxeLocation, httpxeOptions);
@@ -369,7 +356,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         cookieOptions.setOption(BIND_ALTERNATE, Boolean.FALSE);
 
         URI cookiesLocation = appendURI(httpAddress.getResource(), COOKIES_SUFFIX);
-        return resourceAddressFactory.newResourceAddress(cookiesLocation, cookieOptions);
+        return resourceAddressFactory.newResourceAddress(URIUtils.uriToString(cookiesLocation), cookieOptions);
     }
 
     @Override
@@ -379,7 +366,6 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         unbindApiPath(address);
 
         final ResourceAddress transportAddress = address.getTransport();
-        URI transportURI = transportAddress.getExternalURI();
         BridgeAcceptor acceptor = bridgeServiceFactory.newBridgeAcceptor(transportAddress);
 
         UnbindFuture future = unbindCookiesHandler(address.findTransport("http[http/1.1]"));
@@ -398,6 +384,10 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
     String createResolvePath(URI httpUri, final String suffixWithLeadingSlash) {
         return appendURI(ensureTrailingSlash(httpUri),suffixWithLeadingSlash).getPath();
+    }
+
+    private String createResolvePath(String httpUri, final String suffixWithLeadingSlash) {
+        return URIUtils.getPath(appendURI(ensureTrailingSlash(httpUri),suffixWithLeadingSlash));
     }
 
     private static final ExtensionHelper extensionHelper = new ExtensionHelper() {
@@ -424,9 +414,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             return new IoFutureListener<CloseFuture>() {
                 @Override
                 public void operationComplete(CloseFuture future) {
-                    if (wsebSession.getInactivityTimeout() > 0) {
-                        currentSessionInactivityTracker.get().removeSession(wsebSession);
-                    }
+                    currentSessionIdleTracker.get().removeSession(wsebSession);
 
                     downstreamAcceptor.unbind(downstreamAddress);
                     upstreamAcceptor.unbind(upstreamAddress);
@@ -439,8 +427,23 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
         @Override
         protected void doSessionOpened(final HttpAcceptSession session) throws Exception {
-        	// validate WebSocket version
-            if (! validWsebVersion(session)) return;
+            if (!PERMITTED_CREATE_METHODS.contains(session.getMethod())) {
+                HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
+                session.setStatus(status);
+                session.setReason("Forbidden wse create request method " + session.getMethod());
+                session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+                session.close(false);
+                return;
+            }
+            if (specCompliant && !validateSequenceNumber(session)) {
+                return;
+            }
+            if (! validateWsebVersion(session)) {
+                return;
+            }
+            if (!validateAcceptCommands(session)) {
+                return;
+            }
 
             String contentLengthStr = session.getReadHeader("Content-Length");
             if (contentLengthStr == null || "0".equals(contentLengthStr)) {
@@ -508,7 +511,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                 downstreamSuffix = DOWNSTREAM_MIXED_TEXT_ESCAPED_SUFFIX;
                 upstreamSuffix = UPSTREAM_MIXED_TEXT_ESCAPED_SUFFIX;
             } else {
-                logger.info(String.format("Sending HTTP status 404 as the request=%s is not wse request", path));
+                logger.info(String.format("Sending HTTP status 404 as the request=%s is not wse create request", path));
                 session.setStatus(HttpStatus.CLIENT_NOT_FOUND);
                 session.close(false);
                 return;
@@ -517,9 +520,6 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             String sequenceStr = session.getReadHeader(HttpHeaders.HEADER_X_SEQUENCE_NO);
             final boolean validateSequenceNo = (sequenceStr != null);
             final long sequenceNo = validateSequenceNo ? Long.parseLong(sequenceStr) : -1;
-
-            final boolean wasHixieHandshake = wasHixieHandshake(session);
-
 
             // negotiate WebSocket protocol
             String wsProtocol;
@@ -582,23 +582,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             //    return;
             //}
 
-            URI request = session.getRequestURL();
-            URI pathInfo = session.getPathInfo();
             String sessionId = HttpUtils.newSessionId();
-
-            // check to see if we can stream to this session
-            // Note: Silverlight does not support redirecting from http to https
-            // so check .kd=s parameter (downstream=same) to prevent redirecting to https
-            if (!HttpUtils.canStream(session) && !"s".equals(session.getParameter(".kd"))) {
-                // lookup secure acceptURI
-                URI secureAcceptURI = locateSecureAcceptURI(session);
-                if (secureAcceptURI != null) {
-                    String secureAuthority = secureAcceptURI.getAuthority();
-                    String secureAcceptPath = secureAcceptURI.getPath();
-
-                    request = URI.create("https://" + secureAuthority + secureAcceptPath + pathInfo.toString());
-                }
-            }
 
             final IoBufferAllocatorEx<WsBuffer> allocator = new WsebBufferAllocator(session.getBufferAllocator());
 
@@ -607,7 +591,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             URI remoteLocation = ensureTrailingSlash(modifyURIScheme(remoteBridgeAddress.getResource(), "wse"));
             ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
             options.setOption(TRANSPORT, remoteBridgeAddress);
-            final ResourceAddress remoteAddress =  resourceAddressFactory.newResourceAddress(remoteLocation, options, sessionId);
+            final ResourceAddress remoteAddress =  resourceAddressFactory.newResourceAddress(URIUtils.uriToString(remoteLocation), options, sessionId);
 
 
             final URI httpUri = session.getRequestURL();
@@ -616,11 +600,11 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             }
 
             // We can only honor inactivity timeout if the client supports PING
-            String acceptCommands = session.getReadHeader(HEADER_X_ACCEPT_COMMANDS);
+            String acceptCommands = session.getReadHeader(HttpHeaders.HEADER_X_ACCEPT_COMMANDS);
+            boolean pingEnabled = acceptCommands != null && acceptCommands.equals("ping");
             long configuredInactivityTimeout = localAddress.getOption(INACTIVITY_TIMEOUT);
             final long inactivityTimeout =
-                    // TODO: parse acceptCommands properly in case we need to support multiple commands (comma separated)
-                    (acceptCommands != null && acceptCommands.equals("ping")) ? configuredInactivityTimeout : DISABLE_INACTIVITY_TIMEOUT;
+                    pingEnabled ? configuredInactivityTimeout : DISABLE_INACTIVITY_TIMEOUT;
 
             // Default IDLE_TIMEOUT to the value of ws inactivity timeout if set, but don't let it be less than 5 secs
             final int clientIdleTimeout;
@@ -641,6 +625,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                     WsebSession wsebSession = (WsebSession)wsSession;
                     wsSession.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, wsProtocol0);
                     wsebSession.setLoginContext(session.getLoginContext());
+                    wsebSession.setPingEnabled(pingEnabled);
                     IoSessionEx extensionsSession = wsebSession.getTransportSession();
                     IoFilterChain extensionsFilterChain = extensionsSession.getFilterChain();
                     WsUtils.addExtensionFilters(negotiated, extensionHelper, extensionsFilterChain, false);
@@ -653,7 +638,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                     ResultAwareLoginContext loginContext = session.getLoginContext();
                     WsebSession newWsebSession = new WsebSession(session.getIoLayer(), session.getIoThread(), session.getIoExecutor(), WsebAcceptor.this, getProcessor(),
                             localAddress, remoteAddress, allocator, loginContext, clientIdleTimeout, inactivityTimeout,
-                            validateSequenceNo, sequenceNo, negotiated);
+                            validateSequenceNo, sequenceNo, negotiated, logger, configuration);
                     IoHandler handler = getHandler(newWsebSession.getLocalAddress());
                     newWsebSession.setHandler(handler);
                     newWsebSession.setBridgeServiceFactory(bridgeServiceFactory);
@@ -675,8 +660,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             if (remoteHttp11Address == null || localHttp11Address == null) {
                 throw new RuntimeException("Cannot construct up- and down- stream urls: no http/1.1 transport found.");
             }
-            URI remoteExternalHttp11 = remoteHttp11Address.getExternalURI();
-            URI localExternalHttp11 = localHttp11Address.getExternalURI();
+            String remoteExternalHttp11 = remoteHttp11Address.getExternalURI();
+            String localExternalHttp11 = localHttp11Address.getExternalURI();
 
             final String sessionIdSuffix = '/' + sessionId;
             // add path suffixes for upstream and downstream URLs relative to local bind path
@@ -685,21 +670,21 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             // it is important for suffixes to be hierarchical
             // (begin with forward slash)
 
-            URI remoteExternalDownstream = new URI(remoteExternalHttp11.getScheme(),
-                                                   remoteExternalHttp11.getUserInfo(),
-                                                   remoteExternalHttp11.getHost(),
-                                                   remoteExternalHttp11.getPort(),
+            URI remoteExternalDownstream = new URI(URIUtils.getScheme(remoteExternalHttp11),
+                                                   URIUtils.getUserInfo(remoteExternalHttp11),
+                                                   URIUtils.getHost(remoteExternalHttp11),
+                                                   URIUtils.getPort(remoteExternalHttp11),
                                                    createResolvePath(localExternalHttp11, downstreamSuffix + sessionIdSuffix),
-                                                   remoteExternalHttp11.getQuery(),
-                                                   remoteExternalHttp11.getFragment());
+                                                   URIUtils.getQuery(remoteExternalHttp11),
+                                                   URIUtils.getFragment(remoteExternalHttp11));
 
-            URI remoteExternalUpstream = new URI(remoteExternalHttp11.getScheme(),
-                                                 remoteExternalHttp11.getUserInfo(),
-                                                 remoteExternalHttp11.getHost(),
-                                                 remoteExternalHttp11.getPort(),
+            URI remoteExternalUpstream = new URI(URIUtils.getScheme(remoteExternalHttp11),
+                                                 URIUtils.getUserInfo(remoteExternalHttp11),
+                                                 URIUtils.getHost(remoteExternalHttp11),
+                                                 URIUtils.getPort(remoteExternalHttp11),
                                                  createResolvePath(localExternalHttp11, upstreamSuffix + sessionIdSuffix),
-                                                 remoteExternalHttp11.getQuery(),
-                                                 remoteExternalHttp11.getFragment());
+                                                 URIUtils.getQuery(remoteExternalHttp11),
+                                                 URIUtils.getFragment(remoteExternalHttp11));
 
             //
             // UP- and DOWN- STREAMS: BIND
@@ -709,14 +694,22 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
             // upstream and downstream requests shouldn't go through authentication/authorization
             // as the create request already went through it and established wseb session
+         // But for logging purposes we do want to set an IdentityResolver
+            String wsebSessionIdentity = format("%s#%d", getTransportMetadata().getName(), wsebSession.getId());
+            final IdentityResolver downstreamResolver = new FixedIdentityResolver(wsebSessionIdentity + "d");
             // tcp | http | httpxe | wse - apply no security to http layer
-            ResourceAddress httpxeBaseAddress = httpxeAddressNoSecurity(httpxeAddress);
+            ResourceAddress httpxeBaseAddress = httpxeAddressNoSecurity(httpxeAddress, downstreamResolver);
 
             // tcp | http | wse - apply no security to http layer, also sets the httpxe alternate
-            ResourceAddress httpBaseAddress = httpAddressNoSecurity(httpAddress, httpxeBaseAddress);
+            ResourceAddress httpBaseAddress = httpAddressNoSecurity(httpAddress, httpxeBaseAddress, downstreamResolver);
 
             ResourceAddress localDownstream = httpBaseAddress.resolve(createResolvePath(httpBaseAddress.getResource(), downstreamSuffix + sessionIdSuffix));
             logger.trace("Binding "+localDownstream.getTransport()+" to downstreamHandler");
+
+            // Now repeat for upstream
+            final IdentityResolver upstreamResolver = new FixedIdentityResolver(wsebSessionIdentity + "u");
+            httpxeBaseAddress = httpxeAddressNoSecurity(httpxeAddress, upstreamResolver);
+            httpBaseAddress = httpAddressNoSecurity(httpAddress, httpxeBaseAddress, upstreamResolver);
 
             ResourceAddress localUpstream = httpBaseAddress.resolve(createResolvePath(httpBaseAddress.getResource(), upstreamSuffix + sessionIdSuffix));
             logger.trace("Binding "+localUpstream.getTransport()+" to upstreamHandler");
@@ -743,7 +736,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             //
             // write response that session was created and pass redirect urls
             session.setWriteHeader(HEADER_CONTENT_TYPE, "text/plain;charset=UTF-8");
-            session.setWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, "no-cache");
+            session.setWriteHeader(HEADER_CACHE_CONTROL, "no-cache");
             session.setStatus(HttpStatus.SUCCESS_CREATED);
 
             IoBufferAllocatorEx<?> httpAllocator = session.getBufferAllocator();
@@ -770,18 +763,23 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             wsebSession.scheduleTimeout(scheduler);
         }
 
-        private ResourceAddress httpAddressNoSecurity(ResourceAddress httpAddress, ResourceAddress httpxeAddressNoSecurity) {
+        private ResourceAddress httpAddressNoSecurity(ResourceAddress httpAddress, ResourceAddress httpxeAddressNoSecurity, IdentityResolver resolver) {
             ResourceOptions noSecurityOptions = new NoSecurityResourceOptions(httpAddress);
             noSecurityOptions.setOption(ALTERNATE, httpxeAddressNoSecurity);
+
+            noSecurityOptions.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
+            noSecurityOptions.setOption(HttpResourceAddress.REALM_USER_PRINCIPAL_CLASSES, null);
             return resourceAddressFactory.newResourceAddress(httpAddress.getExternalURI(),
                     noSecurityOptions, httpAddress.getOption(ResourceAddress.QUALIFIER));
         }
 
-        private ResourceAddress httpxeAddressNoSecurity(ResourceAddress httpxeAddress) {
+        private ResourceAddress httpxeAddressNoSecurity(ResourceAddress httpxeAddress, IdentityResolver resolver) {
             // Remove REALM_NAME option at http layer (upstream and downstream requests shouldn't have to
             // go through authentication/authorization)
             ResourceAddress httpAddress = httpxeAddress.getTransport();
             ResourceOptions noSecurityOptions = new NoSecurityResourceOptions(httpAddress);
+
+            noSecurityOptions.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
             ResourceAddress httpAddressNoSecurity = resourceAddressFactory.newResourceAddress(
                     httpAddress.getExternalURI(), noSecurityOptions, httpAddress.getOption(ResourceAddress.QUALIFIER));
 
@@ -790,27 +788,70 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             // to different origin security constraints. Then finally add http as transport to httpxe
             ResourceOptions httpxeOptions = ResourceOptions.FACTORY.newResourceOptions(httpxeAddress);
             httpxeOptions.setOption(TRANSPORT, httpAddressNoSecurity);
-            httpxeOptions = new NoSecurityResourceOptions(httpxeOptions);
 
-            return resourceAddressFactory.newResourceAddress(httpxeAddress.getResource(), httpxeOptions);
+            httpxeOptions.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
+
+            httpxeOptions = new NoSecurityResourceOptions(httpxeOptions);
+            return resourceAddressFactory.newResourceAddress(URIUtils.uriToString(httpxeAddress.getResource()), httpxeOptions);
         }
 
-        private boolean validWsebVersion(HttpAcceptSession session) {
-            String wsebVersion = session.getReadHeader("X-WebSocket-Version");
-            if (wsebVersion != null && !wsebVersion.equals("wseb-1.0")) {
-                session.setStatus(HttpStatus.SERVER_NOT_IMPLEMENTED);
-                session.setReason("WebSocket-Version not supported");
-                session.close(false);
-                return false;
+        private boolean validateAcceptCommands(HttpAcceptSession session) {
+            String commands = session.getReadHeader("X-Accept-Commands");
+            if (commands != null && !"ping".equals(commands)) {
+               session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+               session.setReason("X-Accept-Commands header value is invalid: " + commands);
+               session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+               session.close(false);
+               return false;
             }
             return true;
         }
 
-        private boolean wasHixieHandshake(HttpAcceptSession session) {
-            // see KG-2749
-            // Are we receiving a Hixie or a standard Http Websocket upgrade request?
-            return session.getReadHeader("Sec-WebSocket-Key1") != null ||
-            session.getReadHeader("Sec-WebSocket-Key") == null;
+        private boolean validateSequenceNumber(HttpAcceptSession session) {
+            String sequenceHeader = session.getReadHeader("X-Sequence-No");
+            if (!specCompliant) {
+                return true;
+            }
+            boolean valid = sequenceHeader != null;
+            if (valid)
+            {
+                try {
+                    int sequence = Integer.parseInt(sequenceHeader);
+                    if (sequence < 0 || sequence > MAX_SEQUENCE_NUMBER) {
+                        valid = false;
+                    }
+                }
+                catch (NumberFormatException e) {
+                    valid = false;
+                }
+            }
+            if (!valid)
+            {
+               session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+               session.setReason("X-Sequence-Nop header missing or invalid");
+               session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+               session.close(false);
+            }
+            return valid;
+        }
+
+        private boolean validateWsebVersion(HttpAcceptSession session) {
+            String wsebVersion = session.getReadHeader("X-WebSocket-Version");
+            if (specCompliant && wsebVersion == null) {
+                   session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                   session.setReason("X-WebSocket-Version header missing");
+                   session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+                   session.close(false);
+                   return false;
+               }
+            if (wsebVersion != null && !wsebVersion.equals(WSE_VERSION)) {
+                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                session.setReason("WebSocket-Version not supported");
+                session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+                session.close(false);
+                return false;
+            }
+            return true;
         }
 
         private IoHandler selectUpstreamHandler(ResourceAddress address,
@@ -843,32 +884,32 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             ResourceAddress transportAddress = address.getTransport();
             final Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(transportAddress.getResource());
             if (protocol instanceof HttpProtocol) {
-                IoSessionIdleTracker inactivityTracker =
-                             wsebSession.getInactivityTimeout() > 0 ?  currentSessionInactivityTracker.get() : null;
+                // We need a session idle tracker to handle ws close handshake, even if ws.inactivity.timeout is not set
+                IoSessionIdleTracker sesionIdleTracker = currentSessionIdleTracker.get();
                 if ( DOWNSTREAM_SUFFIX.equals(downstreamSuffix) ) {
                     return new WsebDownstreamHandler(address, wsebSession, scheduler,
-                                                     WsebEncodingStrategy.TEXT_AS_BINARY, inactivityTracker, bridgeServiceFactory);
+                                                     WsebEncodingStrategy.TEXT_AS_BINARY, sesionIdleTracker, bridgeServiceFactory);
 
                 } else if (DOWNSTREAM_TEXT_SUFFIX.equals(downstreamSuffix)) {
                     return new WsebDownstreamHandler(address, wsebSession, scheduler, "text/plain; charset=windows-1252",
-                                  WsebEncodingStrategy.TEXT_AS_BINARY, inactivityTracker, bridgeServiceFactory);
+                                  WsebEncodingStrategy.TEXT_AS_BINARY, sesionIdleTracker, bridgeServiceFactory);
 
                 } else if (DOWNSTREAM_TEXT_ESCAPED_SUFFIX.equals(downstreamSuffix)) {
                     return new WsebDownstreamHandler(address, wsebSession, scheduler, "text/plain; charset=windows-1252",
-                                  Encoding.ESCAPE_ZERO_AND_NEWLINE, WsebEncodingStrategy.TEXT_AS_BINARY, inactivityTracker, bridgeServiceFactory);
+                                  Encoding.ESCAPE_ZERO_AND_NEWLINE, WsebEncodingStrategy.TEXT_AS_BINARY, sesionIdleTracker, bridgeServiceFactory);
 
                 } else if ( DOWNSTREAM_MIXED_SUFFIX.equals(downstreamSuffix) ) {
                     return new WsebDownstreamHandler(address, wsebSession, scheduler,
-                                                     WsebEncodingStrategy.DEFAULT, inactivityTracker, bridgeServiceFactory);
+                                                     WsebEncodingStrategy.DEFAULT, sesionIdleTracker, bridgeServiceFactory);
 
                 } else if (DOWNSTREAM_MIXED_TEXT_SUFFIX.equals(downstreamSuffix)) {
                     return new WsebDownstreamHandler(address, wsebSession, scheduler, "text/plain; charset=windows-1252",
-                                  WsebEncodingStrategy.DEFAULT, inactivityTracker, bridgeServiceFactory);
+                                  WsebEncodingStrategy.DEFAULT, sesionIdleTracker, bridgeServiceFactory);
 
                 } else if (DOWNSTREAM_MIXED_TEXT_ESCAPED_SUFFIX.equals(downstreamSuffix)) {
                     wsebSession.setEncodeEscapeType(EscapeTypes.ESCAPE_ZERO_AND_NEWLINES);  //cache key
                     return new WsebDownstreamHandler(address, wsebSession, scheduler, "text/plain; charset=windows-1252",
-                                  Encoding.ESCAPE_ZERO_AND_NEWLINE, WsebEncodingStrategy.DEFAULT, inactivityTracker, bridgeServiceFactory);
+                                  Encoding.ESCAPE_ZERO_AND_NEWLINE, WsebEncodingStrategy.DEFAULT, sesionIdleTracker, bridgeServiceFactory);
                 }
             }
 
@@ -896,7 +937,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         protected void doSessionClosed(HttpAcceptSession session) throws Exception {
             WsebSession wsebSession = SESSION_KEY.remove(session);
             if (wsebSession != null && !wsebSession.isClosing()) {
-                wsebSession.reset(new Exception("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
+                wsebSession.reset(new IOException("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
             }
 
             IoFilterChain filterChain = session.getFilterChain();
@@ -932,9 +973,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             options.setOption(NEXT_PROTOCOL, nextProtocol);
 
             URI wseLocalAddressLocation = modifyURIScheme(resource, "ws");
-
             ResourceAddress candidate = resourceAddressFactory.newResourceAddress(
-                    wseLocalAddressLocation, options);
+                    URIUtils.uriToString(wseLocalAddressLocation), options);
 
             Binding binding = bindings.getBinding(candidate);
 
@@ -960,20 +1000,6 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             }
 
             return binding.bindAddress();
-        }
-
-
-        // TODO: move this to a helper?
-        private URI locateSecureAcceptURI(HttpAcceptSession session) throws Exception {
-            // TODO: same-origin requests must consider cross-origin access control
-            // internal redirect to secure resource should not trigger 403 Forbidden
-            ResourceAddress localAddress = session.getLocalAddress();
-            URI resource = localAddress.getResource();
-            Protocol resourceProtocol = bridgeServiceFactory.getTransportFactory().getProtocol(resource);
-            if (WsebProtocol.WSEB_SSL == resourceProtocol || WsProtocol.WSS == resourceProtocol) {
-                return resource;
-            }
-            return null;
         }
 
         private class NoSecurityResourceOptions implements ResourceOptions {
@@ -1014,7 +1040,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             String authority = httpSession.getReadHeader("Host");
             URI locationURI = new URI(scheme, authority, requestURI.getPath(), requestURI.getQuery(), requestURI.getFragment());
 
-            httpSession.setWriteHeader("Content-Type", "text/plain; charset=UTF-8");
+            httpSession.setWriteHeader(HEADER_CONTENT_TYPE, "text/plain; charset=UTF-8");
             httpSession.setWriteHeader("Location", locationURI.toString());
             httpSession.setStatus(HttpStatus.SUCCESS_OK);
 
@@ -1053,5 +1079,19 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             }
         }
     };
+
+    private static class FixedIdentityResolver extends IdentityResolver {
+        final String identity;
+
+        private FixedIdentityResolver(String identity) {
+            this.identity = identity;
+        }
+
+        @Override
+        public String resolve(Subject subject) {
+            return identity;
+        }
+
+    }
 
 }

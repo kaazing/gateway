@@ -16,7 +16,6 @@
 package org.kaazing.gateway.transport.nio.internal;
 
 import java.net.InetAddress;
-import java.net.URI;
 import java.util.Properties;
 
 import javax.annotation.Resource;
@@ -26,11 +25,11 @@ import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.transport.BridgeAcceptHandler;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
+import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.NioBindException;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.bio.MulticastAcceptor;
 import org.kaazing.mina.core.service.IoAcceptorEx;
 import org.slf4j.LoggerFactory;
@@ -38,8 +37,6 @@ import org.slf4j.LoggerFactory;
 public class NioDatagramAcceptor extends AbstractNioAcceptor {
 
     private static final String LOGGER_NAME = String.format("transport.%s.accept", NioProtocol.UDP.name().toLowerCase());
-    private static final String FAULT_LOGGING_FILTER = NioProtocol.UDP + "#fault";
-    private static final String TRACE_LOGGING_FILTER = NioProtocol.UDP + "#logging";
 
     public NioDatagramAcceptor(Properties configuration) {
         super(configuration, LoggerFactory.getLogger(LOGGER_NAME));
@@ -75,11 +72,7 @@ public class NioDatagramAcceptor extends AbstractNioAcceptor {
         acceptor.setHandler(new BridgeAcceptHandler(this) {
             @Override
             public void sessionCreated(IoSession session) throws Exception {
-                if (logger.isTraceEnabled()) {
-                    session.getFilterChain().addLast(TRACE_LOGGING_FILTER, new ObjectLoggingFilter(logger, NioProtocol.UDP.name().toLowerCase() + "#%s"));
-                } else if (logger.isDebugEnabled()) {
-                    session.getFilterChain().addLast(FAULT_LOGGING_FILTER, new ExceptionLoggingFilter(logger, NioProtocol.UDP.name().toLowerCase() + "#%s"));
-                }
+                LoggingFilter.addIfNeeded(logger, session, getTransportName());
 
                 if (initializer != null) {
                     initializer.initializeSession(session, null);
@@ -116,8 +109,8 @@ public class NioDatagramAcceptor extends AbstractNioAcceptor {
                      BridgeSessionInitializer<? extends IoFuture> initializer) throws NioBindException {
         boolean useMCP = false;
         try {
-            URI uri = address.getExternalURI();
-            InetAddress inet = InetAddress.getByName(uri.getHost());
+            String uri = address.getExternalURI();
+            InetAddress inet = InetAddress.getByName(URIUtils.getHost(uri));
             if (inet.isMulticastAddress()) {
                 useMCP = true;
             }

@@ -15,9 +15,6 @@
  */
 package org.kaazing.gateway.transport;
 
-import org.apache.mina.core.filterchain.IoFilterChain;
-import org.apache.mina.core.filterchain.IoFilterChain.Entry;
-import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 
 public class ObjectLoggingFilter extends LoggingFilter {
@@ -26,22 +23,4 @@ public class ObjectLoggingFilter extends LoggingFilter {
         super(logger, format);
     }
 
-    public ObjectLoggingFilter(Logger logger) {
-        super(logger);
-    }
-
-    @Override
-    public void sessionOpened(NextFilter nextFilter, IoSession session) throws Exception {
-        super.sessionOpened(nextFilter, session);
-
-        // move after codec to log readable objects instead of buffers
-        IoFilterChain filterChain = session.getFilterChain();
-        Entry codecEntry = filterChain.getEntry(ProtocolCodecFilter.class);
-        if (codecEntry != null) {
-            Entry loggingEntry = filterChain.getEntry(this);
-            assert (loggingEntry != null);
-            loggingEntry.remove();
-            codecEntry.addAfter(loggingEntry.getName(), loggingEntry.getFilter());
-        }
-    }
 }

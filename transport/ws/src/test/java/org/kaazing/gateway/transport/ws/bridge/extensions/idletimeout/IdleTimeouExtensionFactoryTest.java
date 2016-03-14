@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.ws.bridge.extensions.idletimeout;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +54,7 @@ public class IdleTimeouExtensionFactoryTest {
 
     @Test
     public void negotiateShouldAddTimeoutParameter() throws Exception {
-        URI addressURI = URI.create("ws://localhost:2020/");
+        String addressURI = "ws://localhost:2020/";
         Map<String, Object> options = new HashMap<>();
         options.put("ws.inactivityTimeout", 2500L);
         WsResourceAddress address = (WsResourceAddress) ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(addressURI, options);
@@ -67,7 +66,7 @@ public class IdleTimeouExtensionFactoryTest {
 
     @Test
     public void shouldNotNegotiateWhenNoInactivityTimeoutIsSet() throws Exception {
-        URI addressURI = URI.create("ws://localhost:2020/");
+        String addressURI = "ws://localhost:2020/";
         Map<String, Object> options = new HashMap<>();
         WsResourceAddress address = (WsResourceAddress) ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(addressURI, options);
         IdleTimeoutExtensionFactory factory = new IdleTimeoutExtensionFactory();

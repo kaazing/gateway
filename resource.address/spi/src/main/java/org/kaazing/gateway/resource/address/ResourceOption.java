@@ -20,40 +20,46 @@ import static java.lang.String.format;
 import java.util.Map;
 
 public abstract class ResourceOption<V> {
-    
-	private final String name;
+
+    private final int identity;
+    private final String name;
     private final V defaultValue;
     
     protected ResourceOption(Map<String, ResourceOption<?>> optionNames, String name) {
         this(optionNames, name, null);
     }
-    
-    protected ResourceOption(Map<String, ResourceOption<?>> optionNames, String name, V defaultValue) {
-    	if (optionNames.containsKey(name)) {
-    		throw new IllegalArgumentException(format("Duplicate option '%s'", name));
-    	}
 
+    protected ResourceOption(Map<String, ResourceOption<?>> optionNames, String name, V defaultValue) {
+        if (optionNames.containsKey(name)) {
+            throw new IllegalArgumentException(format("Duplicate option '%s'", name));
+        }
+
+        this.identity = optionNames.size();
         this.name = name;
         this.defaultValue = defaultValue;
 
         // detect duplicates next time
         optionNames.put(name, this);
     }
-    
-    public String name() { 
-    	return name; 
+
+    public int identity() {
+        return identity;
     }
-    
+
+    public String name() {
+        return name;
+    }
+
     public V defaultValue() {
         return defaultValue;
     }
-    
+
     public V resolveValue(V value) {
         return (value != null) ? value : defaultValue;
     }
-    
-    @Override 
+
+    @Override
     public String toString() {
-    	return name;
+        return name;
     }
 }

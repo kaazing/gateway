@@ -46,6 +46,7 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.URLUtils;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
 import org.kaazing.gateway.transport.Bindings;
 import org.kaazing.gateway.transport.Bindings.Binding;
@@ -56,10 +57,8 @@ import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.gateway.transport.BridgeSessionInitializerAdapter;
 import org.kaazing.gateway.transport.CommitFuture;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.NioBindException;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpProtocol;
@@ -74,8 +73,6 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.future.UnbindFuture;
 import org.kaazing.mina.core.service.IoProcessorEx;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
 
@@ -92,17 +89,11 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
              new TypedAttributeKey<>(SseAcceptor.class, "nextProtocolResourceAddress");
 
     private static final String CODEC_FILTER = SseProtocol.NAME + "#codec";
-    private static final String FAULT_LOGGING_FILTER = SseProtocol.NAME + "#fault";
-    private static final String TRACE_LOGGING_FILTER = SseProtocol.NAME + "#logging";
 
     // TODO: make these settings available via configuration, with a reasonable default
     private static final long TIME_TO_FIRST_WRITE_MILLIS = SECONDS.toMillis(5);
     private static final long TIME_TO_PULSE_MILLIS = SECONDS.toMillis(30L);
     private static final long TIME_TO_TIMEOUT_RECONNECT_MILLIS = SECONDS.toMillis(60L);
-
-    private static final String LOGGER_NAME = String.format("transport.%s.accept", SseProtocol.NAME);
-
-	private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private ScheduledExecutorService scheduler;
 
@@ -145,19 +136,12 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
 
     @Override
     public void addBridgeFilters(IoFilterChain filterChain) {
-        // setup logging filters for bridge session
-        if (logger.isTraceEnabled()) {
-            filterChain.addFirst(TRACE_LOGGING_FILTER, new ObjectLoggingFilter(logger, SseProtocol.NAME + "#%s"));
-        } else if (logger.isDebugEnabled()) {
-            filterChain.addFirst(FAULT_LOGGING_FILTER, new ExceptionLoggingFilter(logger, SseProtocol.NAME + "#%s"));
-        }
-
         filterChain.addLast(CODEC_FILTER, sseCodec);
     }
 
     @Override
     public void removeBridgeFilters(IoFilterChain filterChain) {
-    	removeFilter(filterChain, CODEC_FILTER);
+        removeFilter(filterChain, CODEC_FILTER);
     }
 
     @Override
@@ -301,7 +285,7 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
             ResourceOptions candidateOptions = ResourceOptions.FACTORY.newResourceOptions();
             candidateOptions.setOption(TRANSPORT, httpLocalAddress);
             // note: nextProtocol is null since SSE specification does not required X-Next-Protocol on the wire
-            ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(candidateURI, candidateOptions);
+            ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(URIUtils.uriToString(candidateURI), candidateOptions);
 
             final Binding binding = bindings.getBinding(candidateAddress);
             if (binding == null) {
@@ -321,7 +305,7 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
             ResourceOptions sseRemoteOptions = ResourceOptions.FACTORY.newResourceOptions();
             sseRemoteOptions.setOption(TRANSPORT, newHttpBindAddress);
             // note: nextProtocol is null since SSE specification does not required X-Next-Protocol on the wire
-            URI sseBindURI = sseBindAddress.getExternalURI();
+            String sseBindURI = sseBindAddress.getExternalURI();
             final ResourceAddress sseRemoteAddress = resourceAddressFactory.newResourceAddress(sseBindURI, sseRemoteOptions);
 
             // create the session
@@ -346,7 +330,8 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
                                                            getProcessor(),
                                                            sseBindAddress,
                                                            sseRemoteAddress,
-                                                           allocator);
+                                                           allocator,
+                                                           httpSession);
                     sseSession.setHandler(sseHandler);
                     return sseSession;
                 }
@@ -416,18 +401,18 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
                     URI pathInfo = httpSession.getPathInfo();
                     String secureAuthority = secureAcceptURI.getAuthority();
                     String secureAcceptPath = secureAcceptURI.getPath();
-                    URI request = URI.create("https://" + secureAuthority + secureAcceptPath + pathInfo.toString());
+                    String request = "https://" + secureAuthority + secureAcceptPath + pathInfo.toString();
 
                     // determine how to send the response
                     if (supportsRedirect(httpSession)) {
                         // send redirect response
                         httpSession.setStatus(HttpStatus.REDIRECT_MOVED_PERMANENTLY);
-                        httpSession.setWriteHeader("Location", request.toString());
+                        httpSession.setWriteHeader("Location", request);
                         httpSession.close(false);
                     }
                     else {
                         SseMessage sseMessage = new SseMessage();
-                        sseMessage.setLocation(request.toString());
+                        sseMessage.setLocation(request);
                         sseMessage.setReconnect(true);
                         httpSession.write(sseMessage);
                         httpSession.close(false);
@@ -523,11 +508,11 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
                 // write out the location before any other events
                 ResourceAddress sseRemoteAddress = sseSession.getRemoteAddress();
                 ResourceAddress httpRemoteAddress = sseRemoteAddress.getTransport();
-                URI httpRemoteURI = httpRemoteAddress.getExternalURI();
+                String httpRemoteURI = httpRemoteAddress.getExternalURI();
 
                 // update the location for reconnect in-band
                 SseMessage sseMessage = new SseMessage();
-                sseMessage.setLocation(httpRemoteURI.toString());
+                sseMessage.setLocation(httpRemoteURI);
                 httpSession.write(sseMessage);
             }
 

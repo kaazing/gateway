@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceOption;
 
 public final class TcpResourceAddress extends ResourceAddress {
@@ -39,8 +40,8 @@ public final class TcpResourceAddress extends ResourceAddress {
 	private InetSocketAddress bindAddress;
 	private long maximumOutboundRate = MAXIMUM_OUTBOUND_RATE.defaultValue();
 
-	TcpResourceAddress(URI original, URI resource) {
-		super(original, resource);
+	TcpResourceAddress(ResourceAddressFactorySpi factory, String original, URI resource) {
+		super(factory, original, resource);
 	}
 
 	@Override

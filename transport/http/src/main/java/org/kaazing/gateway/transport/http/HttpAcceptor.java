@@ -40,6 +40,8 @@ import static org.kaazing.gateway.transport.http.HttpStatus.CLIENT_NOT_FOUND;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolHeaderFilter.PROTOCOL_HTTPXE_1_1;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter.PROTOCOL_HTTP_1_1;
 import static org.kaazing.gateway.transport.http.resource.HttpDynamicResourceFactory.newHttpDynamicResourceFactory;
+import static org.kaazing.gateway.util.InternalSystemProperty.HTTPXE_SPECIFICATION;
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -47,6 +49,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -66,6 +69,7 @@ import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
 import org.kaazing.gateway.transport.Bindings;
@@ -75,9 +79,7 @@ import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpBindings.HttpBinding;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
@@ -86,7 +88,6 @@ import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBuffer;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBufferAllocator;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpNextAddressFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolDecoderException;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpSerializeRequestsFilter;
@@ -100,8 +101,8 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.future.UnbindFuture;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+@SuppressWarnings("deprecation")
 public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, HttpBinding> {
 
     private static final String LOGGER_NAME = format("transport.%s.accept", HttpProtocol.NAME);
@@ -110,12 +111,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
     public static final String MERGE_REQUEST_LOGGER_NAME = format("%s.mergeRequest", LOGGER_NAME);
     public static final AttributeKey SERVICE_REGISTRATION_KEY = new AttributeKey(HttpAcceptor.class, "serviceRegistration");
 
+    public static final TypedAttributeKey<Boolean> HTTPXE_SPEC_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "httpxeSpec");
     static final TypedAttributeKey<DefaultHttpSession> SESSION_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "session");
-
-    private static final String FAULT_LOGGING_FILTER = HttpProtocol.NAME + "#fault";
-    private static final String TRACE_LOGGING_FILTER = HttpProtocol.NAME + "#logging";
-
-    private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private final Map<String, Set<HttpAcceptFilter>> acceptFiltersByProtocol;
     private final Set<HttpAcceptFilter> allAcceptFilters;
@@ -127,9 +124,19 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
     private SchedulerProvider schedulerProvider;
 
+    private Properties configuration;
+
+    private boolean httpxeSpecCompliant;
+
     @Resource(name = "schedulerProvider")
     public void setSchedulerProvider(SchedulerProvider provider) {
         this.schedulerProvider = provider;
+    }
+
+    @Resource(name = "configuration")
+    public void setConfiguration(Properties configuration) {
+        this.configuration = configuration;
+        httpxeSpecCompliant = HTTPXE_SPECIFICATION.getBooleanProperty(configuration);
     }
 
     public HttpAcceptor() {
@@ -194,8 +201,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
             private ResourceAddress getResourcesAddress(HttpBinding newHttpBinding) {
                 ResourceAddress bindAddress = newHttpBinding.bindAddress();
-                URI location = bindAddress.getExternalURI();
-                URI resourcesURI = location.resolve("/;resource");
+                String location = bindAddress.getExternalURI();
+                String resourcesURI = URIUtils.resolve(location, "/;resource");
                 ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
                 options.setOption(TRANSPORT_URI, bindAddress.getOption(TRANSPORT_URI));
                 options.setOption(TRANSPORT, bindAddress.getOption(TRANSPORT));
@@ -318,6 +325,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
         @Override
         protected void doSessionCreated(IoSessionEx session) throws Exception {
+            HTTPXE_SPEC_KEY.set(session, httpxeSpecCompliant);
             IoFilterChain filterChain = session.getFilterChain();
             addBridgeFilters(filterChain);
         }
@@ -446,7 +454,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                                 session,
                                 new HttpBufferAllocator(parentAllocator),
                                 httpRequest,
-                                localAddress.getResource());
+                                localAddress.getResource(),
+                                configuration);
 
                         IoHandler handler = getHandler(newHttpSession.getLocalAddress());
                         if ( handler == null && logger.isTraceEnabled() ) {
@@ -503,17 +512,11 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         private void fireContentReceived(DefaultHttpSession session, HttpContentMessage content) throws Exception {
             IoBufferEx buffer = content.asBuffer();
             if (buffer != null && buffer.hasRemaining()) {
-                // if suspended add this to session read queue (or variable for now)
-                // if read suspended and read item is already set then throw error (we need a queue!)
+                // if suspended add this to session deferred read queue
                 // KG-9201: if HTTP session is in the middle of thread re-alignment,
                 //          defer message received until re-alignment is complete
                 if (!session.isIoRegistered() || session.isReadSuspended()) {
-                    IoBufferEx currentBuffer = session.getCurrentReadRequest();
-                    if (currentBuffer != null) {
-                        throw new Exception(
-                                "Read error. Attempt to read into suspended session that already has a current read request");
-                    }
-                    session.setCurrentReadRequest(buffer);
+                    session.addDeferredRead(buffer);
                 }
                 else {
                     // direct read for now, in the future this should always get buffered
@@ -526,13 +529,6 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
     @Override
     public void addBridgeFilters(IoFilterChain chain) {
-        // setup logging filters for bridge session
-        if (logger.isTraceEnabled()) {
-            chain.addFirst(TRACE_LOGGING_FILTER, new ObjectLoggingFilter(logger, HttpProtocol.NAME + "#%s"));
-        } else if (logger.isDebugEnabled()) {
-            chain.addFirst(FAULT_LOGGING_FILTER, new ExceptionLoggingFilter(logger, HttpProtocol.NAME + "#%s"));
-        }
-
         IoSession transport = chain.getSession();
 
         SocketAddress localAddress = transport.getLocalAddress();
@@ -579,15 +575,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
             removeFilter(filterChain, filter.filterName());
         }
 
-        if (filterChain.contains(TRACE_LOGGING_FILTER)) {
-            filterChain.remove(TRACE_LOGGING_FILTER);
-        } else if (filterChain.contains(FAULT_LOGGING_FILTER)) {
-            filterChain.remove(FAULT_LOGGING_FILTER);
-        }
     }
 
-    private static  URI getHostPortPathURI(URI resource) {
-        return URI.create("//" + resource.getAuthority() + resource.getPath());
-    }
 }
 

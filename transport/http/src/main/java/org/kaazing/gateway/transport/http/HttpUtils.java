@@ -48,6 +48,7 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.mina.core.session.IoSession;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.transport.SslUtils;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
@@ -65,7 +66,7 @@ public class HttpUtils {
 	// "off" is the default value
 	private static final String PROXY_BUFFERING_HEADER = "X-Kaazing-Proxy-Buffering";
 	private static final Logger LOGGER = LoggerFactory.getLogger(HttpUtils.class);
-	
+
 	private static final Charset UTF_8 = Charset.forName("UTF-8");
 	private static final Random SESSION_SEQUENCE = new SecureRandom();
 	private static final char[] BASE_62_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
@@ -73,16 +74,16 @@ public class HttpUtils {
 
 
 	private static final DateFormat[] RFC822_PARSE_PATTERNS = new DateFormat[] {
-		new SimpleDateFormat("EEE, d MMM yy HH:mm:ss z", Locale.ENGLISH), 
-		new SimpleDateFormat("EEE, d MMM yy HH:mm z", Locale.ENGLISH), 
-		new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z", Locale.ENGLISH), 
-		new SimpleDateFormat("EEE, d MMM yyyy HH:mm z", Locale.ENGLISH), 
-		new SimpleDateFormat("d MMM yy HH:mm z", Locale.ENGLISH), 
-		new SimpleDateFormat("d MMM yy HH:mm:ss z", Locale.ENGLISH), 
-		new SimpleDateFormat("d MMM yyyy HH:mm z", Locale.ENGLISH), 
+		new SimpleDateFormat("EEE, d MMM yy HH:mm:ss z", Locale.ENGLISH),
+		new SimpleDateFormat("EEE, d MMM yy HH:mm z", Locale.ENGLISH),
+		new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z", Locale.ENGLISH),
+		new SimpleDateFormat("EEE, d MMM yyyy HH:mm z", Locale.ENGLISH),
+		new SimpleDateFormat("d MMM yy HH:mm z", Locale.ENGLISH),
+		new SimpleDateFormat("d MMM yy HH:mm:ss z", Locale.ENGLISH),
+		new SimpleDateFormat("d MMM yyyy HH:mm z", Locale.ENGLISH),
 		new SimpleDateFormat("d MMM yyyy HH:mm:ss z", Locale.ENGLISH)
 	};
-	
+
 	private static final DateFormat RFC822_FORMAT_PATTERN = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);
 	static {
 		RFC822_FORMAT_PATTERN.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -97,7 +98,7 @@ public class HttpUtils {
 	    return host;
 	}
 
-	
+
 	public static String getHostAndPort(HttpRequestMessage httpRequest, boolean secure) {
 		String authority = httpRequest.getHeader("Host");
 		return getHostAndPort(authority, secure);
@@ -111,7 +112,7 @@ public class HttpUtils {
 		}
 		return authority;
 	}
-	
+
 	public static long parseDateHeader(String header) {
 		if (header != null && header.length() > 0) {
 			for (DateFormat rfc822Format : RFC822_PARSE_PATTERNS) {
@@ -129,10 +130,10 @@ public class HttpUtils {
 				}
 			}
 		}
-		
+
 		throw new IllegalArgumentException("Unable to parse date header: " + header);
 	}
-	
+
 	public static String formatDateHeader(long millis) {
 		return RFC822_FORMAT_PATTERN.format(millis);
 	}
@@ -149,7 +150,7 @@ public class HttpUtils {
 			}
 			else {
 				FileInputStream in = new FileInputStream(requestFile);
-		
+
 				byte[] buf = new byte[8192];
 				IoBufferEx out = allocator.wrap(allocator.allocate(in.available())).setAutoExpander(allocator);
 				int length;
@@ -157,7 +158,7 @@ public class HttpUtils {
 					out.put(buf, 0, length);
 				}
 				out.flip();
-				
+
 				httpResponse.setHeader("ETag", etag);
 				httpResponse.setHeader("Last-Modified", RFC822_FORMAT_PATTERN.format(requestFile.lastModified()));
 				httpResponse.setHeader("Expires", RFC822_FORMAT_PATTERN.format(System.currentTimeMillis()));
@@ -171,7 +172,7 @@ public class HttpUtils {
 			httpResponse.setStatus(HttpStatus.CLIENT_NOT_FOUND);
 		}
 	}
-	
+
 	// ported from httpFileRequested (above)
     public static void writeIfModified(HttpAcceptSession httpSession, File requestFile) throws IOException {
         if (requestFile.isFile() && requestFile.exists()) {
@@ -184,7 +185,7 @@ public class HttpUtils {
             }
             else {
                 FileInputStream in = new FileInputStream(requestFile);
-        
+
                 byte[] buf = new byte[8192];
                 IoBufferAllocatorEx<?> allocator = httpSession.getBufferAllocator();
                 IoBufferEx out = allocator.wrap(allocator.allocate(in.available())).setAutoExpander(allocator);
@@ -193,7 +194,7 @@ public class HttpUtils {
                     out.put(buf, 0, length);
                 }
                 out.flip();
-                
+
                 httpSession.setWriteHeader("ETag", etag);
                 httpSession.setWriteHeader("Last-Modified", RFC822_FORMAT_PATTERN.format(requestFile.lastModified()));
                 httpSession.setWriteHeader("Expires", RFC822_FORMAT_PATTERN.format(System.currentTimeMillis()));
@@ -210,7 +211,7 @@ public class HttpUtils {
             httpSession.setStatus(CLIENT_NOT_FOUND);
         }
     }
-    
+
 	// TODO: should be able to remove this once we can send File down the pipe
 	public static IoBufferEx getBufferForFile(IoBufferAllocatorEx<?> allocator, File requestFile) throws IOException {
 		FileInputStream in = new FileInputStream(requestFile);
@@ -229,7 +230,7 @@ public class HttpUtils {
 
 		return out;
 	}
-	
+
 	public static boolean hasBeenModified(HttpSession session, String etag, File requestFile) {
 		String ifNoneMatch = session.getReadHeader("If-None-Match");
 		String ifModifiedSince = session.getReadHeader("If-Modified-Since");
@@ -247,19 +248,19 @@ public class HttpUtils {
 					return false;
 				}
 			}
-			
+
 			// if no ETag match is found, then must not return 304 (Not Modified) response
 			return true;
 		}
-		
+
 		// no modified header sent
 		if (ifModifiedSince == null || ifModifiedSince.length() == 0) {
 			return true;
 		}
-		
+
 		long lastModified = requestFile.lastModified();
 		Date ifModifiedSinceDate = null;
-		
+
 		// parse date format
 		for (DateFormat rfc822Format : RFC822_PARSE_PATTERNS) {
 			try {
@@ -275,30 +276,30 @@ public class HttpUtils {
 			}
 			break;
 		}
-		
+
 		// could not parse date
 		if (ifModifiedSinceDate == null) {
 			return true;
 		}
-	
+
 		// check modified time against file last modified
 		return lastModified > ifModifiedSinceDate.getTime();
 	}
-	
+
 	public static void addLastModifiedHeader(HttpSession session, File requestFile) {
 		long lastModified = requestFile.lastModified();
 		session.setWriteHeader("Last-Modified", RFC822_FORMAT_PATTERN.format(lastModified));
 	}
-	
+
 	public static void addExpiresHeader(HttpSession session) {
 		long currentTimeMillis = System.currentTimeMillis();
 		session.setWriteHeader("Expires", RFC822_FORMAT_PATTERN.format(currentTimeMillis));
 	}
-	
+
 	public static String getETagHeaderValue(File requestFile) {
 		long lastModified = requestFile.lastModified();
 		String absolutePath = requestFile.getAbsolutePath();
-		
+
 		// construct the MDS hash
 		ByteBuffer buf = ByteBuffer.allocate(16);
 		MessageDigest algorithm = getMD5();
@@ -321,7 +322,7 @@ public class HttpUtils {
 		String headerValue = builder.toString();
 		return headerValue;
 	}
-	
+
 	public static void supplyScriptAsHtml(File xdBridgeFile, long startTime, String resourcePath) throws IOException {
 		// include the resource name as a heading to aid integration setup verification
 		String bridgeFileName = xdBridgeFile.getName();
@@ -330,7 +331,7 @@ public class HttpUtils {
 		String postamble = "</script><h3>" + heading + "</h3></body></html>";
 		supplyBridgeFile(xdBridgeFile, startTime, resourcePath, preamble, postamble);
 	}
-	
+
 	public static void supplyFile(File bridgeFile, long startTime, String resourcePath) throws IOException {
 		supplyBridgeFile(bridgeFile, startTime, resourcePath, null, null);
 	}
@@ -394,14 +395,14 @@ public class HttpUtils {
 		}
 		return sessionId.toString();
 	}
-  
+
 	// constructs an http specific request uri with host, port (or explicit default port), and path
     public static URI getRequestURI(HttpRequestMessage request, IoSession session) {
         URI requestURI = request.getRequestURI();
         String host = request.getHeader("Host");
         return getRequestURI(requestURI, host, session);
     }
-    
+
     // constructs an http specific request uri with host, port (or explicit default port), and path
     public static URI getRequestURI(URI requestURI, String hostHeader, IoSession session) {
         boolean secure = SslUtils.isSecure(session);
@@ -410,6 +411,19 @@ public class HttpUtils {
         // This is required to handle special characters like spaces in the URI (KG-831).
         URI uri = URI.create("//" + authority + requestURI.getRawPath());
         return uri;
+    }
+
+    /*
+     * Returns whether there is Connection: close header
+     *
+     * @param list of Connection header values
+     * @return true if Connection: close header is part of the values
+     */
+    public static boolean hasCloseHeader(List<String> connectionValues) {
+        if (connectionValues == null) {
+            return false;
+        }
+        return connectionValues.stream().anyMatch(v -> v.equalsIgnoreCase("close"));
     }
 
     public static URI getTransportURI(HttpRequestMessage request, IoSession session) {
@@ -428,29 +442,29 @@ public class HttpUtils {
 			if (semicolonAt != -1) {
 				transferEncoding = transferEncoding.substring(0, semicolonAt);
 			}
-			
+
 			if ("chunked".equalsIgnoreCase(transferEncoding)) {
 				return true;
-			} 
+			}
 		}
-		
+
 		return false;
 	}
-	
+
 	public static boolean isChunked(HttpResponseMessage response) {
 		String transferEncoding = response.getHeader("Transfer-Encoding");
 		return isChunked(transferEncoding) && HttpVersion.HTTP_1_1.equals(response.getVersion());
 	}
-	
+
     public static boolean isGzipped(HttpResponseMessage response) {
         return response.isBlockPadding();
     }
-    
+
     /**
      * Create a canonical URI from a given URI.   A canonical URI is a URI with:<ul>
      * <li>the host part of the authority lower-case since URI semantics dictate that hostnames are case insensitive
-     * <li>(optionally, NOT appropriate for Origin headers) the path part set to "/" except for tcp uris if there was no path in the 
-     * input URI (this conforms to the WebSocket and HTTP protocol specifications and avoids us having to do special 
+     * <li>(optionally, NOT appropriate for Origin headers) the path part set to "/" except for tcp uris if there was no path in the
+     * input URI (this conforms to the WebSocket and HTTP protocol specifications and avoids us having to do special
      * handling for path throughout the server code).
      * </ul>
      * @param uri               the URI to canonicalize
@@ -486,8 +500,8 @@ public class HttpUtils {
     /**
      * Create a canonical URI from a given URI.   A canonical URI is a URI with:<ul>
      * <li>the host part of the authority lower-case since URI semantics dictate that hostnames are case insensitive
-     * <li>(optionally, NOT appropriate for Origin headers) the path part set to "/" if there was no path in the 
-     * input URI (this conforms to the WebSocket and HTTP protocol specifications and avoids us having to do special 
+     * <li>(optionally, NOT appropriate for Origin headers) the path part set to "/" if there was no path in the
+     * input URI (this conforms to the WebSocket and HTTP protocol specifications and avoids us having to do special
      * handling for path throughout the server code).
      * </ul>
      * @param uriString         the URI to canonicalize, in string form
@@ -505,7 +519,7 @@ public class HttpUtils {
 	private static MessageDigest getMD5() {
 		try {
 			return MessageDigest.getInstance("MD5");
-		} 
+		}
 		catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e);
 		}
@@ -839,7 +853,7 @@ public class HttpUtils {
         }
     }
 
-    public static URI mergeQueryParameters(URI from,URI into) throws URISyntaxException {
+    public static String mergeQueryParameters(URI from, String into) throws URISyntaxException {
 
         if (into == null) {
             throw new URISyntaxException("<null>", "Cannot merge into a null URI");
@@ -850,7 +864,7 @@ public class HttpUtils {
         }
 
         final String fromQuery = from.getQuery();
-        final String intoQuery = into.getQuery();
+        final String intoQuery = URIUtils.getQuery(into);
         String query;
         if (intoQuery == null) {
             query = from.getQuery();
@@ -864,8 +878,8 @@ public class HttpUtils {
             }
         }
 
-        return new URI(into.getScheme(), into.getAuthority(),
-                into.getPath(), query, into.getFragment());
+        return URIUtils.buildURIAsString(URIUtils.getScheme(into), URIUtils.getAuthority(into),
+                URIUtils.getPath(into), query, URIUtils.getFragment(into));
     }
 
 
@@ -878,6 +892,13 @@ public class HttpUtils {
         return ("tcp".equalsIgnoreCase(scheme) || "ssl".equalsIgnoreCase(scheme));
     }
 
+    public static boolean hasStreamingScheme(String uri) {
+        if (uri == null || URIUtils.getScheme(uri) == null) {
+            return false;
+        }
 
+        final String scheme = URIUtils.getScheme(uri);
+        return ("tcp".equalsIgnoreCase(scheme) || "ssl".equalsIgnoreCase(scheme));
+    }
 
 }

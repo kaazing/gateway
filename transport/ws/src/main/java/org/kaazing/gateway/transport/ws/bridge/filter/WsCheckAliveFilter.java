@@ -40,12 +40,12 @@ import java.util.Properties;
 
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
-import org.apache.mina.core.future.IoFutureListener;
-import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IdleStatus;
+import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.IoFilterAdapter;
+import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.WsPingMessage;
@@ -73,6 +73,7 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
     // The following values are in milliseconds
     private final long maxExpectedRtt; // how long to wait for pong reply
     private final long pingDelay; // how long to wait before sending ping
+    private final IoSession wsSession;
 
     private enum NextAction {
         PONG, // ping has been written, awaiting pong
@@ -82,13 +83,6 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
     private NextAction nextAction = NextAction.PING;
 
     private long pingSentTime = 0;
-
-    private final IoFutureListener<WriteFuture> setPingTimeOnWrite = new IoFutureListener<WriteFuture>() {
-        @Override
-        public void operationComplete(WriteFuture future) {
-            pingWritten(System.currentTimeMillis());
-        }
-    };
 
     public static void validateSystemProperties(Properties configuration, Logger logger) {
         // Fail gateway startup if the obsolete system property from JMS Edition release 3.5.3 is used (KG-7125)
@@ -102,9 +96,14 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
     }
 
     public static void addIfFeatureEnabled(IoFilterChain filterChain, String filterName, long inactivityTimeoutIn, Logger logger) {
+        addIfFeatureEnabled(filterChain, filterName, inactivityTimeoutIn, null, logger);
+    }
+
+    public static void addIfFeatureEnabled(IoFilterChain filterChain, String filterName, long inactivityTimeoutIn,
+                                           IoSessionEx wsSession, Logger logger) {
         long inactivityTimeout = getInactivityTimeoutMillis(inactivityTimeoutIn, logger);
         if (inactivityTimeout > 0) {
-            filterChain.addLast(filterName, new WsCheckAliveFilter(inactivityTimeout, logger));
+            filterChain.addLast(filterName, new WsCheckAliveFilter(inactivityTimeout, wsSession, logger));
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format("Configured WebSocket inactivity timeout (ws.inactivity.timeout) is %d milliseconds", inactivityTimeout));
             }
@@ -130,11 +129,16 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
     }
 
     WsCheckAliveFilter(long inactivityTimeout, Logger logger) {
+        this(inactivityTimeout, null, logger);
+    }
+
+    WsCheckAliveFilter(long inactivityTimeout, IoSession wsSession, Logger logger) {
         assert inactivityTimeout > 0;
         // KG-7057: Assume maximum possible round-trip time is half the configured inactivity timeout, but don't let it be 0
         this.maxExpectedRtt = Math.max(inactivityTimeout / 2, 1);
         this.pingDelay = maxExpectedRtt;
         this.logger = logger;
+        this.wsSession = wsSession;
     }
 
     @Override
@@ -154,15 +158,28 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
         WsMessage wsMessage = (WsMessage) message;
         switch (wsMessage.getKind()) {
         case PONG:
-            // Print out observed rtt to satisfy the curious
-            if (logger.isTraceEnabled()) {
-                long rtt = System.currentTimeMillis() - pingSentTime;
-                logger.trace(String.format("WsCheckAliveFilter: PONG received (%s), round-trip time = %d msec, nextAction = %s",
-                        wsMessage, rtt, nextAction));
-            }
             if (nextAction != NextAction.PONG) {
+                if (logger.isTraceEnabled()) {
+                    logger.trace(String.format("WsCheckAliveFilter: Unsolicited PONG received (%s), nextAction = %s",
+                            wsMessage, nextAction));
+                }
                 // Unsolicited PONG from (rogue) client, ignore
                 return;
+            }
+
+            long roundTripTime = System.currentTimeMillis() - pingSentTime;
+            // Print out observed rtt to satisfy the curious
+            if (logger.isTraceEnabled()) {
+                logger.trace(String.format("WsCheckAliveFilter: PONG received (%s), round-trip time = %d msec, nextAction = %s",
+                        wsMessage, roundTripTime, nextAction));
+            }
+            if (wsSession != null) {
+                // wse case where session is not accessible for management
+                AbstractWsBridgeSession.LAST_ROUND_TRIP_LATENCY.set(wsSession, roundTripTime);
+                AbstractWsBridgeSession.LAST_ROUND_TRIP_LATENCY_TIMESTAMP.set(wsSession, pingSentTime);
+            } else {
+                AbstractWsBridgeSession.LAST_ROUND_TRIP_LATENCY.set(session, roundTripTime);
+                AbstractWsBridgeSession.LAST_ROUND_TRIP_LATENCY_TIMESTAMP.set(session, pingSentTime);
             }
             schedulePing(session);
             return;
@@ -196,8 +213,8 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
                 if (filterChain.contains(WsAcceptor.CLOSE_FILTER)) {
                     filterChain.remove(WsAcceptor.CLOSE_FILTER);
                 }
-
-                session.close(true);
+                IoSession sessionToClose = wsSession != null ? wsSession : session;
+                sessionToClose.close(true);
                 break;
             case PING:
                 writePing(nextFilter, session);
@@ -253,8 +270,8 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
         if (logger.isTraceEnabled()) {
             logger.trace(String.format("Writing %s at time %d", emptyPing, System.currentTimeMillis()));
         }
-        WriteFuture written = session.write(emptyPing);
-        written.addListener(setPingTimeOnWrite);
+        pingSentTime = System.currentTimeMillis();
+        session.write(emptyPing);
     }
 
     // For unit test only

@@ -47,11 +47,10 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeConnectHandler;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.IoSessionAdapterEx;
+import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.NamedPipeAddress;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.filterchain.DefaultIoFilterChain;
 import org.kaazing.mina.core.service.IoConnectorEx;
@@ -61,8 +60,6 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 
 public abstract class AbstractNioConnector implements BridgeConnector {
-    private static final String FAULT_LOGGING_FILTER = "#fault";
-    private static final String TRACE_LOGGING_FILTER = "#logging";
 
     private AtomicReference<IoConnectorEx> connector = new AtomicReference<>();
     private final AtomicBoolean started;
@@ -92,13 +89,7 @@ public abstract class AbstractNioConnector implements BridgeConnector {
         connector.setHandler(new BridgeConnectHandler() {
             @Override
             public void sessionCreated(IoSession session) throws Exception {
-                if (logger.isTraceEnabled()) {
-                    session.getFilterChain().addLast(getTransportName() + TRACE_LOGGING_FILTER,
-                            new ObjectLoggingFilter(logger, getTransportName() + "#%s"));
-                } else if (logger.isDebugEnabled()) {
-                    session.getFilterChain().addLast(getTransportName() + FAULT_LOGGING_FILTER,
-                            new ExceptionLoggingFilter(logger, getTransportName() + "#%s"));
-                }
+                LoggingFilter.addIfNeeded(logger, session, getTransportName());
 
                 super.sessionCreated(session);
             }
@@ -252,7 +243,7 @@ public abstract class AbstractNioConnector implements BridgeConnector {
         String transportName = getTransportName();
         String addressFormat = "%s://%s";
         String pipeName = namedPipeAddress.getPipeName();
-        URI transport = URI.create(format(addressFormat, transportName, pipeName));
+        String transport = format(addressFormat, transportName, pipeName);
         return addressFactory.newResourceAddress(transport, nextProtocol);
     }
     
@@ -262,7 +253,7 @@ public abstract class AbstractNioConnector implements BridgeConnector {
         String hostAddress = inetAddress.getHostAddress();
         String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
         int port = inetSocketAddress.getPort();
-        URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
+        String transport = format(addressFormat, transportName, hostAddress, port);
         return addressFactory.newResourceAddress(transport, nextProtocol);
     }
     
@@ -447,7 +438,7 @@ public abstract class AbstractNioConnector implements BridgeConnector {
                                                                final String transportName) {
                         String addressFormat = "%s://%s";
                         String pipeName = namedPipeAddress.getPipeName();
-                        URI transport = URI.create(format(addressFormat, transportName, pipeName));
+                        String transport = format(addressFormat, transportName, pipeName);
                         return addressFactory.newResourceAddress(transport);
                     }
 
@@ -457,7 +448,7 @@ public abstract class AbstractNioConnector implements BridgeConnector {
                         String hostAddress = inetAddress.getHostAddress();
                         String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
                         int port = inetSocketAddress.getPort();
-                        URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
+                        String transport = format(addressFormat, transportName, hostAddress, port);
                         return addressFactory.newResourceAddress(transport);
                     }
 
@@ -472,14 +463,8 @@ public abstract class AbstractNioConnector implements BridgeConnector {
     private final IoHandlerAdapter<IoSessionEx> tcpBridgeHandler = new IoHandlerAdapter<IoSessionEx>() {
         @Override
         public void doSessionCreated(IoSessionEx session) throws Exception {
-            if (logger.isTraceEnabled()) {
-                session.getFilterChain().addLast(getTransportName() + TRACE_LOGGING_FILTER,
-                        new ObjectLoggingFilter(logger, getTransportName() + "#%s"));
-            } else if (logger.isDebugEnabled()) {
-                session.getFilterChain().addLast(getTransportName() + FAULT_LOGGING_FILTER,
-                        new ExceptionLoggingFilter(logger, getTransportName() + "#%s"));
-            }
-
+            LoggingFilter.addIfNeeded(logger, session, getTransportName());
+            
             super.doSessionCreated(session);
         }
 

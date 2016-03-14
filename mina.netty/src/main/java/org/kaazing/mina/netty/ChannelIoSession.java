@@ -38,6 +38,7 @@ public class ChannelIoSession<C extends ChannelConfig> extends AbstractIoSession
     private final IoHandler handler;
     private final IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor;
     private final TransportMetadata transportMetadata;
+    private volatile boolean closedReceived;
 
     public ChannelIoSession(ChannelIoService service, IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor,
             Channel channel, ChannelIoSessionConfig<C> config, Thread ioThread, Executor ioExecutor) {
@@ -107,6 +108,14 @@ public class ChannelIoSession<C extends ChannelConfig> extends AbstractIoSession
     @Override
     public void suspendRead() {
         channel.setReadable(false);
+    }
+
+    protected boolean isClosedReceived() {
+        return closedReceived;
+    }
+
+    void setClosedReceived() {
+        closedReceived = true;
     }
 
 }

@@ -20,7 +20,6 @@ import static org.kaazing.gateway.util.Utils.initCaps;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.security.KeyStore;
 import java.util.Collection;
 import java.util.Iterator;
@@ -161,6 +160,9 @@ public class Gateway {
             if (realm.getDescription() != null) {
                 newRealm.setDescription(realm.getDescription());
             }
+            for (String userPrincipalClass : realm.getUserPrincipalClasses()) {
+                newRealm.addUserPrincipalClass(userPrincipalClass);
+            }
 
             AuthenticationType authenticationType = newRealm.addNewAuthentication();
             if (realm.getHttpChallengeScheme() != null) {
@@ -274,8 +276,7 @@ public class Gateway {
                 }
             }
         } catch (Exception e) {
-            // TODO
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -360,23 +361,23 @@ public class Gateway {
 
     private void appendBalances(ServiceType newService, ServiceConfiguration service) {
         // balances
-        Set<URI> balances = service.getBalances();
+        Set<String> balances = service.getBalances();
         String[] newBalances = new String[balances.size()];
         int i = 0;
-        for (URI balance : balances) {
-            newBalances[i++] = balance.toASCIIString();
+        for (String balance : balances) {
+            newBalances[i++] = balance;
         }
         newService.setBalanceArray(newBalances);
     }
 
     private void appendAccepts(ServiceType newService, ServiceConfiguration service) {
         // accepts
-        Set<URI> accepts = service.getAccepts();
+        Set<String> accepts = service.getAccepts();
         if (!accepts.isEmpty()) {
             String[] newAccepts = new String[accepts.size()];
             int i = 0;
-            for (URI accept : accepts) {
-                newAccepts[i++] = accept.toASCIIString();
+            for (String accept : accepts) {
+                newAccepts[i++] = accept;
             }
             newService.setAcceptArray(newAccepts);
         }
@@ -384,57 +385,60 @@ public class Gateway {
 
     private void appendAcceptOptions(ServiceType newService, ServiceConfiguration service) throws Exception {
         // accept-options
-        try {
-            Map<String, String> acceptOptions = service.getAcceptOptions();
-            if (!acceptOptions.isEmpty()) {
-                ServiceAcceptOptionsType newAcceptOptions = newService.addNewAcceptOptions();
-                Node domNode = newAcceptOptions.getDomNode();
-                Document ownerDocument = domNode.getOwnerDocument();
-                for (Entry<String, String> acceptOption : acceptOptions.entrySet()) {
+        Map<String, String> acceptOptions = service.getAcceptOptions();
+        if (!acceptOptions.isEmpty()) {
+            ServiceAcceptOptionsType newAcceptOptions = newService.addNewAcceptOptions();
+            Node domNode = newAcceptOptions.getDomNode();
+            Document ownerDocument = domNode.getOwnerDocument();
+            for (Entry<String, String> acceptOption : acceptOptions.entrySet()) {
+                try {
                     Element newElement = ownerDocument
                             .createElementNS(domNode.getNamespaceURI(), acceptOption.getKey());
                     Text newTextNode = ownerDocument.createTextNode(acceptOption.getValue());
                     newElement.appendChild(newTextNode);
                     domNode.appendChild(newElement);
+                } catch (Exception e) {
+                    String message = String.format("Processing of accept option %s %s failed with exception %s",
+                            acceptOption.getKey(), acceptOption.getValue(), e);
+                    throw new Exception(message, e);
                 }
             }
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
 
     private void appendConnects(ServiceType newService, ServiceConfiguration service) {
         // connects
-        Set<URI> connects = service.getConnects();
+        Set<String> connects = service.getConnects();
         if (!connects.isEmpty()) {
             String[] newConnects = new String[connects.size()];
             int i = 0;
-            for (URI connect : connects) {
-                newConnects[i++] = connect.toASCIIString();
+            for (String connect : connects) {
+                newConnects[i++] = connect;
             }
             newService.setConnectArray(newConnects);
         }
     }
 
     public void appendConnectOptions(ServiceType newService, ServiceConfiguration service) throws Exception {
-        try {
-            Map<String, String> connectOptions = service.getConnectOptions();
-            if (!connectOptions.isEmpty()) {
-                ServiceConnectOptionsType newConnectOptions = newService.addNewConnectOptions();
-                Node domNode = newConnectOptions.getDomNode();
-                Document ownerDocument = domNode.getOwnerDocument();
-                for (Entry<String, String> connectOption : connectOptions.entrySet()) {
-                    Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(),
-                            connectOption.getKey());
-                    Text newTextNode = ownerDocument.createTextNode(connectOption.getValue());
-                    newElement.appendChild(newTextNode);
-                    domNode.appendChild(newElement);
+        Map<String, String> connectOptions = service.getConnectOptions();
+        if (!connectOptions.isEmpty()) {
+            ServiceConnectOptionsType newConnectOptions = newService.addNewConnectOptions();
+            Node domNode = newConnectOptions.getDomNode();
+            Document ownerDocument = domNode.getOwnerDocument();
+            for (Entry<String, String> connectOption : connectOptions.entrySet()) {
+                try {
+                Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(),
+                        connectOption.getKey());
+                Text newTextNode = ownerDocument.createTextNode(connectOption.getValue());
+                newElement.appendChild(newTextNode);
+                domNode.appendChild(newElement);
+                }
+                catch (Exception e) {
+                    String message = String.format("Processing of connect option %s %s failed with exception %s",
+                            connectOption.getKey(), connectOption.getValue(), e);
+                    throw new Exception(message, e);
                 }
             }
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
 
@@ -546,15 +550,15 @@ public class Gateway {
             return;
         }
         ClusterType newCluster = gatewayConfig.addNewCluster();
-        Collection<URI> accepts = cluster.getAccepts();
-        Collection<URI> connects = cluster.getConnects();
+        Collection<String> accepts = cluster.getAccepts();
+        Collection<String> connects = cluster.getConnects();
 
-        for (URI accept : accepts) {
-            newCluster.addAccept(accept.toASCIIString());
+        for (String accept : accepts) {
+            newCluster.addAccept(accept);
         }
 
-        for (URI connect : connects) {
-            newCluster.addConnect(connect.toASCIIString());
+        for (String connect : connects) {
+            newCluster.addConnect(connect);
         }
 
         String name = cluster.getName();

@@ -30,9 +30,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.net.URI;
 import java.nio.ByteBuffer;
-import java.sql.Savepoint;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -47,6 +45,7 @@ import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.DefaultIoSessionDataStructureFactory;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
@@ -70,13 +69,11 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
-import org.kaazing.gateway.transport.AbstractBridgeService;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.gateway.transport.BridgeSessionInitializerAdapter;
 import org.kaazing.gateway.transport.IoFilterAdapter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.nio.TcpExtension;
-import org.kaazing.gateway.transport.nio.TcpExtensionFactorySpi;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -128,7 +125,7 @@ public class NioSocketAcceptorTest {
         final String connectURIString = "tcp://127.0.0.1:8000";
         final ResourceAddress bindAddress =
                 addressFactory.newResourceAddress(
-                        URI.create(connectURIString),
+                        connectURIString,
                         acceptOptions);
 
         final IoHandler ioHandler = new IoHandlerAdapter();
@@ -204,7 +201,7 @@ public class NioSocketAcceptorTest {
         final TcpExtension extension2 = context.mock(TcpExtension.class, "extension2");
 
         int bindPort = findFreePort();
-        URI bindURI = URI.create(format("tcp://localhost:%d", bindPort));
+        String bindURI = format("tcp://localhost:%d", bindPort);
         Map<String, Object> options = new HashMap<>();
         options.put(TCP_MAXIMUM_OUTBOUND_RATE, 0xFFFFFFFEL);
         options.put(NEXT_PROTOCOL, "test-protocol");
@@ -286,7 +283,7 @@ public class NioSocketAcceptorTest {
         final CountDownLatch done = new CountDownLatch(1);
 
         int bindPort = findFreePort();
-        URI bindURI = URI.create(format("tcp://localhost:%d", bindPort));
+        String bindURI = format("tcp://localhost:%d", bindPort);
         Map<String, Object> options = new HashMap<>();
         options.put(TCP_MAXIMUM_OUTBOUND_RATE, 0xFFFFFFFEL);
         options.put(NEXT_PROTOCOL, "test-protocol");
@@ -446,7 +443,7 @@ public class NioSocketAcceptorTest {
 
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         acceptor.setResourceAddressFactory(addressFactory);
-        URI bindURI = URI.create(format("tcp://localhost:%d", bindPort));
+        String bindURI = format("tcp://localhost:%d", bindPort);
         Map<String,Object> opts = new HashMap<>();
         opts.put(NEXT_PROTOCOL, "test-protocol");
 
@@ -546,7 +543,7 @@ public class NioSocketAcceptorTest {
         for (int i=0; i<NB_ACCEPTS; i++) {
             bindPorts[i] = findFreePort();
             //System.out.println("Binding to " + bindPorts[i]);
-            ResourceAddress bindAddress = resourceAddressFactory.newResourceAddress(new URI("tcp://localhost:" + bindPorts[i]));
+            ResourceAddress bindAddress = resourceAddressFactory.newResourceAddress("tcp://localhost:" + bindPorts[i]);
             acceptor.bind(bindAddress, handler, new BridgeSessionInitializer<IoFuture>() {
 
                 @Override
@@ -558,7 +555,7 @@ public class NioSocketAcceptorTest {
                                 try {
                                     //System.out.println("sessionOpened executing in thread " + Thread.currentThread());
                                     workerThreadsUsed.add(Thread.currentThread());
-                                    workersUsed.add(AbstractBridgeService.CURRENT_WORKER.get());
+                                    workersUsed.add(NioSocketAcceptor.CURRENT_WORKER.get());
                                     clientsConnected.countDown();
                                 }
                                 catch(RuntimeException e) {
@@ -611,23 +608,31 @@ public class NioSocketAcceptorTest {
     public void unbindDuringConnect() throws Exception {
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         int bindPort = findFreePort();
-        URI bindURI = URI.create(format("tcp://localhost:%d", bindPort));
+        String bindURI = format("tcp://localhost:%d", bindPort);
         final ResourceAddress bindAddress = addressFactory.newResourceAddress(bindURI);
 
         Mockery context = new Mockery();
         context.setThreadingPolicy(new Synchroniser());
 
-        final IoSession mockSession = context.mock(IoSession.class);
+        final IoSessionEx  mockSession = context.mock(IoSessionEx .class);
         final IoFilterChain mockFilterChain = context.mock(IoFilterChain.class);
         // Mocking IoAcceptorEx to get hold of "BridgeAcceptHandler tcpHandler"
         final IoAcceptorEx mockAcceptor = context.mock(IoAcceptorEx.class);
         final IoHandler[] tcpHandlerHolder = new IoHandler[1];
-
+        final TransportMetadata transportMetadata = context.mock(TransportMetadata.class);
+        
         context.checking(new Expectations() {
             {
                 allowing(mockSession).getLocalAddress(); will(returnValue(bindAddress));
                 oneOf(mockSession).close(with(any(boolean.class)));
                 allowing(mockSession).getFilterChain(); will(returnValue(mockFilterChain));
+                allowing(mockSession).getRemoteAddress(); will(returnValue(bindAddress));
+                allowing(mockSession).getService(); will(returnValue(mockAcceptor));
+
+                allowing(mockSession).getTransportMetadata();
+                will(returnValue(transportMetadata));
+                allowing(mockSession).getSubject();
+                allowing(transportMetadata).getAddressType(); will(returnValue(SocketAddress.class));
 
                 allowing(mockFilterChain).addFirst(with(any(String.class)), with(any(IoFilter.class)));
                 allowing(mockFilterChain).addLast(with(any(String.class)), with(any(IoFilter.class)));
@@ -635,7 +640,7 @@ public class NioSocketAcceptorTest {
                 allowing(mockAcceptor).setHandler(with(aNonNull(IoHandler.class))); will(saveParameter(tcpHandlerHolder, 0));
                 allowing(mockAcceptor).setSessionDataStructureFactory(with(aNonNull(DefaultIoSessionDataStructureFactory.class)));
                 allowing(mockAcceptor).bindAsync(with(aNonNull(SocketAddress.class)));
-                allowing(mockAcceptor).unbind(with(aNonNull(SocketAddress.class)));
+                allowing(mockAcceptor).unbind(with(aNonNull(SocketAddress.class))); 
             }
             public Action saveParameter(final Object[] parameterStorage, final int parameterIndex) {
                 return new CustomAction("save parameter") {

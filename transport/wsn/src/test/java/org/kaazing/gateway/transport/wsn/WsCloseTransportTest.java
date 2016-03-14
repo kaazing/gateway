@@ -15,7 +15,8 @@
  */
 package org.kaazing.gateway.transport.wsn;
 
-import java.net.URI;
+import static org.kaazing.gateway.util.InternalSystemProperty.WS_CLOSE_TIMEOUT;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,7 +54,6 @@ import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsCloseMessage;
 import org.kaazing.gateway.transport.ws.WsConnector;
 import org.kaazing.gateway.transport.ws.WsFilterAdapter;
-import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.future.UnbindFuture;
@@ -161,12 +161,12 @@ public class WsCloseTransportTest {
 
         final Properties wsAcceptProperties = new Properties();
         if (wsAcceptCloseTimeout != null) {
-            wsAcceptProperties.setProperty(WsCloseFilter.WS_CLOSE_TIMEOUT_PROPERTY_NAME, wsAcceptCloseTimeout);
+            wsAcceptProperties.setProperty(WS_CLOSE_TIMEOUT.getPropertyName(), wsAcceptCloseTimeout);
         }
 
         final Properties wsConnectProperties = new Properties();
         if (wsConnectCloseTimeout != null) {
-            wsConnectProperties.setProperty(WsCloseFilter.WS_CLOSE_TIMEOUT_PROPERTY_NAME, wsConnectCloseTimeout);
+            wsConnectProperties.setProperty(WS_CLOSE_TIMEOUT.getPropertyName(), wsConnectCloseTimeout);
         }
 
         wsnAcceptor.setBridgeServiceFactory(bridgeServiceFactory);
@@ -423,8 +423,8 @@ public class WsCloseTransportTest {
             }
         };
 
-        final URI uri = URI.create("wsn://localhost:4444/echo");
-        final List<URI> accepts = new ArrayList<>(1);
+        final String uri = "wsn://localhost:4444/echo";
+        final List<String> accepts = new ArrayList<>(1);
         accepts.add(uri);
 
 //        final Map<URI, ? extends CrossSiteConstraintContext> crossSiteConstraints = new HashMap<URI, DefaultCrossSiteConstraintContext>();

@@ -21,12 +21,16 @@ import java.net.URI;
 
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 
 public class PipeResourceAddressFactorySpi extends ResourceAddressFactorySpi<PipeResourceAddress> {
-    
+
     private static final String SCHEME_NAME = "pipe";
 
     private static final String PROTOCOL_NAME = "pipe";
+
+    private static final String PIPE_PATH_ERROR_MESSAGE = "Use pipe://%s instead of pipe://%s%s "
+                                        + "because named pipe URIs shouldn't contain paths.";
 
     @Override
     public String getSchemeName() {
@@ -37,30 +41,36 @@ public class PipeResourceAddressFactorySpi extends ResourceAddressFactorySpi<Pip
     protected String getTransportName() {
         return TRANSPORT_NAME;
     }
-    
+
     @Override
     protected String getProtocolName() {
         return PROTOCOL_NAME;
     }
-    
+
     @Override
     protected ResourceFactory getTransportFactory() {
         return null;
     }
 
     @Override
-    protected PipeResourceAddress newResourceAddress0(URI original, URI location) {
+    protected PipeResourceAddress newResourceAddress0(String original, String location) {
 
         // Unlike a normal-looking URI, our custom "pipe://" does not have
-        // host/port/path components.  Instead, the authority component
+        // host/port/path components. Instead, the authority component
         // suffices.
 
-        String pipeName = location.getAuthority();
+        String pipeName = URIUtils.getAuthority(location);
+        String pathName = URIUtils.getPath(location);
         if (pipeName == null) {
             throw new IllegalArgumentException(String.format("URI %s missing pipe name", location));
         }
+        if (pathName != null && !pathName.isEmpty()) {
+            throw new IllegalArgumentException(String.format(PIPE_PATH_ERROR_MESSAGE, pipeName, pipeName, pathName));
+        }
 
-        return new PipeResourceAddress(original, location);
+        URI uriLocation = URI.create(location);
+        return new PipeResourceAddress(this, original, uriLocation);
+
     }
-    
+
 }
