@@ -101,4 +101,27 @@ public class HttpProxyConfigTest {
         }
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testUseForwardedPropertyValues() throws Exception {
+        // @formatter:off
+        GatewayConfiguration configuration =
+                new GatewayConfigurationBuilder()
+                        .service()
+                            .name("useForwarded")
+                            .accept("http://localhost:8110")
+                            .connect("http://localhost:8080")
+                            .type("http.proxy")
+                            .property("use-forwarded", "delete")
+                            .property("use-forwarded", "100")
+                        .done()
+                .done();
+        // @formatter:on
+        Gateway gateway = new Gateway();
+        try {
+            gateway.start(configuration);
+        } finally {
+            gateway.stop();
+        }
+    }
+
 }

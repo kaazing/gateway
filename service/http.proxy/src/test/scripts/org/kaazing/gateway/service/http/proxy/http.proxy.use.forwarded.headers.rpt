@@ -14,11 +14,10 @@
 # limitations under the License.
 #
 
-connect http://localhost:8111/a/foo
+connect http://localhost:8110/
 connected
 
 write method "GET"
-write parameter "name" "value"
 write version "HTTP/1.1"
 
 write header "User-Agent" "curl/7.37.1"
@@ -37,15 +36,19 @@ close
 closed
 
 
-accept http://localhost:8081/b/c/foo
+accept http://localhost:8080/
 accepted
 connected
 
 read method "GET"
-read parameter "name" "value"
-read header "Via" /1.1 kaazing-.+/
+read header "Via" "1.1 kaazing"
 read header "User-Agent" "curl/7.37.1"
-read header "Host" "localhost:8081"
+read header "Host" "localhost:8080"
+read header "Forwarded" "for=127.0.0.1;by=127.0.0.1;proto=http;host=localhost:8110"
+read header "X-Forwarded-For" "127.0.0.1"
+read header "X-Forwarded-Server" "127.0.0.1"
+read header "X-Forwarded-Proto" "http"
+read header "X-Forwarded-Host" "localhost:8110"
 read header "Accept" "*/*"
 read closed
 

@@ -22,6 +22,12 @@ import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_UPGRADE;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_VIA;
 import static org.kaazing.gateway.transport.http.HttpStatus.CLIENT_NOT_FOUND;
 import static org.kaazing.gateway.transport.http.HttpStatus.INFO_SWITCHING_PROTOCOLS;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_FORWARDED;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_FOR;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_HOST;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_PROTO;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_SERVER;
+import static java.lang.String.format;
 
 import java.net.URI;
 import java.util.Collection;
@@ -44,6 +50,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.service.proxy.AbstractProxyAcceptHandler;
@@ -62,12 +69,21 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("service.http.proxy");
     private static final String VIA_HEADER_FORMATTER = "1.1 kaazing-%s";
+    private static final String FORWARDED_INJECT = "inject";
+    private static final String FORWARDED_EXCLUDE = "exclude";
+    private static final String FORWARDED_IGNORE = "ignore";
+    private static final String FORWARDED_FOR = "for";
+    private static final String FORWARDED_BY = "by";
+    private static final String FORWARDED_PROTO = "proto";
+    private static final String FORWARDED_HOST = "host";
+
     private static final Set KNOWN_SIMPLE_PROPERTIES;
     static {
         Set<String> set = new HashSet<>();
         set.add("rewrite-cookie-domain");
         set.add("rewrite-cookie-path");
         set.add("rewrite-location");
+        set.add("use-forwarded");
         KNOWN_SIMPLE_PROPERTIES = Collections.unmodifiableSet(set);
     }
     private static final Set KNOWN_NESTED_PROPERTIES;
@@ -80,7 +96,17 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
     }
 
     private final String viaHeader;
+    private static final Set<String> USE_FORWARDED_VALUES;
+    static {
+        Set<String> set = new HashSet<>();
+        set.add(FORWARDED_INJECT);
+        set.add(FORWARDED_EXCLUDE);
+        set.add(FORWARDED_IGNORE);
+        USE_FORWARDED_VALUES = Collections.unmodifiableSet(set);
+    }
+
     private String connectURI;
+    private String useForwarded;
     private boolean rewriteCookieDomain;
     private boolean rewriteCookiePath;
     private boolean rewriteLocation;
@@ -133,6 +159,15 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             }
             locationMap.put(connectURI.toString(), acceptURI.toString());
         }
+
+        useForwarded = properties.get("use-forwarded");
+        if (useForwarded == null) {
+            useForwarded = FORWARDED_IGNORE;
+        }
+        if (!USE_FORWARDED_VALUES.contains(useForwarded)) {
+            throw new IllegalArgumentException(serviceContext.getServiceName()
+                    + " http.proxy service specifies unknown property value : " + useForwarded + " for use-forwarded");
+        }
     }
 
     private void validateProperties(ServiceContext serviceContext) {
@@ -153,6 +188,8 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         }
     }
 
+    
+
     @Override
     protected AbstractProxyHandler createConnectHandler() {
         return new ConnectHandler();
@@ -162,7 +199,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
     public void sessionOpened(IoSession session) {
         if (!session.isClosing()) {
             final DefaultHttpSession acceptSession = (DefaultHttpSession) session;
-            //final Subject subject = ((IoSessionEx) acceptSession).getSubject();
+            // final Subject subject = ((IoSessionEx) acceptSession).getSubject();
 
             if (!validateRequestPath(acceptSession)) {
                 acceptSession.setStatus(CLIENT_NOT_FOUND);
@@ -207,8 +244,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
     }
 
     /*
-     * Initializer for connect session. It adds the processed accept session headers
-     * on the connect session
+     * Initializer for connect session. It adds the processed accept session headers on the connect session
      */
     private class ConnectSessionInitializer implements IoSessionInitializer<ConnectFuture> {
         private final DefaultHttpSession acceptSession;
@@ -245,11 +281,12 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
         @Override
         public void operationComplete(ConnectFuture future) {
+            String connectURI = getConnectURIs().iterator().next();
             if (future.isConnected()) {
-                DefaultHttpSession connectSession = (DefaultHttpSession)future.getSession();
+                DefaultHttpSession connectSession = (DefaultHttpSession) future.getSession();
 
                 if (LOGGER.isTraceEnabled()) {
-                    LOGGER.trace("Connected to " + getConnectURIs().iterator().next() + " ["+acceptSession+"->"+connectSession+"]");
+                    LOGGER.trace("Connected to " + connectURI + " [" + acceptSession + "->" + connectSession + "]");
                 }
                 if (acceptSession == null || acceptSession.isClosing()) {
                     connectSession.close(true);
@@ -260,7 +297,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
                     flushQueuedMessages(acceptSession, attachedSessionManager);
                 }
             } else {
-                LOGGER.warn("Connection to " + getConnectURIs().iterator().next() + " failed ["+acceptSession+"->]");
+                LOGGER.warn("Connection to " + connectURI + " failed [" + acceptSession + "->]");
                 acceptSession.setStatus(HttpStatus.SERVER_GATEWAY_TIMEOUT);
                 acceptSession.close(true);
             }
@@ -287,7 +324,8 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             AttachedSessionManager attachedSessionManager = getAttachedSessionManager(session);
             if (attachedSessionManager != null) {
                 HttpAcceptSession acceptSession = (HttpAcceptSession) attachedSessionManager.getAttachedSession();
-                if (acceptSession.getWrittenBytes() == 0L && !acceptSession.isCommitting() && !acceptSession.isClosing()) {
+                if (acceptSession.getWrittenBytes() == 0L && !acceptSession.isCommitting()
+                        && !acceptSession.isClosing()) {
                     acceptSession.setStatus(connectSession.getStatus());
                     acceptSession.setReason(connectSession.getReason());
                     acceptSession.setVersion(connectSession.getVersion());
@@ -380,7 +418,6 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
     }
 
-
     /*
      * Write all (except hop-by-hop) headers from source session to destination session.
      *
@@ -426,11 +463,97 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
         // Add Via: 1.1 kaazing + uuid header
         connectSession.addWriteHeader(HEADER_VIA, viaHeader);
+
+        // Add forwarded headers
+        setupForwardedHeaders(acceptSession, connectSession);
+
     }
-    
+
+    /**
+     * Compose the Forwarded header and the X-Forwarded headers and add them to the connect session write headers.
+     * 
+     * @param acceptSession
+     * @param connectSession
+     * @param forwardedProperty the value of the 'use-forwarded' property used for http.proxy type in gateway-config:
+     * inject (add the corresponding data to the Forwarded/X-Forwarded headers), ignore (this proxy is anonymous, no
+     * forwarded header data is added), or exclude (delete any existing Forwarded/X-Forwarded headers received, and do
+     * not add any new data)
+     */
+    private void setupForwardedHeaders(HttpAcceptSession acceptSession, HttpConnectSession connectSession) {
+        if (FORWARDED_EXCLUDE.equalsIgnoreCase(useForwarded)) {
+            excludeForwardedHeaders(connectSession);
+            return;
+        }
+
+        if (FORWARDED_INJECT.equalsIgnoreCase(useForwarded)) {
+            String remoteIpAddress = getResourceIpAddress(acceptSession, FORWARDED_FOR);
+            if (remoteIpAddress != null) {
+                connectSession.addWriteHeader(HEADER_X_FORWARDED_FOR, remoteIpAddress);
+            }
+
+            String serverIpAddress = getResourceIpAddress(acceptSession, FORWARDED_BY);
+            if (serverIpAddress != null) {
+                connectSession.addWriteHeader(HEADER_X_FORWARDED_SERVER, serverIpAddress);
+            }
+
+            String protocol = acceptSession.isSecure() ? "https" : "http";
+            connectSession.addWriteHeader(HEADER_X_FORWARDED_PROTO, protocol);
+
+            String externalURI = acceptSession.getLocalAddress().getExternalURI();
+            String host = URIUtils.getHost(externalURI);
+            String port = format("%d", URIUtils.getPort(externalURI));
+            connectSession.addWriteHeader(HEADER_X_FORWARDED_HOST, format("%s:%s", host, port));
+            
+            connectSession.addWriteHeader(HEADER_FORWARDED,
+                    format("%s=%s;%s=%s;%s=%s;%s=%s:%s", FORWARDED_FOR, remoteIpAddress, FORWARDED_BY, serverIpAddress,
+                            FORWARDED_PROTO, protocol, FORWARDED_HOST, host, port));
+        }
+    }
+
+    /**
+     * Remove the Forwarded headers from the connect session if the 'use-forwarded' property for the http.proxy type is
+     * set to 'exclude'.
+     * 
+     * @param connectSession
+     */
+    private static void excludeForwardedHeaders(HttpConnectSession connectSession) {
+        connectSession.clearWriteHeaders(HEADER_FORWARDED);
+        connectSession.clearWriteHeaders(HEADER_X_FORWARDED_FOR);
+        connectSession.clearWriteHeaders(HEADER_X_FORWARDED_SERVER);
+        connectSession.clearWriteHeaders(HEADER_X_FORWARDED_HOST);
+        connectSession.clearWriteHeaders(HEADER_X_FORWARDED_PROTO);
+    }
+
+    /**
+     * Get the IP address of the resource based on the parameter name
+     * 
+     * @param acceptSession
+     * @param parameterName can be either 'for' (the IP address of the client/server making the request to this
+     * service), or 'by' (the IP address of this proxy)
+     * @return the IP address based on the parameter name received
+     */
+    private static String getResourceIpAddress(HttpAcceptSession acceptSession, String parameterName) {
+        String resourceIpAddress = null;
+        ResourceAddress resourceAddress = null;
+        switch (parameterName) {
+        case FORWARDED_FOR:
+            resourceAddress = acceptSession.getRemoteAddress();
+            break;
+        case FORWARDED_BY:
+            resourceAddress = acceptSession.getLocalAddress();
+            break;
+        }
+        ResourceAddress tcpResourceAddress = resourceAddress.findTransport("tcp");
+        if (tcpResourceAddress != null) {
+            URI resource = tcpResourceAddress.getResource();
+            resourceIpAddress = resource.getHost();
+        }
+
+        return resourceIpAddress;
+    }
+
     /*
-     * Get all hop-by-hop headers from Connection header value.
-     * Also add Connection header itself to the set
+     * Get all hop-by-hop headers from Connection header value. Also add Connection header itself to the set
      */
     private static Set<String> getHopByHopHeaders(HttpSession session) {
         List<String> connectionHeaders = session.getReadHeaders(HEADER_CONNECTION);
@@ -438,7 +561,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             connectionHeaders = Collections.emptyList();
         }
         Set<String> hopByHopHeaders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-        for(String conHeader : connectionHeaders) {
+        for (String conHeader : connectionHeaders) {
             hopByHopHeaders.add(conHeader);
         }
         hopByHopHeaders.add(HEADER_CONNECTION);
@@ -446,10 +569,9 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
     }
 
     /*
-     * An upgrade handler that connects transport sessions of http accept and connect
-     * sessions.
+     * An upgrade handler that connects transport sessions of http accept and connect sessions.
      */
-    private static class ProxyUpgradeHandler extends IoHandlerAdapter<IoSessionEx>  {
+    private static class ProxyUpgradeHandler extends IoHandlerAdapter<IoSessionEx> {
         final IoSession attachedSession;
 
         ProxyUpgradeHandler(IoSession attachedSession) {
@@ -479,8 +601,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
     }
 
     /*
-     * A close listener that upgrades underlying transport connection
-     * at the end of http session close.
+     * A close listener that upgrades underlying transport connection at the end of http session close.
      */
     private static class Upgrader implements IoFutureListener<CloseFuture> {
         private final DefaultHttpSession session;
