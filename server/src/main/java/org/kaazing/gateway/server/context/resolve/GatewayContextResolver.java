@@ -37,6 +37,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -168,6 +169,8 @@ public class GatewayContextResolver {
 
     private ContextResolver<SecurityType, DefaultSecurityContext> securityResolver;
 
+    private Map<String, Object> injectables = new HashMap<>();
+
     public GatewayContextResolver(File configDir, File webDir, File tempDir) {
         this(configDir, webDir, tempDir, null);
     }
@@ -259,8 +262,6 @@ public class GatewayContextResolver {
                 clusterContext,
                 schedulerProvider);
 
-        // create map of injectable resources
-        Map<String, Object> injectables = new HashMap<>();
         injectables.putAll(dependencyContexts);
         injectables.put("serviceRegistry", servicesByURI);
         injectables.put("realmsContext", realmsContext);
@@ -1316,6 +1317,14 @@ public class GatewayContextResolver {
             }
         }
         return canonicalURI;
+    }
+
+    public void addInjectable(String key, Object value) {
+        this.injectables.put(key, value);
+    }
+
+    public Map<String, Object> getInjectables() {
+        return injectables;
     }
 
 }

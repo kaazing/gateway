@@ -22,7 +22,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.management.MBeanServer;
+
 import org.kaazing.gateway.server.Gateway;
 
 public class GatewayConfiguration implements Configuration<SuppressibleGatewayConfiguration> {
