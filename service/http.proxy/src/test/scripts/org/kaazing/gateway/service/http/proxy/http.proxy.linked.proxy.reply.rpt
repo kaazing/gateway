@@ -14,38 +14,21 @@
 # limitations under the License.
 #
 
-connect http://localhost:8111/a/foo
-connected
+#
+# Origin server
+#
 
-write method "GET"
-write parameter "name" "value"
-write version "HTTP/1.1"
-
-write header "User-Agent" "curl/7.37.1"
-write header host
-write header "Accept" "*/*"
-write close
-
-read status "200" "OK"
-read version "HTTP/1.1"
-read header "Content-Type" "text/html"
-read header "Content-Length" "13"
-read "Hello world\r\n"
-read closed
-
-close
-closed
-
-
-accept http://localhost:8081/b/c/foo
+accept http://localhost:8030/proxy2
 accepted
 connected
 
 read method "GET"
 read parameter "name" "value"
 read header "Via" /1.1 kaazing-.+/
+read header "Via" /1.1 kaazing-.+/
 read header "User-Agent" "curl/7.37.1"
-read header "Host" "localhost:8081"
+read header "Host" "localhost:8030"
+read header "Forwarded" "for=127.0.0.1"
 read header "Accept" "*/*"
 read closed
 
