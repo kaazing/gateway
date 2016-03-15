@@ -69,7 +69,6 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("service.http.proxy");
     private static final String VIA_HEADER_FORMATTER = "1.1 kaazing-%s";
-    private static final String VIA_HEADER_VALUE = "1.1 kaazing";
     private static final String FORWARDED_INJECT = "inject";
     private static final String FORWARDED_EXCLUDE = "exclude";
     private static final String FORWARDED_IGNORE = "ignore";
@@ -211,8 +210,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
                 return;
             }
 
-            ConnectSessionInitializer sessionInitializer = new ConnectSessionInitializer(acceptSession,
-                    useForwarded);
+            ConnectSessionInitializer sessionInitializer = new ConnectSessionInitializer(acceptSession);
             ConnectFuture future = getServiceContext().connect(connectURI, getConnectHandler(), sessionInitializer);
             future.addListener(new ConnectListener(acceptSession));
             super.sessionOpened(acceptSession);
@@ -250,11 +248,9 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
      */
     private class ConnectSessionInitializer implements IoSessionInitializer<ConnectFuture> {
         private final DefaultHttpSession acceptSession;
-        private final String useForwarded;
 
-        ConnectSessionInitializer(DefaultHttpSession acceptSession, String useForwarded) {
+        ConnectSessionInitializer(DefaultHttpSession acceptSession) {
             this.acceptSession = acceptSession;
-            this.useForwarded = useForwarded;
         }
 
         @Override
@@ -264,7 +260,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             connectSession.setMethod(acceptSession.getMethod());
             URI connectURI = computeConnectPath(connectSession.getRequestURI());
             connectSession.setRequestURI(connectURI);
-            processRequestHeaders(acceptSession, connectSession, useForwarded);
+            processRequestHeaders(acceptSession, connectSession);
         }
 
         private URI computeConnectPath(URI connectURI) {
@@ -469,7 +465,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         connectSession.addWriteHeader(HEADER_VIA, viaHeader);
 
         // Add forwarded headers
-        setupForwardedHeaders(acceptSession, connectSession, forwardedProperty);
+        setupForwardedHeaders(acceptSession, connectSession);
 
     }
 
@@ -479,19 +475,17 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
      * @param acceptSession
      * @param connectSession
      * @param forwardedProperty the value of the 'use-forwarded' property used for http.proxy type in gateway-config:
-     * inject ( add the corresponding data to the Forwarded/X-Forwarded headers ), ignore ( this proxy is anonymous, no
-     * forwarded header data is added ), or exclude ( delete any existing Forwarded/X-Forwarded headers received, and do
-     * not add any new data )
+     * inject (add the corresponding data to the Forwarded/X-Forwarded headers), ignore (this proxy is anonymous, no
+     * forwarded header data is added), or exclude (delete any existing Forwarded/X-Forwarded headers received, and do
+     * not add any new data)
      */
-    private static void setupForwardedHeaders(HttpAcceptSession acceptSession,
-                                              HttpConnectSession connectSession,
-                                              String forwardedProperty) {
-        if (FORWARDED_EXCLUDE.equalsIgnoreCase(forwardedProperty)) {
+    private void setupForwardedHeaders(HttpAcceptSession acceptSession, HttpConnectSession connectSession) {
+        if (FORWARDED_EXCLUDE.equalsIgnoreCase(useForwarded)) {
             excludeForwardedHeaders(connectSession);
             return;
         }
 
-        if (FORWARDED_INJECT.equalsIgnoreCase(forwardedProperty)) {
+        if (FORWARDED_INJECT.equalsIgnoreCase(useForwarded)) {
             String remoteIpAddress = getResourceIpAddress(acceptSession, FORWARDED_FOR);
             if (remoteIpAddress != null) {
                 connectSession.addWriteHeader(HEADER_X_FORWARDED_FOR, remoteIpAddress);
@@ -534,8 +528,8 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
      * Get the IP address of the resource based on the parameter name
      * 
      * @param acceptSession
-     * @param parameterName can be either 'for' ( the IP address of the client/server making the request to this service
-     * ), or 'by' ( the IP address of this proxy )
+     * @param parameterName can be either 'for' (the IP address of the client/server making the request to this
+     * service), or 'by' (the IP address of this proxy)
      * @return the IP address based on the parameter name received
      */
     private static String getResourceIpAddress(HttpAcceptSession acceptSession, String parameterName) {
