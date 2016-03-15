@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 package org.kaazing.gateway.transport.wseb.logging;
+
+import com.sun.security.auth.UnixPrincipal;
 import javax.security.auth.login.LoginException;
-import org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig;
 
+public class BasicLoginModuleWithMultiplePrincipalsInConfig extends BasicLoginModuleWithDefaultUserConfig{
 
-public class BasicLoginModuleWithMultiplePrincipalsOnTheSubject extends BasicLoginModuleWithDefaultUserConfig {
-
-    private DefaultUserConfig defaultPrincipalNotForLogging = new DefaultUserConfig();
-    static final String SECOND_PRINCIPAL_NAME = "secondPrincipalName";
+    private UnixPrincipal unixPrincipal = new UnixPrincipal("unixPrincipalName");
 
     @Override
     public boolean commit() throws LoginException {
@@ -33,15 +32,12 @@ public class BasicLoginModuleWithMultiplePrincipalsOnTheSubject extends BasicLog
             subject.getPrincipals().add(userPrincipal);
             commitSucceeded = true;
 
+            subject.getPrincipals().add(unixPrincipal);
             defaultPrincipal.setName(TEST_PRINCIPAL_NAME);
             defaultPrincipal.setPassword(TEST_PRINCIPAL_PASS);
             subject.getPrincipals().add(defaultPrincipal);
 
-            defaultPrincipalNotForLogging.setName(SECOND_PRINCIPAL_NAME);
-            subject.getPrincipals().add(defaultPrincipalNotForLogging);
-
             return true;
         }
     }
-
 }

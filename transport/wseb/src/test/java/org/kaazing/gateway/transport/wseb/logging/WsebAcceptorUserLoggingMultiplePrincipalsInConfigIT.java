@@ -91,7 +91,7 @@ public class WsebAcceptorUserLoggingMultiplePrincipalsInConfigIT {
                         .userPrincipalClass("org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig")
                         .userPrincipalClass("com.sun.security.auth.UnixPrincipal")
                         .loginModule()
-                            .type("class:org.kaazing.gateway.transport.wseb.logging.BasicLoginModuleWithDefaultUserConfig")
+                            .type("class:org.kaazing.gateway.transport.wseb.logging.BasicLoginModuleWithMultiplePrincipalsInConfig")
                             .success("requisite")
                             .option("roles", ROLE)
                         .done()

@@ -24,6 +24,7 @@ import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
+import com.sun.security.auth.UnixPrincipal;
 import org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig;
 
 /**
@@ -31,20 +32,20 @@ import org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig;
  */
 public class BasicLoginModuleWithDefaultUserConfig implements LoginModule {
 
-    private static final String TEST_PRINCIPAL_PASS = "testPrincipalPass";
-    private static final String TEST_PRINCIPAL_NAME = "testPrincipalName";
-    private DefaultUserConfig defaultPrincipal = new DefaultUserConfig();
+    static final String TEST_PRINCIPAL_PASS = "testPrincipalPass";
+    static final String TEST_PRINCIPAL_NAME = "testPrincipalName";
+    DefaultUserConfig defaultPrincipal = new DefaultUserConfig();
 
     // initial state
-    private Subject subject;
+    Subject subject;
     private Map<String, ?> sharedState;
 
     // the authentication status
-    private boolean succeeded;
-    private boolean commitSucceeded;
+    boolean succeeded;
+    boolean commitSucceeded;
 
     // testUser's RolePrincipal
-    private RolePrincipal userPrincipal;
+    RolePrincipal userPrincipal;
 
     public void initialize(Subject subject,
                            CallbackHandler callbackHandler,
@@ -85,6 +86,7 @@ public class BasicLoginModuleWithDefaultUserConfig implements LoginModule {
             subject.getPrincipals().add(userPrincipal);
             commitSucceeded = true;
 
+            subject.getPrincipals().add(new UnixPrincipal("UnixPrincipal_Username"));
             defaultPrincipal.setName(TEST_PRINCIPAL_NAME);
             defaultPrincipal.setPassword(TEST_PRINCIPAL_PASS);
             subject.getPrincipals().add(defaultPrincipal);
@@ -121,7 +123,7 @@ public class BasicLoginModuleWithDefaultUserConfig implements LoginModule {
         return true;
     }
 
-    private static class RolePrincipal implements Principal {
+    static class RolePrincipal implements Principal {
 
         private final String name;
 
