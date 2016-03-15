@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.wseb.logging;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -90,9 +89,7 @@ public class WsebAcceptorUserLoggingMultiplePrincipalsInConfigIT {
                         .description("Kaazing WebSocket Gateway Demo")
                         .httpChallengeScheme("Basic")
                         .userPrincipalClass("org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig")
-                        .userPrincipalClass("org.kaazing.gateway.security.auth.config.parse.TestConfig")
-                        .userPrincipalClass("org.kaazing.gateway.security.auth.config.parse.TestConfig")
-                        .userPrincipalClass("org.kaazing.gateway.security.auth.config.parse.TestConfig")
+                        .userPrincipalClass("com.sun.security.auth.UnixPrincipal")
                         .loginModule()
                             .type("class:org.kaazing.gateway.transport.wseb.logging.BasicLoginModuleWithDefaultUserConfig")
                             .success("requisite")
