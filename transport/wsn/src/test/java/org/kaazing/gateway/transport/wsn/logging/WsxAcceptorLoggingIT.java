@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -46,7 +45,7 @@ public class WsxAcceptorLoggingIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept("ws://localhost:8000/echo")
+                            .accept("ws://localhost:8080/path")
                             .type("echo")
                         .done()
                         .service()
@@ -64,7 +63,6 @@ public class WsxAcceptorLoggingIT {
     public TestRule chain = createRuleChain(gateway, k3po);
 
     @Test
-    @Ignore("https://github.com/kaazing-private/gateway.server/issues/93")
     @Specification({
         "httpx/extended/connection.established.data.exchanged.close/request"
         })
@@ -112,3 +110,4 @@ public class WsxAcceptorLoggingIT {
         MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);
     }
 }
+
