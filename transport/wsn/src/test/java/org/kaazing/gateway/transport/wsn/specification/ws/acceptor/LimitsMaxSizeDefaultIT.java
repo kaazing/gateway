@@ -67,7 +67,6 @@ public class LimitsMaxSizeDefaultIT {
         k3po.finish();
     }
 
-
     @Test
     @Specification({
         "should.fail.text.payload.length.131073/handshake.request.and.frame"

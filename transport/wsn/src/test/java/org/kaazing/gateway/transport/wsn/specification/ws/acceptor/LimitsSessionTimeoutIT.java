@@ -16,9 +16,9 @@
 
 package org.kaazing.gateway.transport.wsn.specification.ws.acceptor;
 
+import static org.junit.Assert.assertTrue;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Rule;
@@ -29,7 +29,6 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import static org.junit.Assert.*;
 
 public class LimitsSessionTimeoutIT {
     public static final long TEST_LIFETIME = TimeUnit.SECONDS.toSeconds(3);
@@ -75,7 +74,7 @@ public class LimitsSessionTimeoutIT {
     @Specification({
         "should.fail.max.lifetime.exceeded/handshake.request.and.frame"
         })
-    public void shouldFailSendingMessageAfterSessionLifetimeIsUp() throws Exception {
+    public void shouldCloseWebSocketConnectionAfterSessionLifetimeIsUp() throws Exception {
         k3po.start();
         k3po.awaitBarrier("HANDSHAKE_COMPLETE");
 
