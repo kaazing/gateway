@@ -2,7 +2,21 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.47...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.48...HEAD)
+
+**Closed issues:**
+
+- Build failure in HttpPipeliningIT.twoRequestsBeforeReponseOK [\#430](https://github.com/kaazing/gateway/issues/430)
+
+**Merged pull requests:**
+
+- Fixing NPE when an exception is caught but wsn session is not yet created [\#452](https://github.com/kaazing/gateway/pull/452) ([jitsni](https://github.com/jitsni))
+- Fixed pipe error message. [\#448](https://github.com/kaazing/gateway/pull/448) ([vmaraloiu](https://github.com/vmaraloiu))
+- fixes issue where k3po regex might match on tcp packet fragmentation [\#446](https://github.com/kaazing/gateway/pull/446) ([dpwspoon](https://github.com/dpwspoon))
+- Connection closed when http.proxy loops encountered [\#443](https://github.com/kaazing/gateway/pull/443) ([irina-mitrea-luxoft](https://github.com/irina-mitrea-luxoft))
+
+## [5.0.1.48](https://github.com/kaazing/gateway/tree/5.0.1.48) (2016-03-11)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.47...5.0.1.48)
 
 **Fixed bugs:**
 

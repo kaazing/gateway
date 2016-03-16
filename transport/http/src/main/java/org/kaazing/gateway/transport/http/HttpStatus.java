@@ -67,7 +67,8 @@ public enum HttpStatus {
     SERVER_BAD_GATEWAY(502, "Bad Gateway"),
     SERVER_SERVICE_UNAVAILABLE(503, "Service Unavailable"),
     SERVER_GATEWAY_TIMEOUT(504, "Gateway Timeout"),
-    SERVER_VERSION_NOT_SUPPORTED(505, "Version Not Supported");
+    SERVER_VERSION_NOT_SUPPORTED(505, "Version Not Supported"),
+    SERVER_LOOP_DETECTED(508, "Loop detected");
 
     // status code string --> HttpStatus (for e.g. "200" -> SUCCESS_OK)
     private static final Map<String, HttpStatus> HTTP_STATUS_MAP = new HashMap<>();

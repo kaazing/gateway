@@ -69,6 +69,13 @@ public abstract class HttpHeaderDecodingState extends DecodingStateMachine {
         COMMA_SEPARATED_HEADERS.add("Via");
         COMMA_SEPARATED_HEADERS.add("Warning");
         COMMA_SEPARATED_HEADERS.add("WWW-Authenticate");
+
+        COMMA_SEPARATED_HEADERS.add("Forwarded");
+        COMMA_SEPARATED_HEADERS.add("X-Forwarded-For");
+        COMMA_SEPARATED_HEADERS.add("X-Forwarded-Server");
+        COMMA_SEPARATED_HEADERS.add("X-Forwarded-Proto");
+        COMMA_SEPARATED_HEADERS.add("X-Forwarded-Host");
+
     }
 
     private static final String HEADER_WEBSOCKET_KEY_PREFIX = "Sec-WebSocket-Key";

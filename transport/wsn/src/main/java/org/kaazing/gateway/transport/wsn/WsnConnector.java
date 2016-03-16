@@ -434,7 +434,9 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
             }
 
             WsnSession wsnSession = SESSION_KEY.get(session);
-            wsnSession.setCloseException(cause);
+            if (wsnSession != null) {
+                wsnSession.setCloseException(cause);
+            }
 
             session.close(true);
 

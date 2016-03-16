@@ -56,12 +56,11 @@ accepted
 connected
 
 read "POST /examples/servlets/servlet/CookieExample HTTP/1.1\r\n"
-read "Via: 1.1 kaazing\r\n"
+read /Via: 1.1 kaazing-.+/ "\r\n"
 read "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
 read "Referer: http://localhost:8080/examples/servlets/servlet/CookieExample\r\n"
 read "Origin: http://localhost:8110\r\n"
 read "Host: localhost:8080\r\n"
-read "Forwarded: for=127.0.0.1\r\n"
 read "Content-Type: application/x-www-form-urlencoded\r\n"
 read "Content-Length: 26\r\n"
 read "Connection: close\r\n"
