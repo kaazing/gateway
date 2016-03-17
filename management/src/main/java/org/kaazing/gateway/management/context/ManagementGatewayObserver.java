@@ -35,7 +35,7 @@ import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.mina.core.session.IoSessionEx;
 
-public class ManagementGatewayListener extends GatewayObserverFactorySpiPrototype {
+public class ManagementGatewayObserver extends GatewayObserverFactorySpiPrototype {
 
     private ManagementContext managementContext;
     private Properties configuration;
