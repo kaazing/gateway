@@ -129,7 +129,7 @@ public class WsnConnectorTest {
         wsnAcceptor.setWsAcceptor(wsAcceptor);
 
         wsnConnector = (WsnConnector)transportFactory.getTransport("wsn").getConnector();
-		wsnConnector.setConfiguration(new Properties());
+        wsnConnector.setConfiguration(new Properties());
         wsnConnector.setBridgeServiceFactory(serviceFactory);
         wsnConnector.setSchedulerProvider(schedulerProvider);
         wsnConnector.setResourceAddressFactory(addressFactory);
@@ -160,7 +160,7 @@ public class WsnConnectorTest {
     @Test
     public void shouldCloseWsnSessionWhenTransportClosesCleanlyButUnexpectedly() throws Exception {
 
-        URI location = URI.create("wsn://localhost:8000/echo");
+        String location = "wsn://localhost:8000/echo";
         Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
         ResourceAddress address = addressFactory.newResourceAddress(location, addressOptions);
         final CountDownLatch waitForClientParentSessionCloseListenerEstabished = new CountDownLatch(1);
@@ -236,7 +236,7 @@ public class WsnConnectorTest {
     @Test
     public void shouldCorrectlyConstructLocalAndRemoteAddressesForConnectedWsnSessions() throws Exception {
 
-        final URI location = URI.create("ws://localhost:8000/echo");
+        final String location = "ws://localhost:8000/echo";
         Map<String, Object> addressOptions = Collections.emptyMap();
         ResourceAddress address = addressFactory.newResourceAddress(location, addressOptions);
         TransportTestIoHandlerAdapter acceptHandler = new TransportTestIoHandlerAdapter(1) {
@@ -258,8 +258,9 @@ public class WsnConnectorTest {
                     @Override
                     public void operationComplete(WriteFuture future) {
                         BridgeSession bridgeSession = (BridgeSession) session;
-                        assertEquals("remote address of accept session was not "+location, location, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
-                        assertEquals("local  address of accept session was not "+location, location, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
+                        URI locationURI = URI.create(location);
+                        assertEquals("remote address of accept session was not "+location, locationURI, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
+                        assertEquals("local  address of accept session was not "+location, locationURI, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
                         checkpoint();
                     }
                 });
@@ -282,8 +283,9 @@ public class WsnConnectorTest {
                     @Override
                     public void operationComplete(IoFuture future) {
                         BridgeSession bridgeSession = (BridgeSession) session;
-                        assertEquals("remote address of connect session was not " + location, location, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
-                        assertEquals("local  address of connect session was not " + location, location, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
+                        URI locationURI = URI.create(location);
+                        assertEquals("remote address of connect session was not " + location, locationURI, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
+                        assertEquals("local  address of connect session was not " + location, locationURI, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
                         checkpoint();
                     }
                 });
@@ -306,7 +308,7 @@ public class WsnConnectorTest {
 
         long iterations = 100;
 
-        final URI location = URI.create("wsn://localhost:8000/echo");
+        final String location = "wsn://localhost:8000/echo";
         Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
         ResourceAddress address = addressFactory.newResourceAddress(location, addressOptions);
 

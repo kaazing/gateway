@@ -19,7 +19,6 @@ import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.net.URI;
 import java.security.KeyStore;
 
 import org.junit.Rule;
@@ -51,8 +50,8 @@ public class Draft76SafariExtendedHandshakeTestIT {
 
 			GatewayConfiguration configuration = new GatewayConfigurationBuilder()
 					.service()
-	                    .accept(URI.create("ws://localhost:8001/echo"))
-	                    .accept(URI.create("wss://localhost:9001/echo"))
+	                    .accept("ws://localhost:8001/echo")
+	                    .accept("wss://localhost:9001/echo")
 	                    .type("echo")
 	                    .crossOrigin()
 	                        .allowOrigin("http://localhost:8000")
@@ -62,8 +61,8 @@ public class Draft76SafariExtendedHandshakeTestIT {
 	                    .done()
 	                .done()
 	                .service()
-	                    .accept(URI.create("ws://localhost:8001/echoAuth"))
-	                    .accept(URI.create("wss://localhost:9001/echoAuth"))
+	                    .accept("ws://localhost:8001/echoAuth")
+	                    .accept("wss://localhost:9001/echoAuth")
 	                    .type("echo")
 	                        .realmName("demo")
 	                        .authorization()
@@ -77,7 +76,7 @@ public class Draft76SafariExtendedHandshakeTestIT {
 	                    .done()
 	                .done()
 	                .service()
-	                    .accept(URI.create("ws://localhost:8003/echo8003"))
+	                    .accept("ws://localhost:8003/echo8003")
 	                    .type("echo")
 	                    .crossOrigin()
 	                        .allowOrigin("*")

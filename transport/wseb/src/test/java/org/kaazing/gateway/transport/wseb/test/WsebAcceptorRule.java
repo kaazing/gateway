@@ -17,7 +17,6 @@ package org.kaazing.gateway.transport.wseb.test;
 
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
@@ -63,7 +62,7 @@ public class WsebAcceptorRule implements TestRule {
 
     public void bind(final String accept,
                      IoHandler acceptHandler) throws InterruptedException {
-        ResourceAddress acceptAddress = resourceAddressFactory.newResourceAddress(URI.create(accept));
+        ResourceAddress acceptAddress = resourceAddressFactory.newResourceAddress(accept);
         wsebAcceptor.bind(acceptAddress, acceptHandler, null);
     }
 

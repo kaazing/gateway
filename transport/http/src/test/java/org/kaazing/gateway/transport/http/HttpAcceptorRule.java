@@ -16,6 +16,13 @@
 
 package org.kaazing.gateway.transport.http;
 
+import static org.kaazing.gateway.util.InternalSystemProperty.HTTPXE_SPECIFICATION;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.mina.core.service.IoHandler;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -24,17 +31,7 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.TransportFactory;
-import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
-
-import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
-import static org.kaazing.gateway.util.InternalSystemProperty.HTTPXE_SPECIFICATION;
-import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
 /**
  * Declaring an instance of this class as a @Rule causes the acceptor to be
@@ -53,7 +50,7 @@ public class HttpAcceptorRule implements TestRule {
     }
 
     public void bind(String address, IoHandler acceptHandler) {
-        ResourceAddress resourceAddress = addressFactory.newResourceAddress(URI.create(address));
+        ResourceAddress resourceAddress = addressFactory.newResourceAddress(address);
         bind(resourceAddress, acceptHandler);
     }
 

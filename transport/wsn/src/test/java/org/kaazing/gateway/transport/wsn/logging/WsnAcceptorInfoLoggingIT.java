@@ -19,7 +19,6 @@ package org.kaazing.gateway.transport.wsn.logging;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -65,7 +64,7 @@ public class WsnAcceptorInfoLoggingIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("ws://localhost:8080/echo"))
+                            .accept("ws://localhost:8080/echo")
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("http://localhost:8001")

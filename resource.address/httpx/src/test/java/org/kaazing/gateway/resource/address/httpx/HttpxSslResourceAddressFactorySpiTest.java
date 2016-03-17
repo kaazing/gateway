@@ -39,20 +39,20 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 public class HttpxSslResourceAddressFactorySpiTest {
 
     private HttpxSslResourceAddressFactorySpi addressFactorySpi;
-    private URI addressURI;
+    private String addressURI;
     private Map<String, Object> options;
 
     @Before
     public void before() {
         addressFactorySpi = new HttpxSslResourceAddressFactorySpi();
-        addressURI = URI.create("httpx+ssl://localhost:2020/");
+        addressURI = "httpx+ssl://localhost:2020/";
         options = new HashMap<>();
         options.put("http.nextProtocol", "custom");
         options.put("http.qualifier", "random");
         options.put("http.keepAliveTimeout", (int) SECONDS.toMillis(5));
         options.put("http.realmName", "demo");
         options.put("http.requiredRoles", new String[] { "admin" });
-        options.put("http.transport", URI.create("wsn+ssl://localhost:2121/"));
+        options.put("http.transport", "wsn+ssl://localhost:2121/");
     }
 
     @Test
@@ -62,17 +62,17 @@ public class HttpxSslResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireHttpxSslSchemeName() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("test://opaque"));
+        addressFactorySpi.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPath() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("httpx+ssl://localhost:443"));
+        addressFactorySpi.newResourceAddress("httpx+ssl://localhost:443");
     }
 
     @Test 
     public void shouldNotRequireExplicitPort() throws Exception {
-        ResourceAddress address = addressFactorySpi.newResourceAddress(URI.create("httpx+ssl://localhost/"));
+        ResourceAddress address = addressFactorySpi.newResourceAddress("httpx+ssl://localhost/");
         URI location = address.getResource();
         assertEquals(location.getPort(), 443);
     }
@@ -103,14 +103,14 @@ public class HttpxSslResourceAddressFactorySpiTest {
     public void shouldCreateAddressWithDefaultTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("wsn+ssl://localhost:2020/"), address.getOption(TRANSPORT_URI));
+        assertEquals("wsn+ssl://localhost:2020/", address.getOption(TRANSPORT_URI));
     }
-    
+
     @Test
     public void shouldCreateAddressWithTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI, options);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("wsn+ssl://localhost:2121/"), address.getOption(TRANSPORT_URI));
+        assertEquals("wsn+ssl://localhost:2121/", address.getOption(TRANSPORT_URI));
     }
 
     private void assertEmpty(String[] objects) {

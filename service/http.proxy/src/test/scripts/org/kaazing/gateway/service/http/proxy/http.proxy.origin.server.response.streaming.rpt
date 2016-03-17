@@ -57,10 +57,9 @@ connected
 
 read "GET /shield/;e/db/AkDKBgEzhWxUvxWu8Jsqnf6qCeAm8TNt HTTP/1.1\r\n"
 read "X-Sequence-No: 1\r\n"
-read "Via: 1.1 kaazing\r\n"
+read /Via: 1.1 kaazing-.+/ "\r\n"
 read "User-Agent: Kaazing Gateway\r\n"
 read "Host: localhost:8080\r\n"
-read "Forwarded: for=127.0.0.1\r\n"
 read "Connection: close\r\n"
 read "\r\n"
 

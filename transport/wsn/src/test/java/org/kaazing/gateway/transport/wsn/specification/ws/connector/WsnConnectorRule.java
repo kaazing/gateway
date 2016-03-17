@@ -19,7 +19,6 @@ import static java.util.Arrays.asList;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.SUPPORTED_PROTOCOLS;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -69,7 +68,7 @@ public class WsnConnectorRule implements TestRule {
         }
 
         ResourceAddress connectAddress =
-                addressFactory.newResourceAddress(URI.create(connect), connectOptions);
+                addressFactory.newResourceAddress(connect, connectOptions);
 
         return wsnConnector.connect(connectAddress, connectHandler, null);
     }
@@ -87,7 +86,7 @@ public class WsnConnectorRule implements TestRule {
         }
 
         ResourceAddress connectAddress =
-                addressFactory.newResourceAddress(URI.create(connect), connectOptions);
+                addressFactory.newResourceAddress(connect, connectOptions);
         return wsnConnector.connect(connectAddress, connectHandler, null);
     }
 

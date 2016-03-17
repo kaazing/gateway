@@ -23,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
@@ -43,7 +42,7 @@ public class TcpExtensionFactoryTest {
 
     @Before
     public void before() throws Exception {
-        address = newResourceAddressFactory().newResourceAddress(new URI("tcp://localhost:8888"));
+        address = newResourceAddressFactory().newResourceAddress("tcp://localhost:8888");
     }
 
     @Test

@@ -17,8 +17,6 @@ package org.kaazing.gateway.transport.wsn;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -38,13 +36,13 @@ public class SslEncryptionIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("wss://localhost:8555/echo"))
+                            .accept("wss://localhost:8555/echo")
                             .type("echo")
                             .acceptOption("ssl.encryption", "disabled")
                         .done()
                         .service()
-                            .accept(URI.create("tcp://localhost:8556"))
-                            .connect(URI.create("wss://localhost:8555/echo"))
+                            .accept("tcp://localhost:8556")
+                            .connect("wss://localhost:8555/echo")
                             .type("proxy")
                             .connectOption("ssl.encryption", "disabled")
                         .done()

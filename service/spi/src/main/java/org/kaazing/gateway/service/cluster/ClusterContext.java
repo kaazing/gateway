@@ -24,7 +24,6 @@ import org.kaazing.gateway.service.messaging.buffer.MessageBufferFactory;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 
 public interface ClusterContext {
-    
 
     // initialization
     void start();

@@ -16,6 +16,14 @@
 
 package org.kaazing.gateway.transport.wsn;
 
+import static java.lang.System.currentTimeMillis;
+import static org.junit.Assert.assertTrue;
+import static org.kaazing.gateway.transport.ws.AbstractWsBridgeSession.LAST_ROUND_TRIP_LATENCY;
+import static org.kaazing.gateway.transport.ws.AbstractWsBridgeSession.LAST_ROUND_TRIP_LATENCY_TIMESTAMP;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
+
+import java.util.concurrent.TimeUnit;
+
 import org.apache.log4j.PropertyConfigurator;
 import org.junit.After;
 import org.junit.Before;
@@ -23,6 +31,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.kaazing.gateway.server.GatewayObserver;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.test.Gateway;
@@ -34,20 +43,11 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.session.IoSessionEx;
 
-import java.util.concurrent.TimeUnit;
-
-import static java.lang.System.currentTimeMillis;
-import static java.net.URI.create;
-import static org.junit.Assert.assertTrue;
-import static org.kaazing.gateway.transport.ws.AbstractWsBridgeSession.LAST_ROUND_TRIP_LATENCY;
-import static org.kaazing.gateway.transport.ws.AbstractWsBridgeSession.LAST_ROUND_TRIP_LATENCY_TIMESTAMP;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
-
 public class WsnRoundTripLatencyIT {
 
     private K3poRule k3po = new K3poRule();
     private GatewayContext context;
-    private final Launcher launcher = new Launcher();
+    private final Launcher launcher = new Launcher(GatewayObserver.newInstance());
 
     private static final boolean ENABLE_DIAGNOSTICS = false;
 
@@ -63,7 +63,7 @@ public class WsnRoundTripLatencyIT {
         // @formatter:off
         GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                 .service()
-                    .accept(create("ws://localhost:8001/echo"))
+                    .accept("ws://localhost:8001/echo")
                     .type("echo")
                     .crossOrigin()
                         .allowOrigin("*")

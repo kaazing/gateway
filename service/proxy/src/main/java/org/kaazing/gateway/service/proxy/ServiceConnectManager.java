@@ -17,7 +17,6 @@ package org.kaazing.gateway.service.proxy;
 
 import static java.lang.String.format;
 
-import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -63,7 +62,7 @@ import org.slf4j.Logger;
 public final class ServiceConnectManager {
     private final ServiceContext serviceCtx;
     private final AbstractProxyHandler connectHandler;
-    private final URI connectURI;
+    private final String connectURI;
     private final AtomicBoolean serviceConnected = new AtomicBoolean(true);
     private final SchedulerProvider schedulerProvider;
 
@@ -92,7 +91,7 @@ public final class ServiceConnectManager {
     public ServiceConnectManager(ServiceContext service,
                                  AbstractProxyHandler connectHandler,
                                  BridgeServiceFactory bridgeServiceFactory,
-                                 URI connectURI,
+                                 String connectURI,
                                  int interval,
                                  final int preparedConnectionCount) {
         this.serviceCtx = service;

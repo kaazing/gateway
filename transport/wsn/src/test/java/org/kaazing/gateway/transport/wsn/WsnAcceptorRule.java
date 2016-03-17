@@ -17,7 +17,6 @@ package org.kaazing.gateway.transport.wsn;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.Collections;
 import java.util.Properties;
 
@@ -65,7 +64,7 @@ public class WsnAcceptorRule implements TestRule {
     public void bind(String accept, IoHandler acceptHandler) {
 
         final ResourceAddress acceptAddress =
-                addressFactory.newResourceAddress(URI.create(accept));
+                addressFactory.newResourceAddress(accept);
 
         wsnAcceptor.bind(acceptAddress, acceptHandler, null);
     }

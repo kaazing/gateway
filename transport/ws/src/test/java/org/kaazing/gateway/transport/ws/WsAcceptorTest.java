@@ -19,7 +19,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 import static org.kaazing.gateway.transport.ws.util.TestUtil.dispose;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
@@ -119,7 +118,7 @@ public class WsAcceptorTest {
     public void shouldBindAndUnbindOnWsAddress()
             throws Exception {
 
-        URI uri = URI.create("ws://localhost:9000/FOO");
+        String uri = "ws://localhost:9000/FOO";
         ResourceAddress address = resourceAddressFactory.newResourceAddress(uri);
 
         final IoHandlerAdapter acceptHandler = new IoHandlerAdapter() {
@@ -195,7 +194,7 @@ public class WsAcceptorTest {
 
         // Set up an address to bind on
 
-        URI uri = URI.create("ws://localhost:9000/FOO");
+        String uri = "ws://localhost:9000/FOO";
         final ResourceAddress address = resourceAddressFactory.newResourceAddress(uri);
         final IoHandlerAdapter<IoSession> acceptHandler = new IoHandlerAdapter<IoSession>() {};
         final BridgeSessionInitializer<? extends IoFuture> initializer =
@@ -235,7 +234,7 @@ public class WsAcceptorTest {
     public void shouldNotBindOnNonWsAddress()
         throws Exception {
 
-            URI uri = URI.create("http://example.com/FOO");
+            String uri = "http://example.com/FOO";
             ResourceAddress address = resourceAddressFactory.newResourceAddress(uri);
 
         final IoHandlerAdapter<IoSession> acceptHandler = new IoHandlerAdapter<IoSession>() {

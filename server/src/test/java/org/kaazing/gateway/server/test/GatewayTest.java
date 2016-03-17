@@ -15,16 +15,17 @@
  */
 package org.kaazing.gateway.server.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.io.File;
-import java.net.URI;
 import java.util.List;
+
 import org.junit.Test;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.gateway.service.ServiceProperties;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class GatewayTest {
 
@@ -34,7 +35,7 @@ public class GatewayTest {
                 new GatewayConfigurationBuilder()
                         .webRootDirectory(new File("src/test/webapp"))
                         .service()
-                        .accept(URI.create("ws://localhost:8001/jms"))
+                        .accept("ws://localhost:8001/jms")
                         .type("echo")
                         .property("a", "aValue")
                         .property("b", "bValue")
@@ -54,7 +55,7 @@ public class GatewayTest {
                         .webRootDirectory(new File("src/test/webapp"))
                         .service()
                         .type("echo")
-                        .accept(URI.create("ws://localhost:8001/jms"))
+                        .accept("ws://localhost:8001/jms")
                         .property("a", "aValue")
                         .property("b", "bValue")
                         .nestedProperty("nestedA")

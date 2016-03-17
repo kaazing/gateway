@@ -16,6 +16,12 @@
 package org.kaazing.gateway.server.context.resolve;
 
 import static java.lang.String.format;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.buildURIAsString;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getAuthority;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getFragment;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getPath;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getQuery;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
 import static org.kaazing.gateway.service.TransportOptionNames.HTTP_SERVER_HEADER_ENABLED;
 import static org.kaazing.gateway.service.TransportOptionNames.PIPE_TRANSPORT;
 import static org.kaazing.gateway.service.TransportOptionNames.SSL_CIPHERS;
@@ -28,7 +34,6 @@ import static org.kaazing.gateway.service.TransportOptionNames.SUPPORTED_PROTOCO
 import static org.kaazing.gateway.service.TransportOptionNames.TCP_MAXIMUM_OUTBOUND_RATE;
 import static org.kaazing.gateway.service.TransportOptionNames.TCP_TRANSPORT;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +44,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.server.config.sep2014.ServiceAcceptOptionsType;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.util.Utils;
@@ -132,14 +138,14 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     }
 
     @Override
-    public URI getInternalURI(URI externalURI) {
-        String authority = externalURI.getAuthority();
-        String internalAuthority = binds.get(externalURI.getScheme());
+    public String getInternalURI(String externalURI) {
+        String authority = getAuthority(externalURI);
+        String internalAuthority = binds.get(getScheme(externalURI));
         if (internalAuthority != null) {
             if (!internalAuthority.equals(authority)) {
                 try {
-                    return new URI(externalURI.getScheme(), internalAuthority, externalURI.getPath(),
-                            externalURI.getQuery(), externalURI.getFragment());
+                    return buildURIAsString(getScheme(externalURI), internalAuthority,
+                           getPath(externalURI), getQuery(externalURI), getFragment(externalURI));
                 } catch (URISyntaxException e) {
                     // ignore
                 }
@@ -237,8 +243,11 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
                 // Special check for *.transport which should be validated as a URI
                 if (key.endsWith(".transport")) {
                     try {
-                        URI transportURI = URI.create(entry.getValue());
-                        result.put(key, transportURI);
+                        // Exception will be thrown in an invalid *.transport format provided
+                        // (including Network Interface syntax)
+                        URIUtils.getHost(entry.getValue());
+                        // if successful, put value in map
+                        result.put(key, entry.getValue());
                     } catch (IllegalArgumentException ex) {
                         if (logger.isInfoEnabled()) {
                             logger.info(String.format("Skipping option %s, expected valid URI but recieved: %s",
@@ -306,12 +315,12 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         return wsInactivityTimeout;
     }
 
-    private URI getTransportURI(String transportKey) {
-        URI transportURI = null;
+    private String getTransportURI(String transportKey) {
+        String transportURI = null;
         String transport = options.get(transportKey);
         if (transport != null) {
-            transportURI = URI.create(transport);
-            if (!transportURI.isAbsolute()) {
+            transportURI = transport;
+            if (!URIUtils.isAbsolute(transportURI)) {
                 throw new IllegalArgumentException(format(
                         "%s must contain an absolute URI, not \"%s\"", transportKey, transport));
             }
