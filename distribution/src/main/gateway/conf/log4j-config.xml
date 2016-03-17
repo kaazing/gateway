@@ -75,6 +75,10 @@
         </layout>
     </appender>
 
+    <logger name="transport.tcp">
+        <level value="info"/>
+    </logger>
+
     <logger name="transport.http">
         <level value="info"/>
         <appender-ref ref="AccessFile"/>

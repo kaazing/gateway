@@ -2,7 +2,19 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.48...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.49...HEAD)
+
+**Merged pull requests:**
+
+- nit fixes + Added initingGateway method in GatewayObserverApi [\#460](https://github.com/kaazing/gateway/pull/460) ([dpwspoon](https://github.com/dpwspoon))
+- VirtualHostKeySelectorTest: Accomodate change of transport option from type URI to String [\#458](https://github.com/kaazing/gateway/pull/458) ([cmebarrow](https://github.com/cmebarrow))
+- Added initingGateway method in GatewayObserverApi [\#456](https://github.com/kaazing/gateway/pull/456) ([mgherghe](https://github.com/mgherghe))
+- Enable the ignored test in WsxAcceptorLoggingIT. [\#453](https://github.com/kaazing/gateway/pull/453) ([cmebarrow](https://github.com/cmebarrow))
+- Add transport.tcp logger to the OOTB log4j config.xml file [\#449](https://github.com/kaazing/gateway/pull/449) ([cmebarrow](https://github.com/cmebarrow))
+- Gateway returns incorrect error code when payload is too long \(1002 instead of 1009\) [\#445](https://github.com/kaazing/gateway/pull/445) ([Anisotrop](https://github.com/Anisotrop))
+
+## [5.0.1.49](https://github.com/kaazing/gateway/tree/5.0.1.49) (2016-03-16)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.48...5.0.1.49)
 
 **Closed issues:**
 

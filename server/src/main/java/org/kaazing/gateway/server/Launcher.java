@@ -39,14 +39,13 @@ public class Launcher {
 
     private GatewayContext context;
 
-    private GatewayObserver gatewayListener;
+    private final GatewayObserver gatewayListener;
 
-    public Launcher() {
-
+    public Launcher(GatewayObserver gatewayListener) {
+        this.gatewayListener = gatewayListener;
     }
 
     public void init(GatewayContext context) throws Exception {
-        gatewayListener = GatewayObserver.newInstance();
         gatewayListener.startingGateway(context);
         try {
             initInternal(context);

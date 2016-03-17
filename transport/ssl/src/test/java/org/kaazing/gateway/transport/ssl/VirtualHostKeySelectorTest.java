@@ -53,8 +53,6 @@ import org.kaazing.gateway.transport.ssl.cert.VirtualHostKeySelector;
 public class VirtualHostKeySelectorTest {
     private KeyStore keyStore;
     private String keyStorePassword;
-    private String keyStorePath;
-    private KeyStore trustStore;
 
     private ResourceAddressFactory addressFactory;
 
@@ -75,7 +73,6 @@ public class VirtualHostKeySelectorTest {
         KeyStore ks = KeyStore.getInstance("JCEKS");
 
         File keyStoreFile = new File("target/truststore/" + file);
-        keyStorePath = keyStoreFile.getAbsolutePath();
 
         FileInputStream fis = null;
         try {
@@ -93,7 +90,7 @@ public class VirtualHostKeySelectorTest {
 
     @Before
     public void setUp() throws Exception {
-        
+
         addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         SslCertificateSelectionFilter.setCurrentSession(null, false);
     }
@@ -125,7 +122,7 @@ public class VirtualHostKeySelectorTest {
         availAliasesKey = keySelector.getAvailableCertAliasesKey(false);
         assertTrue("Expected key, got null", availAliasesKey != null);
 
-        
+
         Map<String, Object> testTranportOptions = new HashMap<>();
         testTranportOptions.put(NEXT_PROTOCOL.name(), "ssl");
         ResourceAddress testAddress = addressFactory.newResourceAddress("test://transport", testTranportOptions);
@@ -173,6 +170,7 @@ public class VirtualHostKeySelectorTest {
         SslCertificateSelectionFilter.setCurrentSession(session, false);
 
         // Verify the certificate alias for the request
+        @SuppressWarnings("serial")
         Collection<String> expectedAliases = new HashSet<String>() {{ add("localhost"); }};
         Collection<String> gotAliases = keySelector.getAvailableCertAliases(false);
         assertNotNull(gotAliases);
@@ -205,7 +203,7 @@ public class VirtualHostKeySelectorTest {
 
         Collection<String> expectedAliases = new HashSet<>();
         expectedAliases.add("localhost");
- 
+
         availAliases = keySelector.getAvailableCertAliases(false);
         assertTrue("Expected aliases, got null", availAliases != null);
         assertTrue(format("Expected aliases '%s', got '%s'", expectedAliases, availAliases), availAliases.equals(expectedAliases));
@@ -359,7 +357,7 @@ public class VirtualHostKeySelectorTest {
 
         String location = "ssl://one.kaazing.test:443";
         Map<String, Object> options = new HashMap<>();
-        options.put(TRANSPORT.name(), URI.create("tcp://10.0.67.19:443"));
+        options.put(TRANSPORT.name(), "tcp://10.0.67.19:443");
         ResourceAddress address = addressFactory.newResourceAddress(location, options);
 
         DummySession session = new DummySession();
@@ -381,7 +379,7 @@ public class VirtualHostKeySelectorTest {
         Collection<String> expectedAliases = new HashSet<>();
         expectedAliases.add("one.kaazing.test");
         expectedAliases.add(".kaazing.test");
- 
+
         Collection<String> availAliases = keySelector.getAvailableCertAliases(false);
         assertTrue("Expected aliases, got null", availAliases != null);
         assertTrue(format("Expected aliases '%s', got '%s'", expectedAliases, availAliases), availAliases.equals(expectedAliases));
@@ -404,7 +402,7 @@ public class VirtualHostKeySelectorTest {
 
         String location = "ssl://two.kaazing.test:443";
         Map<String, Object> options = new HashMap<>();
-        options.put(TRANSPORT.name(), URI.create("tcp://10.0.66.10:443"));
+        options.put(TRANSPORT.name(), "tcp://10.0.66.10:443");
         ResourceAddress address = addressFactory.newResourceAddress(location, options);
 
         DummySession session = new DummySession();
@@ -425,7 +423,7 @@ public class VirtualHostKeySelectorTest {
         Collection<String> expectedAliases = new HashSet<>();
         expectedAliases.add("two.kaazing.test");
         expectedAliases.add(".kaazing.test");
- 
+
         Collection<String> availAliases = keySelector.getAvailableCertAliases(false);
         assertTrue("Expected aliases, got null", availAliases != null);
         assertTrue(format("Expected aliases '%s', got '%s'", expectedAliases, availAliases), availAliases.equals(expectedAliases));
@@ -448,7 +446,7 @@ public class VirtualHostKeySelectorTest {
 
         String location = "ssl://three.kaazing.test:443";
         Map<String, Object> options = new HashMap<>();
-        options.put(TRANSPORT.name(), URI.create("tcp://192.168.4.8:443"));
+        options.put(TRANSPORT.name(), "tcp://192.168.4.8:443");
         ResourceAddress address = addressFactory.newResourceAddress(location, options);
 
         DummySession session = new DummySession();
@@ -468,7 +466,7 @@ public class VirtualHostKeySelectorTest {
 
         Collection<String> expectedAliases = new HashSet<>();
         expectedAliases.add(".kaazing.test");
- 
+
         Collection<String> availAliases = keySelector.getAvailableCertAliases(false);
         assertTrue("Expected aliases, got null", availAliases != null);
         assertTrue(format("Expected aliases '%s', got '%s'", expectedAliases, availAliases), availAliases.equals(expectedAliases));
