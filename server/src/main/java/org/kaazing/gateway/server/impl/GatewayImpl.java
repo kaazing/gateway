@@ -297,14 +297,14 @@ final class GatewayImpl implements Gateway {
 
         LOGGER.info("Configuration file: " + gatewayConfigFile.getCanonicalPath());
 
-        GatewayObserver gatewayListener = GatewayObserver.newInstance();
+        GatewayObserver gatewayObserver = GatewayObserver.newInstance();
         GatewayConfigParser parser = new GatewayConfigParser(configuration);
         GatewayConfigDocument config = parser.parse(gatewayConfigFile);
         GatewayContextResolver resolver = new GatewayContextResolver(configDir, webRootDir, tempDir, jmxMBeanServer);
-        gatewayListener.initingGateway(configuration, resolver.getInjectables());
+        gatewayObserver.initingGateway(configuration, resolver.getInjectables());
         GatewayContext context = resolver.resolve(config, configuration);
 
-        gateway = new Launcher(gatewayListener);
+        gateway = new Launcher(gatewayObserver);
 
         try {
             gateway.init(context);

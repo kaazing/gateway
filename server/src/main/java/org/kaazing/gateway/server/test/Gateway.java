@@ -81,8 +81,8 @@ public class Gateway {
         STARTING, STARTED, STOPPING, STOPPED
     }
 
-    private final GatewayObserver gatewayListener = GatewayObserver.newInstance();
-    private final Launcher launcher = new Launcher(gatewayListener);
+    private final GatewayObserver gatewayObserver = GatewayObserver.newInstance();
+    private final Launcher launcher = new Launcher(gatewayObserver);
     private volatile State state = State.STOPPED;
 
     public void start(GatewayConfiguration configuration) throws Exception {
@@ -124,7 +124,7 @@ public class Gateway {
                 jmxMBeanServer);
         Properties properties = new Properties();
         properties.putAll(configuration.getProperties());
-        gatewayListener.initingGateway(properties, resolver.getInjectables());
+        gatewayObserver.initingGateway(properties, resolver.getInjectables());
         GatewayContext context = resolver.resolve(gatewayConfigDocument, properties);
         return context;
     }
