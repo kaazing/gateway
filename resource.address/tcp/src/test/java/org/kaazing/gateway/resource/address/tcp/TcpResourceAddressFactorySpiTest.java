@@ -95,16 +95,16 @@ public class TcpResourceAddressFactorySpiTest {
         factory.newResourceAddress("tcp://127.0.0.1");
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPortOnIPv6() throws Exception {
         factory.newResourceAddress("tcp://[::1]");
     }
     
-    @Test (expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPortOnIPv6FromString() throws Exception {
         Map<String, Object> options = new HashMap<>();
         options.put(BIND_ADDRESS.name(), "[::1]");
-        TcpResourceAddress address = factory.newResourceAddress("tcp://[::1]:2020", options);
+        factory.newResourceAddress("tcp://[::1]:2020", options);
     }
 
     @Test
@@ -212,4 +212,6 @@ public class TcpResourceAddressFactorySpiTest {
         alternate = alternate.getOption(ALTERNATE);
         assertNull(alternate);
     }
+    
+
 }
