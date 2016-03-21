@@ -427,6 +427,11 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                 case REDIRECT_NOT_MODIFIED:
                     httpSession.close(false);
                     break;
+                case CLIENT_UNAUTHORIZED:
+                case CLIENT_PROXY_AUTHENTICATION_REQUIRED:
+                    ResourceAddress remoteAddress = httpSession.getRemoteAddress();
+                    // to do get attribute from remote address
+                    ChallengeHandler challengeHandler = null;
                 default:
                     HttpContentMessage httpContent = httpResponse.getContent();
                     if (httpContent == null) {
