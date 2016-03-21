@@ -93,7 +93,7 @@ public final class ResolutionUtils {
                 return new InetSocketAddress(Integer.parseInt(bindAddress));
             }
             // Test for network interface syntax
-            Pattern pattern = Pattern.compile("^(\\[{1}@[a-zA-Z0-9 :]*\\]{1}|@[a-zA-Z0-9]*):([0-9]*)$");
+            Pattern pattern = Pattern.compile("^(\\[{0,1}@[a-zA-Z0-9 :]*\\]{0,1}):([0-9]*)$");
             Matcher matcher = pattern.matcher(bindAddress);
             if (matcher.find()) {
                 return new InetSocketAddress(matcher.group(1), parseInt(matcher.group(2)));
