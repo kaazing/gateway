@@ -86,6 +86,7 @@ public final class ResolutionUtils {
     * @return
     */
     public static InetSocketAddress parseBindAddress(String bindAddress) {
+        Exception cause = null;
         try {
             if (!bindAddress.contains(":")) {
                 // port only
@@ -106,8 +107,11 @@ public final class ResolutionUtils {
             }
         } catch (Exception e) {
             // Exception handled outside catch
+            cause = e;
         }
-        throw new IllegalArgumentException(String.format("bind address %s should be in host:port or port format", bindAddress));
+        throw new IllegalArgumentException(String.format("Bind address \"%s\" should be in "
+                + "\"host/ipv4:port\", \"[ipv6]:port\", \"@network_interface:port\", \"[@network interface]:port\" or \"port\" "
+                + "format.", bindAddress), cause);
     }
    
    /**
