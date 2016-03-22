@@ -129,8 +129,7 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
     }
 
     NioSocketAcceptor(Properties configuration) {
-        super(configuration, LoggerFactory.getLogger(LOGGER_NAME));
-        this.extensionFactory = TcpExtensionFactory.newInstance();
+        this(configuration, TcpExtensionFactory.newInstance());
     }
 
     @Override
