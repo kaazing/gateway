@@ -17,12 +17,21 @@ package org.kaazing.gateway.service.amqp.amqp091;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
+import java.security.Principal;
+import java.util.Map;
+
+import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.k3po.junit.annotation.ScriptProperty;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
@@ -35,9 +44,9 @@ public class AmqpOpenCloseHandshakeIT {
         {
             // @formatter:off
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
-                .service()
-                    .accept("wsn://localhost:8001/amqp")
-                    .connect("tcp://localhost:8010")
+                    .service()
+                    .accept("wsn://localhost:8333/amqp")
+                    .connect("tcp://localhost:8334")
                     .type("amqp.proxy")
                     .property("service.domain","localhost")
                     .property("encryption.key.alias", "session")
@@ -50,7 +59,11 @@ public class AmqpOpenCloseHandshakeIT {
                     .realm()
                         .name("demo")
                         .description("Kaazing WebSocket Gateway Demo")
-                        .httpChallengeScheme("Application Basic")
+                        .httpChallengeScheme("Basic")
+                        .loginModule()
+                            .type("class:" + BasicLoginModule.class.getName())
+                            .success("requisite")
+                        .done()
                     .done()
                 .done()
             .done();
@@ -64,10 +77,53 @@ public class AmqpOpenCloseHandshakeIT {
     
     
     @Test
+    @ScriptProperty({ "connectLocation \"http://localhost:8333/amqp\"", "acceptLocation \"tcp://localhost:8334\"" })
     @Specification({ "specification/amqp/ws/ws.connect", "specification/amqp/ws/open/identity/request", "specification/amqp/ws/close/request",  
-                    "gateway/service/amqp/amqp091/ws.accept", "specification/amqp/ws/open/identity/response", "specification/amqp/ws/close/response"})
+        "specification/amqp/tcp/open/tcp.accept", "specification/amqp/tcp/open/identity/response", "specification/amqp/tcp/close/response"})
     public void openAndCloseHandshake() throws Exception {
             k3po.finish();
     }
+    
+    public static class BasicLoginModule implements LoginModule {
+        private Subject subject;
+        private CallbackHandler callbackHandler;
+
+        @Override
+        public void initialize(Subject subject,
+                               CallbackHandler callbackHandler,
+                               Map<String, ?> sharedState,
+                               Map<String, ?> options) {
+            this.subject = subject;
+            this.callbackHandler = callbackHandler;
+        }
+
+        @Override
+        public boolean login() throws LoginException {
+            return true;
+        }
+
+        @Override
+        public boolean commit() throws LoginException {
+            subject.getPrincipals().add(new Principal() {
+                @Override
+                public String getName() {
+                    return "AUTHORIZED";
+                }
+            });
+            return true;
+        }
+        
+        @Override
+        public boolean abort() throws LoginException {
+            return true;
+        }
+
+        @Override
+        public boolean logout() throws LoginException {
+            return true;
+        }
+
+    }
+
 
 }
