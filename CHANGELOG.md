@@ -2,7 +2,16 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.49...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.50...HEAD)
+
+**Merged pull requests:**
+
+- Removed double creation of TcpExtensionFactory [\#462](https://github.com/kaazing/gateway/pull/462) ([dpwspoon](https://github.com/dpwspoon))
+- Use project version as double layer of indirection would cause update… [\#454](https://github.com/kaazing/gateway/pull/454) ([dpwspoon](https://github.com/dpwspoon))
+- Added test for web socket compliance \(maximum message size and maxmimum lifetime\). [\#447](https://github.com/kaazing/gateway/pull/447) ([NicoletaOita](https://github.com/NicoletaOita))
+
+## [5.0.1.50](https://github.com/kaazing/gateway/tree/5.0.1.50) (2016-03-17)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.49...5.0.1.50)
 
 **Merged pull requests:**
 
