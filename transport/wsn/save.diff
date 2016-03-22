@@ -1,0 +1,205 @@
+diff --git a/pom.xml b/pom.xml
+index 5b5e78c..a596897 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -28,7 +28,7 @@
+         <maven.compiler.testSource>1.8</maven.compiler.testSource>
+         <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
+         <hazelcast.version>1.9.4.8</hazelcast.version>
+-        <k3po.version>3.0.0-alpha-24</k3po.version>
++        <k3po.version>develop-SNAPSHOT</k3po.version>
+         <jdom.version>1.1</jdom.version>
+         <jmock.version>2.6.0</jmock.version>
+         <slf4j.log4j.version>1.7.5</slf4j.log4j.version>
+diff --git a/transport/ws/src/main/java/org/kaazing/gateway/transport/ws/WsCloseMessage.java b/transport/ws/src/main/java/org/kaazing/gateway/transport/ws/WsCloseMessage.java
+index 26ea00d..6689907 100644
+--- a/transport/ws/src/main/java/org/kaazing/gateway/transport/ws/WsCloseMessage.java
++++ b/transport/ws/src/main/java/org/kaazing/gateway/transport/ws/WsCloseMessage.java
+@@ -26,12 +26,11 @@ import org.kaazing.gateway.util.Utils;
+ public class WsCloseMessage extends WsMessage {
+     public static final WsCloseMessage NORMAL_CLOSE = new WsCloseMessage(1000, null);
+     public static final WsCloseMessage PROTOCOL_ERROR = new WsCloseMessage(1002, null);
+-    public static final WsCloseMessage MESSAGE_TOO_LONG_ERROR = new WsCloseMessage(1009, null);
+     public static final WsCloseMessage UNEXPECTED_CONDITION = new WsCloseMessage(1011, null);
+ 
+     private final int status;
+     private final ByteBuffer reason;
+-    
++
+     public WsCloseMessage() {
+         this(1005, null);   // 1005 = no status code was actually present on the wire
+     }
+@@ -52,11 +51,11 @@ public class WsCloseMessage extends WsMessage {
+     public Kind getKind() {
+         return WsMessage.Kind.CLOSE;
+     }
+-    
++
+     public ByteBuffer getReason() {
+         return reason;
+     }
+-    
++
+     public int getStatus() {
+         return status;
+     }
+diff --git a/transport/ws/src/main/java/org/kaazing/gateway/transport/ws/util/WSMessageTooLongException.java b/transport/ws/src/main/java/org/kaazing/gateway/transport/ws/util/WSMessageTooLongException.java
+index 0d4f822..6010fbc 100644
+--- a/transport/ws/src/main/java/org/kaazing/gateway/transport/ws/util/WSMessageTooLongException.java
++++ b/transport/ws/src/main/java/org/kaazing/gateway/transport/ws/util/WSMessageTooLongException.java
+@@ -17,6 +17,7 @@ package org.kaazing.gateway.transport.ws.util;
+ 
+ import org.apache.mina.filter.codec.ProtocolDecoderException;
+ 
++@SuppressWarnings("serial")
+ public class WSMessageTooLongException extends ProtocolDecoderException {
+ 
+     public WSMessageTooLongException() {
+diff --git a/transport/wsn/pom.xml b/transport/wsn/pom.xml
+index fa717cb..c093d6a 100644
+--- a/transport/wsn/pom.xml
++++ b/transport/wsn/pom.xml
+@@ -147,19 +147,19 @@
+         <dependency>
+             <groupId>org.kaazing</groupId>
+             <artifactId>specification.ws</artifactId>
+-            <version>2.0.1</version>
++            <version>${k3po.version}</version>
+             <scope>test</scope>
+         </dependency>
+         <dependency>
+             <groupId>org.kaazing</groupId>
+             <artifactId>specification.x-kaazing-idle-timeout</artifactId>
+-            <version>2.2.0</version>
++            <version>${k3po.version}</version>
+             <scope>test</scope>
+         </dependency>
+         <dependency>
+             <groupId>org.kaazing</groupId>
+             <artifactId>specification.x-kaazing-ping-pong</artifactId>
+-            <version>2.2.0</version>
++            <version>${k3po.version}</version>
+             <scope>test</scope>
+         </dependency>
+     </dependencies>
+diff --git a/transport/wsn/src/main/java/org/kaazing/gateway/transport/wsn/WsCloseFilter.java b/transport/wsn/src/main/java/org/kaazing/gateway/transport/wsn/WsCloseFilter.java
+index 7837ded..7687f7b 100644
+--- a/transport/wsn/src/main/java/org/kaazing/gateway/transport/wsn/WsCloseFilter.java
++++ b/transport/wsn/src/main/java/org/kaazing/gateway/transport/wsn/WsCloseFilter.java
+@@ -320,7 +320,12 @@ public class WsCloseFilter
+             WsCloseMessage closeMessage;
+             if (cause != null) {
+                 if (cause instanceof WSMessageTooLongException) {
+-                    closeMessage = WsCloseMessage.MESSAGE_TOO_LONG_ERROR;
++                    // If we have stop decoding a frame because too long that means we can no longer interpret
++                    // incoming frames from the client, so we fail WebSocket connection immediately
++                    // by closing the transport (RFC 6455 mandates we should no longer read incoming data after
++                    // failing the WebSocket connection)
++                    nextFilter.filterClose(session);
++                    return;
+                 } else if(cause instanceof ProtocolDecoderException) {
+                     closeMessage = WsCloseMessage.PROTOCOL_ERROR;
+                 } else {
+@@ -332,8 +337,8 @@ public class WsCloseFilter
+             WriteFutureEx writeFuture = new DefaultWriteFutureEx(session);
+             WriteRequestEx writeRequest = new DefaultWriteRequestEx(closeMessage, writeFuture);
+ 
+-            // If we have already received the peer's CLOSE, then close
+-            // this session once we've written out our CLOSE.
++            // If we have already received the peer's CLOSE,
++            // then close this session once we've written out our CLOSE.
+             if (receivedCloseFrame.get() == true) {
+                 writeFuture.addListener(new IoFutureListener<WriteFuture>() {
+                     @Override
+diff --git a/transport/wsn/src/test/java/org/kaazing/gateway/transport/wsn/specification/ws/acceptor/LimitsMaxSizeDefaultIT.java b/transport/wsn/src/test/java/org/kaazing/gateway/transport/wsn/specification/ws/acceptor/LimitsMaxSizeDefaultIT.java
+index e2cc6dd..6eb90de 100644
+--- a/transport/wsn/src/test/java/org/kaazing/gateway/transport/wsn/specification/ws/acceptor/LimitsMaxSizeDefaultIT.java
++++ b/transport/wsn/src/test/java/org/kaazing/gateway/transport/wsn/specification/ws/acceptor/LimitsMaxSizeDefaultIT.java
+@@ -16,28 +16,33 @@
+ 
+ package org.kaazing.gateway.transport.wsn.specification.ws.acceptor;
+ 
+-import static org.kaazing.test.util.ITUtil.createRuleChain;
++import static java.util.concurrent.TimeUnit.SECONDS;
+ 
+-import java.net.URI;
+-import java.util.concurrent.TimeUnit;
++import java.util.Arrays;
++import java.util.Collections;
++import java.util.List;
+ 
+ import org.junit.Rule;
+ import org.junit.Test;
++import org.junit.rules.DisableOnDebug;
++import org.junit.rules.RuleChain;
+ import org.junit.rules.TestRule;
++import org.junit.rules.Timeout;
++import org.junit.runner.Description;
++import org.junit.runners.model.Statement;
+ import org.kaazing.gateway.server.test.GatewayRule;
+ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
+ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+ import org.kaazing.k3po.junit.annotation.Specification;
+ import org.kaazing.k3po.junit.rules.K3poRule;
+-import static org.junit.Assert.*;
++import org.kaazing.test.util.MemoryAppender;
++import org.kaazing.test.util.MethodExecutionTrace;
+ 
+ public class LimitsMaxSizeDefaultIT {
+     private static String WS_ECHO_SERVICE_ACCEPT = "ws://localhost:8080/echo";
+ 
+-    private static int DEFAULT_WEBSOCKET_MAXIMUM_MESSAGE_SIZE = 128*1024; //128KB
+-
+     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws/limits");
+-    
++
+     private GatewayRule gateway = new GatewayRule() {
+         {
+             // @formatter:off
+@@ -56,8 +61,27 @@ public class LimitsMaxSizeDefaultIT {
+         }
+     };
+ 
++    private List<String> forbiddenPatterns;
++    private TestRule checkLogMessageRule = new TestRule() {
++        @Override
++        public Statement apply(final Statement base, Description description) {
++            return new Statement() {
++                @Override
++                public void evaluate() throws Throwable {
++                    base.evaluate();
++                    MemoryAppender.assertMessagesLogged(Collections.emptyList(),
++                            forbiddenPatterns, ".*ProtocolDecoderException.*", true);
++                }
++            };
++        }
++    };
++    private MethodExecutionTrace trace = new MethodExecutionTrace();
++    private TestRule timeoutRule = new DisableOnDebug(Timeout.builder().withTimeout(10, SECONDS)
++            .withLookingForStuckThread(true).build());
++
+     @Rule
+-    public TestRule chain = createRuleChain(gateway, k3po);
++    public TestRule chain = RuleChain.outerRule(trace).around(checkLogMessageRule).around(gateway).around(k3po)
++            .around(timeoutRule);
+ 
+     @Test
+     @Specification({
+@@ -65,6 +89,8 @@ public class LimitsMaxSizeDefaultIT {
+         })
+     public void shouldRefuseBinaryFrameWithPayloadLengthExceeding128KiB() throws Exception {
+         k3po.finish();
++        // Check we are closing the connection immediately and not attempting to decode subsequent incoming data
++        forbiddenPatterns = Arrays.asList("Unknown WebSocket opcode", "RSV1 is set", "RSV2 is set");
+     }
+ 
+     @Test
+@@ -73,6 +99,8 @@ public class LimitsMaxSizeDefaultIT {
+         })
+     public void shouldRefuseTextFrameWithPayloadLengthExceeding128KiB() throws Exception {
+         k3po.finish();
++        // Check we are closing the connection immediately and not attempting to decode subsequent incoming data
++        forbiddenPatterns = Arrays.asList("Unknown WebSocket opcode", "RSV1 is set", "RSV2 is set");
+     }
+ 
+ }

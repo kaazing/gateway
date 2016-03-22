@@ -17,6 +17,7 @@ package org.kaazing.gateway.transport.ws.util;
 
 import org.apache.mina.filter.codec.ProtocolDecoderException;
 
+@SuppressWarnings("serial")
 public class WSMessageTooLongException extends ProtocolDecoderException {
 
     public WSMessageTooLongException() {
