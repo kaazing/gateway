@@ -120,7 +120,7 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
                 return new InetSocketAddress(hostname, port);
             }
             // otherwise (more than one ":" separator encountered)
-            Pattern pattern = Pattern.compile("(\\[{1}@[a-zA-Z0-9 :]*\\]{1}):([0-9]*)");
+            Pattern pattern = Pattern.compile(URIUtils.NETWORK_INTERFACE_AUTHORITY_PORT);
             Matcher matcher = pattern.matcher((String) bindAddress);
             if (matcher.find()) {
                 return new InetSocketAddress(matcher.group(1), parseInt(matcher.group(2)));
