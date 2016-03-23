@@ -90,7 +90,7 @@ public class WsebAcceptorUserLoggingMultiplePrincipalsOnSubjectIT {
                         .httpChallengeScheme("Basic")
                         .userPrincipalClass("org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig")
                         .loginModule()
-                            .type("class:org.kaazing.gateway.transport.wseb.logging.BasicLoginModuleWithMultiplePrincipalsOnTheSubject")
+                            .type("class:org.kaazing.gateway.transport.wseb.logging.loginmodule.BasicLoginModuleWithMultiplePrincipalsOnTheSubject")
                             .success("requisite")
                             .option("roles", ROLE)
                         .done()

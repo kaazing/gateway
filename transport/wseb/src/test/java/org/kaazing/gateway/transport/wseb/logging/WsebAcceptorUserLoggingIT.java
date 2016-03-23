@@ -88,7 +88,7 @@ public class WsebAcceptorUserLoggingIT {
                         .httpChallengeScheme("Basic")
                         .userPrincipalClass("org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig")
                         .loginModule()
-                            .type("class:org.kaazing.gateway.transport.wseb.logging.BasicLoginModuleWithDefaultUserConfig")
+                            .type("class:org.kaazing.gateway.transport.wseb.logging.loginmodule.BasicLoginModuleWithDefaultUserConfig")
                             .success("requisite")
                             .option("roles", ROLE)
                         .done()
