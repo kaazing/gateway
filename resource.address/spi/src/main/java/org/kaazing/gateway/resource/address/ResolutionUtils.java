@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +94,7 @@ public final class ResolutionUtils {
                 return new InetSocketAddress(Integer.parseInt(bindAddress));
             }
             // Test for network interface syntax
-            Pattern pattern = Pattern.compile("^(\\[{0,1}@[a-zA-Z0-9 :]*\\]{0,1}):([0-9]*)$");
+            Pattern pattern = Pattern.compile(URIUtils.NETWORK_INTERFACE_AUTHORITY_PORT);
             Matcher matcher = pattern.matcher(bindAddress);
             if (matcher.find()) {
                 return new InetSocketAddress(matcher.group(1), parseInt(matcher.group(2)));
