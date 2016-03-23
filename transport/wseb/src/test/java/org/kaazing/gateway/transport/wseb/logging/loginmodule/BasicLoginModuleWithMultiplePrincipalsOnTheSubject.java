@@ -21,8 +21,8 @@ import org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig;
 public class BasicLoginModuleWithMultiplePrincipalsOnTheSubject extends BasicLoginModuleWithDefaultUserConfig {
 
     private DefaultUserConfig defaultPrincipalNotForLogging = new DefaultUserConfig();
-    static final String SECOND_PRINCIPAL_NAME = "secondPrincipalName";
-    static final String SECOND_PRINCIPAL_PASSWORD = "secondPrincipalPassword";
+    private static final String SECOND_PRINCIPAL_NAME = "secondPrincipalName";
+    private static final String SECOND_PRINCIPAL_PASSWORD = "secondPrincipalPassword";
 
     @Override
     public boolean commit() throws LoginException {
