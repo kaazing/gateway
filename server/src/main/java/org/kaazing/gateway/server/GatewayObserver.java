@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Set;
 import javax.annotation.Resource;
@@ -156,9 +157,17 @@ public final class GatewayObserver implements GatewayObserverApi {
     }
 
     @Override
+    public void initingGateway(Properties configuration, Map<String, Object> injectables) {
+        for (GatewayObserverApi gatewayListener : gatewayListenerSpi) {
+            gatewayListener.initingGateway(configuration, injectables);
+        }
+    }
+
+    @Override
     public void stoppedGateway(GatewayContext gatewayContext) {
         for (GatewayObserverApi gatewayListener : gatewayListenerSpi) {
             gatewayListener.stoppedGateway(gatewayContext);
         }
     }
+
 }

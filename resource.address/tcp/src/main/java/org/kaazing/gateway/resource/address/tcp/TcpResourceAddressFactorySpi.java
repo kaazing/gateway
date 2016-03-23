@@ -103,6 +103,8 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
     private InetSocketAddress parseBindAddress(Object bindAddress) {
         if (bindAddress instanceof InetSocketAddress) {
             return (InetSocketAddress) bindAddress;
+        } else if (bindAddress instanceof String) {
+            return ResolutionUtils.parseBindAddress((String) bindAddress);
         }
         else if (bindAddress instanceof String) {
             String[] bindParts = ((String) bindAddress).split(":");

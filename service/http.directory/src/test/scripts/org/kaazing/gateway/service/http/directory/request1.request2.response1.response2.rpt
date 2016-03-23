@@ -55,11 +55,12 @@ write "\r\n"
 
 # Response 1
 read "HTTP/1.1 200 OK\r\n"
+read "Cache-Control: max-age=0\r\n"
 read "Content-Length: 2777\r\n"
-read /Date: .*/ "\r\n"
-read /ETag: .*/ "\r\n"
-read /Expires: .*/ "\r\n"
-read /Last-Modified: .*/ "\r\n"
+read /Date: .*\r\n/
+read /ETag: .*\r\n/
+read /Expires: .*\r\n/
+read /Last-Modified: .*\r\n/
 read "Server: Kaazing Gateway\r\n"
 read "\r\n"
 
@@ -72,7 +73,7 @@ read [0x53 0x43 0x48 0x45 0x4D 0x45 0x20 0x3D 0x20 0x22 0x6A 0x61 0x76 0x61 0x73
 # Response 2
 read "HTTP/1.1 404 Not Found\r\n"
 read "Content-Type: text/html\r\n"
-read /Date: .+/ "\r\n"
+read /Date: .*\r\n/
 read "Server: Kaazing Gateway\r\n"
 read "Content-Length: 61\r\n"
 read "\r\n"
