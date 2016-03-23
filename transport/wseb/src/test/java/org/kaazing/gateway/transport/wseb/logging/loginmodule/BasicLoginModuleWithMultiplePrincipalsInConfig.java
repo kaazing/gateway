@@ -24,20 +24,8 @@ public class BasicLoginModuleWithMultiplePrincipalsInConfig extends BasicLoginMo
 
     @Override
     public boolean commit() throws LoginException {
-        if (!succeeded) {
-            return false;
-        } else {
-            // add a Principal (authenticated identity) to the Subject
-            userPrincipal = new BasicLoginModuleWithDefaultUserConfig.RolePrincipal("USER");
-            subject.getPrincipals().add(userPrincipal);
-            commitSucceeded = true;
-
-            subject.getPrincipals().add(unixPrincipal);
-            defaultPrincipal.setName(TEST_PRINCIPAL_NAME);
-            defaultPrincipal.setPassword(TEST_PRINCIPAL_PASS);
-            subject.getPrincipals().add(defaultPrincipal);
-
-            return true;
-        }
+        super.commit();
+        subject.getPrincipals().add(unixPrincipal);
+        return succeeded;
     }
 }

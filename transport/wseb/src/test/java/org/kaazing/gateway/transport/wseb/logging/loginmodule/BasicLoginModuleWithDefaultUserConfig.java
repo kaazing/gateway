@@ -32,20 +32,20 @@ import org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig;
  */
 public class BasicLoginModuleWithDefaultUserConfig implements LoginModule {
 
-    static final String TEST_PRINCIPAL_PASS = "testPrincipalPass";
-    static final String TEST_PRINCIPAL_NAME = "testPrincipalName";
-    DefaultUserConfig defaultPrincipal = new DefaultUserConfig();
+    private static final String TEST_PRINCIPAL_PASS = "testPrincipalPass";
+    private static final String TEST_PRINCIPAL_NAME = "testPrincipalName";
+    private DefaultUserConfig defaultPrincipal = new DefaultUserConfig();
 
     // initial state
-    Subject subject;
+    protected Subject subject;
     private Map<String, ?> sharedState;
 
     // the authentication status
-    boolean succeeded;
-    boolean commitSucceeded;
+    protected boolean succeeded;
+    private boolean commitSucceeded;
 
     // testUser's RolePrincipal
-    RolePrincipal userPrincipal;
+    private RolePrincipal userPrincipal;
 
     public void initialize(Subject subject,
                            CallbackHandler callbackHandler,
@@ -86,7 +86,6 @@ public class BasicLoginModuleWithDefaultUserConfig implements LoginModule {
             subject.getPrincipals().add(userPrincipal);
             commitSucceeded = true;
 
-            subject.getPrincipals().add(new UnixPrincipal("UnixPrincipal_Username"));
             defaultPrincipal.setName(TEST_PRINCIPAL_NAME);
             defaultPrincipal.setPassword(TEST_PRINCIPAL_PASS);
             subject.getPrincipals().add(defaultPrincipal);
@@ -123,7 +122,7 @@ public class BasicLoginModuleWithDefaultUserConfig implements LoginModule {
         return true;
     }
 
-    static class RolePrincipal implements Principal {
+    private static class RolePrincipal implements Principal {
 
         private final String name;
 

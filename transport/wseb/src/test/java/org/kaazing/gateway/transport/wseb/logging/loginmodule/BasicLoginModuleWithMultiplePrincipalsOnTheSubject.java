@@ -22,26 +22,15 @@ public class BasicLoginModuleWithMultiplePrincipalsOnTheSubject extends BasicLog
 
     private DefaultUserConfig defaultPrincipalNotForLogging = new DefaultUserConfig();
     static final String SECOND_PRINCIPAL_NAME = "secondPrincipalName";
+    static final String SECOND_PRINCIPAL_PASSWORD = "secondPrincipalPassword";
 
     @Override
     public boolean commit() throws LoginException {
-        if (!succeeded) {
-            return false;
-        } else {
-            // add a Principal (authenticated identity) to the Subject
-            userPrincipal = new BasicLoginModuleWithDefaultUserConfig.RolePrincipal("USER");
-            subject.getPrincipals().add(userPrincipal);
-            commitSucceeded = true;
-
-            defaultPrincipal.setName(TEST_PRINCIPAL_NAME);
-            defaultPrincipal.setPassword(TEST_PRINCIPAL_PASS);
-            subject.getPrincipals().add(defaultPrincipal);
-
-            defaultPrincipalNotForLogging.setName(SECOND_PRINCIPAL_NAME);
-            subject.getPrincipals().add(defaultPrincipalNotForLogging);
-
-            return true;
-        }
+        super.commit();
+        defaultPrincipalNotForLogging.setName(SECOND_PRINCIPAL_NAME);
+        defaultPrincipalNotForLogging.setPassword(SECOND_PRINCIPAL_PASSWORD);
+        subject.getPrincipals().add(defaultPrincipalNotForLogging);
+        return succeeded;
     }
 
 }
