@@ -99,7 +99,7 @@ public final class ResolutionUtils {
             if (matcher.find()) {
                 return new InetSocketAddress(matcher.group(1), parseInt(matcher.group(2)));
             }
-            
+
             // host:port (let URI handle it including ipv6)
             String tmpAddress = "scheme://" + bindAddress;
             URI uri = URI.create(tmpAddress);

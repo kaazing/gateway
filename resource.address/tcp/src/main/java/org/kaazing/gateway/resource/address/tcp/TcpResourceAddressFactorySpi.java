@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.resource.address.tcp;
 
-import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
