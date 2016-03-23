@@ -95,10 +95,38 @@ public class TcpResourceAddressFactorySpiTest {
         factory.newResourceAddress("tcp://127.0.0.1");
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldRequireExplicitPortOnIPv6() throws Exception {
+        factory.newResourceAddress("tcp://[::1]");
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldRequireExplicitPortOnIPv6FromString() throws Exception {
+        Map<String, Object> options = new HashMap<>();
+        options.put(BIND_ADDRESS.name(), "[::1]");
+        factory.newResourceAddress("tcp://[::1]:2020", options);
+    }
+
     @Test
     public void shouldCreateAddressWithResolvedHost() throws Exception {
         ResourceAddress address = factory.newResourceAddress(addressURI);
         assertEquals(URI.create("tcp://127.0.0.1:2020"), address.getResource());
+    }
+
+    @Test
+    public void shouldCreateAddressWithResolvedIPv6HostFromString() throws Exception {
+        Map<String, Object> options = new HashMap<>();
+        options.put(BIND_ADDRESS.name(), "[::1]:2020");
+        ResourceAddress address = factory.newResourceAddress("tcp://[::1]:2020", options);
+        assertEquals(URI.create("tcp://[0:0:0:0:0:0:0:1]:2020"), address.getResource());
+    }
+    
+    @Test
+    public void shouldCreateAddressWithResolvedIPv6PortOnlyFromString() throws Exception {
+        Map<String, Object> options = new HashMap<>();
+        options.put(BIND_ADDRESS.name(), "2020");
+        ResourceAddress address = factory.newResourceAddress("tcp://[::1]:2020", options);
+        assertEquals("tcp://[::1]:2020", address.getExternalURI());
     }
 
     @Test
@@ -184,4 +212,6 @@ public class TcpResourceAddressFactorySpiTest {
         alternate = alternate.getOption(ALTERNATE);
         assertNull(alternate);
     }
+    
+
 }
