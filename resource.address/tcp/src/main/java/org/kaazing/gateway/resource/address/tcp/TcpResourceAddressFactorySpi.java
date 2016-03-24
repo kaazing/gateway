@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.resource.address.tcp;
 
-import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
@@ -106,6 +105,7 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
         } else if (bindAddress instanceof String) {
             return ResolutionUtils.parseBindAddress((String) bindAddress);
         }
+
         throw new IllegalArgumentException(BIND_ADDRESS.name());
     }
 
