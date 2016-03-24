@@ -25,6 +25,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -38,33 +39,18 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 public class AmqpOpenCloseHandshakeIT {
 
 
-    private K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing");
+    private K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/amqp");
 
     private GatewayRule gateway = new GatewayRule() {
         {
             // @formatter:off
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                     .service()
-                    .accept("wsn://localhost:8333/amqp")
-                    .connect("tcp://localhost:8334")
+                    .accept("wsn://localhost:8001/amqp")
+                    .connect("tcp://localhost:8010")
                     .type("amqp.proxy")
                     .property("service.domain","localhost")
                     .property("encryption.key.alias", "session")
-                    .realmName("demo")
-                    .authorization()
-                        .requireRole("AUTHORIZED")
-                    .done()
-                .done()
-                .security()
-                    .realm()
-                        .name("demo")
-                        .description("Kaazing WebSocket Gateway Demo")
-                        .httpChallengeScheme("Basic")
-                        .loginModule()
-                            .type("class:" + BasicLoginModule.class.getName())
-                            .success("requisite")
-                        .done()
-                    .done()
                 .done()
             .done();
             // @formatter:on
@@ -77,53 +63,19 @@ public class AmqpOpenCloseHandshakeIT {
     
     
     @Test
-    @ScriptProperty({ "connectLocation \"http://localhost:8333/amqp\"", "acceptLocation \"tcp://localhost:8334\"" })
-    @Specification({ "specification/amqp/ws/ws.connect", "specification/amqp/ws/open/identity/request", "specification/amqp/ws/close/request",  
-        "specification/amqp/tcp/open/tcp.accept", "specification/amqp/tcp/open/identity/response", "specification/amqp/tcp/close/response"})
-    public void openAndCloseHandshake() throws Exception {
+    @ScriptProperty({ "connectLocation \"http://localhost:8001/amqp\"", "acceptLocation \"tcp://localhost:8010\"" })
+    @Specification({ "ws/ws.connect", "ws/open/identity/request", "ws/close/request",  
+        "tcp/open/tcp.accept", "tcp/open/identity/response", "tcp/close/response"})
+    public void openAndCloseHandshakeWithIdentity() throws Exception {
+            k3po.finish();
+    }
+
+    @Test
+    @ScriptProperty({ "connectLocation \"http://localhost:8001/amqp\"", "acceptLocation \"tcp://localhost:8010\"" })
+    @Specification({ "ws/ws.connect", "ws/open/noidentity/request", "ws/close/request",  
+        "tcp/open/tcp.accept", "tcp/open/noidentity/response", "tcp/close/response"})
+    public void openAndCloseHandshakeWithNoIdentoty() throws Exception {
             k3po.finish();
     }
     
-    public static class BasicLoginModule implements LoginModule {
-        private Subject subject;
-        private CallbackHandler callbackHandler;
-
-        @Override
-        public void initialize(Subject subject,
-                               CallbackHandler callbackHandler,
-                               Map<String, ?> sharedState,
-                               Map<String, ?> options) {
-            this.subject = subject;
-            this.callbackHandler = callbackHandler;
-        }
-
-        @Override
-        public boolean login() throws LoginException {
-            return true;
-        }
-
-        @Override
-        public boolean commit() throws LoginException {
-            subject.getPrincipals().add(new Principal() {
-                @Override
-                public String getName() {
-                    return "AUTHORIZED";
-                }
-            });
-            return true;
-        }
-        
-        @Override
-        public boolean abort() throws LoginException {
-            return true;
-        }
-
-        @Override
-        public boolean logout() throws LoginException {
-            return true;
-        }
-
-    }
-
-
 }

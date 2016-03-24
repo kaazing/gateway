@@ -103,9 +103,6 @@
 			<resource>
 				<directory>src/main/resources</directory>
 			</resource>
-			<resource>
-				<directory>src/main/scripts</directory>
-			</resource>
 		</resources>
 		<plugins>
 			<plugin>
