@@ -27,6 +27,8 @@ import org.kaazing.gateway.resource.address.URLUtils;
  *
  */
 public final class URIUtils {
+    public static final String NETWORK_INTERFACE_AUTHORITY_PORT = "^(\\[{0,1}@[a-zA-Z0-9 :]*\\]{0,1}):([0-9]*)$";
+    private static final String NETWORK_INTERFACE_AUTHORITY = "(\\[{0,1}@[a-zA-Z0-9 :]*\\]{0,1})";
     private static final String MOCK_HOST = "127.0.0.1";
 
     /**
@@ -294,7 +296,7 @@ public final class URIUtils {
         try {
             URI uriObj = new URI(uri);
             // code below modifies new authority considering also network interface syntax
-            Pattern pattern = Pattern.compile("(\\[{0,1}@[a-zA-Z0-9 :]*\\]{0,1})");
+            Pattern pattern = Pattern.compile(NETWORK_INTERFACE_AUTHORITY);
             Matcher matcher = pattern.matcher(newAuthority);
             String matchedToken = MOCK_HOST;
             // if newAuthority corresponds to NetworkInterfaceURI syntax
@@ -566,7 +568,7 @@ public final class URIUtils {
                     throw new IllegalArgumentException("Network interface URI syntax should only "
                             + "be applicable for tcp and udp schemes");
                 }
-                Pattern pattern = Pattern.compile("(\\[{0,1}@[a-zA-Z0-9 :]*\\]{0,1})");
+                Pattern pattern = Pattern.compile(NETWORK_INTERFACE_AUTHORITY);
                 Matcher matcher = pattern.matcher(uri);
                 if (!matcher.find()) {
                     throw new IllegalArgumentException("Invalid network interface URI syntax");

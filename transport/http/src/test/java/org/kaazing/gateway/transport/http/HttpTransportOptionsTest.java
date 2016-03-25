@@ -245,7 +245,9 @@ public class HttpTransportOptionsTest {
         connectOptionsParam.put("http.transport", "tcp://@" + networkInterface + ":8080");
         if (networkInterface.contains(" ")) {
             thrown.expect(IllegalArgumentException.class);
-            thrown.expectMessage("Network interface syntax host contains spaces but misses bracket(s)");
+            thrown.expectMessage(String.format("Bind address \"%s\" should be in "
+                    + "\"host/ipv4:port\", \"[ipv6]:port\", \"@network_interface:port\", \"[@network interface]:port\" or \"port\" "
+                    + "format.", "@" + networkInterface + ":8080"));
         }
         helperConstructLocalRemoteAddressesForAcceptAndConnectSessions( acceptOptionsParam, connectOptionsParam);
     }
