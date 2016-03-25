@@ -46,9 +46,9 @@ public final class TcpTransport extends Transport {
     private final TcpExtensionFactory extensionFactory;
 
     TcpTransport(Properties configuration) {
-        acceptor = new NioSocketAcceptor(configuration);
+        extensionFactory = TcpExtensionFactory.newInstance();
+        acceptor = new NioSocketAcceptor(configuration, extensionFactory);
         connector = new NioSocketConnector(configuration);
-        this.extensionFactory = TcpExtensionFactory.newInstance();
     }
 
     @Override

@@ -23,6 +23,7 @@ write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:8.0) Gecko/20
 write "\r\n"
 
 read "HTTP/1.1 200 OK\r\n"
+read "Cache-Control: max-age=0\r\n"
 read "Content-Length: 119\r\n"
 read "Content-Type: text/html\r\n"
 read /Date: .*/ "\r\n"

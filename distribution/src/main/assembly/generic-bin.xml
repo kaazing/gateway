@@ -102,6 +102,7 @@
         <include>com.hazelcast:hazelcast-cloud</include>
         <include>commons-cli:commons-cli</include>
         <include>org.json:json</include>
+        <include>org.apache.maven.shared:maven-shared-utils</include>
       </includes>
     </dependencySet>
 
