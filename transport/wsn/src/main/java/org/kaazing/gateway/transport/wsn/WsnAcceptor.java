@@ -684,8 +684,8 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
         @Override
         protected void doSessionClosed(IoSessionEx session) throws Exception {
             WsnSession wsnSession = SESSION_KEY.remove(session);
-            boolean isWsx = !wsnSession.getLocalAddress().getOption(CODEC_REQUIRED);
             if (wsnSession != null && !wsnSession.isClosing()) {
+                boolean isWsx = !wsnSession.getLocalAddress().getOption(CODEC_REQUIRED);
                 if (isWsx) {
                     wsnSession.getProcessor().remove(wsnSession);
                 } else {
