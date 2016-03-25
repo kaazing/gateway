@@ -32,6 +32,7 @@ import org.kaazing.gateway.transport.ws.WsPingMessage;
 import org.kaazing.gateway.transport.ws.WsPongMessage;
 import org.kaazing.gateway.transport.ws.WsTextMessage;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameEncodingSupport.Opcode;
+import org.kaazing.gateway.transport.ws.util.WSMessageTooLongException;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.filter.codec.CumulativeProtocolDecoderEx;
@@ -255,10 +256,10 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
         buf.position(start);
     }
 
-    private void validateMessageSize(long messageSize) throws ProtocolDecoderException {
+    private void validateMessageSize(long messageSize) throws WSMessageTooLongException {
         // note: negative size indicates large unsigned value, larger than Long.MAX_VALUE
         if (maxMessageSize > 0 && (messageSize < 0 || messageSize > maxMessageSize)) {
-            throw new ProtocolDecoderException(String.format("Incoming message size %d bytes exceeds permitted maximum of %d bytes", messageSize, maxMessageSize));
+            throw new WSMessageTooLongException(String.format("Incoming message size %d bytes exceeds permitted maximum of %d bytes", messageSize, maxMessageSize));
         }
     }
 

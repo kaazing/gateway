@@ -27,13 +27,13 @@ import static org.kaazing.gateway.service.TransportOptionNames.SSL_TRANSPORT;
 import static org.kaazing.gateway.service.TransportOptionNames.TCP_TRANSPORT;
 import static org.kaazing.gateway.service.TransportOptionNames.WS_PROTOCOL_VERSION;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.server.config.sep2014.ServiceConnectOptionsType;
 import org.kaazing.gateway.service.ConnectOptionsContext;
 import org.kaazing.gateway.util.Utils;
@@ -112,8 +112,11 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
                 // Special check for *.transport which should be validated as a URI
                 if (key.endsWith(".transport")) {
                     try {
-                        URI transportURI = URI.create(entry.getValue());
-                        result.put(key, transportURI);
+                        // Exception will be thrown in an invalid *.transport format provided
+                        // (including Network Interface syntax)
+                        URIUtils.getHost(entry.getValue());
+                        // if successful, put value in map
+                        result.put(key, entry.getValue());
                     } catch (IllegalArgumentException ex) {
                         if (logger.isInfoEnabled()) {
                             logger.info(String.format("Skipping option %s, expected valid URI but recieved: %s",
@@ -170,12 +173,12 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
         return wsInactivityTimeout;
     }
 
-    private URI getTransportURI(String transportKey) {
-        URI transportURI = null;
+    private String getTransportURI(String transportKey) {
+        String transportURI = null;
         String transport = options.get(transportKey);
         if (transport != null) {
-            transportURI = URI.create(transport);
-            if (!transportURI.isAbsolute()) {
+            transportURI = transport;
+            if (!URIUtils.isAbsolute(transportURI)) {
                 throw new IllegalArgumentException(format(
                         "%s must contain an absolute URI, not \"%s\"", transportKey, transport));
             }

@@ -17,10 +17,8 @@ package org.kaazing.gateway.transport.wseb;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
 
@@ -129,7 +127,7 @@ public class WsebAcceptorTest {
     @Test
     @Ignore ("https://github.com/kaazing/gateway/issues/287")
     public void shouldBindAWsAddress() throws Exception {
-        URI location = URI.create("wse://localhost:8000/echo");
+        String location = "wse://localhost:8000/echo";
         Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
         ResourceAddress wseAddress = addressFactory.newResourceAddress(location, addressOptions);
         IoHandler acceptHandler = new IoHandlerAdapter() {};

@@ -69,6 +69,7 @@ import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
 import org.kaazing.gateway.transport.Bindings;
@@ -200,8 +201,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
             private ResourceAddress getResourcesAddress(HttpBinding newHttpBinding) {
                 ResourceAddress bindAddress = newHttpBinding.bindAddress();
-                URI location = bindAddress.getExternalURI();
-                URI resourcesURI = location.resolve("/;resource");
+                String location = bindAddress.getExternalURI();
+                String resourcesURI = URIUtils.resolve(location, "/;resource");
                 ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
                 options.setOption(TRANSPORT_URI, bindAddress.getOption(TRANSPORT_URI));
                 options.setOption(TRANSPORT, bindAddress.getOption(TRANSPORT));

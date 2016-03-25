@@ -16,6 +16,12 @@
 
 package org.kaazing.gateway.transport.http.specification.httpxe;
 
+import static org.junit.Assert.assertEquals;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.mina.core.service.IoHandler;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,13 +38,6 @@ import org.kaazing.gateway.transport.http.HttpAcceptorRule;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 public class OriginSecurityIT {
 
@@ -181,7 +180,7 @@ public class OriginSecurityIT {
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
         options.setOption(HttpResourceAddress.ORIGIN_SECURITY, httpOriginSecuirty);
-        return addressFactory.newResourceAddress(URI.create("http://localhost:8000/path"), options);
+        return addressFactory.newResourceAddress("http://localhost:8000/path", options);
     }
 
 }

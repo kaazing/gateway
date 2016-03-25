@@ -26,7 +26,7 @@ final class TestResourceAddress extends ResourceAddress {
 
     private String option;
 
-    TestResourceAddress(ResourceAddressFactorySpi factory, URI externalURI, URI resourceURI) {
+    TestResourceAddress(ResourceAddressFactorySpi factory, String externalURI, URI resourceURI) {
         super(factory, externalURI, resourceURI);
     }
 

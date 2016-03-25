@@ -17,8 +17,6 @@ package org.kaazing.gateway.transport.sse;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -37,8 +35,8 @@ public class SseSameOriginIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                              .accept(URI.create("sse://localhost:8005/sse"))
-                              .connect(URI.create("tcp://localhost:7556"))
+                              .accept("sse://localhost:8005/sse")
+                              .connect("tcp://localhost:7556")
                               .type("broadcast")
                         .done()
                     .done();

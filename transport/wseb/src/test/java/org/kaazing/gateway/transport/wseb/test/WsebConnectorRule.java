@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.wseb.test;
 import static org.junit.Assert.fail;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,7 +72,7 @@ public class WsebConnectorRule implements TestRule {
         }
         final ResourceAddress connectAddress =
                 resourceAddressFactory.newResourceAddress(
-                        URI.create(connect),
+                        connect,
                         connectOptions);
         return connect(connectAddress, connectHandler);
     }

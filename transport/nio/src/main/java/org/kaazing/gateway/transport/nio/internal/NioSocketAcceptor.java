@@ -123,14 +123,13 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
 
     private final AtomicReference<DistributedNioWorkerPool> currentWorkerPool = new AtomicReference<>();
 
-    NioSocketAcceptor(Properties configuration, TcpExtensionFactory extensionFactory) {
+    public NioSocketAcceptor(Properties configuration, TcpExtensionFactory extensionFactory) {
         super(configuration, LoggerFactory.getLogger(LOGGER_NAME));
         this.extensionFactory = extensionFactory;
     }
 
-    public NioSocketAcceptor(Properties configuration) {
-        super(configuration, LoggerFactory.getLogger(LOGGER_NAME));
-        this.extensionFactory = TcpExtensionFactory.newInstance();
+    NioSocketAcceptor(Properties configuration) {
+        this(configuration, TcpExtensionFactory.newInstance());
     }
 
     @Override

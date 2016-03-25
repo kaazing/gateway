@@ -20,8 +20,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -44,7 +42,7 @@ public class ControlIT {
                     new GatewayConfigurationBuilder()
                         .property(WSE_SPECIFICATION.getPropertyName(), "true")
                         .service()
-                            .accept(URI.create("wse://localhost:8080/path"))
+                            .accept("wse://localhost:8080/path")
                             .type("echo")
                         .done()
                     .done();

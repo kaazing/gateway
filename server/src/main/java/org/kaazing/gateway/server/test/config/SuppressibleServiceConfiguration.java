@@ -15,16 +15,15 @@
  */
 package org.kaazing.gateway.server.test.config;
 
-import java.net.URI;
 import java.util.Map;
 import java.util.Set;
 
 public abstract class SuppressibleServiceConfiguration implements SuppressibleConfiguration {
 
     // accepts
-    public abstract Set<Suppressible<URI>> getAccepts();
+    public abstract Set<Suppressible<String>> getAccepts();
 
-    public abstract void addAccept(Suppressible<URI> acceptURI);
+    public abstract void addAccept(Suppressible<String> acceptURI);
 
     // type
     public abstract Suppressible<String> getType();
@@ -52,14 +51,14 @@ public abstract class SuppressibleServiceConfiguration implements SuppressibleCo
     public abstract void addAcceptOption(String key, Suppressible<String> value);
 
     // balance
-    public abstract Set<Suppressible<URI>> getBalances();
+    public abstract Set<Suppressible<String>> getBalances();
 
-    public abstract void addBalance(Suppressible<URI> balanceURI);
+    public abstract void addBalance(Suppressible<String> balanceURI);
 
     // connects
-    public abstract Set<Suppressible<URI>> getConnects();
+    public abstract Set<Suppressible<String>> getConnects();
 
-    public abstract void addConnect(Suppressible<URI> acceptURI);
+    public abstract void addConnect(Suppressible<String> acceptURI);
 
     // connect options
     public abstract Map<String, Suppressible<String>> getConnectOptions();

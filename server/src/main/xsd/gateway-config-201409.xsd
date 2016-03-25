@@ -1439,9 +1439,26 @@
                             </restriction>
                         </simpleType>
                     </element>
+                    <element maxOccurs="unbounded" minOccurs="0"
+                        name="location" type="gateway:locationType">
+                        <annotation />
+                    </element>
                 </sequence>
             </restriction>
         </complexContent>
+    </complexType>
+
+    <complexType name="locationType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1"
+                name="patterns" type="gateway:CollapsedString">
+                <annotation />
+            </element>
+            <element maxOccurs="1" minOccurs="1"
+                name="cache-control" type="gateway:CacheControlString">
+                <annotation />
+            </element>
+        </sequence>
     </complexType>
 
     <complexType name="simpleServicePropertiesType">
@@ -1549,6 +1566,13 @@
     <simpleType name="CollapsedString">
         <restriction base="string">
             <whiteSpace value="collapse"></whiteSpace>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="CacheControlString">
+        <restriction base="gateway:CollapsedString">
+            <!--<pattern value="((directive_name)((=[m+]?)(ms|milli|millis|millisecond|milliseconds|s|sec|secs|second|seconds|m|min|mins|minute|minutes|h|hour|hours|d|day|days|w|week|weeks|y|year|years)?)[,]?)+"/>-->
+            <pattern value="([a-zA-Z\-]+(=([mM]\s*\+\s*)?[0-9]+([Mm][Ss]|[Mm][Ii][Ll][Ll][Ii]|[Mm][Ii][Ll][Ll][Ii][Ss]|[Mm][Ii][Ll][Ll][Ii][Ss][Ee][Cc][Oo][Nn][Dd]|[Mm][Ii][Ll][Ll][Ii][Ss][Ee][Cc][Oo][Nn][Dd][Ss]|[Ss]|[Ss][Ee][Cc]|[Ss][Ee][Cc][Ss]|[Ss][Ee][Cc][Oo][Nn][Dd]|[Ss][Ee][Cc][Oo][Nn][Dd][Ss]|[Mm]|[Mm][Ii][Nn]|[Mm][Ii][Nn][Ss]|[Mm][Ii][Nn][Uu][Tt][Ee]|[Mm][Ii][Nn][Uu][Tt][Ee][Ss]|[Hh]|[Hh][Oo][Uu][Rr]|[Hh][Oo][Uu][Rr][Ss]|[dD]|[dD][aA][yY]|[dD][aA][yY][sS]|[wW]|[wW][eE][eE][kK]|[wW][eE][eE][kK][sS]|[yY]|[yY][eE][aA][rR]|[yY][eE][aA][rR][sS])?)?\s*[,]?\s*)+"/>
         </restriction>
     </simpleType>
 
