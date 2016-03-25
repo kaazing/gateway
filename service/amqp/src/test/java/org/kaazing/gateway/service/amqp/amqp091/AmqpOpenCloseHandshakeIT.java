@@ -64,16 +64,16 @@ public class AmqpOpenCloseHandshakeIT {
     
     @Test
     @ScriptProperty({ "connectLocation \"http://localhost:8001/amqp\"", "acceptLocation \"tcp://localhost:8010\"" })
-    @Specification({ "ws/ws.connect", "ws/open/identity/request", "ws/close/request",  
-        "tcp/open/tcp.accept", "tcp/open/identity/response", "tcp/close/response"})
+    @Specification({ "ws/open/identity/request", "ws/close/request",  
+                     "tcp/open/identity/response", "tcp/close/response"})
     public void openAndCloseHandshakeWithIdentity() throws Exception {
             k3po.finish();
     }
 
     @Test
     @ScriptProperty({ "connectLocation \"http://localhost:8001/amqp\"", "acceptLocation \"tcp://localhost:8010\"" })
-    @Specification({ "ws/ws.connect", "ws/open/noidentity/request", "ws/close/request",  
-        "tcp/open/tcp.accept", "tcp/open/noidentity/response", "tcp/close/response"})
+    @Specification({ "ws/open/noidentity/request", "ws/close/request",  
+                     "tcp/open/noidentity/response", "tcp/close/response"})
     public void openAndCloseHandshakeWithNoIdentoty() throws Exception {
             k3po.finish();
     }
