@@ -167,6 +167,6 @@ public class RequestMethodsIT {
     private static ResourceAddress httpAddress() {
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         String address = "http://localhost:8000/resource";
-        return addressFactory.newResourceAddress(URI.create(address));
+        return addressFactory.newResourceAddress(address);
     }
 }
