@@ -321,6 +321,7 @@ public class WsCloseFilter
             if (cause != null) {
                 if (cause instanceof WSMessageTooLongException) {
                     closeMessage = WsCloseMessage.MESSAGE_TOO_LONG_ERROR;
+                    session.suspendRead();
                 } else if(cause instanceof ProtocolDecoderException) {
                     closeMessage = WsCloseMessage.PROTOCOL_ERROR;
                 } else {
