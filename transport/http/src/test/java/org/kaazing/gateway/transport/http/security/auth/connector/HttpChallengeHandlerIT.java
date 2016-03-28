@@ -1,33 +1,51 @@
+/**
+ * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.kaazing.gateway.transport.http.security.auth.connector;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertTrue;
 import static org.kaazing.gateway.transport.http.HttpMethod.GET;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.util.concurrent.CountDownLatch;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
-import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.jmock.api.Invocation;
-import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.kaazing.gateway.resource.address.http.HttpResourceAddress.HttpResourceOption;
+import org.kaazing.gateway.security.connector.auth.BasicChallengeHandler;
+import org.kaazing.gateway.security.connector.auth.ChallengeHandler;
+import org.kaazing.gateway.security.connector.auth.ChallengeRequest;
+import org.kaazing.gateway.security.connector.auth.ChallengeResponse;
+import org.kaazing.gateway.security.connector.auth.LoginHandler;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
 import org.kaazing.gateway.transport.http.HttpConnectorRule;
 import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.mina.core.session.IoSessionEx;
 
 public class HttpChallengeHandlerIT {
 
@@ -94,6 +112,11 @@ public class HttpChallengeHandlerIT {
                 System.out.println("exceptionCaught");
             }
         };
+        
+        Map<String, Object> connectOptions = new HashMap<>();
+        ArrayList<Class<? extends ChallengeHandler>> challengeHandlers = new ArrayList<>();
+        challengeHandlers.add(TestChallengeHandler.class);
+        connectOptions.put("http.challengeHandler", challengeHandlers);
         // final IoHandler handler = context.mock(IoHandler.class);
         // final CountDownLatch latch = new CountDownLatch(1);
         //
@@ -119,7 +142,7 @@ public class HttpChallengeHandlerIT {
                 HttpConnectSession connectSession = (HttpConnectSession) session;
                 connectSession.setMethod(GET);
             }
-        });
+        }, connectOptions);
 
         // assertTrue(latch.await(10, SECONDS));
         k3po.finish();

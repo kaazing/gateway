@@ -51,12 +51,16 @@ public class HttpConnectorRule implements TestRule {
         return new ConnectorStatement(base);
     }
 
-    public ConnectFuture connect(String connect, IoHandler connectHandler, IoSessionInitializer<? extends ConnectFuture> initializer) {
-        Map<String, Object> connectOptions = new HashMap<>();
+    public ConnectFuture connect(String connect, IoHandler connectHandler, IoSessionInitializer<? extends ConnectFuture> initializer, Map<String, Object> connectOptions) {
         ResourceAddress connectAddress =
                 addressFactory.newResourceAddress(connect, connectOptions);
 
         return httpConnector.connect(connectAddress, connectHandler, initializer);
+    }
+
+    public ConnectFuture connect(String connect, IoHandler connectHandler, IoSessionInitializer<? extends ConnectFuture> initializer) {
+        Map<String, Object> connectOptions = new HashMap<>();
+        return this.connect(connect, connectHandler, initializer, connectOptions);
     }
 
     private final class ConnectorStatement extends Statement {

@@ -30,6 +30,7 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceOption;
 import org.kaazing.gateway.security.LoginContextFactory;
+import org.kaazing.gateway.security.connector.auth.ChallengeHandler;
 
 public final class HttpResourceAddress extends ResourceAddress {
 	
@@ -65,6 +66,8 @@ public final class HttpResourceAddress extends ResourceAddress {
     public static final HttpResourceOption<Boolean> SERVER_HEADER_ENABLED = new HttpServerHeaderOption();
     public static final HttpResourceOption<Collection<Class<? extends Principal>>> REALM_USER_PRINCIPAL_CLASSES = new HttpRealmAuthenticationUserPrincipalClassesOption();
 
+    public static final ResourceOption<Collection<Class<? extends ChallengeHandler>>> CHALLENGE_HANDLER_CLASSES = new ChallengeHandlerOption();
+
     private Boolean serverHeaderEnabled = SERVER_HEADER_ENABLED.defaultValue();
     private Boolean keepAlive = KEEP_ALIVE.defaultValue();
     private Integer keepAliveTimeout = KEEP_ALIVE_TIMEOUT.defaultValue();
@@ -83,6 +86,7 @@ public final class HttpResourceAddress extends ResourceAddress {
     private File tempDirectory;
     private GatewayHttpOriginSecurity gatewayOriginSecurity;
     private Collection<String> balanceOrigins;
+    
 
     private String authenticationConnect;
     private String authenticationIdentifier;
@@ -90,6 +94,8 @@ public final class HttpResourceAddress extends ResourceAddress {
     private String serviceDomain;
 
     private Collection<Class<? extends Principal>> realmUserPrincipalClasses;
+
+    private Collection<Class<? extends ChallengeHandler>> challengeHandler;
 
 	HttpResourceAddress(ResourceAddressFactorySpi factory, String original, URI resource) {
 		super(factory, original, resource);
@@ -145,6 +151,8 @@ public final class HttpResourceAddress extends ResourceAddress {
                     return (V) serviceDomain;
                 case SERVER_HEADER:
                     return (V) serverHeaderEnabled;
+                case CHALLENGE_HANDLER:
+                    return (V) challengeHandler;
                 case REALM_USER_PRINCIPAL_CLASSES:
                     return (V) realmUserPrincipalClasses;
             }
@@ -228,6 +236,9 @@ public final class HttpResourceAddress extends ResourceAddress {
                 case REALM_USER_PRINCIPAL_CLASSES:
                     realmUserPrincipalClasses = (Collection<Class<? extends Principal>>) value;
                     return;
+                case CHALLENGE_HANDLER:
+                    challengeHandler = (Collection<Class<? extends ChallengeHandler>>) value;
+                    return;
             }
         }
 
@@ -252,7 +263,7 @@ public final class HttpResourceAddress extends ResourceAddress {
             LOGIN_CONTEXT_FACTORY, INJECTABLE_HEADERS,
             ORIGIN_SECURITY, TEMP_DIRECTORY, GATEWAY_ORIGIN_SECURITY, BALANCE_ORIGINS,
             AUTHENTICATION_CONNECT, AUTHENTICATION_IDENTIFIER, ENCRYPTION_KEY_ALIAS, SERVICE_DOMAIN, SERVER_HEADER, 
-            REALM_USER_PRINCIPAL_CLASSES
+            REALM_USER_PRINCIPAL_CLASSES, CHALLENGE_HANDLER
         }
 
         private static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
@@ -406,6 +417,12 @@ public final class HttpResourceAddress extends ResourceAddress {
     private static final class HttpRealmAuthenticationUserPrincipalClassesOption extends HttpResourceOption<Collection<Class<? extends Principal>>> {
         private HttpRealmAuthenticationUserPrincipalClassesOption() {
             super(Kind.REALM_USER_PRINCIPAL_CLASSES, "realmAuthenticationUserPrincipalClasses", new ArrayList<Class<? extends Principal>>());
+        }
+    }
+ 
+    private static final class ChallengeHandlerOption extends HttpResourceOption<Collection<Class<? extends ChallengeHandler>>> {
+        private ChallengeHandlerOption() {
+            super(Kind.CHALLENGE_HANDLER, "challengeHandler", new ArrayList<Class<? extends ChallengeHandler>>());
         }
     }
 
