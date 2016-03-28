@@ -625,6 +625,9 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         return httpxeSpecCompliant;
     }
 
+    void resetParent(IoSessionEx newParent){
+        setParent(newParent);
+    }
     // TODO for balancer redirects
     // int getAndDecrementRedirectsAllowed() {
     // int result = redirectsAllowed;
