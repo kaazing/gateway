@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.resource.address.udp;
 
-import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.BIND_ADDRESS;
@@ -108,23 +107,7 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
             return (InetSocketAddress) bindAddress;
         }
         else if (bindAddress instanceof String) {
-            String[] bindParts = ((String) bindAddress).split(":");
-            switch (bindParts.length) {
-            case 1:
-                // port only
-                return new InetSocketAddress(parseInt(bindParts[0]));
-            case 2:
-                // hostname, port
-                String hostname = bindParts[0];
-                int port = parseInt(bindParts[1]);
-                return new InetSocketAddress(hostname, port);
-            }
-            // otherwise (more than one ":" separator encountered)
-            Pattern pattern = Pattern.compile("(\\[{1}@[a-zA-Z0-9 :]*\\]{1}):([0-9]*)");
-            Matcher matcher = pattern.matcher((String) bindAddress);
-            if (matcher.find()) {
-                return new InetSocketAddress(matcher.group(1), parseInt(matcher.group(2)));
-            }
+            return ResolutionUtils.parseBindAddress((String) bindAddress);
         }
 
         throw new IllegalArgumentException(BIND_ADDRESS.name());

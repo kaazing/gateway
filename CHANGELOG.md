@@ -2,7 +2,23 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.50...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.51...HEAD)
+
+**Closed issues:**
+
+- Gateway build failing in ssl transport: VirtualHostKeySelectorTest when etc/hosts has the entries required by the test [\#457](https://github.com/kaazing/gateway/issues/457)
+- Sporadic NPE from WsnAcceptor while closing the session [\#347](https://github.com/kaazing/gateway/issues/347)
+
+**Merged pull requests:**
+
+- Avoid possible NPE in WsnAcceptor.ioBridgeHandler.sessionClosed [\#470](https://github.com/kaazing/gateway/pull/470) ([cmebarrow](https://github.com/cmebarrow))
+- Issue \#463: in transport/wsn, added suspendRead in WsCloseFilter.filt… [\#466](https://github.com/kaazing/gateway/pull/466) ([cmebarrow](https://github.com/cmebarrow))
+- Added changes for having the network interface syntax regexp exposed … [\#465](https://github.com/kaazing/gateway/pull/465) ([irina-mitrea-luxoft](https://github.com/irina-mitrea-luxoft))
+- Anisotrop fix ipv6 accept options [\#455](https://github.com/kaazing/gateway/pull/455) ([Anisotrop](https://github.com/Anisotrop))
+- Forward feature \#560 from 4.x to 5.x: Implement the directives for Cache-Control header in Directory Service [\#451](https://github.com/kaazing/gateway/pull/451) ([mgherghe](https://github.com/mgherghe))
+
+## [5.0.1.51](https://github.com/kaazing/gateway/tree/5.0.1.51) (2016-03-22)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.50...5.0.1.51)
 
 **Merged pull requests:**
 
@@ -45,6 +61,7 @@
 
 **Merged pull requests:**
 
+- Fix ipv6 accept options [\#442](https://github.com/kaazing/gateway/pull/442) ([Anisotrop](https://github.com/Anisotrop))
 - Delete accidentally added file transport/wseb/dumpfile.pcap. [\#441](https://github.com/kaazing/gateway/pull/441) ([cmebarrow](https://github.com/cmebarrow))
 - Added gatewayContext to startingGateway and stoppingGateway methods from GatewayObserverApi [\#440](https://github.com/kaazing/gateway/pull/440) ([mgherghe](https://github.com/mgherghe))
 - Pull request holding URI to String and network interface support changes [\#437](https://github.com/kaazing/gateway/pull/437) ([irina-mitrea-luxoft](https://github.com/irina-mitrea-luxoft))
