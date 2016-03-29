@@ -305,8 +305,8 @@ public final class ServiceConnectManager {
                 if (!successfullyConnected) {
                     // if the connection state was changed to disconnected, then unbind the service and start the heartbeat
                     try {
-                        if ( logger.isTraceEnabled() ) {
-                            logger.trace(format("Quiescing service with connect uri '%s'.", connectURI));
+                        if ( logger.isInfoEnabled() ) {
+                            logger.info(format("Quiescing service with connect uri '%s'.", connectURI));
                         }
                         serviceCtx.getService().quiesce();
                         if ( logger.isTraceEnabled() ) {
@@ -325,8 +325,8 @@ public final class ServiceConnectManager {
 
                     // if the connection state was changed to connected, then rebind the service
                     try {
-                        if ( logger.isTraceEnabled() ) {
-                            logger.trace(format("Starting service with connect uri '%s'.", connectURI));
+                        if ( logger.isInfoEnabled() ) {
+                            logger.info(format("Starting service with connect uri '%s'.", connectURI));
                         }
                         serviceCtx.getService().start();
                         if ( logger.isTraceEnabled() ) {
@@ -412,7 +412,17 @@ public final class ServiceConnectManager {
                 if (logger.isTraceEnabled()) {
                     logger.trace(format("ServiceHeartBeat.run: Current Heartbeat task is "+currentHeartbeatTask+"; starting to heartbeat-connect to %s", connectURI));
                 }
-                ConnectFuture connectFuture = serviceCtx.connect(connectURI, handler, null);
+                ConnectFuture connectFuture = null;
+                try {
+                    connectFuture = serviceCtx.connect(connectURI, handler, null);
+                    connectFuture.addListener(heartbeatFilter.getConnectListener()); // dummy connection
+                } catch (Exception ex) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(format("ServiceHeartBeat.run: exception connecting to uri %s", connectURI), ex);
+                    } else {
+                        logger.info(format("ServiceHeartBeat.run: exception connecting to uri %s, %s", connectURI, ex));
+                    }
+                }
                 connectFuture.addListener(heartbeatFilter.getConnectListener()); // dummy connection
 
                 // the heartbeat does an exponential backoff trying to connect to the backend service,
@@ -433,6 +443,9 @@ public final class ServiceConnectManager {
                 // to the service as this method was executing, then it's possible that the heartbeat
                 // was canceled and the task reference will be null, in which case we don't bother scheduling.
                 if (heartbeatTask.compareAndSet(currentHeartbeatTask, null)) {
+                    if (logger.isTraceEnabled()) {
+                        logger.trace(format("ServiceHeartBeat.run adding listener to connect future to reschedule task"));
+                    }
                     connectFuture.addListener(new IoFutureListener<ConnectFuture>() {
                         @Override
                         public void operationComplete(ConnectFuture future) {
