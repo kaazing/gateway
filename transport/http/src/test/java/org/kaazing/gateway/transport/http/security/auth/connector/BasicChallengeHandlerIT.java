@@ -35,11 +35,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress.HttpResourceOption;
-import org.kaazing.gateway.security.connector.auth.BasicChallengeHandler;
 import org.kaazing.gateway.security.connector.auth.ChallengeHandler;
 import org.kaazing.gateway.security.connector.auth.ChallengeRequest;
 import org.kaazing.gateway.security.connector.auth.ChallengeResponse;
-import org.kaazing.gateway.security.connector.auth.LoginHandler;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
 import org.kaazing.gateway.transport.http.HttpConnectorRule;
 import org.kaazing.gateway.transport.http.HttpSession;
@@ -47,7 +45,7 @@ import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-public class HttpChallengeHandlerIT {
+public class BasicChallengeHandlerIT {
 
     private final HttpConnectorRule connector = new HttpConnectorRule();
     private final K3poRule k3po = new K3poRule();
@@ -112,30 +110,13 @@ public class HttpChallengeHandlerIT {
                 System.out.println("exceptionCaught");
             }
         };
-        
-        Map<String, Object> connectOptions = new HashMap<>();
+
+        // Create challengeHandlers and add to connect options
         ArrayList<Class<? extends ChallengeHandler>> challengeHandlers = new ArrayList<>();
-        challengeHandlers.add(TestChallengeHandler.class);
+        challengeHandlers.add(DefaultBasicChallengeHandler.class);
+        Map<String, Object> connectOptions = new HashMap<>();
         connectOptions.put("http.challengeHandler", challengeHandlers);
-        // final IoHandler handler = context.mock(IoHandler.class);
-        // final CountDownLatch latch = new CountDownLatch(1);
-        //
-        // context.checking(new Expectations() {
-        // {
-        // oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-        // oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-        // allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
-        // allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-        // oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-        // will(new CustomAction("Latch countdown") {
-        // @Override
-        // public Object invoke(Invocation invocation) throws Throwable {
-        // latch.countDown();
-        // return null;
-        // }
-        // });
-        // }
-        // });
+
         connector.connect("http://localhost:8080/resource", handler, new IoSessionInitializer<ConnectFuture>() {
             @Override
             public void initializeSession(IoSession session, ConnectFuture future) {

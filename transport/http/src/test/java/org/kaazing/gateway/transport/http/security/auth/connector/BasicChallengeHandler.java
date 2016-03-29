@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package org.kaazing.gateway.security.connector.auth;
+package org.kaazing.gateway.transport.http.security.auth.connector;
+
+import org.kaazing.gateway.security.connector.auth.ChallengeHandler;
 
 /**
  * Challenge handler for Basic authentication as defined in <a href="http://tools.ietf.org/html/rfc2617#section-2">RFC 2617.</a>
@@ -28,50 +30,11 @@ package org.kaazing.gateway.security.connector.auth;
  * with any or specific realms.  This can be achieved using {@link #setLoginHandler(LoginHandler)} and
  * {@link #setRealmLoginHandler(String, LoginHandler)} methods.
  * <p/>
- * The following example loads an instance of a {@link BasicChallengeHandler}, sets a login
- * handler onto it and registers the basic handler at a URI location.  In this way, all attempts to access
- * that URI for which the server issues "Basic" challenges are handled by the registered {@link BasicChallengeHandler}.
- * <pre>
- * {@code
- * LoginHandler loginHandler = new LoginHandler() {
- *    public PasswordAuthentication getCredentials() {
- *        return new PasswordAuthentication("global", "credentials".toCharArray());
- *    }
- * };
- * BasicChallengeHandler    bch = BasicChallengeHandler.create();
- * DispatchChallengeHandler dch = DispatchChallengeHandler.create();
- * WebSocketFactory     wsFactory = WebSocketFactory.createWebSocketFactory();
- * wsFactory.setDefaultChallengeHandler(dch.register("ws://localhost:8001", bch.setLoginHandler(loginHandler)));
- * }
- * </pre>
  *
  * @see <a href="http://tools.ietf.org/html/rfc2616">RFC 2616 - HTTP 1.1</a>
  * @see <a href="http://tools.ietf.org/html/rfc2617#section-2">RFC 2617 Section 2 - Basic Authentication</a>
  */
 public abstract class BasicChallengeHandler extends ChallengeHandler {
-
-    /**
-     * Creates a new instance of {@link BasicChallengeHandler} using the
-     * {@link ServiceLoader} API with the implementation specified under
-     * META-INF/services.
-     *
-     * @return BasicChallengeHandler
-     */
-    public static BasicChallengeHandler create() {
-        return create(BasicChallengeHandler.class);
-    }
-
-    /**
-     * Creates a new instance of {@link BasicChallengeHandler} with the
-     * specified {@link ClassLoader} using the {@link ServiceLoader} API with
-     * the implementation specified under META-INF/services.
-     *
-     * @param  classLoader          ClassLoader to be used to instantiate
-     * @return BasicChallengeHandler
-     */
-    public static BasicChallengeHandler create(ClassLoader classLoader) {
-        return create(BasicChallengeHandler.class, classLoader);
-    }
 
     /**
      * Set a Login Handler to be used if and only if a challenge request has

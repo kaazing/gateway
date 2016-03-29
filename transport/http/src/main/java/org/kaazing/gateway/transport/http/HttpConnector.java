@@ -391,6 +391,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
             DefaultHttpSession httpSession = HTTP_SESSION_KEY.get(session);
             HttpMessage httpMessage = (HttpMessage) message;
+            Set<String> headerNames = httpSession.getReadHeaderNames();
             switch (httpMessage.getKind()) {
             case RESPONSE:
                 HttpResponseMessage httpResponse = (HttpResponseMessage) httpMessage;
@@ -417,34 +418,27 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 //                    return;
 //                }
 
-                if(httpStatus == HttpStatus.CLIENT_UNAUTHORIZED){
+                if (httpStatus == HttpStatus.CLIENT_UNAUTHORIZED) {
                     ResourceAddress remoteAddress = httpSession.getRemoteAddress();
                     Collection<Class<? extends ChallengeHandler>> challengeHandlers =
                             remoteAddress.getOption(CHALLENGE_HANDLER_CLASSES);
                     if (challengeHandlers != null) {
                         String location = remoteAddress.getExternalURI();
-                        String challenge = "WWW-Authenticate: " + httpSession.getReadHeader("WWW-Authenticate");
+                        what = ((HttpResponseMessage)httpMessage).getHeader("WWW-Authenticate");
+//                        String challenge = "WWW-Authenticate: " + 
+//                                .getCache()message.getReadHeader("WWW-Authenticate");
                         ;
-                        ChallengeRequest challengeRequest = new ChallengeRequest(location, challenge);
+                        ChallengeRequest challengeRequest =
+                                new ChallengeRequest(location, challenge, httpSession.getReadHeaders());
                         for (Class<? extends ChallengeHandler> handlerClass : challengeHandlers) {
                             ChallengeHandler handler = handlerClass.newInstance();
 
                             if (handler.canHandle(challengeRequest)) {
-                                ChallengeHandler nextChallengeHandler = null;
-                                char[] credentials = {'c', 'r', 'e'};
-                                // ChallengeResponse challengeResponse = handler.handle(challengeRequest);
-                                ChallengeResponse challengeResponse = new ChallengeResponse(credentials, nextChallengeHandler);
-                                String encodedCredentials = Base64.getEncoder()
-                                        .encodeToString(new String(challengeResponse.getCredentials()).getBytes());
-                                httpSession.addWriteHeader(HttpHeaders.HEADER_AUTHORIZATION, encodedCredentials);
-//                                connectInternal(address, httpHandler, initializer);
-                                // Figure out what to do
+                                ChallengeResponse response = handler.handle(challengeRequest);
+                                httpSession.addWriteHeader(HttpHeaders.HEADER_AUTHORIZATION, response.getResponse());
                                 Executor executor = org.kaazing.mina.core.session.AbstractIoSessionEx.CURRENT_WORKER.get();
-                              if (session.getIoExecutor() != executor) {
-                                  throw new RuntimeException("Thread alignment violation when handling redirect");
-                              }
-                                final HttpSessionFactory httpSessionFactory = getReconnectSessionFactory();
-                                // Hack not really sure where this should go
+                                assert (session.getIoExecutor() != executor);
+                                final HttpSessionFactory httpSessionFactory = getReconnectSessionFactory(httpSession);
                                 connectInternal0(new DefaultConnectFuture(), remoteAddress, httpSession.getHandler(),
                                         httpSessionFactory);
 

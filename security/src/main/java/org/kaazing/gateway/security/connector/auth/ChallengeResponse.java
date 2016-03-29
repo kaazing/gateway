@@ -16,8 +16,6 @@
 
 package org.kaazing.gateway.security.connector.auth;
 
-import java.util.Arrays;
-
 /**
  * A challenge response contains a character array representing the response to the server,
  * and a reference to the next challenge handler to handle any further challenges for the request.
@@ -25,7 +23,7 @@ import java.util.Arrays;
  */
 public class ChallengeResponse {
 
-    private char[] credentials;
+    private String credentials;
     private ChallengeHandler nextChallengeHandler;
 
     /**
@@ -35,7 +33,7 @@ public class ChallengeResponse {
      * @param credentials a set of credentials to send to the server in an 'Authorization:' header
      * @param nextChallengeHandler the next challenge handler responsible for handling any further challenges for the request.
      */
-    public ChallengeResponse(char[] credentials, ChallengeHandler nextChallengeHandler) {
+    public ChallengeResponse(String credentials, ChallengeHandler nextChallengeHandler) {
         this.credentials = credentials;
         this.nextChallengeHandler = nextChallengeHandler;
     }
@@ -54,7 +52,7 @@ public class ChallengeResponse {
      *
      * @return a set of credentials to send to the server in an 'Authorization:' header.
      */
-    public char[] getCredentials() {
+    public String getResponse() {
         return credentials;
     }
 
@@ -63,7 +61,7 @@ public class ChallengeResponse {
      *
      * @param credentials the credentials to be used for this challenge response.
      */
-    public void setCredentials(char[] credentials) {
+    public void setCredentials(String credentials) {
         this.credentials = credentials;
     }
 
@@ -83,8 +81,8 @@ public class ChallengeResponse {
      * protects credentials in memory.
      */
     public void clearCredentials() {
-        if (getCredentials() != null) {
-            Arrays.fill(getCredentials(), (char) 0);
+        if (getResponse() != null) {
+            credentials = null;
         }
     }
 }

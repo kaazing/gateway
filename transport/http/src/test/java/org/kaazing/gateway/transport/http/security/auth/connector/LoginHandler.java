@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package org.kaazing.gateway.security.connector.auth;
+package org.kaazing.gateway.transport.http.security.auth.connector;
 
 import java.net.PasswordAuthentication;
+
+import org.kaazing.gateway.security.connector.auth.ChallengeHandler;
+import org.kaazing.gateway.security.connector.auth.ChallengeResponse;
 
 /**
  * A login handler is responsible for obtaining credentials from an arbitrary

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+f * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 
 package org.kaazing.gateway.security.connector.auth;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * An immutable object representing the challenge presented by the server when the client accessed
@@ -32,11 +35,10 @@ package org.kaazing.gateway.security.connector.auth;
  */
 public class ChallengeRequest {
 
-    private static final String APPLICATION_PREFIX = "Application ";
-
     String location;
     String authenticationScheme;
     String authenticationParameters;
+    Map<String, List<String>> headers;
 
     /**
      * Constructor from the protected URI location triggering the challenge,
@@ -45,16 +47,12 @@ public class ChallengeRequest {
      * @param location  the protected URI location triggering the challenge
      * @param challenge an entire server-provided 'WWW-Authenticate:' string
      */
-    public ChallengeRequest(String location, String challenge) {
+    public ChallengeRequest(String location, String challenge, Map<String, List<String>> headers) {
         if (location == null) {
             throw new NullPointerException("location");
         }
         if (challenge == null) {
             return;
-        }
-
-        if (challenge.startsWith(APPLICATION_PREFIX)) {
-            challenge = challenge.substring(APPLICATION_PREFIX.length());
         }
 
         this.location = location;
@@ -69,6 +67,8 @@ public class ChallengeRequest {
                 this.authenticationParameters = challenge.substring(space + 1);
             }
         }
+        
+        this.headers = headers;
     }
 
     /**
