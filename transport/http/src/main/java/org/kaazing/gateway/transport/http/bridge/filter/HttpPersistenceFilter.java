@@ -139,6 +139,9 @@ public class HttpPersistenceFilter extends HttpFilterAdapter<IoSessionEx> {
 					@Override
 					public void operationComplete(WriteFuture future) {
 						IoSession session = future.getSession();
+						if (logger.isTraceEnabled()) {
+							logger.trace(String.format("Closing session %s because of Connection: close header in HTTP request", session));
+						}
 
 						// close on flush at server
 						session.close(false);
