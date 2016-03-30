@@ -15,26 +15,24 @@
  */
 package org.kaazing.gateway.transport.http;
 
+import static java.lang.String.format;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.EnumSet.allOf;
 import static java.util.EnumSet.complementOf;
 import static java.util.EnumSet.of;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.CHALLENGE_HANDLER_CLASSES;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.RETRY_POLICY_CLASSES;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.http.HttpConnectFilter.CONTENT_LENGTH_ADJUSTMENT;
 import static org.kaazing.gateway.transport.http.HttpConnectFilter.PROTOCOL_HTTPXE;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_LOCATION;
 import static org.kaazing.gateway.transport.http.HttpUtils.hasCloseHeader;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolHeaderFilter.PROTOCOL_HTTPXE_1_1;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter.PROTOCOL_HTTP_1_1;
 
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.util.Base64;
 import java.util.Collection;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -42,9 +40,8 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 
-import static java.lang.String.format;
 import javax.annotation.Resource;
-import static org.kaazing.gateway.transport.http.HttpUtils.hasCloseHeader;
+
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.DefaultConnectFuture;
@@ -52,32 +49,30 @@ import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.TransportMetadata;
+import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.http.HttpConnectorRetryPolicy;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
-import org.kaazing.gateway.security.connector.auth.ChallengeHandler;
-import org.kaazing.gateway.security.connector.auth.ChallengeRequest;
-import org.kaazing.gateway.security.connector.auth.ChallengeResponse;
 import org.kaazing.gateway.transport.AbstractBridgeConnector;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
+import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpBufferAllocator;
-import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
-import org.kaazing.mina.core.service.IoProcessorEx;
-import org.kaazing.mina.core.session.IoSessionEx;
-import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBuffer;
+import org.kaazing.gateway.transport.http.bridge.filter.HttpBufferAllocator;
+import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
-import org.apache.mina.core.session.IdleStatus;
+import org.kaazing.mina.core.service.IoProcessorEx;
+import org.kaazing.mina.core.session.IoSessionEx;
 
 public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
@@ -391,57 +386,28 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
             DefaultHttpSession httpSession = HTTP_SESSION_KEY.get(session);
             HttpMessage httpMessage = (HttpMessage) message;
-            Set<String> headerNames = httpSession.getReadHeaderNames();
             switch (httpMessage.getKind()) {
             case RESPONSE:
                 HttpResponseMessage httpResponse = (HttpResponseMessage) httpMessage;
                 HttpStatus httpStatus = httpResponse.getStatus();
 
-                // Handle temporary redirect (status 302), for example from http load balancer service
-//                if (httpStatus == HttpStatus.REDIRECT_FOUND && httpSession.getAndDecrementRedirectsAllowed() > 0) {
-//                    String location = httpResponse.getHeader(HEADER_LOCATION);
-//                    ResourceAddress newConnectAddress =
-//                            addressFactory.newResourceAddress(URI.create(location), httpSession.getRemoteAddress());
-//                    Executor executor = org.kaazing.mina.core.session.AbstractIoSessionEx.CURRENT_WORKER.get();
-//                    if (session.getIoExecutor() != executor) {
-//                        throw new RuntimeException("Thread alignment violation when handling redirect");
-//                    }
-//                    connectInternal0(new DefaultConnectFuture(), newConnectAddress, httpSession.getHandler(),
-//                            new HttpSessionFactory() {
-//
-//                                @Override
-//                                public DefaultHttpSession get(IoSession parent) throws Exception {
-//                                    return httpSession;
-//                                }
-//
-//                            });
-//                    return;
-//                }
 
-                if (httpStatus == HttpStatus.CLIENT_UNAUTHORIZED) {
-                    ResourceAddress remoteAddress = httpSession.getRemoteAddress();
-                    Collection<Class<? extends ChallengeHandler>> challengeHandlers =
-                            remoteAddress.getOption(CHALLENGE_HANDLER_CLASSES);
-                    if (challengeHandlers != null) {
-                        String location = remoteAddress.getExternalURI();
-                        what = ((HttpResponseMessage)httpMessage).getHeader("WWW-Authenticate");
-//                        String challenge = "WWW-Authenticate: " + 
-//                                .getCache()message.getReadHeader("WWW-Authenticate");
-                        ;
-                        ChallengeRequest challengeRequest =
-                                new ChallengeRequest(location, challenge, httpSession.getReadHeaders());
-                        for (Class<? extends ChallengeHandler> handlerClass : challengeHandlers) {
-                            ChallengeHandler handler = handlerClass.newInstance();
+                ResourceAddress remoteAddress = httpSession.getRemoteAddress();
+                Collection<Class<? extends HttpConnectorRetryPolicy>> connectorRetryPolicy = remoteAddress.getOption(RETRY_POLICY_CLASSES);
+                if (connectorRetryPolicy != null) {
+                    for (Class<? extends HttpConnectorRetryPolicy> retryPolicy : connectorRetryPolicy) {
+                        HttpConnectorRetryPolicy handler = retryPolicy.newInstance();
 
-                            if (handler.canHandle(challengeRequest)) {
-                                ChallengeResponse response = handler.handle(challengeRequest);
-                                httpSession.addWriteHeader(HttpHeaders.HEADER_AUTHORIZATION, response.getResponse());
+                        if (handler.canHandle(httpStatus.code())) {
+                            ResourceAddress newResourceAddress = handler.retry(addressFactory, httpSession.getRemoteAddress(),
+                                    httpResponse.getStatus().code(), httpResponse.getReason(), httpResponse.getHeaders());
+                            if(newResourceAddress != null){
                                 Executor executor = org.kaazing.mina.core.session.AbstractIoSessionEx.CURRENT_WORKER.get();
                                 assert (session.getIoExecutor() != executor);
                                 final HttpSessionFactory httpSessionFactory = getReconnectSessionFactory(httpSession);
-                                connectInternal0(new DefaultConnectFuture(), remoteAddress, httpSession.getHandler(),
+                                connectInternal0(new DefaultConnectFuture(), newResourceAddress, httpSession.getHandler(),
                                         httpSessionFactory);
-
+                                
                                 return;
                             }
                         }
@@ -481,7 +447,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                 case CLIENT_UNAUTHORIZED:
                 case CLIENT_PROXY_AUTHENTICATION_REQUIRED:
                     // to do get attribute from remote address
-                    ChallengeHandler challengeHandler = null;
+                    HttpConnectorRetryPolicy challengeHandler = null;
                 default:
                     HttpContentMessage httpContent = httpResponse.getContent();
                     if (httpContent == null) {
