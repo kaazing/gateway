@@ -15,6 +15,7 @@
  */
 package org.kaazing.gateway.transport.http;
 
+import static java.lang.String.format;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.EnumSet.allOf;
 import static java.util.EnumSet.complementOf;
@@ -25,26 +26,23 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.CHAL
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.http.HttpConnectFilter.CONTENT_LENGTH_ADJUSTMENT;
 import static org.kaazing.gateway.transport.http.HttpConnectFilter.PROTOCOL_HTTPXE;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_LOCATION;
 import static org.kaazing.gateway.transport.http.HttpUtils.hasCloseHeader;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolHeaderFilter.PROTOCOL_HTTPXE_1_1;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter.PROTOCOL_HTTP_1_1;
 
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.util.Base64;
 import java.util.Collection;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
-import static java.lang.String.format;
 import javax.annotation.Resource;
-import static org.kaazing.gateway.transport.http.HttpUtils.hasCloseHeader;
+
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.DefaultConnectFuture;
@@ -52,32 +50,33 @@ import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.TransportMetadata;
+import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
-import org.kaazing.gateway.security.connector.auth.ChallengeHandler;
-import org.kaazing.gateway.security.connector.auth.ChallengeRequest;
-import org.kaazing.gateway.security.connector.auth.ChallengeResponse;
 import org.kaazing.gateway.transport.AbstractBridgeConnector;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
+import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpBufferAllocator;
-import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
-import org.kaazing.mina.core.service.IoProcessorEx;
-import org.kaazing.mina.core.session.IoSessionEx;
-import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBuffer;
+import org.kaazing.gateway.transport.http.bridge.filter.HttpBufferAllocator;
+import org.kaazing.gateway.util.scheduler.SchedulerProvider;
+import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
-import org.apache.mina.core.session.IdleStatus;
+import org.kaazing.mina.core.service.IoProcessorEx;
+import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.netx.http.auth.ChallengeHandler;
+import org.kaazing.netx.http.auth.ChallengeRequest;
+import org.kaazing.netx.http.auth.ChallengeResponse;
 
 public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
@@ -91,6 +90,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     private ResourceAddressFactory addressFactory;
     private final PersistentConnectionPool persistentConnectionsStore;
     private Properties configuration;
+    private ScheduledExecutorService schedulerProvider;
 
     public HttpConnector() {
         super(new DefaultIoSessionConfigEx());
@@ -120,6 +120,11 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
             name = "configuration")
     public void setConfiguration(Properties configuration) {
         this.configuration = configuration;
+    }
+
+    @Resource(name = "schedulerProvider")
+    public void setSchedulerProvider(SchedulerProvider provider) {
+        this.schedulerProvider = provider.getScheduler("HttpConnector", true);
     }
 
     @Override
@@ -422,27 +427,35 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                     ResourceAddress remoteAddress = httpSession.getRemoteAddress();
                     Collection<Class<? extends ChallengeHandler>> challengeHandlers =
                             remoteAddress.getOption(CHALLENGE_HANDLER_CLASSES);
+
+                    // TODO, this will fail in edge case where it does not reuse the same tcp connection i.e connection: close
+
                     if (challengeHandlers != null) {
                         String location = remoteAddress.getExternalURI();
-                        what = ((HttpResponseMessage)httpMessage).getHeader("WWW-Authenticate");
-//                        String challenge = "WWW-Authenticate: " + 
-//                                .getCache()message.getReadHeader("WWW-Authenticate");
-                        ;
-                        ChallengeRequest challengeRequest =
-                                new ChallengeRequest(location, challenge, httpSession.getReadHeaders());
+                        String wwwAuthHeader = ((HttpResponseMessage) httpMessage).getHeader("WWW-Authenticate");
+                        ChallengeRequest challengeRequest = new ChallengeRequest(location, wwwAuthHeader);
+
                         for (Class<? extends ChallengeHandler> handlerClass : challengeHandlers) {
                             ChallengeHandler handler = handlerClass.newInstance();
-
                             if (handler.canHandle(challengeRequest)) {
                                 ChallengeResponse response = handler.handle(challengeRequest);
-                                httpSession.addWriteHeader(HttpHeaders.HEADER_AUTHORIZATION, response.getResponse());
-                                Executor executor = org.kaazing.mina.core.session.AbstractIoSessionEx.CURRENT_WORKER.get();
-                                assert (session.getIoExecutor() != executor);
-                                final HttpSessionFactory httpSessionFactory = getReconnectSessionFactory(httpSession);
-                                connectInternal0(new DefaultConnectFuture(), remoteAddress, httpSession.getHandler(),
-                                        httpSessionFactory);
+                                if (response != null) {
+                                    schedulerProvider.submit(new Runnable() {
 
-                                return;
+                                        @Override
+                                        public void run() {
+                                            httpSession.addWriteHeader(HttpHeaders.HEADER_AUTHORIZATION,
+                                                    new String(response.getCredentials()));
+                                            final HttpSessionFactory httpSessionFactory =
+                                                    getReconnectSessionFactory(httpSession);
+                                            connectInternal0(new DefaultConnectFuture(), remoteAddress, httpSession.getHandler(),
+                                                    httpSessionFactory);
+                                        }
+
+                                    });
+
+                                    return;
+                                }
                             }
                         }
                     }

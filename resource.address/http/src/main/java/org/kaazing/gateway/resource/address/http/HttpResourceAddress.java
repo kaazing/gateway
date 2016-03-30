@@ -30,7 +30,7 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceOption;
 import org.kaazing.gateway.security.LoginContextFactory;
-import org.kaazing.gateway.security.connector.auth.ChallengeHandler;
+import org.kaazing.netx.http.auth.ChallengeHandler;
 
 public final class HttpResourceAddress extends ResourceAddress {
 	

@@ -64,7 +64,7 @@ import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.security.LoginContextFactory;
-import org.kaazing.gateway.security.connector.auth.ChallengeHandler;
+import org.kaazing.netx.http.auth.ChallengeHandler;
 
 public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<HttpResourceAddress> {
 

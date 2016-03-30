@@ -24,7 +24,8 @@ connected
 read method "GET"
 
 write status "401" "Unauthorized"
-write header "WWW-Authenticate" "Basic realm=\"Kaazing Gateway Demo\""
+write header "WWW-Authenticate" "Application realm=\"Kaazing Gateway Demo\""
+write header content-length
 write flush
 
 accepted
@@ -34,4 +35,5 @@ read method "GET"
 read header "Authorization" ${authHeader}
 
 write status "200" "OK"
+write header content-length
 write flush
