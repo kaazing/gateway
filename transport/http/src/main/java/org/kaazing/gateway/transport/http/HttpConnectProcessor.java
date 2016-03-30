@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.transport.http;
 
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.WRITE_HEADERS;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONNECTION;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
 import static org.kaazing.gateway.transport.http.HttpStatus.INFO_SWITCHING_PROTOCOLS;
@@ -35,7 +34,6 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
-import org.kaazing.gateway.resource.address.http.HttpResourceAddress.HttpResourceOption;
 import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.BridgeConnectHandler;
 import org.kaazing.gateway.transport.BridgeConnectProcessor;
@@ -93,13 +91,6 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
 
             // override headers
             httpRequest.putHeaders(session.getWriteHeaders());
-
-            // Done here instead of HttpSession instantiation because HttpRedirectPolicy may
-            // set them, and that will reuse the HttpSession.  Additionally, this should
-            // be the last word in terms of overriding any headers
-            assert(session instanceof HttpSession);
-            HttpSession httpSession = (HttpSession) session;
-            httpRequest.putHeaders(httpSession.getRemoteAddress().getOption(WRITE_HEADERS));
 
             httpRequest.setCookies(session.getWriteCookies());
 

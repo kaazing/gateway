@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.http.connector;
+package org.kaazing.gateway.transport.http.security.auth.connector;
 
 import static org.kaazing.gateway.transport.http.HttpMethod.GET;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.mina.core.future.ConnectFuture;
@@ -33,7 +34,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-import org.kaazing.gateway.resource.address.http.HttpConnectorRetryPolicy;
+import org.kaazing.gateway.resource.address.http.HttpResourceAddress.HttpResourceOption;
+import org.kaazing.gateway.security.connector.auth.ChallengeHandler;
+import org.kaazing.gateway.security.connector.auth.ChallengeRequest;
+import org.kaazing.gateway.security.connector.auth.ChallengeResponse;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
 import org.kaazing.gateway.transport.http.HttpConnectorRule;
 import org.kaazing.gateway.transport.http.HttpSession;
@@ -41,7 +45,7 @@ import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-public class ConnectorRetryPolicyIT {
+public class BasicChallengeHandlerIT {
 
     private final HttpConnectorRule connector = new HttpConnectorRule();
     private final K3poRule k3po = new K3poRule();
@@ -103,18 +107,17 @@ public class ConnectorRetryPolicyIT {
 
             @Override
             public void exceptionCaught(IoSession arg0, Throwable arg1) throws Exception {
-                arg1.printStackTrace();
                 System.out.println("exceptionCaught");
             }
         };
 
         // Create challengeHandlers and add to connect options
-        ArrayList<Class<? extends HttpConnectorRetryPolicy>> retryPolicies = new ArrayList<>();
-        retryPolicies.add(SampleChallengeRetryPolicy.class);
+        ArrayList<Class<? extends ChallengeHandler>> challengeHandlers = new ArrayList<>();
+        challengeHandlers.add(DefaultBasicChallengeHandler.class);
         Map<String, Object> connectOptions = new HashMap<>();
-        connectOptions.put("http.retryPolicyClasses", retryPolicies);
+        connectOptions.put("http.challengeHandler", challengeHandlers);
 
-        connector.connect("http://localhost:8085/resource", handler, new IoSessionInitializer<ConnectFuture>() {
+        connector.connect("http://localhost:8080/resource", handler, new IoSessionInitializer<ConnectFuture>() {
             @Override
             public void initializeSession(IoSession session, ConnectFuture future) {
                 HttpConnectSession connectSession = (HttpConnectSession) session;

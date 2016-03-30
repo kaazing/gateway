@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,6 +30,7 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceOption;
 import org.kaazing.gateway.security.LoginContextFactory;
+import org.kaazing.gateway.security.connector.auth.ChallengeHandler;
 
 public final class HttpResourceAddress extends ResourceAddress {
 	
@@ -64,12 +64,10 @@ public final class HttpResourceAddress extends ResourceAddress {
     public static final ResourceOption<String> AUTHENTICATION_IDENTIFIER = new AuthenticationIdentifierOption();
     public static final ResourceOption<String> ENCRYPTION_KEY_ALIAS = new EncryptionKeyAliasOption();
     public static final ResourceOption<String> SERVICE_DOMAIN = new ServiceDomainOption();
-    public static final ResourceOption<Boolean> SERVER_HEADER_ENABLED = new HttpServerHeaderOption();
-    public static final ResourceOption<Map<String, List<String>>> WRITE_HEADERS = new HttpWriteHeaderOption();
-//    public static final ResourceOption<Map<String, List<String>>> READ_HEADERS = new HttpReadHeaderOption();
-    public static final ResourceOption<Collection<Class<? extends Principal>>> REALM_USER_PRINCIPAL_CLASSES = new HttpRealmAuthenticationUserPrincipalClassesOption();
+    public static final HttpResourceOption<Boolean> SERVER_HEADER_ENABLED = new HttpServerHeaderOption();
+    public static final HttpResourceOption<Collection<Class<? extends Principal>>> REALM_USER_PRINCIPAL_CLASSES = new HttpRealmAuthenticationUserPrincipalClassesOption();
 
-    public static final ResourceOption<Collection<Class<? extends HttpConnectorRetryPolicy>>> RETRY_POLICY_CLASSES = new ChallengeHandlerOption();
+    public static final ResourceOption<Collection<Class<? extends ChallengeHandler>>> CHALLENGE_HANDLER_CLASSES = new ChallengeHandlerOption();
 
     private Boolean serverHeaderEnabled = SERVER_HEADER_ENABLED.defaultValue();
     private Boolean keepAlive = KEEP_ALIVE.defaultValue();
@@ -96,12 +94,10 @@ public final class HttpResourceAddress extends ResourceAddress {
     private String authenticationIdentifier;
     private String encryptionKeyAlias;
     private String serviceDomain;
-    private Map<String, String> writeHeaders;
-//    private Map<String, String> readHeaders;
 
     private Collection<Class<? extends Principal>> realmUserPrincipalClasses;
 
-    private Collection<Class<? extends HttpConnectorRetryPolicy>> retryPolicyClasses;
+    private Collection<Class<? extends ChallengeHandler>> challengeHandler;
 
 	HttpResourceAddress(ResourceAddressFactorySpi factory, String original, URI resource) {
 		super(factory, original, resource);
@@ -159,14 +155,10 @@ public final class HttpResourceAddress extends ResourceAddress {
                     return (V) serviceDomain;
                 case SERVER_HEADER:
                     return (V) serverHeaderEnabled;
-                case RETRY_POLICY_CLASSES:
-                    return (V) retryPolicyClasses;
+                case CHALLENGE_HANDLER:
+                    return (V) challengeHandler;
                 case REALM_USER_PRINCIPAL_CLASSES:
                     return (V) realmUserPrincipalClasses;
-//                case READ_HEADER:
-//                    return (V) readHeaders;
-                case WRITE_HEADER:
-                    return (V) writeHeaders;
             }
         }
 
@@ -251,15 +243,9 @@ public final class HttpResourceAddress extends ResourceAddress {
                 case REALM_USER_PRINCIPAL_CLASSES:
                     realmUserPrincipalClasses = (Collection<Class<? extends Principal>>) value;
                     return;
-                case RETRY_POLICY_CLASSES:
-                    retryPolicyClasses = (Collection<Class<? extends HttpConnectorRetryPolicy>>) value;
+                case CHALLENGE_HANDLER:
+                    challengeHandler = (Collection<Class<? extends ChallengeHandler>>) value;
                     return;
-//                case READ_HEADER:
-//                        readHeaders = (Map<String, String>) value;
-//                        return;
-                case WRITE_HEADER:
-                        writeHeaders = (Map<String, String>) value;
-                        return;
             }
         }
 
@@ -284,7 +270,7 @@ public final class HttpResourceAddress extends ResourceAddress {
             LOGIN_CONTEXT_FACTORY, INJECTABLE_HEADERS,
             ORIGIN_SECURITY, TEMP_DIRECTORY, GATEWAY_ORIGIN_SECURITY, BALANCE_ORIGINS,
             AUTHENTICATION_CONNECT, AUTHENTICATION_IDENTIFIER, ENCRYPTION_KEY_ALIAS, SERVICE_DOMAIN, SERVER_HEADER, 
-            REALM_USER_PRINCIPAL_CLASSES, RETRY_POLICY_CLASSES, HTTP_REDIRECT, WRITE_HEADER, READ_HEADER
+            REALM_USER_PRINCIPAL_CLASSES, CHALLENGE_HANDLER, HTTP_REDIRECT
         }
 
         private static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
@@ -439,27 +425,15 @@ public final class HttpResourceAddress extends ResourceAddress {
         }
     }
 
-    private static final class HttpWriteHeaderOption extends HttpResourceOption<Map<String, List<String>>> {
-        private HttpWriteHeaderOption() {
-            super(Kind.WRITE_HEADER, "writeHeader", new HashMap<String, List<String>>());
-        }
-    }
-
-//    private static final class HttpReadHeaderOption extends HttpResourceOption<Map<String, List<String>>> {
-//        private HttpReadHeaderOption() {
-//            super(Kind.READ_HEADER, "readHeader", new HashMap<String, List<String>>());
-//        }
-//    }
-
     private static final class HttpRealmAuthenticationUserPrincipalClassesOption extends HttpResourceOption<Collection<Class<? extends Principal>>> {
         private HttpRealmAuthenticationUserPrincipalClassesOption() {
             super(Kind.REALM_USER_PRINCIPAL_CLASSES, "realmAuthenticationUserPrincipalClasses", new ArrayList<Class<? extends Principal>>());
         }
     }
  
-    private static final class ChallengeHandlerOption extends HttpResourceOption<Collection<Class<? extends HttpConnectorRetryPolicy>>> {
+    private static final class ChallengeHandlerOption extends HttpResourceOption<Collection<Class<? extends ChallengeHandler>>> {
         private ChallengeHandlerOption() {
-            super(Kind.RETRY_POLICY_CLASSES, "retryPolicyClasses", new ArrayList<Class<? extends HttpConnectorRetryPolicy>>());
+            super(Kind.CHALLENGE_HANDLER, "challengeHandler", new ArrayList<Class<? extends ChallengeHandler>>());
         }
     }
 

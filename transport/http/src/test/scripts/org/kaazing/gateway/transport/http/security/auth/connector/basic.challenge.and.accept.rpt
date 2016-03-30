@@ -17,7 +17,7 @@
 property partialCredentials ${http:loginBase64Encoder("joe")}
 property validCredentials ${http:loginBase64Encoder("joe:welcome")}
 property authHeader ${http:append("Basic ", validCredentials)}
-accept http://localhost:8085/resource
+accept http://localhost:8080/resource
 accepted
 connected
 
