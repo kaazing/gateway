@@ -259,6 +259,9 @@ public class HttpDirectoryService implements Service {
                 session.close(true);
             }
         }
+        if (handler != null) {
+            handler.emptyUrlCacheControlMap();
+        }
     }
 
     @Override
