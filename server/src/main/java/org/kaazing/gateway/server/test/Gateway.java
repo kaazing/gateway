@@ -587,6 +587,7 @@ public class Gateway {
         private KeyStore trustStore;
         private String keyStoreFile;
         private char[] trustStorePassword;
+        private String keyStoreFilePath;
 
         @SuppressWarnings("deprecation")
         SecurityContextResolver(SecurityConfiguration configuration) {
@@ -609,12 +610,14 @@ public class Gateway {
                 if (configuration.getTrustStorePassword() != null) {
                     trustStorePassword = configuration.getTrustStorePassword();
                 }
+                if (configuration.getKeyStoreFile() != null) {
+                    keyStoreFilePath = configuration.getKeyStoreFile();
+                }
             }
         }
 
         @Override
         public DefaultSecurityContext resolve(SecurityType config) throws Exception {
-            String keyStoreFilePath = null;
             String keyStorePasswordFile = null;
             String trustStoreFile = null;
             String trustStoreFilePath = null;

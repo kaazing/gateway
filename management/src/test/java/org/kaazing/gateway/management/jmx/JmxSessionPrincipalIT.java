@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.kaazing.gateway.management.jmx;
 
 import static java.lang.System.currentTimeMillis;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.getKeystoreFileLocation;
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.keyStore;
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.password;
@@ -40,11 +39,10 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-public class JmxRoundTripLatencyIT {
+public class JmxSessionPrincipalIT {
 
     private static final String JMX_URI = "service:jmx:rmi:///jndi/rmi://localhost:2020/jmxrmi";
     private static final String WS_URI = "ws://localhost:8001/echo";
-    private static final String WSE_URI = "wse://localhost:8123/echo";
 
     protected static final String ADMIN = "AUTHORIZED";
 
@@ -60,17 +58,15 @@ public class JmxRoundTripLatencyIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(WSE_URI)
-                            .acceptOption("ws.inactivityTimeout", "2sec")
-                            .type("echo")
-                        .done()
-                        .service()
                             .accept(WS_URI)
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("*")
                             .done()
-                            .acceptOption("ws.inactivityTimeout", "2sec")
+                            .realmName("demo")
+                            .authorization()
+                                .requireRole("TEST")
+                            .done()
                         .done()
                         .service()
                             .property("connector.server.address", "jmx://localhost:2020/")
@@ -86,12 +82,24 @@ public class JmxRoundTripLatencyIT {
                             .keyStorePassword(password)
                             .keyStoreFile(getKeystoreFileLocation())
                             .realm()
+                                .name("demo")
+                                .description("Kaazing WebSocket Gateway Demo")
+                                .httpChallengeScheme("Application Token")
+                                .httpQueryParameter("token")
+                                .userPrincipalClass("org.kaazing.gateway.management.test.util.TokenCustomLoginModule$RolePrincipal")
+                                .userPrincipalClass("org.kaazing.gateway.management.test.util.TokenCustomLoginModule$UserPrincipal")
+                                .loginModule()
+                                    .type("class:org.kaazing.gateway.management.test.util.TokenCustomLoginModule")
+                                    .success("required")
+                                .done()
+                            .done()
+                            .realm()
                                 .name("jmxrealm")
                                 .description("realm for jmx")
                                 .httpChallengeScheme("Application Basic")
                                 .loginModule()
                                     .type("class:org.kaazing.gateway.management.test.util.TestLoginModule")
-                                    .success("requisite")
+                                    .success("required")
                                 .done()
                             .done()
                         .done()
@@ -106,60 +114,92 @@ public class JmxRoundTripLatencyIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, k3po).around(jmxConnection);
 
-    @Specification("echoServiceToGetRoundTripLatencyAttributesFromJMX")
+    // Test should only kill sessions that have the "joe" user Principal
+    @Specification({
+        "wsn.session.with.user.principal.joe",
+        "wse.session.with.user.principal.joe",
+        "wsn.session.with.user.principal.ann" })
     @Test
-    public void getRoundTripLatencyAttributesFromJmx() throws Exception {
-        Long latency = null;
-        Long latencyTimestamp = null;
-        Long currentTimestamp = currentTimeMillis();
+    public void shouldKillSessionsByUserPrincipal() throws Exception {
+
+        ObjectName echoServiceMbeanName = null;
 
         k3po.start();
 
-        k3po.awaitBarrier("SESSION_ESTABLISHED");
+        k3po.awaitBarrier("JOE_WSN_SESSION_ESTABLISHED");
+        k3po.awaitBarrier("JOE_WSE_SESSION_ESTABLISHED");
+        k3po.awaitBarrier("ANN_WSN_SESSION_ESTABLISHED");
 
         MBeanServerConnection mbeanServerConn = jmxConnection.getConnection();
         Set<ObjectName> mbeanNames = mbeanServerConn.queryNames(null, null);
-        String MBeanPrefix = "subtype=services,serviceType=echo,serviceId=\"" + WS_URI + "\",name=sessions";
+        String MBeanPrefix = "subtype=services,serviceType=echo,serviceId=\"" + WS_URI + "\",name=summary";
         for (ObjectName name : mbeanNames) {
             if (name.toString().indexOf(MBeanPrefix) > 0) {
-                latency = (Long) mbeanServerConn.getAttribute(name, "LastRoundTripLatency");
-                latencyTimestamp = (Long) mbeanServerConn.getAttribute(name, "LastRoundTripLatencyTimestamp");
+                echoServiceMbeanName = name;
+
+                ObjectName targetService = new ObjectName(name.toString());
+                Object[] params = {"joe", "org.kaazing.gateway.management.test.util.TokenCustomLoginModule$UserPrincipal"};
+                String[] signature = {String.class.getName(), String.class.getName()};
+
+                mbeanServerConn.invoke(targetService, "closeSessions", params, signature);
             }
         }
 
-        k3po.notifyBarrier("READ_LATENCY_ATTRIBUTES");
+        long startTime = currentTimeMillis();
+        Long numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
+        while (numberOfCurrentSessions > 1 && (currentTimeMillis() - startTime) < 5000) {
+            Thread.sleep(500);
+            numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
+        }
 
-        assertTrue("Could not retrieve Round Trip Latency from Jmx", latency > -1);
-        assertTrue("Could not retrieve Round Trip Latency Timestamp from Jmx", latencyTimestamp > currentTimestamp);
+        assertEquals("Ann Wsn session should still be alive", (Long) 1L, numberOfCurrentSessions);
+
+        k3po.notifyBarrier("CLOSE_SESSIONS_INVOKED");
 
         k3po.finish();
     }
 
-    @Specification("echoServiceToGetWsebRoundTripLatencyAttributesFromJMX")
+    // Test should kill all sessions that have "TEST" as a role Principal
+    @Specification({
+        "wsn.session.with.user.principal.joe",
+        "wse.session.with.user.principal.joe",
+        "wsn.session.with.user.principal.ann" })
     @Test
-    public void getWsebRoundTripLatencyAttributesFromJmx() throws Exception {
-        Long latency = null;
-        Long latencyTimestamp = null;
-        Long currentTimestamp = currentTimeMillis();
+    public void shouldKillSessionsByRolePrincipal() throws Exception {
+
+        ObjectName echoServiceMbeanName = null;
 
         k3po.start();
 
-        k3po.awaitBarrier("SESSION_ESTABLISHED");
+        k3po.awaitBarrier("JOE_WSN_SESSION_ESTABLISHED");
+        k3po.awaitBarrier("JOE_WSE_SESSION_ESTABLISHED");
+        k3po.awaitBarrier("ANN_WSN_SESSION_ESTABLISHED");
 
         MBeanServerConnection mbeanServerConn = jmxConnection.getConnection();
         Set<ObjectName> mbeanNames = mbeanServerConn.queryNames(null, null);
-        String MBeanPrefix = "subtype=services,serviceType=echo,serviceId=\"" + WSE_URI + "\",name=sessions";
+        String MBeanPrefix = "subtype=services,serviceType=echo,serviceId=\"" + WS_URI + "\",name=summary";
         for (ObjectName name : mbeanNames) {
             if (name.toString().indexOf(MBeanPrefix) > 0) {
-                latency = (Long) mbeanServerConn.getAttribute(name, "LastRoundTripLatency");
-                latencyTimestamp = (Long) mbeanServerConn.getAttribute(name, "LastRoundTripLatencyTimestamp");
+                echoServiceMbeanName = name;
+
+                ObjectName targetService = new ObjectName(name.toString());
+                Object[] params = {"TEST", "org.kaazing.gateway.management.test.util.TokenCustomLoginModule$RolePrincipal"};
+                String[] signature = {String.class.getName(), String.class.getName()};
+
+                mbeanServerConn.invoke(targetService, "closeSessions", params, signature);
             }
         }
 
-        k3po.notifyBarrier("READ_LATENCY_ATTRIBUTES");
+        long startTime = currentTimeMillis();
+        Long numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
+        while (numberOfCurrentSessions > 0 && (currentTimeMillis() - startTime) < 5000) {
+            Thread.sleep(500);
+            numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
+        }
 
-        assertTrue("Could not retrieve Round Trip Latency from Jmx", latency > -1);
-        assertTrue("Could not retrieve Round Trip Latency Timestamp from Jmx", latencyTimestamp > currentTimestamp);
+        assertEquals("Not all sessions have been closed", (Long) 0L, numberOfCurrentSessions);
+
+        k3po.notifyBarrier("CLOSE_SESSIONS_INVOKED");
 
         k3po.finish();
     }
