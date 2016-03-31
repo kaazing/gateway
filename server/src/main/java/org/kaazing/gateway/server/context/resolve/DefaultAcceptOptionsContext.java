@@ -45,7 +45,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.kaazing.gateway.resource.address.uri.URIUtils;
-import org.kaazing.gateway.server.config.sep2014.ServiceAcceptOptionsType;
+import org.kaazing.gateway.server.config.mar2016.ServiceAcceptOptionsType;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.ssl.SslCipherSuites;

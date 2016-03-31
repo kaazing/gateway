@@ -32,7 +32,6 @@ import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.service.http.directory.cachecontrol.ConflictResolverUtils;
-import org.kaazing.gateway.service.http.directory.cachecontrol.Directive;
 import org.kaazing.gateway.service.http.directory.cachecontrol.PatternCacheControl;
 import org.kaazing.gateway.service.http.directory.cachecontrol.PatternMatcherUtils;
 import org.slf4j.Logger;
@@ -43,7 +42,6 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpDirectoryService implements Service {
 
-    private static final String GENERIC_PATTERN = "**/*";
     private static final Comparator<PatternCacheControl> PATTERN_CACHE_CONTROL_COMPARATOR =
             new Comparator<PatternCacheControl>() {
                 public int compare(PatternCacheControl first, PatternCacheControl second) {
@@ -144,10 +142,8 @@ public class HttpDirectoryService implements Service {
                 }
             }
             resolvePatternSpecificity(patterns);
-            addDefaultCacheControlMaxAge(patterns);
             return sortByMatchingPatternCount(patterns);
         }
-        addDefaultCacheControlMaxAge(patterns);
         return new ArrayList<PatternCacheControl>(patterns.values());
     }
 
@@ -197,27 +193,6 @@ public class HttpDirectoryService implements Service {
         Collections.sort(list, PATTERN_CACHE_CONTROL_COMPARATOR);
         return list;
     }
-
-    /**
-     * Adds "max-age=0" to the generic pattern "** /*" if this does not exist in the configuration file
-     * @param patterns - map with all the patterns and the related cache-control directives
-     */
-    private void addDefaultCacheControlMaxAge(Map<String, PatternCacheControl> patterns) {
-        PatternCacheControl generalPattern = patterns.get(GENERIC_PATTERN);
-        Directive maxAge = Directive.MAX_AGE;
-        // if the general pattern exists in the configuration file
-        if (generalPattern != null) {
-            if (!generalPattern.hasDirective(maxAge) && !generalPattern.hasDirective(Directive.MAX_AGE_MPLUS)) {
-                generalPattern.setDirective(maxAge, "0");
-            }
-        }
-        // else, the general pattern with a max-age = 0 directive needs to be added to the map of patterns
-        else {
-            PatternCacheControl maxAgePattern = new PatternCacheControl(GENERIC_PATTERN, maxAge, "0");
-            patterns.put(GENERIC_PATTERN, maxAgePattern);
-        }
-    }
-
 
     /**
      * Converts a location in the gateway configuration file into a file relative to a specified root directory.
