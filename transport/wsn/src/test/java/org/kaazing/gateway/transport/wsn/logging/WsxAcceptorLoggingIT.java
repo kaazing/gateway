@@ -16,22 +16,27 @@
 
 package org.kaazing.gateway.transport.wsn.logging;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
+import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.MemoryAppender;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
  * RFC-6455, section 5.2 "Base Framing Protocol"
@@ -40,13 +45,29 @@ public class WsxAcceptorLoggingIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification");
 
+    private List<String> expectedPatterns;
+    private List<String> forbiddenPatterns;
+    private TestRule checkLogMessageRule = new TestRule() {
+        @Override
+        public Statement apply(final Statement base, Description description) {
+            return new Statement() {
+                @Override
+                public void evaluate() throws Throwable {
+                    base.evaluate();
+                    MemoryAppender.assertMessagesLogged(expectedPatterns,
+                            forbiddenPatterns, ".*\\[.*#.*].*", true);
+                }
+            };
+        }
+    };
+
     private GatewayRule gateway = new GatewayRule() {
         {
             // @formatter:off
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept("ws://localhost:8000/echo")
+                            .accept("ws://localhost:8080/path")
                             .type("echo")
                         .done()
                         .service()
@@ -60,17 +81,21 @@ public class WsxAcceptorLoggingIT {
         }
     };
 
+    private TestRule trace = new MethodExecutionTrace(); // trace level logging
+
     @Rule
-    public TestRule chain = createRuleChain(gateway, k3po);
+    // Special ordering: gateway around k3po allows gateway to detect k3po closing any still open connections
+    // to make sure we get the log messages for the abrupt close
+    public final TestRule chain = RuleChain.outerRule(trace).around(checkLogMessageRule)
+            .around(gateway).around(k3po).around(timeoutRule(5, SECONDS));
 
     @Test
-    @Ignore("https://github.com/kaazing-private/gateway.server/issues/93")
     @Specification({
         "httpx/extended/connection.established.data.exchanged.close/request"
         })
     public void shouldLogOpenWriteReceivedAndClose() throws Exception {
         k3po.finish();
-        List<String> expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
             "tcp#.*OPENED",
             "tcp#.*WRITE",
             "tcp#.*RECEIVED",
@@ -83,10 +108,7 @@ public class WsxAcceptorLoggingIT {
             "wsn#.*CLOSED"
         }));
 
-        List<String> forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
-
-        MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);
-    }
+        forbiddenPatterns = Arrays.asList("#.*EXCEPTION");    }
 
     @Test
     @Specification({
@@ -96,7 +118,7 @@ public class WsxAcceptorLoggingIT {
         k3po.start();
         Thread.sleep(2000);
         k3po.finish();
-        List<String> expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
             "tcp#.*OPENED",
             "tcp#.*WRITE",
             "tcp#.*RECEIVED",
@@ -107,8 +129,7 @@ public class WsxAcceptorLoggingIT {
             "wsn#.*EXCEPTION.*IOException",
             "wsn#.*CLOSED"
         }));
-        List<String> forbiddenPatterns = null;
-
-        MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);
+        forbiddenPatterns = null;
     }
 }
+

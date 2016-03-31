@@ -59,14 +59,13 @@ accepted
 connected
 
 read "GET /echo HTTP/1.1\r\n"
-read "Via: 1.1 kaazing\r\n"
+read /Via: 1.1 kaazing-.+/ "\r\n"
 read "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
 read "Upgrade: websocket\r\n"
 read "Sec-WebSocket-Version: 13\r\n"
 read "Sec-WebSocket-Key: nDaimG37f4nUqogPypithw==\r\n"
 read "Origin: http://localhost:8110\r\n"
 read "Host: localhost:8080\r\n"
-read "Forwarded: for=127.0.0.1\r\n"
 read "Connection: Upgrade\r\n"
 read "\r\n"
 

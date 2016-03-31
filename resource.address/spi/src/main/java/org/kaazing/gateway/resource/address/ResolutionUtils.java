@@ -15,19 +15,25 @@
  */
 package org.kaazing.gateway.resource.address;
 
+import static java.lang.Integer.parseInt;
 import static java.util.Arrays.asList;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,6 +80,42 @@ public final class ResolutionUtils {
    }
 
    /**
+    * Method creating an InetAddress from String.
+    * @param bindAddress syntax host:port
+    *     host optional, can be specified as IPv4, IPv6, NetworkInterface
+    *     port mandatory
+    * @return
+    */
+    public static InetSocketAddress parseBindAddress(String bindAddress) {
+        Exception cause = null;
+        try {
+            if (!bindAddress.contains(":")) {
+                // port only
+                return new InetSocketAddress(Integer.parseInt(bindAddress));
+            }
+            // Test for network interface syntax
+            Pattern pattern = Pattern.compile(URIUtils.NETWORK_INTERFACE_AUTHORITY_PORT);
+            Matcher matcher = pattern.matcher(bindAddress);
+            if (matcher.find()) {
+                return new InetSocketAddress(matcher.group(1), parseInt(matcher.group(2)));
+            }
+
+            // host:port (let URI handle it including ipv6)
+            String tmpAddress = "scheme://" + bindAddress;
+            URI uri = URI.create(tmpAddress);
+            if (uri.getPort() != -1) {
+                return new InetSocketAddress(uri.getHost(), uri.getPort());
+            }
+        } catch (Exception e) {
+            // Exception handled outside catch
+            cause = e;
+        }
+        throw new IllegalArgumentException(String.format("Bind address \"%s\" should be in "
+                + "\"host/ipv4:port\", \"[ipv6]:port\", \"@network_interface:port\", \"[@network interface]:port\" or \"port\" "
+                + "format.", bindAddress), cause);
+    }
+   
+   /**
     * Method performing device address resolution
     * @param deviceName
     * @param networkInterfaces
@@ -116,6 +158,7 @@ public final class ResolutionUtils {
 
         return resolvedAddresses;
     }
+   
 
    /**
     * Method cloning list of strings (used for network interfaces)
