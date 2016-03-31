@@ -32,8 +32,10 @@ import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilte
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -427,35 +429,21 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                     ResourceAddress remoteAddress = httpSession.getRemoteAddress();
                     Collection<Class<? extends ChallengeHandler>> challengeHandlers =
                             remoteAddress.getOption(CHALLENGE_HANDLER_CLASSES);
-
-                    // TODO, this will fail in edge case where it does not reuse the same tcp connection i.e connection: close
-
+                    // TODO, this will need to be thread aligned in edge case where it does not reuse the same tcp connection i.e connection: close
                     if (challengeHandlers != null) {
                         String location = remoteAddress.getExternalURI();
                         String wwwAuthHeader = ((HttpResponseMessage) httpMessage).getHeader("WWW-Authenticate");
                         ChallengeRequest challengeRequest = new ChallengeRequest(location, wwwAuthHeader);
 
+                        ChallengeHandler nextChallengeHandler = httpSession.getNextChallengeHandler();
+                        if (nextChallengeHandler != null && nextChallengeHandler.canHandle(challengeRequest)) {
+                            retryConnectWithAuth(httpSession, remoteAddress, challengeRequest, nextChallengeHandler);
+                        }
+
                         for (Class<? extends ChallengeHandler> handlerClass : challengeHandlers) {
                             ChallengeHandler handler = handlerClass.newInstance();
                             if (handler.canHandle(challengeRequest)) {
-                                ChallengeResponse response = handler.handle(challengeRequest);
-                                if (response != null) {
-                                    schedulerProvider.submit(new Runnable() {
-
-                                        @Override
-                                        public void run() {
-                                            httpSession.addWriteHeader(HttpHeaders.HEADER_AUTHORIZATION,
-                                                    new String(response.getCredentials()));
-                                            final HttpSessionFactory httpSessionFactory =
-                                                    getReconnectSessionFactory(httpSession);
-                                            connectInternal0(new DefaultConnectFuture(), remoteAddress, httpSession.getHandler(),
-                                                    httpSessionFactory);
-                                        }
-
-                                    });
-
-                                    return;
-                                }
+                                retryConnectWithAuth(httpSession, remoteAddress, challengeRequest, handler);
                             }
                         }
                     }
@@ -511,6 +499,27 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                 break;
             default:
                 throw new IllegalArgumentException("Unexpected HTTP message: " + httpMessage.getKind());
+            }
+        }
+
+        private void retryConnectWithAuth(DefaultHttpSession httpSession, ResourceAddress remoteAddress,
+            ChallengeRequest challengeRequest, ChallengeHandler handler) {
+            ChallengeResponse response = handler.handle(challengeRequest);
+            ChallengeHandler nextChallengeHandler = response.getNextChallengeHandler();
+            httpSession.nextChallengeHandlers(nextChallengeHandler);
+            if (response != null) {
+                schedulerProvider.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        httpSession.addWriteHeader(HttpHeaders.HEADER_AUTHORIZATION,
+                                new String(response.getCredentials()));
+                        final HttpSessionFactory httpSessionFactory =
+                                getReconnectSessionFactory(httpSession);
+                        connectInternal0(new DefaultConnectFuture(), remoteAddress, httpSession.getHandler(),
+                                httpSessionFactory);
+                    }
+                });
+                return;
             }
         }
 

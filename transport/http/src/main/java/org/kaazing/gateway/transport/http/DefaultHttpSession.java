@@ -63,6 +63,7 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.service.IoServiceEx;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.netx.http.auth.ChallengeHandler;
 
 // TODO: change to just support cookie list and internal differential for write
 public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession, HttpBuffer> implements HttpAcceptSession, HttpConnectSession {
@@ -118,6 +119,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     private boolean httpxeSpecCompliant;
 
 	private int redirectsAllowed;
+    private ChallengeHandler nextChallengeHandler;
 
     @SuppressWarnings("deprecation")
     private DefaultHttpSession(IoServiceEx service,
@@ -636,5 +638,13 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     // }
     // return result;
     // }
+
+    public void nextChallengeHandlers(ChallengeHandler nextChallengeHandler) {
+        this.nextChallengeHandler = nextChallengeHandler;
+    }
+
+    public ChallengeHandler getNextChallengeHandler() {
+        return this.nextChallengeHandler;
+    }
 
 }
