@@ -24,7 +24,7 @@
 
     <div class="panel panel-default text-center" id="congratulations">
       <div class="panel-body">
-        <h4><strong>Congratulations! You've successfully installed and started Kaazing WebSocket Gateway ${gateway.version}</strong></h4>
+        <h4><strong>Congratulations! You've successfully installed the Enterprise Edition of Kaazing WebSocket Gateway 5.0 </strong></h4>
       </div>
     </div>
 
@@ -93,29 +93,14 @@
 
     </div>
 
-<!--     <footer>
-      <p style="opacity: 0.5;"><a href="//kaazing.com/?v=${gateway.version}">Kaazing.com</a></p>
-    </footer>
- -->
   </div>
 
-
- <!--  <div class="panel-body" style="line-height: 200%">
-    <a href="http://http://developer.kaazing.com/downloads/">Download Kaazing Products</a><br/>
-    <a href="https://github.com/kaazing/tutorials" target="_blank">Kaazing Examples and Tutorials</a><br/>
-    Kaazing Starter Apps: <a href="https://github.com/kaazing/javascript.getting.started" target="_blank">JavaScript Starter Apps</a>,
-    <a href="https://github.com/kaazing/java.getting.started">Kaazing Java Starter Apps</a><br/>
-    <b><a href="//kaazing.com/contact" target="_blank">Contact us </a> if you are interested in building real-time applications!</b>
-  </div> -->
-
-  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
   <script src="jquery/jquery-2.2.2.min.js"></script>
-  <!-- Include all compiled plugins (below), or include individual files as needed -->
   <script src="bootstrap/js/bootstrap.min.js"></script>
 
   <script>
 
-    $( document ).ready(function() {
+    $(document).ready(function() {
       var echoLocation = "ws://"+location.hostname+(location.port ? ":"+location.port: "")+"/echo";
       $("#echo-location").text(echoLocation);
     });

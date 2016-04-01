@@ -23,11 +23,6 @@ a:hover {
 
 .panel {
   width: 100%;
-  /*border-color: #fd8032;*/
-}
-
-.panel-default > .panel-heading {
-  /*border-color: #fd8032;*/
 }
 
 .equal, .equal > div[class*='col-'] {
