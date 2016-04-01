@@ -41,7 +41,7 @@ public class BasicLoginModuleWithDefaultUserConfig implements LoginModule {
     private Map<String, ?> sharedState;
 
     // the authentication status
-    protected boolean succeeded;
+    private boolean succeeded;
     private boolean commitSucceeded;
 
     // testUser's RolePrincipal
@@ -116,9 +116,7 @@ public class BasicLoginModuleWithDefaultUserConfig implements LoginModule {
         succeeded = false;
         commitSucceeded = false;
         userPrincipal = null;
-
         subject.getPrincipals().remove(defaultPrincipal);
-
         return true;
     }
 

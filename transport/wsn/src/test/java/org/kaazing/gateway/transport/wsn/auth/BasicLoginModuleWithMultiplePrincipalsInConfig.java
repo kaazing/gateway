@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.wseb.logging.loginmodule;
+package org.kaazing.gateway.transport.wsn.auth;
 
 import com.sun.security.auth.UnixPrincipal;
 import javax.security.auth.login.LoginException;
 
-public class BasicLoginModuleWithMultiplePrincipalsInConfig extends BasicLoginModuleWithDefaultUserConfig{
+public class BasicLoginModuleWithMultiplePrincipalsInConfig extends AsyncBasicLoginModuleWithDefaultUserConfig {
 
     private UnixPrincipal unixPrincipal = new UnixPrincipal("unixPrincipalName");
 
@@ -28,7 +28,8 @@ public class BasicLoginModuleWithMultiplePrincipalsInConfig extends BasicLoginMo
             subject.getPrincipals().add(unixPrincipal);
             return true;
         }
-        return false;
+        else
+            return false;
     }
 
     @Override
