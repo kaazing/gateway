@@ -631,6 +631,9 @@
                              name="accept-options"
                              type="gateway:ServiceAcceptOptionsType"/>
 
+                    <element maxOccurs="1" minOccurs="0"  name="connect-options"
+                             type="gateway:ServiceConnectOptionsType" />
+
                     <element maxOccurs="1" minOccurs="0"
                              name="realm-name"
                              type="gateway:CollapsedString"/>
