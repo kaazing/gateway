@@ -16,9 +16,9 @@
     limitations under the License.
 
 -->
-<schema xmlns:gateway="http://xmlns.kaazing.org/2016/03/gateway"
+<schema xmlns:gateway="http://xmlns.kaazing.org/2015/11/gateway"
         elementFormDefault="qualified"
-        targetNamespace="http://xmlns.kaazing.org/2016/03/gateway"
+        targetNamespace="http://xmlns.kaazing.org/2015/11/gateway"
         xmlns="http://www.w3.org/2001/XMLSchema">
     <annotation>
         <documentation>Configuration for the Kaazing gateway.</documentation>

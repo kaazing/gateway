@@ -18,8 +18,8 @@ package org.kaazing.gateway.server.config.parse.translate;
 import org.kaazing.gateway.server.config.parse.translate.sep2014.AcceptUriComparedToBalanceUriVisitor;
 import org.kaazing.gateway.server.config.parse.translate.sep2014.FindMatchingBalancerServiceVisitor;
 
-public class March2016Validator extends GatewayConfigTranslatorPipeline {
-    public March2016Validator() {
+public class November2015Validator extends GatewayConfigTranslatorPipeline {
+    public November2015Validator() {
         super();
 
         // compare accept URIs to balance URIs within a service, ensure they differ by hostname only

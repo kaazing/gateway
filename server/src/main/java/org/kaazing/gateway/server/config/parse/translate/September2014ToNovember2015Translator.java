@@ -18,16 +18,16 @@ package org.kaazing.gateway.server.config.parse.translate;
 
 import org.kaazing.gateway.server.config.parse.GatewayConfigNamespace;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
-import org.kaazing.gateway.server.config.parse.translate.mar2016.AddDirectoryServiceLocationVisitor;
+import org.kaazing.gateway.server.config.parse.translate.nov2015.AddDirectoryServiceLocationVisitor;
 
 /**
  * Class which translates/transforms a September2012 config file DOM into a November2015 config file DOM.
  * This is used by the {@link GatewayConfigParser}
  */
 
-public class September2014ToMarch2016Translator extends GatewayConfigTranslatorPipeline {
+public class September2014ToNovember2015Translator extends GatewayConfigTranslatorPipeline {
 
-    public September2014ToMarch2016Translator() {
+    public September2014ToNovember2015Translator() {
         super();
 
         // Each directory service needs to contain a <location> element underneath the <properties> element

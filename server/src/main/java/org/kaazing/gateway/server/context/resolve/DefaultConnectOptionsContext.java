@@ -34,7 +34,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.kaazing.gateway.resource.address.uri.URIUtils;
-import org.kaazing.gateway.server.config.mar2016.ServiceConnectOptionsType;
+import org.kaazing.gateway.server.config.nov2015.ServiceConnectOptionsType;
 import org.kaazing.gateway.service.ConnectOptionsContext;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.ssl.SslCipherSuites;

@@ -16,7 +16,7 @@
     limitations under the License.
 
 -->
-<gateway-config xmlns="http://xmlns.kaazing.org/2016/03/gateway">
+<gateway-config xmlns="http://xmlns.kaazing.org/2015/11/gateway">
 
   <!-- 
   #############################################################################

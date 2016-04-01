@@ -36,7 +36,7 @@ public enum GatewayConfigNamespace {
     private static final String NS_AUGUST_2012_URI = "http://xmlns.kaazing.com/2012/08/gateway";
     private static final String NS_SEPTEMBER_2012_URI = "http://xmlns.kaazing.com/2012/09/gateway";
     private static final String NS_SEPTEMBER_2014_URI = "http://xmlns.kaazing.org/2014/09/gateway";
-    private static final String NS_MARCH_2016_URI = "http://xmlns.kaazing.org/2016/03/gateway";
+    private static final String NS_NOVEMBER_2015_URI = "http://xmlns.kaazing.org/2015/11/gateway";
 
     private GatewayConfigNamespace() {
     }
@@ -70,7 +70,7 @@ public enum GatewayConfigNamespace {
             return SEPTEMBER_2014;
         }
 
-        if (nsURI.equalsIgnoreCase(NS_MARCH_2016_URI)) {
+        if (nsURI.equalsIgnoreCase(NS_NOVEMBER_2015_URI)) {
             return CURRENT_NS;
         }
 
@@ -106,7 +106,7 @@ public enum GatewayConfigNamespace {
                 break;
 
             case CURRENT_NS:
-                uri = NS_MARCH_2016_URI;
+                uri = NS_NOVEMBER_2015_URI;
                 break;
         }
 

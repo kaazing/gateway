@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.kaazing.gateway.server.config.parse.translate.mar2016;
+package org.kaazing.gateway.server.config.parse.translate.nov2015;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ import org.jdom.Namespace;
 import org.kaazing.gateway.server.config.parse.translate.AbstractVisitor;
 
 /**
- * Visitor to add "Cache-control: max-age=0" to all directory services for the 2016/03 gateway config XSD.
+ * Visitor to add "Cache-control: max-age=0" to all directory services for the 2015/11 gateway config XSD.
  *
  * Each directory service needs to contain a <location> element underneath the <properties> element:
  *     <properties>
