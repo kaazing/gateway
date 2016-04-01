@@ -44,14 +44,18 @@ public class CommunityGatewayConfigTranslatorFactorySpi implements GatewayConfig
      */
     public GatewayConfigTranslator getTranslator(GatewayConfigNamespace ns) {
         // First, we create our pipeline composite
-        GatewayConfigTranslatorPipeline result = new GatewayConfigTranslatorPipeline();
+        GatewayConfigTranslatorPipeline result = null;
 
         if (ns.equals(GatewayConfigNamespace.SEPTEMBER_2014)) {
+            result = new GatewayConfigTranslatorPipeline();
             GatewayConfigTranslator september2014Translator = new September2014ToNovember2015Translator();
             result.addTranslator(september2014Translator);
+            GatewayConfigTranslator november2015Validator = new November2015Validator();
+            result.addTranslator(november2015Validator);
         }
 
         if (ns.equals(GatewayConfigNamespace.CURRENT_NS)) {
+            result = new GatewayConfigTranslatorPipeline();
             GatewayConfigTranslator november2015Validator = new November2015Validator();
             result.addTranslator(november2015Validator);
         }
