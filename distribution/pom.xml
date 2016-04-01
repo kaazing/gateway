@@ -266,28 +266,6 @@
             </plugin>
 
             <plugin>
-                <groupId>org.kaazing</groupId>
-                <artifactId>unpack-bower-dependency-maven-plugin</artifactId>
-                <version>1.0.2</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <bowerDependencies>
-                        <bowerDependency>
-                            <name>command-center</name>
-                            <location>https://github.com/kaazing/bower-kaazing-command-center</location>
-                            <version>[5.0.0,5.1.0]</version>
-                        </bowerDependency>
-                    </bowerDependencies>
-                </configuration>
-            </plugin>
-
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
@@ -336,5 +314,6 @@
         <gateway.feature.version>${project.version}</gateway.feature.version>
         <gateway.edition.directory>kaazing-gateway-community-${project.version}</gateway.edition.directory>
         <minimum.java.version>Java 7 (version 1.7.0_21)</minimum.java.version>
+        <gateway.version>${project.version}</gateway.version>
     </properties>
 </project>

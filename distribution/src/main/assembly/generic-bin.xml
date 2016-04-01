@@ -185,12 +185,6 @@
       </includes>
     </fileSet>
 
-    <!-- Overlay Command Center files from our bower download -->
-    <fileSet>
-      <outputDirectory>web/commandcenter</outputDirectory>
-      <directory>target/bower-dependency/command-center/commandcenter</directory>
-    </fileSet>
-
   </fileSets>
 
 </component>
