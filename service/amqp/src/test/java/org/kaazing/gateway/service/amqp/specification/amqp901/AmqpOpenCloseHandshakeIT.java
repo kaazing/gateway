@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.amqp.amqp091;
+package org.kaazing.gateway.service.amqp.specification.amqp901;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
