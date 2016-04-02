@@ -70,7 +70,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>specification.amqp.0.9.1</artifactId>
-            <version>${project.version}</version>
+            <version>${k3po.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -93,7 +93,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>specification.ws</artifactId>
-            <version>${project.version}</version>
+            <version>${k3po.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -106,7 +106,6 @@
             <plugin>
                 <groupId>org.kaazing</groupId>
                 <artifactId>k3po-maven-plugin</artifactId>
-                <version>${project.version}</version>
                 <configuration>
                     <skipTests>${skipITs}</skipTests>
                 </configuration>
