@@ -31,9 +31,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.kaazing.gateway.server.config.sep2014.ClusterType;
-import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
-import org.kaazing.gateway.server.config.sep2014.ServiceType;
+import org.kaazing.gateway.server.config.nov2015.ClusterType;
+import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.nov2015.ServiceType;
 import org.kaazing.gateway.util.http.DefaultUtilityHttpClient;
 
 /**
