@@ -37,13 +37,10 @@
         <include>org.kaazing:gateway.resource.address.tcp</include>
         <include>org.kaazing:gateway.resource.address.wsn</include>
         <include>org.kaazing:gateway.resource.address.httpxe</include>
-        <include>org.kaazing:gateway.resource.address.wsdraft</include>
-        <include>org.kaazing:gateway.resource.address.wsxdraft</include>
         <include>org.kaazing:gateway.resource.address.pipe</include>
         <include>org.kaazing:gateway.resource.address.sse</include>
         <include>org.kaazing:gateway.resource.address.wsx</include>
         <include>org.kaazing:gateway.resource.address.httpx</include>
-        <include>org.kaazing:gateway.resource.address.httpxdraft</include>
         <include>org.kaazing:gateway.resource.address.rtmp</include>
         <include>org.kaazing:gateway.resource.address.udp</include>
         <include>org.kaazing:gateway.resource.address.wse</include>
@@ -102,6 +99,7 @@
         <include>com.hazelcast:hazelcast-cloud</include>
         <include>commons-cli:commons-cli</include>
         <include>org.json:json</include>
+        <include>org.apache.maven.shared:maven-shared-utils</include>
       </includes>
     </dependencySet>
 

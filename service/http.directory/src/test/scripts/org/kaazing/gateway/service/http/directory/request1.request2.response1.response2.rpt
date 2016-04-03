@@ -58,7 +58,6 @@ read "HTTP/1.1 200 OK\r\n"
 read "Content-Length: 2777\r\n"
 read /Date: .*\r\n/
 read /ETag: .*\r\n/
-read /Expires: .*\r\n/
 read /Last-Modified: .*\r\n/
 read "Server: Kaazing Gateway\r\n"
 read "\r\n"

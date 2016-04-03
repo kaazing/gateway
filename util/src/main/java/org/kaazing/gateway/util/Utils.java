@@ -55,6 +55,9 @@ public final class Utils {
     private Utils() {
     }
 
+    private static final int NO_OF_DAYS_IN_A_YEAR = 365;
+    private static final int NO_OF_DAYS_IN_A_WEEK = 7;
+
     public static final Charset UTF_8 = Charset.forName("UTF-8");
 
     public static final Charset US_ASCII = Charset.forName("US-ASCII");
@@ -68,7 +71,8 @@ public final class Utils {
     private static final int INTEGER_MIN_VALUE_BYTES_LENGTH = INTEGER_MIN_VALUE_BYTES.length;
 
     private static final String TIME_UNIT_REGEX_STRING =
-            "(?i:(ms|milli|millis|millisecond|milliseconds|s|sec|secs|second|seconds|m|min|mins|minute|minutes|h|hour|hours)?)";
+            "(?i:(ms|milli|millis|millisecond|milliseconds|s|sec|secs|second|seconds|m|min|mins|minute|minutes|"
+                    + "h|hour|hours|d|day|days|w|week|weeks|y|year|years)?)";
 
     private static final String TIME_INTERVAL_REGEX_STRING = "([0-9\\.]+)\\s*" + TIME_UNIT_REGEX_STRING;
 
@@ -85,6 +89,15 @@ public final class Utils {
 
     public static final Set<String> HOURS_UNITS =
             new HashSet<>(Arrays.asList("h", "hour", "hours"));
+
+    static final Set<String> DAYS_UNITS =
+            new HashSet<String>(Arrays.asList("d", "day", "days"));
+
+    static final Set<String> WEEKS_UNITS =
+            new HashSet<String>(Arrays.asList("w", "week", "weeks"));
+
+    static final Set<String> YEARS_UNITS =
+            new HashSet<String>(Arrays.asList("y", "year", "years"));
 
     private static final String[] PERMITTED_DATA_RATE_UNITS =
             new String[] {"MiB/s", "KiB/s", "MB/s", "kB/s", "B/s"};
@@ -618,6 +631,12 @@ public final class Utils {
                     result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.MINUTES));
                 } else if (HOURS_UNITS.contains(unit.toLowerCase())) {
                     result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.HOURS));
+                } else if (DAYS_UNITS.contains(unit.toLowerCase())) {
+                    result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.DAYS));
+                } else if (WEEKS_UNITS.contains(unit.toLowerCase())) {
+                    result = (long) (providedMultiplier * outputUnit.convert(NO_OF_DAYS_IN_A_WEEK * result, TimeUnit.DAYS));
+                } else if (YEARS_UNITS.contains(unit.toLowerCase())) {
+                    result = (long) (providedMultiplier * outputUnit.convert(NO_OF_DAYS_IN_A_YEAR * result, TimeUnit.DAYS));
                 }
                 if (result < 0) {
                     throw new NumberFormatException("Expected a non-negative time interval, received \""

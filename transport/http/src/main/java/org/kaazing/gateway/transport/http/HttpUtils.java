@@ -291,11 +291,6 @@ public class HttpUtils {
 		session.setWriteHeader("Last-Modified", RFC822_FORMAT_PATTERN.format(lastModified));
 	}
 
-	public static void addExpiresHeader(HttpSession session) {
-		long currentTimeMillis = System.currentTimeMillis();
-		session.setWriteHeader("Expires", RFC822_FORMAT_PATTERN.format(currentTimeMillis));
-	}
-
 	public static String getETagHeaderValue(File requestFile) {
 		long lastModified = requestFile.lastModified();
 		String absolutePath = requestFile.getAbsolutePath();

@@ -37,6 +37,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -63,22 +64,22 @@ import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.config.SchemeConfig;
 import org.kaazing.gateway.server.config.parse.DefaultSchemeConfig;
-import org.kaazing.gateway.server.config.sep2014.AuthenticationType;
-import org.kaazing.gateway.server.config.sep2014.AuthorizationConstraintType;
-import org.kaazing.gateway.server.config.sep2014.ClusterConnectOptionsType;
-import org.kaazing.gateway.server.config.sep2014.ClusterType;
-import org.kaazing.gateway.server.config.sep2014.CrossSiteConstraintType;
-import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
-import org.kaazing.gateway.server.config.sep2014.LoginModuleOptionsType;
-import org.kaazing.gateway.server.config.sep2014.LoginModuleType;
-import org.kaazing.gateway.server.config.sep2014.MimeMappingType;
-import org.kaazing.gateway.server.config.sep2014.RealmType;
-import org.kaazing.gateway.server.config.sep2014.SecurityType;
-import org.kaazing.gateway.server.config.sep2014.ServiceAcceptOptionsType;
-import org.kaazing.gateway.server.config.sep2014.ServiceConnectOptionsType;
-import org.kaazing.gateway.server.config.sep2014.ServiceDefaultsType;
-import org.kaazing.gateway.server.config.sep2014.ServicePropertiesType;
-import org.kaazing.gateway.server.config.sep2014.ServiceType;
+import org.kaazing.gateway.server.config.nov2015.AuthenticationType;
+import org.kaazing.gateway.server.config.nov2015.AuthorizationConstraintType;
+import org.kaazing.gateway.server.config.nov2015.ClusterConnectOptionsType;
+import org.kaazing.gateway.server.config.nov2015.ClusterType;
+import org.kaazing.gateway.server.config.nov2015.CrossSiteConstraintType;
+import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.nov2015.LoginModuleOptionsType;
+import org.kaazing.gateway.server.config.nov2015.LoginModuleType;
+import org.kaazing.gateway.server.config.nov2015.MimeMappingType;
+import org.kaazing.gateway.server.config.nov2015.RealmType;
+import org.kaazing.gateway.server.config.nov2015.SecurityType;
+import org.kaazing.gateway.server.config.nov2015.ServiceAcceptOptionsType;
+import org.kaazing.gateway.server.config.nov2015.ServiceConnectOptionsType;
+import org.kaazing.gateway.server.config.nov2015.ServiceDefaultsType;
+import org.kaazing.gateway.server.config.nov2015.ServicePropertiesType;
+import org.kaazing.gateway.server.config.nov2015.ServiceType;
 import org.kaazing.gateway.server.context.DependencyContext;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.service.ServiceRegistry;
@@ -167,6 +168,8 @@ public class GatewayContextResolver {
     private final Map<String, DefaultTransportContext> transportContextsByName;
 
     private ContextResolver<SecurityType, DefaultSecurityContext> securityResolver;
+
+    private Map<String, Object> injectables = new HashMap<>();
 
     public GatewayContextResolver(File configDir, File webDir, File tempDir) {
         this(configDir, webDir, tempDir, null);
@@ -259,8 +262,6 @@ public class GatewayContextResolver {
                 clusterContext,
                 schedulerProvider);
 
-        // create map of injectable resources
-        Map<String, Object> injectables = new HashMap<>();
         injectables.putAll(dependencyContexts);
         injectables.put("serviceRegistry", servicesByURI);
         injectables.put("realmsContext", realmsContext);
@@ -1316,6 +1317,14 @@ public class GatewayContextResolver {
             }
         }
         return canonicalURI;
+    }
+
+    public void addInjectable(String key, Object value) {
+        this.injectables.put(key, value);
+    }
+
+    public Map<String, Object> getInjectables() {
+        return injectables;
     }
 
 }

@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.kaazing.gateway.server.GatewayObserver;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.test.Gateway;
@@ -44,7 +45,7 @@ public class WsebRoundTripLatencyIT {
 
     private K3poRule k3po = new K3poRule();
     private GatewayContext context;
-    private final Launcher launcher = new Launcher();
+    private final Launcher launcher = new Launcher(GatewayObserver.newInstance());
 
     @Before
     public void StartGateway() throws Throwable {

@@ -31,30 +31,31 @@ import java.util.Set;
 
 import javax.management.MBeanServer;
 
+import org.kaazing.gateway.server.GatewayObserver;
 import org.kaazing.gateway.server.Launcher;
-import org.kaazing.gateway.server.config.sep2014.AuthenticationType;
-import org.kaazing.gateway.server.config.sep2014.AuthenticationType.AuthorizationMode;
-import org.kaazing.gateway.server.config.sep2014.AuthenticationType.HttpChallengeScheme;
-import org.kaazing.gateway.server.config.sep2014.AuthorizationConstraintType;
-import org.kaazing.gateway.server.config.sep2014.ClusterConnectOptionsType;
-import org.kaazing.gateway.server.config.sep2014.ClusterType;
-import org.kaazing.gateway.server.config.sep2014.CrossSiteConstraintType;
-import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
-import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument.GatewayConfig;
-import org.kaazing.gateway.server.config.sep2014.LoginModuleOptionsType;
-import org.kaazing.gateway.server.config.sep2014.LoginModuleType;
-import org.kaazing.gateway.server.config.sep2014.LoginModulesType;
-import org.kaazing.gateway.server.config.sep2014.MimeMappingType;
-import org.kaazing.gateway.server.config.sep2014.RealmType;
-import org.kaazing.gateway.server.config.sep2014.SecurityStoreType;
-import org.kaazing.gateway.server.config.sep2014.SecurityStoreType.Type;
-import org.kaazing.gateway.server.config.sep2014.SecurityType;
-import org.kaazing.gateway.server.config.sep2014.ServiceAcceptOptionsType;
-import org.kaazing.gateway.server.config.sep2014.ServiceConnectOptionsType;
-import org.kaazing.gateway.server.config.sep2014.ServiceDefaultsType;
-import org.kaazing.gateway.server.config.sep2014.ServicePropertiesType;
-import org.kaazing.gateway.server.config.sep2014.ServiceType;
-import org.kaazing.gateway.server.config.sep2014.SuccessType;
+import org.kaazing.gateway.server.config.nov2015.AuthenticationType;
+import org.kaazing.gateway.server.config.nov2015.AuthenticationType.AuthorizationMode;
+import org.kaazing.gateway.server.config.nov2015.AuthenticationType.HttpChallengeScheme;
+import org.kaazing.gateway.server.config.nov2015.AuthorizationConstraintType;
+import org.kaazing.gateway.server.config.nov2015.ClusterConnectOptionsType;
+import org.kaazing.gateway.server.config.nov2015.ClusterType;
+import org.kaazing.gateway.server.config.nov2015.CrossSiteConstraintType;
+import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument.GatewayConfig;
+import org.kaazing.gateway.server.config.nov2015.LoginModuleOptionsType;
+import org.kaazing.gateway.server.config.nov2015.LoginModuleType;
+import org.kaazing.gateway.server.config.nov2015.LoginModulesType;
+import org.kaazing.gateway.server.config.nov2015.MimeMappingType;
+import org.kaazing.gateway.server.config.nov2015.RealmType;
+import org.kaazing.gateway.server.config.nov2015.SecurityStoreType;
+import org.kaazing.gateway.server.config.nov2015.SecurityStoreType.Type;
+import org.kaazing.gateway.server.config.nov2015.SecurityType;
+import org.kaazing.gateway.server.config.nov2015.ServiceAcceptOptionsType;
+import org.kaazing.gateway.server.config.nov2015.ServiceConnectOptionsType;
+import org.kaazing.gateway.server.config.nov2015.ServiceDefaultsType;
+import org.kaazing.gateway.server.config.nov2015.ServicePropertiesType;
+import org.kaazing.gateway.server.config.nov2015.ServiceType;
+import org.kaazing.gateway.server.config.nov2015.SuccessType;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.context.resolve.ContextResolver;
 import org.kaazing.gateway.server.context.resolve.DefaultSecurityContext;
@@ -80,7 +81,8 @@ public class Gateway {
         STARTING, STARTED, STOPPING, STOPPED
     }
 
-    private final Launcher launcher = new Launcher();
+    private final GatewayObserver gatewayObserver = GatewayObserver.newInstance();
+    private final Launcher launcher = new Launcher(gatewayObserver);
     private volatile State state = State.STOPPED;
 
     public void start(GatewayConfiguration configuration) throws Exception {
@@ -120,7 +122,10 @@ public class Gateway {
 
         GatewayContextResolver resolver = new GatewayContextResolver(securityResolver, webRootDir, tempDir,
                 jmxMBeanServer);
-        GatewayContext context = resolver.resolve(gatewayConfigDocument, asProperties(configuration.getProperties()));
+        Properties properties = new Properties();
+        properties.putAll(configuration.getProperties());
+        gatewayObserver.initingGateway(properties, resolver.getInjectables());
+        GatewayContext context = resolver.resolve(gatewayConfigDocument, properties);
         return context;
     }
 

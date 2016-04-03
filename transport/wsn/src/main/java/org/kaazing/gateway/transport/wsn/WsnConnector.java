@@ -147,21 +147,20 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
     public void addBridgeFilters(IoFilterChain filterChain) {
         IoSession session = filterChain.getSession();
         Encoding encoding = (Encoding) session.getAttribute(ENCODING_KEY);
-
-        switch (encoding) {
-        case BASE64:
-            // add framing before encoding
-            filterChain.addLast(CODEC_FILTER, codec);
-            filterChain.addLast(BASE64_FILTER, base64);
-            break;
-        case TEXT:
-            // add framing before encoding
-            filterChain.addLast(CODEC_FILTER, codec);
-            filterChain.addLast(TEXT_FILTER, text);
-            break;
-        default:
-            filterChain.addLast(CODEC_FILTER, codec);
-            break;
+        filterChain.addLast(CODEC_FILTER, codec);
+        if (encoding != null) {
+            switch (encoding) {
+                case BASE64:
+                    // add framing before encoding
+                    filterChain.addLast(BASE64_FILTER, base64);
+                    break;
+                case TEXT:
+                    // add framing before encoding
+                    filterChain.addLast(TEXT_FILTER, text);
+                    break;
+                default:
+                    break;
+            }
         }
 
         // We speak a new enough version of the WebSocket protocol that
@@ -528,6 +527,17 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
         }
 
         private void doUpgrade(final HttpConnectSession httpSession) {
+            String upgradeHeader = httpSession.getReadHeader("Upgrade");
+            if (upgradeHeader == null) {
+                logger.info("WebSocket connection failed: No Upgrade: websocket response header");
+                wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: No Upgrade header"));
+                return;
+            } else if (!upgradeHeader.equalsIgnoreCase("websocket")) {
+                logger.info(format("WebSocket connection failed: Invalid Upgrade: %s response header", upgradeHeader));
+                wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: Invalid Upgrade header"));
+                return;
+            }
+
             String wsAcceptHeader = httpSession.getReadHeader("Sec-WebSocket-Accept");
             if (wsAcceptHeader == null) {
                 logger.info("WebSocket connection failed: missing Sec-WebSocket-Accept response header, does not comply with RFC 6455 - use connect options or another protocol");
@@ -581,8 +591,6 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                         parent.setAttribute(ENCODING_KEY, Encoding.BINARY);
                     } else if ("base64".equals(frameType)) {
                         parent.setAttribute(ENCODING_KEY, Encoding.BASE64);
-                    } else {
-                        parent.setAttribute(ENCODING_KEY, Encoding.TEXT);
                     }
 
                     WSN_SESSION_FACTORY_KEY.set(parent, createSession);
