@@ -25,9 +25,11 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -147,21 +149,20 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
     public void addBridgeFilters(IoFilterChain filterChain) {
         IoSession session = filterChain.getSession();
         Encoding encoding = (Encoding) session.getAttribute(ENCODING_KEY);
-
-        switch (encoding) {
-        case BASE64:
-            // add framing before encoding
-            filterChain.addLast(CODEC_FILTER, codec);
-            filterChain.addLast(BASE64_FILTER, base64);
-            break;
-        case TEXT:
-            // add framing before encoding
-            filterChain.addLast(CODEC_FILTER, codec);
-            filterChain.addLast(TEXT_FILTER, text);
-            break;
-        default:
-            filterChain.addLast(CODEC_FILTER, codec);
-            break;
+        filterChain.addLast(CODEC_FILTER, codec);
+        if (encoding != null) {
+            switch (encoding) {
+                case BASE64:
+                    // add framing before encoding
+                    filterChain.addLast(BASE64_FILTER, base64);
+                    break;
+                case TEXT:
+                    // add framing before encoding
+                    filterChain.addLast(TEXT_FILTER, text);
+                    break;
+                default:
+                    break;
+            }
         }
 
         // We speak a new enough version of the WebSocket protocol that
@@ -352,7 +353,8 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 }
 
                 if (!protocols.isEmpty()) {
-                    httpSession.setWriteHeader("Sec-WebSocket-Protocol", Utils.asCommaSeparatedString(protocols));
+                    protocols.removeIf(Objects::isNull);
+                    httpSession.setWriteHeaders("Sec-WebSocket-Protocol", protocols);
                 }
                 WSN_SESSION_INITIALIZER_KEY.set(httpSession, wsnSessionInitializer);
                 WSN_CONNECT_FUTURE_KEY.set(httpSession, wsnConnectFuture);
@@ -554,6 +556,24 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 return;
             }
 
+            List<String> sentProtocols = httpSession.getWriteHeaders("Sec-WebSocket-Protocol");
+            List<String> selectedProtocols = httpSession.getReadHeaders("Sec-WebSocket-Protocol");
+            if (sentProtocols == null && selectedProtocols != null) {
+                logger.warn(String.format("WebSocket upgrade failed: Invalid Sec-WebSocket-Protocol header, unknown protocol(s)=%s", selectedProtocols));
+                wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: Invalid Sec-WebSocket-Protocol header"));
+                return;
+            } else if (sentProtocols != null && selectedProtocols == null) {
+                logger.warn(String.format("WebSocket upgrade failed: No Sec-WebSocket-Protocol header, expecting one of protocol(s)=%s", sentProtocols));
+                wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: Invalid Sec-WebSocket-Protocol header"));
+                return;
+            } else if (sentProtocols != null) {
+                if (selectedProtocols.size() != 1 || sentProtocols.stream().noneMatch(s -> s.equals(selectedProtocols.get(0)))) {
+                    logger.warn(String.format("WebSocket upgrade failed: Invalid Sec-WebSocket-Protocol=%s header, expecting one of protocol(s)=%s", selectedProtocols, sentProtocols));
+                    wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: Invalid Sec-WebSocket-Protocol header"));
+                    return;
+                }
+            }
+
             final IoSessionInitializer<? extends IoFuture> wsnSessionInitializer = WSN_SESSION_INITIALIZER_KEY.remove(httpSession);
             final ConnectFuture wsnConnectFuture = WSN_CONNECT_FUTURE_KEY.get(httpSession);
             final ResourceAddress wsnConnectAddress = WSN_CONNECT_ADDRESS_KEY.remove(httpSession);
@@ -592,8 +612,6 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                         parent.setAttribute(ENCODING_KEY, Encoding.BINARY);
                     } else if ("base64".equals(frameType)) {
                         parent.setAttribute(ENCODING_KEY, Encoding.BASE64);
-                    } else {
-                        parent.setAttribute(ENCODING_KEY, Encoding.TEXT);
                     }
 
                     WSN_SESSION_FACTORY_KEY.set(parent, createSession);
