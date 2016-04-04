@@ -27,7 +27,7 @@ public class GatewayConfigTranslatorFactoryTest {
         try {
             GatewayConfigTranslatorPipeline  translator = (GatewayConfigTranslatorPipeline) GatewayConfigTranslatorFactory.newInstance().getTranslator(
                     GatewayConfigNamespace.CURRENT_NS);
-             assertTrue(translator.getTranslators().get(0) instanceof September2014Validator);
+             assertTrue(translator.getTranslators().get(0) instanceof November2015Validator);
         } catch (Exception e) {
 
             e.printStackTrace();

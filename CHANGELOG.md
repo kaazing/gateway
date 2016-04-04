@@ -2,7 +2,30 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.51...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.52...HEAD)
+
+**Fixed bugs:**
+
+- WSN Connector: Writing a BINARY\(0x02\) frame results in a TEXT\(0x01\) frame to be written out [\#316](https://github.com/kaazing/gateway/issues/316)
+- WSN Connector: Missing `Upgrade` header in handshake response must not result in a successful connection [\#313](https://github.com/kaazing/gateway/issues/313)
+
+**Merged pull requests:**
+
+- Fix for issue \#363 Trailing slash mismatch in \<accept\> & \<connect\> exception message [\#490](https://github.com/kaazing/gateway/pull/490) ([msalavastru](https://github.com/msalavastru))
+- Update shipping config and welcome page [\#489](https://github.com/kaazing/gateway/pull/489) ([robinzimmermann](https://github.com/robinzimmermann))
+- Removing draft resource address components from distribution [\#487](https://github.com/kaazing/gateway/pull/487) ([jitsni](https://github.com/jitsni))
+- Added connect options to broadcast service [\#486](https://github.com/kaazing/gateway/pull/486) ([dpwspoon](https://github.com/dpwspoon))
+- Improved regexp to require brackets for network interface containing spaces [\#485](https://github.com/kaazing/gateway/pull/485) ([Anisotrop](https://github.com/Anisotrop))
+- Removed behavior to always send "Cache-control: max-age=0" header  [\#484](https://github.com/kaazing/gateway/pull/484) ([mgherghe](https://github.com/mgherghe))
+- Fix for HttpDirectoryServiceIT failure [\#483](https://github.com/kaazing/gateway/pull/483) ([mgherghe](https://github.com/mgherghe))
+- Failing the connect future when Upgrade: websocket header is not found [\#481](https://github.com/kaazing/gateway/pull/481) ([jitsni](https://github.com/jitsni))
+- WsnConnector doesn't send text frame by default. [\#480](https://github.com/kaazing/gateway/pull/480) ([jitsni](https://github.com/jitsni))
+- Adding a log message when a session is closed due to Connection: close [\#478](https://github.com/kaazing/gateway/pull/478) ([jitsni](https://github.com/jitsni))
+- Transport http methods clean [\#475](https://github.com/kaazing/gateway/pull/475) ([ilyaanisimov-kaazing](https://github.com/ilyaanisimov-kaazing))
+-  Trace messages in ServiceConnectManager [\#471](https://github.com/kaazing/gateway/pull/471) ([jitsni](https://github.com/jitsni))
+
+## [5.0.1.52](https://github.com/kaazing/gateway/tree/5.0.1.52) (2016-03-28)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.51...5.0.1.52)
 
 **Closed issues:**
 
@@ -51,6 +74,7 @@
 - Fixed pipe error message. [\#448](https://github.com/kaazing/gateway/pull/448) ([vmaraloiu](https://github.com/vmaraloiu))
 - fixes issue where k3po regex might match on tcp packet fragmentation [\#446](https://github.com/kaazing/gateway/pull/446) ([dpwspoon](https://github.com/dpwspoon))
 - Connection closed when http.proxy loops encountered [\#443](https://github.com/kaazing/gateway/pull/443) ([irina-mitrea-luxoft](https://github.com/irina-mitrea-luxoft))
+- Support proxying to application servers that generate dynamic resource addresses [\#415](https://github.com/kaazing/gateway/pull/415) ([msalavastru](https://github.com/msalavastru))
 
 ## [5.0.1.48](https://github.com/kaazing/gateway/tree/5.0.1.48) (2016-03-11)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.47...5.0.1.48)
@@ -166,6 +190,7 @@
 - Issue 384: provide INFO level diagnostics for exceptions like ProtocolDecoderException [\#396](https://github.com/kaazing/gateway/pull/396) ([cmebarrow](https://github.com/cmebarrow))
 - Allow 0 or more spaces in parsing of wse accept content-type header [\#393](https://github.com/kaazing/gateway/pull/393) ([dpwspoon](https://github.com/dpwspoon))
 - Fixed bridge build to include javascript and java bridge [\#391](https://github.com/kaazing/gateway/pull/391) ([dpwspoon](https://github.com/dpwspoon))
+- Http.proxy does not append path in connect \#183 [\#382](https://github.com/kaazing/gateway/pull/382) ([msalavastru](https://github.com/msalavastru))
 
 ## [5.0.1.42](https://github.com/kaazing/gateway/tree/5.0.1.42) (2016-01-06)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.41...5.0.1.42)

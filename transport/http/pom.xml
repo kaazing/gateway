@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.0.1.52</version>
+        <version>5.0.1.53</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>gateway.transport.http</artifactId>
@@ -162,6 +162,10 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>specification.httpxe</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>specification.http</artifactId>
         </dependency>
     </dependencies>
 
