@@ -25,9 +25,11 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -352,6 +354,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 }
 
                 if (!protocols.isEmpty()) {
+                    protocols.removeIf(Objects::isNull);
                     httpSession.setWriteHeaders("Sec-WebSocket-Protocol", protocols);
                 }
                 WSN_SESSION_INITIALIZER_KEY.set(httpSession, wsnSessionInitializer);
