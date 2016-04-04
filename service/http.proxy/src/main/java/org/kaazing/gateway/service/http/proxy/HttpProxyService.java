@@ -27,7 +27,8 @@ import org.kaazing.gateway.service.proxy.AbstractProxyService;
  * Http proxy service
  */
 public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandler> {
-    private static final String TRAILING_SLASH_ERROR = "Accept URI is '%s' and connect URI is '%s'. Either both URI should end with / or both not.";
+    private static final String TRAILING_SLASH_ERROR = "The accept URI is '%s' and the connect URI is '%s'. "
+            + "One has a trailing slash and one doesn't. Both URIs either need to include a trailing slash or omit it.";
 
     @Override
     public String getType() {

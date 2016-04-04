@@ -41,7 +41,6 @@ import static org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolH
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter.PROTOCOL_HTTP_1_1;
 import static org.kaazing.gateway.transport.http.resource.HttpDynamicResourceFactory.newHttpDynamicResourceFactory;
 import static org.kaazing.gateway.util.InternalSystemProperty.HTTPXE_SPECIFICATION;
-import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -190,6 +189,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 return httpBinding;
             }
 
+            @Override
             protected boolean unbindAdditionalAddressesIfNecessary(ResourceAddress address, HttpBinding newHttpBinding) {
                 ResourceAddress resourcesAddress = getResourcesAddress(newHttpBinding);
                 if ( newHttpBinding.size()==1 && newHttpBinding.get(resourcesAddress.getResource().getPath()) != null) {
