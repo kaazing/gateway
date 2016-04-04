@@ -31,6 +31,9 @@ import static org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolH
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter.PROTOCOL_HTTP_1_1;
 
 import java.io.IOException;
+import java.net.Authenticator;
+import java.net.Authenticator.RequestorType;
+import java.net.InetAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,6 +45,8 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
@@ -93,6 +98,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     private final PersistentConnectionPool persistentConnectionsStore;
     private Properties configuration;
     private ScheduledExecutorService schedulerProvider;
+    private final Pattern CHALLENGE_PATTERN = Pattern.compile("(?<scheme>[a-zA-Z_]*) ([a-zA-Z_]*)\\s?(.*)");
 
     public HttpConnector() {
         super(new DefaultIoSessionConfigEx());
@@ -429,21 +435,35 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                     ResourceAddress remoteAddress = httpSession.getRemoteAddress();
                     Collection<Class<? extends ChallengeHandler>> challengeHandlers =
                             remoteAddress.getOption(CHALLENGE_HANDLER_CLASSES);
-                    // TODO, this will need to be thread aligned in edge case where it does not reuse the same tcp connection i.e connection: close
+                    // TODO, this will need to be thread aligned in edge case where it does not reuse the same tcp
+                    // connection i.e connection: close
                     if (challengeHandlers != null) {
                         String location = remoteAddress.getExternalURI();
                         String wwwAuthHeader = ((HttpResponseMessage) httpMessage).getHeader("WWW-Authenticate");
-                        ChallengeRequest challengeRequest = new ChallengeRequest(location, wwwAuthHeader);
+                        if (!wwwAuthHeader.startsWith("Application")) {
+                            Matcher challengeMatcher = CHALLENGE_PATTERN.matcher(wwwAuthHeader);
+                            if (challengeMatcher.matches()) {
+                                Authenticator.requestPasswordAuthentication(remoteAddress.getResource().getHost(),
+                                        InetAddress.getByName(remoteAddress.getResource().getHost()),
+                                        remoteAddress.getResource().getPort(), "HTTP", wwwAuthHeader,
+                                        challengeMatcher.group("scheme"), remoteAddress.getResource().toURL(),
+                                        RequestorType.SERVER);
+                            } else {
+                                logger.warn(String.format("Can't parse WWW-Authenticate: %s", wwwAuthHeader));
+                            }
+                        } else {
+                            ChallengeRequest challengeRequest = new ChallengeRequest(location, wwwAuthHeader);
 
-                        ChallengeHandler nextChallengeHandler = httpSession.getNextChallengeHandler();
-                        if (nextChallengeHandler != null && nextChallengeHandler.canHandle(challengeRequest)) {
-                            retryConnectWithAuth(httpSession, remoteAddress, challengeRequest, nextChallengeHandler);
-                        }
+                            ChallengeHandler nextChallengeHandler = httpSession.getNextChallengeHandler();
+                            if (nextChallengeHandler != null && nextChallengeHandler.canHandle(challengeRequest)) {
+                                retryConnectWithAuth(httpSession, remoteAddress, challengeRequest, nextChallengeHandler);
+                            }
 
-                        for (Class<? extends ChallengeHandler> handlerClass : challengeHandlers) {
-                            ChallengeHandler handler = handlerClass.newInstance();
-                            if (handler.canHandle(challengeRequest)) {
-                                retryConnectWithAuth(httpSession, remoteAddress, challengeRequest, handler);
+                            for (Class<? extends ChallengeHandler> handlerClass : challengeHandlers) {
+                                ChallengeHandler handler = handlerClass.newInstance();
+                                if (handler.canHandle(challengeRequest)) {
+                                    retryConnectWithAuth(httpSession, remoteAddress, challengeRequest, handler);
+                                }
                             }
                         }
                     }
