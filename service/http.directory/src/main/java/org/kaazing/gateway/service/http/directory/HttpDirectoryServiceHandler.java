@@ -104,6 +104,10 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
         this.patterns = patterns;
     }
 
+    void emptyUrlCacheControlMap() {
+        urlCacheControlMap.clear();
+    }
+
     @Override
     public void doSessionCreated(HttpAcceptSession session) throws Exception {
         // NOOP no license check needed

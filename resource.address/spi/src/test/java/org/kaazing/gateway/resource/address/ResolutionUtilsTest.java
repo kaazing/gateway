@@ -75,12 +75,17 @@ public class ResolutionUtilsTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireIpV4WithoutSquareBrackets() {
-        assertEquals( new InetSocketAddress("[192.168.0.1]", 2020), ResolutionUtils.parseBindAddress("[192.168.0.1]:2020"));
+        ResolutionUtils.parseBindAddress("[192.168.0.1]:2020");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireCorrectPort() {
         ResolutionUtils.parseBindAddress("host:90000");
+    }
+    
+    @Test (expected = IllegalArgumentException.class)
+    public void shouldRequireComplexInterfaceBetweenBrackets() {
+        ResolutionUtils.parseBindAddress("@Local Area Connection:2020");
     }
 
 }
