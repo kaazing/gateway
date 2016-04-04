@@ -2,7 +2,14 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.52...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.53...HEAD)
+
+**Merged pull requests:**
+
+- Ilya amqp open handshake clean [\#488](https://github.com/kaazing/gateway/pull/488) ([cmebarrow](https://github.com/cmebarrow))
+
+## [5.0.1.53](https://github.com/kaazing/gateway/tree/5.0.1.53) (2016-04-04)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.52...5.0.1.53)
 
 **Fixed bugs:**
 
