@@ -541,6 +541,10 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
             }
         }
 
+        if (logger.isTraceEnabled()) {
+            logger.trace(format("Adding http accept bridge filters using nextProtocol: %s", nextProtocol));
+        }
+
         Set<HttpAcceptFilter> acceptFilters = acceptFiltersByProtocol.get(nextProtocol);
         assert (acceptFilters != null && !acceptFilters.isEmpty());
 
