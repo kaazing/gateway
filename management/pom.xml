@@ -274,7 +274,7 @@
                 <executions>
                     <execution>
                         <configuration>
-                            <argLine>-Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Djava.rmi.server.hostname=localhost -Djava.library.path=target/sigar -Djavax.net.ssl.keyStore=${project.basedir}/target/truststore/truststore.db</argLine>
+                            <argLine>-Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Djava.rmi.server.hostname=localhost -Djava.library.path=target/sigar -Djavax.net.ssl.truststore=${project.basedir}/target/truststore/truststore.db</argLine>
                             <skipTests>${skipITs}</skipTests>
                         </configuration>
                         <goals>
