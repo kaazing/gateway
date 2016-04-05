@@ -84,7 +84,6 @@ public class JmxManagementServiceHandlerTest {
             gateway.start(gatewayConfiguration);
         } catch (Exception e) {
             e.printStackTrace(System.out);
-            System.out.println(e.getMessage());
             String message = e.getMessage();
             Assert.assertTrue("Got an exception that wasn't a binding error: " + message,
                     (message != null && message.contains("Error binding")));
