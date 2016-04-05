@@ -111,7 +111,6 @@ public class ServiceConfigurationBeanImplTest {
         String expected = "{\"b\":\"bValue\",\"a\":\"aValue\",\"nested1\":"
                 + "[{\"aa\":\"aaValue\",\"ab\":\"abValue\"},{\"ba\":\"baValue\",\"bb\":\"bbValue\"}],\"nested2\":[{}]}";
         String result = bean.getProperties();
-        System.out.println(result);
         equalsJson(new JSONObject(expected), new JSONObject(result));
     }
 

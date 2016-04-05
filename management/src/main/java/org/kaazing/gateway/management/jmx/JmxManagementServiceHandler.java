@@ -178,7 +178,7 @@ class JmxManagementServiceHandler implements ManagementServiceHandler {
                             JMX_OBJECT_NAME,
                             gatewayManagementBean.getHostAndPid(),
                             replaceCharactersDisallowedInObjectName(serviceManagementBean.getServiceType()),
-                            address.getExternalURI(),
+                            serviceManagementBean.getServiceName(),
                             sessionManagementBean.getId()));
             if (mbeanServer.isRegistered(name)) {
                 LOGGER.warn(String.format("Service MBean name %s already registered", name));

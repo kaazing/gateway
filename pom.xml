@@ -209,8 +209,8 @@
                 <artifactId>specification.httpxe</artifactId>
                 <version>${k3po.version}</version>
                 <scope>test</scope>
-            </dependency>
-        </dependencies>
+            </dependency>     
+       </dependencies>
     </dependencyManagement>
 
     <build>
