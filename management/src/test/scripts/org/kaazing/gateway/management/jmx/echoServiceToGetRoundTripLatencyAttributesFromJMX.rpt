@@ -42,14 +42,8 @@ write [0x8a 0x00]
 # Read PING
 read [0x89 0x00]
 
+read notify SESSION_ESTABLISHED
+
 # Send PONG response
 write [0x8a 0x00]
 
-read notify SESSION_ESTABLISHED
-
-write await READ_LATENCY_ATTRIBUTES
-
-close
-closed
-
-# Close connection
