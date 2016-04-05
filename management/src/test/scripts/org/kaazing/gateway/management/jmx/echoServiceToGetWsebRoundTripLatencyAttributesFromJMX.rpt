@@ -40,14 +40,13 @@ read await CREATE_REQUESTED
 
 read "HTTP/1.1 200 OK\r\n"
 read "Cache-Control: no-cache\r\n"
-read "Content-Length: 257\r\n"
+read "Content-Length: .*\r\n"
 read "Content-Type: text/plain;charset=UTF-8\r\n"
 read /Date: .*/ "\r\n"
 read "Server: Kaazing Gateway\r\n"
 read "\r\n"
 read "HTTP/1.1 201 Created\r\n"
 read "Content-Type: text/plain;charset=UTF-8\r\n"
-read "X-WebSocket-Extensions: x-kaazing-http-revalidate; 56414C49\r\n"
 # read "Content-Length: 132\r\n"
 read "\r\n"
 # Example: http://localhost:8123/echo/;e/ub/fUOutUjjl9sgFumZWv1XySfdooieOf7e

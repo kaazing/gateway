@@ -28,7 +28,7 @@ write close
 
 read status "201" /.+/
 read version "HTTP/1.1"
-read header "Content-Type" /text\/plain;charset=(?i)utf-8/
+read header "Content-Type" /text\/plaind;charset=(?i)utf-8/
 
 read /(?<upstream>http:\/\/localhost:8001\/echo\/.+)/ "\n"
 read /(?<downstream>http:\/\/localhost:8001\/echo\/.+)/ "\n"

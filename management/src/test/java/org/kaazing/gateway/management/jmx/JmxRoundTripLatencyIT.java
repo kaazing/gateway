@@ -42,6 +42,8 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class JmxRoundTripLatencyIT {
 
+    private static final String ECHO_WSE_SERVICE = "echoWse";
+    private static final String ECHO_WSN_SERVICE = "echoWsn";
     private static final String JMX_URI = "service:jmx:rmi:///jndi/rmi://localhost:2020/jmxrmi";
     private static final String WS_URI = "ws://localhost:8001/echo";
     private static final String WSE_URI = "wse://localhost:8123/echo";
@@ -59,18 +61,20 @@ public class JmxRoundTripLatencyIT {
             // @formatter:off
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
+//                        .service()
+//                            .name(ECHO_WSE_SERVICE)
+//                            .accept(WSE_URI)
+//                            .acceptOption("ws.inactivity.timeout", "2sec")
+//                            .type("echo")
+//                        .done()
                         .service()
-                            .accept(WSE_URI)
-                            .acceptOption("ws.inactivityTimeout", "2sec")
-                            .type("echo")
-                        .done()
-                        .service()
+                            .name(ECHO_WSN_SERVICE)
                             .accept(WS_URI)
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("*")
                             .done()
-                            .acceptOption("ws.inactivityTimeout", "2sec")
+                            .acceptOption("ws.inactivity.timeout", "2sec")
                         .done()
                         .service()
                             .property("connector.server.address", "jmx://localhost:2020/")
@@ -119,18 +123,33 @@ public class JmxRoundTripLatencyIT {
 
         MBeanServerConnection mbeanServerConn = jmxConnection.getConnection();
         Set<ObjectName> mbeanNames = mbeanServerConn.queryNames(null, null);
-        String MBeanPrefix = "subtype=services,serviceType=echo,serviceId=\"" + WS_URI + "\",name=sessions";
+        String MBeanPrefix = "subtype=services,serviceType=echo,serviceId=\"" + ECHO_WSN_SERVICE + "\",name=sessions";
+        System.out.println("ESTABLISHDED == DPW");
         for (ObjectName name : mbeanNames) {
             if (name.toString().indexOf(MBeanPrefix) > 0) {
-                latency = (Long) mbeanServerConn.getAttribute(name, "LastRoundTripLatency");
-                latencyTimestamp = (Long) mbeanServerConn.getAttribute(name, "LastRoundTripLatencyTimestamp");
+                System.out.println(name + " == DPW");
+                try{
+                    mbeanServerConn.getObjectInstance(name);
+                    System.out.println(name + " == DPW == CREATED");
+    
+                    latency = (Long) mbeanServerConn.getAttribute(name, "LastRoundTripLatency");
+                    System.out.println(name + " == DPW == GOT ATTRIBUTE");
+                    latencyTimestamp = (Long) mbeanServerConn.getAttribute(name, "LastRoundTripLatencyTimestamp");
+                    System.out.println(name + " == DPW == GOT LATENCY");
+                } catch (Exception e) {
+                    System.out.println("DPW " + e);
+                }
             }
         }
 
+        System.out.println("notify read latency");
         k3po.notifyBarrier("READ_LATENCY_ATTRIBUTES");
 
+        System.out.println("assert 1");
         assertTrue("Could not retrieve Round Trip Latency from Jmx", latency > -1);
+        System.out.println("assert 2");
         assertTrue("Could not retrieve Round Trip Latency Timestamp from Jmx", latencyTimestamp > currentTimestamp);
+        System.out.println("assert 3");
 
         k3po.finish();
     }

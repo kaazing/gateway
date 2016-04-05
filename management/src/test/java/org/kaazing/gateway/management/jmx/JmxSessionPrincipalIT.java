@@ -31,7 +31,9 @@ import javax.management.ObjectName;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.kaazing.gateway.management.test.util.JmxRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
@@ -110,9 +112,10 @@ public class JmxSessionPrincipalIT {
     };
 
     private JmxRule jmxConnection = new JmxRule(JMX_URI);
+    public Timeout timeout = Timeout.seconds(10); 
 
     @Rule
-    public TestRule chain = createRuleChain(gateway, k3po).around(jmxConnection);
+    public TestRule chain = RuleChain.outerRule(gateway).around(k3po).around(jmxConnection).around(timeout);
 
     // Test should only kill sessions that have the "joe" user Principal
     @Specification({
