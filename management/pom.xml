@@ -187,6 +187,30 @@
 
     <build>
         <plugins>
+        <plugin>
+    <groupId>org.kaazing</groupId>
+    <artifactId>k3po-maven-plugin</artifactId>
+    <version>${k3po.version}</version>
+    <configuration>
+        <skipTests>${skipITs}</skipTests>
+    </configuration>
+    <executions>
+        <execution>
+            <goals>
+                <goal>start</goal>
+                <goal>stop</goal>
+            </goals>
+        </execution>
+    </executions>
+    <dependencies>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>k3po.driver</artifactId>
+            <version>develop-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+</plugin>
+        
             <plugin>
                 <groupId>org.kaazing</groupId>
                 <artifactId>license-maven-plugin</artifactId>

@@ -47,6 +47,7 @@ public class JmxSessionPrincipalIT {
     private static final String WS_URI = "ws://localhost:8001/echo";
 
     protected static final String ADMIN = "AUTHORIZED";
+    protected static final String ECHO_WSN_SERVICE = "echoWSN";
 
     private final KeyStore keyStore = keyStore();
     private final char[] password = password();
@@ -62,6 +63,7 @@ public class JmxSessionPrincipalIT {
                         .service()
                             .accept(WS_URI)
                             .type("echo")
+                            .name(ECHO_WSN_SERVICE)
                             .crossOrigin()
                                 .allowOrigin("*")
                             .done()
@@ -135,7 +137,7 @@ public class JmxSessionPrincipalIT {
 
         MBeanServerConnection mbeanServerConn = jmxConnection.getConnection();
         Set<ObjectName> mbeanNames = mbeanServerConn.queryNames(null, null);
-        String MBeanPrefix = "subtype=services,serviceType=echo,serviceId=\"" + WS_URI + "\",name=summary";
+        String MBeanPrefix = "subtype=services,serviceType=echo,serviceId=\"" + ECHO_WSN_SERVICE + "\",name=summary";
         for (ObjectName name : mbeanNames) {
             if (name.toString().indexOf(MBeanPrefix) > 0) {
                 echoServiceMbeanName = name;
@@ -177,10 +179,10 @@ public class JmxSessionPrincipalIT {
         k3po.awaitBarrier("JOE_WSN_SESSION_ESTABLISHED");
         k3po.awaitBarrier("JOE_WSE_SESSION_ESTABLISHED");
         k3po.awaitBarrier("ANN_WSN_SESSION_ESTABLISHED");
-
+        Thread.sleep(2000);
         MBeanServerConnection mbeanServerConn = jmxConnection.getConnection();
         Set<ObjectName> mbeanNames = mbeanServerConn.queryNames(null, null);
-        String MBeanPrefix = "subtype=services,serviceType=echo,serviceId=\"" + WS_URI + "\",name=summary";
+        String MBeanPrefix = "subtype=services,serviceType=echo,serviceId=\"" + ECHO_WSN_SERVICE + "\",name=summary";
         for (ObjectName name : mbeanNames) {
             if (name.toString().indexOf(MBeanPrefix) > 0) {
                 echoServiceMbeanName = name;

@@ -185,6 +185,7 @@ class JmxManagementServiceHandler implements ManagementServiceHandler {
             } else {
                 SessionMXBeanImpl sessionMXBean = new SessionMXBeanImpl(name, sessionManagementBean);
                 mbeanServer.registerMBean(sessionMXBean, name);
+                System.out.println("DPW DPW put sessionManagementBean " + sessionManagementBean.getId() + " " + sessionMXBean);
                 sessionBeanMap.put(sessionManagementBean.getId(), sessionMXBean);
             }
         } catch (Exception ex) {
@@ -195,6 +196,7 @@ class JmxManagementServiceHandler implements ManagementServiceHandler {
     @Override
     public void removeSessionManagementBean(SessionManagementBean sessionManagementBean) {
         try {
+            System.out.println("DPW === Removing Sessiong bean " + sessionManagementBean.getId());
             SessionMXBean sessionMXBean = sessionBeanMap.remove(sessionManagementBean.getId());
             if (sessionMXBean != null) {
                 ObjectName name = sessionMXBean.getObjectName();

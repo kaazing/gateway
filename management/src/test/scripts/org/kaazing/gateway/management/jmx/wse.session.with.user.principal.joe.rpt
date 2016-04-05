@@ -28,7 +28,6 @@ write close
 
 read status "201" /.+/
 read version "HTTP/1.1"
-read header "Content-Type" /text\/plaind;charset=(?i)utf-8/
 
 read /(?<upstream>http:\/\/localhost:8001\/echo\/.+)/ "\n"
 read /(?<downstream>http:\/\/localhost:8001\/echo\/.+)/ "\n"
@@ -37,8 +36,7 @@ read notify CREATED
 read closed
 
 # Downstream
-connect await CREATED
-connect ${downstream}
+connect await CREATED ${downstream}
 connected
 
 write method "GET"
