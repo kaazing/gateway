@@ -125,10 +125,8 @@ public class JmxRoundTripLatencyIT {
         MBeanServerConnection mbeanServerConn = jmxConnection.getConnection();
         Set<ObjectName> mbeanNames = mbeanServerConn.queryNames(null, null);
         String MBeanPrefix = "subtype=services,serviceType=echo,serviceId=\"" + ECHO_WSN_SERVICE + "\",name=sessions";
-        System.out.println("ESTABLISHDED == DPW");
         for (ObjectName name : mbeanNames) {
             if (name.toString().indexOf(MBeanPrefix) > 0) {
-                System.out.println(name + " == DPW");
                 mbeanServerConn.getObjectInstance(name);
 
                 latency = (Long) mbeanServerConn.getAttribute(name, "LastRoundTripLatency");
