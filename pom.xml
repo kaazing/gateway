@@ -198,7 +198,19 @@
                 <version>[1.0.0.0,1.1.0.0)</version>
                 <type>jar</type>
             </dependency>
-                   </dependencies>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>specification.http</artifactId>
+                <version>${k3po.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>specification.httpxe</artifactId>
+                <version>${k3po.version}</version>
+                <scope>test</scope>
+            </dependency>     
+       </dependencies>
     </dependencyManagement>
 
     <build>
@@ -374,6 +386,36 @@
             </plugin>
             <plugin>
                 <dependencies>
+                    <dependency>
+                        <groupId>org.kaazing</groupId>
+                        <artifactId>specification.http</artifactId>
+                        <version>${k3po.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.kaazing</groupId>
+                        <artifactId>specification.httpx</artifactId>
+                        <version>${k3po.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.kaazing</groupId>
+                        <artifactId>specification.ws</artifactId>
+                        <version>${k3po.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.kaazing</groupId>
+                        <artifactId>specification.tcp</artifactId>
+                        <version>${k3po.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.kaazing</groupId>
+                        <artifactId>specification.wse</artifactId>
+                        <version>${k3po.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.kaazing</groupId>
+                        <artifactId>specification.x-kaazing-ping-pong</artifactId>
+                        <version>${k3po.version}</version>
+                    </dependency>
                 </dependencies>
                 <groupId>org.kaazing</groupId>
                 <artifactId>k3po-maven-plugin</artifactId>
