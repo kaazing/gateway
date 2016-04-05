@@ -37,7 +37,7 @@ public class TlsTestUtil {
             return keyStore;
         } catch (Exception e) {
             File file = new File(keyStoreFileLocation);
-            throw new RuntimeException("Cannot create keystore" + file.getAbsolutePath(), e);
+            throw new RuntimeException("Cannot create keystore: " + file.getAbsolutePath(), e);
         }
     }
 

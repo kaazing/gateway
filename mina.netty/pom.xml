@@ -5,7 +5,7 @@
       <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.0.1.54</version>
+        <version>5.0.1.55</version>
     </parent>
     <artifactId>mina.netty</artifactId>
     <packaging>jar</packaging>
@@ -237,25 +237,12 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <skipTests>${skipTests}</skipTests>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <skipTests>${skipITs}</skipTests>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -2,7 +2,22 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.53...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.54...HEAD)
+
+**Fixed bugs:**
+
+- WSN Connector: Connection should fail when the negotiated protocol is not in the list of supported protocols [\#315](https://github.com/kaazing/gateway/issues/315)
+
+**Merged pull requests:**
+
+- Add management tests [\#493](https://github.com/kaazing/gateway/pull/493) ([dpwspoon](https://github.com/dpwspoon))
+- http.transport accept and connect option [\#492](https://github.com/kaazing/gateway/pull/492) ([jitsni](https://github.com/jitsni))
+- Adding a log message for next protocol before finding the bridge filters [\#491](https://github.com/kaazing/gateway/pull/491) ([jitsni](https://github.com/jitsni))
+- Validation of Sec-WebSocket-Protocol on the connector side [\#479](https://github.com/kaazing/gateway/pull/479) ([jitsni](https://github.com/jitsni))
+- added jacoco\(code coverage\) plugin to all modules and updated travis … [\#464](https://github.com/kaazing/gateway/pull/464) ([AdrianCozma](https://github.com/AdrianCozma))
+
+## [5.0.1.54](https://github.com/kaazing/gateway/tree/5.0.1.54) (2016-04-04)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.53...5.0.1.54)
 
 **Merged pull requests:**
 

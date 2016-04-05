@@ -11,7 +11,7 @@
 
     <artifactId>gateway</artifactId>
     <name>Kaazing Gateway</name>
-    <version>5.0.1.54</version>
+    <version>5.0.1.55</version>
     <packaging>pom</packaging>
 
     <url>https://github.com/kaazing/gateway</url>
@@ -209,8 +209,8 @@
                 <artifactId>specification.httpxe</artifactId>
                 <version>${k3po.version}</version>
                 <scope>test</scope>
-            </dependency>
-        </dependencies>
+            </dependency>     
+       </dependencies>
     </dependencyManagement>
 
     <build>
@@ -218,21 +218,30 @@
             <plugins>
                 <!-- Try to avoid huge heap size on Travis builds -->
                 <plugin>
-                  <artifactId>maven-failsafe-plugin</artifactId>
-                  <version>${failsafe.plugin.version}</version>
-                  <executions>
-                    <execution>
-                      <goals>
-                        <goal>integration-test</goal>
-                        <goal>verify</goal>
-                      </goals>
-                      <configuration>
-                        <argLine>-Xmx1024m</argLine>
-                      </configuration>
-                    </execution>
-                  </executions>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <configuration>
+                        <argLine>-Xmx1024m ${failsafeArgLine}</argLine>
+                        <skipTests>${skipITs}</skipTests>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>integration-test</goal>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
-
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.19</version>
+                    <configuration>
+                        <argLine>${surefireArgLine}</argLine>
+                        <skipTests>${skipTests}</skipTests>
+                    </configuration>
+                </plugin>
                 <!-- Adds properties to manifest which are used for finding 
                     duplicate jars on classpath -->
                 <plugin>
@@ -248,13 +257,6 @@
                         </archive>
                     </configuration>
                 </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.19</version>
-                </plugin>
-
                 <!-- Ignore/Execute plugin execution by m2e in Eclipse -->
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
@@ -481,6 +483,43 @@
                         </excludes>
                     </instrumentation>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.5.201505241946</version>
+                <executions>
+                    <execution>
+                        <id>pre-unit-test</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <propertyName>surefireArgLine</propertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>post-unit-test</id>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>pre-integration-test</id>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
+                        </goals>
+                        <configuration>
+                            <propertyName>failsafeArgLine</propertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>post-integration-test</id>
+                        <goals>
+                            <goal>report-integration</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <!-- Here only to turn off linting in Java Doc as for Java 8, 
                 this should be removed when https://github.com/kaazing/gateway/issues/157 

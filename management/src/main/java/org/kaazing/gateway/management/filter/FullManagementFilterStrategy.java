@@ -61,7 +61,6 @@ public class FullManagementFilterStrategy extends ServiceOnlyManagementFilterStr
         if (sessionBean != null) {
             managementContext.removeSessionManagementBean(sessionBean);
             managementContext.getManagementSessionStrategy().doSessionClosed(sessionBean);
-            managementContext.getManagementSessionStrategy().doSessionClosed(sessionBean);
         }
 
         super.doSessionClosed(managementContext, serviceBean, sessionId, managementSessionType);
