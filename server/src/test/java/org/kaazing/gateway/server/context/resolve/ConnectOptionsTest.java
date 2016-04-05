@@ -80,14 +80,10 @@ public class ConnectOptionsTest {
         expectValidateFailure("tcp.transport", null);
     }
 
-    @Test @Ignore
+    @Test
     public void testHttpTransportOption() throws Exception {
-        expectSuccess("http.transport", "tcp://127.0.0.1:80", "http[http/1.1].transport", URI.create("tcp://127.0.0.1:80"));
-
-        expectValidateFailure("tcp.transport", "//not.absolute");
-        expectValidateFailure("tcp.transport", "-1");
-        expectValidateFailure("tcp.transport", "");
-        expectValidateFailure("tcp.transport", null);
+        expectSuccess("http.transport", "tcp://127.0.0.1:80", "http[http/1.1].transport", "tcp://127.0.0.1:80");
+        expectSuccess("http.transport", "tcp://127.0.0.1:80", "http.transport", null);
     }
 
     @Test @Ignore

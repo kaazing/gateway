@@ -95,6 +95,12 @@ public class AcceptOptionsTest {
     }
 
     @Test
+    public void testHttpTransportOption() throws Exception {
+        expectSuccess("http.transport", "tcp://127.0.0.1:80", "http[http/1.1].transport", "tcp://127.0.0.1:80");
+        expectSuccess("http.transport", "tcp://127.0.0.1:80", "http.transport", null);
+    }
+
+    @Test
     @Ignore("XSD no longer validates accept-options types")
     public void testWsMaximumMessageSizeOption() throws Exception {
         expectSuccess("ws.maximum.message.size", "10k", "ws.maxMessageSize", 10240);

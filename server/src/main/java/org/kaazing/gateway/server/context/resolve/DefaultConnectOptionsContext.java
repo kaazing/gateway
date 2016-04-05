@@ -94,6 +94,7 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
         result.put(TCP_TRANSPORT, getTransportURI("tcp.transport"));
         result.put(SSL_TRANSPORT, getTransportURI("ssl.transport"));
         result.put("http[http/1.1].transport", getTransportURI("http.transport"));
+        result.put("http.transport", null);
 
         result.put(SSL_ENCRYPTION_ENABLED, isSslEncryptionEnabled());
         result.put("udp.interface", getUdpInterface());
