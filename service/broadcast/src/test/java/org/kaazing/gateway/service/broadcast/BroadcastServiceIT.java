@@ -55,23 +55,23 @@ public class BroadcastServiceIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-	@Specification("broadcast.backend.tcp.connect.and.close")
-	@Test
-	public void tcpConnectionToBackendAndClose() throws Exception {
-		robot.finish();
-	}
-
-	@Specification("broadcast.backend.tcp.connect.send.and.close")
-	@Test
-	public void tcpConnectionToBackendSendAndClose() throws Exception {
+    @Specification("broadcast.backend.tcp.connect.and.close")
+    @Test
+    public void tcpConnectionToBackendAndClose() throws Exception {
         robot.finish();
-	}
+    }
 
-	@Specification("broadcast.frontend.tcp.connect.and.close")
-	@Test
-	public void tcpConnectToFrontendAndClose() throws Exception {
+    @Specification("broadcast.backend.tcp.connect.send.and.close")
+    @Test
+    public void tcpConnectionToBackendSendAndClose() throws Exception {
         robot.finish();
-	}
+    }
+
+    @Specification("broadcast.frontend.tcp.connect.and.close")
+    @Test
+    public void tcpConnectToFrontendAndClose() throws Exception {
+        robot.finish();
+    }
 
     @Specification("tcp.frontend.broadcast")
     @Test
