@@ -15,14 +15,14 @@
  */
 package org.kaazing.gateway.service.proxy;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-import java.util.concurrent.CountDownLatch;
-
-import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.mina.core.session.IoSessionEx;
+
+import java.nio.ByteBuffer;
+import java.util.concurrent.CountDownLatch;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class TestExtension implements ProxyServiceExtensionSpi {
     static CountDownLatch latch;
@@ -41,7 +41,9 @@ public class TestExtension implements ProxyServiceExtensionSpi {
     }
     @Override
     public void proxiedConnectionEstablished(IoSessionEx acceptSession, IoSessionEx connectSession) {
-        connectSession.write(IoBuffer.wrap("injected".getBytes(UTF_8)));
+        byte[] bytes = "injected".getBytes(UTF_8);
+        ByteBuffer data = ByteBuffer.wrap(bytes);
+        connectSession.write(connectSession.getBufferAllocator().wrap(data));
         latch.countDown();
     }
 
