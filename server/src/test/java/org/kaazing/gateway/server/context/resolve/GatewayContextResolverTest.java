@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
-import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.transport.TestAcceptor;
@@ -148,7 +148,7 @@ public class GatewayContextResolverTest {
     @Test
     public void testLowerCaseOfResolvedServices() throws Exception {
         configFile = createTempFileFromResource("org/kaazing/gateway/server/context/parse/data/gateway-config-mixedcase.xml");
-        org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument doc = parser.parse(configFile);
+        org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument doc = parser.parse(configFile);
         GatewayContext ctx = resolver.resolve(doc);
 
         Collection<? extends ServiceContext> services = ctx.getServices();
@@ -287,7 +287,7 @@ public class GatewayContextResolverTest {
     @Test
     public void shouldInjectResourcesIntoTransportExtensions() throws Exception {
         configFile = createTempFileFromResource("gateway/conf/gateway-config-test-transport.xml");
-        org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument doc = parser.parse(configFile);
+        org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument doc = parser.parse(configFile);
         GatewayContext ctx = resolver.resolve(doc);
 
         DefaultTransportContext transport = ctx.getTransportForScheme("ws");

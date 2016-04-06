@@ -69,18 +69,8 @@
                 <artifactId>k3po-maven-plugin</artifactId>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <skipTests>${skipITs}</skipTests>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -89,6 +79,8 @@
                     <additionalClasspathElements>
                         <additionalClasspathElement>${basedir}/src/test/resources/gateway.server-5.0.0.8.jar</additionalClasspathElement>
                     </additionalClasspathElements>
+                    <argLine>${surefireArgLine}</argLine>
+                    <skipTests>${skipTests}</skipTests>
                 </configuration>
             </plugin>
         </plugins>

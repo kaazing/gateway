@@ -1,5 +1,5 @@
 #
-# Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,12 +23,10 @@ write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:8.0) Gecko/20
 write "\r\n"
 
 read "HTTP/1.1 200 OK\r\n"
-read "Cache-Control: max-age=0\r\n"
 read "Content-Length: 119\r\n"
 read "Content-Type: text/html\r\n"
 read /Date: .*/ "\r\n"
 read /ETag: .*/ "\r\n"
-read /Expires: .*/ "\r\n"
 read /Last-Modified: .*/ "\r\n"
 # Shouldn't have the following header
 # Server: Kaazing Gateway

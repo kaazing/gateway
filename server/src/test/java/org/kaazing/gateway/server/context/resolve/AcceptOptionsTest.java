@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParserException;
-import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
-import org.kaazing.gateway.server.config.sep2014.ServiceAcceptOptionsType;
+import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.nov2015.ServiceAcceptOptionsType;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.TransportOptionNames;
 
@@ -92,6 +92,12 @@ public class AcceptOptionsTest {
         expectParseFailure("http.keepalive.timeout", "-1 seconds");
         expectParseFailure("http.keepalive.timeout", "abc");
         expectParseFailure("http.keepalive.timeout", null);
+    }
+
+    @Test
+    public void testHttpTransportOption() throws Exception {
+        expectSuccess("http.transport", "tcp://127.0.0.1:80", "http[http/1.1].transport", "tcp://127.0.0.1:80");
+        expectSuccess("http.transport", "tcp://127.0.0.1:80", "http.transport", null);
     }
 
     @Test

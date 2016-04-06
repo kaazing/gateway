@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -326,9 +326,7 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Issue# 313: Missing Upgrade header in handshake response. connectFuture.isConnected() must return false")
-    @Specification({
-        "response.header.upgrade.missing/handshake.response" })
+    @Specification("response.header.upgrade.missing/handshake.response")
     public void shouldFailConnectionWhenResponseHeaderUpgradeMissing() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 
@@ -419,10 +417,7 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Issue# 315: connectFuture.isConnected() must return false as the negotiated protocol does not match any"
-            + "of the supported protocols")
-    @Specification({
-        "response.header.sec.websocket.protocol.not.negotiated/handshake.response" })
+    @Specification("response.header.sec.websocket.protocol.not.negotiated/handshake.response")
     public void shouldFailConnectionWhenResponseHeaderSecWebSocketProtocolNotNegotiated() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 

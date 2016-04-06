@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -178,7 +178,7 @@ class JmxManagementServiceHandler implements ManagementServiceHandler {
                             JMX_OBJECT_NAME,
                             gatewayManagementBean.getHostAndPid(),
                             replaceCharactersDisallowedInObjectName(serviceManagementBean.getServiceType()),
-                            address.getExternalURI(),
+                            serviceManagementBean.getServiceName(),
                             sessionManagementBean.getId()));
             if (mbeanServer.isRegistered(name)) {
                 LOGGER.warn(String.format("Service MBean name %s already registered", name));

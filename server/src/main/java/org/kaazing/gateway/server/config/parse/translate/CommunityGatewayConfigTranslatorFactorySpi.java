@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,11 +46,18 @@ public class CommunityGatewayConfigTranslatorFactorySpi implements GatewayConfig
         // First, we create our pipeline composite
         GatewayConfigTranslatorPipeline result = null;
 
+        if (ns.equals(GatewayConfigNamespace.SEPTEMBER_2014)) {
+            result = new GatewayConfigTranslatorPipeline();
+            GatewayConfigTranslator september2014Translator = new September2014ToNovember2015Translator();
+            result.addTranslator(september2014Translator);
+            GatewayConfigTranslator november2015Validator = new November2015Validator();
+            result.addTranslator(november2015Validator);
+        }
+
         if (ns.equals(GatewayConfigNamespace.CURRENT_NS)) {
-                // Currently no per-namespace translator to add in here, just validate
-                result = new GatewayConfigTranslatorPipeline();
-                GatewayConfigTranslator september2014Validator = new September2014Validator();
-                result.addTranslator(september2014Validator);
+            result = new GatewayConfigTranslatorPipeline();
+            GatewayConfigTranslator november2015Validator = new November2015Validator();
+            result.addTranslator(november2015Validator);
         }
 
         return result;

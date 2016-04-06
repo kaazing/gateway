@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,6 @@ import org.kaazing.test.util.ITUtil;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class FragmentationIT {
-    private static String TEXT_FILTER_NAME = WsnProtocol.NAME + "#text";
     private final WsnConnectorRule connector = new WsnConnectorRule();
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws/fragmentation");
     private final TestRule trace = new MethodExecutionTrace();
@@ -95,13 +94,6 @@ public class FragmentationIT {
                                 buffer.put(bb);
                             }
                             buffer.flip();
-
-                            // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
-                            //                  instead of BINARY is resolved.
-                            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
-                            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
-                                parentFilterChain.remove(TEXT_FILTER_NAME);
-                            }
 
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
                             WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
@@ -149,13 +141,6 @@ public class FragmentationIT {
                             }
                             buffer.flip();
 
-                            // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
-                            //                  instead of BINARY is resolved.
-                            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
-                            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
-                                parentFilterChain.remove(TEXT_FILTER_NAME);
-                            }
-
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
                             WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
                             wsBuffer.setKind(WsBuffer.Kind.BINARY);
@@ -201,13 +186,6 @@ public class FragmentationIT {
                                 buffer.put(bb);
                             }
                             buffer.flip();
-
-                            // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
-                            //                  instead of BINARY is resolved.
-                            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
-                            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
-                                parentFilterChain.remove(TEXT_FILTER_NAME);
-                            }
 
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
                             WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
@@ -255,13 +233,6 @@ public class FragmentationIT {
                             }
                             buffer.flip();
 
-                            // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
-                            //                  instead of BINARY is resolved.
-                            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
-                            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
-                                parentFilterChain.remove(TEXT_FILTER_NAME);
-                            }
-
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
                             WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
                             wsBuffer.setKind(WsBuffer.Kind.BINARY);
@@ -307,13 +278,6 @@ public class FragmentationIT {
                                 buffer.put(bb);
                             }
                             buffer.flip();
-
-                            // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
-                            //                  instead of BINARY is resolved.
-                            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
-                            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
-                                parentFilterChain.remove(TEXT_FILTER_NAME);
-                            }
 
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
                             WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,12 +75,17 @@ public class ResolutionUtilsTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireIpV4WithoutSquareBrackets() {
-        assertEquals( new InetSocketAddress("[192.168.0.1]", 2020), ResolutionUtils.parseBindAddress("[192.168.0.1]:2020"));
+        ResolutionUtils.parseBindAddress("[192.168.0.1]:2020");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireCorrectPort() {
         ResolutionUtils.parseBindAddress("host:90000");
+    }
+    
+    @Test (expected = IllegalArgumentException.class)
+    public void shouldRequireComplexInterfaceBetweenBrackets() {
+        ResolutionUtils.parseBindAddress("@Local Area Connection:2020");
     }
 
 }

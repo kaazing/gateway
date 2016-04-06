@@ -1,5 +1,5 @@
 #
-# Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,31 +14,24 @@
 # limitations under the License.
 #
 
-connect tcp://127.0.0.1:8001
+connect http://localhost:8001/echo?.kl=/Y
 connected
 
 # Connection request
-write "GET /echo?.kl=Y HTTP/1.1\r\n"
-write "Upgrade: websocket\r\n"
-write "Connection: Upgrade\r\n"
-write "Host: localhost:8001\r\n"
-write "Origin: http://localhost:8001\r\n"
-write "Sec-WebSocket-Key: nDaimG37f4nUqogPypithw==\r\n"
-write "Sec-WebSocket-Version: 13\r\n"
-write "\r\n"
+write header "Upgrade" "websocket"
+write header "Connection" "Upgrade"
+write header "Host" "localhost:8001"
+write header "Origin" "http://localhost:8001"
+write header "Sec-WebSocket-Key" "nDaimG37f4nUqogPypithw=="
+write header "Sec-WebSocket-Version" "13"
 
 # 101 Response
 
-read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
-read "Connection: Upgrade\r\n"
-read /Date: .*/ "\r\n"
-read /Sec-WebSocket-Accept: .*/ "\r\n"
-read "Server: Kaazing Gateway\r\n"
-read "Upgrade: websocket\r\n"
-read "\r\n"
-
-# binary-encoded balancer directive - NO balance needed      
-read [0x82 0x04 0xEF 0x83 0xBF 0x4E]
+read status "101" /.+/
+read version "HTTP/1.1"
+read header "Upgrade" /(?i:websocket)/
+read header "Connection" /(?i:Upgrade)/
+read header "Sec-WebSocket-Accept" "Uq2pD+MOrXQIut+yUNUP6dvhWBw="
 
 # Read PING
 read [0x89 0x00]
@@ -48,14 +41,9 @@ write [0x8a 0x00]
 
 # Read PING
 read [0x89 0x00]
-
-# Send PONG response
-write [0x8a 0x00]
 
 read notify SESSION_ESTABLISHED
 
-write await READ_LATENCY_ATTRIBUTES
+# Send PONG response
+write [0x8a 0x00]
 
-# Close connection
-close
-closed

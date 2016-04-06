@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.kaazing.gateway.transport.http.bridge.filter;
 
 import static org.jmock.Expectations.returnValue;
+import static org.junit.Assert.assertSame;
 import static org.kaazing.gateway.transport.http.HttpMethod.GET;
 import static org.kaazing.gateway.transport.http.HttpMethod.POST;
 import static org.kaazing.gateway.transport.http.HttpStatus.SERVER_NOT_IMPLEMENTED;
@@ -23,6 +24,10 @@ import static org.kaazing.gateway.transport.http.HttpVersion.HTTP_1_1;
 import static org.kaazing.gateway.transport.http.bridge.HttpContentMessage.EMPTY;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.security.auth.Subject;
 
 import org.apache.mina.core.filterchain.IoFilter.NextFilter;
 import org.apache.mina.core.session.IoSession;
@@ -30,14 +35,17 @@ import org.jmock.lib.concurrent.Synchroniser;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.BridgeSession;
+import org.kaazing.gateway.transport.http.DefaultHttpSession;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
+import org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolCompatibilityFilter.HttpElevateEmulatedRequestFilter;
 import org.kaazing.gateway.transport.test.Expectations;
-import org.kaazing.test.util.Mockery;
 import org.kaazing.mina.core.filterchain.DefaultIoFilterChain;
+import org.kaazing.test.util.Mockery;
 
 public class HttpProtocolCompatibilityFilterTest {
 
@@ -48,11 +56,11 @@ public class HttpProtocolCompatibilityFilterTest {
     private DefaultIoFilterChain filterChain = context.mock(DefaultIoFilterChain.class);
     private NextFilter nextFilter = context.mock(NextFilter.class);
     private ResourceAddress localAddress = context.mock(ResourceAddress.class);
-    
+
     @Test
     public void shouldRemoveRandomNumberQueryParam() throws Exception {
         context.setThreadingPolicy(new Synchroniser());
-        
+
         final HttpRequestMessage expectedRequest = new HttpRequestMessage();
         expectedRequest.setVersion(HTTP_1_1);
         expectedRequest.setMethod(GET);
@@ -72,7 +80,7 @@ public class HttpProtocolCompatibilityFilterTest {
 
         HttpProtocolCompatibilityFilter filter = new HttpProtocolCompatibilityFilter();
         filter.messageReceived(nextFilter, serverSession, httpRequest);
-        
+
         context.assertIsSatisfied();
     }
 
@@ -92,7 +100,7 @@ public class HttpProtocolCompatibilityFilterTest {
 
             oneOf(nextFilter).messageReceived(with(serverSession), with(equal(expectedRequest)));
         } });
-        
+
         HttpRequestMessage httpRequest = new HttpRequestMessage();
         httpRequest.setVersion(HTTP_1_1);
         httpRequest.setMethod(POST);
@@ -102,7 +110,7 @@ public class HttpProtocolCompatibilityFilterTest {
 
         HttpProtocolCompatibilityFilter filter = new HttpProtocolCompatibilityFilter();
         filter.messageReceived(nextFilter, serverSession, httpRequest);
-        
+
         context.assertIsSatisfied();
     }
 
@@ -128,11 +136,11 @@ public class HttpProtocolCompatibilityFilterTest {
             oneOf(nextFilter).filterWrite(with(serverSession), with(hasMessage(expectedResponse)));
             oneOf(nextFilter).filterClose(with(serverSession));
         } });
-        
+
 
         HttpProtocolCompatibilityFilter filter = new HttpProtocolCompatibilityFilter();
         filter.messageReceived(nextFilter, serverSession, httpRequest);
-        
+
         context.assertIsSatisfied();
     }
 
@@ -153,7 +161,7 @@ public class HttpProtocolCompatibilityFilterTest {
 
             oneOf(nextFilter).messageReceived(with(serverSession), with(equal(expectedRequest)));
         } });
-        
+
         HttpRequestMessage httpRequest = new HttpRequestMessage();
         httpRequest.setVersion(HTTP_1_1);
         httpRequest.setMethod(POST);
@@ -162,7 +170,7 @@ public class HttpProtocolCompatibilityFilterTest {
 
         HttpProtocolCompatibilityFilter filter = new HttpProtocolCompatibilityFilter();
         filter.messageReceived(nextFilter, serverSession, httpRequest);
-        
+
         context.assertIsSatisfied();
     }
 
@@ -184,7 +192,7 @@ public class HttpProtocolCompatibilityFilterTest {
 
             oneOf(nextFilter).messageReceived(with(serverSession), with(equal(expectedRequest)));
         } });
-        
+
         HttpRequestMessage httpRequest = new HttpRequestMessage();
         httpRequest.setVersion(HTTP_1_1);
         httpRequest.setMethod(POST);
@@ -195,7 +203,7 @@ public class HttpProtocolCompatibilityFilterTest {
 
         HttpProtocolCompatibilityFilter filter = new HttpProtocolCompatibilityFilter();
         filter.messageReceived(nextFilter, serverSession, httpRequest);
-        
+
         context.assertIsSatisfied();
     }
 
@@ -217,7 +225,7 @@ public class HttpProtocolCompatibilityFilterTest {
 
             oneOf(nextFilter).messageReceived(with(serverSession), with(equal(expectedRequest)));
         } });
-        
+
         HttpRequestMessage httpRequest = new HttpRequestMessage();
         httpRequest.setVersion(HTTP_1_1);
         httpRequest.setMethod(POST);
@@ -228,7 +236,7 @@ public class HttpProtocolCompatibilityFilterTest {
 
         HttpProtocolCompatibilityFilter filter = new HttpProtocolCompatibilityFilter();
         filter.messageReceived(nextFilter, serverSession, httpRequest);
-        
+
         context.assertIsSatisfied();
     }
 
@@ -249,7 +257,7 @@ public class HttpProtocolCompatibilityFilterTest {
 
             oneOf(nextFilter).messageReceived(with(serverSession), with(equal(expectedRequest)));
         } });
-        
+
         HttpRequestMessage httpRequest = new HttpRequestMessage();
         httpRequest.setVersion(HTTP_1_1);
         httpRequest.setMethod(POST);
@@ -259,7 +267,7 @@ public class HttpProtocolCompatibilityFilterTest {
 
         HttpProtocolCompatibilityFilter filter = new HttpProtocolCompatibilityFilter();
         filter.messageReceived(nextFilter, serverSession, httpRequest);
-        
+
         context.assertIsSatisfied();
     }
 
@@ -287,7 +295,7 @@ public class HttpProtocolCompatibilityFilterTest {
         }
 
         });
-        
+
         HttpRequestMessage httpRequest = new HttpRequestMessage();
         httpRequest.setVersion(HTTP_1_1);
         httpRequest.setMethod(POST);
@@ -296,7 +304,7 @@ public class HttpProtocolCompatibilityFilterTest {
 
         HttpProtocolCompatibilityFilter filter = new HttpProtocolCompatibilityFilter();
         filter.messageReceived(nextFilter, serverSession, httpRequest);
-        
+
         context.assertIsSatisfied();
     }
 
@@ -323,7 +331,7 @@ public class HttpProtocolCompatibilityFilterTest {
 
             oneOf(nextFilter).messageReceived(with(serverSession), with(equal(expectedRequest)));
         } });
-        
+
         HttpRequestMessage httpRequest = new HttpRequestMessage();
         httpRequest.setVersion(HTTP_1_1);
         httpRequest.setMethod(POST);
@@ -332,7 +340,7 @@ public class HttpProtocolCompatibilityFilterTest {
 
         HttpProtocolCompatibilityFilter filter = new HttpProtocolCompatibilityFilter();
         filter.messageReceived(nextFilter, serverSession, httpRequest);
-        
+
         context.assertIsSatisfied();
     }
 
@@ -358,7 +366,7 @@ public class HttpProtocolCompatibilityFilterTest {
 
             oneOf(nextFilter).messageReceived(with(serverSession), with(equal(expectedRequest)));
         } });
-        
+
         HttpRequestMessage httpRequest = new HttpRequestMessage();
         httpRequest.setVersion(HTTP_1_1);
         httpRequest.setMethod(POST);
@@ -367,7 +375,43 @@ public class HttpProtocolCompatibilityFilterTest {
 
         HttpProtocolCompatibilityFilter filter = new HttpProtocolCompatibilityFilter();
         filter.messageReceived(nextFilter, serverSession, httpRequest);
-        
+
+        context.assertIsSatisfied();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void asElevatedRequestShouldPropagateSubjectAndLoginContext() throws Exception {
+        final DefaultHttpSession session = context.mock(DefaultHttpSession.class, "session");
+        Subject subject = new Subject();
+        final ResultAwareLoginContext loginContext = context.mock(ResultAwareLoginContext.class, "loginContext");
+
+        final HttpRequestMessage expectedRequest = new HttpRequestMessage();
+        expectedRequest.setVersion(HTTP_1_1);
+        expectedRequest.setMethod(POST);
+        final URI requestURI = URI.create("/path/;e/cte");
+        expectedRequest.setRequestURI(requestURI);
+        expectedRequest.setContent(EMPTY);
+
+        context.checking(new Expectations() { {
+            oneOf(session).getVersion(); will(returnValue(HTTP_1_1));
+            oneOf(session).getMethod(); will(returnValue(POST));
+            oneOf(session).getParameters();
+            oneOf(session).getRequestURI(); will(returnValue(requestURI));
+            oneOf(session).isSecure();
+            oneOf(session).getReadCookies();
+            oneOf(session).getReadHeader("Content-Length"); will(returnValue(null));
+            allowing(session).getReadHeaders(); will(returnValue(new HashMap<String, List<String>>()));
+            oneOf(session).getSubject(); will(returnValue(subject));
+            oneOf(session).getLoginContext(); will(returnValue(loginContext));
+            oneOf(session).setReadHeaders(with(any(HashMap.class)));
+        } });
+
+
+        HttpRequestMessage request = HttpElevateEmulatedRequestFilter.asElevatedRequest(session);
+        assertSame(subject, request.getSubject());
+        assertSame(loginContext, request.getLoginContext());
+
         context.assertIsSatisfied();
     }
 

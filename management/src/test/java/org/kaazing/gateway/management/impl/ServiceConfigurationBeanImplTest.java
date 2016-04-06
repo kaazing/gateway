@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,7 +111,6 @@ public class ServiceConfigurationBeanImplTest {
         String expected = "{\"b\":\"bValue\",\"a\":\"aValue\",\"nested1\":"
                 + "[{\"aa\":\"aaValue\",\"ab\":\"abValue\"},{\"ba\":\"baValue\",\"bb\":\"bbValue\"}],\"nested2\":[{}]}";
         String result = bean.getProperties();
-        System.out.println(result);
         equalsJson(new JSONObject(expected), new JSONObject(result));
     }
 
