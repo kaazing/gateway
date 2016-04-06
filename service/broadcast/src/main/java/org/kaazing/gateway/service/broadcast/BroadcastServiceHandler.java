@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.service.broadcast;
 
+import static org.kaazing.gateway.service.broadcast.BroadcastService.OnClientMessage.BROADCAST;
+
 import java.nio.channels.ClosedChannelException;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,7 +28,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.util.ConcurrentHashSet;
 import org.kaazing.gateway.util.LoggingUtils;
 import org.slf4j.Logger;
-
+import org.kaazing.gateway.service.broadcast.BroadcastService.OnClientMessage;
 import org.kaazing.gateway.transport.io.filter.IoMessageCodecFilter;
 
 class BroadcastServiceHandler extends IoHandlerAdapter {
@@ -36,9 +38,11 @@ class BroadcastServiceHandler extends IoHandlerAdapter {
     private final IoHandler handler;
     private final Logger logger;
     private IoSession connectSession;
+    private final OnClientMessage onClientMessage;
 
-    BroadcastServiceHandler(boolean disconnectClientsOnReconnect, long maximumScheduledWriteBytes, Logger logger)
+    BroadcastServiceHandler(boolean disconnectClientsOnReconnect, long maximumScheduledWriteBytes, OnClientMessage onClientMessage, Logger logger)
             throws Exception {
+        this.onClientMessage = onClientMessage;
         this.clients = new ConcurrentHashSet<>();
         this.handler = new BroadcastListenHandler(Collections.unmodifiableCollection(clients),
                 disconnectClientsOnReconnect, maximumScheduledWriteBytes, logger);
@@ -57,6 +61,13 @@ class BroadcastServiceHandler extends IoHandlerAdapter {
     IoHandler getListenHandler() {
         return handler;
     }
+
+    @Override
+    public void messageReceived(IoSession session, Object message) throws Exception {
+        if (onClientMessage == BROADCAST) {
+            handler.messageReceived(session, message);
+        }
+    };
 
     @Override
     public void exceptionCaught(IoSession session, Throwable cause)
