@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>develop-SNAPSHOT</version>
+        <version>5.1.0-RC001</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>gateway.service.http.proxy</artifactId>
@@ -63,7 +63,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.test.ca</artifactId>
-            <version>[1.0.0.0,1.1.0.0)</version>
+            <version>1.0.0.24</version>
             <classifier>keystore</classifier>
             <scope>test</scope>
         </dependency>
@@ -81,18 +81,8 @@
                 <artifactId>k3po-maven-plugin</artifactId>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <skipTests>${skipITs}</skipTests>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
