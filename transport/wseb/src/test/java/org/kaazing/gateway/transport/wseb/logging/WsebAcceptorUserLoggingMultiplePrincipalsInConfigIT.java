@@ -39,13 +39,15 @@ import org.kaazing.test.util.MemoryAppender;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
- * WsebAcceptorUserLoggingIT - verifies that the principal name displayed in the principal class is logged accordingly
+ * WsebAcceptorUserLoggingIT - verifies that if multiple Principals are defined in the config
+ * only the first one is used
+ *
  * Logging on different layers:
  * - TCP: hostname:port
  * - HTTP: principal hostname:port
  * - WSEB: principal hostname:port
  */
-public class WsebAcceptorUserLoggingIT {
+public class WsebAcceptorUserLoggingMultiplePrincipalsInConfigIT {
     private static final String ROLE = "USER";
     private static final String DEMO_REALM = "demo";
     private static final String TEST_PRINCIPAL_PASS = "testPrincipalPass";
@@ -69,33 +71,33 @@ public class WsebAcceptorUserLoggingIT {
     public GatewayRule gateway = new GatewayRule() {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
-                .property(WSE_SPECIFICATION.getPropertyName(), "true")
-                .service()
+                    .property(WSE_SPECIFICATION.getPropertyName(), "true")
+                    .service()
                     .accept("ws://localhost:8080/path")
                     .type("echo")
                     .crossOrigin()
-                        .allowOrigin("http://localhost:8001")
+                    .allowOrigin("http://localhost:8001")
                     .done()
                     .realmName(DEMO_REALM)
-                        .authorization()
-                        .requireRole(ROLE)
+                    .authorization()
+                    .requireRole(ROLE)
                     .done()
-                .done()
-                .security()
+                    .done()
+                    .security()
                     .realm()
-                        .name(DEMO_REALM)
-                        .description("Kaazing WebSocket Gateway Demo")
-                        .httpChallengeScheme("Basic")
-                        .userPrincipalClass("org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig")
-                        .loginModule()
-                            .type("class:org.kaazing.gateway.transport.wseb.logging.loggingmodule.BasicLoginModuleWithDefaultUserConfig")
-                            .success("requisite")
-                            .option("roles", ROLE)
-                        .done()
+                    .name(DEMO_REALM)
+                    .description("Kaazing WebSocket Gateway Demo")
+                    .httpChallengeScheme("Basic")
+                    .userPrincipalClass("org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig")
+                    .userPrincipalClass("com.sun.security.auth.UnixPrincipal")
+                    .loginModule()
+                    .type("class:org.kaazing.gateway.transport.wseb.logging.loginmodule.BasicLoginModuleWithMultiplePrincipalsInConfig")
+                    .success("requisite")
+                    .option("roles", ROLE)
                     .done()
-                .done()
-            .done();
-            // @formatter:on
+                    .done()
+                    .done()
+                    .done();
 
             init(configuration);
         }
@@ -111,7 +113,7 @@ public class WsebAcceptorUserLoggingIT {
 
     @Specification("echo.payload.length.127.with.basic.auth")
     @Test
-    public void verifyPrincipalNameLoggedInLayersAboveHttp() throws Exception {
+    public void verifyPrincipalNameLoggedWhenMultiplePrincipalsInConfig() throws Exception {
         k3po.finish();
         expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
                 "tcp#.* [^/]*:\\d*] OPENED",
@@ -126,10 +128,10 @@ public class WsebAcceptorUserLoggingIT {
                 "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] WRITE",
                 "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] RECEIVED",
                 "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] CLOSED"
-            }));
+        }));
         forbiddenPatterns = new ArrayList<String>(Arrays.asList(new String[] {
                 TEST_PRINCIPAL_PASS
-            }));
+        }));
     }
 
 }

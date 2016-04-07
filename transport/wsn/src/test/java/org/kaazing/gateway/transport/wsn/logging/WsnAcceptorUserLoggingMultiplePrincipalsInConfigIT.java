@@ -13,15 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.wseb.logging;
+package org.kaazing.gateway.transport.wsn.logging;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import org.apache.log4j.PropertyConfigurator;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -38,14 +32,24 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.MemoryAppender;
 import org.kaazing.test.util.MethodExecutionTrace;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 /**
- * WsebAcceptorUserLoggingIT - verifies that the principal name displayed in the principal class is logged accordingly
+ * WsnAcceptorUserLoggingMultiplePrincipalsInConfigIT - verifies that if multiple Principals are defined in the config
+ * only the first one is used
+ *
  * Logging on different layers:
  * - TCP: hostname:port
  * - HTTP: principal hostname:port
- * - WSEB: principal hostname:port
+ * - WSN: principal hostname:port
  */
-public class WsebAcceptorUserLoggingIT {
+
+public class WsnAcceptorUserLoggingMultiplePrincipalsInConfigIT {
     private static final String ROLE = "USER";
     private static final String DEMO_REALM = "demo";
     private static final String TEST_PRINCIPAL_PASS = "testPrincipalPass";
@@ -53,6 +57,7 @@ public class WsebAcceptorUserLoggingIT {
     private List<String> expectedPatterns;
     private List<String> forbiddenPatterns;
     private final K3poRule k3po = new K3poRule();
+
     private TestRule checkLogMessageRule = new TestRule() {
         @Override
         public Statement apply(final Statement base, Description description) {
@@ -69,34 +74,37 @@ public class WsebAcceptorUserLoggingIT {
     public GatewayRule gateway = new GatewayRule() {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
-                .property(WSE_SPECIFICATION.getPropertyName(), "true")
-                .service()
-                    .accept("ws://localhost:8080/path")
-                    .type("echo")
-                    .crossOrigin()
-                        .allowOrigin("http://localhost:8001")
-                    .done()
-                    .realmName(DEMO_REALM)
-                        .authorization()
-                        .requireRole(ROLE)
-                    .done()
-                .done()
-                .security()
-                    .realm()
-                        .name(DEMO_REALM)
-                        .description("Kaazing WebSocket Gateway Demo")
-                        .httpChallengeScheme("Basic")
-                        .userPrincipalClass("org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig")
-                        .loginModule()
-                            .type("class:org.kaazing.gateway.transport.wseb.logging.loggingmodule.BasicLoginModuleWithDefaultUserConfig")
-                            .success("requisite")
-                            .option("roles", ROLE)
-                        .done()
-                    .done()
-                .done()
-            .done();
-            // @formatter:on
 
+                    .service()
+                    .accept("ws://localhost:8001/echoAuth")
+                    .type("echo")
+                    .realmName(DEMO_REALM)
+                    .authorization()
+                    .requireRole(ROLE)
+                    .done()
+                    .done()
+                    .security()
+                    .realm()
+                    .name(DEMO_REALM)
+                    .description("Kaazing WebSocket Gateway Demo")
+                    .httpChallengeScheme("Basic")
+                    .userPrincipalClass("org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig")
+                    .userPrincipalClass("com.sun.security.auth.UnixPrincipal")
+                    .loginModule()
+                    .type("class:org.kaazing.gateway.transport.wsn.auth.BasicLoginModuleWithMultiplePrincipalsInConfig")
+                    .success("requisite")
+                    .option("roles", ROLE)
+                    .done()
+                    .done()
+                    .done()
+                    .done();
+
+            Properties log4j = new Properties();
+            log4j.setProperty("log4j.rootLogger", "TRACE, A1");
+            log4j.setProperty("log4j.appender.A1", "org.kaazing.test.util.MemoryAppender");
+            log4j.setProperty("log4j.appender.A1.layout", "org.apache.log4j.PatternLayout");
+            log4j.setProperty("log4j.appender.A1.layout.ConversionPattern", "%-4r %c [%t] %-5p %c{1} %x - %m%n");
+            PropertyConfigurator.configure(log4j);
             init(configuration);
         }
     };
@@ -109,9 +117,10 @@ public class WsebAcceptorUserLoggingIT {
     public final TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(checkLogMessageRule)
             .around(gateway).around(k3po).around(timeoutRule);
 
-    @Specification("echo.payload.length.127.with.basic.auth")
+
+    @Specification("asyncBasicLoginModuleSuccess")
     @Test
-    public void verifyPrincipalNameLoggedInLayersAboveHttp() throws Exception {
+    public void verifyPrincipalNameLoggedWhenMultiplePrincipalsInConfig() throws Exception {
         k3po.finish();
         expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
                 "tcp#.* [^/]*:\\d*] OPENED",
@@ -120,16 +129,15 @@ public class WsebAcceptorUserLoggingIT {
                 "tcp#.* [^/]*:\\d*] CLOSED",
                 "http#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] OPENED",
                 "http#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] CLOSED",
-                "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] OPENED",
-                "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] CLOSED",
-                "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] OPENED",
-                "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] WRITE",
-                "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] RECEIVED",
-                "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] CLOSED"
-            }));
+                "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] OPENED",
+                "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] WRITE",
+                "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] RECEIVED",
+                "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] EXCEPTION.*IOException",
+                "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] CLOSED"
+        }));
         forbiddenPatterns = new ArrayList<String>(Arrays.asList(new String[] {
                 TEST_PRINCIPAL_PASS
-            }));
+        }));
     }
 
 }
