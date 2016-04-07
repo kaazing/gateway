@@ -73,31 +73,32 @@ public class WsnAcceptorUserLoggingMultiplePrincipalsInConfigIT {
     };
     public GatewayRule gateway = new GatewayRule() {
         {
+            // @formatter:off
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
 
-                    .service()
+                .service()
                     .accept("ws://localhost:8001/echoAuth")
                     .type("echo")
                     .realmName(DEMO_REALM)
-                    .authorization()
-                    .requireRole(ROLE)
+                        .authorization()
+                        .requireRole(ROLE)
                     .done()
-                    .done()
-                    .security()
+                .done()
+                .security()
                     .realm()
-                    .name(DEMO_REALM)
-                    .description("Kaazing WebSocket Gateway Demo")
-                    .httpChallengeScheme("Basic")
-                    .userPrincipalClass("org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig")
-                    .userPrincipalClass("com.sun.security.auth.UnixPrincipal")
-                    .loginModule()
-                    .type("class:org.kaazing.gateway.transport.wsn.auth.BasicLoginModuleWithMultiplePrincipalsInConfig")
-                    .success("requisite")
-                    .option("roles", ROLE)
+                        .name(DEMO_REALM)
+                        .description("Kaazing WebSocket Gateway Demo")
+                        .httpChallengeScheme("Basic")
+                        .userPrincipalClass("org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig")
+                        .userPrincipalClass("com.sun.security.auth.UnixPrincipal")
+                        .loginModule()
+                            .type("class:org.kaazing.gateway.transport.wsn.auth.BasicLoginModuleWithMultiplePrincipalsInConfig")
+                            .success("requisite")
+                            .option("roles", ROLE)
+                        .done()
                     .done()
-                    .done()
-                    .done()
-                    .done();
+                .done()
+            .done();
 
             Properties log4j = new Properties();
             log4j.setProperty("log4j.rootLogger", "TRACE, A1");

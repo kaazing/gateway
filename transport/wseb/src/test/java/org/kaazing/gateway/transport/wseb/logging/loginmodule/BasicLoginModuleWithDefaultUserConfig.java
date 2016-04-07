@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.wseb.logging.loggingmodule;
+package org.kaazing.gateway.transport.wseb.logging.loginmodule;
 
 import java.security.Principal;
 import java.util.Map;
@@ -24,7 +24,6 @@ import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import com.sun.security.auth.UnixPrincipal;
 import org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig;
 
 /**
