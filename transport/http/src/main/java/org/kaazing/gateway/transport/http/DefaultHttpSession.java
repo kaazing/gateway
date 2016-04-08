@@ -43,6 +43,7 @@ import javax.security.auth.Subject;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.IoProcessor;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.CommitFuture;
@@ -62,6 +63,7 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.service.IoServiceEx;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.netx.http.auth.ChallengeHandler;
 
 // TODO: change to just support cookie list and internal differential for write
 public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession, HttpBuffer> implements HttpAcceptSession, HttpConnectSession {
@@ -116,6 +118,9 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 	private boolean isGzipped;
     private boolean httpxeSpecCompliant;
 
+	private int redirectsAllowed;
+    private ChallengeHandler nextChallengeHandler;
+
     @SuppressWarnings("deprecation")
     private DefaultHttpSession(IoServiceEx service,
                                IoProcessorEx<DefaultHttpSession> processor,
@@ -142,6 +147,9 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         responseFuture = direction == Direction.READ ? null : new DefaultResponseFuture(this);
 
         httpxeSpecCompliant = configuration == null ? false : HTTPXE_SPECIFICATION.getBooleanProperty(configuration);
+        // TODO: add and use new HttpResourceAddress "maximum.redirects" option of type Integer, default 5
+        //redirectsAllowed = ((HttpResourceAddress) remoteAddress).getOption(HttpResourceAddress.MAXIMUM_REDIRECTS);
+        redirectsAllowed = 0;
     }
 
     public DefaultHttpSession(IoServiceEx service,
@@ -187,6 +195,10 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 
         servicePath = null;
         pathInfo = null;
+
+        // TODO: add and use new HttpResourceAddress "maximum.redirects" option of type Integer, default 5
+        //redirectsAllowed = ((HttpResourceAddress) remoteAddress).getOption(HttpResourceAddress.MAXIMUM_REDIRECTS);
+        redirectsAllowed = 0;
     }
 
     @Override
@@ -615,5 +627,24 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         return httpxeSpecCompliant;
     }
 
+    void resetParent(IoSessionEx newParent){
+        setParent(newParent);
+    }
+    // TODO for balancer redirects
+    // int getAndDecrementRedirectsAllowed() {
+    // int result = redirectsAllowed;
+    // if (result > 0) {
+    // redirectsAllowed--;
+    // }
+    // return result;
+    // }
+
+    public void nextChallengeHandlers(ChallengeHandler nextChallengeHandler) {
+        this.nextChallengeHandler = nextChallengeHandler;
+    }
+
+    public ChallengeHandler getNextChallengeHandler() {
+        return this.nextChallengeHandler;
+    }
 
 }

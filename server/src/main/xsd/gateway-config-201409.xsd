@@ -840,7 +840,7 @@
                     <element maxOccurs="1" minOccurs="0" name="description"
                              type="gateway:CollapsedString"/>
 
-                    <element maxOccurs="unbounded" minOccurs="1" name="accept"
+                    <element maxOccurs="unbounded" minOccurs="0" name="accept"
                              type="anyURI"/>
 
                     <element maxOccurs="unbounded" minOccurs="0" name="connect"

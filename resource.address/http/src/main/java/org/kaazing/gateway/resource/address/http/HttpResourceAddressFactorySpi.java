@@ -22,11 +22,13 @@ import static org.kaazing.gateway.resource.address.ResourceFactories.keepAuthori
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.AUTHENTICATION_CONNECT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.AUTHENTICATION_IDENTIFIER;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.BALANCE_ORIGINS;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.CHALLENGE_HANDLER_CLASSES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.ENCRYPTION_KEY_ALIAS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.GATEWAY_ORIGIN_SECURITY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.INJECTABLE_HEADERS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_CONNECTIONS;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.HTTP_REDIRECT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_TIMEOUT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.LOGIN_CONTEXT_FACTORY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.ORIGIN_SECURITY;
@@ -62,6 +64,7 @@ import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.security.LoginContextFactory;
+import org.kaazing.netx.http.auth.ChallengeHandler;
 
 public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<HttpResourceAddress> {
 
@@ -124,6 +127,11 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         Boolean keepAlive = (Boolean) optionsByName.remove(KEEP_ALIVE.name());
         if (keepAlive != null) {
             options.setOption(KEEP_ALIVE, keepAlive);
+        }
+
+        Boolean httpRedirect = (Boolean) optionsByName.remove(HTTP_REDIRECT.name());
+        if (keepAlive != null) {
+            options.setOption(HTTP_REDIRECT, httpRedirect);
         }
 
         Integer keepAliveTimeout = (Integer) optionsByName.remove(KEEP_ALIVE_TIMEOUT.name());
@@ -236,6 +244,11 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
             options.setOption(REALM_USER_PRINCIPAL_CLASSES, realmUserPrincipalClasses);
         }
 
+        Collection<Class<? extends ChallengeHandler>> challengeHandlerClasses = (Collection<Class<? extends ChallengeHandler>>) optionsByName.remove(CHALLENGE_HANDLER_CLASSES.name());
+        if (challengeHandlerClasses != null) {
+            options.setOption(CHALLENGE_HANDLER_CLASSES, challengeHandlerClasses);
+        }
+
         IdentityResolver httpIdentityResolver = (IdentityResolver) optionsByName.remove(IDENTITY_RESOLVER.name());
         if (httpIdentityResolver != null) {
             options.setOption(IDENTITY_RESOLVER, httpIdentityResolver);
@@ -309,6 +322,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         super.setOptions(address, options, qualifier);
 
         address.setOption0(KEEP_ALIVE, options.getOption(KEEP_ALIVE));
+        address.setOption0(HTTP_REDIRECT,options.getOption(HTTP_REDIRECT));
         address.setOption0(KEEP_ALIVE_TIMEOUT, options.getOption(KEEP_ALIVE_TIMEOUT));
         address.setOption0(KEEP_ALIVE_CONNECTIONS, options.getOption(KEEP_ALIVE_CONNECTIONS));
         address.setOption0(REQUIRED_ROLES, options.getOption(REQUIRED_ROLES));
@@ -331,6 +345,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         address.setOption0(SERVICE_DOMAIN, options.getOption(SERVICE_DOMAIN));
         address.setOption0(SERVER_HEADER_ENABLED, options.getOption(SERVER_HEADER_ENABLED));
         address.setOption0(REALM_USER_PRINCIPAL_CLASSES, options.getOption(REALM_USER_PRINCIPAL_CLASSES));
+        address.setOption0(CHALLENGE_HANDLER_CLASSES, options.getOption(CHALLENGE_HANDLER_CLASSES));
         if (address.getOption(IDENTITY_RESOLVER) == null) {
              Collection<Class<? extends Principal>> realmUserPrincipalClasses = address.getOption(REALM_USER_PRINCIPAL_CLASSES);
              if (realmUserPrincipalClasses != null && realmUserPrincipalClasses.size() > 0) {

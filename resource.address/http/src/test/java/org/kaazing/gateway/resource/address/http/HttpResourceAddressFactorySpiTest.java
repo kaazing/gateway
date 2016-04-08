@@ -29,6 +29,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.DEFAULT_HTTP_KEEPALIVE_CONNECTIONS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_CONNECTIONS;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.HTTP_REDIRECT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_TIMEOUT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.LOGIN_CONTEXT_FACTORY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES;
@@ -126,6 +127,7 @@ public class HttpResourceAddressFactorySpiTest {
         assertNull(address.getOption(QUALIFIER));
         assertNull(address.getOption(TRANSPORT));
         assertTrue(address.getOption(KEEP_ALIVE));
+      //  assertTrue(address.getOption(HTTP_REDIRECT));
         assertEquals(address.getOption(KEEP_ALIVE_TIMEOUT).intValue(), 30);
         assertEquals(address.getOption(KEEP_ALIVE_CONNECTIONS).intValue(), DEFAULT_HTTP_KEEPALIVE_CONNECTIONS);
         assertNull(address.getOption(REALM_NAME));
@@ -149,6 +151,7 @@ public class HttpResourceAddressFactorySpiTest {
         assertEquals(5000L, address.getOption(KEEP_ALIVE_TIMEOUT).longValue());
         assertEquals(10, address.getOption(KEEP_ALIVE_CONNECTIONS).intValue());
         assertFalse(address.getOption(KEEP_ALIVE));
+        assertFalse(address.getOption(HTTP_REDIRECT));
         assertEquals("demo", address.getOption(REALM_NAME));
         assertArrayEquals(new String[] { "admin" }, address.getOption(REQUIRED_ROLES));
 
