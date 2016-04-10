@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ import static org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolH
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter.PROTOCOL_HTTP_1_1;
 import static org.kaazing.gateway.transport.http.resource.HttpDynamicResourceFactory.newHttpDynamicResourceFactory;
 import static org.kaazing.gateway.util.InternalSystemProperty.HTTPXE_SPECIFICATION;
-import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -190,6 +189,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 return httpBinding;
             }
 
+            @Override
             protected boolean unbindAdditionalAddressesIfNecessary(ResourceAddress address, HttpBinding newHttpBinding) {
                 ResourceAddress resourcesAddress = getResourcesAddress(newHttpBinding);
                 if ( newHttpBinding.size()==1 && newHttpBinding.get(resourcesAddress.getResource().getPath()) != null) {
@@ -539,6 +539,10 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
             if (!address.hasOption(QUALIFIER)) {
                 nextProtocol = address.getOption(NEXT_PROTOCOL);
             }
+        }
+
+        if (logger.isTraceEnabled()) {
+            logger.trace(format("Adding http accept bridge filters using nextProtocol: %s", nextProtocol));
         }
 
         Set<HttpAcceptFilter> acceptFilters = acceptFiltersByProtocol.get(nextProtocol);

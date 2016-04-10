@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.kaazing.gateway.management.test.util;
 
 import java.io.File;
@@ -37,7 +36,7 @@ public class TlsTestUtil {
             return keyStore;
         } catch (Exception e) {
             File file = new File(keyStoreFileLocation);
-            throw new RuntimeException("Cannot create keystore" + file.getAbsolutePath(), e);
+            throw new RuntimeException("Cannot create keystore: " + file.getAbsolutePath(), e);
         }
     }
 

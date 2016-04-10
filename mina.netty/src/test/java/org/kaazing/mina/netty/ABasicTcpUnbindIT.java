@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URI;
 import java.nio.channels.SelectionKey;
@@ -48,14 +47,12 @@ import org.jboss.netty.channel.socket.nio.WorkerPool;
 import org.jboss.netty.handler.logging.LoggingHandler;
 import org.jboss.netty.logging.InternalLogLevel;
 import org.jboss.netty.logging.Slf4JLoggerFactory;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.kaazing.mina.netty.socket.nio.DefaultNioSocketChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.nio.NioSocketChannelIoAcceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ABasicTcpUnbindIT {
 
@@ -86,68 +83,6 @@ public class ABasicTcpUnbindIT {
     @BeforeClass
     public static void setLoggingFactory() throws Exception {
         setDefaultFactory(new Slf4JLoggerFactory());
-    }
-
-    @Test
-    public void shouldUnBindToSpecificLocalIpAddress() throws Exception {
-        ServerSocket serverSocket = null;
-        try {
-            // final URI bindURI = URI.create("tcp://[0:0:0:0:0:0:0:1]:8000");
-            final URI bindURI = URI.create("tcp://localhost:8000");
-            final InetSocketAddress address = new InetSocketAddress(bindURI.getHost(), bindURI.getPort());
-            LOGGER.info(format("Binding to %s\n", address));
-
-            serverSocket = new ServerSocket();
-            serverSocket.bind(address);
-
-            assert serverSocket.isBound();
-            Assert.assertTrue("Server socket is not bound.", serverSocket.isBound());
-
-            serverSocket.close();
-            Assert.assertTrue("socket is unbound", checkIfUnbound(bindURI));
-
-            LOGGER.info(format("Successfully unbound to %s\n", bindURI));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        } finally {
-            if (serverSocket != null) {
-                serverSocket.close();
-            }
-        }
-
-    }
-
-    @Test
-    public void shouldBindToIPv6AddressUsingNIO() throws Exception {
-        ServerSocketChannel serverSocketChannel = null;
-        try {
-            URI bindURI = URI.create("tcp://[0:0:0:0:0:0:0:1]:8000");
-            final InetSocketAddress address = new InetSocketAddress(bindURI.getHost(), bindURI.getPort());
-            LOGGER.info(format("Binding to %s\n", address));
-
-            serverSocketChannel = ServerSocketChannel.open();
-            serverSocketChannel.configureBlocking(false);
-            serverSocketChannel.socket().bind(address);
-
-            assertTrue("Server socket is not open.", serverSocketChannel.isOpen());
-
-            Selector selector = Selector.open();
-            serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT, null);
-            serverSocketChannel.close();
-            // On Windows, you need to do a select for the selector key to be unregistered and only then is the socket
-            // actually closed
-            selector.select(1);
-            assertTrue("socket is bound", checkIfUnbound(bindURI));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        } finally {
-            if (serverSocketChannel != null) {
-                serverSocketChannel.close();
-            }
-        }
-
     }
 
     @Test

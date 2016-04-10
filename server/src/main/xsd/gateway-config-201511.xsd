@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+    Copyright 2007-2016, Kaazing Corporation. All rights reserved.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -1171,21 +1171,8 @@
         <complexContent>
             <restriction base="gateway:ServicePropertiesType">
                 <sequence>
-                    <!-- Remove the first 4 elements at the next major release. -->
                     <element maxOccurs="1" minOccurs="0"
-                             name="service.domain" type="gateway:CollapsedString">
-                        <annotation/>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0"
-                             name="encryption.key.alias" type="gateway:CollapsedString">
-                        <annotation/>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0"
-                             name="authentication.connect" type="gateway:CollapsedString">
-                        <annotation/>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0"
-                             name="authentication.identifier" type="gateway:CollapsedString">
+                             name="on.client.message" type="gateway:CollapsedString">
                         <annotation/>
                     </element>
                 </sequence>
@@ -1404,23 +1391,6 @@
         <complexContent>
             <restriction base="gateway:ServicePropertiesType">
                 <sequence>
-                    <!-- Remove the first 4 elements at the next major release. -->
-                    <element maxOccurs="1" minOccurs="0"
-                             name="service.domain" type="gateway:CollapsedString">
-                        <annotation/>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0"
-                             name="encryption.key.alias" type="gateway:CollapsedString">
-                        <annotation/>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0"
-                             name="authentication.connect" type="gateway:CollapsedString">
-                        <annotation/>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0"
-                             name="authentication.identifier" type="gateway:CollapsedString">
-                        <annotation/>
-                    </element>
                     <element maxOccurs="1" minOccurs="1"
                              name="directory" type="gateway:CollapsedString">
                         <annotation/>
@@ -1468,23 +1438,6 @@
         <complexContent>
             <restriction base="gateway:ServicePropertiesType">
                 <all>
-                    <!-- Remove the first 4 elements at the next major release. -->
-                    <element maxOccurs="1" minOccurs="0"
-                             name="service.domain" type="gateway:CollapsedString">
-                        <annotation/>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0"
-                             name="encryption.key.alias" type="gateway:CollapsedString">
-                        <annotation/>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0"
-                             name="authentication.connect" type="gateway:CollapsedString">
-                        <annotation/>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0"
-                             name="authentication.identifier" type="gateway:CollapsedString">
-                        <annotation/>
-                    </element>
                 </all>
             </restriction>
         </complexContent>
@@ -1494,23 +1447,6 @@
         <complexContent>
             <restriction base="gateway:ServicePropertiesType">
                 <all>
-                    <!-- Remove the first 4 elements at the next major release. -->
-                    <element maxOccurs="1" minOccurs="0"
-                             name="service.domain" type="gateway:CollapsedString">
-                        <annotation/>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0"
-                             name="encryption.key.alias" type="gateway:CollapsedString">
-                        <annotation/>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0"
-                             name="authentication.connect" type="gateway:CollapsedString">
-                        <annotation/>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0"
-                             name="authentication.identifier" type="gateway:CollapsedString">
-                        <annotation/>
-                    </element>
                     <element maxOccurs="1" minOccurs="0" name="connect"
                              type="anyURI">
                         <annotation/>
@@ -1540,23 +1476,6 @@
         <complexContent>
             <restriction base="gateway:ServicePropertiesType">
                 <sequence>
-                    <!-- Remove the first 4 elements at the next major release. -->
-                    <element maxOccurs="1" minOccurs="0"
-                             name="service.domain" type="gateway:CollapsedString">
-                        <annotation/>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0"
-                             name="encryption.key.alias" type="gateway:CollapsedString">
-                        <annotation/>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0"
-                             name="authentication.connect" type="gateway:CollapsedString">
-                        <annotation/>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0"
-                             name="authentication.identifier" type="gateway:CollapsedString">
-                        <annotation/>
-                    </element>
                     <element maxOccurs="1" minOccurs="0"
                              name="repeat" type="gateway:CollapsedString">
                         <annotation/>

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -587,6 +587,7 @@ public class Gateway {
         private KeyStore trustStore;
         private String keyStoreFile;
         private char[] trustStorePassword;
+        private String keyStoreFilePath;
 
         @SuppressWarnings("deprecation")
         SecurityContextResolver(SecurityConfiguration configuration) {
@@ -609,12 +610,14 @@ public class Gateway {
                 if (configuration.getTrustStorePassword() != null) {
                     trustStorePassword = configuration.getTrustStorePassword();
                 }
+                if (configuration.getKeyStoreFile() != null) {
+                    keyStoreFilePath = configuration.getKeyStoreFile();
+                }
             }
         }
 
         @Override
         public DefaultSecurityContext resolve(SecurityType config) throws Exception {
-            String keyStoreFilePath = null;
             String keyStorePasswordFile = null;
             String trustStoreFile = null;
             String trustStoreFilePath = null;

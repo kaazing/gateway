@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,14 +80,10 @@ public class ConnectOptionsTest {
         expectValidateFailure("tcp.transport", null);
     }
 
-    @Test @Ignore
+    @Test
     public void testHttpTransportOption() throws Exception {
-        expectSuccess("http.transport", "tcp://127.0.0.1:80", "http[http/1.1].transport", URI.create("tcp://127.0.0.1:80"));
-
-        expectValidateFailure("tcp.transport", "//not.absolute");
-        expectValidateFailure("tcp.transport", "-1");
-        expectValidateFailure("tcp.transport", "");
-        expectValidateFailure("tcp.transport", null);
+        expectSuccess("http.transport", "tcp://127.0.0.1:80", "http[http/1.1].transport", "tcp://127.0.0.1:80");
+        expectSuccess("http.transport", "tcp://127.0.0.1:80", "http.transport", null);
     }
 
     @Test @Ignore
