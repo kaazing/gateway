@@ -55,7 +55,7 @@ public class ClusterBalancerServiceIT {
     };
 
     @Rule
-    public RuleChain chain = ITUtil.createRuleChain(rule, 15, SECONDS);
+    public RuleChain chain = ITUtil.createRuleChain(rule, 30, SECONDS);
 
     @Test
     public void testLaunchBalancerService() throws Exception {
