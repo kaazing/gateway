@@ -556,23 +556,23 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 return;
             }
 
-            List<String> sentProtocols = httpSession.getWriteHeaders("Sec-WebSocket-Protocol");
-            List<String> selectedProtocols = httpSession.getReadHeaders("Sec-WebSocket-Protocol");
-            if (sentProtocols == null && selectedProtocols != null) {
-                logger.warn(String.format("WebSocket upgrade failed: Invalid Sec-WebSocket-Protocol header, unknown protocol(s)=%s", selectedProtocols));
-                wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: Invalid Sec-WebSocket-Protocol header"));
-                return;
-            } else if (sentProtocols != null && selectedProtocols == null) {
-                logger.warn(String.format("WebSocket upgrade failed: No Sec-WebSocket-Protocol header, expecting one of protocol(s)=%s", sentProtocols));
-                wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: Invalid Sec-WebSocket-Protocol header"));
-                return;
-            } else if (sentProtocols != null) {
-                if (selectedProtocols.size() != 1 || sentProtocols.stream().noneMatch(s -> s.equals(selectedProtocols.get(0)))) {
-                    logger.warn(String.format("WebSocket upgrade failed: Invalid Sec-WebSocket-Protocol=%s header, expecting one of protocol(s)=%s", selectedProtocols, sentProtocols));
-                    wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: Invalid Sec-WebSocket-Protocol header"));
-                    return;
-                }
-            }
+//            List<String> sentProtocols = httpSession.getWriteHeaders("Sec-WebSocket-Protocol");
+//            List<String> selectedProtocols = httpSession.getReadHeaders("Sec-WebSocket-Protocol");
+//            if (sentProtocols == null && selectedProtocols != null) {
+//                logger.warn(String.format("WebSocket upgrade failed: Invalid Sec-WebSocket-Protocol header, unknown protocol(s)=%s", selectedProtocols));
+//                wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: Invalid Sec-WebSocket-Protocol header"));
+//                return;
+//            } else if (sentProtocols != null && selectedProtocols == null) {
+//                logger.warn(String.format("WebSocket upgrade failed: No Sec-WebSocket-Protocol header, expecting one of protocol(s)=%s", sentProtocols));
+//                wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: Invalid Sec-WebSocket-Protocol header"));
+//                return;
+//            } else if (sentProtocols != null) {
+//                if (selectedProtocols.size() != 1 || sentProtocols.stream().noneMatch(s -> s.equals(selectedProtocols.get(0)))) {
+//                    logger.warn(String.format("WebSocket upgrade failed: Invalid Sec-WebSocket-Protocol=%s header, expecting one of protocol(s)=%s", selectedProtocols, sentProtocols));
+//                    wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: Invalid Sec-WebSocket-Protocol header"));
+//                    return;
+//                }
+//            }
 
             final IoSessionInitializer<? extends IoFuture> wsnSessionInitializer = WSN_SESSION_INITIALIZER_KEY.remove(httpSession);
             final ConnectFuture wsnConnectFuture = WSN_CONNECT_FUTURE_KEY.get(httpSession);
