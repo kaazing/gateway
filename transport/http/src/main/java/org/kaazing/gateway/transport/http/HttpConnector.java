@@ -34,11 +34,11 @@ import java.io.IOException;
 import java.net.Authenticator;
 import java.net.Authenticator.RequestorType;
 import java.net.InetAddress;
+import java.net.PasswordAuthentication;
 import java.net.SocketAddress;
-import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -443,11 +443,26 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                         if (!wwwAuthHeader.startsWith("Application")) {
                             Matcher challengeMatcher = CHALLENGE_PATTERN.matcher(wwwAuthHeader);
                             if (challengeMatcher.matches()) {
-                                Authenticator.requestPasswordAuthentication(remoteAddress.getResource().getHost(),
+                                PasswordAuthentication creds = Authenticator.requestPasswordAuthentication(remoteAddress.getResource().getHost(),
                                         InetAddress.getByName(remoteAddress.getResource().getHost()),
                                         remoteAddress.getResource().getPort(), "HTTP", wwwAuthHeader,
                                         challengeMatcher.group("scheme"), remoteAddress.getResource().toURL(),
                                         RequestorType.SERVER);
+                                if(creds != null){
+                                    schedulerProvider.submit(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            String auth = creds.getUserName() + ":" + new String(creds.getPassword());
+                                            httpSession.setWriteHeader(HttpHeaders.HEADER_AUTHORIZATION,
+                                                    "Basic " + new String(Base64.getEncoder().encode(auth.getBytes())));
+                                            final HttpSessionFactory httpSessionFactory =
+                                                    getReconnectSessionFactory(httpSession);
+                                            connectInternal0(new DefaultConnectFuture(), remoteAddress, httpSession.getHandler(),
+                                                    httpSessionFactory);
+                                        }
+                                    });
+                                    return;
+                                }
                             } else {
                                 logger.warn(String.format("Can't parse WWW-Authenticate: %s", wwwAuthHeader));
                             }
