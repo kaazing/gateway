@@ -70,6 +70,7 @@ public class WsebAcceptorUserLoggingMultiplePrincipalsInConfigIT {
     };
     public GatewayRule gateway = new GatewayRule() {
         {
+            // @formatter:off
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                 .property(WSE_SPECIFICATION.getPropertyName(), "true")
                 .service()
@@ -98,6 +99,7 @@ public class WsebAcceptorUserLoggingMultiplePrincipalsInConfigIT {
                     .done()
                 .done()
             .done();
+            // @formatter:on
 
             init(configuration);
         }

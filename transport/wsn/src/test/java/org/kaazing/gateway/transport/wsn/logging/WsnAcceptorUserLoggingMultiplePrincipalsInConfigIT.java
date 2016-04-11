@@ -99,6 +99,7 @@ public class WsnAcceptorUserLoggingMultiplePrincipalsInConfigIT {
                     .done()
                 .done()
             .done();
+            // @formatter:on
 
             Properties log4j = new Properties();
             log4j.setProperty("log4j.rootLogger", "TRACE, A1");
