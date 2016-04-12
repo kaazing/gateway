@@ -226,6 +226,7 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
                 upgradeFuture.setUpgraded();
                 upgradeHandler.sessionOpened(parent);
             } catch (Exception e) {
+                e.printStackTrace();
                 throw new RuntimeException("Error during http connector upgrade.", e);
             }
         }

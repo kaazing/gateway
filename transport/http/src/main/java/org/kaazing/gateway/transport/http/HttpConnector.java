@@ -62,6 +62,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.ResourceOption;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.transport.AbstractBridgeConnector;
 import org.kaazing.gateway.transport.BridgeConnector;
@@ -455,6 +456,10 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                                             String auth = creds.getUserName() + ":" + new String(creds.getPassword());
                                             httpSession.setWriteHeader(HttpHeaders.HEADER_AUTHORIZATION,
                                                     "Basic " + new String(Base64.getEncoder().encode(auth.getBytes())));
+                                            for(Object attributeKey: httpSession.getParent().getAttributeKeys()){
+                                                Object attributeValue = httpSession.getParent().getAttribute(attributeKey);
+                                                System.out.println("DPW === " + attributeKey + " " + attributeValue);
+                                            }
                                             final HttpSessionFactory httpSessionFactory =
                                                     getReconnectSessionFactory(httpSession);
                                             connectInternal0(new DefaultConnectFuture(), remoteAddress, httpSession.getHandler(),
@@ -583,7 +588,15 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
             @Override
             public DefaultHttpSession get(IoSession parent) throws Exception {
-                httpSession.resetParent((IoSessionEx) parent);
+                ResourceAddress rmA = httpSession.getRemoteAddress();
+                String prot = rmA.getOption(ResourceAddress.NEXT_PROTOCOL);
+                if(prot == null){
+                    // if next prot == null and HTTP is end of the line then
+                    // we need to reset the parent as the close future
+                    // of the session is tied to the old session
+                    // and will close everything
+                    httpSession.resetParent((IoSessionEx) parent);
+                }
                 HttpConnectProcessor processor = (HttpConnectProcessor) httpSession.getProcessor();
                 processor.finishConnect(httpSession);
                 return httpSession;

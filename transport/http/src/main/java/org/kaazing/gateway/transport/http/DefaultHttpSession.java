@@ -40,6 +40,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.security.auth.Subject;
 
+import org.apache.mina.core.future.IoFuture;
+import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.IoProcessor;
 import org.kaazing.gateway.resource.address.ResourceAddress;
@@ -630,14 +632,6 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     void resetParent(IoSessionEx newParent){
         setParent(newParent);
     }
-    // TODO for balancer redirects
-    // int getAndDecrementRedirectsAllowed() {
-    // int result = redirectsAllowed;
-    // if (result > 0) {
-    // redirectsAllowed--;
-    // }
-    // return result;
-    // }
 
     public void nextChallengeHandlers(ChallengeHandler nextChallengeHandler) {
         this.nextChallengeHandler = nextChallengeHandler;
