@@ -162,8 +162,6 @@ public class JmxSessionPrincipalIT {
 
         assertEquals("Ann Wsn session should still be alive", (Long) 1L, numberOfCurrentSessions);
 
-        k3po.notifyBarrier("CLOSE_SESSIONS_INVOKED");
-
         k3po.finish();
     }
 
@@ -209,8 +207,6 @@ public class JmxSessionPrincipalIT {
         }
 
         assertEquals("Not all sessions have been closed", (Long) 0L, numberOfCurrentSessions);
-
-        k3po.notifyBarrier("CLOSE_SESSIONS_INVOKED");
 
         k3po.finish();
     }
