@@ -164,6 +164,7 @@ public class OpeningHandshakeIT {
     }
 
     @Test
+    @Ignore("Issue# 309: Missing Sec-WebSocket-Extensions header in the handshake request; currently has comma separated which is not support in K3po yet")
     @Specification({
         "request.header.sec.websocket.protocol/handshake.response"
         })
