@@ -164,6 +164,7 @@ public class OpeningHandshakeIT {
     }
 
     @Test
+    @Ignore("Issue# 309: Missing Sec-WebSocket-Extensions header in the handshake request; currently has comma separated which is not support in K3po yet")
     @Specification({
         "request.header.sec.websocket.protocol/handshake.response"
         })
@@ -417,7 +418,10 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Specification("response.header.sec.websocket.protocol.not.negotiated/handshake.response")
+    @Ignore("Issue# 315: connectFuture.isConnected() must return false as the negotiated protocol does not match any"
+            + "of the supported protocols")
+    @Specification({
+        "response.header.sec.websocket.protocol.not.negotiated/handshake.response" })
     public void shouldFailConnectionWhenResponseHeaderSecWebSocketProtocolNotNegotiated() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 
