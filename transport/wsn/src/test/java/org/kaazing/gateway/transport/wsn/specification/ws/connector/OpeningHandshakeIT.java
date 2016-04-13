@@ -164,6 +164,7 @@ public class OpeningHandshakeIT {
     }
 
     @Test
+    @Ignore("Issue# 53: Simplify matching syntax for comma-separated list HTTP headers")
     @Specification({
         "request.header.sec.websocket.protocol/handshake.response"
         })
