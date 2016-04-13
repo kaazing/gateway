@@ -41,7 +41,7 @@ read "Access-Control-Allow-Headers: x-websocket-protocol\r\n"
 read "Access-Control-Allow-Origin: null\r\n"
 read "Connection: Upgrade\r\n"
 read "Content-Type: text/html\r\n"
-read /Date: .*/ "\r\n"
+read /Date: .*\r\n/
 read "Sec-WebSocket-Accept: j/v8jXhQPNm5ABvoBf/WdimQulw=\r\n"
 read "Server: Kaazing Gateway\r\n"
 read "Upgrade: websocket\r\n"

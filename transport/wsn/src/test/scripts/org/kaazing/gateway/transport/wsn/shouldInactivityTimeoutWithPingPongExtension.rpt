@@ -33,8 +33,8 @@ write "\r\n"
 
 read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
 read "Connection: Upgrade\r\n"
-read /Date: .*/ "\r\n"
-read /Sec-WebSocket-Accept: .*/ "\r\n"
+read /Date: .*\r\n/
+read /Sec-WebSocket-Accept: .*\r\n/
 # The 4 control bytes for ping-pong extension are 0x01010102:
 read "Sec-WebSocket-Extensions: x-kaazing-idle-timeout; timeout=2000\r\n"
 read "Sec-WebSocket-Extensions: x-kaazing-ping-pong; 01010102"
