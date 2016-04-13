@@ -38,6 +38,15 @@ See Kaazing Gateway on [Docker Hub](https://registry.hub.docker.com/u/kaazing/ga
 
 ## Steps for building this project
 
+Before building the project please import the certificate form `certificates/democa.crt` to the Java keystore.
+
+To do this you can use the provided scripts:
+
+- `certificates\add-to-cacerts.bat` for Windows
+- `certificates/add-to-cacerts.sh` for Mac/Linux
+
+Please note that the scripts assume you have specified a JDK in your JAVA_HOME environment variable.
+
 To build the Gateway locally, use:
 
   `mvn clean install`
