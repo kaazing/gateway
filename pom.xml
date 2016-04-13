@@ -500,7 +500,7 @@
         </plugins>
     </build>
 
-   <profiles>
+    <profiles>
         <profile>
             <id>sonar</id>
             <build>
