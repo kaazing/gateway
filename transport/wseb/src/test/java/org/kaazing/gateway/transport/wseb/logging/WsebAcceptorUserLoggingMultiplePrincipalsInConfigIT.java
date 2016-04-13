@@ -39,13 +39,15 @@ import org.kaazing.test.util.MemoryAppender;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
- * WsebAcceptorUserLoggingIT - verifies that the principal name displayed in the principal class is logged accordingly
+ * WsebAcceptorUserLoggingIT - verifies that if multiple Principals are defined in the config
+ * only the first one is used
+ *
  * Logging on different layers:
  * - TCP: hostname:port
  * - HTTP: principal hostname:port
  * - WSEB: principal hostname:port
  */
-public class WsebAcceptorUserLoggingIT {
+public class WsebAcceptorUserLoggingMultiplePrincipalsInConfigIT {
     private static final String ROLE = "USER";
     private static final String DEMO_REALM = "demo";
     private static final String TEST_PRINCIPAL_PASS = "testPrincipalPass";
@@ -68,6 +70,7 @@ public class WsebAcceptorUserLoggingIT {
     };
     public GatewayRule gateway = new GatewayRule() {
         {
+            // @formatter:off
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                 .property(WSE_SPECIFICATION.getPropertyName(), "true")
                 .service()
@@ -87,8 +90,9 @@ public class WsebAcceptorUserLoggingIT {
                         .description("Kaazing WebSocket Gateway Demo")
                         .httpChallengeScheme("Basic")
                         .userPrincipalClass("org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig")
+                        .userPrincipalClass("com.sun.security.auth.UnixPrincipal")
                         .loginModule()
-                            .type("class:org.kaazing.gateway.transport.wseb.logging.loginmodule.BasicLoginModuleWithDefaultUserConfig")
+                            .type("class:org.kaazing.gateway.transport.wseb.logging.loginmodule.BasicLoginModuleWithMultiplePrincipalsInConfig")
                             .success("requisite")
                             .option("roles", ROLE)
                         .done()
@@ -111,7 +115,7 @@ public class WsebAcceptorUserLoggingIT {
 
     @Specification("echo.payload.length.127.with.basic.auth")
     @Test
-    public void verifyPrincipalNameLoggedInLayersAboveHttp() throws Exception {
+    public void verifyPrincipalNameLoggedWhenMultiplePrincipalsInConfig() throws Exception {
         k3po.finish();
         expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
                 "tcp#.* [^/]*:\\d*] OPENED",
@@ -126,10 +130,10 @@ public class WsebAcceptorUserLoggingIT {
                 "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] WRITE",
                 "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] RECEIVED",
                 "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] CLOSED"
-            }));
+        }));
         forbiddenPatterns = new ArrayList<String>(Arrays.asList(new String[] {
                 TEST_PRINCIPAL_PASS
-            }));
+        }));
     }
 
 }
