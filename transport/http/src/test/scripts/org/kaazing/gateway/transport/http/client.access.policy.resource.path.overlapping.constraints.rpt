@@ -30,7 +30,7 @@ write "\r\n"
 
 read "HTTP/1.1 200 OK\r\n"
 read "Content-Length: 886\r\n"
-read /Date: .*/ "\r\n"
+read /Date: .*\r\n/
 read "Server: Kaazing Gateway\r\n"
 read "\r\n"
 
