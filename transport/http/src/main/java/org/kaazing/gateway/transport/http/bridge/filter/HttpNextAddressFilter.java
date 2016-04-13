@@ -80,6 +80,7 @@ public class HttpNextAddressFilter extends HttpFilterAdapter<IoSession> {
 
         String nextProtocol = httpRequest.getHeader(HEADER_X_NEXT_PROTOCOL);
         ResourceAddress candidateAddress = createCandidateAddress(session, httpRequest, nextProtocol);
+        ResourceAddress nextProtocolCandidateAddress = candidateAddress;
         Binding binding = bindings.getBinding(candidateAddress);
         if (binding == null) {
             // try with null nextProtocol as this request may be websocket request but
@@ -96,7 +97,10 @@ public class HttpNextAddressFilter extends HttpFilterAdapter<IoSession> {
         else {
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("\n" +
-                        "*** HttpNextAddressFilter FAILED to find local address via candidate:\n" +
+                        "*** HttpNextAddressFilter FAILED to find local address"+
+                        "\n*** via candidate1:\n" +
+                        nextProtocolCandidateAddress +
+                        "\n*** via candidate2:\n" +
                         candidateAddress +
                         "\n***with bindings [\n" +
                         bindings +
