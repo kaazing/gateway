@@ -35,6 +35,8 @@
         <slf4j.log4j.version>1.7.5</slf4j.log4j.version>
         <agrona.version>0.4.2</agrona.version>
         <enforcer.skip>true</enforcer.skip>
+        <!-- Try to avoid huge heap size on Travis builds -->
+        <failsafeArgLine>-Xmx1024m</failsafeArgLine>
     </properties>
 
     <modules>
@@ -217,12 +219,11 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!-- Try to avoid huge heap size on Travis builds -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <configuration>
-                        <argLine>-Xmx1024m ${failsafeArgLine}</argLine>
+                        <argLine>@{failsafeArgLine}</argLine>
                         <skipTests>${skipITs}</skipTests>
                     </configuration>
                     <executions>
