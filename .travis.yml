@@ -7,7 +7,13 @@ env:
     - secure: "P5oMhssZHp8eBezF2WEUZrzR6du/ibhcNRmZhSC8uKN0NO6AKlGLBID2llQrWED7RoZLoYhReR04LqdQZboGKvmqZ1TRHDkhwUOsFAGFIC2wxFrZPNy06anOjaT+ZfOsMZCtN+mXCaCARSBCSJP7L0vyEIdfaw+ZG2LxBV2GrK0="
 before_install: certificates/add-to-cacerts.sh
 install: mvn install -DskipTests -DskipITs -q 
-script: mvn clean verify && mvn cobertura:cobertura-integration-test coveralls:report
+script:
+  - >
+    if [ ${TRAVIS_BRANCH} == "develop" ]; then
+    mvn clean verify -Psonar && mvn cobertura:cobertura-integration-test coveralls:report;
+    else
+    mvn clean verify && mvn cobertura:cobertura-integration-test coveralls:report;
+    fi;
 # Run Sonar analysis only after a successful build to avoid incomplete results
 after_success:
   - >
