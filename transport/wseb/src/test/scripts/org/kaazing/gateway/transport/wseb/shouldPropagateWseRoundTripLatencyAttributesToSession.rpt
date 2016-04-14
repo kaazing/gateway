@@ -49,8 +49,8 @@ read "HTTP/1.1 201 Created\r\n"
 read "Content-Type: text/plain;charset=UTF-8\r\n"
 read "\r\n"
 # Example: http://localhost:8123/echo/;e/ub/fUOutUjjl9sgFumZWv1XySfdooieOf7e
-read "http://localhost:8123" /(?<up>.*)/ "\n"
-read "http://localhost:8123" /(?<down>.*)/ "\n"
+read "http://localhost:8123" /(?<up>.*)\n/
+read "http://localhost:8123" /(?<down>.*)\n/
 
 read notify CREATED
 
