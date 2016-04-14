@@ -287,17 +287,16 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
      * @param requestPath
      */
     private void addCacheControl(HttpAcceptSession session, File requestFile, String requestPath) {
-        if (urlCacheControlMap.containsKey(requestPath)) {
-            addCacheControlHeader(session, requestFile, urlCacheControlMap.get(requestPath));
-        } else {
-            for (PatternCacheControl patternCacheControl : patterns) {
-                if (PatternMatcherUtils.caseInsensitiveMatch(requestPath, patternCacheControl.getPattern())) {
-                    CacheControlHandler cacheControlHandler = new CacheControlHandler(requestFile, patternCacheControl);
-                    urlCacheControlMap.put(requestPath, cacheControlHandler);
-                    addCacheControlHeader(session, requestFile, cacheControlHandler);
-                    break;
-                }
-            }
+        CacheControlHandler cacheControlHandler = urlCacheControlMap.computeIfAbsent(requestPath, 
+                path -> patterns.stream()
+                     .filter(patternCacheControl -> PatternMatcherUtils.caseInsensitiveMatch(requestPath, patternCacheControl.getPattern()))
+                     .findFirst()
+                     .map(patternCacheControl -> new CacheControlHandler(requestFile, patternCacheControl))
+                     .orElse(null)
+        );
+
+        if (cacheControlHandler != null) {
+            addCacheControlHeader(session, requestFile, cacheControlHandler);
         }
     }
 
