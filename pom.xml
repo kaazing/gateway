@@ -479,7 +479,7 @@
                     <instrumentation>
                         <excludes>
                             <exclude>schemaorg_apache_xmlbeans/system/**/*.class</exclude>
-                            <exclude>org/kaazing/gateway/server/config/sep2014/**/*.class</exclude>
+                            <exclude>org/kaazing/gateway/server/config/**/*.class</exclude>
                             <exclude>org/kaazing/xmlns/**/*.class</exclude>
                         </excludes>
                     </instrumentation>
