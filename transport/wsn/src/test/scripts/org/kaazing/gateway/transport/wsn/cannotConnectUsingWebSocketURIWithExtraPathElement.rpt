@@ -36,7 +36,7 @@ read await BARRIER
 read "HTTP/1.1 404 WebSocket Upgrade Failure\r\n"
 read "Content-Type: text/html\r\n"
 
-read /Date: .*/ "\r\n"
+read /Date: .*\r\n/
 read "Server: Kaazing Gateway\r\n"
 
 read "Content-Length: 77\r\n"

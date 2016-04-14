@@ -39,8 +39,8 @@ write "\r\n"
 
 read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
 read "Connection: Upgrade\r\n"
-read /Date: .*/ "\r\n"
-read /Sec-WebSocket-Accept: .*/ "\r\n"
+read /Date: .*\r\n/
+read /Sec-WebSocket-Accept: .*\r\n/
 read "Sec-WebSocket-Protocol: x-kaazing-handshake\r\n"
 read "Server: Kaazing Gateway\r\n"
 read "Upgrade: websocket\r\n"
@@ -66,8 +66,8 @@ write [0x9e 0xb6 0x9e 0xe6 0xdb 0xb0 0x8f 0xe0 0x97 0xae 0x83 0xf2 0x97 0xb6 0x8
 read [0x82 0x7e 0x01 0x02]
 read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
 read "Connection: Upgrade\r\n"
-read /Date: .*/ "\r\n"
-read /Sec-WebSocket-Accept: .*/ "\r\n"
+read /Date: .*\r\n/
+read /Sec-WebSocket-Accept: .*\r\n/
 read "Sec-WebSocket-Extensions: x-kaazing-ping-pong; 01010102\r\n"
 read "Server: Kaazing Gateway\r\n"
 read "Upgrade: websocket\r\n"

@@ -58,7 +58,7 @@ read "GET / HTTP/1.1\r\n"
 read "User-Agent: Kaazing Gateway\r\n"
 read "Upgrade: websocket\r\n"
 read "Sec-WebSocket-Version: 13\r\n"
-read "Sec-WebSocket-Key: " /(?<key>[a-zA-Z0-9+\/=]{24})/ "\r\n"
+read "Sec-WebSocket-Key: " /(?<key>[a-zA-Z0-9+\/=]{24})\r\n/
 read "Origin: http://localhost:8556\r\n"
 read "Host: localhost:8556\r\n"
 read "Connection: Upgrade\r\n"
