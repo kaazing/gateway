@@ -53,6 +53,10 @@ ol, ul {
   padding-left: 20px;
 }
 
+.panel-heading {
+  font-weight: bold;
+}
+
 footer {
   margin-top: 10px;
 }
