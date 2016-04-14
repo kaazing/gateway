@@ -22,12 +22,12 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.http.directory.cachecontrol.CacheControlHandler;
@@ -53,7 +53,7 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
     private boolean indexes;
 
     private List<PatternCacheControl> patterns;
-    private static Map<String, CacheControlHandler> urlCacheControlMap = new HashMap<String, CacheControlHandler>();
+    private Map<String, CacheControlHandler> urlCacheControlMap = new ConcurrentHashMap<String, CacheControlHandler>();
 
     private static final DateFormat RFC822_FORMAT_PATTERN =
             new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);
@@ -287,17 +287,16 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
      * @param requestPath
      */
     private void addCacheControl(HttpAcceptSession session, File requestFile, String requestPath) {
-        if (urlCacheControlMap.containsKey(requestPath)) {
-            addCacheControlHeader(session, requestFile, urlCacheControlMap.get(requestPath));
-        } else {
-            for (PatternCacheControl patternCacheControl : patterns) {
-                if (PatternMatcherUtils.caseInsensitiveMatch(requestPath, patternCacheControl.getPattern())) {
-                    CacheControlHandler cacheControlHandler = new CacheControlHandler(requestFile, patternCacheControl);
-                    urlCacheControlMap.put(requestPath, cacheControlHandler);
-                    addCacheControlHeader(session, requestFile, cacheControlHandler);
-                    break;
-                }
-            }
+        CacheControlHandler cacheControlHandler = urlCacheControlMap.computeIfAbsent(requestPath, 
+                path -> patterns.stream()
+                     .filter(patternCacheControl -> PatternMatcherUtils.caseInsensitiveMatch(requestPath, patternCacheControl.getPattern()))
+                     .findFirst()
+                     .map(patternCacheControl -> new CacheControlHandler(requestFile, patternCacheControl))
+                     .orElse(null)
+        );
+
+        if (cacheControlHandler != null) {
+            addCacheControlHeader(session, requestFile, cacheControlHandler);
         }
     }
 
