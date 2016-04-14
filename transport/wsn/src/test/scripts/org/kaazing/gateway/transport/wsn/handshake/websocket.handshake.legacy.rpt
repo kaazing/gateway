@@ -14,34 +14,17 @@
 # limitations under the License.
 #
 
-connect tcp://[::1]:8001
+# echo.service.cross.origin.deny
+connect tcp://localhost:8010
 connected
 
-# Connection request
-write "GET /echo HTTP/1.1\r\n"
-write "Upgrade: websocket\r\n"
+write "GET /jms?encoding=binary&.kl=Y&.kv=10.05 HTTP/1.1\r\n"
+write "Upgrade: WebSocket\r\n"
 write "Connection: Upgrade\r\n"
-write "Host: [::1]:8001\r\n"
-write "Origin: null\r\n"
-write "Sec-WebSocket-Key: nDaimG37f4nUqogPypithw==\r\n"
-write "Sec-WebSocket-Version: 13\r\n"
+write "Host: localhost:8010\r\n"
+write "Origin: privileged://localhost:8010\r\n"
+write "WebSocket-Protocol: x-kaazing-handshake\r\n"
 write "\r\n"
 
-# 101 Response
 read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
-read "Connection: Upgrade\r\n"
-read /Date: .*\r\n/
-read /Sec-WebSocket-Accept: .*\r\n/
-read "Server: Kaazing Gateway\r\n"
-read "Upgrade: websocket\r\n"
-read "\r\n"
-
-# Send Text response
-write [0x81 0x89 0x94 0x4e 0xc6 0x1c 0xf2 0x3c 0xa7 0x7b 0xf9 0x2b 0xa8 0x68 0xa5]
-
-# Read Text response
-read [0x81 0x09 0x66 0x72 0x61 0x67 0x6D 0x65 0x6E 0x74 0x31]
-
-close
-closed
 

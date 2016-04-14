@@ -35,8 +35,8 @@ write "\r\n"
 # 101 Response
 read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
 read "Connection: Upgrade\r\n"
-read /Date: .*/ "\r\n"
-read /Sec-WebSocket-Accept: .*/ "\r\n"
+read /Date: .*\r\n/
+read /Sec-WebSocket-Accept: .*\r\n/
 read "Sec-WebSocket-Protocol: x-kaazing-handshake\r\n"
 read "Server: Kaazing Gateway\r\n"
 read "Upgrade: websocket\r\n"
