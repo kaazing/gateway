@@ -17,7 +17,7 @@ script:
     mvn -B clean verify -fn && mvn cobertura:cobertura-integration-test coveralls:report;
     fi;
 # Run Sonar analysis only after a successful build to avoid incomplete results
-after_success:
+after_script:
   - >
     if [ ${TRAVIS_PULL_REQUEST} == "false" ]; then
     if [ ${TRAVIS_BRANCH} == "develop" ] || [ ${TRAVIS_BRANCH} == "master" ] || [[ ${TRAVIS_BRANCH} == release/* ]]; then
