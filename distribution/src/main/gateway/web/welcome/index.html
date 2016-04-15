@@ -53,7 +53,7 @@
           <div class="panel-body">
             <p>Want to test a WebSocket connection to this Gateway?</p>
             <ol>
-              <li><p>Open the <a class="echo-location" href="http://www.websocket.org/echo.html?location=ws://localhost:8000" target="_blank">websocket.org echo test page</a></p></li>
+              <li><p>Open the <a class="echo-location" href="http://websocket.org/echo.html?location=ws://localhost:8000" target="_blank">websocket.org echo test page</a></p></li>
               <li><p>Enter <code class="echo-location"></code> in the <strong>Location</strong> field</p></li>
               <li><p>Connect and send a message</p></li>
 4            </ol>
@@ -135,7 +135,7 @@
     $(document).ready(function() {
       var echoLocation = "ws://"+location.hostname+(location.port ? ":"+location.port: "")+"/echo";
       $("code.echo-location").text(echoLocation);
-      $("a.echo-location").attr("href", "http://www.websocket.org/echo.html?location="+echoLocation);
+      $("a.echo-location").attr("href", "http://websocket.org/echo.html?location="+echoLocation);
     });
 
   </script>
