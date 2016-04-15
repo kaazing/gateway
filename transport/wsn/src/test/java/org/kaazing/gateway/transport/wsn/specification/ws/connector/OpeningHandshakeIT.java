@@ -18,6 +18,7 @@ package org.kaazing.gateway.transport.wsn.specification.ws.connector;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import org.apache.mina.core.future.ConnectFuture;
@@ -105,6 +106,9 @@ public class OpeningHandshakeIT {
         "request.headers.random.case/handshake.response"
         })
     public void shouldEstablishConnectionWithRandomCaseRequestHeaders() throws Exception {
+        // Ignore the test on Linux.
+        assumeTrue(System.getProperty("os.name").indexOf("Linux") == -1);
+
         final IoHandler handler = context.mock(IoHandler.class);
 
         context.checking(new Expectations() {
@@ -147,6 +151,9 @@ public class OpeningHandshakeIT {
         "request.header.origin/handshake.response"
         })
     public void shouldEstablishConnectionWithRequestHeaderOrigin() throws Exception {
+        // Ignore the test on Linux.
+        assumeTrue(System.getProperty("os.name").indexOf("Linux") == -1);
+
         final IoHandler handler = context.mock(IoHandler.class);
 
         context.checking(new Expectations() {

@@ -17,6 +17,7 @@ package org.kaazing.gateway.transport.wseb.specification.wse.connector;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.io.IOException;
@@ -260,6 +261,9 @@ public class ClosingIT {
     @Test
     @Specification("server.send.data.after.reconnect/response")
     public void shouldIgnoreDataFromServerAfterReconnectFrame() throws Exception {
+        // Ignore the test on Linux.
+        assumeTrue(System.getProperty("os.name").indexOf("Linux") == -1);
+
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 

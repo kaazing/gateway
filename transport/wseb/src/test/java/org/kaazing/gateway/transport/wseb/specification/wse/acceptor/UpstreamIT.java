@@ -16,6 +16,7 @@
 package org.kaazing.gateway.transport.wseb.specification.wse.acceptor;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assume.assumeTrue;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
 import org.junit.Rule;
@@ -75,6 +76,9 @@ public class UpstreamIT {
     @Test
     @Specification("client.send.overlapping.request/upstream.request")
     public void shouldRejectParallelUpstreamRequest() throws Exception {
+        // Ignore the test on Linux.
+        assumeTrue(System.getProperty("os.name").indexOf("Linux") == -1);
+
         k3po.finish();
     }
 
