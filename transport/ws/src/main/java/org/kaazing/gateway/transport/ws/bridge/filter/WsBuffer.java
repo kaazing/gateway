@@ -26,7 +26,7 @@ public abstract class WsBuffer extends MessageBuffer<WsMessage> {
     private boolean fin = true;
 
     public enum Kind {
-        BINARY, TEXT, CONTINUATION
+        BINARY, TEXT, CONTINUATION, PING, PONG
     }
 
     private Kind kind = Kind.BINARY;

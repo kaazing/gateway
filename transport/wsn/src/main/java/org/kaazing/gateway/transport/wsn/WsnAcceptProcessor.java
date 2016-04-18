@@ -23,6 +23,8 @@ import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 
+import java.nio.ByteBuffer;
+
 public class WsnAcceptProcessor extends AbstractWsAcceptProcessor<WsnSession> {
 
 
@@ -32,9 +34,17 @@ public class WsnAcceptProcessor extends AbstractWsAcceptProcessor<WsnSession> {
         boolean unwrapWsMessages = session.getLocalAddress().getOption(LIGHTWEIGHT);
         if (unwrapWsMessages && message instanceof WsMessage) {
             WsMessage wsMessage = (WsMessage)message;
-            final IoBufferEx ioBufferEx = ((WsMessage) message).getBytes();
+            IoBufferEx ioBufferEx = ((WsMessage) message).getBytes();
             if (wsMessage.getKind() == WsMessage.Kind.TEXT && ioBufferEx instanceof WsBuffer) {
                 ((WsBuffer) ioBufferEx).setKind(WsBuffer.Kind.TEXT);
+            } else if (wsMessage.getKind() == WsMessage.Kind.PING) {
+                WsBuffer wsBuffer = session.getBufferAllocator().wrap(ioBufferEx.buf());
+                wsBuffer.setKind(WsBuffer.Kind.PING);
+                ioBufferEx = wsBuffer;
+            } else if (wsMessage.getKind() == WsMessage.Kind.PONG) {
+                WsBuffer buf = session.getBufferAllocator().wrap(ioBufferEx.buf());
+                buf.setKind(WsBuffer.Kind.PONG);
+                ioBufferEx = buf;
             }
             ioBufferEx.mark(); // mark this buffer so it can get reset() when messageSent is called.
             return ioBufferEx;
