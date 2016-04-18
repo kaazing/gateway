@@ -20,6 +20,10 @@
         <url>git@github.com:kaazing/gateway.transport.wsn.git</url>
     </scm>
 
+    <properties>
+        <k3po.version>develop-SNAPSHOT</k3po.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.kaazing</groupId>
