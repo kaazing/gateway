@@ -54,8 +54,8 @@ read "\r\n"
 read "HTTP/1.1 201 Created\r\n"
 read "Content-Type: text/plain;charset=UTF-8\r\n"
 read "\r\n"
-read "http://localhost:8001" /(?<up>.*)/ "\n"
-read "http://localhost:8001" /(?<down>.*)/ "\n"
+read "http://localhost:8001" /(?<up>.*)\n/
+read "http://localhost:8001" /(?<down>.*)\n/
 
 write "POST "
 write ${up}
