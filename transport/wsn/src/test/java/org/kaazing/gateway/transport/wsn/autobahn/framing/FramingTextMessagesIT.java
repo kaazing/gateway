@@ -48,50 +48,50 @@ public class FramingTextMessagesIT {
 
 
     @Specification("sendTextMessageWithPayloadLength125")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendTextMessageWithPayloadLength125() throws Exception {
         robot.finish();
     }
 
     @Specification("sendTextMessageWithPayloadLength126")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendTextMessageWithPayloadLength126() throws Exception {
         robot.finish();
     }
 
     @Specification("sendTextMessageWithPayloadLength127")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendTextMessageWithPayloadLength127() throws Exception {
         robot.finish();
     }
 
     @Specification("sendTextMessageWithPayloadLength128")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendTextMessageWithPayloadLength128() throws Exception {
         robot.finish();
     }
 
     @Specification("sendTextMessageWithPayloadLength65535")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendTextMessageWithPayloadLength65535() throws Exception {
         robot.finish();
     }
 
     @Specification("sendTextMessageWithPayloadLength65536")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendTextMessageWithPayloadLength65536() throws Exception {
         robot.finish();
     }
 
     @Specification("sendTextMessageWithPayloadLength65536InChopsOf997Octets")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendTextMessageWithPayloadLength65536InChopsOf997Octets() throws Exception {
         robot.finish();
     }
 
     @Ignore("KG-12366")
     @Specification("sendTextMessageWithEmptyPayload")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendTextMessageWithEmptyPayload() throws Exception {
         robot.finish();
     }

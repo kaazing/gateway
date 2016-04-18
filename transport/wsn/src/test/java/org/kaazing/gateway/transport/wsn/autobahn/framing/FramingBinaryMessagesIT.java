@@ -47,50 +47,50 @@ public class FramingBinaryMessagesIT {
     public TestRule chain = createRuleChain(gateway, robot);
 
     @Specification("sendBinaryMessageWithPayloadLength125")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendBinaryMessageWithPayloadLength125() throws Exception {
         robot.finish();
     }
 
     @Specification("sendBinaryMessageWithPayloadLength126")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendBinaryMessageWithPayloadLength126() throws Exception {
         robot.finish();
     }
 
     @Specification("sendBinaryMessageWithPayloadLength127")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendBinaryMessageWithPayloadLength127() throws Exception {
         robot.finish();
     }
 
     @Specification("sendBinaryMessageWithPayloadLength128")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendBinaryMessageWithPayloadLength128() throws Exception {
         robot.finish();
     }
 
     @Specification("sendBinaryMessageWithPayloadLength65535")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendBinaryMessageWithPayloadLength65535() throws Exception {
         robot.finish();
     }
 
     @Specification("sendBinaryMessageWithPayloadLength65536")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendBinaryMessageWithPayloadLength65536() throws Exception {
         robot.finish();
     }
 
     @Specification("sendBinaryMessageWithPayloadLength65536InChopsOf997Octets")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendBinaryMessageWithPayloadLength65536InChopsOf997Octets() throws Exception {
         robot.finish();
     }
 
     @Ignore("KG-12366")
     @Specification("sendBinaryMessageWithPayloadLengthZero")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendBinaryMessageWithPayloadLengthZero() throws Exception {
         robot.finish();
     }

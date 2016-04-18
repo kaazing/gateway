@@ -31,6 +31,7 @@ public class FragmentationIT {
 
     private GatewayRule gateway = new GatewayRule() {
         {
+            //@formatter:off
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
@@ -39,6 +40,7 @@ public class FragmentationIT {
                         .done()
                     .done();
             init(configuration);
+            //@formatter:on
         }
     };
 
