@@ -16,7 +16,6 @@
 package org.kaazing.gateway.transport.wseb.specification.wse.acceptor;
 
 
-import static org.junit.Assume.assumeTrue;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
@@ -59,9 +58,6 @@ public class TextDelimitedIT {
     @Test
     @Specification("client.send.text.delimited.invalid.utf8/request")
     public void clientSendInvalidUTF8() throws Exception {
-        // Ignore the test on Linux.
-        assumeTrue(System.getProperty("os.name").indexOf("Linux") == -1);
-
         k3po.finish();
     }
 
