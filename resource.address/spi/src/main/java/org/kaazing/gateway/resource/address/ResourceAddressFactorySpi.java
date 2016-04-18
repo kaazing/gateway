@@ -107,6 +107,8 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
 
         stripOptionPrefixes(optionsByName);
 
+        replaceBindWithTransport(location, optionsByName);
+
         String external = location;
 
         // make the external port implicit
@@ -195,6 +197,19 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
                 Object optionValue = optionsByName.remove(prefixedOptionName);
                 String newOptionName = prefixedOptionName.substring(prefixLength);
                 optionsByName.put(newOptionName, optionValue);
+            }
+        }
+    }
+
+    private void replaceBindWithTransport(String location, Map<String, Object> optionsByName) {
+        String scheme = getScheme(location);
+        if (scheme.equalsIgnoreCase("tcp")) {
+            String transport = (String) optionsByName.get("transport");
+            if (transport == null) {
+                String bind = (String) optionsByName.remove("bind");
+                if (bind != null) {
+                    optionsByName.put("transport", "tcp://" + bind);
+                }
             }
         }
     }
