@@ -11,13 +11,13 @@ script:
   - >
     if [ ${TRAVIS_PULL_REQUEST} == "false" ]; then
     if [ ${TRAVIS_BRANCH} == "develop" ] || [ ${TRAVIS_BRANCH} == "master" ] || [[ ${TRAVIS_BRANCH} == release/* ]]; then
-    mvn -B clean verify -fn -Psonar && mvn cobertura:cobertura-integration-test coveralls:report;
+    mvn -B clean verify -Psonar && mvn cobertura:cobertura-integration-test coveralls:report;
     fi;
     else
-    mvn -B clean verify -fn && mvn cobertura:cobertura-integration-test coveralls:report;
+    mvn -B clean verify && mvn cobertura:cobertura-integration-test coveralls:report;
     fi;
 # Run Sonar analysis only after a successful build to avoid incomplete results
-after_script:
+after_success:
   - >
     if [ ${TRAVIS_PULL_REQUEST} == "false" ]; then
     if [ ${TRAVIS_BRANCH} == "develop" ] || [ ${TRAVIS_BRANCH} == "master" ] || [[ ${TRAVIS_BRANCH} == release/* ]]; then
