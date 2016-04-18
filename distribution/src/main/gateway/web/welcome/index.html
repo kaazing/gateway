@@ -20,7 +20,7 @@
 
   <div class="container">
 
-    <a href="http://kaazing.com/?v=${gateway.version}"><img src="images/kaazing.png"></a>
+    <a href="http://kaazing.com/?v=ce${gateway.version}"><img src="images/kaazing.png"></a>
 
     <div class="panel panel-default text-center" id="congratulations">
       <div class="panel-body">
@@ -53,10 +53,10 @@
           <div class="panel-body">
             <p>Want to test a WebSocket connection to this Gateway?</p>
             <ol>
-              <li><p>Open the <a href="http://websocket.org/echo.html">websocket.org echo test page</a></p></li>
-              <li><p>Enter <code id="echo-location"></code> in the <strong>Location</strong> field</p></li>
+              <li><p>Open the <a class="echo-location" href="http://websocket.org/echo.html?location=ws://localhost:8000" target="_blank">websocket.org echo test page</a></p></li>
+              <li><p>Enter <code class="echo-location"></code> in the <strong>Location</strong> field</p></li>
               <li><p>Connect and send a message</p></li>
-            </ol>
+4            </ol>
           </div>
         </div>
       </div>
@@ -72,7 +72,7 @@
           </div>
           <div class="panel-body">
             <ul>
-              <li><p><a href="//kaazing.com/documentation/?v=${gateway.version}">Online documentation</a></p></li>
+              <li><p><a href="//kaazing.com/documentation/?v=ce${gateway.version}">Online documentation</a></p></li>
               <li><p><a href="https://github.com/kaazing/tutorials" target="_blank">Examples and tutorials</a></p></li>
               <li><p>Getting started apps for <a href="https://github.com/kaazing/javascript.getting.started">JavaScript</a></p></li>
               <li><p>Getting started apps for <a href="https://github.com/kaazing/java.getting.started">Java</a></p></li>
@@ -89,7 +89,7 @@
           <div class="panel-body">
             <ul>
               <li><p>Post questions on <a href="http://stackoverflow.com/">Stack Overflow</a> with a tag of "kaazing"</p></li>
-              <li><p>Get access to expert WebSocket developers with our <a href="https://kaazing.com/named-developer-program/?v=${gateway.version}">Named Developer Program</a></p></li>
+              <li><p>Get access to expert WebSocket developers with our <a href="https://kaazing.com/named-developer-program/?v=ce${gateway.version}">Named Developer Program</a></p></li>
               <li><p><a href="https://github.com/kaazing/gateway/issues">GitHub issues</a></p></li>
               <li>
 
@@ -134,7 +134,8 @@
 
     $(document).ready(function() {
       var echoLocation = "ws://"+location.hostname+(location.port ? ":"+location.port: "")+"/echo";
-      $("#echo-location").text(echoLocation);
+      $("code.echo-location").text(echoLocation);
+      $("a.echo-location").attr("href", "http://websocket.org/echo.html?location="+echoLocation);
     });
 
   </script>
