@@ -235,7 +235,7 @@ public class WsnBindingsTest {
 
         Map<String, Object> acceptOptions = new HashMap<>();
 
-        final String connectURIString = "wsn://localhost:8000/echo";
+        final String connectURIString = "wsn://localhost:8004/echo";
         final ResourceAddress bindAddress =
                 addressFactory.newResourceAddress(
                         connectURIString,
@@ -243,20 +243,16 @@ public class WsnBindingsTest {
 
         final IoHandler ioHandler = new IoHandlerAdapter();
 
-        int[] rounds = new int[]{1};
-        for ( int iterationCount: rounds ) {
-            for ( int i = 0; i < iterationCount; i++) {
-                wsnAcceptor.bind(bindAddress, ioHandler, null);
-            }
-            for (int j = 0; j < iterationCount; j++) {
-                UnbindFuture future = wsnAcceptor.unbind(bindAddress);
-                org.junit.Assert.assertTrue("Unbind failed", future.await(10, TimeUnit.SECONDS));
-            }
-            org.junit.Assert.assertTrue(wsnAcceptor.emptyBindings());
-            org.junit.Assert.assertTrue(httpAcceptor.emptyBindings());
-            org.junit.Assert.assertTrue(tcpAcceptor.emptyBindings());
-
+        for ( int i = 0; i < 10; i++) {
+            wsnAcceptor.bind(bindAddress, ioHandler, null);
         }
+        for (int j = 0; j < 10; j++) {
+            UnbindFuture future = wsnAcceptor.unbind(bindAddress);
+            org.junit.Assert.assertTrue("Unbind failed", future.await(10, TimeUnit.SECONDS));
+        }
+        org.junit.Assert.assertTrue(wsnAcceptor.emptyBindings());
+        org.junit.Assert.assertTrue(httpAcceptor.emptyBindings());
+        org.junit.Assert.assertTrue(tcpAcceptor.emptyBindings());
     }
 
 
@@ -265,7 +261,7 @@ public class WsnBindingsTest {
 
         Map<String, Object> acceptOptions = new HashMap<>();
 
-        final String connectURIString = "wsn+ssl://localhost:8000/echo";
+        final String connectURIString = "wsn+ssl://localhost:8005/echo";
         final ResourceAddress bindAddress =
                 addressFactory.newResourceAddress(
                         connectURIString,
@@ -273,22 +269,17 @@ public class WsnBindingsTest {
 
         final IoHandler ioHandler = new IoHandlerAdapter();
 
-        int[] rounds = new int[]{1};
-        for ( int iterationCount: rounds ) {
-            for ( int i = 0; i < iterationCount; i++) {
-                wsnAcceptor.bind(bindAddress, ioHandler, null);
-            }
-            for (int j = 0; j < iterationCount; j++) {
-                UnbindFuture future = wsnAcceptor.unbind(bindAddress);
-                org.junit.Assert.assertTrue("Unbind failed", future.await(10, TimeUnit.SECONDS));
-            }
-
-            org.junit.Assert.assertTrue(wsnAcceptor.emptyBindings());
-            org.junit.Assert.assertTrue(sslAcceptor.emptyBindings());
-            org.junit.Assert.assertTrue(httpAcceptor.emptyBindings());
-            org.junit.Assert.assertTrue(tcpAcceptor.emptyBindings());
-
+        for ( int i = 0; i < 10; i++) {
+            wsnAcceptor.bind(bindAddress, ioHandler, null);
         }
-    }
+        for (int j = 0; j < 10; j++) {
+            UnbindFuture future = wsnAcceptor.unbind(bindAddress);
+            org.junit.Assert.assertTrue("Unbind failed", future.await(10, TimeUnit.SECONDS));
+        }
 
+        org.junit.Assert.assertTrue(wsnAcceptor.emptyBindings());
+        org.junit.Assert.assertTrue(sslAcceptor.emptyBindings());
+        org.junit.Assert.assertTrue(httpAcceptor.emptyBindings());
+        org.junit.Assert.assertTrue(tcpAcceptor.emptyBindings());
+    }
 }
