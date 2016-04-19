@@ -9,16 +9,20 @@ before_install: certificates/add-to-cacerts.sh
 install: mvn install -DskipTests -DskipITs -q 
 script:
   - >
-    if [ ${TRAVIS_BRANCH} == "develop" ]; then
-    mvn clean verify -Psonar && mvn cobertura:cobertura-integration-test coveralls:report;
+    if [ ${TRAVIS_PULL_REQUEST} == "false" ]; then
+    if [ ${TRAVIS_BRANCH} == "develop" ] || [ ${TRAVIS_BRANCH} == "master" ] || [[ ${TRAVIS_BRANCH} == release/* ]]; then
+    mvn -B clean verify -Psonar;
+    fi;
     else
-    mvn clean verify && mvn cobertura:cobertura-integration-test coveralls:report;
+    mvn -B clean verify;
     fi;
 # Run Sonar analysis only after a successful build to avoid incomplete results
 after_success:
   - >
-    if [ ${TRAVIS_PULL_REQUEST} == "false" ] && [ ${TRAVIS_BRANCH} == "develop" ]; then
-    mvn sonar:sonar -Dsonar.host.url=https://repository.kaazing.com/secret-sauce/sonarqube -Dsonar.login=${SONAR_USER} -Dsonar.password=${SONAR_PASSWORD};
+    if [ ${TRAVIS_PULL_REQUEST} == "false" ]; then
+    if [ ${TRAVIS_BRANCH} == "develop" ] || [ ${TRAVIS_BRANCH} == "master" ] || [[ ${TRAVIS_BRANCH} == release/* ]]; then
+    mvn -B sonar:sonar -Dsonar.host.url=https://repository.kaazing.com/secret-sauce/sonarqube -Dsonar.login=${SONAR_USER} -Dsonar.password=${SONAR_PASSWORD} -Dsonar.branch=${TRAVIS_BRANCH};
+    fi;
     else
-    echo "SonarQube analysis is performed only for commits on the develop branch(not for PRs)";
+    echo "SonarQube analysis is performed only for commits on the develop, master and release/* branches(not for PRs)";
     fi;
