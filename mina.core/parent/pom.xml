@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>mina-build</artifactId>
-        <version>5.1.0-RC004</version>
+        <version>5.1.0-RC005</version>
     </parent>
 
     <artifactId>mina-parent</artifactId>
