@@ -105,6 +105,7 @@ public class OpeningHandshakeIT {
         "request.headers.random.case/handshake.response"
         })
     public void shouldEstablishConnectionWithRandomCaseRequestHeaders() throws Exception {
+
         final IoHandler handler = context.mock(IoHandler.class);
 
         context.checking(new Expectations() {
@@ -147,6 +148,7 @@ public class OpeningHandshakeIT {
         "request.header.origin/handshake.response"
         })
     public void shouldEstablishConnectionWithRequestHeaderOrigin() throws Exception {
+
         final IoHandler handler = context.mock(IoHandler.class);
 
         context.checking(new Expectations() {

@@ -24,20 +24,36 @@ import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 
 public class WsnAcceptProcessor extends AbstractWsAcceptProcessor<WsnSession> {
-
-
+    
     @Override
     protected Object getMessageFromWriteRequest(WsnSession session, WriteRequest request) {
         Object message = super.getMessageFromWriteRequest(session, request);
         boolean unwrapWsMessages = session.getLocalAddress().getOption(LIGHTWEIGHT);
         if (unwrapWsMessages && message instanceof WsMessage) {
             WsMessage wsMessage = (WsMessage)message;
-            final IoBufferEx ioBufferEx = ((WsMessage) message).getBytes();
-            if (wsMessage.getKind() == WsMessage.Kind.TEXT && ioBufferEx instanceof WsBuffer) {
-                ((WsBuffer) ioBufferEx).setKind(WsBuffer.Kind.TEXT);
+            IoBufferEx ioBufferEx = ((WsMessage) message).getBytes();
+            WsBuffer wsBuffer = (ioBufferEx instanceof WsBuffer)
+                    ? (WsBuffer) ioBufferEx
+                    : session.getBufferAllocator().wrap(ioBufferEx.buf());
+            switch (wsMessage.getKind()) {
+                case BINARY:
+                    wsBuffer.setKind(WsBuffer.Kind.BINARY);
+                    break;
+                case TEXT:
+                    wsBuffer.setKind(WsBuffer.Kind.TEXT);
+                    break;
+                case CONTINUATION:
+                    wsBuffer.setKind(WsBuffer.Kind.CONTINUATION);
+                    break;
+                case PING:
+                    wsBuffer.setKind(WsBuffer.Kind.PING);
+                    break;
+                case PONG:
+                    wsBuffer.setKind(WsBuffer.Kind.PONG);
+                    break;
             }
-            ioBufferEx.mark(); // mark this buffer so it can get reset() when messageSent is called.
-            return ioBufferEx;
+            wsBuffer.mark(); // mark this buffer so it can get reset() when messageSent is called.
+            return wsBuffer;
         }
         return message;
     }
