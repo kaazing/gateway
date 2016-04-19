@@ -41,8 +41,8 @@ read "\r\n"
 read "HTTP/1.1 201 Created\r\n"
 read "Content-Type: text/plain;charset=UTF-8\r\n"
 read "\r\n"
-read "http://localhost:8000/echo/;e/ut" /(?<upct>.*)/ "\n"
-read "http://localhost:8000/echo/;e/dt" /(?<downct>.*)/ "\n"
+read "http://localhost:8000/echo/;e/ut" /(?<upct>.*)\n/
+read "http://localhost:8000/echo/;e/dt" /(?<downct>.*)\n/
 
 close
 closed
@@ -79,8 +79,8 @@ read "Content-Type: text/plain;charset=UTF-8\r\n"
 # read "Content-Length: 132\r\n"
 read "\r\n"
 # Example: http://localhost:8000/echo/;e/ub/fUOutUjjl9sgFumZWv1XySfdooieOf7e
-read "http://localhost:8000/echo/;e/ub" /(?<upcb>.*)/ "\n"
-read "http://localhost:8000/echo/;e/db" /(?<downcb>.*)/ "\n"
+read "http://localhost:8000/echo/;e/ub" /(?<upcb>.*)\n/
+read "http://localhost:8000/echo/;e/db" /(?<downcb>.*)\n/
 
 close
 closed

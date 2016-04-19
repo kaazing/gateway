@@ -29,7 +29,6 @@ import java.util.Set;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 
-import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -114,9 +113,6 @@ public class JmxRoundTripLatencyIT {
     @Specification("echoServiceToGetRoundTripLatencyAttributesFromJMX")
     @Test
     public void getRoundTripLatencyAttributesFromJmx() throws Exception {
-        Assume.assumeFalse(
-                "Test will be ignored for Travis as it needs the test ca in java; please see https://github.com/kaazing/QA-Roadmap/issues/115 for details",
-                "true".equalsIgnoreCase(System.getenv("TRAVIS")));
         Long latency = null;
         Long latencyTimestamp = null;
         Long currentTimestamp = currentTimeMillis();
@@ -147,9 +143,6 @@ public class JmxRoundTripLatencyIT {
     @Specification("echoServiceToGetWsebRoundTripLatencyAttributesFromJMX")
     @Test
     public void getWsebRoundTripLatencyAttributesFromJmx() throws Exception {
-        Assume.assumeFalse(
-                "Test will be ignored for Travis as it needs the test ca in java; please see https://github.com/kaazing/QA-Roadmap/issues/115 for details",
-                "true".equalsIgnoreCase(System.getenv("TRAVIS")));
         Long latency = null;
         Long latencyTimestamp = null;
         Long currentTimestamp = currentTimeMillis();

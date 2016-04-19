@@ -28,7 +28,6 @@ import java.util.Set;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 
-import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -126,10 +125,6 @@ public class JmxSessionPrincipalIT {
         "wsn.session.with.user.principal.ann" })
     @Test
     public void shouldKillSessionsByUserPrincipal() throws Exception {
-        Assume.assumeFalse(
-                "Test will be ignored for Travis as it needs the test ca in java; please see https://github.com/kaazing/QA-Roadmap/issues/115 for details",
-                "true".equalsIgnoreCase(System.getenv("TRAVIS")));
-
         ObjectName echoServiceMbeanName = null;
 
         k3po.start();
@@ -172,10 +167,6 @@ public class JmxSessionPrincipalIT {
         "wsn.session.with.user.principal.ann" })
     @Test
     public void shouldKillSessionsByRolePrincipal() throws Exception {
-        Assume.assumeFalse(
-                "Test will be ignored for Travis as it needs the test ca in java; please see https://github.com/kaazing/QA-Roadmap/issues/115 for details",
-                "true".equalsIgnoreCase(System.getenv("TRAVIS")));
-
         ObjectName echoServiceMbeanName = null;
 
         k3po.start();

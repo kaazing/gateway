@@ -15,11 +15,12 @@
  */
 package org.kaazing.gateway.transport.wsn.proxy;
 
-import static org.kaazing.test.util.ITUtil.createRuleChain;
-
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -47,8 +48,10 @@ public class ProxyOrphanedConnectionIT {
         }
     };
 
+    private TestRule timeout = new DisableOnDebug(Timeout.seconds(2000000));
+
     @Rule
-    public TestRule chain = createRuleChain(gateway, robot);
+    public TestRule chain = RuleChain.outerRule(gateway).around(robot).around(timeout);
 
     @Specification("connectToFrontEndProxyAndKillFrontBeforeBackendIsEstablished")
     @Test
