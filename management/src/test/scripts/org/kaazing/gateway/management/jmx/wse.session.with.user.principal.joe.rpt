@@ -29,8 +29,8 @@ write close
 read status "201" /.+/
 read version "HTTP/1.1"
 
-read /(?<upstream>http:\/\/localhost:8001\/echo\/.+)/ "\n"
-read /(?<downstream>http:\/\/localhost:8001\/echo\/.+)/ "\n"
+read /(?<upstream>http:\/\/localhost:8001\/echo\/.+)\n/
+read /(?<downstream>http:\/\/localhost:8001\/echo\/.+)\n/
 
 read notify CREATED
 read closed

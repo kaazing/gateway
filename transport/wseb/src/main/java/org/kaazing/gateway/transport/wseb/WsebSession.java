@@ -611,8 +611,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         String sequenceNo = session.getReadHeader(HttpHeaders.HEADER_X_SEQUENCE_NO);
 
         if (sequenceNo == null || expectedSequenceNo != Long.parseLong(sequenceNo)) {
-            String message = String.format("Out of order request: expected seq no=%d, got=%s",
-                    expectedSequenceNo, sequenceNo);
+            String message = String.format("Out of order request for session=%s: expected seq no=%d, got=%s",
+                    session, expectedSequenceNo, sequenceNo);
             setCloseException(new IOException(message));
             HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
             session.setStatus(status);

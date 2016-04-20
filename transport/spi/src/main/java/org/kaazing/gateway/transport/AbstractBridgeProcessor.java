@@ -114,10 +114,6 @@ public abstract class AbstractBridgeProcessor<T extends AbstractBridgeSession<?,
                     // hold current remaining bytes so we know how much was written
                     int remaining = buf.remaining();
 
-                    if (remaining == 0) {
-                        throw new IllegalStateException("Unexpected empty buffer");
-                    }
-
                     // drain the unwritten write requests to ensure that session.close(false)
                     // still triggers the session close future
                     if (parent.isClosing()) {

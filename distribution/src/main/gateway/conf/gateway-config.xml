@@ -16,7 +16,7 @@
     limitations under the License.
 
 -->
-<gateway-config xmlns="http://xmlns.kaazing.org/2014/09/gateway">
+<gateway-config xmlns="http://xmlns.kaazing.org/2015/11/gateway">
 
   <!--
   #############################################################################
@@ -57,6 +57,10 @@
       <welcome-file>index.html</welcome-file>
       <error-pages-directory>/error-pages</error-pages-directory>
       <options>indexes</options>
+      <location>
+        <patterns>**/*</patterns>
+        <cache-control>max-age=0</cache-control>
+      </location>
     </properties>
   </service>
 

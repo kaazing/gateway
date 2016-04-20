@@ -29,12 +29,14 @@
         <maven.compiler.testSource>1.8</maven.compiler.testSource>
         <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
         <hazelcast.version>1.9.4.8</hazelcast.version>
-        <k3po.version>3.0.0-alpha-27</k3po.version>
+        <k3po.version>3.0.0-alpha-31</k3po.version>
         <jdom.version>1.1</jdom.version>
         <jmock.version>2.6.0</jmock.version>
         <slf4j.log4j.version>1.7.5</slf4j.log4j.version>
         <agrona.version>0.4.2</agrona.version>
         <enforcer.skip>true</enforcer.skip>
+        <!-- Try to avoid huge heap size on Travis builds -->
+        <failsafeArgLine>-Xmx1024m</failsafeArgLine>
     </properties>
 
     <modules>
@@ -217,12 +219,11 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!-- Try to avoid huge heap size on Travis builds -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <configuration>
-                        <argLine>-Xmx1024m ${failsafeArgLine}</argLine>
+                        <argLine>@{failsafeArgLine}</argLine>
                         <skipTests>${skipITs}</skipTests>
                     </configuration>
                     <executions>
@@ -479,48 +480,11 @@
                     <instrumentation>
                         <excludes>
                             <exclude>schemaorg_apache_xmlbeans/system/**/*.class</exclude>
-                            <exclude>org/kaazing/gateway/server/config/sep2014/**/*.class</exclude>
+                            <exclude>org/kaazing/gateway/server/config/**/*.class</exclude>
                             <exclude>org/kaazing/xmlns/**/*.class</exclude>
                         </excludes>
                     </instrumentation>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.5.201505241946</version>
-                <executions>
-                    <execution>
-                        <id>pre-unit-test</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                        <configuration>
-                            <propertyName>surefireArgLine</propertyName>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>post-unit-test</id>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>pre-integration-test</id>
-                        <goals>
-                            <goal>prepare-agent-integration</goal>
-                        </goals>
-                        <configuration>
-                            <propertyName>failsafeArgLine</propertyName>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>post-integration-test</id>
-                        <goals>
-                            <goal>report-integration</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <!-- Here only to turn off linting in Java Doc as for Java 8, 
                 this should be removed when https://github.com/kaazing/gateway/issues/157 
@@ -536,6 +500,53 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>sonar</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>0.7.5.201505241946</version>
+                        <executions>
+                            <execution>
+                                <id>pre-unit-test</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                                <configuration>
+                                    <propertyName>surefireArgLine</propertyName>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>post-unit-test</id>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>pre-integration-test</id>
+                                <goals>
+                                    <goal>prepare-agent-integration</goal>
+                                </goals>
+                                <configuration>
+                                    <propertyName>failsafeArgLine</propertyName>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>post-integration-test</id>
+                                <goals>
+                                    <goal>report-integration</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
 

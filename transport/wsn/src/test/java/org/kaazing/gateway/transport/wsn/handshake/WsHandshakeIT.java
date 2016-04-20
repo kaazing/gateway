@@ -73,4 +73,14 @@ public class WsHandshakeIT {
     public void websocketHandshakeMissingUpgrade() throws Exception {
         robot.finish();
     }
+
+    // Test for legacy websocket handshake
+    // Deleting httpxdraft, wsxdraft resource address dependencies will fail the test
+    // Instead of sending 101, gateway sends 404 in that case as there is no binding
+    // for ws/draft-7x protocol
+    @Test
+    @Specification("websocket.handshake.legacy")
+    public void shouldNegotiateLegacyKaazingHandshake() throws Exception {
+        robot.finish();
+    }
 }

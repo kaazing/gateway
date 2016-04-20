@@ -76,10 +76,10 @@ read "Access-Control-Allow-Headers: authorization\r\n"
 read "Access-Control-Allow-Headers: x-websocket-extensions\r\n"
 read "Access-Control-Allow-Headers: x-websocket-version\r\n"
 read "Access-Control-Allow-Headers: x-websocket-protocol\r\n"
-read /Access-Control-Allow-Origin: .*/ "\r\n"
+read /Access-Control-Allow-Origin: .*\r\n/
 read "Connection: Upgrade\r\n"
-read /Date: .*/ "\r\n"
-read /Sec-WebSocket-Accept: .*/ "\r\n"
+read /Date: .*\r\n/
+read /Sec-WebSocket-Accept: .*\r\n/
 read "Server: Kaazing Gateway\r\n"
 read "Upgrade: websocket\r\n"
 read "\r\n"
