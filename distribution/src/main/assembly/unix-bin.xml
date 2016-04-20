@@ -29,9 +29,7 @@
       <directory>src/main/gateway</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-          <include>README.txt</include>
           <include>**/README.txt</include>
-          <include>index.html</include>
           <include>**/index.html</include>
       </includes>
       <filtered>true</filtered>
