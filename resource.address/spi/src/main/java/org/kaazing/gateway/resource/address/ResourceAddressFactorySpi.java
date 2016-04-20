@@ -26,6 +26,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.OVERRIDE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_URI;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getPort;
@@ -41,6 +42,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 
 public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
 
@@ -103,11 +106,16 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
 
         ResourceOptions options = optionsFactory.newResourceOptions();
 
-        setAlternateOption(location, options, optionsByName);
-
         stripOptionPrefixes(optionsByName);
 
-        replaceBindWithTransport(location, optionsByName);
+    	String overrideURI = (String) optionsByName.remove(OVERRIDE.name());
+    	if(overrideURI != null) {
+    		location = overrideURI;
+    	}
+    	
+        setAlternateOption(location, options, optionsByName);
+        
+        //replaceBindWithTransport(location, optionsByName);
 
         String external = location;
 
@@ -344,6 +352,10 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
         if (options.hasOption(IDENTITY_RESOLVER)) {
             address.setOption0(IDENTITY_RESOLVER, options.getOption(IDENTITY_RESOLVER));
         }
+        
+        if (options.hasOption(OVERRIDE)) {
+            address.setOption0(OVERRIDE, options.getOption(OVERRIDE));
+        }
 
         if (qualifier != null || options.hasOption(QUALIFIER)) {
             address.setOption0(QUALIFIER, newQualifier);
@@ -371,7 +383,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
     protected final void parseNamedOptions(String location,
                                            ResourceOptions options,
                                            Map<String, Object> optionsByName) {
-
+    	
         String nextProtocol = (String) optionsByName.remove(NEXT_PROTOCOL.name());
         if (nextProtocol != null) {
             options.setOption(NEXT_PROTOCOL, nextProtocol);
@@ -386,13 +398,13 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
         if (transportURI == null) {
             ResourceFactory factory = getTransportFactory();
             if (factory != null) {
-                transportURI = factory.createURI(location);
+                  transportURI = factory.createURI(location);
             }
         }
         if (transportURI != null) {
             options.setOption(TRANSPORT_URI, transportURI);
         }
-
+        
         ResourceAddress alternate = (ResourceAddress) optionsByName.remove(ALTERNATE.name());
         if (alternate != null) {
             options.setOption(ALTERNATE, alternate);
@@ -418,6 +430,20 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             options.setOption(IDENTITY_RESOLVER, identityResolver);
         }
 
+        
+
+       /* if (overrideURI != null && addressFactory != null) {
+        	ResourceAddress override = null;
+            String protocolName = URIUtils.getScheme(overrideURI);
+            if (optionsByName == Collections.<String,Object>emptyMap()) {
+                optionsByName = new HashMap<>();
+            }
+            //URI locationOverrideURI = URI.create(location);
+            //optionsByName.put(TRANSPORTED_URI.name(), locationURI);
+            override = addressFactory.newResourceAddress(overrideURI, optionsByName, protocolName);
+            options.setOption(OVERRIDE, override);
+        }*/
+        
         // scheme-specific options
         parseNamedOptions0(location, options, optionsByName);
 
@@ -425,6 +451,11 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
         ResourceAddress transport = null;
         if (transportURI != null && addressFactory != null) {
             String protocolName = getProtocolName();
+           /* String transportURIProtocol = URIUtils.getScheme(transportURI);
+            String soverrideURI = (String) optionsByName.remove(transportURIProtocol + ".override");
+            if (soverrideURI != null) {
+            	transportURI = soverrideURI;
+            }*/
             if (optionsByName == Collections.<String,Object>emptyMap()) {
                 optionsByName = new HashMap<>();
             }

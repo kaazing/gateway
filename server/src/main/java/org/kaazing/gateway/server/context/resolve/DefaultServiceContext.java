@@ -535,7 +535,7 @@ public class DefaultServiceContext implements ServiceContext {
             for (String transportAccept : transportAccepts) {
 
                 Map<String, Object> options = buildResourceAddressOptions(transportAccept, acceptOptionsContext);
-
+                options.put("http.override", "tcp://localhost:9000");
                 ResourceAddress address = resourceAddressFactory.newResourceAddress(transportAccept, options);
 
                 bindInternal(address, handler, transport, sessionInitializer, bridgeSessionInitializer);
