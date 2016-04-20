@@ -89,15 +89,13 @@ public class OpeningHandshakeIT {
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).sessionOpened(with(any(IoSessionEx.class)));
             }
         });
 
         ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
-
-        Thread.sleep(100);
 
         k3po.finish();
     }
