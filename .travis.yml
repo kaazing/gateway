@@ -11,10 +11,10 @@ script:
   - >
     if [ ${TRAVIS_PULL_REQUEST} == "false" ]; then
     if [ ${TRAVIS_BRANCH} == "develop" ] || [ ${TRAVIS_BRANCH} == "master" ] || [[ ${TRAVIS_BRANCH} == release/* ]]; then
-    mvn -B clean verify -Psonar;
+    mvn -B clean verify -Dsurefire.rerunFailingTestsCount=2 -Psonar;
     fi;
     else
-    mvn -B clean verify;
+    mvn -B clean verify -Dsurefire.rerunFailingTestsCount=2;
     fi;
 # Run Sonar analysis only after a successful build to avoid incomplete results
 after_success:
