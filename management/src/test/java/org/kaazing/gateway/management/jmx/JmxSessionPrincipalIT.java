@@ -21,7 +21,6 @@ import static org.kaazing.gateway.management.test.util.TlsTestUtil.getKeystoreFi
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.keyStore;
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.password;
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.trustStore;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.security.KeyStore;
 import java.util.Set;
@@ -126,7 +125,6 @@ public class JmxSessionPrincipalIT {
         "wsn.session.with.user.principal.ann" })
     @Test
     public void shouldKillSessionsByUserPrincipal() throws Exception {
-
         ObjectName echoServiceMbeanName = null;
 
         k3po.start();
@@ -159,8 +157,6 @@ public class JmxSessionPrincipalIT {
 
         assertEquals("Ann Wsn session should still be alive", (Long) 1L, numberOfCurrentSessions);
 
-        k3po.notifyBarrier("CLOSE_SESSIONS_INVOKED");
-
         k3po.finish();
     }
 
@@ -171,7 +167,6 @@ public class JmxSessionPrincipalIT {
         "wsn.session.with.user.principal.ann" })
     @Test
     public void shouldKillSessionsByRolePrincipal() throws Exception {
-
         ObjectName echoServiceMbeanName = null;
 
         k3po.start();
@@ -203,8 +198,6 @@ public class JmxSessionPrincipalIT {
         }
 
         assertEquals("Not all sessions have been closed", (Long) 0L, numberOfCurrentSessions);
-
-        k3po.notifyBarrier("CLOSE_SESSIONS_INVOKED");
 
         k3po.finish();
     }

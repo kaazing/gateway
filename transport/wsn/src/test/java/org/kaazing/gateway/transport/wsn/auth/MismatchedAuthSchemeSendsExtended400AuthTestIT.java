@@ -74,7 +74,7 @@ public class MismatchedAuthSchemeSendsExtended400AuthTestIT {
 	};
 
 	@Rule
-	public TestRule chain = createRuleChain(gateway, robot, 1500, MILLISECONDS);
+	public TestRule chain = createRuleChain(gateway, robot, 5000, MILLISECONDS);
 
 	@Specification("shouldFailDueToMismatchedAuthSchemes")
 	@Test

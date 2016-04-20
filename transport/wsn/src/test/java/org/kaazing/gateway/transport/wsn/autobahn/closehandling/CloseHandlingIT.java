@@ -45,7 +45,7 @@ public class CloseHandlingIT {
     };
 
     @Rule
-    public TestRule chain = createRuleChain(gateway, robot, 1500, MILLISECONDS);
+    public TestRule chain = createRuleChain(gateway, robot, 5000, MILLISECONDS);
 
     @Specification("sendTextMessageThenCloseFrame")
     @Test
