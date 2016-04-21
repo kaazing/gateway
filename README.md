@@ -8,9 +8,9 @@
 
 # About this Project
 
-The Gateway is a network gateway created to provide a single access point for real-time web based protocol elevation that supports load balancing, clustering, and security management.  It is designed to provide scalable and secure bidirectional event-based communication over the web; on every platform, browser, and device.    
+The Gateway is a network gateway created to provide a single access point for real-time web based protocol elevation that supports load balancing, clustering, and security management.  It is designed to provide scalable and secure bidirectional event-based communication over the web; on every platform, browser, and device.
 
-A set of client APIs are provided in the following repos. 
+A set of client APIs are provided in the following repos.
 
 - [JavaScript SDK for WebSocket](https://github.com/kaazing/kaazing-client-javascript)
 - [Objective-C SDK for WebSocket](https://github.com/kaazing/gateway.client.ios)
@@ -20,13 +20,19 @@ A set of client APIs are provided in the following repos.
 
 # Running via public Docker Image
 
-Edit `/etc/hosts` file (or equivalent) to set gateway as the Docker host
+0. Edit `/etc/hosts` file (or equivalent) to set `gateway` as the Docker host. Example from `/etc/hosts`:
 
-`docker run --rm -p 8000:8000 -h gateway kaazing/gateway:latest`
+    > 192.168.99.101 gateway
 
-Point your browser at `http://gateway:8000` to see the WebSocket demo.
+    where the IP address is that of your Docker host.
 
-See Kaazing Gateway on [Docker Hub](https://registry.hub.docker.com/u/kaazing/gateway/) for more information.
+0. Download and run the Gateway image:
+
+    `docker run --rm -p 8000:8000 -h gateway kaazing/gateway:latest`
+
+0. Point your browser at `http://gateway:8000` to see the welcome page.
+
+See Kaazing Gateway on [Docker Hub](https://registry.hub.docker.com/u/kaazing/gateway/) for more information, or see below to build your own Docker container locally.
 
 # Building this Project
 
@@ -53,34 +59,24 @@ To build the Gateway locally, use:
 
 ### Building the Docker container locally
 
-To build a Docker container locally:
+The Docker container is not built as part of the default build of this project. To build a Docker container locally, specify the `docker` profile:
 
   `mvn clean install -Pdocker`
 
-Then to start the container, use:
-
-  `docker run --rm -p 8080:8080 -h gateway kaazing/unstable-gateway:develop-SNAPSHOT`
-
-Make sure you set `/etc/hosts` file (or equivalent) to set gateway as the Docker host.
-
-`192.168.2.100  dockerhost gateway`
-
-Then point your browser at `http://gateway:8000`
-
-For more information see the [docker](docker) directory.
+For more information, and to run the Docker container this builds, see the [instructions in **docker** directory](docker).
 
 # Running this Project
 
 0. `cd distribution/target`
 1. Unpack the appropriate distribution
-   
+
    Mac/Linux: `tar -xvf kaazing-gateway-community-develop-SNAPSHOT.tar.gz`
-   
+
    Windows: `unzip kaazing-gateway-community-develop-SNAPSHOT.zip`
-2. Start the Gateway 
-   
+2. Start the Gateway
+
    Mac/Linux: `./kaazing-gateway-community-develop-SNAPSHOT/bin/gateway.start`
-   
+
    Windows: `./kaazing-gateway-community-develop-SNAPSHOT/bin/gateway.start.bat`
 
 # Running a Prebuilt Project
@@ -98,4 +94,3 @@ To view demo client applications running against the Gateway, visit [kaazing.org
 # Contact
 
 The [Gateway Gitter room](https://gitter.im/kaazing/gateway) is the easiest way to contact the developers who maintain the project.
-
