@@ -524,9 +524,7 @@ public class DefaultServiceContext implements ServiceContext {
         for (String uri : bindURIs) {
             bindHandlers.put(uri, handler);
         }
-
         Map<Transport, List<String>> bindsByTransport = getURIsByTransport(bindURIs);
-
         // for each transport group, create resource address for URIs and bind to transport.
         for (Entry<Transport, List<String>> entry : bindsByTransport.entrySet()) {
             Transport transport = entry.getKey();
