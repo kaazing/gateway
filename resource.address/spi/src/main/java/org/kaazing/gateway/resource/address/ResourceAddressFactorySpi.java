@@ -50,6 +50,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
     private static final String NO_ADDRESSES_AVAILABLE_FOR_BINDING_FORMATTER =
             " No addresses available for binding for URI: %s.";
     private static final Map<String, Object> EMPTY_OPTIONS = emptyMap();
+    private static final String OVERRIDE_KEY = "%s.%s";
 
     private ResourceAddressFactory addressFactory;
 
@@ -106,16 +107,9 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
 
         ResourceOptions options = optionsFactory.newResourceOptions();
 
-        stripOptionPrefixes(optionsByName);
-
-    	String overrideURI = (String) optionsByName.remove(OVERRIDE.name());
-    	if(overrideURI != null) {
-    		location = overrideURI;
-    	}
-    	
         setAlternateOption(location, options, optionsByName);
-        
-        //replaceBindWithTransport(location, optionsByName);
+
+        stripOptionPrefixes(optionsByName);
 
         String external = location;
 
@@ -205,19 +199,6 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
                 Object optionValue = optionsByName.remove(prefixedOptionName);
                 String newOptionName = prefixedOptionName.substring(prefixLength);
                 optionsByName.put(newOptionName, optionValue);
-            }
-        }
-    }
-
-    private void replaceBindWithTransport(String location, Map<String, Object> optionsByName) {
-        String scheme = getScheme(location);
-        if (scheme.equalsIgnoreCase("tcp")) {
-            String transport = (String) optionsByName.get("transport");
-            if (transport == null) {
-                String bind = (String) optionsByName.remove("bind");
-                if (bind != null) {
-                    optionsByName.put("transport", "tcp://" + bind);
-                }
             }
         }
     }
@@ -383,12 +364,12 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
     protected final void parseNamedOptions(String location,
                                            ResourceOptions options,
                                            Map<String, Object> optionsByName) {
-    	
+
         String nextProtocol = (String) optionsByName.remove(NEXT_PROTOCOL.name());
         if (nextProtocol != null) {
             options.setOption(NEXT_PROTOCOL, nextProtocol);
         }
-        
+
         Object qualifier = optionsByName.remove(QUALIFIER.name());
         if (qualifier != null) {
             options.setOption(QUALIFIER, qualifier);
@@ -404,7 +385,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
         if (transportURI != null) {
             options.setOption(TRANSPORT_URI, transportURI);
         }
-        
+
         ResourceAddress alternate = (ResourceAddress) optionsByName.remove(ALTERNATE.name());
         if (alternate != null) {
             options.setOption(ALTERNATE, alternate);
@@ -430,32 +411,20 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             options.setOption(IDENTITY_RESOLVER, identityResolver);
         }
 
-        
-
-       /* if (overrideURI != null && addressFactory != null) {
-        	ResourceAddress override = null;
-            String protocolName = URIUtils.getScheme(overrideURI);
-            if (optionsByName == Collections.<String,Object>emptyMap()) {
-                optionsByName = new HashMap<>();
-            }
-            //URI locationOverrideURI = URI.create(location);
-            //optionsByName.put(TRANSPORTED_URI.name(), locationURI);
-            override = addressFactory.newResourceAddress(overrideURI, optionsByName, protocolName);
-            options.setOption(OVERRIDE, override);
-        }*/
-        
         // scheme-specific options
         parseNamedOptions0(location, options, optionsByName);
 
         // all address options consumed, now create transport address with options by name
         ResourceAddress transport = null;
+
         if (transportURI != null && addressFactory != null) {
+            String transportScheme = URIUtils.getScheme(transportURI);
+            String overrideURI = (String) optionsByName.remove(format(OVERRIDE_KEY, transportScheme, OVERRIDE.name()));
+            if (overrideURI != null) {
+                transportURI = overrideURI;
+                options.setOption(TRANSPORT_URI, transportURI);
+            }
             String protocolName = getProtocolName();
-           /* String transportURIProtocol = URIUtils.getScheme(transportURI);
-            String soverrideURI = (String) optionsByName.remove(transportURIProtocol + ".override");
-            if (soverrideURI != null) {
-            	transportURI = soverrideURI;
-            }*/
             if (optionsByName == Collections.<String,Object>emptyMap()) {
                 optionsByName = new HashMap<>();
             }
