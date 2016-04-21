@@ -24,7 +24,7 @@ You can launch a container using the docker image produced by this build by foll
 
 0. Add `gateway` to your `/etc/hosts`, pointing to the IP address of your Docker host:
 
-    > 192.168.99.101 gateway
+    > 192.168.99.100 gateway
 
 0. Run the Docker container:
 

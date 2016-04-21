@@ -22,7 +22,7 @@ A set of client APIs are provided in the following repos.
 
 0. Edit `/etc/hosts` file (or equivalent) to set `gateway` as the Docker host. Example from `/etc/hosts`:
 
-    > 192.168.99.101 gateway
+    > 192.168.99.100 gateway
 
     where the IP address is that of your Docker host.
 
