@@ -1,6 +1,6 @@
 # Docker
 
-This project builds a [Docker image](https://docs.docker.com/userguide/dockerimages/).  It does not build by default, you must activate it with the `docker` profile (see below). This project releases to [docker hub kaazing/unstable-gateway](https://registry.hub.docker.com/u/kaazing/unstable-gateway/)
+This project builds a [Docker image](https://docs.docker.com/userguide/dockerimages/).  It does not build by default, you must activate it with the `docker` profile (see below). This project releases to [docker hub kaazing/gateway](https://registry.hub.docker.com/u/kaazing/gateway/)
 
 ### Prerequisites to build
 
@@ -29,7 +29,7 @@ You can launch a container using the docker image produced by this build by foll
 0. Run the Docker container:
 
     ```bash
-docker run --rm -p 8000:8000 -h gateway kaazing/unstable-gateway:develop-SNAPSHOT
+docker run --rm -p 8000:8000 -h gateway kaazing/gateway:develop-SNAPSHOT
 ```
 
 0. Using a browser, open `http://gateway:8000` to see the welcome page.
