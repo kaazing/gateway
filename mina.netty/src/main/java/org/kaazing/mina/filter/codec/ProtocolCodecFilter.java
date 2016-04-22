@@ -48,6 +48,8 @@ import org.slf4j.LoggerFactory;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.core.write.WriteRequestEx;
 
+import static java.lang.String.format;
+
 /**
  * An {@link IoFilter} which translates binary or protocol specific data into
  * message objects and vice versa using {@link ProtocolCodecFactory},
@@ -230,6 +232,10 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
         while (in.hasRemaining()) {
             // If the session is realigned, let the new thread deal with the decoding
             if (sessionEx.getIoThread() != ioThread) {
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace(format("Decoding for session=%s will be continued by new thread=%s old thread=%s",
+                            session, sessionEx.getIoThread(), ioThread));
+                }
                 break;
             }
             int oldPos = in.position();
@@ -373,6 +379,10 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
             while (!messageQueue.isEmpty()) {
                 // If the session is realigned, let the new thread deal with it
                 if (sessionEx.getIoThread() != ioThread) {
+                    if (LOGGER.isTraceEnabled()) {
+                        LOGGER.trace(format("Decoding for session=%s will be continued by new thread=%s old thread=%s",
+                                session, sessionEx.getIoThread(), ioThread));
+                    }
                     break;
                 }
                 nextFilter.messageReceived(session, messageQueue.poll());
