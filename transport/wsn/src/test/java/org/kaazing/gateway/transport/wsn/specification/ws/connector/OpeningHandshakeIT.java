@@ -89,7 +89,7 @@ public class OpeningHandshakeIT {
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).sessionOpened(with(any(IoSessionEx.class)));
             }
         });
 
@@ -111,7 +111,7 @@ public class OpeningHandshakeIT {
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).sessionOpened(with(any(IoSessionEx.class)));
             }
         });
 
@@ -132,7 +132,7 @@ public class OpeningHandshakeIT {
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).sessionOpened(with(any(IoSessionEx.class)));
             }
         });
 
@@ -154,7 +154,7 @@ public class OpeningHandshakeIT {
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).sessionOpened(with(any(IoSessionEx.class)));
             }
         });
 
@@ -176,7 +176,7 @@ public class OpeningHandshakeIT {
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).sessionOpened(with(any(IoSessionEx.class)));
             }
         });
 
@@ -199,7 +199,7 @@ public class OpeningHandshakeIT {
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).sessionOpened(with(any(IoSessionEx.class)));
             }
         });
 
@@ -222,7 +222,7 @@ public class OpeningHandshakeIT {
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).sessionOpened(with(any(IoSessionEx.class)));
             }
         });
 
@@ -245,7 +245,7 @@ public class OpeningHandshakeIT {
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).sessionOpened(with(any(IoSessionEx.class)));
             }
         });
 
@@ -455,9 +455,9 @@ public class OpeningHandshakeIT {
         context.checking(new Expectations() {
             {
                 oneOf(handler1).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler1).sessionOpened(with(any(IoSessionEx.class)));
+                atMost(1).of(handler1).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler2).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler2).sessionOpened(with(any(IoSessionEx.class)));
+                atMost(1).of(handler2).sessionOpened(with(any(IoSessionEx.class)));
             }
         });
 
