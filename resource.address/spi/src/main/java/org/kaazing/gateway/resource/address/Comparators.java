@@ -20,10 +20,15 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_URI;
 
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 
 public final class Comparators {
 
@@ -351,17 +356,51 @@ public final class Comparators {
         @Override
         public int compare(ResourceAddress addr1, ResourceAddress addr2) {
 
-            // for tcp
+            int compareAlternates = compareAlternatesLocation(addr1, addr2);
+            if (compareAlternates != 0) {
+                return compareAlternates;
+            }
+
+            ResourceAddress transport1 = addr1.getOption(TRANSPORT);
+            ResourceAddress transport2 = addr2.getOption(TRANSPORT);
+
+            int compareTransportAlternate = compareAlternatesLocation(transport1, transport2);
+            if (compareTransportAlternate != 0) {
+                return compareTransportAlternate;
+            }
+
+            return 0;
+        }
+
+        private int compareAlternatesLocation(ResourceAddress addr1, ResourceAddress addr2) {
+            // TODO wrap in non null comparator
+            if (addr1 == null) {
+                return (addr2 == null) ? 0 : -1;
+            } else if (addr2 == null) {
+                return 1;
+            }
             ResourceAddress alternate1 = addr1.getOption(ALTERNATE);
             ResourceAddress alternate2 = addr2.getOption(ALTERNATE);
+            InetAddress iaddr1 = null;
+            InetAddress iaddr2 = null;
+            if (alternate1 != null) {
+                String alternate1Resource = alternate1.getResource().toString();
+                String alternate1Host = URIUtils.getHost(alternate1Resource);
+                try {
+                    iaddr1 = InetAddress.getByName(alternate1Host);
+                } catch (UnknownHostException e) {
+                }
+            }
+            if (alternate2 != null) {
+                String alternate2Resource = alternate2.getResource().toString();
+                String alternate2Host = URIUtils.getHost(alternate2Resource);
+                try {
+                    iaddr2 = InetAddress.getByName(alternate2Host);
+                } catch (UnknownHostException e) {
+                }
+            }
 
-            String alternate1IPv6 = alternate1 != null ? alternate1.getResource().toString() : null;
-            String alternate2IPv6 = alternate2 != null ? alternate2.getResource().toString() : null;
-
-            boolean alt1HasIPv6 = alternate1IPv6 != null ? alternate1IPv6.contains("[0:0:0:0:0:0:0:1]") : false;
-            boolean alt2HasIPv6 = alternate2IPv6 != null ? alternate2IPv6.contains("[0:0:0:0:0:0:0:1]") : false;
-
-            if (alt1HasIPv6 && alternate2 == null || alt2HasIPv6 && alternate1 == null) {
+            if (isIPv6(iaddr1) && alternate2 == null || isIPv6(iaddr2) && alternate1 == null) {
                 URI resource1 = addr1.getResource();
                 URI resource2 = addr2.getResource();
                 return resource1.compareTo(resource2);
@@ -372,19 +411,14 @@ public final class Comparators {
                 return compareAlternateResource;
             }
 
-            ResourceAddress transport1 = addr1.getOption(TRANSPORT);
-            ResourceAddress transport2 = addr2.getOption(TRANSPORT);
-
-            // for ssl
-            ResourceAddress transportAlternate1 = transport1 != null ? transport1.getOption(ALTERNATE) : null;
-            ResourceAddress transportAlternate2 = transport2 != null ? transport2.getOption(ALTERNATE) : null;
-            int compareTransportAlternateResource = LOCATION_ALTERNATES_COMPARATOR.compare(transportAlternate1,
-                    transportAlternate2);
-            if (compareTransportAlternateResource != 0) {
-                return compareTransportAlternateResource;
-            }
-
             return 0;
+        }
+
+        private boolean isIPv6(InetAddress iaddr) {
+            if (iaddr instanceof Inet6Address) {
+                return true;
+            }
+            return false;
         }
     }
 
