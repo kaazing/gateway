@@ -355,16 +355,15 @@ public final class Comparators {
             ResourceAddress alternate1 = addr1.getOption(ALTERNATE);
             ResourceAddress alternate2 = addr2.getOption(ALTERNATE);
 
-            URI resource1 = addr1.getResource();
-            URI resource2 = addr2.getResource();
-
-            String alternate1IPv6 = alternate1 != null ? resource1.toString() : null;
-            String alternate2IPv6 = alternate2 != null ? resource2.toString() : null;
+            String alternate1IPv6 = alternate1 != null ? alternate1.getResource().toString() : null;
+            String alternate2IPv6 = alternate2 != null ? alternate2.getResource().toString() : null;
 
             boolean alt1HasIPv6 = alternate1IPv6 != null ? alternate1IPv6.contains("[0:0:0:0:0:0:0:1]") : false;
             boolean alt2HasIPv6 = alternate2IPv6 != null ? alternate2IPv6.contains("[0:0:0:0:0:0:0:1]") : false;
 
             if (alt1HasIPv6 && alternate2 == null || alt2HasIPv6 && alternate1 == null) {
+                URI resource1 = addr1.getResource();
+                URI resource2 = addr2.getResource();
                 return resource1.compareTo(resource2);
             }
 
