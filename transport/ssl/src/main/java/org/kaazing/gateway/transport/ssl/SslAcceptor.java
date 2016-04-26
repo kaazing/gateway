@@ -77,9 +77,6 @@ import org.kaazing.gateway.transport.TransportKeySelector;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.dispatch.ProtocolDispatcher;
 import org.kaazing.gateway.transport.ssl.bridge.filter.SslCertificateSelectionFilter;
-import org.kaazing.gateway.transport.ssl.bridge.filter.SslCipherSelectionFilter;
-import org.kaazing.gateway.transport.ssl.bridge.filter.SslClientHelloDecoder;
-import org.kaazing.gateway.transport.ssl.bridge.filter.SslClientHelloEncoder;
 import org.kaazing.gateway.transport.ssl.bridge.filter.SslFilter;
 import org.kaazing.gateway.transport.ssl.cert.VirtualHostKeySelector;
 import org.kaazing.gateway.util.ssl.SslCipherSuites;
@@ -87,7 +84,6 @@ import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.future.UnbindFuture;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
-import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
 
 public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocolBinding> {
 
@@ -245,15 +241,12 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
             // Enable the configured SSL protocols like TLSv1 etc
             sslFilter.setEnabledProtocols(sslAddress.getOption(PROTOCOLS));
 
-            SslCipherSelectionFilter cipherSelection = new SslCipherSelectionFilter(CIPHER_SELECTION_FILTER, CODEC_FILTER, sslFilter, logger);
-            
             IoSessionEx sessionEx = (IoSessionEx) session;
             IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
 
             // Filter are armed and ready, now add them to the filter chain.
             filterChain.addFirst(CERTIFICATE_SELECTION_FILTER, certificateSelection);
-            filterChain.addAfter(CERTIFICATE_SELECTION_FILTER, CLIENT_HELLO_CODEC_FILTER, new ProtocolCodecFilter(new SslClientHelloEncoder(), new SslClientHelloDecoder(allocator)));
-            filterChain.addAfter(CLIENT_HELLO_CODEC_FILTER, CIPHER_SELECTION_FILTER, cipherSelection);
+            filterChain.addAfter(CERTIFICATE_SELECTION_FILTER, CODEC_FILTER, sslFilter);
         }
 
         // detect next-protocol
