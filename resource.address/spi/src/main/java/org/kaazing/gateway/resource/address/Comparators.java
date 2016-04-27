@@ -35,6 +35,7 @@ public final class Comparators {
     private static final Comparator<String> STRING_COMPARATOR = compareComparable(String.class);
     private static final Comparator<ResourceAddress> ORIGIN_COMPARATOR = compareNonNull(new ResourceOriginComparator());
     private static final Comparator<ResourceAddress> LOCATION_COMPARATOR = compareNonNull(new ResourceLocationComparator());
+    private static final Comparator<ResourceAddress> NON_NULL_LOCATION_ALTERNATES_COMPARATOR = compareNonNull(new LocationAlternatesComparator());
     private static final Comparator<ResourceAddress> LOCATION_ALTERNATES_COMPARATOR = compareAlternates(new ResourceLocationComparator());
     private static final Comparator<ResourceAddress> PROTOCOL_STACK_COMPARATOR = compareNonNull(new ResourceProtocolStackComparator());
     private static final Comparator<ResourceAddress> ORIGIN_AND_PROTOCOL_STACK_COMPARATOR = new ResourceOriginAndProtocolStackComparator();
@@ -356,7 +357,7 @@ public final class Comparators {
         @Override
         public int compare(ResourceAddress addr1, ResourceAddress addr2) {
 
-            int compareAlternates = compareAlternatesLocation(addr1, addr2);
+            int compareAlternates = NON_NULL_LOCATION_ALTERNATES_COMPARATOR.compare(addr1, addr2);
             if (compareAlternates != 0) {
                 return compareAlternates;
             }
@@ -364,41 +365,24 @@ public final class Comparators {
             ResourceAddress transport1 = addr1.getOption(TRANSPORT);
             ResourceAddress transport2 = addr2.getOption(TRANSPORT);
 
-            int compareTransportAlternate = compareAlternatesLocation(transport1, transport2);
-            if (compareTransportAlternate != 0) {
-                return compareTransportAlternate;
+            int compareTransportAlternates = NON_NULL_LOCATION_ALTERNATES_COMPARATOR.compare(transport1, transport2);
+            if (compareTransportAlternates != 0) {
+                return compareTransportAlternates;
             }
 
             return 0;
         }
+    }
 
-        private int compareAlternatesLocation(ResourceAddress addr1, ResourceAddress addr2) {
-            // TODO wrap in non null comparator
-            if (addr1 == null) {
-                return (addr2 == null) ? 0 : -1;
-            } else if (addr2 == null) {
-                return 1;
-            }
+    private static final class LocationAlternatesComparator implements Comparator<ResourceAddress>{
+        
+        @Override
+        public int compare(ResourceAddress addr1, ResourceAddress addr2) {
+
             ResourceAddress alternate1 = addr1.getOption(ALTERNATE);
             ResourceAddress alternate2 = addr2.getOption(ALTERNATE);
-            InetAddress iaddr1 = null;
-            InetAddress iaddr2 = null;
-            if (alternate1 != null) {
-                String alternate1Resource = alternate1.getResource().toString();
-                String alternate1Host = URIUtils.getHost(alternate1Resource);
-                try {
-                    iaddr1 = InetAddress.getByName(alternate1Host);
-                } catch (UnknownHostException e) {
-                }
-            }
-            if (alternate2 != null) {
-                String alternate2Resource = alternate2.getResource().toString();
-                String alternate2Host = URIUtils.getHost(alternate2Resource);
-                try {
-                    iaddr2 = InetAddress.getByName(alternate2Host);
-                } catch (UnknownHostException e) {
-                }
-            }
+            InetAddress iaddr1 = createIntetAddressFromAlternate(alternate1);
+            InetAddress iaddr2 = createIntetAddressFromAlternate(alternate2);
 
             if (isIPv6(iaddr1) && alternate2 == null || isIPv6(iaddr2) && alternate1 == null) {
                 URI resource1 = addr1.getResource();
@@ -412,6 +396,18 @@ public final class Comparators {
             }
 
             return 0;
+        }
+
+        private InetAddress createIntetAddressFromAlternate(ResourceAddress alternate) {
+            if (alternate != null) {
+                String alternateResource = alternate.getResource().toString();
+                String alternateHost = URIUtils.getHost(alternateResource);
+                try {
+                    return InetAddress.getByName(alternateHost);
+                } catch (UnknownHostException e) {
+                }
+            }
+            return null;
         }
 
         private boolean isIPv6(InetAddress iaddr) {
