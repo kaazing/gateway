@@ -341,15 +341,15 @@ public final class Comparators {
 
             ResourceAddress transport1 = addr1.getOption(TRANSPORT);
             ResourceAddress transport2 = addr2.getOption(TRANSPORT);
-            
+
             int compareTransport = PROTOCOL_STACK_COMPARATOR.compare(transport1, transport2);
             if (compareTransport != 0) {
                 return compareTransport;
             }
-            
+
             return 0;
         }
-        
+
     }
 
     private static final class ResourceAlternateAndTransportLocationComparator implements Comparator<ResourceAddress> {
@@ -374,8 +374,8 @@ public final class Comparators {
         }
     }
 
-    private static final class LocationAlternatesComparator implements Comparator<ResourceAddress>{
-        
+    private static final class LocationAlternatesComparator implements Comparator<ResourceAddress> {
+
         @Override
         public int compare(ResourceAddress addr1, ResourceAddress addr2) {
 
