@@ -20,30 +20,24 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_URI;
 
-import java.net.Inet6Address;
-import java.net.InetAddress;
 import java.net.URI;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
-import org.kaazing.gateway.resource.address.uri.URIUtils;
 
 public final class Comparators {
 
     private static final Comparator<String> STRING_COMPARATOR = compareComparable(String.class);
     private static final Comparator<ResourceAddress> ORIGIN_COMPARATOR = compareNonNull(new ResourceOriginComparator());
     private static final Comparator<ResourceAddress> LOCATION_COMPARATOR = compareNonNull(new ResourceLocationComparator());
-    private static final Comparator<ResourceAddress> NON_NULL_LOCATION_ALTERNATES_COMPARATOR = compareNonNull(new LocationAlternatesComparator());
     private static final Comparator<ResourceAddress> LOCATION_ALTERNATES_COMPARATOR = compareAlternates(new ResourceLocationComparator());
+    private static final Comparator<ResourceAddress> EXTERNAL_URI_COMPARATOR = compareNonNull(new ExternalURIComparator());
     private static final Comparator<ResourceAddress> PROTOCOL_STACK_COMPARATOR = compareNonNull(new ResourceProtocolStackComparator());
     private static final Comparator<ResourceAddress> ORIGIN_AND_PROTOCOL_STACK_COMPARATOR = new ResourceOriginAndProtocolStackComparator();
     private static final Comparator<ResourceAddress> LOCATION_AND_TRANSPORT_PROTOCOL_STACK_COMPARATOR = compareNonNull(new ResourceLocationAndTransportProtocolStackComparator());
     private static final Comparator<ResourceAddress> ORIGIN_PATH_ALTERNATES_AND_PROTOCOL_STACK_COMPARATOR = compareAlternates(new ResourceOriginPathAndProtocolStackComparator());
     private static final Comparator<ResourceAddress> ORIGIN_PATH_AND_PROTOCOL_STACK_COMPARATOR = compareNonNull(new ResourceOriginPathAndProtocolStackComparator());
     private static final Comparator<ResourceAddress> TRANSPORT_PROTOCOL_STACK_AND_TRANSPORTED_URI_COMPARATOR = compareNonNull(new TransportProtocolStackAndTransportedURIComparator());
-    private static final Comparator<ResourceAddress> ALTERNATE_AND_TRANSPORT_LOCATION_COMPARATOR = compareNonNull(new ResourceAlternateAndTransportLocationComparator());
     private static final Comparator<URI> TRANSPORTED_URI_COMPARATOR = compareNonNull(new TransportedURIComparator());
 
 
@@ -176,7 +170,7 @@ public final class Comparators {
 
             String protocol1 = addr1.getOption(NEXT_PROTOCOL);
             String protocol2 = addr2.getOption(NEXT_PROTOCOL);
-            
+
             int compareProtocol = STRING_COMPARATOR.compare(protocol1, protocol2);
             if (compareProtocol != 0) {
                 return compareProtocol;
@@ -184,12 +178,12 @@ public final class Comparators {
 
             ResourceAddress transport1 = addr1.getOption(TRANSPORT);
             ResourceAddress transport2 = addr2.getOption(TRANSPORT);
-            
+
             int compareTransport = PROTOCOL_STACK_COMPARATOR.compare(transport1, transport2);
             if (compareTransport != 0) {
                 return compareTransport;
             }
-            
+
             return 0;
         }
         
@@ -334,11 +328,6 @@ public final class Comparators {
                 return compareLocation;
             }
 
-            int compareAlternateAndTransportLocation = ALTERNATE_AND_TRANSPORT_LOCATION_COMPARATOR.compare(addr1, addr2);
-            if(compareAlternateAndTransportLocation != 0) {
-               return compareAlternateAndTransportLocation;
-            }
-
             ResourceAddress transport1 = addr1.getOption(TRANSPORT);
             ResourceAddress transport2 = addr2.getOption(TRANSPORT);
 
@@ -347,74 +336,28 @@ public final class Comparators {
                 return compareTransport;
             }
 
-            return 0;
-        }
-
-    }
-
-    private static final class ResourceAlternateAndTransportLocationComparator implements Comparator<ResourceAddress> {
-
-        @Override
-        public int compare(ResourceAddress addr1, ResourceAddress addr2) {
-
-            int compareAlternates = NON_NULL_LOCATION_ALTERNATES_COMPARATOR.compare(addr1, addr2);
-            if (compareAlternates != 0) {
-                return compareAlternates;
-            }
-
-            ResourceAddress transport1 = addr1.getOption(TRANSPORT);
-            ResourceAddress transport2 = addr2.getOption(TRANSPORT);
-
-            int compareTransportAlternates = NON_NULL_LOCATION_ALTERNATES_COMPARATOR.compare(transport1, transport2);
-            if (compareTransportAlternates != 0) {
-                return compareTransportAlternates;
-            }
-
-            return 0;
-        }
-    }
-
-    private static final class LocationAlternatesComparator implements Comparator<ResourceAddress> {
-
-        @Override
-        public int compare(ResourceAddress addr1, ResourceAddress addr2) {
-
-            ResourceAddress alternate1 = addr1.getOption(ALTERNATE);
-            ResourceAddress alternate2 = addr2.getOption(ALTERNATE);
-            InetAddress iaddr1 = createIntetAddressFromAlternate(alternate1);
-            InetAddress iaddr2 = createIntetAddressFromAlternate(alternate2);
-
-            if (isIPv6(iaddr1) && alternate2 == null || isIPv6(iaddr2) && alternate1 == null) {
-                URI resource1 = addr1.getResource();
-                URI resource2 = addr2.getResource();
-                return resource1.compareTo(resource2);
-            }
-
-            int compareAlternateResource = LOCATION_ALTERNATES_COMPARATOR.compare(alternate1, alternate2);
-            if (compareAlternateResource != 0) {
-                return compareAlternateResource;
-            }
-
-            return 0;
-        }
-
-        private InetAddress createIntetAddressFromAlternate(ResourceAddress alternate) {
-            if (alternate != null) {
-                String alternateResource = alternate.getResource().toString();
-                String alternateHost = URIUtils.getHost(alternateResource);
-                try {
-                    return InetAddress.getByName(alternateHost);
-                } catch (UnknownHostException e) {
+            int compareExternalURI = EXTERNAL_URI_COMPARATOR.compare(addr1, addr2);
+            if (compareExternalURI == 0) {
+                ResourceAddress alternate1 = getFloorTransport(addr1).getOption(ALTERNATE);
+                ResourceAddress alternate2 = getFloorTransport(addr2).getOption(ALTERNATE);
+                int compareAlternates = LOCATION_ALTERNATES_COMPARATOR.compare(alternate1, alternate2);
+                if (compareAlternates != 0) {
+                    return compareAlternates;
                 }
             }
-            return null;
+
+            return 0;
         }
 
-        private boolean isIPv6(InetAddress iaddr) {
-            if (iaddr instanceof Inet6Address) {
-                return true;
-            }
-            return false;
+    }
+
+    private static final class ExternalURIComparator implements Comparator<ResourceAddress> {
+
+        @Override
+        public int compare(ResourceAddress addr1, ResourceAddress addr2) {
+            String externalURI1 = addr1.getExternalURI();
+            String externalURI2 = addr2.getExternalURI();
+            return externalURI1.compareTo(externalURI2);
         }
     }
 
