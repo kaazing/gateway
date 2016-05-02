@@ -15,13 +15,8 @@
  */
 package org.kaazing.gateway.transport.wseb.extensions.test;
 
-import static org.kaazing.gateway.util.Utils.asByteArray;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
-
-import java.net.ProtocolException;
-import java.nio.ByteBuffer;
-
 import org.apache.mina.core.filterchain.IoFilter;
+import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.junit.Rule;
@@ -41,7 +36,17 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.session.IoSessionEx;
 
+import java.net.ProtocolException;
+import java.nio.ByteBuffer;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import static org.kaazing.gateway.util.Utils.asByteArray;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
+
 public class WsebExtensionWithFilterIT {
+
+    private static CountDownLatch latch;
 
     private final K3poRule robot = new K3poRule();
 
@@ -66,7 +71,9 @@ public class WsebExtensionWithFilterIT {
     @Specification("should.transform.messages")
     @Test
     public void shouldTransformMessages() throws Exception {
+        latch = new CountDownLatch(1);
         robot.finish();
+        latch.await(10, TimeUnit.SECONDS);
     }
 
     public static class ExtensionFactory extends WebSocketExtensionFactorySpi {
@@ -85,7 +92,7 @@ public class WsebExtensionWithFilterIT {
     public static class Extension extends WebSocketExtension  {
         private final ExtensionHeader extension;
 
-        public Extension(ExtensionHeader extension, ExtensionHelper extensionHelper) {
+        Extension(ExtensionHeader extension, ExtensionHelper extensionHelper) {
             super(extensionHelper);
             this.extension = extension;
         }
@@ -98,10 +105,10 @@ public class WsebExtensionWithFilterIT {
         @Override
         public IoFilter getFilter() {
             return new ExtensionFilter();
-        };
+        }
     }
 
-    public static class ExtensionFilter extends WsFilterAdapter {
+    private static class ExtensionFilter extends WsFilterAdapter {
 
         @Override
         // Repeats written payload separated by ':'
@@ -111,8 +118,7 @@ public class WsebExtensionWithFilterIT {
             ByteBuffer newPayload = ByteBuffer.allocate(payload.length * 2 + 1);
             newPayload.put(payload).put((byte)'-').put(payload);
             newPayload.flip();
-            WsTextMessage newMessage = new WsTextMessage(((IoSessionEx)session).getBufferAllocator().wrap(newPayload));
-            return newMessage;
+            return new WsTextMessage(((IoSessionEx)session).getBufferAllocator().wrap(newPayload));
         }
 
         @Override
@@ -124,6 +130,11 @@ public class WsebExtensionWithFilterIT {
             newPayload.flip();
             WsTextMessage newMessage = new WsTextMessage(((IoSessionEx)session).getBufferAllocator().wrap(newPayload));
             super.wsTextReceived(nextFilter, session, newMessage);
+        }
+
+        @Override
+        public void onPostRemove(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception {
+            latch.countDown();
         }
     }
 
