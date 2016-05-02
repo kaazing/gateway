@@ -49,6 +49,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
         // We must fire session destroyed on the wsebSession only when the close handshake is complete,
         // which is when the transport session gets closed.
         if (session.getTransportSession().isClosing()) {
+            session.getTransportSession().getFilterChain().fireSessionClosed();
             super.doFireSessionDestroyed(session);
         }
     }
