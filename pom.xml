@@ -225,6 +225,8 @@
                     <configuration>
                         <argLine>@{failsafeArgLine}</argLine>
                         <skipTests>${skipITs}</skipTests>
+                        <!-- workaround to get the total(unit and integration) number of tests in the sonar dashboard -->
+                        <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
                     </configuration>
                     <executions>
                         <execution>
