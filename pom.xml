@@ -12,7 +12,7 @@
     <groupId>org.kaazing</groupId>
     <artifactId>gateway</artifactId>
     <name>Kaazing Gateway</name>
-    <version>5.1.0-RC008</version>
+    <version>5.1.0-RC009</version>
     <packaging>pom</packaging>
 
     <url>https://github.com/kaazing/gateway</url>
