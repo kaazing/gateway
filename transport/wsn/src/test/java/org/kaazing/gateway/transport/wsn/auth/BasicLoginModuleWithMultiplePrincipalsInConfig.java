@@ -28,8 +28,7 @@ public class BasicLoginModuleWithMultiplePrincipalsInConfig extends AsyncBasicLo
             subject.getPrincipals().add(unixPrincipal);
             return true;
         }
-        else
-            return false;
+        return false;
     }
 
     @Override

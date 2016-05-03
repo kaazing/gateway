@@ -30,7 +30,7 @@ write "\r\n"
 
 read "HTTP/1.1 200 OK\r\n"
 read "Content-Length: 1245\r\n"
-read /Date: .*/ "\r\n"
+read /Date: .*\r\n/
 read "Server: Kaazing Gateway\r\n"
 read "\r\n"
 
@@ -87,7 +87,7 @@ write "\r\n"
 
 read "HTTP/1.1 200 OK\r\n"
 read "Content-Length: 1245\r\n"
-read /Date: .*/ "\r\n"
+read /Date: .*\r\n/
 read "Server: Kaazing Gateway\r\n"
 read "\r\n"
 
@@ -144,7 +144,7 @@ write "\r\n"
 
 read "HTTP/1.1 200 OK\r\n"
 read "Content-Length: 1245\r\n"
-read /Date: .*/ "\r\n"
+read /Date: .*\r\n/
 read "Server: Kaazing Gateway\r\n"
 read "\r\n"
 
@@ -201,7 +201,7 @@ write "\r\n"
 
 read "HTTP/1.1 200 OK\r\n"
 read "Content-Length: 1245\r\n"
-read /Date: .*/ "\r\n"
+read /Date: .*\r\n/
 read "Server: Kaazing Gateway\r\n"
 read "\r\n"
 
@@ -258,7 +258,7 @@ write "\r\n"
 
 read "HTTP/1.1 200 OK\r\n"
 read "Content-Length: 493\r\n"
-read /Date: .*/ "\r\n"
+read /Date: .*\r\n/
 read "Server: Kaazing Gateway\r\n"
 read "\r\n"
 
@@ -297,7 +297,7 @@ write "\r\n"
 
 read "HTTP/1.1 200 OK\r\n"
 read "Content-Length: 493\r\n"
-read /Date: .*/ "\r\n"
+read /Date: .*\r\n/
 read "Server: Kaazing Gateway\r\n"
 read "\r\n"
 
@@ -336,7 +336,7 @@ write "\r\n"
 
 read "HTTP/1.1 200 OK\r\n"
 read "Content-Length: 493\r\n"
-read /Date: .*/ "\r\n"
+read /Date: .*\r\n/
 read "Server: Kaazing Gateway\r\n"
 read "\r\n"
 
