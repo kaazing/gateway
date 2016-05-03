@@ -17,7 +17,6 @@ package org.kaazing.gateway.resource.address;
 
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
-import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_URI;
 
 import java.net.URI;
@@ -30,16 +29,13 @@ public final class Comparators {
     private static final Comparator<String> STRING_COMPARATOR = compareComparable(String.class);
     private static final Comparator<ResourceAddress> ORIGIN_COMPARATOR = compareNonNull(new ResourceOriginComparator());
     private static final Comparator<ResourceAddress> LOCATION_COMPARATOR = compareNonNull(new ResourceLocationComparator());
-    private static final Comparator<ResourceAddress> LOCATION_ALTERNATES_COMPARATOR = compareAlternates(new ResourceLocationComparator());
-    private static final Comparator<ResourceAddress> EXTERNAL_URI_COMPARATOR = compareNonNull(new ExternalURIComparator());
     private static final Comparator<ResourceAddress> PROTOCOL_STACK_COMPARATOR = compareNonNull(new ResourceProtocolStackComparator());
     private static final Comparator<ResourceAddress> ORIGIN_AND_PROTOCOL_STACK_COMPARATOR = new ResourceOriginAndProtocolStackComparator();
-    private static final Comparator<ResourceAddress> LOCATION_AND_TRANSPORT_PROTOCOL_STACK_COMPARATOR = compareNonNull(new ResourceLocationAndTransportProtocolStackComparator());
+    private static final Comparator<ResourceAddress> LOCATION_AND_TRANSPORT_PROTOCOL_STACK_COMPARATOR = compareAlternates(new ResourceLocationAndTransportProtocolStackComparator());
     private static final Comparator<ResourceAddress> ORIGIN_PATH_ALTERNATES_AND_PROTOCOL_STACK_COMPARATOR = compareAlternates(new ResourceOriginPathAndProtocolStackComparator());
     private static final Comparator<ResourceAddress> ORIGIN_PATH_AND_PROTOCOL_STACK_COMPARATOR = compareNonNull(new ResourceOriginPathAndProtocolStackComparator());
     private static final Comparator<ResourceAddress> TRANSPORT_PROTOCOL_STACK_AND_TRANSPORTED_URI_COMPARATOR = compareNonNull(new TransportProtocolStackAndTransportedURIComparator());
     private static final Comparator<URI> TRANSPORTED_URI_COMPARATOR = compareNonNull(new TransportedURIComparator());
-
 
     public static Comparator<String> stringComparator() {
         return STRING_COMPARATOR;
@@ -336,29 +332,9 @@ public final class Comparators {
                 return compareTransport;
             }
 
-            int compareExternalURI = EXTERNAL_URI_COMPARATOR.compare(addr1, addr2);
-            if (compareExternalURI == 0) {
-                ResourceAddress alternate1 = getFloorTransport(addr1).getOption(ALTERNATE);
-                ResourceAddress alternate2 = getFloorTransport(addr2).getOption(ALTERNATE);
-                int compareAlternates = LOCATION_ALTERNATES_COMPARATOR.compare(alternate1, alternate2);
-                if (compareAlternates != 0) {
-                    return compareAlternates;
-                }
-            }
-
             return 0;
         }
 
-    }
-
-    private static final class ExternalURIComparator implements Comparator<ResourceAddress> {
-
-        @Override
-        public int compare(ResourceAddress addr1, ResourceAddress addr2) {
-            String externalURI1 = addr1.getExternalURI();
-            String externalURI2 = addr2.getExternalURI();
-            return externalURI1.compareTo(externalURI2);
-        }
     }
 
     // A class that is wrapped by a NonNullComparator to handle URI comparisons
