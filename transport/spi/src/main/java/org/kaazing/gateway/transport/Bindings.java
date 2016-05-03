@@ -38,8 +38,10 @@ import org.kaazing.gateway.transport.Bindings.Binding;
 public abstract class Bindings<B extends Binding> {
 
     private final ConcurrentNavigableMap<ResourceAddress, B> bindings;
+    private final Comparator<ResourceAddress> comparator;
 
     protected Bindings(Comparator<ResourceAddress> comparator) {
+        this.comparator = comparator;
         bindings = new ConcurrentSkipListMap<>(comparator);
     }
 
@@ -116,7 +118,7 @@ public abstract class Bindings<B extends Binding> {
     }
 
     protected final boolean equivalent(Binding newBinding, Binding binding) {
-        return binding.bindAddress().equals(newBinding.bindAddress()) && binding.handler() == newBinding.handler();
+        return comparator.compare(newBinding.bindAddress, binding.bindAddress) == 0 && binding.handler() == newBinding.handler();
     }
 
     // note: needed for usage of NextProtocolBindings
