@@ -1029,14 +1029,6 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         }
 
         @Override
-        protected void doSessionClosed(TransportSession session) throws Exception {
-            WsebSession wsebSession = session.getWsebSession();
-            if (wsebSession != null && !wsebSession.isClosing()) {
-                wsebSession.reset(new Exception("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
-            }
-        }
-
-        @Override
         protected void doSessionIdle(TransportSession session, IdleStatus status) throws Exception {
             WsebSession wsebSession = session.getWsebSession();
             if (wsebSession.isCloseSent() && !wsebSession.isCloseReceived()) {

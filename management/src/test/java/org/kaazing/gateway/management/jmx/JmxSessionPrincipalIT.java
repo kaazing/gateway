@@ -28,6 +28,7 @@ import java.util.Set;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -161,11 +162,13 @@ public class JmxSessionPrincipalIT {
     }
 
     // Test should kill all sessions that have "TEST" as a role Principal
+    // please see "Jmx should KillSessions By Role Principal can fail if invoked early in session initialization #448"
     @Specification({
         "wsn.session.with.user.principal.joe",
         "wse.session.with.user.principal.joe",
         "wsn.session.with.user.principal.ann" })
     @Test
+    @Ignore("https://github.com/kaazing/tickets/issues/448")
     public void shouldKillSessionsByRolePrincipal() throws Exception {
         ObjectName echoServiceMbeanName = null;
 

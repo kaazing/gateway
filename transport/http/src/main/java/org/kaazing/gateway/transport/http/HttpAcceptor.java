@@ -532,13 +532,16 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         IoSession transport = chain.getSession();
 
         SocketAddress localAddress = transport.getLocalAddress();
-        String nextProtocol = PROTOCOL_HTTP_1_1;
 
+        String nextProtocol = null;
         if (localAddress instanceof ResourceAddress) {
             ResourceAddress address = (ResourceAddress) localAddress;
             if (!address.hasOption(QUALIFIER)) {
                 nextProtocol = address.getOption(NEXT_PROTOCOL);
             }
+        }
+        if (nextProtocol == null) {
+            nextProtocol = PROTOCOL_HTTP_1_1;
         }
 
         if (logger.isTraceEnabled()) {
