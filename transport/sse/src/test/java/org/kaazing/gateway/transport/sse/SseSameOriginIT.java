@@ -18,6 +18,7 @@ package org.kaazing.gateway.transport.sse;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import org.junit.Assume;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -61,12 +62,10 @@ public class SseSameOriginIT {
         robot.finish();
     }
 
+    @Ignore("https://github.com/kaazing/tickets/issues/476 for details")
     @Specification("sse.connect.and.get.data.via.ie8.httpxe")
     @Test
     public void sseIe8HttpxeConnectAndGetData() throws Exception {
-        Assume.assumeFalse(
-                "Test will be ignored for Jenkins builds; please see https://github.com/kaazing/tickets/issues/476 for details",
-                "true".equals(System.getenv("JENKINS")));
         robot.finish();
     }
 }
