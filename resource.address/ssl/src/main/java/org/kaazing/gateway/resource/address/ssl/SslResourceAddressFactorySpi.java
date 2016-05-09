@@ -32,6 +32,7 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.security.KeySelector;
+import org.kaazing.gateway.util.ssl.SslCipherSuites;
 
 public class SslResourceAddressFactorySpi extends ResourceAddressFactorySpi<SslResourceAddress> {
 
@@ -64,12 +65,15 @@ public class SslResourceAddressFactorySpi extends ResourceAddressFactorySpi<SslR
     @Override
     protected void parseNamedOptions0(String location, ResourceOptions options,
                                       Map<String, Object> optionsByName) {
-        
-        String[] ciphers = (String[]) optionsByName.remove(CIPHERS.name());
-        if (ciphers != null) {
-            options.setOption(CIPHERS, ciphers);
+        Object ciphers = optionsByName.remove(CIPHERS.name());
+        if (ciphers instanceof String) {
+            options.setOption(CIPHERS, SslCipherSuites.resolveCSV((String) ciphers));
+        } else if (ciphers instanceof String[]) {
+            options.setOption(CIPHERS, (String[]) ciphers);
+        } else {
+            assert ciphers == null;
         }
-        
+
         Boolean encryption = (Boolean) optionsByName.remove(ENCRYPTION_ENABLED.name());
         if (encryption != null) {
             options.setOption(ENCRYPTION_ENABLED, encryption);
