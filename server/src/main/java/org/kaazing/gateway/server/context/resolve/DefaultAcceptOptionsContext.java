@@ -59,6 +59,7 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
 
     private static int DEFAULT_WEBSOCKET_MAXIMUM_MESSAGE_SIZE = 128 * 1024; //128KB
     private static int DEFAULT_HTTP_KEEPALIVE_TIMEOUT = 30; //seconds
+    private static int DEFAULT_TCP_HANDSHAKE_TIMEOUT = 10; //seconds
     private static final long UNLIMITED_MAX_OUTPUT_RATE = 0xFFFFFFFFL;
     private static long DEFAULT_TCP_MAXIMUM_OUTBOUND_RATE = UNLIMITED_MAX_OUTPUT_RATE; //unlimited
 
@@ -216,6 +217,7 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         result.put(TCP_MAXIMUM_OUTBOUND_RATE, getTcpMaximumOutboundRate());
 
         result.put("udp.interface", options.get("udp.interface"));
+        result.put("tcp.handshake.timeout", getTcpHandshakeTimeout());
 
         for (Map.Entry<String, String> entry : getBinds().entrySet()) {
             /* For lookups out of this COPY of the options, we need to
@@ -422,6 +424,18 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
             }
         }
         return httpKeepaliveTimeout;
+    }
+
+    private int getTcpHandshakeTimeout() {
+        int tcpHandshakeTimeout = DEFAULT_TCP_HANDSHAKE_TIMEOUT;
+        String tcpHandshakeTimeoutValue = options.get("tcp.handshake.timeout");
+        if (tcpHandshakeTimeoutValue != null) {
+            long val = Utils.parseTimeInterval(tcpHandshakeTimeoutValue, TimeUnit.SECONDS);
+            if (val > 0) {
+                tcpHandshakeTimeout = (int) val;
+            }
+        }
+        return tcpHandshakeTimeout;
     }
 
     private void parseAcceptOptionsType(ServiceAcceptOptionsType acceptOptionsType,

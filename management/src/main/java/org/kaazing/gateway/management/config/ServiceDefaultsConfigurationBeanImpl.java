@@ -119,6 +119,11 @@ public class ServiceDefaultsConfigurationBeanImpl implements ServiceDefaultsConf
                     jsonOptions.put("http.transport", httpTransport.toString());
                 }
 
+                Integer tcpHandshakeTimeout = (Integer) acceptOptions.remove("tcp.handshake.timeout");
+                if (tcpHandshakeTimeout != null) {
+                    jsonOptions.put("tcp.handshake.timeout", tcpHandshakeTimeout);
+                }
+
                 long tcpMaxOutboundRate = (Long) acceptOptions.remove("tcp.maximumOutboundRate");
                 jsonOptions.put("tcp.maximum.outbound.rate", tcpMaxOutboundRate);
 

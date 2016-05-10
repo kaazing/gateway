@@ -95,6 +95,20 @@ public class AcceptOptionsTest {
     }
 
     @Test
+    public void testTcpHandshakeTimeoutOption() throws Exception {
+      // expect default if 0 is specified
+      expectSuccess("tcp.handshake.timeout", "0 minutes", "tcp.handshake.timeout", 10);
+
+      expectSuccess("tcp.handshake.timeout", "10 seconds", "tcp.handshake.timeout", 10);
+      expectSuccess("tcp.handshake.timeout", "10 minutes", "tcp.handshake.timeout", 600);
+      expectSuccess("tcp.handshake.timeout", "0.5 minutes", "tcp.handshake.timeout", 30);
+
+      expectParseFailure("tcp.handshake.timeout", "-1 seconds");
+      expectParseFailure("tcp.handshake.timeout", "abc");
+      expectParseFailure("tcp.handshake.timeout", null);
+  }
+
+    @Test
     public void testHttpTransportOption() throws Exception {
         expectSuccess("http.transport", "tcp://127.0.0.1:80", "http[http/1.1].transport", "tcp://127.0.0.1:80");
         expectSuccess("http.transport", "tcp://127.0.0.1:80", "http.transport", null);
