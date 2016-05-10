@@ -241,8 +241,14 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
 
     @Override
     public void bind(ResourceAddress address, IoHandler handler, BridgeSessionInitializer<? extends IoFuture> initializer) {
-        if (started.compareAndSet(false, true)) {
-            init();
+
+        if (!started.get()) {
+            synchronized (started) {
+                if (!started.get()) {
+                    init();
+                    started.set(true);
+                }
+            }
         }
 
         ResourceAddress failedAddress = null;
