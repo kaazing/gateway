@@ -143,6 +143,9 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
                             httpResponse
                                     .setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), false));
                             out.write(httpResponse);
+                            if (status == HttpStatus.REDIRECT_NOT_MODIFIED) {
+                                return null;
+                            }
                             return new MaximumLengthDecodingState(length);
                         }
                     } else {
