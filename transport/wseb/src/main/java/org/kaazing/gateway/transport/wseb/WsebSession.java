@@ -611,8 +611,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         String sequenceNo = session.getReadHeader(HttpHeaders.HEADER_X_SEQUENCE_NO);
 
         if (sequenceNo == null || expectedSequenceNo != Long.parseLong(sequenceNo)) {
-            String message = String.format("Out of order request: expected seq no=%d, got=%s",
-                    expectedSequenceNo, sequenceNo);
+            String message = String.format("Out of order request for session=%s: expected seq no=%d, got=%s",
+                    session, expectedSequenceNo, sequenceNo);
             setCloseException(new IOException(message));
             HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
             session.setStatus(status);
@@ -1026,14 +1026,6 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             }
 
             session.close(true);
-        }
-
-        @Override
-        protected void doSessionClosed(TransportSession session) throws Exception {
-            WsebSession wsebSession = session.getWsebSession();
-            if (wsebSession != null && !wsebSession.isClosing()) {
-                wsebSession.reset(new Exception("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
-            }
         }
 
         @Override

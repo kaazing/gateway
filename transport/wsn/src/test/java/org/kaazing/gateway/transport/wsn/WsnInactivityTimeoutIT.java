@@ -95,4 +95,10 @@ public class WsnInactivityTimeoutIT {
         robot.finish();
     }
 
+    @Test
+    @Specification("shouldSendPingForExtendedHandshake")
+    public void shouldSendPingForExtendedHandshake() throws Exception {
+        robot.finish();
+    }
+
 }

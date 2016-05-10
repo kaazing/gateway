@@ -46,7 +46,7 @@ read "Access-Control-Allow-Headers: x-websocket-protocol\r\n"
 read "Access-Control-Allow-Origin: http://localhost:8000\r\n"
 read "Connection: Upgrade\r\n"
 read "Date: "
-read /.*/ "\r\n"
+read /.*\r\n/
 read "Sec-WebSocket-Accept: i15YeRbkqyQeAUbq2wME3AKN0mQ=\r\n"
 read "Sec-WebSocket-Protocol: x-kaazing-handshake\r\n"
 read "Server: Kaazing Gateway\r\n"

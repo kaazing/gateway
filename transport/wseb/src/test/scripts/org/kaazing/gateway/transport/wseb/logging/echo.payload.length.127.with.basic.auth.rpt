@@ -33,8 +33,8 @@ read status "201" /.+/
 read version "HTTP/1.1"
 read header "Content-Type" /text\/plain;charset=(?i)utf-8/
 
-read /(?<upstream>http:\/\/localhost:8080\/path\/.+)/ "\n"
-read /(?<downstream>http:\/\/localhost:8080\/path\/.+)/ "\n"
+read /(?<upstream>http:\/\/localhost:8080\/path\/.+)\n/
+read /(?<downstream>http:\/\/localhost:8080\/path\/.+)\n/
 read notify CREATED
 read closed
 

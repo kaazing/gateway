@@ -17,27 +17,22 @@
 # KG-11124
 # app.token.three.attempts.failure.rpt 
 #Frontend
-connect tcp://localhost:8555
+connect http://localhost:8555/
 connected
 
-write "GET / HTTP/1.1\r\n"
-write "User-Agent: AutobahnTestSuite/0.6.1-0.8.8\r\n"
-write "Host: localhost:8555\r\n"
-write "Upgrade: WebSocket\r\n"
-write "Connection: Upgrade\r\n"
-write "Pragma: no-cache\r\n"
-write "Cache-Control: no-cache\r\n"
-write "Sec-WebSocket-Key: qGJGE4V5NjJxQHMzSF7ViQ==\r\n"
-write "Sec-WebSocket-Version: 13\r\n"
-write "\r\n"
+write method "GET"
+write header "User-Agent" "AutobahnTestSuite/0.6.1-0.8.8"
+write header host
+write header "Upgrade" "WebSocket"
+write header "Connection" "Upgrade"
+write header "Pragma" "no-cache"
+write header "Cache-Control" "no-cache"
+write header "Sec-WebSocket-Key" "qGJGE4V5NjJxQHMzSF7ViQ=="
+write header "Sec-WebSocket-Version" "13"
 
-read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
-read "Connection: Upgrade\r\n"
-read /Date: .*/ "\r\n"
-read "Sec-WebSocket-Accept: IF0nEhUtZc3XUMigyQOarssta9w=\r\n"
-read "Server: Kaazing Gateway\r\n"
-read "Upgrade: WebSocket\r\n"
-read "\r\n"
+read header "Connection" "Upgrade"
+read header "Sec-WebSocket-Accept" "IF0nEhUtZc3XUMigyQOarssta9w="
+read header "Upgrade" "WebSocket"
 
 # Websocket text with empty payload
 write [0x81 0x80 0x13 0x95 0x59 0x76]
@@ -47,9 +42,6 @@ write [0x88 0x82 0x7e 0xc6 0x58 0xde 0x7d 0x2e]
 read [0x88 0x02 0x03 0xe8]
 read notify FRONTENDCLOSED
 
-close
-closed
-
 # Backend
 accept tcp://localhost:8556
 accepted
@@ -58,7 +50,7 @@ read "GET / HTTP/1.1\r\n"
 read "User-Agent: Kaazing Gateway\r\n"
 read "Upgrade: websocket\r\n"
 read "Sec-WebSocket-Version: 13\r\n"
-read "Sec-WebSocket-Key: " /(?<key>[a-zA-Z0-9+\/=]{24})/ "\r\n"
+read "Sec-WebSocket-Key: " /(?<key>[a-zA-Z0-9+\/=]{24})\r\n/
 read "Origin: http://localhost:8556\r\n"
 read "Host: localhost:8556\r\n"
 read "Connection: Upgrade\r\n"
