@@ -1037,7 +1037,7 @@ public class GatewayContextResolver {
             }
 
             //Login Module Inject Rule 4: Inject Timeout Module at Front of Chain
-            if (authType.isSetSessionTimeout()) {
+            if (authType.isSetSessionTimeout() && authType.getSessionTimeout() != null) {
                 Map<String, String> options = new HashMap<>();
                 if (authType.isSetSessionTimeout()) {
                     options.put("session-timeout", resolveTimeIntervalValue(authType.getSessionTimeout()));
