@@ -16,6 +16,7 @@
 package org.kaazing.gateway.server;
 
 import org.junit.Test;
+import org.kaazing.gateway.server.impl.VersionUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,27 +26,31 @@ import java.util.jar.Manifest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class SettingsIT {
 
     /**
-     * Checks in the projects's pom.xml that the manifest entries will be generated as expected by others (update.check)
+     * Checks in the project's artifact that the manifest entries will be generated as expected by others (update.check).
+     * Uses the jar found in the target, since in the integration-test the project's artifact is not in the classpath.
      */
     @Test
     public void shouldHaveCommunityProductEditionAndTitle() throws IOException {
-        File artefact = null;
+        assertNull("Could use the classpath to introspect the jar.", VersionUtils.getGatewayProductEdition());
+        File artifact = null;
         File target = new File("../server/target");
         for (File entry : target.listFiles()) {
             if (entry.getName().startsWith("gateway.server") &&
                     entry.getName().endsWith(".jar")) {
-                artefact = entry;
+                artifact = entry;
             }
         }
-        assertNotNull("Artefact for gateway.server not found. Please run this test as an integration test.", artefact);
-        JarFile jar = new JarFile(artefact);
+        assertNotNull("Artifact for gateway.server not found. Please run this test as an integration test.", artifact);
+        JarFile jar = new JarFile(artifact);
         Manifest mf = jar.getManifest();
         Attributes attrs = mf.getMainAttributes();
         assertEquals("Kaazing Gateway", attrs.getValue("Implementation-Title"));
         assertEquals("Community.Gateway", attrs.getValue("Kaazing-Product"));
+        jar.close();
     }
 }
