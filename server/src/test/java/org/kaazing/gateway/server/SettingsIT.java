@@ -38,8 +38,9 @@ public class SettingsIT {
     public void shouldHaveCommunityProductEditionAndTitle() throws IOException {
         assertNull("Could use the classpath to introspect the jar.", VersionUtils.getGatewayProductEdition());
         File artifact = null;
-        File target = new File("../server/target");
-        for (File entry : target.listFiles()) {
+        final File classDirectory = new File(SettingsIT.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        final File targetDirectory = new File(classDirectory.getCanonicalPath() + "/../"); // target/test-classes
+        for (File entry : targetDirectory.listFiles()) {
             if (entry.getName().startsWith("gateway.server") &&
                     entry.getName().endsWith(".jar")) {
                 artifact = entry;
@@ -54,3 +55,4 @@ public class SettingsIT {
         jar.close();
     }
 }
+
