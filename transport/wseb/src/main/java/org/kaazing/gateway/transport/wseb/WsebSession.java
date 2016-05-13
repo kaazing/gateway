@@ -1110,6 +1110,12 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         Logger getLogger() {
             return wsebSession.getLogger();
         }
+
+        @Override
+        public String toString() {
+            return String.format("[wseb#%s transport]", wsebSession.getId());
+
+        }
     }
 
 }

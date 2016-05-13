@@ -45,6 +45,7 @@ import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.IoFilterAdapter;
+import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsMessage;
@@ -194,7 +195,7 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
         if (status == IdleStatus.READER_IDLE) {
             switch (nextAction) {
             case PONG:
-                logger.info("Client connection {} has been aborted because network connectivity has been lost", session);
+                logger.info("Session {} didn't receive PONG, will close corresponding connection", session);
 
                 // Disable idle timeout so it doesn't fire while we're closing
                 session.getConfig().setReaderIdleTime(0);
@@ -214,6 +215,7 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
                     filterChain.remove(WsAcceptor.CLOSE_FILTER);
                 }
                 IoSession sessionToClose = wsSession != null ? wsSession : session;
+                logger.info("Closing session {} as it didn't receive PONG", sessionToClose);
                 sessionToClose.close(true);
                 break;
             case PING:
