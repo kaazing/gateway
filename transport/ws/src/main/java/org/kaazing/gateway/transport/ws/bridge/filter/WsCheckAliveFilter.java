@@ -45,7 +45,6 @@ import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.IoFilterAdapter;
-import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsMessage;

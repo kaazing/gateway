@@ -1114,7 +1114,6 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         @Override
         public String toString() {
             return String.format("[wseb#%s transport]", wsebSession.getId());
-
         }
     }
 
