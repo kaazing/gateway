@@ -24,7 +24,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_U
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.BridgeSession.NEXT_PROTOCOL_KEY;
 import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_IDLE_TIMEOUT;
+import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.TCP_HANDSHAKE_TIMEOUT;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -104,8 +104,6 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
     protected final Properties configuration;
     protected final Logger logger;
 
-    private final Integer idleTimeout;
-
     public AbstractNioAcceptor(Properties configuration, Logger logger) {
         if (configuration == null) {
             throw new NullPointerException("configuration");
@@ -123,8 +121,6 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
         if ("true".equalsIgnoreCase(preferIPv4NetworkStack)) {
             skipIPv6Addresses = true;
         }
-
-        idleTimeout = TCP_IDLE_TIMEOUT.getIntProperty(configuration);
     }
 
     @Resource(name = "bridgeServiceFactory")
@@ -157,10 +153,6 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
                 // Not currently bound (A concurrent unbind may have removed the binding)
                 session.close(true);
                 return;
-            }
-
-            if (idleTimeout != null && idleTimeout > 0) {
-                session.getFilterChain().addLast("idle", new NioIdleFilter(logger, idleTimeout, session));
             }
 
             // note: defer sessionCreated until sessionOpened to support (optional) protocol dispatch
@@ -219,6 +211,11 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             // attribute to give us the bound resource address.
             ResourceAddress localAddress = binding.bindAddress();
             LOCAL_ADDRESS.set(session, localAddress);
+
+            Integer handshakeTimeout = localAddress.getOption(TCP_HANDSHAKE_TIMEOUT).intValue();
+            if (handshakeTimeout != null && handshakeTimeout > 0) {
+                session.getFilterChain().addLast("idle", new NioHandshakeFilter(logger, handshakeTimeout, session));
+            }
 
             SocketAddress remoteSocketAddress = session.getRemoteAddress();
             String remoteExternalURI = asResourceURI((InetSocketAddress) remoteSocketAddress);

@@ -15,49 +15,57 @@
  */
 package org.kaazing.gateway.transport.nio.internal;
 
-import static org.apache.mina.core.session.IdleStatus.BOTH_IDLE;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
-import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
-import org.slf4j.Logger;
 import org.kaazing.gateway.transport.IoFilterAdapter;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.slf4j.Logger;
 
 /**
  * Closes the connection if no data is read or written in x amount of time
  *
  */
-public class NioIdleFilter extends IoFilterAdapter<IoSessionEx> {
+public class NioHandshakeFilter extends IoFilterAdapter<IoSessionEx> {
 
     private final Logger logger;
-    private final Integer idleTimeout;
+    private final Integer handshakeTimeout;
+    private boolean handshakeCompleted;
+    private Timer timer;
 
-    public NioIdleFilter(Logger logger, Integer idleTimeout, IoSession session) {
+    public NioHandshakeFilter(Logger logger, Integer handshakeTimeout, IoSession session) {
         this.logger = logger;
-        this.idleTimeout = idleTimeout;
+        this.handshakeTimeout = handshakeTimeout;
+        timer = new Timer();
     }
 
     @Override
     public void onPostAdd(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception {
         IoSession session = parent.getSession();
         if (logger.isDebugEnabled()) {
-            logger.debug(String.format("Setting idle timeout %d on TCP session %s ", idleTimeout, session));
+            logger.debug(String.format("Setting handshake timeout %d on TCP session %s ", handshakeTimeout, session));
         }
-        session.getConfig().setBothIdleTime(idleTimeout);
+
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (!handshakeCompleted) {
+                    if (logger.isInfoEnabled()) {
+                        logger.info(String.format("Closing tcp session %s because handshake timeout of %d secs is exceeded",
+                                session, handshakeTimeout));
+                    }
+                    session.close(false);
+                }
+            }
+        }, handshakeTimeout * 1000);
+
     };
 
     @Override
-    protected void doSessionIdle(NextFilter nextFilter, IoSessionEx session, IdleStatus status) throws Exception {
-
-        if (status == BOTH_IDLE) {
-            if (logger.isInfoEnabled()) {
-                logger.info(String.format("Closing tcp session %s because idle timeout of %d secs is exceeded", session,
-                        idleTimeout));
-            }
-            session.close(false);
-        }
-        super.doSessionIdle(nextFilter, session, status);
+    protected void doSessionCreated(NextFilter nextFilter, IoSessionEx session) throws Exception {
+        handshakeCompleted = true;
+        nextFilter.sessionCreated(session);
     }
-
 }

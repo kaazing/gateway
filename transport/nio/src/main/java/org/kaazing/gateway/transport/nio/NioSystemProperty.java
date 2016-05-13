@@ -46,12 +46,7 @@ public enum NioSystemProperty {
     TCP_RECEIVE_BUFFER_SIZE("org.kaazing.gateway.server.transport.tcp.RECEIVE_BUFFER_SIZE"),
     TCP_SEND_BUFFER_SIZE("org.kaazing.gateway.server.transport.tcp.SEND_BUFFER_SIZE"),
     TCP_SO_LINGER("org.kaazing.gateway.server.transport.tcp.SO_LINGER"),
-    TCP_IP_TOS("org.kaazing.gateway.server.transport.tcp.IP_TOS"),
-    
-    // TCP_IDLE_TIMEOUT will kill the session if nothing is written or read at nio level.
-    // Note, the idle usage is using the mina netty idle timeout which may be set
-    // by higher layers. Logic for this is in NioIdleFilter
-    TCP_IDLE_TIMEOUT("org.kaazing.gateway.server.transport.tcp.IDLE_TIMEOUT", Integer.toString(0));
+    TCP_IP_TOS("org.kaazing.gateway.server.transport.tcp.IP_TOS");
 
     private final String name;
     private final String defaultValue;
