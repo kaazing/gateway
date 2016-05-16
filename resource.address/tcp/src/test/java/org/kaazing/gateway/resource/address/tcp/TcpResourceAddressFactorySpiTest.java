@@ -76,7 +76,7 @@ public class TcpResourceAddressFactorySpiTest {
         options = new HashMap<>();
         options.put("tcp.nextProtocol", "custom");
         options.put("tcp.maximumOutboundRate", 534L);
-        options.put("tcp.handshake.timeout", 20);
+        options.put("tcp.handshake.timeout", 20000L);
         options.put("tcp.qualifier", "random");
         options.put("tcp.bind", new InetSocketAddress(2222));
     }
@@ -138,7 +138,7 @@ public class TcpResourceAddressFactorySpiTest {
         assertNull(address.getOption(QUALIFIER));
         assertNull(address.getOption(BIND_ADDRESS));
         assertEquals(0xFFFFFFFFL, address.getOption(MAXIMUM_OUTBOUND_RATE).longValue());
-        assertEquals(10, address.getOption(TCP_HANDSHAKE_TIMEOUT).intValue());
+        assertEquals(10000, address.getOption(TCP_HANDSHAKE_TIMEOUT).longValue());
     }
 
     @Test
@@ -148,7 +148,7 @@ public class TcpResourceAddressFactorySpiTest {
         assertEquals("random", address.getOption(QUALIFIER));
         assertEquals(new InetSocketAddress(2222), address.getOption(BIND_ADDRESS));
         assertEquals(534L, address.getOption(MAXIMUM_OUTBOUND_RATE).longValue());
-        assertEquals(20, address.getOption(TCP_HANDSHAKE_TIMEOUT).intValue());
+        assertEquals(20000, address.getOption(TCP_HANDSHAKE_TIMEOUT).longValue());
     }
 
     @Test

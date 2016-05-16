@@ -212,7 +212,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             ResourceAddress localAddress = binding.bindAddress();
             LOCAL_ADDRESS.set(session, localAddress);
 
-            Integer handshakeTimeout = localAddress.getOption(TCP_HANDSHAKE_TIMEOUT).intValue();
+            Long handshakeTimeout = localAddress.getOption(TCP_HANDSHAKE_TIMEOUT).longValue();
             if (handshakeTimeout != null && handshakeTimeout > 0) {
                 session.getFilterChain().addLast("idle", new NioHandshakeFilter(logger, handshakeTimeout, session));
             }

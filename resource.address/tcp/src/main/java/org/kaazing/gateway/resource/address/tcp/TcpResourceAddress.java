@@ -34,14 +34,14 @@ public final class TcpResourceAddress extends ResourceAddress {
 
     public static final ResourceOption<InetSocketAddress> BIND_ADDRESS = new TcpBindAddressOption();
     public static final ResourceOption<Long> MAXIMUM_OUTBOUND_RATE = new TcpMaximumOutboundRateOption();
-    public static final ResourceOption<Integer> TCP_HANDSHAKE_TIMEOUT = new TcpHandshakeTimeoutOption();
+    public static final ResourceOption<Long> TCP_HANDSHAKE_TIMEOUT = new TcpHandshakeTimeoutOption();
 
     private static final long MAXIMUM_OUTBOUND_RATE_DEFAULT = 0xFFFFFFFFL;
-    private static final int TCP_HANDSHAKE_TIMEOUT_DEFAULT = 10;
+    private static final long TCP_HANDSHAKE_TIMEOUT_MILLIS_DEFAULT = 10000;
 
     private InetSocketAddress bindAddress;
     private long maximumOutboundRate = MAXIMUM_OUTBOUND_RATE.defaultValue();
-    private Integer tcpHandshakeTimeout = TCP_HANDSHAKE_TIMEOUT.defaultValue();
+    private Long tcpHandshakeTimeout = TCP_HANDSHAKE_TIMEOUT.defaultValue();
 
     TcpResourceAddress(ResourceAddressFactorySpi factory, String original, URI resource) {
         super(factory, original, resource);
@@ -58,7 +58,7 @@ public final class TcpResourceAddress extends ResourceAddress {
                 case MAXIMUM_OUTBOUND_RATE:
                     return (V) valueOf(maximumOutboundRate);
                 case TCP_HANDSHAKE_TIMEOUT:
-                    return (V) tcpHandshakeTimeout;
+                    return (V) valueOf(tcpHandshakeTimeout);
             }
         }
 
@@ -77,7 +77,7 @@ public final class TcpResourceAddress extends ResourceAddress {
                     maximumOutboundRate = (Long) value;
                     return;
                 case TCP_HANDSHAKE_TIMEOUT:
-                    tcpHandshakeTimeout = (Integer) value;
+                    tcpHandshakeTimeout = (Long) value;
                     return;
             }
         }
@@ -117,9 +117,9 @@ public final class TcpResourceAddress extends ResourceAddress {
         }
     }
 
-    private static final class TcpHandshakeTimeoutOption extends TcpResourceOption<Integer> {
+    private static final class TcpHandshakeTimeoutOption extends TcpResourceOption<Long> {
         private TcpHandshakeTimeoutOption() {
-            super(Kind.TCP_HANDSHAKE_TIMEOUT, "handshake.timeout", TCP_HANDSHAKE_TIMEOUT_DEFAULT);
+            super(Kind.TCP_HANDSHAKE_TIMEOUT, "handshake.timeout", TCP_HANDSHAKE_TIMEOUT_MILLIS_DEFAULT);
         }
     }
 

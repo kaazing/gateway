@@ -1264,7 +1264,7 @@
             <element name="http.transport" maxOccurs="1" minOccurs="0" type="anyURI">
                 <annotation/>
             </element>
-            <element name="tcp.handshake.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString" default="10">
+            <element name="tcp.handshake.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString">
                 <annotation/>
             </element>
             <element name="udp.interface" maxOccurs="1" minOccurs="0" type="anyURI">

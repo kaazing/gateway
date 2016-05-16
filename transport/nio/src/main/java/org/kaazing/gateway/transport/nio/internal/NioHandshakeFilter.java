@@ -25,17 +25,16 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 
 /**
- * Closes the connection if no data is read or written in x amount of time
+ * Closes the connection if the handshake is not successful in the given amount of time
  *
  */
 public class NioHandshakeFilter extends IoFilterAdapter<IoSessionEx> {
 
     private final Logger logger;
-    private final Integer handshakeTimeout;
-    private boolean handshakeCompleted;
+    private final Long handshakeTimeout;
     private Timer timer;
 
-    public NioHandshakeFilter(Logger logger, Integer handshakeTimeout, IoSession session) {
+    public NioHandshakeFilter(Logger logger, Long handshakeTimeout, IoSession session) {
         this.logger = logger;
         this.handshakeTimeout = handshakeTimeout;
         timer = new Timer();
@@ -44,28 +43,25 @@ public class NioHandshakeFilter extends IoFilterAdapter<IoSessionEx> {
     @Override
     public void onPostAdd(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception {
         IoSession session = parent.getSession();
-        if (logger.isDebugEnabled()) {
-            logger.debug(String.format("Setting handshake timeout %d on TCP session %s ", handshakeTimeout, session));
+        if (logger.isTraceEnabled()) {
+            logger.trace(String.format("Setting handshake timeout of %d milliseconds on TCP session %s ", handshakeTimeout, session));
         }
 
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if (!handshakeCompleted) {
-                    if (logger.isInfoEnabled()) {
-                        logger.info(String.format("Closing tcp session %s because handshake timeout of %d secs is exceeded",
-                                session, handshakeTimeout));
-                    }
-                    session.close(false);
+                if (logger.isDebugEnabled()) {
+                    logger.debug(String.format("Closing tcp session %s because handshake timeout of %d milliseconds is exceeded",
+                            session, handshakeTimeout));
                 }
+                session.close(false);
             }
-        }, handshakeTimeout * 1000);
-
-    };
+        }, handshakeTimeout);
+    }
 
     @Override
     protected void doSessionCreated(NextFilter nextFilter, IoSessionEx session) throws Exception {
-        handshakeCompleted = true;
+        timer.cancel();
         nextFilter.sessionCreated(session);
     }
 }

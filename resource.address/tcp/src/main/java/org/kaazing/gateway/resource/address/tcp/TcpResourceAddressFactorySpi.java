@@ -98,7 +98,7 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             options.setOption(MAXIMUM_OUTBOUND_RATE, maximumOutboundRate);
         }
 
-        Integer tcpHandshakeTimeout = (Integer) optionsByName.remove(TCP_HANDSHAKE_TIMEOUT.name());
+        Long tcpHandshakeTimeout = (Long) optionsByName.remove(TCP_HANDSHAKE_TIMEOUT.name());
         if (tcpHandshakeTimeout != null) {
             options.setOption(TCP_HANDSHAKE_TIMEOUT, tcpHandshakeTimeout);
         }

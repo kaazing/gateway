@@ -33,7 +33,7 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.session.IoSessionEx;
 
 
-public class TcpIdleTimeoutIT {
+public class TcpHandshakeTimeoutIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/tcp/rfc793");
 

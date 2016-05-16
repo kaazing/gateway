@@ -189,7 +189,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                         jsonOptions.put("http.transport", httpTransport);
                     }
 
-                    Integer tcpHandshakeTimeout = (Integer) acceptOptions.remove("tcp.handshake.timeout");
+                    Long tcpHandshakeTimeout = (Long) acceptOptions.remove("tcp.handshake.timeout");
                     if (tcpHandshakeTimeout != null) {
                         jsonOptions.put("tcp.handshake.timeout", tcpHandshakeTimeout);
                     }

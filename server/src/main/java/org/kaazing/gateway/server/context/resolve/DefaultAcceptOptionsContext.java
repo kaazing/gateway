@@ -59,7 +59,7 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
 
     private static int DEFAULT_WEBSOCKET_MAXIMUM_MESSAGE_SIZE = 128 * 1024; //128KB
     private static int DEFAULT_HTTP_KEEPALIVE_TIMEOUT = 30; //seconds
-    private static int DEFAULT_TCP_HANDSHAKE_TIMEOUT = 10; //seconds
+    private static long DEFAULT_TCP_HANDSHAKE_TIMEOUT_MILLIS = 10000; //10 seconds
     private static final long UNLIMITED_MAX_OUTPUT_RATE = 0xFFFFFFFFL;
     private static long DEFAULT_TCP_MAXIMUM_OUTBOUND_RATE = UNLIMITED_MAX_OUTPUT_RATE; //unlimited
 
@@ -426,13 +426,13 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         return httpKeepaliveTimeout;
     }
 
-    private int getTcpHandshakeTimeout() {
-        int tcpHandshakeTimeout = DEFAULT_TCP_HANDSHAKE_TIMEOUT;
+    private long getTcpHandshakeTimeout() {
+        long tcpHandshakeTimeout = DEFAULT_TCP_HANDSHAKE_TIMEOUT_MILLIS;
         String tcpHandshakeTimeoutValue = options.get("tcp.handshake.timeout");
         if (tcpHandshakeTimeoutValue != null) {
-            long val = Utils.parseTimeInterval(tcpHandshakeTimeoutValue, TimeUnit.SECONDS);
-            if (val > 0) {
-                tcpHandshakeTimeout = (int) val;
+            long val = Utils.parseTimeInterval(tcpHandshakeTimeoutValue, TimeUnit.MILLISECONDS);
+            if (val >= 0) {
+                tcpHandshakeTimeout = val;
             }
         }
         return tcpHandshakeTimeout;

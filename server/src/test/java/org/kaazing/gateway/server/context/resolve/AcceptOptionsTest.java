@@ -96,12 +96,10 @@ public class AcceptOptionsTest {
 
     @Test
     public void testTcpHandshakeTimeoutOption() throws Exception {
-      // expect default if 0 is specified
-      expectSuccess("tcp.handshake.timeout", "0 minutes", "tcp.handshake.timeout", 10);
-
-      expectSuccess("tcp.handshake.timeout", "10 seconds", "tcp.handshake.timeout", 10);
-      expectSuccess("tcp.handshake.timeout", "10 minutes", "tcp.handshake.timeout", 600);
-      expectSuccess("tcp.handshake.timeout", "0.5 minutes", "tcp.handshake.timeout", 30);
+      expectSuccess("tcp.handshake.timeout", "0 minutes", "tcp.handshake.timeout", 0L);
+      expectSuccess("tcp.handshake.timeout", "10 seconds", "tcp.handshake.timeout", 10000L);
+      expectSuccess("tcp.handshake.timeout", "10 minutes", "tcp.handshake.timeout", 600000L);
+      expectSuccess("tcp.handshake.timeout", "0.5 minutes", "tcp.handshake.timeout", 30000L);
 
       expectParseFailure("tcp.handshake.timeout", "-1 seconds");
       expectParseFailure("tcp.handshake.timeout", "abc");
