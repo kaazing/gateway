@@ -73,7 +73,8 @@ public class WsnAcceptorUserLoggingMultiplePrincipalsInConfigIT {
     };
     public GatewayRule gateway = new GatewayRule() {
         {
-        GatewayConfiguration configuration = new GatewayConfigurationBuilder()
+            // @formatter:off
+            GatewayConfiguration configuration = new GatewayConfigurationBuilder()
 
                 .service()
                     .accept("ws://localhost:8001/echoAuth")
@@ -98,6 +99,7 @@ public class WsnAcceptorUserLoggingMultiplePrincipalsInConfigIT {
                     .done()
                 .done()
             .done();
+            // @formatter:on
 
             Properties log4j = new Properties();
             log4j.setProperty("log4j.rootLogger", "TRACE, A1");

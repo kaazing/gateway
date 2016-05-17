@@ -48,6 +48,12 @@ public abstract class AbstractWsAcceptProcessor<T extends AbstractBridgeSession<
                 case CONTINUATION:
                     newWsMessage = new WsContinuationMessage(buf, wsBuffer.isFin());
                     break;
+                case PING:
+                    newWsMessage = new WsPingMessage(buf);
+                    break;
+                case PONG:
+                    newWsMessage = new WsPongMessage(buf);
+                    break;
                 default:
                     newWsMessage = new WsBinaryMessage(buf, wsBuffer.isFin());
                     break;

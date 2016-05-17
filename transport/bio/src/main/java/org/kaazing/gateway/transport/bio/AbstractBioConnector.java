@@ -83,8 +83,13 @@ public abstract class AbstractBioConnector<T extends SocketAddress> implements B
 
     @Override
     public ConnectFuture connect(ResourceAddress address, IoHandler handler, IoSessionInitializer<? extends ConnectFuture> initializer) {
-        if (started.compareAndSet(false, true)) {
-            init();
+        if (!started.get()) {
+            synchronized (started) {
+                if (!started.get()) {
+                    init();
+                    started.set(true);
+                }
+            }
         }
 
         return connectInternal(address, handler, initializer);

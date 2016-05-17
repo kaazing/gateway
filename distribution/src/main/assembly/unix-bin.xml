@@ -29,9 +29,8 @@
       <directory>src/main/gateway</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-          <include>README.txt</include>
-          <include>web/README.txt</include>
-          <include>web/base/index.html</include>
+          <include>**/README.txt</include>
+          <include>**/index.html</include>
       </includes>
       <filtered>true</filtered>
       <lineEnding>unix</lineEnding>

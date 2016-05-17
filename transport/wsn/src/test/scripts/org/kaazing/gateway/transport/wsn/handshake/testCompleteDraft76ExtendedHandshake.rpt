@@ -35,7 +35,7 @@ write [0x87 0xCF 0x49 0xEC 0xAB 0x46 0x39 0x72]
 # 101 Response
 read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
 read "Connection: Upgrade\r\n"
-read /Date: .*/ "\r\n"
+read /Date: .*\r\n/
 read "Sec-WebSocket-Location: ws://localhost:8001/echo?.kl=Y\r\n"
 read "Sec-WebSocket-Origin: http://localhost:8001\r\n"
 read "Sec-WebSocket-Protocol: x-kaazing-handshake\r\n"
@@ -54,7 +54,7 @@ write "\r\n"
 read [0x00]
 read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
 read "Connection: Upgrade\r\n"
-read /Date: .*/ "\r\n"
+read /Date: .*\r\n/
 read "Sec-WebSocket-Location: ws://localhost:8001/echo?.kl=Y\r\n"
 read "Sec-WebSocket-Origin: http://localhost:8001\r\n"
 read "Server: Kaazing Gateway\r\n"

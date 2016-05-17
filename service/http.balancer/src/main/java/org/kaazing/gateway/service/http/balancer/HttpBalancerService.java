@@ -179,7 +179,8 @@ public class HttpBalancerService implements Service {
                                                     TransportFactory transportFactory) throws Exception {
         List<String> httpURIs = new ArrayList<>(uris.size());
         for (String uri : uris) {
-            Protocol protocol = transportFactory.getProtocol(uri);
+            String schemeFromAcceptURI = uri.substring(0, uri.indexOf(':'));
+            Protocol protocol = transportFactory.getProtocol(schemeFromAcceptURI);
             if( WsProtocol.WS.equals(protocol) || WsProtocol.WSS.equals(protocol)) {
                 for (String scheme: Arrays.asList("wsn", "wsx")) {
                     boolean secure = protocol.isSecure();

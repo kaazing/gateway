@@ -49,12 +49,3 @@ write "\r\n"
 read [0x82 0x7E]
 
 read notify JOE_WSN_SESSION_ESTABLISHED
-
-write await CLOSE_SESSIONS_INVOKED
-
-# write something to keep the session from closing
-# if I remove the write then the script hangs after the await barrier and the test timeouts
-# please see k3po/k3po issue #237 filed for the above reason
-# if I don't have the barrier then the session will close(probably because it has no further instructions)
-# and the test becomes invalid(as I am trying to use closeSessions() on an already closed session)
-write "something"

@@ -27,12 +27,14 @@ import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
 import org.apache.mina.util.AvailablePortFinder;
+import org.junit.Ignore;
 
 /**
  * Tests {@link DatagramSessionConfig#setCloseOnPortUnreachable(boolean)}.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
+@Ignore("Tests ignored out as per https://github.com/kaazing/tickets/issues/474")
 public class DatagramPortUnreachableTest extends TestCase {
 
     Object mutex = new Object();

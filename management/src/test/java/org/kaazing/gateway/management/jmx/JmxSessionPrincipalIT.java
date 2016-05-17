@@ -21,7 +21,6 @@ import static org.kaazing.gateway.management.test.util.TlsTestUtil.getKeystoreFi
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.keyStore;
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.password;
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.trustStore;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.security.KeyStore;
 import java.util.Set;
@@ -29,6 +28,7 @@ import java.util.Set;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -126,7 +126,6 @@ public class JmxSessionPrincipalIT {
         "wsn.session.with.user.principal.ann" })
     @Test
     public void shouldKillSessionsByUserPrincipal() throws Exception {
-
         ObjectName echoServiceMbeanName = null;
 
         k3po.start();
@@ -159,19 +158,18 @@ public class JmxSessionPrincipalIT {
 
         assertEquals("Ann Wsn session should still be alive", (Long) 1L, numberOfCurrentSessions);
 
-        k3po.notifyBarrier("CLOSE_SESSIONS_INVOKED");
-
         k3po.finish();
     }
 
     // Test should kill all sessions that have "TEST" as a role Principal
+    // please see "Jmx should KillSessions By Role Principal can fail if invoked early in session initialization #448"
     @Specification({
         "wsn.session.with.user.principal.joe",
         "wse.session.with.user.principal.joe",
         "wsn.session.with.user.principal.ann" })
     @Test
+    @Ignore("https://github.com/kaazing/tickets/issues/448")
     public void shouldKillSessionsByRolePrincipal() throws Exception {
-
         ObjectName echoServiceMbeanName = null;
 
         k3po.start();
@@ -203,8 +201,6 @@ public class JmxSessionPrincipalIT {
         }
 
         assertEquals("Not all sessions have been closed", (Long) 0L, numberOfCurrentSessions);
-
-        k3po.notifyBarrier("CLOSE_SESSIONS_INVOKED");
 
         k3po.finish();
     }

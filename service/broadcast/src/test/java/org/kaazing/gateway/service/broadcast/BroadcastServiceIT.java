@@ -40,6 +40,12 @@ public class BroadcastServiceIT {
                             .connect("tcp://localhost:7788")
                             .type("broadcast")
                         .done()
+                        .service()
+                            .accept("tcp://localhost:8091")
+                            .connect("tcp://localhost:7789")
+                            .type("broadcast")
+                            .property("on.client.message", "broadcast")
+                        .done()
                     .done();
             // @formatter:on
             init(configuration);
@@ -63,7 +69,19 @@ public class BroadcastServiceIT {
 
     @Specification("broadcast.frontend.tcp.connect.and.close")
     @Test
-    public void TcpConnectToFrontendAndClose() throws Exception {
+    public void tcpConnectToFrontendAndClose() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("tcp.frontend.broadcast")
+    @Test
+    public void tcpFrontEndBroadcast() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("tcp.frontend.broadcast.many")
+    @Test
+    public void tcpFrontEndBroadcastMany() throws Exception {
         robot.finish();
     }
 
