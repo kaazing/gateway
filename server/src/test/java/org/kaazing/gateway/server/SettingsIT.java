@@ -36,23 +36,8 @@ public class SettingsIT {
      */
     @Test
     public void shouldHaveCommunityProductEditionAndTitle() throws IOException {
-        assertNull("Could use the classpath to introspect the jar.", VersionUtils.getGatewayProductEdition());
-        File artifact = null;
-        final File classDirectory = new File(SettingsIT.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-        final File targetDirectory = new File(classDirectory.getCanonicalPath() + "/../"); // target/test-classes
-        for (File entry : targetDirectory.listFiles()) {
-            if (entry.getName().startsWith("gateway.server") &&
-                    entry.getName().endsWith(".jar")) {
-                artifact = entry;
-            }
-        }
-        assertNotNull("Artifact for gateway.server not found. Please run this test as an integration test.", artifact);
-        JarFile jar = new JarFile(artifact);
-        Manifest mf = jar.getManifest();
-        Attributes attrs = mf.getMainAttributes();
-        assertEquals("Kaazing Gateway", attrs.getValue("Implementation-Title"));
-        assertEquals("Community.Gateway", attrs.getValue("Kaazing-Product"));
-        jar.close();
+        assertEquals("Community.Gateway", VersionUtils.getGatewayProductEdition());
+        assertEquals("Kaazing Gateway", VersionUtils.getGatewayProductTitle());        
     }
 }
 
