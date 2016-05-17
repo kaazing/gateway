@@ -18,15 +18,9 @@ package org.kaazing.gateway.server;
 import org.junit.Test;
 import org.kaazing.gateway.server.impl.VersionUtils;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 public class SettingsIT {
 
