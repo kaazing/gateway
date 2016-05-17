@@ -32,7 +32,6 @@ public class SettingsIT {
 
     /**
      * Checks in the project's artifact that the manifest entries will be generated as expected by others (update.check).
-     * Uses the jar found in the target, since in the integration-test the project's artifact is not in the classpath.
      */
     @Test
     public void shouldHaveCommunityProductEditionAndTitle() throws IOException {
