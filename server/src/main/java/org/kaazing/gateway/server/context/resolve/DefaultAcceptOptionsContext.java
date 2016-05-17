@@ -59,9 +59,13 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
 
     private static int DEFAULT_WEBSOCKET_MAXIMUM_MESSAGE_SIZE = 128 * 1024; //128KB
     private static int DEFAULT_HTTP_KEEPALIVE_TIMEOUT = 30; //seconds
-    private static long DEFAULT_TCP_HANDSHAKE_TIMEOUT_MILLIS = 10000; //10 seconds
     private static final long UNLIMITED_MAX_OUTPUT_RATE = 0xFFFFFFFFL;
     private static long DEFAULT_TCP_MAXIMUM_OUTBOUND_RATE = UNLIMITED_MAX_OUTPUT_RATE; //unlimited
+
+    private static long DEFAULT_TCP_HANDSHAKE_TIMEOUT_MILLIS = 10000; //10 seconds
+    private static long DEFAULT_SSL_HANDSHAKE_TIMEOUT_MILLIS = 10000; //10 seconds
+    private static long DEFAULT_HTTP_HANDSHAKE_TIMEOUT_MILLIS = 10000; //10 seconds
+    private static long DEFAULT_WS_HANDSHAKE_TIMEOUT_MILLIS = 10000; //10 seconds
 
     /**
      * The name of the extended handshake protocol to be sent on the wire.
@@ -217,7 +221,11 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         result.put(TCP_MAXIMUM_OUTBOUND_RATE, getTcpMaximumOutboundRate());
 
         result.put("udp.interface", options.get("udp.interface"));
-        result.put("tcp.handshake.timeout", getTcpHandshakeTimeout());
+        result.put("tcp.handshake.timeout", getHandshakeTimeout("tcp.handshake.timeout", DEFAULT_TCP_HANDSHAKE_TIMEOUT_MILLIS));
+        result.put("ssl.handshake.timeout", getHandshakeTimeout("ssl.handshake.timeout", DEFAULT_SSL_HANDSHAKE_TIMEOUT_MILLIS));
+        result.put("http.handshake.timeout",
+                getHandshakeTimeout("http.handshake.timeout", DEFAULT_HTTP_HANDSHAKE_TIMEOUT_MILLIS));
+        result.put("ws.handshake.timeout", getHandshakeTimeout("ws.handshake.timeout", DEFAULT_WS_HANDSHAKE_TIMEOUT_MILLIS));
 
         for (Map.Entry<String, String> entry : getBinds().entrySet()) {
             /* For lookups out of this COPY of the options, we need to
@@ -426,16 +434,16 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         return httpKeepaliveTimeout;
     }
 
-    private long getTcpHandshakeTimeout() {
-        long tcpHandshakeTimeout = DEFAULT_TCP_HANDSHAKE_TIMEOUT_MILLIS;
-        String tcpHandshakeTimeoutValue = options.get("tcp.handshake.timeout");
-        if (tcpHandshakeTimeoutValue != null) {
-            long val = Utils.parseTimeInterval(tcpHandshakeTimeoutValue, TimeUnit.MILLISECONDS);
+    private long getHandshakeTimeout(String optionName, long defaultValue) {
+        long handshakeTimeout = defaultValue;
+        String handshakeTimeoutValue = options.get(optionName);
+        if (handshakeTimeoutValue != null) {
+            long val = Utils.parseTimeInterval(handshakeTimeoutValue, TimeUnit.MILLISECONDS);
             if (val >= 0) {
-                tcpHandshakeTimeout = val;
+                handshakeTimeout = val;
             }
         }
-        return tcpHandshakeTimeout;
+        return handshakeTimeout;
     }
 
     private void parseAcceptOptionsType(ServiceAcceptOptionsType acceptOptionsType,

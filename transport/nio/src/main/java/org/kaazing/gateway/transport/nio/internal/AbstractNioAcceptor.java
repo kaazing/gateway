@@ -24,7 +24,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_U
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.BridgeSession.NEXT_PROTOCOL_KEY;
 import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
-import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.TCP_HANDSHAKE_TIMEOUT;
+import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.HANDSHAKE_TIMEOUT;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -212,7 +212,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             ResourceAddress localAddress = binding.bindAddress();
             LOCAL_ADDRESS.set(session, localAddress);
 
-            Long handshakeTimeout = localAddress.getOption(TCP_HANDSHAKE_TIMEOUT).longValue();
+            Long handshakeTimeout = localAddress.getOption(HANDSHAKE_TIMEOUT).longValue();
             if (handshakeTimeout != null && handshakeTimeout > 0) {
                 session.getFilterChain().addLast("idle", new NioHandshakeFilter(logger, handshakeTimeout, session));
             }

@@ -20,7 +20,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.BIND_ADDRESS;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.MAXIMUM_OUTBOUND_RATE;
-import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.TCP_HANDSHAKE_TIMEOUT;
+import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.HANDSHAKE_TIMEOUT;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.TRANSPORT_NAME;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getHost;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getPort;
@@ -98,9 +98,9 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             options.setOption(MAXIMUM_OUTBOUND_RATE, maximumOutboundRate);
         }
 
-        Long tcpHandshakeTimeout = (Long) optionsByName.remove(TCP_HANDSHAKE_TIMEOUT.name());
+        Long tcpHandshakeTimeout = (Long) optionsByName.remove(HANDSHAKE_TIMEOUT.name());
         if (tcpHandshakeTimeout != null) {
-            options.setOption(TCP_HANDSHAKE_TIMEOUT, tcpHandshakeTimeout);
+            options.setOption(HANDSHAKE_TIMEOUT, tcpHandshakeTimeout);
         }
 
     }
@@ -239,7 +239,7 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
 
         address.setOption0(BIND_ADDRESS, options.getOption(BIND_ADDRESS));
         address.setOption0(MAXIMUM_OUTBOUND_RATE, options.getOption(MAXIMUM_OUTBOUND_RATE));
-        address.setOption0(TCP_HANDSHAKE_TIMEOUT, options.getOption(TCP_HANDSHAKE_TIMEOUT));
+        address.setOption0(HANDSHAKE_TIMEOUT, options.getOption(HANDSHAKE_TIMEOUT));
     }
 
     /**

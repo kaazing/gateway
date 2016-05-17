@@ -29,7 +29,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.BIND_ADDRESS;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.MAXIMUM_OUTBOUND_RATE;
-import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.TCP_HANDSHAKE_TIMEOUT;
+import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.HANDSHAKE_TIMEOUT;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -138,7 +138,7 @@ public class TcpResourceAddressFactorySpiTest {
         assertNull(address.getOption(QUALIFIER));
         assertNull(address.getOption(BIND_ADDRESS));
         assertEquals(0xFFFFFFFFL, address.getOption(MAXIMUM_OUTBOUND_RATE).longValue());
-        assertEquals(10000, address.getOption(TCP_HANDSHAKE_TIMEOUT).longValue());
+        assertEquals(10000, address.getOption(HANDSHAKE_TIMEOUT).longValue());
     }
 
     @Test
@@ -148,7 +148,7 @@ public class TcpResourceAddressFactorySpiTest {
         assertEquals("random", address.getOption(QUALIFIER));
         assertEquals(new InetSocketAddress(2222), address.getOption(BIND_ADDRESS));
         assertEquals(534L, address.getOption(MAXIMUM_OUTBOUND_RATE).longValue());
-        assertEquals(20000, address.getOption(TCP_HANDSHAKE_TIMEOUT).longValue());
+        assertEquals(20000, address.getOption(HANDSHAKE_TIMEOUT).longValue());
     }
 
     @Test

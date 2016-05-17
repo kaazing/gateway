@@ -95,16 +95,23 @@ public class AcceptOptionsTest {
     }
 
     @Test
-    public void testTcpHandshakeTimeoutOption() throws Exception {
-      expectSuccess("tcp.handshake.timeout", "0 minutes", "tcp.handshake.timeout", 0L);
-      expectSuccess("tcp.handshake.timeout", "10 seconds", "tcp.handshake.timeout", 10000L);
-      expectSuccess("tcp.handshake.timeout", "10 minutes", "tcp.handshake.timeout", 600000L);
-      expectSuccess("tcp.handshake.timeout", "0.5 minutes", "tcp.handshake.timeout", 30000L);
+    public void testHandshakeTimeoutOption() throws Exception {
+        testHandshakeTimeoutOption("tcp.handshake.timeout");
+        testHandshakeTimeoutOption("ssl.handshake.timeout");
+        testHandshakeTimeoutOption("http.handshake.timeout");
+        testHandshakeTimeoutOption("ws.handshake.timeout");
+    }
 
-      expectParseFailure("tcp.handshake.timeout", "-1 seconds");
-      expectParseFailure("tcp.handshake.timeout", "abc");
-      expectParseFailure("tcp.handshake.timeout", null);
-  }
+    private void testHandshakeTimeoutOption(String optionName) throws Exception {
+        expectSuccess(optionName, "0 minutes", optionName, 0L);
+        expectSuccess(optionName, "10 seconds", optionName, 10000L);
+        expectSuccess(optionName, "10 minutes", optionName, 600000L);
+        expectSuccess(optionName, "0.5 minutes", optionName, 30000L);
+
+        expectParseFailure(optionName, "-1 seconds");
+        expectParseFailure(optionName, "abc");
+        expectParseFailure(optionName, null);
+    }
 
     @Test
     public void testHttpTransportOption() throws Exception {

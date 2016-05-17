@@ -31,6 +31,7 @@ import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.KEY_SE
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.NEED_CLIENT_AUTH;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.WANT_CLIENT_AUTH;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.HANDSHAKE_TIMEOUT;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,6 +56,7 @@ public class SslResourceAddressFactorySpiTest {
         options.put("ssl.encryptionEnabled", Boolean.FALSE);
         options.put("ssl.transport", "tcp://localhost:2121");
         options.put("ssl.protocols", new String[] { "SSLv3" });
+        options.put("ssl.handshake.timeout", 20000L);
     }
 
     @Test
@@ -86,6 +88,7 @@ public class SslResourceAddressFactorySpiTest {
         assertFalse(address.getOption(NEED_CLIENT_AUTH));
         assertNull(address.getOption(KEY_SELECTOR));
         assertNull(address.getOption(PROTOCOLS));
+        assertEquals(10000, address.getOption(HANDSHAKE_TIMEOUT).longValue());
     }
 
     @Test
@@ -106,5 +109,6 @@ public class SslResourceAddressFactorySpiTest {
         assertEquals("tcp://localhost:2121", address.getOption(TRANSPORT_URI));
         assertFalse(address.getOption(ENCRYPTION_ENABLED));
         assertArrayEquals(new String[] { "SSLv3" }, address.getOption(PROTOCOLS));
+        assertEquals(20000, address.getOption(HANDSHAKE_TIMEOUT).longValue());
     }
 }

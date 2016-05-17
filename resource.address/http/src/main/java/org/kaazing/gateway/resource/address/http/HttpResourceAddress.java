@@ -36,6 +36,7 @@ public final class HttpResourceAddress extends ResourceAddress {
 	private static final long serialVersionUID = 1L;
 
     static final int DEFAULT_HTTP_KEEPALIVE_CONNECTIONS = 2;
+    private static final long HANDSHAKE_TIMEOUT_MILLIS_DEFAULT = 10000;
 
 	static final String TRANSPORT_NAME = "http";
 
@@ -64,7 +65,9 @@ public final class HttpResourceAddress extends ResourceAddress {
     public static final ResourceOption<String> SERVICE_DOMAIN = new ServiceDomainOption();
     public static final HttpResourceOption<Boolean> SERVER_HEADER_ENABLED = new HttpServerHeaderOption();
     public static final HttpResourceOption<Collection<Class<? extends Principal>>> REALM_USER_PRINCIPAL_CLASSES = new HttpRealmAuthenticationUserPrincipalClassesOption();
+    public static final ResourceOption<Long> HANDSHAKE_TIMEOUT = new HandshakeTimeoutOption();
 
+    private Long handshakeTimeout = HANDSHAKE_TIMEOUT.defaultValue();
     private Boolean serverHeaderEnabled = SERVER_HEADER_ENABLED.defaultValue();
     private Boolean keepAlive = KEEP_ALIVE.defaultValue();
     private Integer keepAliveTimeout = KEEP_ALIVE_TIMEOUT.defaultValue();
@@ -147,6 +150,8 @@ public final class HttpResourceAddress extends ResourceAddress {
                     return (V) serverHeaderEnabled;
                 case REALM_USER_PRINCIPAL_CLASSES:
                     return (V) realmUserPrincipalClasses;
+                case HANDSHAKE_TIMEOUT:
+                    return (V) Long.valueOf(handshakeTimeout);
             }
         }
 
@@ -228,6 +233,9 @@ public final class HttpResourceAddress extends ResourceAddress {
                 case REALM_USER_PRINCIPAL_CLASSES:
                     realmUserPrincipalClasses = (Collection<Class<? extends Principal>>) value;
                     return;
+                case HANDSHAKE_TIMEOUT:
+                    handshakeTimeout = (Long) value;
+                    return;
             }
         }
 
@@ -252,7 +260,7 @@ public final class HttpResourceAddress extends ResourceAddress {
             LOGIN_CONTEXT_FACTORY, INJECTABLE_HEADERS,
             ORIGIN_SECURITY, TEMP_DIRECTORY, GATEWAY_ORIGIN_SECURITY, BALANCE_ORIGINS,
             AUTHENTICATION_CONNECT, AUTHENTICATION_IDENTIFIER, ENCRYPTION_KEY_ALIAS, SERVICE_DOMAIN, SERVER_HEADER, 
-            REALM_USER_PRINCIPAL_CLASSES
+            REALM_USER_PRINCIPAL_CLASSES, HANDSHAKE_TIMEOUT
         }
 
         private static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
@@ -406,6 +414,12 @@ public final class HttpResourceAddress extends ResourceAddress {
     private static final class HttpRealmAuthenticationUserPrincipalClassesOption extends HttpResourceOption<Collection<Class<? extends Principal>>> {
         private HttpRealmAuthenticationUserPrincipalClassesOption() {
             super(Kind.REALM_USER_PRINCIPAL_CLASSES, "realmAuthenticationUserPrincipalClasses", new ArrayList<Class<? extends Principal>>());
+        }
+    }
+
+    private static final class HandshakeTimeoutOption extends HttpResourceOption<Long> {
+        private HandshakeTimeoutOption() {
+            super(Kind.HANDSHAKE_TIMEOUT, "handshake.timeout", HANDSHAKE_TIMEOUT_MILLIS_DEFAULT);
         }
     }
 

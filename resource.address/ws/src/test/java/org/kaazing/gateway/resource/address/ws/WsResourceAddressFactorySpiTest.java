@@ -40,6 +40,7 @@ import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEI
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.MAX_MESSAGE_SIZE;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.REQUIRED_PROTOCOLS;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.SUPPORTED_PROTOCOLS;
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.HANDSHAKE_TIMEOUT;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -80,6 +81,7 @@ public class WsResourceAddressFactorySpiTest {
         options.put("ws.supportedProtocols", new String[] { "amqp/0.91", "amqp/1.0" });
         options.put("ws.requiredProtocols", new String[] { "amqp/0.91", "amqp/1.0" });
         options.put("ws.transport", "http://localhost:2121/");
+        options.put("ws.handshake.timeout", 20000L);
     }
 
     @Test
@@ -117,6 +119,7 @@ public class WsResourceAddressFactorySpiTest {
         assertEquals(0L, address.getOption(INACTIVITY_TIMEOUT).longValue());
         assertEmpty(address.getOption(SUPPORTED_PROTOCOLS));
         assertEmpty(address.getOption(REQUIRED_PROTOCOLS));
+        assertEquals(10000, address.getOption(HANDSHAKE_TIMEOUT).longValue());
     }
 
     @Test
@@ -132,6 +135,7 @@ public class WsResourceAddressFactorySpiTest {
         assertEquals(SECONDS.toMillis(5), address.getOption(INACTIVITY_TIMEOUT).longValue());
         assertArrayEquals(new String[] { "amqp/0.91", "amqp/1.0" }, address.getOption(SUPPORTED_PROTOCOLS));
         assertArrayEquals(new String[] { "amqp/0.91", "amqp/1.0" }, address.getOption(REQUIRED_PROTOCOLS));
+        assertEquals(20000, address.getOption(HANDSHAKE_TIMEOUT).longValue());
     }
 
     @Test

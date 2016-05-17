@@ -34,14 +34,14 @@ public final class TcpResourceAddress extends ResourceAddress {
 
     public static final ResourceOption<InetSocketAddress> BIND_ADDRESS = new TcpBindAddressOption();
     public static final ResourceOption<Long> MAXIMUM_OUTBOUND_RATE = new TcpMaximumOutboundRateOption();
-    public static final ResourceOption<Long> TCP_HANDSHAKE_TIMEOUT = new TcpHandshakeTimeoutOption();
+    public static final ResourceOption<Long> HANDSHAKE_TIMEOUT = new HandshakeTimeoutOption();
 
     private static final long MAXIMUM_OUTBOUND_RATE_DEFAULT = 0xFFFFFFFFL;
-    private static final long TCP_HANDSHAKE_TIMEOUT_MILLIS_DEFAULT = 10000;
+    private static final long HANDSHAKE_TIMEOUT_MILLIS_DEFAULT = 10000;
 
     private InetSocketAddress bindAddress;
     private long maximumOutboundRate = MAXIMUM_OUTBOUND_RATE.defaultValue();
-    private Long tcpHandshakeTimeout = TCP_HANDSHAKE_TIMEOUT.defaultValue();
+    private Long handshakeTimeout = HANDSHAKE_TIMEOUT.defaultValue();
 
     TcpResourceAddress(ResourceAddressFactorySpi factory, String original, URI resource) {
         super(factory, original, resource);
@@ -57,8 +57,8 @@ public final class TcpResourceAddress extends ResourceAddress {
                     return (V) bindAddress;
                 case MAXIMUM_OUTBOUND_RATE:
                     return (V) valueOf(maximumOutboundRate);
-                case TCP_HANDSHAKE_TIMEOUT:
-                    return (V) valueOf(tcpHandshakeTimeout);
+                case HANDSHAKE_TIMEOUT:
+                    return (V) valueOf(handshakeTimeout);
             }
         }
 
@@ -76,8 +76,8 @@ public final class TcpResourceAddress extends ResourceAddress {
                 case MAXIMUM_OUTBOUND_RATE:
                     maximumOutboundRate = (Long) value;
                     return;
-                case TCP_HANDSHAKE_TIMEOUT:
-                    tcpHandshakeTimeout = (Long) value;
+                case HANDSHAKE_TIMEOUT:
+                    handshakeTimeout = (Long) value;
                     return;
             }
         }
@@ -88,7 +88,7 @@ public final class TcpResourceAddress extends ResourceAddress {
     static class TcpResourceOption<T> extends ResourceOption<T> {
 
         enum Kind {
-            BIND_ADDRESS, MAXIMUM_OUTBOUND_RATE, TCP_HANDSHAKE_TIMEOUT
+            BIND_ADDRESS, MAXIMUM_OUTBOUND_RATE, HANDSHAKE_TIMEOUT
         }
 
         static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
@@ -117,9 +117,9 @@ public final class TcpResourceAddress extends ResourceAddress {
         }
     }
 
-    private static final class TcpHandshakeTimeoutOption extends TcpResourceOption<Long> {
-        private TcpHandshakeTimeoutOption() {
-            super(Kind.TCP_HANDSHAKE_TIMEOUT, "handshake.timeout", TCP_HANDSHAKE_TIMEOUT_MILLIS_DEFAULT);
+    private static final class HandshakeTimeoutOption extends TcpResourceOption<Long> {
+        private HandshakeTimeoutOption() {
+            super(Kind.HANDSHAKE_TIMEOUT, "handshake.timeout", HANDSHAKE_TIMEOUT_MILLIS_DEFAULT);
         }
     }
 

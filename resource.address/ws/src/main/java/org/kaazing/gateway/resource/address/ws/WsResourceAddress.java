@@ -39,6 +39,7 @@ public class WsResourceAddress extends ResourceAddress {
     public static final long INACTIVITY_TIMEOUT_DEFAULT =  0L;
     private static final String[] SUPPORTED_PROTOCOLS_DEFAULT = new String[0];
     private static final String[] REQUIRED_PROTOCOLS_DEFAULT = new String[0];
+    private static final long HANDSHAKE_TIMEOUT_MILLIS_DEFAULT = 10000;
 
     public static final ResourceOption<Boolean> CODEC_REQUIRED = new WsCodecRequiredOption();
     public static final ResourceOption<Boolean> LIGHTWEIGHT = new WsLightweightOption();
@@ -47,6 +48,9 @@ public class WsResourceAddress extends ResourceAddress {
     public static final ResourceOption<Long> INACTIVITY_TIMEOUT = new WsInactivityTimeoutOption();
     public static final ResourceOption<String[]> SUPPORTED_PROTOCOLS = new WsSupportedProtocolsOption();
     public static final ResourceOption<String[]> REQUIRED_PROTOCOLS = new WsRequiredProtocolsOption();
+    public static final ResourceOption<Long> HANDSHAKE_TIMEOUT = new HandshakeTimeoutOption();
+
+    private Long handshakeTimeout = HANDSHAKE_TIMEOUT.defaultValue();
 
     private Boolean codecRequired;
     private Boolean lightweight;
@@ -80,6 +84,8 @@ public class WsResourceAddress extends ResourceAddress {
                     return (V) supportedProtocols;
                 case REQUIRED_PROTOCOLS:
                     return (V) requiredProtocols;
+                case HANDSHAKE_TIMEOUT:
+                    return (V) valueOf(handshakeTimeout);
             }
         }
         
@@ -113,6 +119,9 @@ public class WsResourceAddress extends ResourceAddress {
                 case REQUIRED_PROTOCOLS:
                     requiredProtocols = (String[]) value;
                     return;
+                case HANDSHAKE_TIMEOUT:
+                    handshakeTimeout = (Long) value;
+                    return;
             }
         }
 
@@ -123,7 +132,7 @@ public class WsResourceAddress extends ResourceAddress {
 
         protected enum Kind { CODEC_REQUIRED, LIGHTWEIGHT, EXTENSIONS, MAX_MESSAGE_SIZE,
                                      INACTIVITY_TIMEOUT, SUPPORTED_PROTOCOLS,
-                                     REQUIRED_PROTOCOLS }
+                                     REQUIRED_PROTOCOLS, HANDSHAKE_TIMEOUT }
         
         private static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
 
@@ -178,6 +187,12 @@ public class WsResourceAddress extends ResourceAddress {
     private static final class WsRequiredProtocolsOption extends WsResourceOption<String[]> {
         private WsRequiredProtocolsOption() {
             super(Kind.REQUIRED_PROTOCOLS, "requiredProtocols", REQUIRED_PROTOCOLS_DEFAULT);
+        }
+    }
+
+    private static final class HandshakeTimeoutOption extends WsResourceOption<Long> {
+        private HandshakeTimeoutOption() {
+            super(Kind.HANDSHAKE_TIMEOUT, "handshake.timeout", HANDSHAKE_TIMEOUT_MILLIS_DEFAULT);
         }
     }
 
