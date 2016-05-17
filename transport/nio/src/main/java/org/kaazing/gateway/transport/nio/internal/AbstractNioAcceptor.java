@@ -402,9 +402,9 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
     }
 
     protected final void initIfNecessary() {
-        if (started.get() == false) {
+        if (!started.get()) {
             synchronized (started) {
-                if (started.get() == false) {
+                if (!started.get()) {
                     init();
                     started.set(true);
                 }

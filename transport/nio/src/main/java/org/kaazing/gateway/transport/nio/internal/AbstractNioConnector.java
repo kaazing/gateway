@@ -118,13 +118,13 @@ public abstract class AbstractNioConnector implements BridgeConnector {
 
     @Override
     public ConnectFuture connect(ResourceAddress address, IoHandler handler, IoSessionInitializer<? extends ConnectFuture> initializer) {
-        if (started.get() == false) {
-        	synchronized (started) {
-        		if (started.get() == false) {
-        			init();
-        			started.set(true);
-        		}
-        	}
+        if (!started.get()) {
+            synchronized (started) {
+                if (!started.get()) {
+                    init();
+                    started.set(true);
+                }
+            }
         }
 
         return connectInternal(address, handler, initializer);
