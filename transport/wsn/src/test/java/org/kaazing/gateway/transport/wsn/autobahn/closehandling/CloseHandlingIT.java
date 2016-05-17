@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ public class CloseHandlingIT {
     };
 
     @Rule
-    public TestRule chain = createRuleChain(gateway, robot, 1500, MILLISECONDS);
+    public TestRule chain = createRuleChain(gateway, robot, 5000, MILLISECONDS);
 
     @Specification("sendTextMessageThenCloseFrame")
     @Test

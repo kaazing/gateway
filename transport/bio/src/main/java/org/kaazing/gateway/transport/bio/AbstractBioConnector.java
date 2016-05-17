@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,8 +83,13 @@ public abstract class AbstractBioConnector<T extends SocketAddress> implements B
 
     @Override
     public ConnectFuture connect(ResourceAddress address, IoHandler handler, IoSessionInitializer<? extends ConnectFuture> initializer) {
-        if (started.compareAndSet(false, true)) {
-            init();
+        if (!started.get()) {
+            synchronized (started) {
+                if (!started.get()) {
+                    init();
+                    started.set(true);
+                }
+            }
         }
 
         return connectInternal(address, handler, initializer);

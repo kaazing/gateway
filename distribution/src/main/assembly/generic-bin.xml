@@ -1,6 +1,6 @@
 <!--
 
-    Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+    Copyright 2007-2016, Kaazing Corporation. All rights reserved.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -37,10 +37,13 @@
         <include>org.kaazing:gateway.resource.address.tcp</include>
         <include>org.kaazing:gateway.resource.address.wsn</include>
         <include>org.kaazing:gateway.resource.address.httpxe</include>
+        <include>org.kaazing:gateway.resource.address.wsdraft</include>
+        <include>org.kaazing:gateway.resource.address.wsxdraft</include>
         <include>org.kaazing:gateway.resource.address.pipe</include>
         <include>org.kaazing:gateway.resource.address.sse</include>
         <include>org.kaazing:gateway.resource.address.wsx</include>
         <include>org.kaazing:gateway.resource.address.httpx</include>
+        <include>org.kaazing:gateway.resource.address.httpxdraft</include>
         <include>org.kaazing:gateway.resource.address.rtmp</include>
         <include>org.kaazing:gateway.resource.address.udp</include>
         <include>org.kaazing:gateway.resource.address.wse</include>

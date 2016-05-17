@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -194,7 +194,7 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
         if (status == IdleStatus.READER_IDLE) {
             switch (nextAction) {
             case PONG:
-                logger.info("Client connection {} has been aborted because network connectivity has been lost", session);
+                logger.info("Session {} didn't receive PONG, will close corresponding connection", session);
 
                 // Disable idle timeout so it doesn't fire while we're closing
                 session.getConfig().setReaderIdleTime(0);
@@ -214,6 +214,7 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
                     filterChain.remove(WsAcceptor.CLOSE_FILTER);
                 }
                 IoSession sessionToClose = wsSession != null ? wsSession : session;
+                logger.info("Closing session {} as it didn't receive PONG", sessionToClose);
                 sessionToClose.close(true);
                 break;
             case PING:

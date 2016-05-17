@@ -1,5 +1,5 @@
 #
-# Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ read await BARRIER
 read "HTTP/1.1 404 WebSocket Upgrade Failure\r\n"
 read "Content-Type: text/html\r\n"
 
-read /Date: .*/ "\r\n"
+read /Date: .*\r\n/
 read "Server: Kaazing Gateway\r\n"
 
 read "Content-Length: 77\r\n"

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,7 @@ public class BroadcastService implements Service {
     // services
     private static final String BROADCAST_SERVICE_MAXIMUM_PENDING_BYTES = "org.kaazing.gateway.server.service.broadcast.MAXIMUM_PENDING_BYTES";
     private static final String BROADCAST_SERVICE_DISCONNECT_CLIENTS_ON_RECONNECT = "org.kaazing.gateway.server.service.broadcast.DISCONNECT_CLIENTS_ON_RECONNECT"; // true or false
+    private static final String ON_CLIENT_MESSAGE = "on.client.message";
     // FIXME: end of remove me
 
     private ScheduledExecutorService scheduler;
@@ -103,13 +104,14 @@ public class BroadcastService implements Service {
                 configuration.getProperty(BROADCAST_SERVICE_MAXIMUM_PENDING_BYTES),
 //                BROADCAST_SERVICE_MAXIMUM_PENDING_BYTES.getProperty(configuration),
                 Long.MAX_VALUE);
+        OnClientMessage onClientMessage = OnClientMessage.fromString(serviceContext.getProperties().get(ON_CLIENT_MESSAGE));
         if ( maximumScheduledWriteBytes != Long.MAX_VALUE ) {
             // The system property was specified
             gatewayLogger.info(String.format("Broadcast service: limiting maximum scheduled write bytes to %d",
                     maximumScheduledWriteBytes));
         }
         this.handler = new BroadcastServiceHandler(disconnectClientsOnReconnect, maximumScheduledWriteBytes,
-                serviceContext.getLogger());
+                onClientMessage, serviceContext.getLogger());
 
         Collection<String> connectURIs = serviceContext.getConnects();
         ServiceProperties properties = serviceContext.getProperties();
@@ -160,7 +162,7 @@ public class BroadcastService implements Service {
         reconnect.set(false);
 
         if (serviceContext != null) {
-            serviceContext.unbind(serviceContext.getAccepts(), handler);           
+            serviceContext.unbind(serviceContext.getAccepts(), handler);
         }
     }
 
@@ -207,6 +209,28 @@ public class BroadcastService implements Service {
                     }
                 }
             });
+        }
+    }
+
+    public enum OnClientMessage {
+        NOOP("noop"), BROADCAST("broadcast");
+
+        private final String type;
+
+        OnClientMessage(String type) {
+            this.type = type;
+        }
+
+        static OnClientMessage fromString(String str) throws Exception {
+            if(str == null){
+                return OnClientMessage.NOOP;
+            }
+            for (OnClientMessage e : OnClientMessage.values()) {
+                if (e.type.equalsIgnoreCase(str)) {
+                    return e;
+                }
+            }
+            throw new Exception(String.format("%s type not valid Enum type for %s", str, OnClientMessage.class));
         }
     }
 }

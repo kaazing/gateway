@@ -1,5 +1,5 @@
 #
-# Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,8 +29,8 @@ write close
 read status "201" /.+/
 read version "HTTP/1.1"
 
-read /(?<upstream>http:\/\/localhost:8001\/echo\/.+)/ "\n"
-read /(?<downstream>http:\/\/localhost:8001\/echo\/.+)/ "\n"
+read /(?<upstream>http:\/\/localhost:8001\/echo\/.+)\n/
+read /(?<downstream>http:\/\/localhost:8001\/echo\/.+)\n/
 
 read notify CREATED
 read closed

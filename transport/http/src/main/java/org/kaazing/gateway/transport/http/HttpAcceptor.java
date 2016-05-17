@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -532,13 +532,16 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         IoSession transport = chain.getSession();
 
         SocketAddress localAddress = transport.getLocalAddress();
-        String nextProtocol = PROTOCOL_HTTP_1_1;
 
+        String nextProtocol = null;
         if (localAddress instanceof ResourceAddress) {
             ResourceAddress address = (ResourceAddress) localAddress;
             if (!address.hasOption(QUALIFIER)) {
                 nextProtocol = address.getOption(NEXT_PROTOCOL);
             }
+        }
+        if (nextProtocol == null) {
+            nextProtocol = PROTOCOL_HTTP_1_1;
         }
 
         if (logger.isTraceEnabled()) {

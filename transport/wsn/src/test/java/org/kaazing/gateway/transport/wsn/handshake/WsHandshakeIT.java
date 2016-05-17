@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +71,16 @@ public class WsHandshakeIT {
     @Specification("websocket.handshake.missing.upgrade")
     @Test
     public void websocketHandshakeMissingUpgrade() throws Exception {
+        robot.finish();
+    }
+
+    // Test for legacy websocket handshake
+    // Deleting httpxdraft, wsxdraft resource address dependencies will fail the test
+    // Instead of sending 101, gateway sends 404 in that case as there is no binding
+    // for ws/draft-7x protocol
+    @Test
+    @Specification("websocket.handshake.legacy")
+    public void shouldNegotiateLegacyKaazingHandshake() throws Exception {
         robot.finish();
     }
 }

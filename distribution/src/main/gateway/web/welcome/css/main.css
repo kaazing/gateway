@@ -15,6 +15,7 @@ a:hover {
 
 #congratulations {
   background-color: #fd8032;
+  color: #333333;
   border: 0;
   margin-top: 10px;
 }
@@ -24,6 +25,10 @@ a:hover {
 
 .panel {
   width: 100%;
+}
+
+#getting-help .panel-body {
+  padding-bottom: 8px;
 }
 
 .equal, .equal > div[class*='col-'] {
@@ -46,6 +51,10 @@ code.indented {
 
 ol, ul {
   padding-left: 20px;
+}
+
+.panel-heading {
+  font-weight: bold;
 }
 
 footer {

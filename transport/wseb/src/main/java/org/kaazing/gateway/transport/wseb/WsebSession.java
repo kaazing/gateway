@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -611,8 +611,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         String sequenceNo = session.getReadHeader(HttpHeaders.HEADER_X_SEQUENCE_NO);
 
         if (sequenceNo == null || expectedSequenceNo != Long.parseLong(sequenceNo)) {
-            String message = String.format("Out of order request: expected seq no=%d, got=%s",
-                    expectedSequenceNo, sequenceNo);
+            String message = String.format("Out of order request for session=%s: expected seq no=%d, got=%s",
+                    session, expectedSequenceNo, sequenceNo);
             setCloseException(new IOException(message));
             HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
             session.setStatus(status);
@@ -1029,14 +1029,6 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         }
 
         @Override
-        protected void doSessionClosed(TransportSession session) throws Exception {
-            WsebSession wsebSession = session.getWsebSession();
-            if (wsebSession != null && !wsebSession.isClosing()) {
-                wsebSession.reset(new Exception("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
-            }
-        }
-
-        @Override
         protected void doSessionIdle(TransportSession session, IdleStatus status) throws Exception {
             WsebSession wsebSession = session.getWsebSession();
             if (wsebSession.isCloseSent() && !wsebSession.isCloseReceived()) {
@@ -1117,6 +1109,11 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
         Logger getLogger() {
             return wsebSession.getLogger();
+        }
+
+        @Override
+        public String toString() {
+            return String.format("[wseb#%s transport]", wsebSession.getId());
         }
     }
 

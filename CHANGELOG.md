@@ -2,7 +2,15 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.54...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.55...HEAD)
+
+**Merged pull requests:**
+
+- Be explicit about groupID in pom to workaround plugin bug [\#495](https://github.com/kaazing/gateway/pull/495) ([ahousing](https://github.com/ahousing))
+- Update copyright to 2016, update parent in pom.xml [\#494](https://github.com/kaazing/gateway/pull/494) ([ahousing](https://github.com/ahousing))
+
+## [5.0.1.55](https://github.com/kaazing/gateway/tree/5.0.1.55) (2016-04-05)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.54...5.0.1.55)
 
 **Fixed bugs:**
 
