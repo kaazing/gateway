@@ -114,7 +114,7 @@ public class OpeningIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        Map<String, Object> connectOptions = new HashMap<String, Object>();
+        Map<String, Object> connectOptions = new HashMap<>();
         connectOptions.put("supportedProtocols", new String[]{"primary", "secondary"});
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
@@ -139,7 +139,7 @@ public class OpeningIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        Map<String, Object> connectOptions = new HashMap<String, Object>();
+        Map<String, Object> connectOptions = new HashMap<>();
         connectOptions.put("extensions", Arrays.asList("primary", "secondary"));
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
@@ -319,7 +319,7 @@ public class OpeningIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        Map<String, Object> connectOptions = new HashMap<String, Object>();
+        Map<String, Object> connectOptions = new HashMap<>();
         connectOptions.put("nextProtocol", "primary");
         connectOptions.put("supportedProtocols", new String[]{"secondary"});
         final ResourceAddress connectAddress =
@@ -347,7 +347,7 @@ public class OpeningIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        Map<String, Object> connectOptions = new HashMap<String, Object>();
+        Map<String, Object> connectOptions = new HashMap<>();
         connectOptions.put("extensions", Arrays.asList("primary, secondary"));
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(

@@ -66,7 +66,7 @@ public abstract class AbstractSystemManagementBean extends AbstractManagementBea
         this.dataTypeStr = dataTypeStr;
 
         if (summaryDataLimit > 0) {
-            this.summaryDataList = new ArrayBlockingQueue<JSONObject>(summaryDataLimit);
+            this.summaryDataList = new ArrayBlockingQueue<>(summaryDataLimit);
         } else {
             this.summaryDataList = null;
         }
@@ -93,7 +93,7 @@ public abstract class AbstractSystemManagementBean extends AbstractManagementBea
         JSONArray jsonArray = new JSONArray();
         if (summaryDataList != null) {
             // We need to drain the ArrayBlockingQueue into an ArrayList to preserve backward compatibility for the API
-            ArrayList<JSONObject> tmpList = new ArrayList<JSONObject>(summaryDataList.size());
+            ArrayList<JSONObject> tmpList = new ArrayList<>(summaryDataList.size());
             summaryDataList.drainTo(tmpList);
             for (JSONObject jsonObject : tmpList) {
                 jsonArray.put(jsonObject);

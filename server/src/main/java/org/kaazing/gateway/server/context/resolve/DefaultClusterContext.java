@@ -554,7 +554,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
                         TreeSet<String> newGlobalBalancedUris = null;
                         do {
                             globalBalancedUris = sharedBalanceUriMap.get(key);
-                            newGlobalBalancedUris = new TreeSet<String>(globalBalancedUris);
+                            newGlobalBalancedUris = new TreeSet<>(globalBalancedUris);
                             for (String memberBalancedUri : memberBalancedUris) {
                                 GL.debug(GL.CLUSTER_LOGGER_NAME, "Attempting to removing Balanced URI : {}", memberBalancedUri);
                                 newGlobalBalancedUris.remove(memberBalancedUri);

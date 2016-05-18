@@ -72,7 +72,7 @@ public class FragmentationIT {
         "server.echo.binary.payload.length.0.fragmented.with.injected.ping.pong/handshake.response.and.frames" })
     public void shouldEchoServerSendBinaryFrameWithEmptyPayloadFragmentedAndInjectedPingPong() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -118,7 +118,7 @@ public class FragmentationIT {
         "server.echo.binary.payload.length.125.fragmented/handshake.response.and.frames" })
     public void shouldEchoServerSendBinaryFrameWithPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -164,7 +164,7 @@ public class FragmentationIT {
         "server.echo.binary.payload.length.125.fragmented.with.injected.ping.pong/handshake.response.and.frames" })
     public void shouldEchoServerSendBinaryFrameWithPayloadFragmentedAndInjectedPingPong() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -210,7 +210,7 @@ public class FragmentationIT {
         "server.echo.binary.payload.length.125.fragmented.with.some.empty.fragments/handshake.response.and.frames" })
     public void shouldEchoServerSendBinaryFrameWithPayloadFragmentedWithSomeEmptyFragments() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -256,7 +256,7 @@ public class FragmentationIT {
         "server.echo.binary.payload.length.125.not.fragmented/handshake.response.and.frame" })
     public void shouldEchoServerSendBinaryFrameWithPayloadNotFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -304,7 +304,7 @@ public class FragmentationIT {
         })
     public void shouldEchoServerSendTextFrameWithEmptyPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -352,7 +352,7 @@ public class FragmentationIT {
         })
     public void shouldEchoServerSendTextFrameWithEmptyPayloadFragmentedAndInjectedPingPong() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -398,7 +398,7 @@ public class FragmentationIT {
         "server.echo.text.payload.length.125.fragmented/handshake.response.and.frames" })
     public void shouldEchoServerSendTextFrameWithPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -444,7 +444,7 @@ public class FragmentationIT {
         "server.echo.text.payload.length.125.fragmented.but.not.utf8.aligned/handshake.response.and.frames" })
     public void shouldEchoServerSendTextFrameWithPayloadFragmentedEvenWhenNotUTF8Aligned() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -490,7 +490,7 @@ public class FragmentationIT {
         "server.echo.text.payload.length.125.fragmented.with.injected.ping.pong/handshake.response.and.frames" })
     public void shouldEchoServerSendTextFrameWithPayloadFragmentedAndInjectedPingPong() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -536,7 +536,7 @@ public class FragmentationIT {
         "server.echo.text.payload.length.125.fragmented.with.some.empty.fragments/handshake.response.and.frames" })
     public void shouldEchoServerSendTextFrameWithPayloadFragmentedWithSomeEmptyFragments() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -582,7 +582,7 @@ public class FragmentationIT {
         "server.echo.text.payload.length.125.not.fragmented/handshake.response.and.frame" })
     public void shouldEchoServerSendTextFrameWithPayloadNotFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {

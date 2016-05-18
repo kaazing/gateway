@@ -405,7 +405,7 @@ public final class HttpResourceAddress extends ResourceAddress {
 
     private static final class HttpRealmAuthenticationUserPrincipalClassesOption extends HttpResourceOption<Collection<Class<? extends Principal>>> {
         private HttpRealmAuthenticationUserPrincipalClassesOption() {
-            super(Kind.REALM_USER_PRINCIPAL_CLASSES, "realmAuthenticationUserPrincipalClasses", new ArrayList<Class<? extends Principal>>());
+            super(Kind.REALM_USER_PRINCIPAL_CLASSES, "realmAuthenticationUserPrincipalClasses", new ArrayList<>());
         }
     }
 

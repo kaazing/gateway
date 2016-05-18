@@ -35,7 +35,7 @@ public class ProxyServiceHandler extends AbstractProxyAcceptHandler {
 
     public ProxyServiceHandler() {
         super();
-        extensions = new ArrayList<ProxyServiceExtensionSpi>();
+        extensions = new ArrayList<>();
     }
 
     // package private method for registering proxy service extensions so that

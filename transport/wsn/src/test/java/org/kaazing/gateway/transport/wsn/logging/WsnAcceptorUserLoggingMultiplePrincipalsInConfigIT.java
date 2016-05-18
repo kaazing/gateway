@@ -124,7 +124,7 @@ public class WsnAcceptorUserLoggingMultiplePrincipalsInConfigIT {
     @Test
     public void verifyPrincipalNameLoggedWhenMultiplePrincipalsInConfig() throws Exception {
         k3po.finish();
-        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
                 "tcp#.* [^/]*:\\d*] OPENED",
                 "tcp#.* [^/]*:\\d*] WRITE",
                 "tcp#.* [^/]*:\\d*] RECEIVED",
@@ -137,7 +137,7 @@ public class WsnAcceptorUserLoggingMultiplePrincipalsInConfigIT {
                 "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] EXCEPTION.*IOException",
                 "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] CLOSED"
         }));
-        forbiddenPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+        forbiddenPatterns = new ArrayList<>(Arrays.asList(new String[]{
                 TEST_PRINCIPAL_PASS
         }));
     }

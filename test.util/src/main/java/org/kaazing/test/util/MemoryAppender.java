@@ -74,9 +74,9 @@ public class MemoryAppender extends ConsoleAppender {
                                             Collection<String> unexpectedPatterns,
                                             String filterPattern,
                                             boolean verbose) {
-        Set<String> encounteredPatterns = new TreeSet<String>();
-        List<String> encounteredUnexpectedMessages = new ArrayList<String>();
-        List<String> expectedPatterns = new ArrayList<String>(expectedPatternsRO);
+        Set<String> encounteredPatterns = new TreeSet<>();
+        List<String> encounteredUnexpectedMessages = new ArrayList<>();
+        List<String> expectedPatterns = new ArrayList<>(expectedPatternsRO);
         Collection<String> unexpected = unexpectedPatterns == null ? Collections.<String>emptyList() : unexpectedPatterns;
 
         for (LoggingEvent event : MemoryAppender.getEvents()) {

@@ -111,7 +111,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
             return new AppConfigurationEntry[] {
                     new AppConfigurationEntry(YesLoginModule.class.getName(), AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
-                            new HashMap<String, Object>())};
+                            new HashMap<>())};
         }
     }
 

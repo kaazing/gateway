@@ -344,7 +344,7 @@ public class LoggingFilterTest {
      * @param options
      */
     private void buildIdentityResolverOption(ResourceOptions options) {
-        Collection<Class<? extends Principal>> realmUserPrincipalClasses = new ArrayList<Class<? extends Principal>>();
+        Collection<Class<? extends Principal>> realmUserPrincipalClasses = new ArrayList<>();
         realmUserPrincipalClasses.add(DefaultUserConfig.class);
         IdentityResolver httpIdentityResolver = new HttpIdentityResolver(realmUserPrincipalClasses );
         options.setOption(IDENTITY_RESOLVER, httpIdentityResolver);

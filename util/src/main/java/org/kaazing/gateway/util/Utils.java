@@ -91,13 +91,13 @@ public final class Utils {
             new HashSet<>(Arrays.asList("h", "hour", "hours"));
 
     static final Set<String> DAYS_UNITS =
-            new HashSet<String>(Arrays.asList("d", "day", "days"));
+            new HashSet<>(Arrays.asList("d", "day", "days"));
 
     static final Set<String> WEEKS_UNITS =
-            new HashSet<String>(Arrays.asList("w", "week", "weeks"));
+            new HashSet<>(Arrays.asList("w", "week", "weeks"));
 
     static final Set<String> YEARS_UNITS =
-            new HashSet<String>(Arrays.asList("y", "year", "years"));
+            new HashSet<>(Arrays.asList("y", "year", "years"));
 
     private static final String[] PERMITTED_DATA_RATE_UNITS =
             new String[] {"MiB/s", "KiB/s", "MB/s", "kB/s", "B/s"};

@@ -89,7 +89,7 @@ public class ProxiesIT {
     @Specification("server.send.data.on.longpolling.request/request")
     public void shouldReceiveDataFromServerOnLongpollingRequest() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final AtomicReference<IoSessionEx> session = new  AtomicReference<IoSessionEx>();
+        final AtomicReference<IoSessionEx> session = new AtomicReference<>();
 
         context.checking(new Expectations() {
             {

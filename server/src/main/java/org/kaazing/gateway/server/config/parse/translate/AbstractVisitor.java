@@ -46,7 +46,7 @@ public abstract class AbstractVisitor
     protected ListIterator<Element> toListIterator(Iterator iter) {
         // Copy the iterated items into a List, so we can modify the
         // list while iterating over it...
-        List<Element> elts = new ArrayList<Element>(1);
+        List<Element> elts = new ArrayList<>(1);
         while (iter.hasNext()) {
             elts.add((Element) iter.next());
         }

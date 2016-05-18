@@ -161,11 +161,11 @@ public class HttpBindingsTest {
     @Test
     public void shouldCorrectlyBindTwoAddressesWithTcpBind() throws Exception {
         String uri1 = "http://localhost:8001/";
-        HashMap<String, Object> options1 = new HashMap<String, Object>();
+        HashMap<String, Object> options1 = new HashMap<>();
         options1.put("tcp.bind", "7777");
 
         String uri2 = "http://localhost:8001/";
-        HashMap<String, Object> options2 = new HashMap<String, Object>();
+        HashMap<String, Object> options2 = new HashMap<>();
 
 
         ResourceAddress address1 = addressFactory.newResourceAddress(uri1, options1);
@@ -183,11 +183,11 @@ public class HttpBindingsTest {
     @Test
     public void shouldCorrectlyBindTwoSecureAddressesWithTcpBind() throws Exception {
         String uri1 = "https://localhost:8001/";
-        HashMap<String, Object> options1 = new HashMap<String, Object>();
+        HashMap<String, Object> options1 = new HashMap<>();
         options1.put("tcp.bind", "7777");
 
         String uri2 = "https://localhost:8001/";
-        HashMap<String, Object> options2 = new HashMap<String, Object>();
+        HashMap<String, Object> options2 = new HashMap<>();
 
 
         ResourceAddress address1 = addressFactory.newResourceAddress(uri1, options1);

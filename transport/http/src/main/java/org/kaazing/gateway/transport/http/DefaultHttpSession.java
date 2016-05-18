@@ -109,7 +109,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     private final AtomicBoolean connectionClose;
     private ResultAwareLoginContext loginContext;
     private final AtomicBoolean shutdownWrite;
-    private Queue<IoBufferEx> deferredReads = new ConcurrentLinkedQueue<IoBufferEx>();
+    private Queue<IoBufferEx> deferredReads = new ConcurrentLinkedQueue<>();
 
 	private boolean isChunked;
 

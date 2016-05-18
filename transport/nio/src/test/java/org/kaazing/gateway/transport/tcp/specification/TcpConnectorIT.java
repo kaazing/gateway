@@ -92,7 +92,7 @@ public class TcpConnectorIT {
     public void shouldEstablishConnection() throws Exception {
         k3po.start();
         k3po.awaitBarrier("BOUND");
-        connectTo8080(new IoHandlerAdapter<IoSessionEx>());
+        connectTo8080(new IoHandlerAdapter<>());
         k3po.finish();
     }
 
@@ -103,7 +103,7 @@ public class TcpConnectorIT {
     public void shouldReceiveServerSentData() throws Exception {
         k3po.start();
         k3po.awaitBarrier("BOUND");
-        connectTo8080(new IoHandlerAdapter<IoSessionEx>());
+        connectTo8080(new IoHandlerAdapter<>());
 
         k3po.finish();
     }

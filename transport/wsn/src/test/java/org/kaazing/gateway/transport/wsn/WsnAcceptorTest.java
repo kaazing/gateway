@@ -177,11 +177,11 @@ public class WsnAcceptorTest {
     @Test
     public void shouldBindWsxAddressesWithTcpBind() throws Exception {
         String uri1 = "wsx://localhost:8003/";
-        HashMap<String, Object> options1 = new HashMap<String, Object>();
+        HashMap<String, Object> options1 = new HashMap<>();
         options1.put("tcp.bind", "7777");
 
         String uri2 = "wsx://localhost:8003/";
-        HashMap<String, Object> options2 = new HashMap<String, Object>();
+        HashMap<String, Object> options2 = new HashMap<>();
 
         ResourceAddress address1 = addressFactory.newResourceAddress(uri1, options1);
         ResourceAddress address2 = addressFactory.newResourceAddress(uri2, options2);

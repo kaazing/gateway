@@ -39,7 +39,7 @@ public class ConflictResolverUtilsTest {
 
         ConflictResolverUtils.resolveConflicts(specificPattern, generalPattern);
 
-        directives = new HashMap<Directive, String>();
+        directives = new HashMap<>();
         directives.put(Directive.NO_CACHE, EMPTY_STRING_VALUE);
         directives.put(Directive.PUBLIC, EMPTY_STRING_VALUE);
         directives.put(Directive.MAX_AGE, "500");
@@ -56,7 +56,7 @@ public class ConflictResolverUtilsTest {
 
         ConflictResolverUtils.resolveConflicts(specificPattern, generalPattern);
 
-        directives = new HashMap<Directive, String>();
+        directives = new HashMap<>();
         directives.put(Directive.MAX_AGE_MPLUS, "200");
 
         assertEquals(specificPattern.getDirectives(), directives);
@@ -69,7 +69,7 @@ public class ConflictResolverUtilsTest {
 
         ConflictResolverUtils.resolveConflicts(specificPattern, generalPattern);
 
-        directives = new HashMap<Directive, String>();
+        directives = new HashMap<>();
         directives.put(Directive.MAX_AGE, "200");
 
         assertEquals(specificPattern.getDirectives(), directives);

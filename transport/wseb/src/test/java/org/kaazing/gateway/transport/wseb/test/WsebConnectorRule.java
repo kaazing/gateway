@@ -66,7 +66,7 @@ public class WsebConnectorRule implements TestRule {
     public ConnectFuture connect(final String connect,
                                   final Long wsInactivityTimeout,
                                   IoHandler connectHandler) throws InterruptedException {
-        Map<String, Object> connectOptions = new HashMap<String, Object>();
+        Map<String, Object> connectOptions = new HashMap<>();
         if (wsInactivityTimeout != null) {
             connectOptions.put("inactivityTimeout", wsInactivityTimeout);
         }
