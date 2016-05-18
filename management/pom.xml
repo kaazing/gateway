@@ -74,11 +74,6 @@
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
-            <artifactId>gateway.server</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kaazing</groupId>
             <artifactId>gateway.transport.ws</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -213,9 +208,6 @@
                         </projectDescription>
                     </projectHints>
                 </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
