@@ -94,7 +94,7 @@ public class WebSocketExtensionFactoryTest {
             }
         });
 
-        List<String> clientRequestedExtensions = Arrays.asList(new String[]{"mock"});
+        List<String> clientRequestedExtensions = Arrays.asList("mock");
         List<WebSocketExtension> extension = wsExtFactory.negotiateWebSocketExtensions(address, clientRequestedExtensions, extensionHelper);
         assertNotNull(extension);
         assertSame(extension.get(0), webSocketExtensionSpi);
@@ -107,7 +107,7 @@ public class WebSocketExtensionFactoryTest {
             }
         });
 
-        List<String> clientRequestedExtensions = Arrays.asList(new String[]{"nonexistant"});
+        List<String> clientRequestedExtensions = Arrays.asList("nonexistant");
         List<WebSocketExtension> extension = wsExtFactory.negotiateWebSocketExtensions(address, clientRequestedExtensions, extensionHelper);
         assertNotNull(extension);
         Assert.assertTrue(extension.isEmpty());

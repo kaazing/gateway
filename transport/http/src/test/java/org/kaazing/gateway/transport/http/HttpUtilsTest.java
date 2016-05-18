@@ -161,12 +161,12 @@ public class HttpUtilsTest {
 
     @Test
     public void hasCloseHeadersShouldDetectCaseCloseOutOfMany() {
-        assertTrue(HttpUtils.hasCloseHeader(Arrays.asList(new String[]{"doodah",  "close"})));
+        assertTrue(HttpUtils.hasCloseHeader(Arrays.asList("doodah", "close")));
     }
 
     @Test
     public void hasCloseHeadersShouldDetectCaseInsensitiveClose() {
-        assertTrue(HttpUtils.hasCloseHeader(Arrays.asList(new String[]{"cLosE"})));
+        assertTrue(HttpUtils.hasCloseHeader(Arrays.asList("cLosE")));
     }
 
     @Test

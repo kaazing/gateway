@@ -236,7 +236,7 @@ public class TransportFactoryTest {
 
         @Override
         public Collection<?> getExtensions() {
-            return Arrays.asList(new Object[]{extension});
+            return Arrays.asList(extension);
         }
     }
 
