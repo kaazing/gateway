@@ -77,7 +77,7 @@ public class MemoryAppender extends ConsoleAppender {
         Set<String> encounteredPatterns = new TreeSet<>();
         List<String> encounteredUnexpectedMessages = new ArrayList<>();
         List<String> expectedPatterns = new ArrayList<>(expectedPatternsRO);
-        Collection<String> unexpected = unexpectedPatterns == null ? Collections.<String>emptyList() : unexpectedPatterns;
+        Collection<String> unexpected = unexpectedPatterns == null ? Collections.emptyList() : unexpectedPatterns;
 
         for (LoggingEvent event : MemoryAppender.getEvents()) {
             String message = event.getMessage().toString();
