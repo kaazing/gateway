@@ -67,9 +67,9 @@ public class Subnet {
     private int toInt(InetAddress inetAddress) {
         byte[] address = inetAddress.getAddress();
         int result = 0;
-        for (byte addres : address) {
+        for (int i = 0; i < address.length; i++) {
             result <<= 8;
-            result |= addres & BYTE_MASK;
+            result |= address[i] & BYTE_MASK;
         }
         return result;
     }

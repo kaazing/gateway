@@ -52,7 +52,8 @@ public class BlacklistFilter extends IoFilterAdapter {
             throw new NullPointerException("addresses");
         }
         blacklist.clear();
-        for (InetAddress addr : addresses) {
+        for (int i = 0; i < addresses.length; i++) {
+            InetAddress addr = addresses[i];
             block(addr);
         }
     }
