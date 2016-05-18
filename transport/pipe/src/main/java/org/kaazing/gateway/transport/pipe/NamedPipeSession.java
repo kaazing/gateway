@@ -121,7 +121,7 @@ public class NamedPipeSession extends AbstractIoSessionEx {
     void setRemoteSession(NamedPipeSession remoteSession) {
         if (remoteSession != null) {
             if (!this.remoteSession.compareAndSet(null, remoteSession)) {
-                throw new NamedPipeException(String.format("Named pipe \"%s\" already attached to remote session"));
+                throw new NamedPipeException(String.format("Named pipe \"%s\" already attached to remote session", localAddress.getPipeName()));
             }
             if (!isClosing()) {
                 getProcessor().updateTrafficControl(this);
