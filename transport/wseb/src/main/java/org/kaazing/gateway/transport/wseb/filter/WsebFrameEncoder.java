@@ -99,8 +99,8 @@ public class WsebFrameEncoder extends AbstractWsFrameEncoder {
         ByteBuffer text = allocator.allocate(2 * commands.length + 2, flags);
         int offset = text.position();
         text.put(COMMAND_TYPE_BYTE);
-        for (int i=0; i < commands.length; i++) {
-            int value = commands[i].value();
+        for (Command command : commands) {
+            int value = command.value();
             text.put(TO_HEX[(value >> 4) & 0x000F]);
             text.put(TO_HEX[value & 0x000F]);
         }

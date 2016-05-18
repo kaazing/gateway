@@ -842,8 +842,8 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
 
     private static String getHexDump(byte[] bytes) {
         StringBuilder hexDump = new StringBuilder();
-        for (int i = 0; i < bytes.length; i++) {
-            hexDump.append(Integer.toHexString(bytes[i]&0xFF)).append(" ");
+        for (byte aByte : bytes) {
+            hexDump.append(Integer.toHexString(aByte & 0xFF)).append(" ");
         }
                 
         return hexDump.toString();

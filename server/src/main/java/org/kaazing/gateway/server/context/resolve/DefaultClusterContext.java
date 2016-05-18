@@ -410,10 +410,10 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         String[] part3s = processEntryPart(entry, parts[2]);
         String[] part4s = processEntryPart(entry, parts[3]);
 
-        for (int i = 0; i < part2s.length; i++) {
-            for (int j = 0; j < part3s.length; j++) {
-                for (int k = 0; k < part4s.length; k++) {
-                    addresses.add(part1 + "." + part2s[i] + "." + part3s[j] + "." + part4s[k]);
+        for (String part2 : part2s) {
+            for (String part3 : part3s) {
+                for (String part4 : part4s) {
+                    addresses.add(part1 + "." + part2 + "." + part3 + "." + part4);
                 }
             }
         }

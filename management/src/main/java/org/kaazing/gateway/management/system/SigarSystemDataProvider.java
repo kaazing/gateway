@@ -145,9 +145,7 @@ public class SigarSystemDataProvider implements SystemDataProvider {
             // so explicitly exclude those from the list, if any.
             List<String> netInterfaceNames = new ArrayList<>();
 
-            for (int i = 0; i < names.length; i++) {
-                String nicName = names[i];
-
+            for (String nicName : names) {
                 if (nicName.contains(":")) {
                     continue;
                 }

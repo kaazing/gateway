@@ -1202,8 +1202,8 @@ public interface ServiceManagementBean extends ManagementBean {
                 arraySize *= 2;
                 data = new SessionMapEntry[arraySize];
 
-                for (int i = 0; i < oldData.length; i++) {
-                    SessionMapEntry entry = oldData[i];
+                for (SessionMapEntry anOldData : oldData) {
+                    SessionMapEntry entry = anOldData;
                     while (entry != null) {
                         int index = (int) (entry.id % arraySize);
                         SessionMapEntry newEntry = data[index];
@@ -1331,8 +1331,8 @@ public interface ServiceManagementBean extends ManagementBean {
                 arraySize *= 2;
                 data = new ByteCountMapEntry[arraySize];
 
-                for (int i = 0; i < oldData.length; i++) {
-                    ByteCountMapEntry entry = oldData[i];
+                for (ByteCountMapEntry anOldData : oldData) {
+                    ByteCountMapEntry entry = anOldData;
                     while (entry != null) {
                         int index = (int) (entry.id % arraySize);
                         ByteCountMapEntry newEntry = data[index];

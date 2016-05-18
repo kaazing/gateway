@@ -183,9 +183,9 @@ public class ErrorGeneratingFilter extends IoFilterAdapter {
 
             byte[] values = new byte[count];
             rng.nextBytes(values);
-            for (int i = 0; i < values.length; i++) {
+            for (byte value : values) {
                 int pos = rng.nextInt(buffer.remaining());
-                buffer.put(pos, values[i]);
+                buffer.put(pos, value);
             }
             logger.info("Modified " + count + " bytes.");
             logger.info(buffer.getHexDump());

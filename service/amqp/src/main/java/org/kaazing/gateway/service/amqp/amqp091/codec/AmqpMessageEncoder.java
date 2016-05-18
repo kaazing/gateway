@@ -941,9 +941,9 @@ public class AmqpMessageEncoder extends ProtocolEncoderAdapter {
             AmqpTableEntry       entry = null;
             ByteBuffer           bytes = ByteBuffer.allocate(table.getLength());
 
-            for (int i = 0; i < entries.size(); i++) {
-                entry = entries.get(i);
-                
+            for (AmqpTableEntry entry1 : entries) {
+                entry = entry1;
+
                 putShortString(bytes, entry.getKey());
                 putType(bytes, entry.getType());
                 putObjectOfType(bytes, entry.getType(), entry.getValue());

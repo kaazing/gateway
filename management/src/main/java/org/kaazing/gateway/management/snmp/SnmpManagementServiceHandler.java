@@ -651,9 +651,9 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
          */
         protected void launch() {
             if (tableSizeLimit != null) {
-                for (int i = 0; i < servers.length; i++) {
-                    DefaultMOServer.unregisterTableRowListener(servers[i], tableSizeLimit);
-                    DefaultMOServer.registerTableRowListener(servers[i], tableSizeLimit);
+                for (MOServer server1 : servers) {
+                    DefaultMOServer.unregisterTableRowListener(server1, tableSizeLimit);
+                    DefaultMOServer.registerTableRowListener(server1, tableSizeLimit);
                 }
             }
             dispatcher.removeCommandResponder(agent);
@@ -695,8 +695,8 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             }
             // saveState();
             if (tableSizeLimit != null) {
-                for (int i = 0; i < servers.length; i++) {
-                    DefaultMOServer.unregisterTableRowListener(servers[i], tableSizeLimit);
+                for (MOServer server1 : servers) {
+                    DefaultMOServer.unregisterTableRowListener(server1, tableSizeLimit);
                 }
             }
             unregisterMIBs(null);
@@ -713,9 +713,9 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                 snmp4jConfigMIB.setPrimaryProvider(this.persistenceProvider);
             }
             if (persistenceProvider != null) {
-                for (int i = 0; i < persistenceProvider.length; i++) {
-                    if (persistenceProvider[i] != this.persistenceProvider) {
-                        snmp4jConfigMIB.addPersistenceProvider(persistenceProvider[i]);
+                for (MOPersistenceProvider aPersistenceProvider : persistenceProvider) {
+                    if (aPersistenceProvider != this.persistenceProvider) {
+                        snmp4jConfigMIB.addPersistenceProvider(aPersistenceProvider);
                     }
                 }
             }
@@ -770,8 +770,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         @SuppressWarnings("unchecked")
         protected void registerTransportMappings() {
             ArrayList<TransportMapping> l = new ArrayList<>(dispatcher.getTransportMappings());
-            for (Iterator<TransportMapping> it = l.iterator(); it.hasNext();) {
-                TransportMapping tm = it.next();
+            for (TransportMapping tm : l) {
                 tm.removeTransportListener(dispatcher);
                 tm.addTransportListener(dispatcher);
             }
@@ -806,8 +805,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
          */
         protected void stopTransportMappings(Collection<TransportMapping> transportMappings) throws IOException {
             ArrayList<TransportMapping> l = new ArrayList<>(transportMappings);
-            for (Iterator<TransportMapping> it = l.iterator(); it.hasNext();) {
-                TransportMapping tm = it.next();
+            for (TransportMapping tm : l) {
                 if (tm.isListening()) {
                     tm.close();
                 }
@@ -1034,8 +1032,8 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             linkCounterListener();
             // use VACM-MIB as VACM by default
             agent.setVacm(vacm());
-            for (int i = 0; i < servers.length; i++) {
-                agent.addMOServer(servers[i]);
+            for (MOServer server1 : servers) {
+                agent.addMOServer(server1);
             }
             agent.setCoexistenceProvider(communityMIB);
             if (notificationOriginator == null) {
@@ -1065,14 +1063,14 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
          */
         public void setTableSizeLimits(Properties sizeLimits) {
             if ((tableSizeLimit != null) && (servers != null)) {
-                for (int i = 0; i < servers.length; i++) {
-                    DefaultMOServer.unregisterTableRowListener(servers[i], tableSizeLimit);
+                for (MOServer server1 : servers) {
+                    DefaultMOServer.unregisterTableRowListener(server1, tableSizeLimit);
                 }
             }
             tableSizeLimit = new MOTableSizeLimit(sizeLimits);
             // if (getState() == STATE_RUNNING) {
-            for (int i = 0; i < servers.length; i++) {
-                DefaultMOServer.registerTableRowListener(servers[i], tableSizeLimit);
+            for (MOServer server1 : servers) {
+                DefaultMOServer.registerTableRowListener(server1, tableSizeLimit);
             }
             // }
         }
@@ -1085,14 +1083,14 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
          */
         public void setTableSizeLimit(int sizeLimit) {
             if ((tableSizeLimit != null) && (servers != null)) {
-                for (int i = 0; i < servers.length; i++) {
-                    DefaultMOServer.unregisterTableRowListener(servers[i], tableSizeLimit);
+                for (MOServer server1 : servers) {
+                    DefaultMOServer.unregisterTableRowListener(server1, tableSizeLimit);
                 }
             }
             tableSizeLimit = new MOTableSizeLimit(sizeLimit);
             // if (getState() == STATE_RUNNING) {
-            for (int i = 0; i < servers.length; i++) {
-                DefaultMOServer.registerTableRowListener(servers[i], tableSizeLimit);
+            for (MOServer server1 : servers) {
+                DefaultMOServer.registerTableRowListener(server1, tableSizeLimit);
             }
             // }
         }

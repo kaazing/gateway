@@ -319,9 +319,9 @@ public class ObjectMBean<T> implements ModelMBean, MBeanRegistration {
 
     public final AttributeList getAttributes(String names[]) {
         AttributeList answer = new AttributeList();
-        for (int i = 0; i < names.length; i++) {
+        for (String name1 : names) {
             try {
-                answer.add(new Attribute(names[i], getAttribute(names[i])));
+                answer.add(new Attribute(name1, getAttribute(name1)));
             } catch (Exception e) {
                 // Ignore.
             }
