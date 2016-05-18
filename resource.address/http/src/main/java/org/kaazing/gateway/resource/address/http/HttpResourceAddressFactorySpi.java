@@ -248,6 +248,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         }
     }
 
+    @Override
     protected void setAlternateOption(final String location,
                                       ResourceOptions options,
                                       Map<String, Object> optionsByName) {

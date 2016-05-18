@@ -171,6 +171,7 @@ public abstract
         return processor;
     }
 
+    @Override
     public IoSessionIdleTracker getSessionIdleTracker() {
         return currentSessionIdleTracker.get();
     }

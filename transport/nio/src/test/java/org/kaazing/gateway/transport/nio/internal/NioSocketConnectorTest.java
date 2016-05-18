@@ -97,6 +97,7 @@ public class NioSocketConnectorTest {
                     public void initializeSession(IoSession session, ConnectFuture future) {
                         session.getFilterChain().addFirst("test", new IoFilterAdapter(){
 
+                            @Override
                             public void sessionOpened(NextFilter nextFilter, IoSession session) throws Exception {
                                     try {
                                         //System.out.println("sessionOpened executing in thread " + Thread.currentThread());

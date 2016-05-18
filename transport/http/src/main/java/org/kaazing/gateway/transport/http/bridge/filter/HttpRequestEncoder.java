@@ -52,6 +52,7 @@ public class HttpRequestEncoder extends HttpMessageEncoder<HttpRequestMessage> {
         super(cachingEncoder, allocator);
     }
 
+	@Override
 	protected void encode(IoSessionEx session, HttpMessage httpMessage, ProtocolEncoderOutput out) throws Exception {
 		switch (httpMessage.getKind()) {
 		case CONTENT:

@@ -20,24 +20,29 @@ import java.nio.ByteBuffer;
 public enum Encoding {
 
     TEXT {
+        @Override
         public ByteBuffer encode(ByteBuffer buf) {
             return buf;
         }
 
+        @Override
         public ByteBuffer decode(ByteBuffer buf, DecodingState state) {
             return buf;
         }
     },
     BINARY {
+        @Override
         public ByteBuffer encode(ByteBuffer buf) {
             return buf;
         }
 
+        @Override
         public ByteBuffer decode(ByteBuffer buf, DecodingState state) {
             return buf;
         }
     },
     BASE64 {
+        @Override
         public ByteBuffer encode(ByteBuffer decoded) {
             if (decoded.hasArray()) {
                 return encodeWithHeap(decoded);
@@ -162,6 +167,7 @@ public enum Encoding {
             return ByteBuffer.wrap(encodedArray);
         }
 
+        @Override
         public ByteBuffer decode(ByteBuffer encoded, DecodingState state) {
             if (encoded.hasArray()) {
                 return decodeWithHeap(encoded, state);
@@ -241,28 +247,34 @@ public enum Encoding {
         }
     },
     UTF8 {
+        @Override
         public ByteBuffer encode(ByteBuffer decoded) {
             return encodeBinaryAsText(decoded, true, false);
         }
 
+        @Override
         public ByteBuffer decode(ByteBuffer encoded, DecodingState state) {
             return decodeTextAsBinary(encoded, state, true, false);
         }
     },
     UTF8_ESCAPE_ZERO_AND_NEWLINE {
+        @Override
         public ByteBuffer encode(ByteBuffer decoded) {
             return encodeBinaryAsText(decoded, true, true);
         }
 
+        @Override
         public ByteBuffer decode(ByteBuffer encoded, DecodingState state) {
             return decodeTextAsBinary(encoded, state, true, true);
         }
     },
     ESCAPE_ZERO_AND_NEWLINE {
+        @Override
         public ByteBuffer encode(ByteBuffer decoded) {
             return encodeBinaryAsText(decoded, false, true);
         }
 
+        @Override
         public ByteBuffer decode(ByteBuffer encoded, DecodingState state) {
             return decodeTextAsBinary(encoded, state, false, true);
         }

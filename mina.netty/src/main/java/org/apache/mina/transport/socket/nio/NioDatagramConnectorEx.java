@@ -124,6 +124,7 @@ public final class NioDatagramConnectorEx
         return sharedWriteRequests.get(ioLayer);
     }
 
+    @Override
     public TransportMetadata getTransportMetadata() {
         return NioDatagramSession.METADATA;
     }
@@ -138,6 +139,7 @@ public final class NioDatagramConnectorEx
         return (InetSocketAddress) super.getDefaultRemoteAddress();
     }
 
+    @Override
     public void setDefaultRemoteAddress(InetSocketAddress defaultRemoteAddress) {
         super.setDefaultRemoteAddress(defaultRemoteAddress);
     }

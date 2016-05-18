@@ -64,6 +64,7 @@ public class ProtocolCodecSessionEx extends DummySessionEx {
 
     private final AbstractProtocolEncoderOutputEx encoderOutput =
         new AbstractProtocolEncoderOutputEx() {
+            @Override
             public WriteFuture flush() {
                 return notWrittenFuture;
             }
@@ -71,6 +72,7 @@ public class ProtocolCodecSessionEx extends DummySessionEx {
 
     private final AbstractProtocolDecoderOutput decoderOutput =
         new AbstractProtocolDecoderOutput() {
+            @Override
             public void flush(NextFilter nextFilter, IoSession session) {
                 // Do nothing
             }

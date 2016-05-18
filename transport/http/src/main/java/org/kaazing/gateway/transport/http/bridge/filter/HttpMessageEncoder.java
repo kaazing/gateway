@@ -69,8 +69,9 @@ abstract class HttpMessageEncoder<T extends HttpStartMessage> extends ProtocolEn
 		this.asciiEncoder = US_ASCII.newEncoder();
 	}
 
+	@Override
 	public final void encode(IoSession session, Object message,
-			ProtocolEncoderOutput out) throws Exception {
+							 ProtocolEncoderOutput out) throws Exception {
 
 	    IoSessionEx sessionEx = (IoSessionEx) session;
 		HttpMessage httpMessage = (HttpMessage) message;

@@ -71,6 +71,7 @@ public class DefaultLoginResult extends LoginResult {
         return loginResultType;
     }
 
+    @Override
     public void challenge(Object... challengeData) {
         loginResultType = Type.CHALLENGE;
 
@@ -86,11 +87,13 @@ public class DefaultLoginResult extends LoginResult {
         }
     }
 
+    @Override
     public void failure(LoginException e) {
         loginResultType = Type.FAILURE;
         loginException = e;
     }
 
+    @Override
     public void success() {
         loginResultType = Type.SUCCESS;
     }

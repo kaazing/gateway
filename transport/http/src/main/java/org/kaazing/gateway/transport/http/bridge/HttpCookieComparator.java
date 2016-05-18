@@ -24,7 +24,8 @@ public class HttpCookieComparator implements Comparator<HttpCookie> {
 
     public static final HttpCookieComparator INSTANCE = new HttpCookieComparator();
 
-    public int compare(HttpCookie thisCookie, HttpCookie thatCookie) {
+    @Override
+	public int compare(HttpCookie thisCookie, HttpCookie thatCookie) {
     	
     	int comparison = _equalsOrCompare(thisCookie.getName(), thatCookie.getName());
     	

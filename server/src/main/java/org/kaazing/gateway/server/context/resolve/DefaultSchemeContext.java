@@ -31,6 +31,7 @@ public class DefaultSchemeContext implements SchemeContext {
         this.resourceAddressFactory = resourceAddressFactory;
     }
 
+    @Override
     public String getName() {
         return name;
     }

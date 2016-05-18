@@ -31,7 +31,8 @@ public class DefaultSseSessionConfig extends AbstractIoSessionConfigEx implement
     /**
      * {@inheritDoc}
      */
-    protected final void doSetAll(IoSessionConfigEx config) {
+    @Override
+	protected final void doSetAll(IoSessionConfigEx config) {
     	SseSessionConfig sseConfig = (SseSessionConfig)config;
     	setRetry(sseConfig.getRetry());
     	setReconnecting(sseConfig.isReconnecting());

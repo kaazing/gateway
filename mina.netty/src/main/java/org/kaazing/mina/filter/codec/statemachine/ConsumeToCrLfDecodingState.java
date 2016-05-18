@@ -73,6 +73,7 @@ public abstract class ConsumeToCrLfDecodingState implements DecodingState {
         this.allocator = allocator;
     }
 
+    @Override
     public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out)
             throws Exception {
         int beginPos = in.position();

@@ -43,6 +43,7 @@ public abstract class AbstractBridgeConnector<S extends AbstractBridgeSession<?,
         started = new AtomicBoolean(false);
     }
 
+    @Override
     protected IoProcessorEx<S> initProcessor() {
         return new BridgeConnectProcessor<>();
     }

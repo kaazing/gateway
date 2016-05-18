@@ -42,6 +42,7 @@ public class CommunityGatewayConfigTranslatorFactorySpi implements GatewayConfig
      * @param ns
      * @return
      */
+    @Override
     public GatewayConfigTranslator getTranslator(GatewayConfigNamespace ns) {
         // First, we create our pipeline composite
         GatewayConfigTranslatorPipeline result = null;

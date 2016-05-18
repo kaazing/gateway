@@ -172,6 +172,7 @@ public class SimpleTokenLoginModule implements LoginModule {
         // If we got here then the token was successfully validated. Set the principal (i.e. the role) now so it can be
         // returned in the commit() method.
         principal = new Principal() {
+            @Override
             public String getName() {
                 return "AUTHORIZED";
             }

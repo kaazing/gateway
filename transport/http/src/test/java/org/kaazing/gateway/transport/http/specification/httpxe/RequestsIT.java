@@ -205,6 +205,7 @@ public class RequestsIT {
                 assertEquals(session.getReadHeader("Content-Length"), "12");
             }
 
+            @Override
             protected void doMessageReceived(HttpAcceptSession session, Object message) throws Exception {
                 latch.countDown();
                 IoBufferEx actual = (IoBufferEx)message;

@@ -42,7 +42,8 @@ public abstract class HttpResponseLineDecodingState extends DecodingStateMachine
 	private final DecodingState READ_VERSION = new ConsumeToLinearWhitespaceDecodingState(allocator) {
         boolean verifiedVersion;
 
-        public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out) throws Exception {
+        @Override
+		public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out) throws Exception {
             if (!verifiedVersion && in.hasRemaining()) {
                 verifiedVersion = true;
                 int ch = in.get(in.position());

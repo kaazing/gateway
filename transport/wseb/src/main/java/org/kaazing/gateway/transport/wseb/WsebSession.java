@@ -206,6 +206,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         closeTimeout = Utils.parseTimeInterval(WS_CLOSE_TIMEOUT.getProperty(configuration), TimeUnit.MILLISECONDS);
     }
 
+    @Override
     protected void setIoAlignment0(Thread ioThread, Executor ioExecutor) {
         transportSession.setIoAlignment(ioThread, ioExecutor);
         IoSessionEx reader = getReader();

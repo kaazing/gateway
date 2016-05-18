@@ -44,8 +44,9 @@ public class AsyncBasicLoginModule implements LoginModule {
     // testUser's RolePrincipal
     private RolePrincipal userPrincipal;
 
+    @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler,
-            Map<String, ?> sharedState, Map<String, ?> options) {
+                           Map<String, ?> sharedState, Map<String, ?> options) {
         this.subject = subject;
         this.sharedState = sharedState;
     }

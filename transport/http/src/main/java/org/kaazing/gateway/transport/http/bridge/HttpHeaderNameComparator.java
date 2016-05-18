@@ -21,6 +21,7 @@ public class HttpHeaderNameComparator implements Comparator<String> {
 
     public static final HttpHeaderNameComparator INSTANCE = new HttpHeaderNameComparator();
 
+    @Override
     public int compare(String o1, String o2) {
         // Note: this is reverse ordering to deal with
         // explicit ordering of WebSocket handshake headers

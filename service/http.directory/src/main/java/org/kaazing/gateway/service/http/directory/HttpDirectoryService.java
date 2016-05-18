@@ -44,6 +44,7 @@ public class HttpDirectoryService implements Service {
 
     private static final Comparator<PatternCacheControl> PATTERN_CACHE_CONTROL_COMPARATOR =
             new Comparator<PatternCacheControl>() {
+                @Override
                 public int compare(PatternCacheControl first, PatternCacheControl second) {
                     return (Integer.valueOf(first.getMatchingPatternCount())).compareTo(Integer.valueOf(second
                             .getMatchingPatternCount()));

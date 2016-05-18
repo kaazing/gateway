@@ -1021,6 +1021,7 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
      */
     protected abstract AbstractIoBufferEx asReadOnlyBuffer0();
 
+    @Override
     public final AbstractIoBufferEx asSharedBuffer() {
         AbstractIoBufferEx shared = asSharedBuffer0();
         assert (shared.flags() & FLAG_SHARED) == FLAG_SHARED;
@@ -1032,6 +1033,7 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
 
     protected abstract AbstractIoBufferEx asSharedBuffer0();
 
+    @Override
     public final AbstractIoBufferEx asUnsharedBuffer() {
         AbstractIoBufferEx unshared = asUnsharedBuffer0();
         assert (unshared.flags() & FLAG_SHARED) != FLAG_SHARED;

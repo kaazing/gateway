@@ -140,6 +140,7 @@ public class RequestMethodsIT {
 
         final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
 
+            @Override
             protected void doMessageReceived(HttpAcceptSession session, Object message) throws Exception {
                 latch.countDown();
                 IoBufferEx actual = (IoBufferEx) message;

@@ -47,6 +47,7 @@ public class SigarSystemDataProvider implements SystemDataProvider {
         sigar = new Sigar();
     }
 
+    @Override
     public int getNumberOfCpus() {
         try {
             CpuInfo[] cpuInfo = sigar.getCpuInfoList();
@@ -57,6 +58,7 @@ public class SigarSystemDataProvider implements SystemDataProvider {
         }
     }
 
+    @Override
     public double getCombinedCpuPercentage() {
         try {
             return sigar.getCpuPerc().getCombined();
@@ -66,6 +68,7 @@ public class SigarSystemDataProvider implements SystemDataProvider {
         }
     }
 
+    @Override
     public long getTotalFreeMemory() {
         try {
             Mem mem = sigar.getMem();
@@ -76,6 +79,7 @@ public class SigarSystemDataProvider implements SystemDataProvider {
         }
     }
 
+    @Override
     public long getTotalUsedMemory() {
         try {
             Mem mem = sigar.getMem();
@@ -86,6 +90,7 @@ public class SigarSystemDataProvider implements SystemDataProvider {
         }
     }
 
+    @Override
     public long getTotalMemory() {
         try {
             Mem mem = sigar.getMem();
@@ -96,6 +101,7 @@ public class SigarSystemDataProvider implements SystemDataProvider {
         }
     }
 
+    @Override
     public long getTotalFreeSwap() {
         try {
             Swap swap = sigar.getSwap();
@@ -106,6 +112,7 @@ public class SigarSystemDataProvider implements SystemDataProvider {
         }
     }
 
+    @Override
     public long getTotalUsedSwap() {
         try {
             Swap swap = sigar.getSwap();
@@ -116,6 +123,7 @@ public class SigarSystemDataProvider implements SystemDataProvider {
         }
     }
 
+    @Override
     public long getTotalSwap() {
         try {
             Swap swap = sigar.getSwap();
@@ -136,6 +144,7 @@ public class SigarSystemDataProvider implements SystemDataProvider {
      *
      * @return
      */
+    @Override
     public String[] getNetInterfaceNames() {
         try {
             String[] names = sigar.getNetInterfaceList();
@@ -178,6 +187,7 @@ public class SigarSystemDataProvider implements SystemDataProvider {
         }
     }
 
+    @Override
     public double getUptimeSeconds() {
         try {
             Uptime uptime = sigar.getUptime();
@@ -196,6 +206,7 @@ public class SigarSystemDataProvider implements SystemDataProvider {
      *
      * @param netInterfaceName
      */
+    @Override
     public Long[] getNetInterfaceStats(String netInterfaceName) {
         // We should never actually get an error on this, as we already tried
         // the all the various names when creating the NIC name list.
@@ -220,6 +231,7 @@ public class SigarSystemDataProvider implements SystemDataProvider {
      * <p/>
      * All the values are percentages, values 0-100.
      */
+    @Override
     public Double[][] getCpuPercentages() {
 
         try {

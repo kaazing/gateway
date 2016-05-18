@@ -162,10 +162,12 @@ public class MemoryAppender extends ConsoleAppender {
         }
     }
 
+    @Override
     public void close() {
         debug("MemoryAppender instance " + this + " closed");
     }
 
+    @Override
     public boolean requiresLayout() {
         return true;
     }

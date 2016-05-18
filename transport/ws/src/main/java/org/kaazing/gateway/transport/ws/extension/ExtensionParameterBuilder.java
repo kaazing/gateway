@@ -45,6 +45,7 @@ public class ExtensionParameterBuilder implements ExtensionParameter {
         this.value = value;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -54,6 +55,7 @@ public class ExtensionParameterBuilder implements ExtensionParameter {
         return this;
     }
 
+    @Override
     public String getValue() {
         return value;
     }

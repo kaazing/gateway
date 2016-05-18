@@ -65,6 +65,7 @@ public class DummyIoSessionEx extends IoSessionAdapterEx {
                         setHandler(new IoHandlerAdapter());
                     }
 
+                    @Override
                     public TransportMetadata getTransportMetadata() {
                         return TRANSPORT_METADATA;
                     }

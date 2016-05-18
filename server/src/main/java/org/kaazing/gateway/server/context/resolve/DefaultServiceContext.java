@@ -364,14 +364,17 @@ public class DefaultServiceContext implements ServiceContext {
         return connectOptionsContext;
     }
 
+    @Override
     public String getServiceType() {
         return serviceType;
     }
 
+    @Override
     public String getServiceName() {
         return serviceName;
     }
 
+    @Override
     public String getServiceDescription() {
         return serviceDescription;
     }

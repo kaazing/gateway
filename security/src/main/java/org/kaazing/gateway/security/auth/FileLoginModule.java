@@ -75,6 +75,7 @@ public class FileLoginModule implements LoginModule {
         state = State.INITIALIZE_REQUIRED;
     }
 
+    @Override
     public void initialize(Subject subject, CallbackHandler callback,
                            Map<String, ?> sharedState, Map<String, ?> options) {
 
@@ -119,6 +120,7 @@ public class FileLoginModule implements LoginModule {
         this.jaasConfig = jaasConfig;
     }
 
+    @Override
     public boolean login() throws LoginException {
         switch (state) {
             case INITIALIZE_COMPLETE:
@@ -136,6 +138,7 @@ public class FileLoginModule implements LoginModule {
         }
     }
 
+    @Override
     public boolean logout() throws LoginException {
         switch (state) {
             case COMMIT_COMPLETE:
@@ -152,6 +155,7 @@ public class FileLoginModule implements LoginModule {
         }
     }
 
+    @Override
     public boolean commit() throws LoginException {
         switch (state) {
             case COMMIT_COMPLETE:
@@ -171,6 +175,7 @@ public class FileLoginModule implements LoginModule {
         }
     }
 
+    @Override
     public boolean abort() throws LoginException {
         switch (state) {
             case COMMIT_COMPLETE:

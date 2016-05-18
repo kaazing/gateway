@@ -68,10 +68,12 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
 
     protected final DecodingState FLUSH_MESSAGES = new DecodingState() {
 
+        @Override
         public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out) throws Exception {
             return SKIP_EMPTY_LINES;
         }
 
+        @Override
         public DecodingState finishDecode(ProtocolDecoderOutput out) throws Exception {
             return SKIP_EMPTY_LINES;
         }

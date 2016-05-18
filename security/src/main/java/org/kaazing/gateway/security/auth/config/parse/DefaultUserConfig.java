@@ -35,10 +35,12 @@ public class DefaultUserConfig implements UserConfig {
         this.name = name;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public Collection<String> getRoleNames() {
         return roleNames;
     }
@@ -47,6 +49,7 @@ public class DefaultUserConfig implements UserConfig {
         this.password = password;
     }
 
+    @Override
     public String getPassword() {
         return password;
     }

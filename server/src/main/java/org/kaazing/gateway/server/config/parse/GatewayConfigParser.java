@@ -508,6 +508,7 @@ public class GatewayConfigParser {
          *
          * @return <code>true</code> if processed without errors, <code>false</code> otherwise
          */
+        @Override
         public Boolean call() throws Exception {
             try {
                 SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
@@ -616,6 +617,7 @@ public class GatewayConfigParser {
          *
          * @return <code>true</code> if processed without errors, <code>false</code> otherwise
          */
+        @Override
         public Boolean call() throws Exception {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             URL resource = classLoader.getResource(stylesheet);

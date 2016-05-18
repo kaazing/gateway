@@ -150,6 +150,7 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
         return this.alternateResourceFactories;
     }
 
+    @Override
     protected void setAlternateOption(String location,
                                       ResourceOptions options,
                                       Map<String, Object> optionsByName) {

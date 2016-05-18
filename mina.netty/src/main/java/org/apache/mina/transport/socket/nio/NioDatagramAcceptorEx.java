@@ -112,6 +112,7 @@ public final class NioDatagramAcceptorEx
         }
     }
 
+    @Override
     public TransportMetadata getTransportMetadata() {
         return NioDatagramSessionEx.METADATA;
     }
@@ -131,6 +132,7 @@ public final class NioDatagramAcceptorEx
         return (InetSocketAddress) super.getDefaultLocalAddress();
     }
 
+    @Override
     public void setDefaultLocalAddress(InetSocketAddress localAddress) {
         setDefaultLocalAddress((SocketAddress) localAddress);
     }
@@ -301,14 +303,17 @@ public final class NioDatagramAcceptorEx
             this.i = keys.iterator();
         }
 
+        @Override
         public boolean hasNext() {
             return i.hasNext();
         }
 
+        @Override
         public DatagramChannel next() {
             return (DatagramChannel) i.next().channel();
         }
 
+        @Override
         public void remove() {
             i.remove();
         }

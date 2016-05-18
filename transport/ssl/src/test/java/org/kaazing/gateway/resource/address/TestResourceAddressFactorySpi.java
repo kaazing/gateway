@@ -91,9 +91,10 @@ public final class TestResourceAddressFactorySpi extends ResourceAddressFactoryS
         public DifferentPaths() {
         }
 
+        @Override
         public List<TestResourceAddress> makeAlternates(String original,
-                                                                  String location,
-                                                                  ResourceOptions options) {
+                                                        String location,
+                                                        ResourceOptions options) {
 
             List<TestResourceAddress> addresses = new ArrayList<>();
             addresses.add(TestResourceAddressFactorySpi.super.newResourceAddress0(original, location, options));
@@ -116,6 +117,7 @@ public final class TestResourceAddressFactorySpi extends ResourceAddressFactoryS
         public DuplicateAlternates() {
         }
 
+        @Override
         public List<TestResourceAddress> makeAlternates(String original,
                                                         String location,
                                                         ResourceOptions options) {
@@ -136,6 +138,7 @@ public final class TestResourceAddressFactorySpi extends ResourceAddressFactoryS
         public DifferentAuthorities() {
         }
 
+        @Override
         public List<TestResourceAddress> makeAlternates(String original,
                                                         String location,
                                                         ResourceOptions options) {
