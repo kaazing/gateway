@@ -350,9 +350,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <skipTests>true</skipTests>
-                </configuration>
+                <version>2.19.1</version>
             </plugin>
             <plugin>
                 <groupId>org.kaazing</groupId>
