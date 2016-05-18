@@ -426,15 +426,13 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
                                       Map<String, Object> optionsByName) {
     }
 
-    protected <T extends ResourceAddress> T newResourceAddressWithAlternate(String location,
-                                                                            Map<String, Object> optionsByName,
-                                                                            final ResourceAddress alternateAddress) {
+    @SuppressWarnings("unchecked")
+    protected T newResourceAddressWithAlternate(String location,
+                                                Map<String, Object> optionsByName,
+                                                ResourceAddress alternateAddress) {
 
         optionsByName.put(ALTERNATE.name(), alternateAddress);
-        return (T)
-                getResourceAddressFactory().
-                        newResourceAddress(location, optionsByName);
-
+        return (T) getResourceAddressFactory().newResourceAddress(location, optionsByName);
     }
 
     /**
