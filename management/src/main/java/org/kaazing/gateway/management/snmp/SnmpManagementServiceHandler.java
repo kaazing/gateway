@@ -1901,9 +1901,9 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                                     // if value == null, it's a param without a name (the value
                                     // is actually in the name;
                                     if (value == null) {
-                                        paramsArray.put(name.toString());
+                                        paramsArray.put(name);
                                     } else {
-                                        paramsArray.put(name.toString() + "=" + value.toString());
+                                        paramsArray.put(name + "=" + value);
                                     }
                                 }
                             }
@@ -2071,7 +2071,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             String managementServiceAcceptsValue = "";
             if (managementServiceAccepts != null) {
                 for (String managementServiceAccept : managementServiceAccepts) {
-                    sb.append(managementServiceAccept.toString() + '\n');
+                    sb.append(managementServiceAccept + '\n');
                 }
                 if (sb.length() > 1) {
                     managementServiceAcceptsValue = sb.substring(0, sb.length() - 1); // trim final \n char
@@ -2107,7 +2107,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
             VariableBinding[] variables = new VariableBinding[3];
             variables[0] = new VariableBinding(balancerMapNotificationEventTypeOID, new OctetString(changeType));
-            variables[1] = new VariableBinding(balancerMapNotificationBalancerUriOID, new OctetString(balancerURI.toString()));
+            variables[1] = new VariableBinding(balancerMapNotificationBalancerUriOID, new OctetString(balancerURI));
             variables[2] = new VariableBinding(balancerMapNotificationBalanceeUrisOID, new OctetString(balanceeURIsValue));
             sendNotification(notificationOID, variables);
 

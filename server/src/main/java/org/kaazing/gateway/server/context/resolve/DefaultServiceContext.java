@@ -929,7 +929,7 @@ public class DefaultServiceContext implements ServiceContext {
                         TreeSet<String> newBalanceUris = null;
                         do {
                             GL.debug(GL.CLUSTER_LOGGER_NAME,
-                                    "In unbind while loop for balanaceURI: " + balanceURI.toString());
+                                    "In unbind while loop for balanaceURI: " + balanceURI);
                             boolean didRemove = false;
                             balanceUris = sharedBalanceUriMap.get(balanceURI);
                             if (balanceUris != null) {

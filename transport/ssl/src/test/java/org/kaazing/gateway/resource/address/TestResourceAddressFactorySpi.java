@@ -104,7 +104,7 @@ public final class TestResourceAddressFactorySpi extends ResourceAddressFactoryS
 
             for (int i = 0; i < 3; i++) {
                 addresses.add(TestResourceAddressFactorySpi.super.newResourceAddress0(original,
-                        (URIUtils.modifyURIPath(location, path + String.valueOf(i))).toString(),
+                        (URIUtils.modifyURIPath(location, path + String.valueOf(i))),
                         options));
             }
 
@@ -144,7 +144,7 @@ public final class TestResourceAddressFactorySpi extends ResourceAddressFactoryS
             addresses.add(TestResourceAddressFactorySpi.super.newResourceAddress0(original, location, options));
             for (int i = 0; i < 3; i++) {
                 addresses.add(TestResourceAddressFactorySpi.super.newResourceAddress0(original,
-                        (URIUtils.modifyURIAuthority(location, URIUtils.getAuthority(location) + String.valueOf(i))).toString(),
+                        (URIUtils.modifyURIAuthority(location, URIUtils.getAuthority(location) + String.valueOf(i))),
                         options));
             }
 

@@ -306,7 +306,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                                 redirectResponse = true;
                                 response += "R";
                                 response += HttpUtils.mergeQueryParameters(wsnSession.getParentHttpRequestURI(),
-                                        balanceeURIs.iterator().next()).toString();
+                                        balanceeURIs.iterator().next());
                             } catch (URISyntaxException e) {
                                 logger.error(
                                         String.format("Failed to manufacture a balancee URI:  The Http Request URI Query '%s' cannot merge with the configured balancee URI '%s'",

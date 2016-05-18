@@ -108,7 +108,7 @@ class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
             selectedBalanceeURI = buildURIAsString(balanceeScheme, getAuthority(selectedBalanceeURI), balanceePath, balanceeQuery, null);
 
             session.setStatus(HttpStatus.REDIRECT_FOUND /* 302 */);
-            session.setWriteHeader("Location", selectedBalanceeURI.toString());
+            session.setWriteHeader("Location", selectedBalanceeURI);
         }
         session.close(false);
     }
