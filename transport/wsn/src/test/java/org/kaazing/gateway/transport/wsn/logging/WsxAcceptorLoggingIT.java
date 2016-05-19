@@ -16,7 +16,6 @@
 package org.kaazing.gateway.transport.wsn.logging;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.util.ArrayList;

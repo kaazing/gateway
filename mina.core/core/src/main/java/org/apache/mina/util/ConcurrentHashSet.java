@@ -18,7 +18,6 @@ package org.apache.mina.util;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * A {@link ConcurrentHashMap}-backed {@link Set}.

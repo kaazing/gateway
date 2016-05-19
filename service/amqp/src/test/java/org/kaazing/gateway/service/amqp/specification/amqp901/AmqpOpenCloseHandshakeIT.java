@@ -17,15 +17,6 @@ package org.kaazing.gateway.service.amqp.specification.amqp901;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.security.Principal;
-import java.util.Map;
-
-import javax.security.auth.Subject;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
-
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;

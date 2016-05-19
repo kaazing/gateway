@@ -16,7 +16,6 @@
 package org.kaazing.gateway.service.http.proxy;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;

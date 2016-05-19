@@ -17,7 +17,6 @@ package org.kaazing.gateway.transport.sse;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
