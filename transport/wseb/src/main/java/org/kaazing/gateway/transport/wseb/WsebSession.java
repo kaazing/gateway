@@ -455,7 +455,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         IoSessionEx oldReader = readSession.get();
         if (oldReader != null && !oldReader.isClosing() && oldReader instanceof HttpAcceptSession) {
             // Overlapping upstream, forbidden
-            String message = String.format("Overlapping upstream request");
+            String message = "Overlapping upstream request";
             setCloseException(new IOException(message));
             HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
             HttpAcceptSession newAcceptReader = (HttpAcceptSession) newReader;
@@ -762,7 +762,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
     // If the first write request is long-polling, then it is out of order
     private boolean checkLongPollingOrder(HttpAcceptSession session) {
         if (firstWriter && !validateSequenceNo && longpoll(session)) {
-            String message = String.format("Out of order long-polling request, must not be first");
+            String message = "Out of order long-polling request, must not be first";
             setCloseException(new IOException(message));
             HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
             session.setStatus(status);

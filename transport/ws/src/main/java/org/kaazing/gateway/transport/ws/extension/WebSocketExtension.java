@@ -29,7 +29,7 @@ public abstract class WebSocketExtension {
 
     public WebSocketExtension(ExtensionHelper extensionHelper) {
         if (extensionHelper == null) {
-            throw new NullPointerException(String.format("extensionHelper is null"));
+            throw new NullPointerException("extensionHelper is null");
         }
         this.extensionHelper = extensionHelper;
     }

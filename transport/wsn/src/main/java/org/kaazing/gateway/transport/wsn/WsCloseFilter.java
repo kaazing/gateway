@@ -227,7 +227,7 @@ public class WsCloseFilter
 
         if (!session.isConnected()) {
             if (logger != null && logger.isTraceEnabled()) {
-                logger.trace(format("session is no longer connected - skipping WS CLOSE handshake"));
+                logger.trace("session is no longer connected - skipping WS CLOSE handshake");
             }
             nextFilter.filterClose(session);
             return null;
@@ -302,7 +302,7 @@ public class WsCloseFilter
 
         if (!session.isConnected()) {
             if (logger != null && logger.isTraceEnabled()) {
-                logger.trace(format("session is no longer connected - skipping WS CLOSE handshake"));
+                logger.trace("session is no longer connected - skipping WS CLOSE handshake");
             }
             nextFilter.filterClose(session);
             return;

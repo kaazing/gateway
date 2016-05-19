@@ -154,7 +154,7 @@ public class HttpMergeRequestFilter extends HttpFilterAdapter<IoSessionEx> {
 
 
             if ( loggerEnabled() ) {
-                logger.trace(String.format("HttpMergeRequestFilter: 'Extended request received'."));
+                logger.trace("HttpMergeRequestFilter: 'Extended request received'.");
             }
 
             // Do we need to find a key3 to complete the merged request?
@@ -164,7 +164,7 @@ public class HttpMergeRequestFilter extends HttpFilterAdapter<IoSessionEx> {
             }
 
             if ( loggerEnabled() ) {
-                logger.trace(String.format("EHS: Suspend reads until the extended request has been responded to."));
+                logger.trace("EHS: Suspend reads until the extended request has been responded to.");
             }
 
             // We are ok to pass the request through to do the real work.
@@ -207,7 +207,7 @@ public class HttpMergeRequestFilter extends HttpFilterAdapter<IoSessionEx> {
             initialHttpRequest == null) {
 
             if (loggerEnabled()) {
-                logger.trace(String.format(EXTENDED_HANDSHAKE_PROTOCOL_NAME +" detected."));
+                logger.trace(EXTENDED_HANDSHAKE_PROTOCOL_NAME +" detected.");
             }
 
             // Remember the request for subsequent 'verification' of the extended request.
