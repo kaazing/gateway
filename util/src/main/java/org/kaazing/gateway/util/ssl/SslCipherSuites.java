@@ -1944,119 +1944,139 @@ public class SslCipherSuites {
         while (iter.hasNext()) {
             String token = iter.next();
 
-            if (token.equals("DH")) {
-                iter.remove();
-                iter.add(CipherKeyExchange.DH.getTokenName());
+            switch (token) {
+                case "DH":
+                    iter.remove();
+                    iter.add(CipherKeyExchange.DH.getTokenName());
 
-            } else if (token.equals("ADH")) {
-                iter.remove();
-                iter.add(CipherKeyExchange.DHE.getTokenName());
-                iter.add(CipherKeyExchange.ECDHE.getTokenName());
-                iter.add(CipherAuthentication.NULL.getTokenName());
+                    break;
+                case "ADH":
+                    iter.remove();
+                    iter.add(CipherKeyExchange.DHE.getTokenName());
+                    iter.add(CipherKeyExchange.ECDHE.getTokenName());
+                    iter.add(CipherAuthentication.NULL.getTokenName());
 
-            } else if (token.equals("EDH")) {
-                iter.remove();
-                iter.add(CipherKeyExchange.DHE.getTokenName());
-                iter.add("!" + CipherKeyExchange.ECDHE.getTokenName());
-                iter.add("!" + CipherAuthentication.NULL.getTokenName());
+                    break;
+                case "EDH":
+                    iter.remove();
+                    iter.add(CipherKeyExchange.DHE.getTokenName());
+                    iter.add("!" + CipherKeyExchange.ECDHE.getTokenName());
+                    iter.add("!" + CipherAuthentication.NULL.getTokenName());
 
-            } else if (token.equals("kECDH")) {
-                iter.remove();
-                iter.add(CipherKeyExchange.ECDH_RSA.getTokenName());
-                iter.add(CipherKeyExchange.ECDH_ECDSA.getTokenName());
-                iter.add(CipherKeyExchange.ECDHE.getTokenName());
+                    break;
+                case "kECDH":
+                    iter.remove();
+                    iter.add(CipherKeyExchange.ECDH_RSA.getTokenName());
+                    iter.add(CipherKeyExchange.ECDH_ECDSA.getTokenName());
+                    iter.add(CipherKeyExchange.ECDHE.getTokenName());
 
-            } else if (token.equals("ECDH")) {
-                iter.remove();
-                iter.add(CipherKeyExchange.ECDH_RSA.getTokenName());
-                iter.add(CipherKeyExchange.ECDH_ECDSA.getTokenName());
-                iter.add(CipherKeyExchange.ECDHE.getTokenName());
+                    break;
+                case "ECDH":
+                    iter.remove();
+                    iter.add(CipherKeyExchange.ECDH_RSA.getTokenName());
+                    iter.add(CipherKeyExchange.ECDH_ECDSA.getTokenName());
+                    iter.add(CipherKeyExchange.ECDHE.getTokenName());
 
-            } else if (token.equals("DSS")) {
-                iter.remove();
-                iter.add(CipherAuthentication.DSS.getTokenName());
+                    break;
+                case "DSS":
+                    iter.remove();
+                    iter.add(CipherAuthentication.DSS.getTokenName());
 
-            } else if (token.equals("ECDSA")) {
-                iter.remove();
-                iter.add(CipherAuthentication.ECDSA.getTokenName());
+                    break;
+                case "ECDSA":
+                    iter.remove();
+                    iter.add(CipherAuthentication.ECDSA.getTokenName());
 
-            } else if (token.equals("NULL")) {
-                iter.remove();
-                iter.add(CipherEncryption.NULL.getTokenName());
+                    break;
+                case "NULL":
+                    iter.remove();
+                    iter.add(CipherEncryption.NULL.getTokenName());
 
-            } else if (token.equals("KRB5")) {
-                iter.remove();
-                iter.add(CipherKeyExchange.KRB5.getTokenName());
-                iter.add(CipherAuthentication.KRB5.getTokenName());
+                    break;
+                case "KRB5":
+                    iter.remove();
+                    iter.add(CipherKeyExchange.KRB5.getTokenName());
+                    iter.add(CipherAuthentication.KRB5.getTokenName());
 
-            } else if (token.equals("RSA")) {
-                iter.remove();
-                iter.add(CipherKeyExchange.RSA.getTokenName());
-                iter.add(CipherAuthentication.RSA.getTokenName());
+                    break;
+                case "RSA":
+                    iter.remove();
+                    iter.add(CipherKeyExchange.RSA.getTokenName());
+                    iter.add(CipherAuthentication.RSA.getTokenName());
 
-            } else if (token.equals("AES")) {
-                iter.remove();
-                iter.add("AES128");
-                iter.add("AES256");
+                    break;
+                case "AES":
+                    iter.remove();
+                    iter.add("AES128");
+                    iter.add("AES256");
 
-            } else if (token.equals("EXP") ||
-                       token.equals("EXPORT")) {
-                iter.remove();
-                iter.add("EXPORT40");
-                iter.add("EXPORT56");
+                    break;
+                case "EXP":
+                case "EXPORT":
+                    iter.remove();
+                    iter.add("EXPORT40");
+                    iter.add("EXPORT56");
 
-            } else if (token.equals("SHA")) {
-                iter.remove();
-                iter.add(CipherMAC.SHA1.getTokenName());
+                    break;
+                case "SHA":
+                    iter.remove();
+                    iter.add(CipherMAC.SHA1.getTokenName());
 
-            } else if (token.equals("AECDH")) {
-                iter.remove();
-                iter.add(CipherKeyExchange.ECDHE.getTokenName() + "+" +
-                         CipherAuthentication.NULL.getTokenName());
+                    break;
+                case "AECDH":
+                    iter.remove();
+                    iter.add(CipherKeyExchange.ECDHE.getTokenName() + "+" +
+                            CipherAuthentication.NULL.getTokenName());
 
-            } else if (token.equals("EECDH")) {
-                iter.remove();
-                iter.add(CipherKeyExchange.ECDH_ECDSA.getTokenName());
+                    break;
+                case "EECDH":
+                    iter.remove();
+                    iter.add(CipherKeyExchange.ECDH_ECDSA.getTokenName());
 
-            } else if (token.equals("DEFAULT") ||
-                       token.equals("DEFAULTS")) {
+                    break;
+                case "DEFAULT":
+                case "DEFAULTS":
 
-                if (!firstElement) {
-                    throw new IllegalArgumentException("DEFAULT must be the first cipher string specified");
-                }
+                    if (!firstElement) {
+                        throw new IllegalArgumentException("DEFAULT must be the first cipher string specified");
+                    }
 
-                iter.remove();
-                iter.add("HIGH");
-                iter.add("MEDIUM");
+                    iter.remove();
+                    iter.add("HIGH");
+                    iter.add("MEDIUM");
 
-                // Anonymous Diffie-Hellman ciphersuites do NOT provide
-                // authentication, and thus they are not allowed by default.
-                // See KG-6189 for more details.
-                iter.add("!ADH");
+                    // Anonymous Diffie-Hellman ciphersuites do NOT provide
+                    // authentication, and thus they are not allowed by default.
+                    // See KG-6189 for more details.
+                    iter.add("!ADH");
 
-                iter.add("!KRB5");
+                    iter.add("!KRB5");
 
-            } else if (token.equals("COMPLEMENTOFDEFAULT")) {
-                iter.remove();
-                iter.add(CipherKeyExchange.DHE.getTokenName());
-                iter.add("!" + CipherEncryption.NULL.getTokenName());
+                    break;
+                case "COMPLEMENTOFDEFAULT":
+                    iter.remove();
+                    iter.add(CipherKeyExchange.DHE.getTokenName());
+                    iter.add("!" + CipherEncryption.NULL.getTokenName());
 
-            } else if (token.equals("COMPLEMENTOFALL")) {
-                iter.remove();
-                iter.add(CipherEncryption.NULL.getTokenName());
+                    break;
+                case "COMPLEMENTOFALL":
+                    iter.remove();
+                    iter.add(CipherEncryption.NULL.getTokenName());
 
-            } else if (token.equals("ALL")) {
-                iter.remove();
+                    break;
+                case "ALL":
+                    iter.remove();
 
-                // To get all of ciphers, include all of the "strength"
-                // values.
-                iter.add("HIGH");
-                iter.add("MEDIUM");
-                iter.add("LOW");
-                iter.add("EXPORT56");
-                iter.add("EXPORT40");
-                iter.add("NONE");
-                iter.add("!eNULL");
+                    // To get all of ciphers, include all of the "strength"
+                    // values.
+                    iter.add("HIGH");
+                    iter.add("MEDIUM");
+                    iter.add("LOW");
+                    iter.add("EXPORT56");
+                    iter.add("EXPORT40");
+                    iter.add("NONE");
+                    iter.add("!eNULL");
+                    break;
             }
 
             firstElement = false;

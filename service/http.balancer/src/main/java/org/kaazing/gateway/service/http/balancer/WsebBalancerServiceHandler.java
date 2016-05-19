@@ -86,14 +86,16 @@ class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
             URI requestURI = session.getRequestURI();
             String balanceeScheme = getScheme(selectedBalanceeURI);
-            if (balanceeScheme.equals("sse")) {
-                balanceeScheme = "http";
-            }
-            else if (balanceeScheme.equals("sse+ssl")) {
-                balanceeScheme = "https";
-            }
-            else {
-                balanceeScheme = getScheme(selectedBalanceeURI).replaceFirst("^ws", "http");
+            switch (balanceeScheme) {
+                case "sse":
+                    balanceeScheme = "http";
+                    break;
+                case "sse+ssl":
+                    balanceeScheme = "https";
+                    break;
+                default:
+                    balanceeScheme = getScheme(selectedBalanceeURI).replaceFirst("^ws", "http");
+                    break;
             }
             String balanceePath = getPath(selectedBalanceeURI);
             String requestPath = requestURI.getPath();
