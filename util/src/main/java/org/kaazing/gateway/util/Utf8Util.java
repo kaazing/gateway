@@ -27,7 +27,7 @@ import java.nio.ByteBuffer;
 public final class Utf8Util {
     public static final int INVALID_UTF8 = -1;
 
-    private static final String MSG_INVALID_CODEPOINT = "Invalid UTF-16 codepoint %d";
+    private static final String MSG_INVALID_CODEPOINT = "Invalid UTF-16 codepoint %c";
 
     private Utf8Util() {
     }

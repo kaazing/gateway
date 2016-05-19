@@ -96,8 +96,8 @@ public class DefaultAuthenticationTokenExtractorTest {
         token = extractor.extract(request);
         String challengeScheme = token.getScheme();
 
-        assertTrue(String.format("Expected challenge scheme 'Application', got null", scheme), challengeScheme != null);
-        assertTrue(String.format("Expected challenge scheme 'Application', got '%s'", scheme, challengeScheme), challengeScheme.equals("Application"));
+        assertTrue("Expected challenge scheme 'Application', got null", challengeScheme != null);
+        assertTrue(String.format("Expected challenge scheme 'Application', got '%s'", challengeScheme), challengeScheme.equals("Application"));
         assertEquals(1, token.size());
         assertEquals(String.format("Basic %s", param), token.get());
         assertEquals(String.format("Basic %s", param), token.get(0));

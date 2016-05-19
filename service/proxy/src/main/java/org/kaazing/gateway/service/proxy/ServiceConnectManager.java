@@ -122,7 +122,7 @@ public final class ServiceConnectManager {
             if (logger.isWarnEnabled()) {
                 logger.warn(String.format(
                         "Configured prepared.connection.count %d for %s service has been increased to number of IO threads %d for extra efficiency",
-                        preparedConnectionCount, serviceCtx.getServiceType(), this.preparedConnectionCount, workerCount));
+                        preparedConnectionCount, serviceCtx.getServiceType(), workerCount));
             }
         }
         if (logger.isDebugEnabled()) {

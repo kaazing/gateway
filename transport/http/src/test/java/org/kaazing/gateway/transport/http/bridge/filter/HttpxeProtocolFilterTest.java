@@ -833,7 +833,7 @@ public class HttpxeProtocolFilterTest {
     public void shouldReceiveResponseWithExtractedCookies() throws Exception {
 
         final List<HttpCookie> expectedCookies =
-                Arrays.<HttpCookie>asList(new DefaultHttpCookie("KSSOID", "12345"));
+                Arrays.asList(new DefaultHttpCookie("KSSOID", "12345"));
 
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);

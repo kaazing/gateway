@@ -266,30 +266,31 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     }
 
     private String resolveInternalBindOptionName(String externalBindOptionName) {
-        if (externalBindOptionName.equals("tcp")) {
-            return "tcp.bind";
-        } else if (externalBindOptionName.equals("ssl")) {
-            return "ssl.tcp.bind";
-        } else if (externalBindOptionName.equals("http")) {
-            return "http.tcp.bind";
-        } else if (externalBindOptionName.equals("https")) {
-            return "http.ssl.tcp.bind";
-        } else if (externalBindOptionName.equals("ws")) {
-            return "ws.http.tcp.bind";
-        } else if (externalBindOptionName.equals("wss")) {
-            return "ws.http.ssl.tcp.bind";
-        } else if (externalBindOptionName.equals("wsn")) {
-            return "wsn.http.tcp.bind";
-        } else if (externalBindOptionName.equals("wsn+ssl")) {
-            return "wsn.http.ssl.tcp.bind";
-        } else if (externalBindOptionName.equals("wsx")) {
-            return "wsn.http.wsn.http.tcp.bind";
-        } else if (externalBindOptionName.equals("wsx+ssl")) {
-            return "wsn.http.wsn.http.ssl.tcp.bind";
-        } else if (externalBindOptionName.equals("httpxe")) {
-            return "http.http.tcp.bind";
-        } else if (externalBindOptionName.equals("httpxe+ssl")) {
-            return "http.http.ssl.tcp.bind";
+        switch (externalBindOptionName) {
+            case "tcp":
+                return "tcp.bind";
+            case "ssl":
+                return "ssl.tcp.bind";
+            case "http":
+                return "http.tcp.bind";
+            case "https":
+                return "http.ssl.tcp.bind";
+            case "ws":
+                return "ws.http.tcp.bind";
+            case "wss":
+                return "ws.http.ssl.tcp.bind";
+            case "wsn":
+                return "wsn.http.tcp.bind";
+            case "wsn+ssl":
+                return "wsn.http.ssl.tcp.bind";
+            case "wsx":
+                return "wsn.http.wsn.http.tcp.bind";
+            case "wsx+ssl":
+                return "wsn.http.wsn.http.ssl.tcp.bind";
+            case "httpxe":
+                return "http.http.tcp.bind";
+            case "httpxe+ssl":
+                return "http.http.ssl.tcp.bind";
         }
         return null;
     }

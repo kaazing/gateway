@@ -250,18 +250,22 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         MemberId awsMember = null;
 
         for (MemberId member : clusterMembers) {
-            if (member.getProtocol().equals("udp")) {
-                // convertHostToIP method is used in order to address situations in which network interface syntax is present
-                multicastAddresses.add(new InetSocketAddress(convertHostToIP(member.getHost()), member.getPort()));
-            } else if (member.getProtocol().equals("tcp")) {
-                // convertHostToIP method is used in order to address situations in which network interface syntax is present
-                unicastAddresses.add(new InetSocketAddress(convertHostToIP(member.getHost()), member.getPort()));
-            } else if (member.getProtocol().equals("aws")) {
-                awsMember = member;
+            switch (member.getProtocol()) {
+                case "udp":
+                    // convertHostToIP method is used in order to address situations in which network interface syntax is present
+                    multicastAddresses.add(new InetSocketAddress(convertHostToIP(member.getHost()), member.getPort()));
+                    break;
+                case "tcp":
+                    // convertHostToIP method is used in order to address situations in which network interface syntax is present
+                    unicastAddresses.add(new InetSocketAddress(convertHostToIP(member.getHost()), member.getPort()));
+                    break;
+                case "aws":
+                    awsMember = member;
 
-                // There should be only one <connect> tag when AWS is being
-                // used. We have already validated that in
-                // GatewayContextResolver.processClusterMembers() method.
+                    // There should be only one <connect> tag when AWS is being
+                    // used. We have already validated that in
+                    // GatewayContextResolver.processClusterMembers() method.
+                    break;
             }
         }
 

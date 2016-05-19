@@ -85,7 +85,7 @@ public class WsCloseTransportTest {
     private static final Integer ADAPTER_LATCH_UNEXPECTED_TIMEOUT = 2;
 
     private final ResourceAddressFactory resourceAddressFactory = ResourceAddressFactory.newResourceAddressFactory();
-    TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object> emptyMap());
+    TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.emptyMap());
     private final BridgeServiceFactory bridgeServiceFactory = new BridgeServiceFactory(transportFactory);
 //    private final ServiceRegistry serviceRegistry = new ServiceRegistry();
     private WsnAcceptor wsnAcceptor;

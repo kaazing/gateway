@@ -350,7 +350,7 @@ abstract class AbstractNioSelector implements NioSelector {
             } catch (Throwable t) {
                 logger.warn(
                         "Unexpected exception in the selector loop.", t);
-                PERF_LOGGER.warn(format("Unexpected exception in selector loop", t));
+                PERF_LOGGER.warn(format("Unexpected exception %s in selector loop", t));
                 t.printStackTrace();
                 // Prevent possible consecutive immediate failures that lead to
                 // excessive CPU consumption.

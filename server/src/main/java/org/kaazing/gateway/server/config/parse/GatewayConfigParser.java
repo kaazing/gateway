@@ -582,7 +582,7 @@ public class GatewayConfigParser {
                 };
                 parser.getXMLReader().setProperty("http://xml.org/sax/properties/lexical-handler", handler);
                 parser.getXMLReader().setProperty("http://apache.org/xml/properties/input-buffer-size",
-                        new Integer(souceInput.available()));
+                        souceInput.available());
                 parser.parse(souceInput, handler);
             } finally {
                 close();

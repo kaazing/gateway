@@ -18,7 +18,6 @@ package org.apache.mina.util;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * A {@link ConcurrentHashMap}-backed {@link Set}.
@@ -39,7 +38,7 @@ public class ConcurrentHashSet<E> extends MapBackedSet<E> {
 
     @Override
     public boolean add(E o) {
-        Boolean answer = ((ConcurrentMap<E, Boolean>) map).putIfAbsent(o, Boolean.TRUE);
+        Boolean answer = map.putIfAbsent(o, Boolean.TRUE);
         return answer == null;
     }
 }
