@@ -25,6 +25,7 @@ public class RealmConfigurationBuilder extends AbstractRealmConfigurationBuilder
         this(new RealmConfiguration(), suppressions);
     }
 
+    @Override
     public AddLoginModuleBuilder<RealmConfigurationBuilder> loginModule() {
         return new AddLoginModuleBuilder<>(this, getCurrentSuppressions());
     }

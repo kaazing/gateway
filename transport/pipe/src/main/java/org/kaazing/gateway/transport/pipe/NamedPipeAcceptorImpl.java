@@ -54,6 +54,7 @@ public class NamedPipeAcceptorImpl extends AbstractIoAcceptorEx implements Named
         this.bindings = new ConcurrentHashMap<>();
     }
     
+    @Override
     public TransportMetadata getTransportMetadata() {
         return NamedPipeSession.METADATA;
     }

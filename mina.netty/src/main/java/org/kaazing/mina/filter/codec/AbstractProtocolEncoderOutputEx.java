@@ -64,6 +64,7 @@ public abstract class AbstractProtocolEncoderOutputEx implements
         return messageQueue;
     }
 
+    @Override
     public void write(Object encodedMessage) {
         if (encodedMessage instanceof IoBufferEx) {
             IoBufferEx buf = (IoBufferEx) encodedMessage;
@@ -79,6 +80,7 @@ public abstract class AbstractProtocolEncoderOutputEx implements
         }
     }
 
+    @Override
     public void mergeAll() {
         if (!buffersOnly) {
             throw new IllegalStateException(

@@ -46,6 +46,7 @@ public class TokenCustomLoginModule implements LoginModule {
     private UserPrincipal userPrincipal;
     private RolePrincipal rolePrincipal;
 
+    @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
         logDebug("initialize()");
 
@@ -63,6 +64,7 @@ public class TokenCustomLoginModule implements LoginModule {
 
     }
 
+    @Override
     public boolean login() throws LoginException {
         logDebug("login()");
 
@@ -105,6 +107,7 @@ public class TokenCustomLoginModule implements LoginModule {
         return true;
     }
 
+    @Override
     public boolean commit() throws LoginException {
         logDebug("commit()");
         if (this.userPrincipal == null) {
@@ -130,6 +133,7 @@ public class TokenCustomLoginModule implements LoginModule {
         return true;
     }
 
+    @Override
     public boolean abort() throws LoginException {
         logDebug("abort()");
         if (this.userPrincipal == null) {
@@ -152,6 +156,7 @@ public class TokenCustomLoginModule implements LoginModule {
         }
     }
 
+    @Override
     public boolean logout() throws LoginException {
         logDebug("logout()");
         try {

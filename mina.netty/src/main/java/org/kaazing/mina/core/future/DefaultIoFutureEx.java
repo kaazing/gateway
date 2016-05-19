@@ -99,6 +99,7 @@ public class DefaultIoFutureEx implements IoFutureEx {
     /**
      * @deprecated Replaced with {@link #awaitUninterruptibly()}.
      */
+    @Override
     @Deprecated
     public void join() {
         awaitUninterruptibly();
@@ -107,6 +108,7 @@ public class DefaultIoFutureEx implements IoFutureEx {
     /**
      * @deprecated Replaced with {@link #awaitUninterruptibly(long)}.
      */
+    @Override
     @Deprecated
     public boolean join(long timeoutMillis) {
         return awaitUninterruptibly(timeoutMillis);

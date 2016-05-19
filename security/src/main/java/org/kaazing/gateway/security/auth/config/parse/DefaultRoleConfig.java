@@ -31,6 +31,7 @@ public class DefaultRoleConfig implements RoleConfig {
         roleNames = new HashSet<>();
     }
 
+    @Override
     public Collection<String> getRoleNames() {
         return roleNames;
     }
@@ -39,6 +40,7 @@ public class DefaultRoleConfig implements RoleConfig {
         this.name = name;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -47,6 +49,7 @@ public class DefaultRoleConfig implements RoleConfig {
         this.description = description;
     }
 
+    @Override
     public String getDescription() {
         return description;
     }

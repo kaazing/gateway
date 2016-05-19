@@ -86,6 +86,7 @@ public class GatewayCommandLineProcessor {
         gateway.setProperties(properties);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
             public void run() {
                 try {
                     gateway.destroy();

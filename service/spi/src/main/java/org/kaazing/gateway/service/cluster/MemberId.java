@@ -37,7 +37,7 @@ public class MemberId implements Serializable {
         this.protocol = protocol;
         this.path = path;
         String s = (path != null) ? path : "";
-        this.id = protocol.toString().toLowerCase() + "://" + host + ":" + port + s;
+        this.id = protocol.toLowerCase() + "://" + host + ":" + port + s;
     }
 
     public int getPort() {

@@ -149,6 +149,7 @@ public abstract class SuspendableIoFilterAdapter extends IoFilterAdapter {
             this.session = session;
         }
 
+        @Override
         public void fire() throws Exception {
             SuspendableIoFilterAdapter.this.doSessionCreated(nextFilter, session);
         }
@@ -163,6 +164,7 @@ public abstract class SuspendableIoFilterAdapter extends IoFilterAdapter {
             this.session = session;
         }
 
+        @Override
         public void fire() throws Exception {
             SuspendableIoFilterAdapter.this.doSessionOpened(nextFilter, session);
         }
@@ -177,6 +179,7 @@ public abstract class SuspendableIoFilterAdapter extends IoFilterAdapter {
             this.session = session;
         }
 
+        @Override
         public void fire() throws Exception {
             SuspendableIoFilterAdapter.this.doSessionClosed(nextFilter, session);
         }
@@ -193,6 +196,7 @@ public abstract class SuspendableIoFilterAdapter extends IoFilterAdapter {
             this.message = message;
         }
 
+        @Override
         public void fire() throws Exception {
             SuspendableIoFilterAdapter.this.doMessageReceived(nextFilter, session, message);
         }

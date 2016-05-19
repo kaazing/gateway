@@ -94,17 +94,17 @@ public class WsxAcceptorLoggingIT {
         })
     public void shouldLogOpenWriteReceivedAndClose() throws Exception {
         k3po.finish();
-        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "tcp#.*OPENED",
-            "tcp#.*WRITE",
-            "tcp#.*RECEIVED",
-            "tcp#.*CLOSED",
-            "http#.*OPENED",
-            "http#.*CLOSED",
-            "wsn#.*OPENED",
-            "wsn#.*WRITE",
-            "wsn#.*RECEIVED",
-            "wsn#.*CLOSED"
+        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
+                "tcp#.*OPENED",
+                "tcp#.*WRITE",
+                "tcp#.*RECEIVED",
+                "tcp#.*CLOSED",
+                "http#.*OPENED",
+                "http#.*CLOSED",
+                "wsn#.*OPENED",
+                "wsn#.*WRITE",
+                "wsn#.*RECEIVED",
+                "wsn#.*CLOSED"
         }));
 
         forbiddenPatterns = Arrays.asList("#.*EXCEPTION");    }
@@ -117,16 +117,16 @@ public class WsxAcceptorLoggingIT {
         k3po.start();
         Thread.sleep(2000);
         k3po.finish();
-        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "tcp#.*OPENED",
-            "tcp#.*WRITE",
-            "tcp#.*RECEIVED",
-            "tcp#.*CLOSED",
-            "http#.*OPENED",
-            "http#.*CLOSED",
-            "wsn#.*OPENED",
-            "wsn#.*EXCEPTION.*IOException",
-            "wsn#.*CLOSED"
+        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
+                "tcp#.*OPENED",
+                "tcp#.*WRITE",
+                "tcp#.*RECEIVED",
+                "tcp#.*CLOSED",
+                "http#.*OPENED",
+                "http#.*CLOSED",
+                "wsn#.*OPENED",
+                "wsn#.*EXCEPTION.*IOException",
+                "wsn#.*CLOSED"
         }));
         forbiddenPatterns = null;
     }

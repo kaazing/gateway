@@ -30,7 +30,7 @@ public class CacheControlHandler {
 
     private File requestFile;
     private StringBuilder staticDirectives = new StringBuilder();
-    private Map<Directive, String> maxAgeDirectives = new HashMap<Directive, String>();
+    private Map<Directive, String> maxAgeDirectives = new HashMap<>();
 
     private boolean isMaxAgeResolved;
 

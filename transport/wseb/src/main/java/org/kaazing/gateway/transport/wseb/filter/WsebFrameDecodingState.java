@@ -144,6 +144,7 @@ public class WsebFrameDecodingState extends DecodingStateMachine {
         /**
          * {@inheritDoc}
          */
+        @Override
         public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out) throws Exception {
 
             while (in.hasRemaining()) {
@@ -213,6 +214,7 @@ public class WsebFrameDecodingState extends DecodingStateMachine {
         /**
          * {@inheritDoc}
          */
+        @Override
         public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out) throws Exception {
 
             while (in.hasRemaining()) {

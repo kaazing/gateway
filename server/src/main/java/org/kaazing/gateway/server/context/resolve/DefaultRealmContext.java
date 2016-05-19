@@ -49,18 +49,22 @@ public class DefaultRealmContext implements RealmContext {
         this.authenticationContext = authenticationContext;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
 
+    @Override
     public String[] getUserPrincipalClasses() {
         return userPrincipalClasses;
     }
 
+    @Override
     public Configuration getConfiguration() {
         return configuration;
     }

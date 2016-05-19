@@ -24,10 +24,12 @@ import org.kaazing.gateway.transport.TransportKeySelector;
 
 public abstract class AbstractKeySelector implements TransportKeySelector {
 
+    @Override
     public ResourceAddress getAvailableCertAliasesKey(boolean clientMode) {
         return null;
     }
 
+    @Override
     public Collection<String> getAvailableCertAliases(boolean clientMode) {
         return null;
     }

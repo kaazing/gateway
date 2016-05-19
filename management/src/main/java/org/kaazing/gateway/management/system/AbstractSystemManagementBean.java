@@ -66,7 +66,7 @@ public abstract class AbstractSystemManagementBean extends AbstractManagementBea
         this.dataTypeStr = dataTypeStr;
 
         if (summaryDataLimit > 0) {
-            this.summaryDataList = new ArrayBlockingQueue<JSONObject>(summaryDataLimit);
+            this.summaryDataList = new ArrayBlockingQueue<>(summaryDataLimit);
         } else {
             this.summaryDataList = null;
         }
@@ -88,12 +88,13 @@ public abstract class AbstractSystemManagementBean extends AbstractManagementBea
         return gatherScheduler;
     }
 
+    @Override
     public String getSummaryData() {
         // We need to empty the collection containing all the JSONObjects in order to avoid collisions
         JSONArray jsonArray = new JSONArray();
         if (summaryDataList != null) {
             // We need to drain the ArrayBlockingQueue into an ArrayList to preserve backward compatibility for the API
-            ArrayList<JSONObject> tmpList = new ArrayList<JSONObject>(summaryDataList.size());
+            ArrayList<JSONObject> tmpList = new ArrayList<>(summaryDataList.size());
             summaryDataList.drainTo(tmpList);
             for (JSONObject jsonObject : tmpList) {
                 jsonArray.put(jsonObject);
@@ -102,10 +103,12 @@ public abstract class AbstractSystemManagementBean extends AbstractManagementBea
         return jsonArray.toString();
     }
 
+    @Override
     public void enableNotifications(boolean notificationsEnabled) {
         this.notificationsEnabled = notificationsEnabled;
     }
 
+    @Override
     public boolean areNotificationsEnabled() {
         return notificationsEnabled;
     }
@@ -114,10 +117,12 @@ public abstract class AbstractSystemManagementBean extends AbstractManagementBea
      * Return the current gather interval. The reason this is abstract is because the actual value needs to be stored/accessed
      * from an external object that is specific to each type of summary data provider.
      */
+    @Override
     public final int getSummaryDataGatherInterval() {
         return gatherInterval.getInterval();
     }
 
+    @Override
     public final void setSummaryDataGatherInterval(int interval) {
         this.gatherInterval.setInterval(interval);
     }
@@ -126,6 +131,7 @@ public abstract class AbstractSystemManagementBean extends AbstractManagementBea
      * Implement the ManagementStrategyChangeListener interface. All we're really trying to do is get told that the strategy has
      * changed, so we can get the new strategy and start it (and end the previous one, if we had one).
      */
+    @Override
     public void managementStrategyChanged() {
         ManagementSystemStrategy systemStrategy = managementContext.getManagementSystemStrategy();
         systemStrategy.gatherStats(this);
@@ -138,6 +144,7 @@ public abstract class AbstractSystemManagementBean extends AbstractManagementBea
      */
     public void gatherStats() {
         managementContext.runManagementTask(new Runnable() {
+            @Override
             public void run() {
                 try {
                     // System.out.println("SystemMngtBean.gatherStats for " + Utils.getClassName(AbstractSystemManagementBean

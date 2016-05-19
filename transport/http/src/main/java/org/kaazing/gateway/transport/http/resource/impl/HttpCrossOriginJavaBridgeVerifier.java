@@ -21,6 +21,7 @@ import org.kaazing.gateway.transport.http.resource.HttpDynamicResource;
 
 public final class HttpCrossOriginJavaBridgeVerifier extends HttpDynamicResource {
 
+    @Override
     public void writeFile(HttpAcceptSession httpSession) {
         String sOriginId = httpSession.getParameter("soid");
         String authority = httpSession.getParameter("authority");

@@ -179,6 +179,7 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
         return super.nextWriteRequest(message, remoteAddress);
     }
 
+    @Override
     @SuppressWarnings("rawtypes")
     public abstract IoProcessorEx getProcessor();
 

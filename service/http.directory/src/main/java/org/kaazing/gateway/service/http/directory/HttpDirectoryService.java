@@ -44,6 +44,7 @@ public class HttpDirectoryService implements Service {
 
     private static final Comparator<PatternCacheControl> PATTERN_CACHE_CONTROL_COMPARATOR =
             new Comparator<PatternCacheControl>() {
+                @Override
                 public int compare(PatternCacheControl first, PatternCacheControl second) {
                     return (Integer.valueOf(first.getMatchingPatternCount())).compareTo(Integer.valueOf(second
                             .getMatchingPatternCount()));
@@ -131,7 +132,7 @@ public class HttpDirectoryService implements Service {
      * @return a list of PatternCacheControl objects
      */
     private List<PatternCacheControl> buildPatternsList(ServiceProperties properties) {
-        Map<String, PatternCacheControl> patterns = new LinkedHashMap<String, PatternCacheControl>();
+        Map<String, PatternCacheControl> patterns = new LinkedHashMap<>();
         List<ServiceProperties> locationsList = properties.getNested("location");
         if (locationsList != null && locationsList.size() != 0) {
             for (ServiceProperties location : locationsList) {
@@ -144,7 +145,7 @@ public class HttpDirectoryService implements Service {
             resolvePatternSpecificity(patterns);
             return sortByMatchingPatternCount(patterns);
         }
-        return new ArrayList<PatternCacheControl>(patterns.values());
+        return new ArrayList<>(patterns.values());
     }
 
     /**
@@ -152,7 +153,7 @@ public class HttpDirectoryService implements Service {
      * @param patterns - the map with the patterns to be matched
      */
     private void resolvePatternSpecificity(Map<String, PatternCacheControl> patterns) {
-        List<String> patternList = new ArrayList<String>();
+        List<String> patternList = new ArrayList<>();
         patternList.addAll(patterns.keySet());
 
         int patternCount = patternList.size();
@@ -189,7 +190,7 @@ public class HttpDirectoryService implements Service {
      * @return a list of sorted PatternCacheControl elements
      */
     private List<PatternCacheControl> sortByMatchingPatternCount(Map<String, PatternCacheControl> unsortedMap) {
-        List<PatternCacheControl> list = new ArrayList<PatternCacheControl>(unsortedMap.values());
+        List<PatternCacheControl> list = new ArrayList<>(unsortedMap.values());
         Collections.sort(list, PATTERN_CACHE_CONTROL_COMPARATOR);
         return list;
     }

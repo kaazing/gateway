@@ -24,6 +24,7 @@ import org.kaazing.gateway.service.ServiceFactorySpi;
 
 public final class UpdateCheckServiceFactorySpi extends ServiceFactorySpi {
     
+    @Override
     public Collection<String> getServiceTypes() {
         return singleton("update.check");
     }

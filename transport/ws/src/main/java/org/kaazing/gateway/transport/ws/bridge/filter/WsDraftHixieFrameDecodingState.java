@@ -101,7 +101,8 @@ public class WsDraftHixieFrameDecodingState extends DecodingStateMachine {
         /**
          * {@inheritDoc}
          */
-        public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out) throws Exception {
+        @Override
+		public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out) throws Exception {
         	
             while (in.hasRemaining()) {
 				byte b = in.get();

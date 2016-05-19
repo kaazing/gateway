@@ -47,6 +47,7 @@ public class BasicLoginModuleWithDefaultUserConfig implements LoginModule {
     // testUser's RolePrincipal
     private RolePrincipal userPrincipal;
 
+    @Override
     public void initialize(Subject subject,
                            CallbackHandler callbackHandler,
                            Map<String, ?> sharedState,

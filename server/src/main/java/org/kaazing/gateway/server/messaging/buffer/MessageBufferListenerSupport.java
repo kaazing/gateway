@@ -37,6 +37,7 @@ public class MessageBufferListenerSupport implements MessageBufferListener {
         listeners.remove(listener);
     }
 
+    @Override
     public void messageAdded(MessageBufferEntry newMessage) {
         for (MessageBufferListener listener : listeners.keySet()) {
             try {

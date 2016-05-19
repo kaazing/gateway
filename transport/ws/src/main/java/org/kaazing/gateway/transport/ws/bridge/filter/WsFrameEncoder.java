@@ -47,6 +47,7 @@ public class WsFrameEncoder extends AbstractWsFrameEncoder {
         this.maskSends = maskSends; 
     }
 
+    @Override
     protected IoBufferEx doTextEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
         return doMessageEncode(allocator, flags, message);
     }
@@ -56,10 +57,12 @@ public class WsFrameEncoder extends AbstractWsFrameEncoder {
         return doMessageEncode(allocator, flags, message);
     }
 
+    @Override
     protected IoBufferEx doBinaryEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
         return doMessageEncode(allocator, flags, message);
     }
 
+    @Override
     protected IoBufferEx doCloseEncode(IoBufferAllocatorEx<?> allocator, int flags, WsCloseMessage message) {
         return doMessageEncode(allocator, flags, message);
     }

@@ -45,14 +45,17 @@ public class DefaultWriteCompletionEventEx implements WriteCompletionEvent {
         this.writtenAmount = writtenAmount;
     }
 
+    @Override
     public Channel getChannel() {
         return channel;
     }
 
+    @Override
     public ChannelFuture getFuture() {
         return succeededFuture(getChannel());
     }
 
+    @Override
     public long getWrittenAmount() {
         return writtenAmount;
     }

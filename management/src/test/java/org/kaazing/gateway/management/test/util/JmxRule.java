@@ -73,7 +73,7 @@ public class JmxRule implements TestRule {
             Assert.assertEquals("false", properties.get("com.sun.management.jmxremote.local.only"));
             Assert.assertEquals("localhost", properties.get("java.rmi.server.hostname"));
 
-            Map<String, Object> env = new HashMap<String, Object>();
+            Map<String, Object> env = new HashMap<>();
             SslRMIClientSocketFactory csf = new SslRMIClientSocketFactory();
             SslRMIServerSocketFactory ssf = new SslRMIServerSocketFactory();
             env.put(RMIConnectorServer.RMI_CLIENT_SOCKET_FACTORY_ATTRIBUTE, csf);

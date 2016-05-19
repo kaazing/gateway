@@ -85,7 +85,7 @@ public class Launcher {
             for (String serviceAccept : serviceAccepts) {
                 String mappedURI = ctx.getInternalURI(serviceAccept);
                 if ((mappedURI == null) || mappedURI.equals(serviceAccept)) {
-                    mappedURIs.add(serviceAccept.toString());
+                    mappedURIs.add(serviceAccept);
                 } else {
                     mappedURIs.add(serviceAccept + " @ " + URIUtils.getAuthority(mappedURI));
                 }

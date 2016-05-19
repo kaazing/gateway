@@ -504,10 +504,12 @@ public class JVMManagementMIB implements MOGroup {
             this.bean = ManagementFactory.getClassLoadingMXBean();
         }
 
+        @Override
         boolean isVerbose() {
             return bean.isVerbose();
         }
 
+        @Override
         void setVerbose(boolean verbose) {
             bean.setVerbose(verbose);
         }
@@ -521,10 +523,12 @@ public class JVMManagementMIB implements MOGroup {
             this.bean = ManagementFactory.getMemoryMXBean();
         }
 
+        @Override
         boolean isVerbose() {
             return bean.isVerbose();
         }
 
+        @Override
         void setVerbose(boolean verbose) {
             bean.setVerbose(verbose);
         }

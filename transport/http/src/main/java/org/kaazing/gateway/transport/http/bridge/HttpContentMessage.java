@@ -95,7 +95,8 @@ public class HttpContentMessage extends HttpMessage {
 		return data.remaining();
 	}
 
-    public boolean isComplete() {
+    @Override
+	public boolean isComplete() {
         return contentInfos.contains(HttpContentInfo.COMPLETE);
     }
     

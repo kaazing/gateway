@@ -476,10 +476,12 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
     public static final String PARENT_KEY = "tcp.parentKey.key"; // holds parent of tcp bridge session
 
     private final IoProcessorEx<IoSessionAdapterEx> tcpBridgeProcessor = new IoProcessorEx<IoSessionAdapterEx>() {
+        @Override
         public void add(IoSessionAdapterEx session) {
             // Do nothing
         }
 
+        @Override
         public void flush(IoSessionAdapterEx session) {
             IoSession parent = (IoSession) session.getAttribute(PARENT_KEY);
             WriteRequest req = session.getWriteRequestQueue().poll(session);
@@ -509,6 +511,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             }
         }
 
+        @Override
         public void remove(IoSessionAdapterEx session) {
             LOG.debug("AbstractNioAcceptor Fake Processor remove session "+session);
             IoSession parent = (IoSession) session.getAttribute(PARENT_KEY);
@@ -516,18 +519,22 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             acceptor.getListeners().fireSessionDestroyed(session);
         }
 
+        @Override
         public void updateTrafficControl(IoSessionAdapterEx session) {
             // Do nothing
         }
 
+        @Override
         public void dispose() {
             // Do nothing
         }
 
+        @Override
         public boolean isDisposed() {
             return false;
         }
 
+        @Override
         public boolean isDisposing() {
             return false;
         }

@@ -53,7 +53,7 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
     private boolean indexes;
 
     private List<PatternCacheControl> patterns;
-    private Map<String, CacheControlHandler> urlCacheControlMap = new ConcurrentHashMap<String, CacheControlHandler>();
+    private Map<String, CacheControlHandler> urlCacheControlMap = new ConcurrentHashMap<>();
 
     private static final DateFormat RFC822_FORMAT_PATTERN =
             new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);

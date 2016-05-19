@@ -62,6 +62,7 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
     
     private final DecodingState VALIDATE_METHOD_START = new DecodingState() {
 
+        @Override
         public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out) throws Exception {
             if (in.hasRemaining()) {
                 byte initialByte = in.get(in.position());

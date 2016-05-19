@@ -30,6 +30,7 @@ public interface WriteRequestEx extends WriteRequest {
 
     void setMessage(Object message);
 
+    @Override
     WriteFutureEx getFuture();
 
     boolean isResetable();

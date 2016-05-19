@@ -89,6 +89,7 @@ public final class HttpClientAccessPolicyXml extends HttpDynamicResource {
     // </cross-domain-access>
     // </access-policy>
 
+    @Override
     public void writeFile(HttpAcceptSession httpSession) throws IOException {
         CharsetEncoder utf8Encoder = UTF_8.newEncoder();
 
@@ -266,6 +267,7 @@ public final class HttpClientAccessPolicyXml extends HttpDynamicResource {
             this.result = result;
         }
 
+        @Override
         public void writeFile(HttpAcceptSession httpSession) {
             if (maxAge != null) {
                 httpSession.setWriteHeader(HEADER_MAX_AGE, valueOf(maxAge));

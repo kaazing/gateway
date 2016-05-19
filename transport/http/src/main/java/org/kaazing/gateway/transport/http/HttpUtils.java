@@ -718,7 +718,7 @@ public class HttpUtils {
         }
 
         if ( to.getHeaders() == null ) {
-            to.setHeaders(new HashMap<String, List<String>>(fromHeaders.size()));
+            to.setHeaders(new HashMap<>(fromHeaders.size()));
         }
 
         // Get mutable headers
@@ -801,7 +801,7 @@ public class HttpUtils {
         }
 
         if ( to.getParameters() == null ) {
-            to.setParameters(new HashMap<String, List<String>>(fromParameters.size()));
+            to.setParameters(new HashMap<>(fromParameters.size()));
         }
 
         // Get mutable parameters

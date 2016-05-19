@@ -41,8 +41,8 @@ public class FindMatchingBalancerServiceVisitor extends AbstractVisitor {
     private Set<String> balancerAcceptURIs;
 
     public FindMatchingBalancerServiceVisitor() {
-        balanceURIs = new HashSet<String>();
-        balancerAcceptURIs = new HashSet<String>();
+        balanceURIs = new HashSet<>();
+        balancerAcceptURIs = new HashSet<>();
     }
 
     @Override

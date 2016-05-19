@@ -81,18 +81,22 @@ public class DefaultChannelFutureEx implements ChannelFuture {
         assert this.waiters == 0;
     }
 
+    @Override
     public Channel getChannel() {
         return channel;
     }
 
+    @Override
     public synchronized boolean isDone() {
         return done;
     }
 
+    @Override
     public synchronized boolean isSuccess() {
         return done && cause == null;
     }
 
+    @Override
     public synchronized Throwable getCause() {
         if (cause != CANCELLED) {
             return cause;
@@ -101,10 +105,12 @@ public class DefaultChannelFutureEx implements ChannelFuture {
         }
     }
 
+    @Override
     public synchronized boolean isCancelled() {
         return cause == CANCELLED;
     }
 
+    @Override
     public void addListener(ChannelFutureListener listener) {
         if (listener == null) {
             throw new NullPointerException("listener");
@@ -138,6 +144,7 @@ public class DefaultChannelFutureEx implements ChannelFuture {
         }
     }
 
+    @Override
     public void removeListener(ChannelFutureListener listener) {
         if (listener == null) {
             throw new NullPointerException("listener");
@@ -162,6 +169,7 @@ public class DefaultChannelFutureEx implements ChannelFuture {
         }
     }
 
+    @Override
     @Deprecated
     public ChannelFuture rethrowIfFailed() throws Exception {
         if (!isDone()) {
@@ -184,12 +192,14 @@ public class DefaultChannelFutureEx implements ChannelFuture {
         throw new RuntimeException(cause);
     }
 
+    @Override
     public ChannelFuture sync() throws InterruptedException {
         await();
         rethrowIfFailed0();
         return this;
     }
 
+    @Override
     public ChannelFuture syncUninterruptibly() {
         awaitUninterruptibly();
         rethrowIfFailed0();
@@ -213,6 +223,7 @@ public class DefaultChannelFutureEx implements ChannelFuture {
         throw new ChannelException(cause);
     }
 
+    @Override
     public ChannelFuture await() throws InterruptedException {
         if (Thread.interrupted()) {
             throw new InterruptedException();
@@ -232,15 +243,18 @@ public class DefaultChannelFutureEx implements ChannelFuture {
         return this;
     }
 
+    @Override
     public boolean await(long timeout, TimeUnit unit)
             throws InterruptedException {
         return await0(unit.toNanos(timeout), true);
     }
 
+    @Override
     public boolean await(long timeoutMillis) throws InterruptedException {
         return await0(MILLISECONDS.toNanos(timeoutMillis), true);
     }
 
+    @Override
     public ChannelFuture awaitUninterruptibly() {
         boolean interrupted = false;
         synchronized (this) {
@@ -264,6 +278,7 @@ public class DefaultChannelFutureEx implements ChannelFuture {
         return this;
     }
 
+    @Override
     public boolean awaitUninterruptibly(long timeout, TimeUnit unit) {
         try {
             return await0(unit.toNanos(timeout), false);
@@ -272,6 +287,7 @@ public class DefaultChannelFutureEx implements ChannelFuture {
         }
     }
 
+    @Override
     public boolean awaitUninterruptibly(long timeoutMillis) {
         try {
             return await0(MILLISECONDS.toNanos(timeoutMillis), false);
@@ -338,6 +354,7 @@ public class DefaultChannelFutureEx implements ChannelFuture {
         }
     }
 
+    @Override
     public boolean setSuccess() {
         synchronized (this) {
             // Allow only once.
@@ -355,6 +372,7 @@ public class DefaultChannelFutureEx implements ChannelFuture {
         return true;
     }
 
+    @Override
     public boolean setFailure(Throwable cause) {
         synchronized (this) {
             // Allow only once.
@@ -373,6 +391,7 @@ public class DefaultChannelFutureEx implements ChannelFuture {
         return true;
     }
 
+    @Override
     public boolean cancel() {
         if (!cancellable) {
             return false;
@@ -434,6 +453,7 @@ public class DefaultChannelFutureEx implements ChannelFuture {
         }
     }
 
+    @Override
     public boolean setProgress(long amount, long current, long total) {
         ChannelFutureProgressListener[] plisteners;
         synchronized (this) {

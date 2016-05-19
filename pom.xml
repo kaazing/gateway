@@ -9,7 +9,6 @@
         <version>2.20</version>
     </parent>
 
-    <groupId>org.kaazing</groupId>
     <artifactId>gateway</artifactId>
     <name>Kaazing Gateway</name>
     <version>develop-SNAPSHOT</version>

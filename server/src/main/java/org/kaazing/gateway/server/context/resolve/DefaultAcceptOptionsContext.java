@@ -175,6 +175,7 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         }
     }
 
+    @Override
     public Map<String, Object> asOptionsMap() {
         Map<String, Object> result = new LinkedHashMap<>();
 
@@ -427,13 +428,13 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     private void parseAcceptOptionsType(ServiceAcceptOptionsType acceptOptionsType,
                                         ServiceAcceptOptionsType defaultOptionsType) {
         if (acceptOptionsType != null) {
-            Map<String, String> acceptOptionsMap = new HashMap<String, String>();
+            Map<String, String> acceptOptionsMap = new HashMap<>();
             parseOptions(acceptOptionsType.getDomNode(), acceptOptionsMap);
             setOptions(acceptOptionsMap);
         }
 
         if (defaultOptionsType != null) {
-            Map<String, String> defaultAcceptOptionsMap = new HashMap<String, String>();
+            Map<String, String> defaultAcceptOptionsMap = new HashMap<>();
             parseOptions(defaultOptionsType.getDomNode(), defaultAcceptOptionsMap);
             setDefaultOptions(defaultAcceptOptionsMap);
         }

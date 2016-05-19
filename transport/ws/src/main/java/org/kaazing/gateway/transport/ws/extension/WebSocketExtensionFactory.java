@@ -145,7 +145,7 @@ public final class WebSocketExtensionFactory {
     }
 
     private static WebSocketExtensionFactory newInstance(ServiceLoader<WebSocketExtensionFactorySpi> services) {
-        Map<String, WebSocketExtensionFactorySpi> factories = new HashMap<String, WebSocketExtensionFactorySpi>();
+        Map<String, WebSocketExtensionFactorySpi> factories = new HashMap<>();
         for (WebSocketExtensionFactorySpi service : services) {
             String extensionName = service.getExtensionName();
             factories.put(extensionName, service);

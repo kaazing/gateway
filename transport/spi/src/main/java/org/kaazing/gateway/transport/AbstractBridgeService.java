@@ -39,6 +39,7 @@ public abstract class AbstractBridgeService<T extends AbstractBridgeSession<?, ?
 
     protected AbstractBridgeService(IoSessionConfigEx sessionConfig) {
         super(sessionConfig, new Executor() {
+            @Override
             public void execute(Runnable command) {}
         });
 

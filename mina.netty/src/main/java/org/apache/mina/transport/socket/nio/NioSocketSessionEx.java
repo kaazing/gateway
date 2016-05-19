@@ -111,10 +111,12 @@ public class NioSocketSessionEx extends NioSessionEx {
         return 0;
     }
 
+    @Override
     public IoServiceEx getService() {
         return service;
     }
 
+    @Override
     public SocketSessionConfigEx getConfig() {
         return config;
     }
@@ -124,10 +126,12 @@ public class NioSocketSessionEx extends NioSessionEx {
         return processor;
     }
 
+    @Override
     public IoFilterChain getFilterChain() {
         return filterChain;
     }
 
+    @Override
     public TransportMetadata getTransportMetadata() {
         return METADATA;
     }
@@ -147,6 +151,7 @@ public class NioSocketSessionEx extends NioSessionEx {
         this.key = key;
     }
 
+    @Override
     public IoHandler getHandler() {
         return handler;
     }

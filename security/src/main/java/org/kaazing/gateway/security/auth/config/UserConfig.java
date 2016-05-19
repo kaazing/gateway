@@ -19,6 +19,7 @@ import java.security.Principal;
 import java.util.Collection;
 
 public interface UserConfig extends Principal {
+    @Override
     String getName();
 
     String getPassword();

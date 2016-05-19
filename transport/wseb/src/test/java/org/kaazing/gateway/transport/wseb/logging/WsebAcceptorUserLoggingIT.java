@@ -113,7 +113,7 @@ public class WsebAcceptorUserLoggingIT {
     @Test
     public void verifyPrincipalNameLoggedInLayersAboveHttp() throws Exception {
         k3po.finish();
-        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
                 "tcp#.* [^/]*:\\d*] OPENED",
                 "tcp#.* [^/]*:\\d*] WRITE",
                 "tcp#.* [^/]*:\\d*] RECEIVED",
@@ -126,10 +126,10 @@ public class WsebAcceptorUserLoggingIT {
                 "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] WRITE",
                 "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] RECEIVED",
                 "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] CLOSED"
-            }));
-        forbiddenPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+        }));
+        forbiddenPatterns = new ArrayList<>(Arrays.asList(new String[]{
                 TEST_PRINCIPAL_PASS
-            }));
+        }));
     }
 
 }

@@ -183,6 +183,7 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
         } while (true);
     }
 
+    @Override
     protected void doFireSessionDestroyed(DefaultHttpSession session) {
         if (session.getStatus() != null) {
             super.doFireSessionDestroyed(session);

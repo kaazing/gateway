@@ -38,7 +38,7 @@ public enum Directive {
 
     private String name;
 
-    private static final Map<String, Directive> lookup = new HashMap<String, Directive>();
+    private static final Map<String, Directive> lookup = new HashMap<>();
 
     static {
         for (Directive entry : Directive.values()) {

@@ -276,10 +276,12 @@ public abstract class AbstractNioConnector implements BridgeConnector {
 
 
     private final IoProcessorEx<IoSessionAdapterEx> processor = new IoProcessorEx<IoSessionAdapterEx>() {
+        @Override
         public void add(IoSessionAdapterEx session) {
             // Do nothing
         }
 
+        @Override
         public void flush(IoSessionAdapterEx session) {
             IoSession parent = (IoSession) session.getAttribute(PARENT_KEY);
             WriteRequest req = session.getWriteRequestQueue().poll(session);
@@ -308,6 +310,7 @@ public abstract class AbstractNioConnector implements BridgeConnector {
             }
         }
 
+        @Override
         public void remove(IoSessionAdapterEx session) {
             logger.debug("AbstractNioConnector.fake processor remove for session "+session);
 
@@ -323,18 +326,22 @@ public abstract class AbstractNioConnector implements BridgeConnector {
             }
         }
 
+        @Override
         public void updateTrafficControl(IoSessionAdapterEx session) {
             // Do nothing
         }
 
+        @Override
         public void dispose() {
             // Do nothing
         }
 
+        @Override
         public boolean isDisposed() {
             return false;
         }
 
+        @Override
         public boolean isDisposing() {
             return false;
         }
