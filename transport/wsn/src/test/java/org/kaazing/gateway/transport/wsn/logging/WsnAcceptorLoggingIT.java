@@ -20,6 +20,7 @@ import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Rule;
@@ -141,7 +142,7 @@ public class WsnAcceptorLoggingIT {
                 "wsn#.* [^/]*:\\d*] OPENED",
                 "wsn#.* [^/]*:\\d*] CLOSED"
         }));
-        forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
+        forbiddenPatterns = Collections.singletonList("#.*EXCEPTION");
     }
 
 }

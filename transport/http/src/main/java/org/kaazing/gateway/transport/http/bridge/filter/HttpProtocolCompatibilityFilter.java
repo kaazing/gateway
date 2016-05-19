@@ -582,7 +582,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
             // for now, make sure the outer content type is valid httpxe value
             DefaultHttpSession httpSession = session;
             Map<String,List<String>> sessionHeaders = new HashMap<>(httpSession.getReadHeaders());
-            sessionHeaders.put(HEADER_CONTENT_TYPE, asList(CONTENT_TYPE_APPLICATION_X_MESSAGE_HTTP));
+            sessionHeaders.put(HEADER_CONTENT_TYPE, Collections.singletonList(CONTENT_TYPE_APPLICATION_X_MESSAGE_HTTP));
             httpSession.setReadHeaders(sessionHeaders);
 
             return req;

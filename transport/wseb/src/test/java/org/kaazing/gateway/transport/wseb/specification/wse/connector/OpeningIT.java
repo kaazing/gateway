@@ -265,7 +265,7 @@ public class OpeningIT {
         IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
-        MemoryAppender.assertMessagesLogged(Arrays.asList("response.*status.*"), EMPTY_STRING_SET, null, false);
+        MemoryAppender.assertMessagesLogged(Collections.singletonList("response.*status.*"), EMPTY_STRING_SET, null, false);
     }
 
     @Test
@@ -284,7 +284,7 @@ public class OpeningIT {
         IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
-        MemoryAppender.assertMessagesLogged(Arrays.asList("response.*content.*type"), EMPTY_STRING_SET, null, false);
+        MemoryAppender.assertMessagesLogged(Collections.singletonList("response.*content.*type"), EMPTY_STRING_SET, null, false);
     }
 
     @Test
@@ -303,7 +303,7 @@ public class OpeningIT {
         IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
-        MemoryAppender.assertMessagesLogged(Arrays.asList("response.*content.*type"), EMPTY_STRING_SET, null, false);
+        MemoryAppender.assertMessagesLogged(Collections.singletonList("response.*content.*type"), EMPTY_STRING_SET, null, false);
     }
 
     @Test
@@ -331,7 +331,7 @@ public class OpeningIT {
 
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
-        MemoryAppender.assertMessagesLogged(Arrays.asList("WebSocket.*protocol"), EMPTY_STRING_SET, null, false);
+        MemoryAppender.assertMessagesLogged(Collections.singletonList("WebSocket.*protocol"), EMPTY_STRING_SET, null, false);
     }
 
     @Test
@@ -348,7 +348,7 @@ public class OpeningIT {
             }
         });
         Map<String, Object> connectOptions = new HashMap<>();
-        connectOptions.put("extensions", Arrays.asList("primary, secondary"));
+        connectOptions.put("extensions", Collections.singletonList("primary, secondary"));
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
                         "ws://localhost:8080/path?query",
@@ -358,7 +358,7 @@ public class OpeningIT {
 
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
-        MemoryAppender.assertMessagesLogged(Arrays.asList("WebSocket extension.*not requested"), EMPTY_STRING_SET, null, false);
+        MemoryAppender.assertMessagesLogged(Collections.singletonList("WebSocket extension.*not requested"), EMPTY_STRING_SET, null, false);
     }
 
     @Test
@@ -377,7 +377,7 @@ public class OpeningIT {
         IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
-        MemoryAppender.assertMessagesLogged(Arrays.asList("invalid response"), EMPTY_STRING_SET, null, false);
+        MemoryAppender.assertMessagesLogged(Collections.singletonList("invalid response"), EMPTY_STRING_SET, null, false);
     }
 
     @Test
@@ -401,7 +401,7 @@ public class OpeningIT {
         IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
-        MemoryAppender.assertMessagesLogged(Arrays.asList("upstream"), EMPTY_STRING_SET, null, false);
+        MemoryAppender.assertMessagesLogged(Collections.singletonList("upstream"), EMPTY_STRING_SET, null, false);
     }
 
     @Test
@@ -420,7 +420,7 @@ public class OpeningIT {
         IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
-        MemoryAppender.assertMessagesLogged(Arrays.asList("upstream"), EMPTY_STRING_SET, null, false);
+        MemoryAppender.assertMessagesLogged(Collections.singletonList("upstream"), EMPTY_STRING_SET, null, false);
     }
 
     @Test
@@ -443,7 +443,7 @@ public class OpeningIT {
         IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
-        MemoryAppender.assertMessagesLogged(Arrays.asList("upstream"), EMPTY_STRING_SET, null, false);
+        MemoryAppender.assertMessagesLogged(Collections.singletonList("upstream"), EMPTY_STRING_SET, null, false);
     }
 
     @Test
@@ -462,7 +462,7 @@ public class OpeningIT {
         IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
-        MemoryAppender.assertMessagesLogged(Arrays.asList("upstream"), EMPTY_STRING_SET, null, false);
+        MemoryAppender.assertMessagesLogged(Collections.singletonList("upstream"), EMPTY_STRING_SET, null, false);
     }
 
     @Test
@@ -481,7 +481,7 @@ public class OpeningIT {
         IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
-        MemoryAppender.assertMessagesLogged(Arrays.asList("upstream"), EMPTY_STRING_SET, null, false);
+        MemoryAppender.assertMessagesLogged(Collections.singletonList("upstream"), EMPTY_STRING_SET, null, false);
     }
 
     @Test
@@ -501,7 +501,7 @@ public class OpeningIT {
         IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
-        MemoryAppender.assertMessagesLogged(Arrays.asList("downstream"), EMPTY_STRING_SET, null, false);
+        MemoryAppender.assertMessagesLogged(Collections.singletonList("downstream"), EMPTY_STRING_SET, null, false);
     }
 
     @Test
@@ -521,7 +521,7 @@ public class OpeningIT {
         IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
-        MemoryAppender.assertMessagesLogged(Arrays.asList("downstream"), EMPTY_STRING_SET, null, false);
+        MemoryAppender.assertMessagesLogged(Collections.singletonList("downstream"), EMPTY_STRING_SET, null, false);
     }
 
     @Test
@@ -541,7 +541,7 @@ public class OpeningIT {
         IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
-        MemoryAppender.assertMessagesLogged(Arrays.asList("downstream"), EMPTY_STRING_SET, null, false);
+        MemoryAppender.assertMessagesLogged(Collections.singletonList("downstream"), EMPTY_STRING_SET, null, false);
     }
 
 }
