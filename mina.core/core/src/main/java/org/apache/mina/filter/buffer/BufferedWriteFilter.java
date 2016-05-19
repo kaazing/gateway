@@ -194,7 +194,7 @@ public final class BufferedWriteFilter extends IoFilterAdapter {
      */
     private void internalFlush(NextFilter nextFilter, IoSession session,
             IoBuffer buf) throws Exception {
-        IoBuffer tmp = null;
+        IoBuffer tmp;
         synchronized (buf) {
             buf.flip();
             tmp = buf.duplicate();

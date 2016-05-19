@@ -319,7 +319,7 @@ public class HttpAcceptProcessor extends BridgeAcceptProcessor<DefaultHttpSessio
                         final UpgradeFuture upgradeFuture = session.getUpgradeFuture();
                         final IoHandler upgradeHandler = session.getUpgradeHandler();
                         if (upgradeHandler != null) {
-                            IoHandler oldHandler = null;
+                            IoHandler oldHandler;
                             if (parent instanceof AbstractBridgeSession<?, ?>) {
                                 // SSL
                                 AbstractBridgeSession<?, ?> bridgeParent = (AbstractBridgeSession<?, ?>) parent;

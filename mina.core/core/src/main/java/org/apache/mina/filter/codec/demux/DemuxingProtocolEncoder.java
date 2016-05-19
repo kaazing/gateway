@@ -141,7 +141,7 @@ public class DemuxingProtocolEncoder implements ProtocolEncoder {
     @SuppressWarnings("unchecked")
     private MessageEncoder<Object> findEncoder(
             State state, Class type, Set<Class> triedClasses) {
-        MessageEncoder encoder = null;
+        MessageEncoder encoder;
 
         if (triedClasses != null && triedClasses.contains(type)) {
             return null;

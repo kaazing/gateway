@@ -150,7 +150,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                                       AuthenticationToken authToken,
                                       TypedCallbackHandlerMap additionalCallbacks) {
 
-        DefaultLoginResult loginResult = null;
+        DefaultLoginResult loginResult;
 
         // We build a LoginContext here and call login() so that login
         // modules have a chance to any challenge parameters to the initial
@@ -506,7 +506,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
     private void populateRemoteAddress(TypedCallbackHandlerMap callbackHandlerMap, URI resource) {
         String remoteIpAddress = resource.getHost();
-        InetAddress remoteAddr = null;
+        InetAddress remoteAddr;
 
         try {
             remoteAddr = InetAddress.getByName(remoteIpAddress);

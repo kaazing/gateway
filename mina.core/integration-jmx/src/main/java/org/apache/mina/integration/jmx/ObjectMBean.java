@@ -848,7 +848,7 @@ public class ObjectMBean<T> implements ModelMBean, MBeanRegistration {
                 } else if (e instanceof InappropriateExpressionException) {
                     message = "Inappropriate expression: " + message;
                 }
-                e = new IllegalArgumentException(ognle.getMessage());
+                e = new IllegalArgumentException(message);
                 e.setStackTrace(ognle.getStackTrace());
             }
         }

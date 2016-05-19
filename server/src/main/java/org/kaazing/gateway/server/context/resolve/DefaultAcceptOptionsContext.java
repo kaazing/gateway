@@ -333,7 +333,7 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     }
 
     private List<String> getWsExtensions(long wsInactivityTimeout) {
-        List<String> wsExtensions = null;
+        List<String> wsExtensions;
         if (wsInactivityTimeout > 0) {
             ArrayList<String> extensions = new ArrayList<>(DEFAULT_WEBSOCKET_EXTENSIONS);
             extensions.add(IDLE_TIMEOUT);

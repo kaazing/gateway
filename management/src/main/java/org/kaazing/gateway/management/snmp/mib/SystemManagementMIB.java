@@ -199,7 +199,7 @@ public class SystemManagementMIB implements MOGroup {
 
         @Override
         public Variable getValue() {
-            long value = 0;
+            long value;
 
             switch (operation) {
                 case TOTAL_FREE_MEMORY_OPER:
@@ -237,7 +237,7 @@ public class SystemManagementMIB implements MOGroup {
 
         @Override
         public Variable getValue() {
-            double value = 0.0d;
+            double value;
 
             switch (operation) {
                 case UPTIME_SECONDS_OPER:
@@ -266,7 +266,7 @@ public class SystemManagementMIB implements MOGroup {
 
         @Override
         public Variable getValue() {
-            String value = "";
+            String value;
 
             switch (operation) {
                 case OS_NAME_OPER:

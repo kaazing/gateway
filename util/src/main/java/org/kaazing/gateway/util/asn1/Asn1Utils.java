@@ -104,7 +104,7 @@ public final class Asn1Utils {
             throw new IllegalArgumentException("Insufficient content for GeneralizedTime");
         }
 
-        Date date = null;
+        Date date;
 
         byte[] dst = new byte[len];
         buf.get(dst);

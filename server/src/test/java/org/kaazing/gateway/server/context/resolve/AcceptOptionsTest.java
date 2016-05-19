@@ -273,13 +273,13 @@ public class AcceptOptionsTest {
                      Object expectedValue,
                      Object... extras) throws Exception {
 
-        File configFile = null;
+        File configFile;
         configFile =
                 createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-accept-options-template" +
                                 ".xml",
                         optionName, optionValue);
 
-        GatewayConfigDocument doc = null;
+        GatewayConfigDocument doc;
         try {
             doc = parser.parse(configFile);
 
@@ -293,7 +293,7 @@ public class AcceptOptionsTest {
         }
         Assert.assertNotNull(doc);
         ServiceAcceptOptionsType serviceAcceptOptionsType = doc.getGatewayConfig().getServiceArray(0).getAcceptOptions();
-        AcceptOptionsContext acceptOptionsContext = null;
+        AcceptOptionsContext acceptOptionsContext;
         try {
             acceptOptionsContext = new DefaultAcceptOptionsContext(serviceAcceptOptionsType, null);
 

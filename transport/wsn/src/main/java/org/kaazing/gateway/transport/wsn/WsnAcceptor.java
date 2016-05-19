@@ -298,12 +298,10 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     } else {
                         if (balanceeURIs.isEmpty()) {
                             // Balancer participated in this session initialization but found no balancees
-                            redirectResponse = true;
                             response += "R";
                         } else {
                             // Balancer participated in this session initialization and found balancees
                             try {
-                                redirectResponse = true;
                                 response += "R";
                                 response += HttpUtils.mergeQueryParameters(wsnSession.getParentHttpRequestURI(),
                                         balanceeURIs.iterator().next());

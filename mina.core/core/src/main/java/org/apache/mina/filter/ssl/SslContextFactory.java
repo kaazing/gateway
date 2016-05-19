@@ -119,7 +119,7 @@ public class SslContextFactory {
             trustManagers = tmf.getTrustManagers();
         }
 
-        SSLContext context = null;
+        SSLContext context;
         if (provider == null) {
             context = SSLContext.getInstance(protocol);
         } else {

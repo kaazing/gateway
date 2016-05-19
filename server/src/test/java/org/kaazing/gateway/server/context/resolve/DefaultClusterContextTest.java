@@ -214,7 +214,7 @@ public class DefaultClusterContextTest {
             // developers running these tests on our local machines (which
             // explicitly do NOT want to configured for clustering in EC2).
 
-            String message = null;
+            String message;
 
             if (e instanceof ExecutionException) {
                 message = e.getCause().getMessage();

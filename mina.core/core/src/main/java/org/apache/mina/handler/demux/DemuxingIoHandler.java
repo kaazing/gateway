@@ -314,7 +314,7 @@ public class DemuxingIoHandler extends IoHandlerAdapter {
             Map handlers, Map handlerCache,
             Class type, Set<Class> triedClasses) {
 
-        Object handler = null;
+        Object handler;
 
         if (triedClasses != null && triedClasses.contains(type)) {
             return null;

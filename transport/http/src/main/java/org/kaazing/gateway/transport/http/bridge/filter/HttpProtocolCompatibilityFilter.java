@@ -358,7 +358,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                         emulatedOrigin = emulatedOrigins.get(0);
                     }
 
-                    List<String> validatedOrigins = null;
+                    List<String> validatedOrigins;
                     if (emulatedOrigin != null) {
                         String validatedOriginsHeader = "X-Origin-" + URLEncoder.encode(emulatedOrigin, "UTF-8");
                         validatedOrigins = httpRequest.removeHeader(validatedOriginsHeader);

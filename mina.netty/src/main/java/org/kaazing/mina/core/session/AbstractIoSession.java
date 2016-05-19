@@ -1244,7 +1244,7 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
      * @param currentTime the current time (i.e. {@link System#currentTimeMillis()})
      */
     public static void notifyIdleness(Iterator<? extends IoSession> sessions, long currentTime) {
-        IoSession s = null;
+        IoSession s;
         while (sessions.hasNext()) {
             s = sessions.next();
             notifyIdleSession(s, currentTime);

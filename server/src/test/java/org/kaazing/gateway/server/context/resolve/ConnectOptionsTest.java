@@ -141,13 +141,13 @@ public class ConnectOptionsTest {
                      Object... extras) throws Exception {
 
 
-        File configFile = null;
+        File configFile;
         configFile =
                 createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-connect-options" +
                                 "-template.xml",
                         optionName, optionValue);
 
-        GatewayConfigDocument doc = null;
+        GatewayConfigDocument doc;
         try {
             doc = parser.parse(configFile);
         } catch (Exception e) {
@@ -160,7 +160,7 @@ public class ConnectOptionsTest {
         }
         Assert.assertNotNull(doc);
         ServiceConnectOptionsType connectOptionsType = doc.getGatewayConfig().getServiceArray(0).getConnectOptions();
-        ConnectOptionsContext connectOptionsContext = null;
+        ConnectOptionsContext connectOptionsContext;
         try {
             connectOptionsContext = new DefaultConnectOptionsContext(connectOptionsType, ServiceConnectOptionsType.Factory.newInstance());
         } catch (Exception e) {

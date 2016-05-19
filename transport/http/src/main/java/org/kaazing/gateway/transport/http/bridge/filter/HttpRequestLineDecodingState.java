@@ -94,7 +94,7 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
             }
 
             String httpMethod = buffer.getString(US_ASCII_DECODER);
-            HttpMethod method = null;
+            HttpMethod method;
             try
             {
                 method = HttpMethod.valueOf(httpMethod);
@@ -165,7 +165,7 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
         protected DecodingState finishDecode(IoBuffer buffer,
                 ProtocolDecoderOutput out) throws Exception {
             String httpVersion = buffer.getString(US_ASCII_DECODER);
-            HttpVersion version = null;
+            HttpVersion version;
             try
             {
                 version = HttpVersion.valueOf(httpVersion

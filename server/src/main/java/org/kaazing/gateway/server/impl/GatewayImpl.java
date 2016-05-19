@@ -234,7 +234,7 @@ final class GatewayImpl implements Gateway {
         //    (of course, the user may have modified that file and just be using the same name.)
         //  * If that doesn't exist, we'll look for the default "minimal" gateway config.
         //  * If none of those exists (and is a readable file), that's an error.
-        File gatewayConfigFile = null;
+        File gatewayConfigFile;
         String gatewayConfigProperty = configuration.getProperty(GATEWAY_CONFIG_PROPERTY);
 
         // If config property is a url then we download it and reset the property

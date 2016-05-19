@@ -190,7 +190,7 @@ public class RequestResponseFilter extends WriteRequestFilter {
         }
 
         Map<Object, Request> requestStore = getRequestStore(session);
-        Object oldValue = null;
+        Object oldValue;
         Object requestId = request.getId();
         synchronized (requestStore) {
             oldValue = requestStore.get(requestId);
