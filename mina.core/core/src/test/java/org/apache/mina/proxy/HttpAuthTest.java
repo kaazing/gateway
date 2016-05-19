@@ -35,7 +35,7 @@ public class HttpAuthTest extends TestCase {
     /**
      * The charset in use.
      */
-    private final static String CHARSET_IN_USE = "ISO-8859-1";
+    private static final String CHARSET_IN_USE = "ISO-8859-1";
 
     /**
      * Tests Basic authentication mechanism.

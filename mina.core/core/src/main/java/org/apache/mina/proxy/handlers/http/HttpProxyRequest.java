@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * @since MINA 2.0.0-M3
  */
 public class HttpProxyRequest extends ProxyRequest {
-    private final static Logger logger = LoggerFactory
+    private static final Logger logger = LoggerFactory
             .getLogger(HttpProxyRequest.class);
 
     /**

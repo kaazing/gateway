@@ -1536,7 +1536,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
     static class HttpEmptyPacketWriterFilter extends IoFilterAdapter<WsnSession> {
 
-        private final static Logger logger = LoggerFactory.getLogger("transport.http");
+        private static final Logger logger = LoggerFactory.getLogger("transport.http");
 
         static final HttpEmptyPacketWriterFilter INSTANCE = new HttpEmptyPacketWriterFilter();
 

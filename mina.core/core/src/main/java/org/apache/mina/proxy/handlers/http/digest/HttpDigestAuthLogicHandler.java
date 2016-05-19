@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpDigestAuthLogicHandler extends AbstractAuthLogicHandler {
 
-    private final static Logger logger = LoggerFactory
+    private static final Logger logger = LoggerFactory
             .getLogger(HttpDigestAuthLogicHandler.class);
 
     /**

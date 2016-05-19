@@ -63,7 +63,7 @@ public class DefaultIoFilterChain implements IoFilterChain {
     private final EntryImpl tail;
 
     /** The logger for this class */
-    private final static Logger LOGGER = LoggerFactory.getLogger(DefaultIoFilterChain.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultIoFilterChain.class);
 
 
     /**

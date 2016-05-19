@@ -116,7 +116,7 @@ public class ObjectMBean<T> implements ModelMBean, MBeanRegistration {
         OgnlRuntime.setPropertyAccessor(IoFilter.class, new IoFilterPropertyAccessor());
     }
     
-    protected final static Logger LOGGER = LoggerFactory.getLogger(ObjectMBean.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(ObjectMBean.class);
 
     private final T source;
     private final TransportMetadata transportMetadata;

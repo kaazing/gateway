@@ -36,7 +36,7 @@ import org.kaazing.gateway.util.http.UtilityHttpClient;
 public class ConfigParameterTest {
 
     @SuppressWarnings("serial")
-    private final static Map<String, String> parameters = new HashMap<String, String>() {
+    private static final Map<String, String> parameters = new HashMap<String, String>() {
         {
             put("SomeParameter", "SomeValue");
             put("Some Parameter", "Some Value");
@@ -45,7 +45,7 @@ public class ConfigParameterTest {
         }
     };
 
-    private final static Map<String, String> properties = new HashMap<>();
+    private static final Map<String, String> properties = new HashMap<>();
 
     @BeforeClass
     public static void setProperties() {

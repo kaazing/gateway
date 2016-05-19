@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 public class DefaultKeySelector
     extends AbstractKeySelector {
 
-    private final static Logger logger = LoggerFactory.getLogger(DefaultKeySelector.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultKeySelector.class);
 
     public DefaultKeySelector() {
         super();

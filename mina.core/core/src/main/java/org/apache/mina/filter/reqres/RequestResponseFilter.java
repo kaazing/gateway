@@ -49,7 +49,7 @@ public class RequestResponseFilter extends WriteRequestFilter {
     private final ResponseInspectorFactory responseInspectorFactory;
     private final ScheduledExecutorService timeoutScheduler;
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(RequestResponseFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RequestResponseFilter.class);
 
     public RequestResponseFilter(final ResponseInspector responseInspector,
             ScheduledExecutorService timeoutScheduler) {

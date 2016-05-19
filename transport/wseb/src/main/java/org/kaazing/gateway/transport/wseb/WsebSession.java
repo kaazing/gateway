@@ -738,7 +738,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         }
     }
 
-    private final static BridgeAcceptProcessor<WsebSession> wsebSessionProcessor = new WsebSessionProcessor();
+    private static final BridgeAcceptProcessor<WsebSession> wsebSessionProcessor = new WsebSessionProcessor();
 
     private class FlushCommand implements Runnable {
 
@@ -781,7 +781,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         return writerSequenceNo;
     }
 
-    private final static class WsebSessionProcessor extends BridgeAcceptProcessor<WsebSession> {
+    private static final class WsebSessionProcessor extends BridgeAcceptProcessor<WsebSession> {
 
         @Override
         protected void removeInternal(WsebSession session) {

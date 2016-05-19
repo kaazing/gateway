@@ -49,7 +49,7 @@ public final class BufferedWriteFilter extends IoFilterAdapter {
     /**
      * Default buffer size value in bytes.
      */
-    public final static int DEFAULT_BUFFER_SIZE = 8192;
+    public static final int DEFAULT_BUFFER_SIZE = 8192;
 
     /**
      * The buffer size allocated for each new session's buffer.

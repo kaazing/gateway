@@ -40,7 +40,7 @@ class PingPongFilter extends WsFilterAdapter {
     private static final byte[] EMPTY_PING_BYTES = { (byte)0x09, (byte)0x00 };
     private static final byte[] EMPTY_PONG_BYTES = { (byte)0x0a, (byte)0x00 };
 
-    private final static int EMULATED_PAYLOAD_LENGTH = CONTROL_BYTES.length + EMPTY_PING_BYTES.length;
+    private static final int EMULATED_PAYLOAD_LENGTH = CONTROL_BYTES.length + EMPTY_PING_BYTES.length;
     private static final byte[] EMULATED_PING_FRAME_PAYLOAD = ByteBuffer.allocate(EMULATED_PAYLOAD_LENGTH)
             .put(CONTROL_BYTES).put(EMPTY_PING_BYTES).array();
     private static final byte[] EMULATED_PONG_FRAME_PAYLOAD = ByteBuffer.allocate(EMULATED_PAYLOAD_LENGTH)
