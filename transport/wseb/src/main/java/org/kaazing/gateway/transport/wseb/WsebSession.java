@@ -953,7 +953,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             }
             return false;
         }
-    };
+    }
 
     private static final IoHandlerAdapter<TransportSession> transportHandler  = new TransportHandler();
 
@@ -1040,7 +1040,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             }
         }
 
-    };
+    }
 
     /**
      * This processor, set on the TransportSession, just delegates to WsebAcceptProcessor or WsebConnectProcessor.

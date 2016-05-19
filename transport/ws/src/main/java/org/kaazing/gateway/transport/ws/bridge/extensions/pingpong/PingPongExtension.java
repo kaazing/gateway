@@ -45,6 +45,6 @@ public final class PingPongExtension extends WebSocketExtension {
     @Override
     public IoFilter getFilter() {
         return new PingPongFilter();
-    };
+    }
 
 }

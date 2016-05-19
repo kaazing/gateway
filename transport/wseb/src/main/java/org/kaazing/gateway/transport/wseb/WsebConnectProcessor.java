@@ -352,5 +352,5 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
                                 wsebSession.getAndClearCloseException()).fillInStackTrace());
             }
         }
-    };
+    }
 }

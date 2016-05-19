@@ -51,7 +51,7 @@ public abstract class WebSocketExtension {
      */
     public IoFilter getFilter() {
         return null;
-    };
+    }
 
     /**
      * This method allows extensions access to session methods which can be used within extension filters.

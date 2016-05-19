@@ -45,7 +45,7 @@ public class NioIdleFilter extends IoFilterAdapter<IoSessionEx> {
             logger.debug(String.format("Setting idle timeout %d on TCP session %s ", idleTimeout, session));
         }
         session.getConfig().setBothIdleTime(idleTimeout);
-    };
+    }
 
     @Override
     protected void doSessionIdle(NextFilter nextFilter, IoSessionEx session, IdleStatus status) throws Exception {
