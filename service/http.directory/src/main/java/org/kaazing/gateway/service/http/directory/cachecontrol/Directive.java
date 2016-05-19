@@ -46,7 +46,7 @@ public enum Directive {
         }
     }
 
-    private Directive(String name) {
+    Directive(String name) {
         this.name = name;
     }
 
