@@ -253,17 +253,17 @@ public class AcceptOptionsTest {
 
     void expectParseFailure(String optionName,
                             String optionValue) throws Exception {
-        runTestCase(optionName, optionValue, TestResult.PARSE_FAILURE, null, null, null);
+        runTestCase(optionName, optionValue, TestResult.PARSE_FAILURE, null, null);
     }
 
     void expectValidateFailure(String optionName,
                                String optionValue) throws Exception {
-        runTestCase(optionName, optionValue, TestResult.VALIDATE_FAILURE, null, null, null);
+        runTestCase(optionName, optionValue, TestResult.VALIDATE_FAILURE, null, null);
     }
 
     void expectRuntimeFailure(String optionName,
                               String optionValue) throws Exception {
-        runTestCase(optionName, optionValue, TestResult.RUNTIME_EXCEPTION, null, null, null);
+        runTestCase(optionName, optionValue, TestResult.RUNTIME_EXCEPTION, null, null);
     }
 
     void runTestCase(String optionName,
@@ -334,7 +334,7 @@ public class AcceptOptionsTest {
 
     }
 
-    private File createTempFileFromResource(String resourceName, String... values) throws IOException {
+    private File createTempFileFromResource(String resourceName, Object... values) throws IOException {
         File file = File.createTempFile("gateway-config", "xml");
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         InputStream is = classLoader.getResource(resourceName).openStream();
