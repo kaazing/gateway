@@ -13,22 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.ws;
+package org.kaazing.gateway.server;
 
-import static org.kaazing.mina.core.buffer.SimpleBufferAllocator.BUFFER_ALLOCATOR;
+import org.junit.Test;
+import org.kaazing.gateway.server.impl.VersionUtils;
 
-import org.kaazing.mina.core.buffer.IoBufferEx;
+import java.io.IOException;
 
-public abstract class AbstractWsControlMessage extends WsMessage {
+import static org.junit.Assert.assertEquals;
 
-    private static final IoBufferEx EMPTY_BUFFER = BUFFER_ALLOCATOR.wrap(BUFFER_ALLOCATOR.allocate(0), IoBufferEx.FLAG_SHARED);
+public class SettingsIT {
 
-    public AbstractWsControlMessage() {
-        setBytes(EMPTY_BUFFER);
+    /**
+     * Checks in the project's artifact that the manifest entries will be generated as expected by others (update.check).
+     */
+    @Test
+    public void shouldHaveCommunityProductEditionAndTitle() throws IOException {
+        assertEquals("Community.Gateway", VersionUtils.getGatewayProductEdition());
+        assertEquals("Kaazing Gateway", VersionUtils.getGatewayProductTitle());        
     }
-
-    public AbstractWsControlMessage(IoBufferEx buf) {
-		setBytes(buf);
-	}
-
 }
+
