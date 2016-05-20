@@ -312,7 +312,7 @@
 
         <!-- gateway.feature.version supplies a 2-digit version of the major/minor version of the Gateway. -->
         <gateway.feature.version>${project.version}</gateway.feature.version>
-        <gateway.edition.directory>kaazing-gateway-community-${project.version}</gateway.edition.directory>
+        <gateway.edition.directory>kaazing-community-gateway-${project.version}</gateway.edition.directory>
         <minimum.java.version>Java 7 (version 1.7.0_21)</minimum.java.version>
         <gateway.version>${project.version}</gateway.version>
     </properties>
