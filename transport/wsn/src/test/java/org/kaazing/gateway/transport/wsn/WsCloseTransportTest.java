@@ -465,7 +465,7 @@ public class WsCloseTransportTest {
 
         IoSession clientSession = future.getSession();
 
-        UnbindFuture unbindFuture = null;
+        UnbindFuture unbindFuture;
         try {
             waitForLatch(clientSessionOpened, SESSION_LATCH_TIMEOUT,
                 TimeUnit.SECONDS,

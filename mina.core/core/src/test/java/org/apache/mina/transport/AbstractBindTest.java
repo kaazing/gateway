@@ -184,7 +184,7 @@ public abstract class AbstractBindTest extends TestCase {
     public void testUnbindResume() throws Exception {
         bind(true);
         IoConnector connector = newConnector();
-        IoSession session = null;
+        IoSession session;
         connector.setHandler(new IoHandlerAdapter());
         
         ConnectFuture future = connector.connect(createSocketAddress(port));

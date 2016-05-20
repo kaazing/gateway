@@ -34,7 +34,7 @@ import org.kaazing.gateway.transport.ssl.bridge.filter.SslCertificateSelectionFi
 public class SslKeyManager
     extends X509ExtendedKeyManager {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(SslKeyManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SslKeyManager.class);
     
     X509KeyManager keyManager;
 

@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public abstract class StreamIoHandler extends IoHandlerAdapter {
-    private final static Logger LOGGER = LoggerFactory.getLogger(StreamIoHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StreamIoHandler.class);
     
     private static final AttributeKey KEY_IN = new AttributeKey(StreamIoHandler.class, "in");
     private static final AttributeKey KEY_OUT = new AttributeKey(StreamIoHandler.class, "out");

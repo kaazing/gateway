@@ -26,6 +26,7 @@ import java.net.ProtocolException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.mina.core.session.IoSession;
@@ -94,7 +95,7 @@ public class WebSocketExtensionFactoryTest {
             }
         });
 
-        List<String> clientRequestedExtensions = Arrays.asList("mock");
+        List<String> clientRequestedExtensions = Collections.singletonList("mock");
         List<WebSocketExtension> extension = wsExtFactory.negotiateWebSocketExtensions(address, clientRequestedExtensions, extensionHelper);
         assertNotNull(extension);
         assertSame(extension.get(0), webSocketExtensionSpi);
@@ -107,7 +108,7 @@ public class WebSocketExtensionFactoryTest {
             }
         });
 
-        List<String> clientRequestedExtensions = Arrays.asList("nonexistant");
+        List<String> clientRequestedExtensions = Collections.singletonList("nonexistant");
         List<WebSocketExtension> extension = wsExtFactory.negotiateWebSocketExtensions(address, clientRequestedExtensions, extensionHelper);
         assertNotNull(extension);
         Assert.assertTrue(extension.isEmpty());

@@ -445,7 +445,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         // A similar approach has been used with added NetworkIntrfaceSyntax support, where only the first IP
         // is returned for a localInterface
         // Same approach is used also for cluster members
-        InetAddress address = null;
+        InetAddress address;
         Collection<InetAddress> addresses = ResolutionUtils.getAllByName(hostAddress, false);
         if (addresses.isEmpty()) {
             address = InetAddress.getByName(hostAddress);
@@ -554,8 +554,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
                     for (String key : memberBalancedUrisMap.keySet()) {
                         GL.debug(GL.CLUSTER_LOGGER_NAME, "URI Key: {}", key);
                         List<String> memberBalancedUris = memberBalancedUrisMap.get(key);
-                        TreeSet<String> globalBalancedUris = null;
-                        TreeSet<String> newGlobalBalancedUris = null;
+                        TreeSet<String> globalBalancedUris;
+                        TreeSet<String> newGlobalBalancedUris;
                         do {
                             globalBalancedUris = sharedBalanceUriMap.get(key);
                             newGlobalBalancedUris = new TreeSet<>(globalBalancedUris);

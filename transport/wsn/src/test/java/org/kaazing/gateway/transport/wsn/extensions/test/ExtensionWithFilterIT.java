@@ -101,7 +101,7 @@ public class ExtensionWithFilterIT {
         @Override
         public IoFilter getFilter() {
             return new ExtensionFilter();
-        };
+        }
     }
 
     public static class ExtensionFilter extends WsFilterAdapter {

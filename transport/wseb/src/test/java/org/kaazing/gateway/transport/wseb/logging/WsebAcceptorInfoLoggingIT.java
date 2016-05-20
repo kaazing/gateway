@@ -158,7 +158,7 @@ public class WsebAcceptorInfoLoggingIT {
                 "\\[wseb#.* [^/]*:\\d*] CLOSED"
         }));
 
-        forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
+        forbiddenPatterns = Collections.singletonList("#.*EXCEPTION");
     }
 
 }

@@ -22,6 +22,7 @@ import static org.kaazing.test.util.ITUtil.timeoutRule;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
@@ -233,7 +234,7 @@ public class WsebConnectorLoggingIT {
                 "wseb#.* [^/]*:\\d*] CLOSED"
         }));
 
-        forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
+        forbiddenPatterns = Collections.singletonList("#.*EXCEPTION");
     }
 
     @Test
@@ -274,7 +275,7 @@ public class WsebConnectorLoggingIT {
                 "wseb#.* [^/]*:\\d*] CLOSED"
         }));
 
-        forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
+        forbiddenPatterns = Collections.singletonList("#.*EXCEPTION");
     }
 
 }

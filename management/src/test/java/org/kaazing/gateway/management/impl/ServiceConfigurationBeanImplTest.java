@@ -81,7 +81,7 @@ public class ServiceConfigurationBeanImplTest {
             oneOf(properties).getNested("nested1");
             will(returnValue(Arrays.asList(nested1a, nested1b)));
             oneOf(properties).getNested("nested2");
-            will(returnValue(Arrays.asList(nested2)));
+            will(returnValue(Collections.singletonList(nested2)));
 
             oneOf(nested1a).simplePropertyNames();
             will(returnValue(Arrays.asList("aa", "ab")));

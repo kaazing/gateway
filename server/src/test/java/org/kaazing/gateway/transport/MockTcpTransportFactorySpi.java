@@ -23,7 +23,7 @@ import java.util.Map;
 public final class MockTcpTransportFactorySpi extends TransportFactorySpi {
 
     private final Collection<String> TCP_SCHEMES = Collections.unmodifiableCollection(
-            Arrays.asList("tcp"));
+            Collections.singletonList("tcp"));
 
     @Override
     public String getTransportName() {

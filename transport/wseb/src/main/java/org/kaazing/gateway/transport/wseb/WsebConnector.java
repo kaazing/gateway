@@ -635,7 +635,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                 wsebSession.close(true);
             }
         }
-    };
+    }
 
     private static class FixedIdentityResolver extends IdentityResolver {
         final String identity;

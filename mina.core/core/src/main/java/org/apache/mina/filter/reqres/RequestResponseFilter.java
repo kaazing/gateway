@@ -49,7 +49,7 @@ public class RequestResponseFilter extends WriteRequestFilter {
     private final ResponseInspectorFactory responseInspectorFactory;
     private final ScheduledExecutorService timeoutScheduler;
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(RequestResponseFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RequestResponseFilter.class);
 
     public RequestResponseFilter(final ResponseInspector responseInspector,
             ScheduledExecutorService timeoutScheduler) {
@@ -190,7 +190,7 @@ public class RequestResponseFilter extends WriteRequestFilter {
         }
 
         Map<Object, Request> requestStore = getRequestStore(session);
-        Object oldValue = null;
+        Object oldValue;
         Object requestId = request.getId();
         synchronized (requestStore) {
             oldValue = requestStore.get(requestId);

@@ -48,7 +48,7 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.mina.core.future.UnbindFuture;
 
 public class TransportFactoryTest {
-    private final static Map<String, BridgeAcceptor> acceptors = new HashMap<>();
+    private static final Map<String, BridgeAcceptor> acceptors = new HashMap<>();
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -236,7 +236,7 @@ public class TransportFactoryTest {
 
         @Override
         public Collection<?> getExtensions() {
-            return Arrays.asList(extension);
+            return Collections.singletonList(extension);
         }
     }
 

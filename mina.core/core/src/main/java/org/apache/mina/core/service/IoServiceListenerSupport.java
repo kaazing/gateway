@@ -217,7 +217,7 @@ public class IoServiceListenerSupport {
         } finally {
             // Fire a virtual service deactivation event for the last session of the connector.
             if (session.getService() instanceof IoConnector) {
-                boolean lastSession = false;
+                boolean lastSession;
                 synchronized (managedSessions) {
                     lastSession = managedSessions.isEmpty();
                 }

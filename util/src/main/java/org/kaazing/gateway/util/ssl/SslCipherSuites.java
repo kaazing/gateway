@@ -682,7 +682,7 @@ public class SslCipherSuites {
     //   http://docs.oracle.com/javase/6/docs/technotes/guides/security/SunProviders.html#SunJSSEProvider
     private static void initJava6SunCipherSuites(ConcurrentMap<String, SslCipher> ciphers,
                                                  ConcurrentMap<String, SslCipher> ciphersByNickname) {
-        SslCipher cipher = null;
+        SslCipher cipher;
 
         // SSL_RSA_WITH_RC4_128_MD5
         cipher = new SslCipher("SSL_RSA_WITH_RC4_128_MD5",
@@ -1751,7 +1751,7 @@ public class SslCipherSuites {
     //   openssl/ssl/ssl_ciph.c
 
     private static List<SslCipher> getCiphers(String token) {
-        List<SslCipher> ciphers = null;
+        List<SslCipher> ciphers;
 
         SslCipher cipher = CIPHERS.get(token);
         if (cipher != null) {

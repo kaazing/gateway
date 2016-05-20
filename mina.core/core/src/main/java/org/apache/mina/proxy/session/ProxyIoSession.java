@@ -37,10 +37,10 @@ import org.apache.mina.proxy.handlers.http.HttpSmartProxyHandler;
  */
 public class ProxyIoSession {
 
-    public final static String PROXY_SESSION = ProxyConnector.class.getName()
+    public static final String PROXY_SESSION = ProxyConnector.class.getName()
             + ".ProxySession";
 
-    private final static String DEFAULT_ENCODING = "ISO-8859-1";
+    private static final String DEFAULT_ENCODING = "ISO-8859-1";
 
     /**
      * The list contains the authentication methods to use. 

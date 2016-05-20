@@ -123,7 +123,7 @@ public class ClusterMessaging {
             ITopic<Response> replyToTopic = cluster.getTopic(replyToName);
             ReceiveListener<?> receiveListener = receiveListeners.get(payload.getClass());
             if (receiveListener != null) {
-                Object resPayload = null;
+                Object resPayload;
                 try {
                     resPayload = receiveHelper(receiveListener, payload);
                 }

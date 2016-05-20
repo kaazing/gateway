@@ -293,7 +293,7 @@ public class SessionManagementMIB implements MOGroup, CounterListener, AgentCapa
                 return new Null();
             }
 
-            long counterValue = 0;
+            long counterValue;
             if (scalarValue instanceof Double) {
                 counterValue = (long) ((Double) scalarValue * 1000);
             } else if (scalarValue instanceof Float) {

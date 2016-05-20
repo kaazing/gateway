@@ -83,7 +83,7 @@ public interface ByteArray extends IoAbsoluteReader, IoAbsoluteWriter
      * same index, have the same byte order, and contain the same bytes at each
      * index.
      */
-    public boolean equals( Object other );
+    boolean equals(Object other);
 
 
     /**
@@ -95,7 +95,7 @@ public interface ByteArray extends IoAbsoluteReader, IoAbsoluteWriter
     /**
      * @inheritDoc
      */
-    public void get( int index, IoBuffer bb );
+    void get(int index, IoBuffer bb);
 
 
     /**
@@ -123,7 +123,7 @@ public interface ByteArray extends IoAbsoluteReader, IoAbsoluteWriter
      * Should this be <code>Cloneable</code> to allow cheap mark/position
      * emulation?
      */
-    public interface Cursor extends IoRelativeReader, IoRelativeWriter
+    interface Cursor extends IoRelativeReader, IoRelativeWriter
     {
 
         /**

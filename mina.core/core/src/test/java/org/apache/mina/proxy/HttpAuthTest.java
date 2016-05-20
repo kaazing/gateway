@@ -35,7 +35,7 @@ public class HttpAuthTest extends TestCase {
     /**
      * The charset in use.
      */
-    private final static String CHARSET_IN_USE = "ISO-8859-1";
+    private static final String CHARSET_IN_USE = "ISO-8859-1";
 
     /**
      * Tests Basic authentication mechanism.
@@ -69,7 +69,7 @@ public class HttpAuthTest extends TestCase {
         map.put("uri", "/dir/index.html");
         map.put("username", USER);
 
-        String response = null;
+        String response;
         try {
             response = DigestUtilities.computeResponseValue(new DummySession(),
                     map, METHOD, PWD, CHARSET_IN_USE, null);

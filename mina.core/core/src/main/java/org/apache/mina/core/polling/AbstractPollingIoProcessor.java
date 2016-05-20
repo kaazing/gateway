@@ -61,7 +61,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractPollingIoProcessor<T extends AbstractIoSession>
         implements IoProcessor<T> {
     /** A logger for this class */
-    private final static Logger LOG = LoggerFactory.getLogger(IoProcessor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IoProcessor.class);
     
     /**
      * The maximum loop count for a write operation until

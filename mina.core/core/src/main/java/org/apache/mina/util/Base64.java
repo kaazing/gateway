@@ -231,8 +231,8 @@ public class Base64 {
         int lengthDataBits = binaryData.length * EIGHTBIT;
         int fewerThan24bits = lengthDataBits % TWENTYFOURBITGROUP;
         int numberTriplets = lengthDataBits / TWENTYFOURBITGROUP;
-        byte encodedData[] = null;
-        int encodedDataLength = 0;
+        byte encodedData[];
+        int encodedDataLength;
         int nbrChunks = 0;
 
         if (fewerThan24bits != 0) {
@@ -255,11 +255,11 @@ public class Base64 {
 
         encodedData = new byte[encodedDataLength];
 
-        byte k = 0, l = 0, b1 = 0, b2 = 0, b3 = 0;
+        byte k, l, b1, b2, b3;
 
         int encodedIndex = 0;
-        int dataIndex = 0;
-        int i = 0;
+        int dataIndex;
+        int i;
         int nextSeparatorIndex = CHUNK_SIZE;
         int chunksSoFar = 0;
 
@@ -369,13 +369,13 @@ public class Base64 {
         }
 
         int numberQuadruple = base64Data.length / FOURBYTE;
-        byte decodedData[] = null;
-        byte b1 = 0, b2 = 0, b3 = 0, b4 = 0, marker0 = 0, marker1 = 0;
+        byte decodedData[];
+        byte b1, b2, b3, b4, marker0, marker1;
 
         // Throw away anything not in base64Data
 
         int encodedIndex = 0;
-        int dataIndex = 0;
+        int dataIndex;
         {
             // this sizes the output array properly - rlw
             int lastData = base64Data.length;

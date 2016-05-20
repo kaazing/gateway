@@ -582,8 +582,8 @@ public class DefaultServiceContext implements ServiceContext {
                         memberBalanceUriMap.put(balanceURI, acceptUris);
 
                         // get and add to the list here instead of overwriting it
-                        TreeSet<String> balanceUris = null;
-                        TreeSet<String> newBalanceUris = null;
+                        TreeSet<String> balanceUris;
+                        TreeSet<String> newBalanceUris;
                         do {
                             GL.debug(GL.CLUSTER_LOGGER_NAME, "In Bind: While loop for balanceURI: " + balanceURI);
                             balanceUris = sharedBalanceUriMap.get(balanceURI);
@@ -928,7 +928,7 @@ public class DefaultServiceContext implements ServiceContext {
                         memberBalanceUriMap.remove(balanceURI);
 
                         // get and add to the list here instead of overwriting it
-                        TreeSet<String> balanceUris = null;
+                        TreeSet<String> balanceUris;
                         TreeSet<String> newBalanceUris = null;
                         do {
                             GL.debug(GL.CLUSTER_LOGGER_NAME,

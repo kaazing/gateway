@@ -46,7 +46,7 @@ public class GatewayCommandLineProcessor {
     }
 
     private void launchGateway(String[] args, Properties properties) {
-        CommandLine cmd = null;
+        CommandLine cmd;
         Options options = createOptions();
 
         try {

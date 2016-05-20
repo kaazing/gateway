@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultIoFilterChainBuilder implements IoFilterChainBuilder {
     
-    private final static Logger LOGGER = 
+    private static final Logger LOGGER =
         LoggerFactory.getLogger(DefaultIoFilterChainBuilder.class);
     private final List<Entry> entries;
 

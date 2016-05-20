@@ -67,7 +67,7 @@ class BroadcastServiceHandler extends IoHandlerAdapter {
         if (onClientMessage == BROADCAST) {
             handler.messageReceived(session, message);
         }
-    };
+    }
 
     @Override
     public void exceptionCaught(IoSession session, Throwable cause)

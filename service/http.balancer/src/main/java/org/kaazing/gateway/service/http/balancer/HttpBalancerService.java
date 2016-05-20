@@ -107,7 +107,7 @@ public class HttpBalancerService implements Service {
                 public void initializeSession(IoSession session, ConnectFuture future) {
                     HttpAcceptSession httpSession = (HttpAcceptSession) session;
                     List<String> availableBalanceeURIs = wsebHandler.getBalanceeURIs(httpSession.isSecure());
-                    List<String> selectedBalanceeURIs = null;
+                    List<String> selectedBalanceeURIs;
                     if (availableBalanceeURIs.isEmpty()) {
                         selectedBalanceeURIs = Collections.emptyList();
                     } else {

@@ -194,7 +194,7 @@ public class GatewayConfigParser {
         parseOptions.setLoadStripWhitespace();
         parseOptions.setLoadStripComments();
 
-        File translatedConfigFile = null;
+        File translatedConfigFile;
         try {
             translatedConfigFile = getTranslatedConfigFile(configFile);
         } catch (Exception e) {
@@ -419,7 +419,7 @@ public class GatewayConfigParser {
      * @return
      */
     private static InputStream bufferToTraceLog(InputStream input, String message, Logger log) {
-        InputStream output = input;
+        InputStream output;
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             int read;

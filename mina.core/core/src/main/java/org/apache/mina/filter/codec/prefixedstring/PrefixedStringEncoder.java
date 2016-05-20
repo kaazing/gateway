@@ -31,9 +31,9 @@ import java.nio.charset.Charset;
  */
 public class PrefixedStringEncoder extends ProtocolEncoderAdapter {
 
-    public final static int DEFAULT_PREFIX_LENGTH = 4;
+    public static final int DEFAULT_PREFIX_LENGTH = 4;
 
-    public final static int DEFAULT_MAX_DATA_LENGTH = 2048;
+    public static final int DEFAULT_MAX_DATA_LENGTH = 2048;
 
     private final Charset charset;
 

@@ -75,7 +75,7 @@ public final class TcpTransport extends Transport {
     // Used for resource injection
     public Collection<?> getExtensions() {
         return extensionFactory.availableExtensions();
-    };
+    }
 
     @Override
     public Map<String, Protocol> getProtocols() {

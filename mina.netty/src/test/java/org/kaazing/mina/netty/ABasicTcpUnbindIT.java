@@ -61,7 +61,7 @@ public class ABasicTcpUnbindIT {
     }
 
     private boolean checkIfUnbound(String host, int port) {
-        Socket socket = null;
+        Socket socket;
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace(format("Testing to see if the %s:%s is unbound", host, port));
         }

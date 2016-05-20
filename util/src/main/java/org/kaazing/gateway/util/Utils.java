@@ -151,7 +151,7 @@ public final class Utils {
     public static String toHex(byte[] data) {
         int len = data.length;
         byte[] out = new byte[len << 1];
-        byte cur = 0;
+        byte cur;
         for (int i = 0; i < len; i++) {
             cur = data[i];
             out[(i << 1) + 1] = TO_HEX[cur & 0xF];
@@ -375,7 +375,7 @@ public final class Utils {
      * (so thread safe) and minimizing GC (i.e. object creation)
      */
     public static byte[] asByteArray(ByteBuffer buf) {
-        byte[] result = null;
+        byte[] result;
         if (buf.hasArray() && buf.arrayOffset() == 0 && buf.capacity() == buf.remaining()) {
             result = buf.array();
         }

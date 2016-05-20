@@ -253,17 +253,17 @@ public class AcceptOptionsTest {
 
     void expectParseFailure(String optionName,
                             String optionValue) throws Exception {
-        runTestCase(optionName, optionValue, TestResult.PARSE_FAILURE, null, null, null);
+        runTestCase(optionName, optionValue, TestResult.PARSE_FAILURE, null, null);
     }
 
     void expectValidateFailure(String optionName,
                                String optionValue) throws Exception {
-        runTestCase(optionName, optionValue, TestResult.VALIDATE_FAILURE, null, null, null);
+        runTestCase(optionName, optionValue, TestResult.VALIDATE_FAILURE, null, null);
     }
 
     void expectRuntimeFailure(String optionName,
                               String optionValue) throws Exception {
-        runTestCase(optionName, optionValue, TestResult.RUNTIME_EXCEPTION, null, null, null);
+        runTestCase(optionName, optionValue, TestResult.RUNTIME_EXCEPTION, null, null);
     }
 
     void runTestCase(String optionName,
@@ -273,13 +273,13 @@ public class AcceptOptionsTest {
                      Object expectedValue,
                      Object... extras) throws Exception {
 
-        File configFile = null;
+        File configFile;
         configFile =
                 createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-accept-options-template" +
                                 ".xml",
                         optionName, optionValue);
 
-        GatewayConfigDocument doc = null;
+        GatewayConfigDocument doc;
         try {
             doc = parser.parse(configFile);
 
@@ -293,7 +293,7 @@ public class AcceptOptionsTest {
         }
         Assert.assertNotNull(doc);
         ServiceAcceptOptionsType serviceAcceptOptionsType = doc.getGatewayConfig().getServiceArray(0).getAcceptOptions();
-        AcceptOptionsContext acceptOptionsContext = null;
+        AcceptOptionsContext acceptOptionsContext;
         try {
             acceptOptionsContext = new DefaultAcceptOptionsContext(serviceAcceptOptionsType, null);
 
@@ -334,7 +334,7 @@ public class AcceptOptionsTest {
 
     }
 
-    private File createTempFileFromResource(String resourceName, String... values) throws IOException {
+    private File createTempFileFromResource(String resourceName, Object... values) throws IOException {
         File file = File.createTempFile("gateway-config", "xml");
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         InputStream is = classLoader.getResource(resourceName).openStream();

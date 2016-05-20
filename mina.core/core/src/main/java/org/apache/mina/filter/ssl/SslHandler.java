@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  */
 class SslHandler {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(SslHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SslHandler.class);
     private final SslFilter parent;
     private final SSLContext sslContext;
     private final IoSession session;

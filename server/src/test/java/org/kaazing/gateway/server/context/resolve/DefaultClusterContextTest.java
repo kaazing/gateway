@@ -21,6 +21,7 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -138,8 +139,8 @@ public class DefaultClusterContextTest {
             MemberId member1 = new MemberId("tcp", "127.0.0.1", 46943);
             MemberId member2 = new MemberId("tcp", "127.0.0.1", 46942);
 
-            List accepts = Arrays.asList(member1);
-            List connects = Arrays.asList(member2);
+            List accepts = Collections.singletonList(member1);
+            List connects = Collections.singletonList(member2);
             final String clusterName = this.getClass().getName() + "-cluster1";
             clusterContext1 = new DefaultClusterContext(clusterName,
                     accepts,
@@ -182,8 +183,8 @@ public class DefaultClusterContextTest {
             MemberId acceptMember2 = new MemberId("tcp", "127.0.0.1", 1324);
             MemberId connectMember2 = new MemberId("udp", "224.2.2.3", 54327);
 
-            List<MemberId> acceptsMember1 = Arrays.asList(acceptMember1);
-            List<MemberId> connectsMember1 = Arrays.asList(connectMember1);
+            List<MemberId> acceptsMember1 = Collections.singletonList(acceptMember1);
+            List<MemberId> connectsMember1 = Collections.singletonList(connectMember1);
             final String clusterName = this.getClass().getName();
             clusterContext1 = new DefaultClusterContext(clusterName,
                     acceptsMember1,
@@ -191,8 +192,8 @@ public class DefaultClusterContextTest {
                     schedulerProvider,
                     null);
 
-            List<MemberId> acceptsMember2 = Arrays.asList(acceptMember2);
-            List<MemberId> connectsMember2 = Arrays.asList(connectMember2);
+            List<MemberId> acceptsMember2 = Collections.singletonList(acceptMember2);
+            List<MemberId> connectsMember2 = Collections.singletonList(connectMember2);
             clusterContext2 = new DefaultClusterContext(clusterName,
                     acceptsMember2,
                     connectsMember2,
@@ -214,7 +215,7 @@ public class DefaultClusterContextTest {
             // developers running these tests on our local machines (which
             // explicitly do NOT want to configured for clustering in EC2).
 
-            String message = null;
+            String message;
 
             if (e instanceof ExecutionException) {
                 message = e.getCause().getMessage();
@@ -253,13 +254,13 @@ public class DefaultClusterContextTest {
             MemberId member3 = new MemberId("tcp", "127.0.0.1", 46943);
             MemberId member4 = new MemberId("tcp", "127.0.0.1", 46944);
 
-            List<MemberId> accepts1 = Arrays.asList(member1);
+            List<MemberId> accepts1 = Collections.singletonList(member1);
             List<MemberId> connects1 = Arrays.asList(member2, member3, member4);
-            List<MemberId> accepts2 = Arrays.asList(member2);
+            List<MemberId> accepts2 = Collections.singletonList(member2);
             List<MemberId> connects2 = Arrays.asList(member1, member3, member4);
-            List<MemberId> accepts3 = Arrays.asList(member3);
+            List<MemberId> accepts3 = Collections.singletonList(member3);
             List<MemberId> connects3 = Arrays.asList(member1, member2, member4);
-            List<MemberId> accepts4 = Arrays.asList(member4);
+            List<MemberId> accepts4 = Collections.singletonList(member4);
             List<MemberId> connects4 = Arrays.asList(member1, member2, member3);
             final String clusterName = this.getClass().getName() + "-cluster1";
 

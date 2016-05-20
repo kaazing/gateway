@@ -176,7 +176,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             String transportAsProtocolFormat = format("%s[%s].", transportName, protocolName);
             prefixes = asList(transportFormat, transportAsProtocolFormat);
         } else {
-            prefixes = asList(transportFormat);
+            prefixes = Collections.singletonList(transportFormat);
         }
 
         // TODO: scheme-prefixed option names?

@@ -59,7 +59,7 @@ import org.kaazing.gateway.transport.ssl.bridge.filter.SslCertificateSelectionFi
 public class VirtualHostKeySelector
     extends AbstractKeySelector {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(VirtualHostKeySelector.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(VirtualHostKeySelector.class);
 
     // Set of certificate aliases that can be delivered for SSL connections
     // for a given host.
