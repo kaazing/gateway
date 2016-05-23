@@ -51,6 +51,11 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
     private static final long DEFAULT_WS_INACTIVITY_TIMEOUT_MILLIS = 0L;
     private static final int DEFAULT_HTTP_KEEPALIVE_TIMEOUT = 30; //seconds
 
+    private static long DEFAULT_TCP_HANDSHAKE_TIMEOUT_MILLIS = 10000; //10 seconds
+    private static long DEFAULT_SSL_HANDSHAKE_TIMEOUT_MILLIS = 10000; //10 seconds
+    private static long DEFAULT_HTTP_HANDSHAKE_TIMEOUT_MILLIS = 10000; //10 seconds
+    private static long DEFAULT_WS_HANDSHAKE_TIMEOUT_MILLIS = 10000; //10 seconds
+
     private Map<String, String> options;
 
     public DefaultConnectOptionsContext() {
@@ -98,6 +103,11 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
 
         result.put(SSL_ENCRYPTION_ENABLED, isSslEncryptionEnabled());
         result.put("udp.interface", getUdpInterface());
+        result.put("tcp.handshake.timeout", getHandshakeTimeout("tcp.handshake.timeout", DEFAULT_TCP_HANDSHAKE_TIMEOUT_MILLIS));
+        result.put("ssl.handshake.timeout", getHandshakeTimeout("ssl.handshake.timeout", DEFAULT_SSL_HANDSHAKE_TIMEOUT_MILLIS));
+        result.put("http.handshake.timeout",
+                getHandshakeTimeout("http.handshake.timeout", DEFAULT_HTTP_HANDSHAKE_TIMEOUT_MILLIS));
+        result.put("ws.handshake.timeout", getHandshakeTimeout("ws.handshake.timeout", DEFAULT_WS_HANDSHAKE_TIMEOUT_MILLIS));
 
         result.put(HTTP_KEEP_ALIVE_TIMEOUT_KEY, getHttpKeepaliveTimeout());
         result.put(HTTP_KEEP_ALIVE, isHttpKeepaliveEnabled());
@@ -135,6 +145,18 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
 
     private String getUdpInterface() {
         return options.get("udp.interface");
+    }
+
+    private long getHandshakeTimeout(String optionName, long defaultValue) {
+        long handshakeTimeout = defaultValue;
+        String handshakeTimeoutValue = options.get(optionName);
+        if (handshakeTimeoutValue != null) {
+            long val = Utils.parseTimeInterval(handshakeTimeoutValue, TimeUnit.MILLISECONDS);
+            if (val >= 0) {
+                handshakeTimeout = val;
+            }
+        }
+        return handshakeTimeout;
     }
 
     private WebSocketWireProtocol getWebSocketWireProtocol() {

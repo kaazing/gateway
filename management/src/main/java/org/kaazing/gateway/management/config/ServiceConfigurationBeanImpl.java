@@ -346,6 +346,26 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                         }
                     }
 
+                    Long tcpHandshakeTimeout = (Long) connectOptions.remove("tcp.handshake.timeout");
+                    if (tcpHandshakeTimeout != null) {
+                        jsonOptions.put("tcp.handshake.timeout", tcpHandshakeTimeout);
+                    }
+
+                    Long sslHandshakeTimeout = (Long) connectOptions.remove("ssl.handshake.timeout");
+                    if (sslHandshakeTimeout != null) {
+                        jsonOptions.put("ssl.handshake.timeout", sslHandshakeTimeout);
+                    }
+
+                    Long httpHandshakeTimeout = (Long) connectOptions.remove("http.handshake.timeout");
+                    if (httpHandshakeTimeout != null) {
+                        jsonOptions.put("http.handshake.timeout", httpHandshakeTimeout);
+                    }
+
+                    Long wsHandshakeTimeout = (Long) connectOptions.remove("ws.handshake.timeout");
+                    if (wsHandshakeTimeout != null) {
+                        jsonOptions.put("ws.handshake.timeout", wsHandshakeTimeout);
+                    }
+
                     for (Entry<String, Object> entry : connectOptions.entrySet()) {
                         String key = entry.getKey();
 
