@@ -52,7 +52,7 @@ import org.kaazing.mina.core.buffer.SimpleBufferAllocator;
  */
 public abstract class AbstractProtocolEncoderOutputEx implements
         ProtocolEncoderOutput {
-    private final Queue<Object> messageQueue = new ConcurrentLinkedQueue<Object>();
+    private final Queue<Object> messageQueue = new ConcurrentLinkedQueue<>();
 
     private boolean buffersOnly = true;
 

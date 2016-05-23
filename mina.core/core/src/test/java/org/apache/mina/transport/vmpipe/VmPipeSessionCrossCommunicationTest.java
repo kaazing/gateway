@@ -39,7 +39,7 @@ public class VmPipeSessionCrossCommunicationTest extends TestCase {
     public void testOneSessionTalkingBackAndForthDoesNotDeadlock() throws Exception {
         final VmPipeAddress address = new VmPipeAddress(1);
         final IoConnector connector = new VmPipeConnector();
-        final AtomicReference<IoSession> c1 = new AtomicReference<IoSession>();
+        final AtomicReference<IoSession> c1 = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
         final CountDownLatch messageCount = new CountDownLatch(2);
         IoAcceptor acceptor = new VmPipeAcceptor();

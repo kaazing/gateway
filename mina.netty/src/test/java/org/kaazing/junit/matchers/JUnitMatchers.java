@@ -22,7 +22,7 @@ import org.kaazing.hamcrest.core.IsInstanceOf;
 public class JUnitMatchers extends org.junit.matchers.JUnitMatchers {
 
     public static <T> Matcher<T> instanceOf(Class<T> type) {
-        return new IsInstanceOf<T>(type);
+        return new IsInstanceOf<>(type);
     }
 
 }

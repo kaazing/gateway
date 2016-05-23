@@ -259,7 +259,7 @@ public class DefaultWriteRequestEx implements WriteRequestEx {
         }
 
         public static List<ThreadLocal<WriteRequestEx>> initWithLayers(int ioLayers) {
-            List<ThreadLocal<WriteRequestEx>> threadLocals = new ArrayList<ThreadLocal<WriteRequestEx>>(ioLayers);
+            List<ThreadLocal<WriteRequestEx>> threadLocals = new ArrayList<>(ioLayers);
             while (threadLocals.size() < ioLayers) {
                 threadLocals.add(new ShareableWriteRequest());
             }

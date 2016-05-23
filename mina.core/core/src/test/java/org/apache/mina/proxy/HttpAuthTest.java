@@ -56,7 +56,7 @@ public class HttpAuthTest extends TestCase {
         String PWD = "Circle Of Life";
         String METHOD = "GET";
 
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<String, String> map = new HashMap<>();
 
         map.put("realm", "testrealm@host.com");
         map.put("qop", "auth");

@@ -124,7 +124,7 @@ public class NioSocketChannelIoAcceptorIT {
     @Test
     // (timeout = 1000)
     public void shouldCountScheduledAndWrittenBytes() throws Exception {
-        final List<Throwable> exceptionsCaught = Collections.synchronizedList(new ArrayList<Throwable>());
+        final List<Throwable> exceptionsCaught = Collections.synchronizedList(new ArrayList<>());
         acceptor.setHandler(new IoHandlerAdapter() {
             private final AtomicInteger written = new AtomicInteger(0);
 
@@ -268,7 +268,7 @@ public class NioSocketChannelIoAcceptorIT {
     @Test
     public void channelOpenedShouldInitializeSessionBeforeFiringSessionCreated() throws Exception {
         final CountDownLatch done = new CountDownLatch(1);
-        final List<String> actions = Collections.synchronizedList(new ArrayList<String>());
+        final List<String> actions = Collections.synchronizedList(new ArrayList<>());
         acceptor.setIoSessionInitializer(new IoSessionInitializer<IoFuture>() {
             @Override
             public void initializeSession(IoSession session, IoFuture future) {
@@ -307,7 +307,7 @@ public class NioSocketChannelIoAcceptorIT {
         Thread.enumerate(threads);
         int workersFound = 0;
         int bossesFound = 0;
-        List<String> badThreads = new LinkedList<String>();
+        List<String> badThreads = new LinkedList<>();
         for (Thread thread : threads) {
             System.out.println(thread.getName());
             if (thread.getName().matches(".*I/O worker.*")) {

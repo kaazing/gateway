@@ -76,7 +76,7 @@ public class Request {
 
         this.id = id;
         this.message = message;
-        this.responses = useResponseQueue ? new LinkedBlockingQueue<Object>() : null;
+        this.responses = useResponseQueue ? new LinkedBlockingQueue<>() : null;
         this.timeoutMillis = unit.toMillis(timeout);
     }
 

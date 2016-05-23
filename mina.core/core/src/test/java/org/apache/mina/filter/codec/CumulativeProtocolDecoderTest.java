@@ -90,7 +90,7 @@ public class CumulativeProtocolDecoderTest {
         assertEquals(4, session.getDecoderOutputQueue().size());
         assertEquals(buf.limit(), buf.position());
 
-        List<Object> expected = new ArrayList<Object>();
+        List<Object> expected = new ArrayList<>();
         
         for (int i = 0; i < 4; i++) {
             expected.add(i);

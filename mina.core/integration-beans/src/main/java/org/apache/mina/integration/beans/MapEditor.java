@@ -180,7 +180,7 @@ public class MapEditor extends AbstractPropertyEditor {
     }
     
     protected Map<Object, Object> newMap() {
-        return new LinkedHashMap<Object, Object>();
+        return new LinkedHashMap<>();
     }
     
     private enum TokenType {

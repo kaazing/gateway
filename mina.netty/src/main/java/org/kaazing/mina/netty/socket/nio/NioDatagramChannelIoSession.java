@@ -38,7 +38,7 @@ import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
  */
 public class NioDatagramChannelIoSession extends ChannelIoSession<DatagramChannelConfig> {
 
-    private static final ThreadLocal<WorkerExecutor> WORKER_EXECUTOR = new VicariousThreadLocal<WorkerExecutor>();
+    private static final ThreadLocal<WorkerExecutor> WORKER_EXECUTOR = new VicariousThreadLocal<>();
 
     public NioDatagramChannelIoSession(ChannelIoService service,
             IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor, NioDatagramChannel channel) {

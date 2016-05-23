@@ -37,7 +37,7 @@ import org.easymock.IMocksControl;
  */
 public class ByteAccessTest extends TestCase {
 
-    private List<String> operations = new ArrayList<String>();
+    private List<String> operations = new ArrayList<>();
 
     private void resetOperations() {
         operations.clear();

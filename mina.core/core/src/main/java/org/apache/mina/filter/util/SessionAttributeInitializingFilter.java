@@ -35,7 +35,7 @@ import org.apache.mina.core.session.IoSession;
  * @org.apache.xbean.XBean
  */
 public class SessionAttributeInitializingFilter extends IoFilterAdapter {
-    private final Map<String, Object> attributes = new ConcurrentHashMap<String, Object>();
+    private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
     /**
      * Creates a new instance with no default attributes.  You can set
@@ -124,7 +124,7 @@ public class SessionAttributeInitializingFilter extends IoFilterAdapter {
      */
     public void setAttributes(Map<String, ?> attributes) {
         if (attributes == null) {
-            attributes = new HashMap<String, Object>();
+            attributes = new HashMap<>();
         }
 
         this.attributes.clear();

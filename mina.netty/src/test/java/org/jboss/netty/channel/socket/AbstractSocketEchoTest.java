@@ -174,7 +174,7 @@ public abstract class AbstractSocketEchoTest {
 
     private static class EchoHandler extends SimpleChannelUpstreamHandler {
         volatile Channel channel;
-        final AtomicReference<Throwable> exception = new AtomicReference<Throwable>();
+        final AtomicReference<Throwable> exception = new AtomicReference<>();
         final AtomicInteger counter = new AtomicInteger();
         volatile boolean expectException;
         ChannelFuture caughtExceptionFuture;

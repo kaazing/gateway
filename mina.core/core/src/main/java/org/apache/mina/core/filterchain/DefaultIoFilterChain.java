@@ -54,7 +54,7 @@ public class DefaultIoFilterChain implements IoFilterChain {
     /** The associated session */
     private final AbstractIoSession session;
 
-    private final Map<String, Entry> name2entry = new HashMap<String, Entry>();
+    private final Map<String, Entry> name2entry = new HashMap<>();
 
     /** The chain head */
     private final EntryImpl head;
@@ -255,7 +255,7 @@ public class DefaultIoFilterChain implements IoFilterChain {
     }
 
     public synchronized void clear() throws Exception {
-        List<IoFilterChain.Entry> l = new ArrayList<IoFilterChain.Entry>(
+        List<IoFilterChain.Entry> l = new ArrayList<>(
                 name2entry.values());
         for (IoFilterChain.Entry entry : l) {
             try {
@@ -524,7 +524,7 @@ public class DefaultIoFilterChain implements IoFilterChain {
     }
 
     public List<Entry> getAll() {
-        List<Entry> list = new ArrayList<Entry>();
+        List<Entry> list = new ArrayList<>();
         EntryImpl e = head.nextEntry;
         while (e != tail) {
             list.add(e);
@@ -535,7 +535,7 @@ public class DefaultIoFilterChain implements IoFilterChain {
     }
 
     public List<Entry> getAllReversed() {
-        List<Entry> list = new ArrayList<Entry>();
+        List<Entry> list = new ArrayList<>();
         EntryImpl e = tail.prevEntry;
         while (e != head) {
             list.add(e);

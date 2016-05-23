@@ -272,7 +272,7 @@ public final class CompositeByteArray extends AbstractByteArray {
             return Collections.emptyList();
         }
         
-        Collection<IoBuffer> result = new ArrayList<IoBuffer>();
+        Collection<IoBuffer> result = new ArrayList<>();
         Node node = bas.getFirst();
         
         for ( IoBuffer bb : node.getByteArray().getIoBuffers() ) {
