@@ -218,9 +218,7 @@ public abstract class AbstractPollingConnectionlessIoAcceptor<T extends Abstract
 
             try {
                 return newSessionWithoutLock(remoteAddress, localAddress);
-            } catch (RuntimeException e) {
-                throw e;
-            } catch (Error e) {
+            } catch (RuntimeException | Error e) {
                 throw e;
             } catch (Exception e) {
                 throw new RuntimeIoException("Failed to create a session.", e);

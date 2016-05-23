@@ -56,7 +56,7 @@ import org.kaazing.mina.core.session.IoSessionEx;
 
 // This is a subset of BaseFramingIT (connector version) used to verify wsn transport level logging
 public class WsnConnectorLoggingIT {
-    private static String TEXT_FILTER_NAME = WsnProtocol.NAME + "#text";
+    private static final String TEXT_FILTER_NAME = WsnProtocol.NAME + "#text";
     private final WsnConnectorRule connector = new WsnConnectorRule();
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws");
     private List<String> expectedPatterns;

@@ -57,10 +57,10 @@ import org.w3c.dom.NodeList;
 public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     private static final Logger logger = LoggerFactory.getLogger(DefaultAcceptOptionsContext.class);
 
-    private static int DEFAULT_WEBSOCKET_MAXIMUM_MESSAGE_SIZE = 128 * 1024; //128KB
-    private static int DEFAULT_HTTP_KEEPALIVE_TIMEOUT = 30; //seconds
+    private static final int DEFAULT_WEBSOCKET_MAXIMUM_MESSAGE_SIZE = 128 * 1024; //128KB
+    private static final int DEFAULT_HTTP_KEEPALIVE_TIMEOUT = 30; //seconds
     private static final long UNLIMITED_MAX_OUTPUT_RATE = 0xFFFFFFFFL;
-    private static long DEFAULT_TCP_MAXIMUM_OUTBOUND_RATE = UNLIMITED_MAX_OUTPUT_RATE; //unlimited
+    private static final long DEFAULT_TCP_MAXIMUM_OUTBOUND_RATE = UNLIMITED_MAX_OUTPUT_RATE; //unlimited
 
     /**
      * The name of the extended handshake protocol to be sent on the wire.

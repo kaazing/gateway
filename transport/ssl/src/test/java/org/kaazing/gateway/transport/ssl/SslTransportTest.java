@@ -71,7 +71,7 @@ public class SslTransportTest {
     private final BridgeServiceFactory bridgeServiceFactory = new BridgeServiceFactory(transportFactory);
 
     // For development of test
-    private static boolean DEBUG = false;
+    private static final boolean DEBUG = false;
 
     private KeyStore keyStore;
     private String keyStoreFile;

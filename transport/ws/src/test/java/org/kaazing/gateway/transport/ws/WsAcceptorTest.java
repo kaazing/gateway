@@ -51,12 +51,11 @@ import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsAcceptorTest {
     @Rule
-    public TestRule testExecutionTrace = new MethodExecutionTrace();
+    public final TestRule testExecutionTrace = new MethodExecutionTrace();
 
-    private static boolean DEBUG = false;
+    private static final boolean DEBUG = false;
 
-    private ResourceAddressFactory resourceAddressFactory = ResourceAddressFactory.newResourceAddressFactory();
-    private BridgeServiceFactory bridgeServiceFactory;
+    private ResourceAddressFactory resourceAddressFactory;
 
 
     @After
@@ -91,7 +90,7 @@ public class WsAcceptorTest {
     public void setup() {
         resourceAddressFactory = ResourceAddressFactory.newResourceAddressFactory();
         TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.EMPTY_MAP);
-        bridgeServiceFactory = new BridgeServiceFactory(transportFactory);
+        BridgeServiceFactory bridgeServiceFactory = new BridgeServiceFactory(transportFactory);
         tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
         httpAcceptor = (HttpAcceptor)transportFactory.getTransport("http").getAcceptor();
         wsAcceptor = (WsAcceptor)transportFactory.getTransport("ws").getAcceptor();

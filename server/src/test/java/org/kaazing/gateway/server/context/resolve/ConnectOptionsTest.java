@@ -44,20 +44,10 @@ import org.kaazing.gateway.service.TransportOptionNames;
  */
 public class ConnectOptionsTest {
     private static GatewayConfigParser parser;
-    private static GatewayContextResolver resolver;
 
     @BeforeClass
     public static void init() {
         parser = new GatewayConfigParser();
-
-        try {
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            File keyStoreFile = new File(classLoader.getResource("keystore.db").toURI());
-
-            resolver = new GatewayContextResolver(new File(keyStoreFile.getParent()), null, null);
-        } catch (Exception ex) {
-            Assert.fail("Failed to load keystore.db, unable to init test due to exception: " + ex);
-        }
     }
 
     @Test @Ignore

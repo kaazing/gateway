@@ -270,9 +270,7 @@ public abstract class AbstractIoAcceptor
             
             try {
                 boundAddresses.addAll(bindInternal(localAddressesCopy));
-            } catch (IOException e) {
-                throw e;
-            } catch (RuntimeException e) {
+            } catch (IOException | RuntimeException e) {
                 throw e;
             } catch (Throwable e) {
                 throw new RuntimeIoException(

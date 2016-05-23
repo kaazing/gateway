@@ -49,7 +49,6 @@ public class WebSocketExtensionFactoryTest {
     private WsResourceAddress address;
     private MockNegotiate mockNegotiate;
     private WebSocketExtension webSocketExtensionSpi;
-    private WebSocketExtension webSocketExtensionSpi2;
     private static final ExtensionHelper extensionHelper = new ExtensionHelper() {
 
         @Override
@@ -77,7 +76,6 @@ public class WebSocketExtensionFactoryTest {
         mockNegotiate = context.mock(MockNegotiate.class);
         MockWebSocketExtensionFactorySpi.setNegotiateBehavoir(mockNegotiate);
         webSocketExtensionSpi = context.mock(WebSocketExtension.class);
-        webSocketExtensionSpi2 = context.mock(WebSocketExtension.class, "webSocketExtensionSpi2");
     }
     
     @Test

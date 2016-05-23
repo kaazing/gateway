@@ -50,10 +50,7 @@ public class WsnAcceptorTest {
     @Rule
     public final TestRule timeoutRule = timeoutRule(10, SECONDS);
 
-    private SchedulerProvider schedulerProvider;
-    
     private ResourceAddressFactory addressFactory;
-    private BridgeServiceFactory serviceFactory;
 
     private NioSocketConnector tcpConnector;
     private HttpConnector httpConnector;
@@ -62,16 +59,15 @@ public class WsnAcceptorTest {
     private NioSocketAcceptor tcpAcceptor;
     private HttpAcceptor httpAcceptor;
     private WsnAcceptor wsnAcceptor;
-    private WsAcceptor wsAcceptor;
 
     @Before
     public void init() {
-        schedulerProvider = new SchedulerProvider();
+        SchedulerProvider schedulerProvider = new SchedulerProvider();
          
         addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         Map<String, Object> config = Collections.emptyMap();
         TransportFactory transportFactory = TransportFactory.newTransportFactory(config);
-        serviceFactory = new BridgeServiceFactory(transportFactory);
+        BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
 
         tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
         tcpAcceptor.setResourceAddressFactory(addressFactory);
@@ -96,7 +92,7 @@ public class WsnAcceptorTest {
         wsnAcceptor.setResourceAddressFactory(addressFactory);
         wsnAcceptor.setSchedulerProvider(schedulerProvider);
 
-        wsAcceptor = (WsAcceptor)transportFactory.getTransport("ws").getAcceptor();
+        WsAcceptor wsAcceptor = (WsAcceptor) transportFactory.getTransport("ws").getAcceptor();
         wsAcceptor.setWsnAcceptor(wsnAcceptor);
         wsAcceptor.setConfiguration(new Properties());
 

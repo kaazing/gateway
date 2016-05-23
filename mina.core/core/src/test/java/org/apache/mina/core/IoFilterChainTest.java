@@ -41,7 +41,6 @@ import static org.junit.Assert.assertSame;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class IoFilterChainTest {
-    private DummySession dummySession;
     private IoFilterChain chain;
     String testResult;
 
@@ -87,7 +86,7 @@ public class IoFilterChainTest {
 
     @Before
     public void setUp() {
-        dummySession = new DummySession();
+        DummySession dummySession = new DummySession();
         dummySession.setHandler(handler);
         chain = dummySession.getFilterChain();
         testResult = "";
