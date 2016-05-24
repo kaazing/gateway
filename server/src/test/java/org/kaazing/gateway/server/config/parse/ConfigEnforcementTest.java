@@ -29,7 +29,7 @@ import org.junit.Test;
 public class ConfigEnforcementTest {
     private static GatewayConfigParser parser;
 
-    private static boolean DEBUG = false;
+    private static final boolean DEBUG = false;
 
     @BeforeClass
     public static void init() {

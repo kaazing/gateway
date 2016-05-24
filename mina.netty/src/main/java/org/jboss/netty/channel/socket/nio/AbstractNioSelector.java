@@ -102,7 +102,7 @@ abstract class AbstractNioSelector implements NioSelector {
      */
     protected final AtomicBoolean wakenUp = new AtomicBoolean();
 
-    private final Queue<Runnable> taskQueue = new ConcurrentLinkedQueue<Runnable>();
+    private final Queue<Runnable> taskQueue = new ConcurrentLinkedQueue<>();
 
     private volatile int cancelledKeys; // should use AtomicInteger but we just need approximation
 

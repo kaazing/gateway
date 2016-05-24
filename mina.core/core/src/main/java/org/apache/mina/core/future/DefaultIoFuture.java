@@ -312,7 +312,7 @@ public class DefaultIoFuture implements IoFuture {
                     firstListener = listener;
                 } else {
                     if (otherListeners == null) {
-                        otherListeners = new ArrayList<IoFutureListener<?>>(1);
+                        otherListeners = new ArrayList<>(1);
                     }
                     otherListeners.add(listener);
                 }

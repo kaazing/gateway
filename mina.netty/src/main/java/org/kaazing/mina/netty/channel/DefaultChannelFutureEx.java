@@ -125,14 +125,14 @@ public class DefaultChannelFutureEx implements ChannelFuture {
                     firstListener = listener;
                 } else {
                     if (otherListeners == null) {
-                        otherListeners = new ArrayList<ChannelFutureListener>(1);
+                        otherListeners = new ArrayList<>(1);
                     }
                     otherListeners.add(listener);
                 }
 
                 if (listener instanceof ChannelFutureProgressListener) {
                     if (progressListeners == null) {
-                        progressListeners = new ArrayList<ChannelFutureProgressListener>(1);
+                        progressListeners = new ArrayList<>(1);
                     }
                     progressListeners.add((ChannelFutureProgressListener) listener);
                 }

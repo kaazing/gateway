@@ -35,7 +35,7 @@ import org.apache.mina.util.CircularQueue;
  */
 public class DecodingStateProtocolDecoder implements ProtocolDecoder {
     private final DecodingState state;
-    private final Queue<IoBuffer> undecodedBuffers = new CircularQueue<IoBuffer>();
+    private final Queue<IoBuffer> undecodedBuffers = new CircularQueue<>();
     private IoSession session;
 
     /**

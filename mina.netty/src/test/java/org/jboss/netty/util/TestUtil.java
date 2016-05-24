@@ -120,7 +120,7 @@ public final class TestUtil {
     private static final int END_PORT = 65536;
     private static final int NUM_CANDIDATES = END_PORT - START_PORT;
 
-    private static final List<Integer> PORTS = new ArrayList<Integer>();
+    private static final List<Integer> PORTS = new ArrayList<>();
     private static Iterator<Integer> portIterator;
 
     static {

@@ -125,12 +125,12 @@ public class WriteException extends IOException {
         }
 
         // Create a list of requests removing duplicates.
-        Set<WriteRequest> newRequests = new MapBackedSet<WriteRequest>(new LinkedHashMap<WriteRequest, Boolean>());
+        Set<WriteRequest> newRequests = new MapBackedSet<>(new LinkedHashMap<>());
         for (WriteRequest r: requests) {
             newRequests.add(r.getOriginalRequest());
         }
         
-        return Collections.unmodifiableList(new ArrayList<WriteRequest>(newRequests));
+        return Collections.unmodifiableList(new ArrayList<>(newRequests));
     }
 
     private static List<WriteRequest> asRequestList(WriteRequest request) {
@@ -138,7 +138,7 @@ public class WriteException extends IOException {
             throw new NullPointerException("request");
         }
         
-        List<WriteRequest> requests = new ArrayList<WriteRequest>(1);
+        List<WriteRequest> requests = new ArrayList<>(1);
         requests.add(request.getOriginalRequest());
         return Collections.unmodifiableList(requests);
     }

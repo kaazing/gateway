@@ -475,7 +475,7 @@ public class SslFilter extends IoFilterAdapter {
                 }
                 
                 List<WriteRequest> newFailedRequests =
-                    new ArrayList<WriteRequest>(failedRequests.size() - 1);
+                        new ArrayList<>(failedRequests.size() - 1);
                 for (WriteRequest r: failedRequests) {
                     if (!isCloseNotify(r.getMessage())) {
                         newFailedRequests.add(r);

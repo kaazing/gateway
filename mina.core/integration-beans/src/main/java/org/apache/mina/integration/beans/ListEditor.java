@@ -34,6 +34,6 @@ public class ListEditor extends CollectionEditor {
 
     @Override
     protected Collection<Object> newCollection() {
-        return new ArrayList<Object>();
+        return new ArrayList<>();
     }
 }

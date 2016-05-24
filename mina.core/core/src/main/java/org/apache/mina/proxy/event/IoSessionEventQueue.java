@@ -42,7 +42,7 @@ public class IoSessionEventQueue {
     /**
      * Queue of session events which occurred before the proxy handshake had completed.
      */
-    private Queue<IoSessionEvent> sessionEventsQueue = new LinkedList<IoSessionEvent>();
+    private Queue<IoSessionEvent> sessionEventsQueue = new LinkedList<>();
 
     public IoSessionEventQueue(ProxyIoSession proxyIoSession) {
         this.proxyIoSession = proxyIoSession;

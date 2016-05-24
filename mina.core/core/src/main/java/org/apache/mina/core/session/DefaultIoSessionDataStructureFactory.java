@@ -52,7 +52,7 @@ public class DefaultIoSessionDataStructureFactory implements
 
     private static class DefaultIoSessionAttributeMap implements IoSessionAttributeMap {
         private final Map<Object, Object> attributes =
-            Collections.synchronizedMap(new HashMap<Object, Object>(4));
+            Collections.synchronizedMap(new HashMap<>(4));
 
         /**
          * Default constructor
@@ -154,7 +154,7 @@ public class DefaultIoSessionDataStructureFactory implements
 
         public Set<Object> getAttributeKeys(IoSession session) {
             synchronized (attributes) {
-                return new HashSet<Object>(attributes.keySet());
+                return new HashSet<>(attributes.keySet());
             }
         }
 
@@ -165,7 +165,7 @@ public class DefaultIoSessionDataStructureFactory implements
     
     private static class DefaultWriteRequestQueue implements WriteRequestQueue {
         /** A queue to store incoming write requests */
-        private final Queue<WriteRequest> q = new CircularQueue<WriteRequest>(16);
+        private final Queue<WriteRequest> q = new CircularQueue<>(16);
 
         /**
          * Default constructor

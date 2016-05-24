@@ -322,7 +322,7 @@ public abstract class AbstractIoSession implements IoSession {
         Queue<ReadFuture> readyReadFutures =
             (Queue<ReadFuture>) getAttribute(READY_READ_FUTURES_KEY);
         if (readyReadFutures == null) {
-            readyReadFutures = new CircularQueue<ReadFuture>();
+            readyReadFutures = new CircularQueue<>();
 
             Queue<ReadFuture> oldReadyReadFutures =
                 (Queue<ReadFuture>) setAttributeIfAbsent(
@@ -341,7 +341,7 @@ public abstract class AbstractIoSession implements IoSession {
         Queue<ReadFuture> waitingReadyReadFutures =
             (Queue<ReadFuture>) getAttribute(WAITING_READ_FUTURES_KEY);
         if (waitingReadyReadFutures == null) {
-            waitingReadyReadFutures = new CircularQueue<ReadFuture>();
+            waitingReadyReadFutures = new CircularQueue<>();
 
             Queue<ReadFuture> oldWaitingReadyReadFutures =
                 (Queue<ReadFuture>) setAttributeIfAbsent(

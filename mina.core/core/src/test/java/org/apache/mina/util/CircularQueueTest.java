@@ -34,12 +34,12 @@ public class CircularQueueTest extends TestCase {
     }
 
     public void testRotation() {
-        CircularQueue<Integer> q = new CircularQueue<Integer>(); // DEFAULT_CAPACITY = 4
+        CircularQueue<Integer> q = new CircularQueue<>(); // DEFAULT_CAPACITY = 4
         testRotation0(q);
     }
 
     public void testExpandingRotation() {
-        CircularQueue<Integer> q = new CircularQueue<Integer>(); // DEFAULT_CAPACITY = 4
+        CircularQueue<Integer> q = new CircularQueue<>(); // DEFAULT_CAPACITY = 4
         for (int i = 0; i < 10; i++) {
             testRotation0(q);
 
@@ -62,7 +62,7 @@ public class CircularQueueTest extends TestCase {
     }
 
     public void testRandomAddOnQueue() {
-        CircularQueue<Integer> q = new CircularQueue<Integer>();
+        CircularQueue<Integer> q = new CircularQueue<>();
         // Create a queue with 5 elements and capacity 8;
         for (int i = 0; i < 5; i++) {
             q.offer(i);
@@ -127,7 +127,7 @@ public class CircularQueueTest extends TestCase {
     }
 
     public void testRandomRemoveOnQueue() {
-        CircularQueue<Integer> q = new CircularQueue<Integer>();
+        CircularQueue<Integer> q = new CircularQueue<>();
 
         // Create a queue with 5 elements and capacity 8;
         for (int i = 0; i < 5; i++) {
@@ -177,7 +177,7 @@ public class CircularQueueTest extends TestCase {
     }
     
     public void testExpandAndShrink() throws Exception {
-        CircularQueue<Integer> q = new CircularQueue<Integer>();
+        CircularQueue<Integer> q = new CircularQueue<>();
         for (int i = 0; i < 1024; i ++) {
             q.offer(i);
         }
@@ -199,7 +199,7 @@ public class CircularQueueTest extends TestCase {
     }
 
     private CircularQueue<Integer> getRotatedQueue() {
-        CircularQueue<Integer> q = new CircularQueue<Integer>();
+        CircularQueue<Integer> q = new CircularQueue<>();
 
         // Ensure capacity: 16
         for (int i = 0; i < 16; i++) {

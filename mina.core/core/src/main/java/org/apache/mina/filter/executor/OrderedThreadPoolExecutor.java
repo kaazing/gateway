@@ -66,9 +66,9 @@ public class OrderedThreadPoolExecutor extends ThreadPoolExecutor {
     private final AttributeKey TASKS_QUEUE = new AttributeKey(getClass(), "tasksQueue");
     
     /** A queue used to store the available sessions */
-    private final BlockingQueue<IoSession> waitingSessions = new LinkedBlockingQueue<IoSession>();
+    private final BlockingQueue<IoSession> waitingSessions = new LinkedBlockingQueue<>();
 
-    private final Set<Worker> workers = new HashSet<Worker>();
+    private final Set<Worker> workers = new HashSet<>();
 
     private volatile int largestPoolSize;
     private final AtomicInteger idleWorkers = new AtomicInteger();
@@ -187,8 +187,8 @@ public class OrderedThreadPoolExecutor extends ThreadPoolExecutor {
         // We have to initialize the pool with default values (0 and 1) in order to
         // handle the exception in a better way. We can't add a try {} catch() {}
         // around the super() call.
-        super(DEFAULT_INITIAL_THREAD_POOL_SIZE, 1, keepAliveTime, unit, 
-            new SynchronousQueue<Runnable>(), threadFactory, new AbortPolicy());
+        super(DEFAULT_INITIAL_THREAD_POOL_SIZE, 1, keepAliveTime, unit,
+                new SynchronousQueue<>(), threadFactory, new AbortPolicy());
 
         if (corePoolSize < DEFAULT_INITIAL_THREAD_POOL_SIZE) {
             throw new IllegalArgumentException("corePoolSize: " + corePoolSize);
@@ -391,7 +391,7 @@ public class OrderedThreadPoolExecutor extends ThreadPoolExecutor {
     public List<Runnable> shutdownNow() {
         shutdown();
 
-        List<Runnable> answer = new ArrayList<Runnable>();
+        List<Runnable> answer = new ArrayList<>();
         IoSession session;
         
         while ((session = waitingSessions.poll()) != null) {
@@ -793,7 +793,7 @@ public class OrderedThreadPoolExecutor extends ThreadPoolExecutor {
      */
     private class SessionTasksQueue {
         /**  A queue of ordered event waiting to be processed */ 
-        private final Queue<Runnable> tasksQueue = new ConcurrentLinkedQueue<Runnable>();
+        private final Queue<Runnable> tasksQueue = new ConcurrentLinkedQueue<>();
         
         /** The current task state */
         private boolean processingCompleted = true;

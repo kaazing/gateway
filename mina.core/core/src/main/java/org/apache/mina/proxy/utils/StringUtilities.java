@@ -108,7 +108,7 @@ public class StringUtilities {
      */
     public static HashMap<String, String> parseDirectives(byte[] buf)
             throws SaslException {
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<String, String> map = new HashMap<>();
         boolean gettingKey = true;
         boolean gettingQuotedValue = false;
         boolean expectSeparator = false;
@@ -335,7 +335,7 @@ public class StringUtilities {
         List<String> values = headers.get(key);
 
         if (values == null) {
-            values = new ArrayList<String>(1);
+            values = new ArrayList<>(1);
             headers.put(key, values);
         }
 

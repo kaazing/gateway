@@ -109,9 +109,9 @@ public class WrappingFilterTest extends TestCase {
 
 
     private static class MyWrappingFilter extends CommonEventFilter {
-        List<IoEventType> eventsBefore = new ArrayList<IoEventType>();
+        List<IoEventType> eventsBefore = new ArrayList<>();
 
-        List<IoEventType> eventsAfter = new ArrayList<IoEventType>();
+        List<IoEventType> eventsAfter = new ArrayList<>();
 
         /**
          * Default constructor

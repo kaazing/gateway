@@ -55,9 +55,9 @@ class SslHandler {
     private final SslFilter parent;
     private final SSLContext sslContext;
     private final IoSession session;
-    private final Queue<IoFilterEvent> preHandshakeEventQueue = new CircularQueue<IoFilterEvent>();
-    private final Queue<IoFilterEvent> filterWriteEventQueue = new ConcurrentLinkedQueue<IoFilterEvent>();
-    private final Queue<IoFilterEvent> messageReceivedEventQueue = new ConcurrentLinkedQueue<IoFilterEvent>();
+    private final Queue<IoFilterEvent> preHandshakeEventQueue = new CircularQueue<>();
+    private final Queue<IoFilterEvent> filterWriteEventQueue = new ConcurrentLinkedQueue<>();
+    private final Queue<IoFilterEvent> messageReceivedEventQueue = new ConcurrentLinkedQueue<>();
     private SSLEngine sslEngine;
 
     /**

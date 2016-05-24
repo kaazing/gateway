@@ -654,7 +654,7 @@ public final class Utils {
         }
     }
 
-    private static String TIME_INTERVAL_INFORMATION =
+    private static final String TIME_INTERVAL_INFORMATION =
             "Time intervals can be specified as numeric amounts of the following units: millisecond, second, minute, hour.\n" +
                     "For example, \"1800 second\" or \"30 minutes\" or \"0.5 hour\".";
     /**

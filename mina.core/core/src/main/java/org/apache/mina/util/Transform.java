@@ -125,7 +125,7 @@ public class Transform {
         throwable.printStackTrace(pw);
         pw.flush();
         LineNumberReader reader = new LineNumberReader(new StringReader(sw.toString()));
-        ArrayList<String> lines = new ArrayList<String>();
+        ArrayList<String> lines = new ArrayList<>();
         try {
             String line = reader.readLine();
             while(line != null) {

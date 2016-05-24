@@ -406,7 +406,7 @@ public abstract class AbstractHttpLogicHandler extends
                     + "). Response: " + response);
         }
 
-        Map<String, List<String>> headers = new HashMap<String, List<String>>();
+        Map<String, List<String>> headers = new HashMap<>();
 
         for (int i = 1; i < responseLines.length; i++) {
             String[] args = responseLines[i].split(":\\s?", 2);

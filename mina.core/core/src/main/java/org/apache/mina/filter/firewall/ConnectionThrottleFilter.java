@@ -58,7 +58,7 @@ public class ConnectionThrottleFilter extends IoFilterAdapter {
      */
     public ConnectionThrottleFilter(long allowedInterval) {
         this.allowedInterval = allowedInterval;
-        clients = Collections.synchronizedMap(new HashMap<String, Long>());
+        clients = Collections.synchronizedMap(new HashMap<>());
     }
 
     /**

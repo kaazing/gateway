@@ -241,7 +241,7 @@ public class NioSocketWriteIT {
     }
 
     private static class EchoRepeatHandler extends IoHandlerAdapter {
-        final AtomicReference<Throwable> exception = new AtomicReference<Throwable>();
+        final AtomicReference<Throwable> exception = new AtomicReference<>();
         volatile int counter;
         volatile int incompleteWrites;
         volatile int numSent;

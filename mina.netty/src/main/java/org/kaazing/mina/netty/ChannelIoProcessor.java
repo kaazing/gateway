@@ -162,7 +162,7 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
         WriteRequestQueue writeRequestQueue = session.getWriteRequestQueue();
         WriteRequest req;
 
-        List<WriteRequest> failedRequests = new ArrayList<WriteRequest>();
+        List<WriteRequest> failedRequests = new ArrayList<>();
 
         if ((req = writeRequestQueue.poll(session)) != null) {
             Object message = req.getMessage();

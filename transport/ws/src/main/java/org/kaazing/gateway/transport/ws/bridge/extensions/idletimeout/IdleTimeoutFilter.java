@@ -40,8 +40,6 @@ class IdleTimeoutFilter extends IoFilterAdapter<IoSessionEx>  {
 
     private final long pongDelayMillis; // how long to wait before sending pong
 
-    private long pongSentTime = 0;
-
     private final IoFutureListener<WriteFuture> setPongTimeOnWrite = new IoFutureListener<WriteFuture>() {
         @Override
         public void operationComplete(WriteFuture future) {
@@ -87,7 +85,7 @@ class IdleTimeoutFilter extends IoFilterAdapter<IoSessionEx>  {
     }
 
     void pongWritten(long currentTimeMillis) {
-        pongSentTime = currentTimeMillis;
+        long pongSentTime = currentTimeMillis;
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("IdleTimeoutFilter.pongWritten at time " + pongSentTime);
         }
