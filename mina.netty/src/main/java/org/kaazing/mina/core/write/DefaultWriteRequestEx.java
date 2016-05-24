@@ -38,26 +38,32 @@ import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 public class DefaultWriteRequestEx implements WriteRequestEx {
 
     private static final WriteFutureEx UNUSED_FUTURE = new WriteFutureEx() {
+        @Override
         public boolean isWritten() {
             return false;
         }
 
+        @Override
         public void setWritten() {
             // Do nothing
         }
 
+        @Override
         public IoSession getSession() {
             return null;
         }
 
+        @Override
         public void join() {
             // Do nothing
         }
 
+        @Override
         public boolean join(long timeoutInMillis) {
             return true;
         }
 
+        @Override
         public boolean isDone() {
             return true;
         }
@@ -73,45 +79,55 @@ public class DefaultWriteRequestEx implements WriteRequestEx {
                     "You can't reset a dummy future.");
         }
 
+        @Override
         public WriteFuture addListener(IoFutureListener<?> listener) {
             throw new IllegalStateException(
                     "You can't add a listener to a dummy future.");
         }
 
+        @Override
         public WriteFuture removeListener(IoFutureListener<?> listener) {
             throw new IllegalStateException(
                     "You can't add a listener to a dummy future.");
         }
 
+        @Override
         public WriteFuture await() throws InterruptedException {
             return this;
         }
 
+        @Override
         public boolean await(long timeout, TimeUnit unit)
                 throws InterruptedException {
             return true;
         }
 
+        @Override
         public boolean await(long timeoutMillis) throws InterruptedException {
             return true;
         }
 
+        @Override
         public WriteFuture awaitUninterruptibly() {
             return this;
         }
 
+        @Override
         public boolean awaitUninterruptibly(long timeout, TimeUnit unit) {
             return true;
         }
 
+        @Override
         public boolean awaitUninterruptibly(long timeoutMillis) {
             return true;
         }
 
+        @Override
         public Throwable getException() {
             return null;
         }
 
+        @Override
         public void setException(Throwable cause) {
             // Do nothing
         }
@@ -186,22 +202,27 @@ public class DefaultWriteRequestEx implements WriteRequestEx {
         this.destination = destination;
     }
 
+    @Override
     public WriteFutureEx getFuture() {
         return future;
     }
 
+    @Override
     public Object getMessage() {
         return message;
     }
 
+    @Override
     public void setMessage(Object message) {
         this.message = message;
     }
 
+    @Override
     public WriteRequest getOriginalRequest() {
         return this;
     }
 
+    @Override
     public SocketAddress getDestination() {
         return destination;
     }
@@ -238,7 +259,7 @@ public class DefaultWriteRequestEx implements WriteRequestEx {
         }
 
         public static List<ThreadLocal<WriteRequestEx>> initWithLayers(int ioLayers) {
-            List<ThreadLocal<WriteRequestEx>> threadLocals = new ArrayList<ThreadLocal<WriteRequestEx>>(ioLayers);
+            List<ThreadLocal<WriteRequestEx>> threadLocals = new ArrayList<>(ioLayers);
             while (threadLocals.size() < ioLayers) {
                 threadLocals.add(new ShareableWriteRequest());
             }

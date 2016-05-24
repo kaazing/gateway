@@ -42,7 +42,7 @@ public class IoUtil {
      * automatically duplicated using {@link IoBuffer#duplicate()}.
      */
     public static List<WriteFuture> broadcast(Object message, Collection<IoSession> sessions) {
-        List<WriteFuture> answer = new ArrayList<WriteFuture>(sessions.size());
+        List<WriteFuture> answer = new ArrayList<>(sessions.size());
         broadcast(message, sessions.iterator(), answer);
         return answer;
     }
@@ -53,7 +53,7 @@ public class IoUtil {
      * automatically duplicated using {@link IoBuffer#duplicate()}.
      */
     public static List<WriteFuture> broadcast(Object message, Iterable<IoSession> sessions) {
-        List<WriteFuture> answer = new ArrayList<WriteFuture>();
+        List<WriteFuture> answer = new ArrayList<>();
         broadcast(message, sessions.iterator(), answer);
         return answer;
     }
@@ -64,7 +64,7 @@ public class IoUtil {
      * automatically duplicated using {@link IoBuffer#duplicate()}.
      */
     public static List<WriteFuture> broadcast(Object message, Iterator<IoSession> sessions) {
-        List<WriteFuture> answer = new ArrayList<WriteFuture>();
+        List<WriteFuture> answer = new ArrayList<>();
         broadcast(message, sessions, answer);
         return answer;
     }
@@ -79,7 +79,7 @@ public class IoUtil {
             sessions = EMPTY_SESSIONS;
         }
         
-        List<WriteFuture> answer = new ArrayList<WriteFuture>(sessions.length);
+        List<WriteFuture> answer = new ArrayList<>(sessions.length);
         if (message instanceof IoBuffer) {
             for (IoSession s: sessions) {
                 answer.add(s.write(((IoBuffer) message).duplicate()));

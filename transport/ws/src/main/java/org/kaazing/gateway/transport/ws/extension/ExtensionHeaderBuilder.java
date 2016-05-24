@@ -60,7 +60,7 @@ public class ExtensionHeaderBuilder implements ExtensionHeader {
             this.extensionToken = elts[0].trim();
 
             for (int i = 1; i < elts.length; i++) {
-                String key = null;
+                String key;
                 String value = null;
 
                 idx = elts[i].indexOf('=');

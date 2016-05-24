@@ -89,6 +89,7 @@ public abstract class AbstractIoConnector
      * @deprecated
      *  Take a look at <tt>getConnectTimeoutMillis()</tt>
      */
+    @Override
     public final int getConnectTimeout() {
         return (int) connectTimeoutInMillis / 1000;
     }
@@ -105,6 +106,7 @@ public abstract class AbstractIoConnector
      * @deprecated
      *  Take a look at <tt>setConnectTimeoutMillis(long)</tt>
      */
+    @Override
     public final void setConnectTimeout(int connectTimeout) {
         setConnectTimeoutMillis(connectTimeout * 1000L);
     }
@@ -113,6 +115,7 @@ public abstract class AbstractIoConnector
      * Sets the connect timeout value in milliseconds.
      *
      */
+    @Override
     public final void setConnectTimeoutMillis(long connectTimeoutInMillis) {
         if (connectTimeoutInMillis <= connectTimeoutCheckInterval) {
             this.connectTimeoutCheckInterval = connectTimeoutInMillis;
@@ -230,36 +233,43 @@ public abstract class AbstractIoConnector
         if (getHandler() == null) {
             if (getSessionConfig().isUseReadOperation()) {
                 setHandler(new IoHandler() {
+                    @Override
                     public void exceptionCaught(IoSession session,
-                            Throwable cause) throws Exception {
+                                                Throwable cause) throws Exception {
                         // Empty handler
                     }
 
+                    @Override
                     public void messageReceived(IoSession session,
-                            Object message) throws Exception {
+                                                Object message) throws Exception {
                         // Empty handler
                     }
 
+                    @Override
                     public void messageSent(IoSession session, Object message)
                             throws Exception {
                         // Empty handler
                     }
 
+                    @Override
                     public void sessionClosed(IoSession session)
                             throws Exception {
                         // Empty handler
                     }
 
+                    @Override
                     public void sessionCreated(IoSession session)
                             throws Exception {
                         // Empty handler
                     }
 
+                    @Override
                     public void sessionIdle(IoSession session, IdleStatus status)
                             throws Exception {
                         // Empty handler
                     }
 
+                    @Override
                     public void sessionOpened(IoSession session)
                             throws Exception {
                         // Empty handler
@@ -295,6 +305,7 @@ public abstract class AbstractIoConnector
         // setSession() is invoked, add a listener that closes the
         // connection immediately on cancellation.
         future.addListener(new IoFutureListener<ConnectFuture>() {
+            @Override
             public void operationComplete(ConnectFuture future) {
                 if (future.isCanceled()) {
                     session.close(true);

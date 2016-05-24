@@ -297,7 +297,7 @@ public class GatewayConfigParserTest {
 
     @Test
     public void testCanConvertAwsHostToAwsHostnameIfAvailable() {
-        boolean onAWS = false;
+        boolean onAWS;
         boolean onTravisCI = false;
         DefaultUtilityHttpClient httpClient = new DefaultUtilityHttpClient();
         try {
@@ -409,7 +409,7 @@ public class GatewayConfigParserTest {
 
     @Test
     public void testCanConvertAwsInstanceIdIfAvailable() {
-        boolean onAWS = false;
+        boolean onAWS;
         boolean onTravisCI = false;
         DefaultUtilityHttpClient httpClient = new DefaultUtilityHttpClient();
         try {

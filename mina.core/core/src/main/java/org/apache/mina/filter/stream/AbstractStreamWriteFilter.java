@@ -66,7 +66,7 @@ public abstract class AbstractStreamWriteFilter<T> extends IoFilterAdapter {
         if (session.getAttribute(CURRENT_STREAM) != null) {
             Queue<WriteRequest> queue = getWriteRequestQueue(session);
             if (queue == null) {
-                queue = new CircularQueue<WriteRequest>();
+                queue = new CircularQueue<>();
                 session.setAttribute(WRITE_REQUEST_QUEUE, queue);
             }
             queue.add(writeRequest);

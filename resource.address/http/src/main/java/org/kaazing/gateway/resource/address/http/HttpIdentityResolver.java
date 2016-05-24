@@ -37,7 +37,7 @@ public class HttpIdentityResolver extends IdentityResolver {
 
     @Override
     public String resolve(Subject subject) {
-        Set<? extends Principal> principals = null;
+        Set<? extends Principal> principals;
 
         principals = subject.getPrincipals(userPrincipalClasses.iterator().next());
 

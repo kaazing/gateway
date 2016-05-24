@@ -36,7 +36,7 @@ public class IdleStatusChecker {
     
     // the list of session to check
     private final Set<AbstractIoSession> sessions =
-        new ConcurrentHashSet<AbstractIoSession>();
+            new ConcurrentHashSet<>();
 
     /* create a task you can execute in the transport code,
      * if the transport is like NIO or APR you don't need to call it,

@@ -105,7 +105,7 @@ public class WsnAcceptorRule implements TestRule {
                 schedulerProvider = new SchedulerProvider();
 
                 addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-                TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object> emptyMap());
+                TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.emptyMap());
                 BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
 
                 tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();

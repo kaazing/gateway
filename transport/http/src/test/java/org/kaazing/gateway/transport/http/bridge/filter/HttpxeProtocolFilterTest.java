@@ -613,14 +613,14 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).getMethod(); will(returnValue(POST));
             oneOf(serverSession).getRequestURI(); will(returnValue(URI.create("/kerberos5/;api/get-cookies?.kv=10.05")));
             oneOf(serverSession).getReadHeaderNames(); will(returnValue(asList("Accept", "Accept-Language", "Content-Length", "Content-Type", "Host", "X-Origin", "Referer", "User-Agent", "x-flash-version")));
-            oneOf(serverSession).getReadHeaders(with("Accept")); will(returnValue(asList("*/*")));
+            oneOf(serverSession).getReadHeaders(with("Accept")); will(returnValue(Collections.singletonList("*/*")));
             oneOf(serverSession).getReadHeaders(with("Accept-Language")); will(returnValue(asList("en-us","fr-fr")));
             oneOf(serverSession).getReadHeader(with("Content-Type")); will(returnValue("application/x-message-http"));
-            oneOf(serverSession).getReadHeaders(with("Host")); will(returnValue(asList("gateway.kzng.net:8003")));
-            oneOf(serverSession).getReadHeaders(with("Referer")); will(returnValue(asList("http://gateway.kzng.net:8003/?.kr=xsa")));
-            oneOf(serverSession).getReadHeaders(with("User-Agent")); will(returnValue(asList("Shockwave Flash")));
-            oneOf(serverSession).getReadHeaders(with("X-Origin")); will(returnValue(asList("http://gateway.kzng.net:8000")));
-            oneOf(serverSession).getReadHeaders(with("x-flash-version")); will(returnValue(asList("9,0,124,0")));
+            oneOf(serverSession).getReadHeaders(with("Host")); will(returnValue(Collections.singletonList("gateway.kzng.net:8003")));
+            oneOf(serverSession).getReadHeaders(with("Referer")); will(returnValue(Collections.singletonList("http://gateway.kzng.net:8003/?.kr=xsa")));
+            oneOf(serverSession).getReadHeaders(with("User-Agent")); will(returnValue(Collections.singletonList("Shockwave Flash")));
+            oneOf(serverSession).getReadHeaders(with("X-Origin")); will(returnValue(Collections.singletonList("http://gateway.kzng.net:8000")));
+            oneOf(serverSession).getReadHeaders(with("x-flash-version")); will(returnValue(Collections.singletonList("9,0,124,0")));
             oneOf(serverSession).getReadCookies(); will(returnValue(emptyList()));
 
             oneOf(nextFilter).messageReceived(with(serverSession), with(equal(expectedRequest)));
@@ -660,7 +660,7 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).getReadHeaderNames(); will(returnValue(asList("Content-Length", "Content-Type", "X-Header")));
             oneOf(serverSession).getReadHeader(with("Content-Type")); will(returnValue("application/x-message-http"));
             oneOf(serverSession).getReadHeaders(with("X-Header")); will(returnValue(asList("value1","value2")));
-            oneOf(serverSession).getReadCookies(); will(returnValue(asList(new DefaultHttpCookie("KSSOID", "0123456789abcdef"))));
+            oneOf(serverSession).getReadCookies(); will(returnValue(Collections.singletonList(new DefaultHttpCookie("KSSOID", "0123456789abcdef"))));
 
             oneOf(nextFilter).messageReceived(with(serverSession), with(equal(expectedRequest)));
         } });
@@ -833,7 +833,7 @@ public class HttpxeProtocolFilterTest {
     public void shouldReceiveResponseWithExtractedCookies() throws Exception {
 
         final List<HttpCookie> expectedCookies =
-                Arrays.<HttpCookie>asList(new DefaultHttpCookie("KSSOID", "12345"));
+                Collections.singletonList(new DefaultHttpCookie("KSSOID", "12345"));
 
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
@@ -877,7 +877,7 @@ public class HttpxeProtocolFilterTest {
             allowing(clientSession).getStatus(); will(returnValue(SUCCESS_OK));
             allowing(clientSession).getReadCookies(); will(returnValue(emptyList()));
 
-            oneOf(clientSession).getReadHeaderNames(); will(returnValue(asList("Content-Type")));
+            oneOf(clientSession).getReadHeaderNames(); will(returnValue(Collections.singletonList("Content-Type")));
             oneOf(clientSession).getReadHeader("Content-Type"); will(returnValue("text/plain"));
 
             oneOf(nextFilter).messageReceived(with(clientSession), with(equal(expectedResponse)));
@@ -907,7 +907,7 @@ public class HttpxeProtocolFilterTest {
             allowing(clientSession).getStatus(); will(returnValue(SUCCESS_OK));
             allowing(clientSession).getReadCookies(); will(returnValue(emptyList()));
 
-            oneOf(clientSession).getReadHeaderNames(); will(returnValue(asList("Content-Type")));
+            oneOf(clientSession).getReadHeaderNames(); will(returnValue(Collections.singletonList("Content-Type")));
             oneOf(clientSession).getReadHeader("Content-Type"); will(returnValue("text/plain;charset=windows-1252"));
 
             oneOf(nextFilter).messageReceived(with(clientSession), with(equal(expectedResponse)));
@@ -937,7 +937,7 @@ public class HttpxeProtocolFilterTest {
             allowing(clientSession).getStatus(); will(returnValue(SUCCESS_OK));
             allowing(clientSession).getReadCookies(); will(returnValue(emptyList()));
 
-            oneOf(clientSession).getReadHeaderNames(); will(returnValue(asList("Content-Type")));
+            oneOf(clientSession).getReadHeaderNames(); will(returnValue(Collections.singletonList("Content-Type")));
             oneOf(clientSession).getReadHeader("Content-Type"); will(returnValue("text/pdf"));
         } });
 
@@ -1169,7 +1169,7 @@ public class HttpxeProtocolFilterTest {
             allowing(clientSession).getStatus(); will(returnValue(SUCCESS_OK));
             allowing(clientSession).getReadCookies(); will(returnValue(emptyList()));
 
-            oneOf(clientSession).getReadHeaderNames(); will(returnValue(asList("Content-Type")));
+            oneOf(clientSession).getReadHeaderNames(); will(returnValue(Collections.singletonList("Content-Type")));
             oneOf(clientSession).getReadHeader("Content-Type"); will(returnValue("text/plain;charset=UTF-8"));
 
             oneOf(nextFilter).messageReceived(with(clientSession), with(equal(expectedResponse)));

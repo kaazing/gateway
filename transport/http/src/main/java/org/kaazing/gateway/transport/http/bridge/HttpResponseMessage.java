@@ -147,7 +147,8 @@ public class HttpResponseMessage extends HttpStartMessage {
         return String.format("%s: %s %s %s HEADERS: %s %s %s", getKind(), getStatus(), getReason(), getVersion(), getHeaders(), getContent(), (isComplete() ? "" : " [...]")); 
     }
 
-	protected Map<String, List<String>> createHeaders() {
+	@Override
+    protected Map<String, List<String>> createHeaders() {
         return new TreeMap<>(COMPARE_IGNORE_CASE);
 	}
 	

@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * @since MINA 2.0.0-M3
  */
 public class HttpSmartProxyHandler extends AbstractHttpLogicHandler {
-    private final static Logger logger = LoggerFactory
+    private static final Logger logger = LoggerFactory
             .getLogger(HttpSmartProxyHandler.class);
 
     /**
@@ -75,7 +75,7 @@ public class HttpSmartProxyHandler extends AbstractHttpLogicHandler {
             HttpProxyRequest req = (HttpProxyRequest) getProxyIoSession()
                     .getRequest();
             Map<String, List<String>> headers = req.getHeaders() != null ? req
-                    .getHeaders() : new HashMap<String, List<String>>();
+                    .getHeaders() : new HashMap<>();
 
             AbstractAuthLogicHandler.addKeepAliveHeaders(headers);
             req.setHeaders(headers);

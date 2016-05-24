@@ -24,6 +24,7 @@ import static org.junit.Assert.assertSame;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.apache.mina.core.session.DummySession;
 import org.apache.mina.core.session.IoSession;
@@ -161,12 +162,12 @@ public class HttpUtilsTest {
 
     @Test
     public void hasCloseHeadersShouldDetectCaseCloseOutOfMany() {
-        assertTrue(HttpUtils.hasCloseHeader(Arrays.asList(new String[]{"doodah",  "close"})));
+        assertTrue(HttpUtils.hasCloseHeader(Arrays.asList("doodah", "close")));
     }
 
     @Test
     public void hasCloseHeadersShouldDetectCaseInsensitiveClose() {
-        assertTrue(HttpUtils.hasCloseHeader(Arrays.asList(new String[]{"cLosE"})));
+        assertTrue(HttpUtils.hasCloseHeader(Collections.singletonList("cLosE")));
     }
 
     @Test

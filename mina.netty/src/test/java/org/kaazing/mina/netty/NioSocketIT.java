@@ -514,7 +514,7 @@ public class NioSocketIT {
 
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
         final CountDownLatch idleFired = new CountDownLatch(2);
-        final List<String> fails = new ArrayList<String>();
+        final List<String> fails = new ArrayList<>();
         builder.addLast("idleTimeoutTestFilter", new IoFilterAdapter() {
             private long idleTimeoutSetAt;
 
@@ -639,7 +639,7 @@ public class NioSocketIT {
 
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
         final CountDownLatch setIdleTimeCalled = new CountDownLatch(1);
-        final List<String> fails = new ArrayList<String>();
+        final List<String> fails = new ArrayList<>();
         builder.addLast("idleTimeoutTestFilter", new IoFilterAdapter() {
             private long idleTimeoutSetAt;
             private boolean idleTimeoutSet;

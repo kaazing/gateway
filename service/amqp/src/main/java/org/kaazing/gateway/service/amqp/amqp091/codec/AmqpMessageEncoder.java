@@ -113,7 +113,7 @@ public class AmqpMessageEncoder extends ProtocolEncoderAdapter {
         assert (message != null) : "AMQP message is null";
         
         AmqpMessage amqpMessage = (AmqpMessage)message;
-        IoBufferEx  buffer = null;
+        IoBufferEx  buffer;
         
         if (amqpMessage.hasCache()) {
             buffer = cachingEncoder.encode(encoder, amqpMessage, allocator, FLAG_SHARED | FLAG_ZERO_COPY | FLAG_DIRECT);
@@ -200,7 +200,7 @@ public class AmqpMessageEncoder extends ProtocolEncoderAdapter {
                                              IoBufferAllocatorEx<?>  allocator,
                                              int                     flags, AmqpMessage             message) {
         MessageKind messageKind = message.getMessageKind();
-        IoBufferEx  buffer = null;
+        IoBufferEx  buffer;
         
         Logger logger = LoggerFactory.getLogger(SERVICE_AMQP_PROXY_LOGGER);
         if (logger.isDebugEnabled()) {
@@ -553,7 +553,7 @@ public class AmqpMessageEncoder extends ProtocolEncoderAdapter {
         }
         String authMechanism = mechanismObj.toString();
         
-        String response = null;
+        String response;
         
         if ("AMQPLAIN".equals(authMechanism)) {
             response = encodeAuthAmqPlain(username, password);
@@ -675,7 +675,7 @@ public class AmqpMessageEncoder extends ProtocolEncoderAdapter {
         String     username = message.getUsername();
         char[]     password = message.getPassword();
         
-        String response = null;
+        String response;
         
         if ("AMQPLAIN".equals(mechanism)) {
             response = encodeAuthAmqPlain(username, password);
@@ -938,12 +938,12 @@ public class AmqpMessageEncoder extends ProtocolEncoderAdapter {
         }
         else {            
             List<AmqpTableEntry> entries = table.getEntries();
-            AmqpTableEntry       entry = null;
+            AmqpTableEntry       entry;
             ByteBuffer           bytes = ByteBuffer.allocate(table.getLength());
 
-            for (int i = 0; i < entries.size(); i++) {
-                entry = entries.get(i);
-                
+            for (AmqpTableEntry entry1 : entries) {
+                entry = entry1;
+
                 putShortString(bytes, entry.getKey());
                 putType(bytes, entry.getType());
                 putObjectOfType(bytes, entry.getType(), entry.getValue());

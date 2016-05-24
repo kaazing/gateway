@@ -43,6 +43,7 @@ public abstract class AbstractBridgeConnector<S extends AbstractBridgeSession<?,
         started = new AtomicBoolean(false);
     }
 
+    @Override
     protected IoProcessorEx<S> initProcessor() {
         return new BridgeConnectProcessor<>();
     }
@@ -64,9 +65,9 @@ public abstract class AbstractBridgeConnector<S extends AbstractBridgeSession<?,
             throw new IllegalArgumentException(format("Unexpected scheme \"%s\" for URI: %s", schemeName, location));
         }
 
-        if (started.get() == false) {
+        if (!started.get()) {
             synchronized (started) {
-                if (started.get() == false) {
+                if (!started.get()) {
                     init();
                     started.set(true);
                 }

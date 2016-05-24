@@ -57,6 +57,7 @@ public class ChannelIoSession<C extends ChannelConfig> extends AbstractIoSession
         return BUFFER_ALLOCATOR;
     }
 
+    @Override
     public ChannelIoService getService() {
         return service;
     }

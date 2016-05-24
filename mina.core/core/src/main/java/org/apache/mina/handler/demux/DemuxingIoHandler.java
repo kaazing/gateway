@@ -75,22 +75,22 @@ import org.apache.mina.util.IdentityHashSet;
 public class DemuxingIoHandler extends IoHandlerAdapter {
     
     private final Map<Class<?>, MessageHandler<?>> receivedMessageHandlerCache =
-        new ConcurrentHashMap<Class<?>, MessageHandler<?>>();
+            new ConcurrentHashMap<>();
 
     private final Map<Class<?>, MessageHandler<?>> receivedMessageHandlers =
-        new ConcurrentHashMap<Class<?>, MessageHandler<?>>();
+            new ConcurrentHashMap<>();
 
     private final Map<Class<?>, MessageHandler<?>> sentMessageHandlerCache =
-        new ConcurrentHashMap<Class<?>, MessageHandler<?>>();
+            new ConcurrentHashMap<>();
 
     private final Map<Class<?>, MessageHandler<?>> sentMessageHandlers =
-        new ConcurrentHashMap<Class<?>, MessageHandler<?>>();
+            new ConcurrentHashMap<>();
 
     private final Map<Class<?>, ExceptionHandler<?>> exceptionHandlerCache =
-        new ConcurrentHashMap<Class<?>, ExceptionHandler<?>>();
+            new ConcurrentHashMap<>();
 
     private final Map<Class<?>, ExceptionHandler<?>> exceptionHandlers =
-        new ConcurrentHashMap<Class<?>, ExceptionHandler<?>>();
+            new ConcurrentHashMap<>();
 
     /**
      * Creates a new instance with no registered {@link MessageHandler}s.
@@ -314,7 +314,7 @@ public class DemuxingIoHandler extends IoHandlerAdapter {
             Map handlers, Map handlerCache,
             Class type, Set<Class> triedClasses) {
 
-        Object handler = null;
+        Object handler;
 
         if (triedClasses != null && triedClasses.contains(type)) {
             return null;
@@ -339,7 +339,7 @@ public class DemuxingIoHandler extends IoHandlerAdapter {
              */
 
             if (triedClasses == null) {
-                triedClasses = new IdentityHashSet<Class>();
+                triedClasses = new IdentityHashSet<>();
             }
             triedClasses.add(type);
 

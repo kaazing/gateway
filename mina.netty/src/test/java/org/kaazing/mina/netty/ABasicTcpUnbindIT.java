@@ -25,9 +25,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URI;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -64,7 +61,7 @@ public class ABasicTcpUnbindIT {
     }
 
     private boolean checkIfUnbound(String host, int port) {
-        Socket socket = null;
+        Socket socket;
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace(format("Testing to see if the %s:%s is unbound", host, port));
         }

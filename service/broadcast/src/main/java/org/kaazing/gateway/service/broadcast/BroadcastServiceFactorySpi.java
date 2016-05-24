@@ -24,6 +24,7 @@ import org.kaazing.gateway.service.ServiceFactorySpi;
 
 public final class BroadcastServiceFactorySpi extends ServiceFactorySpi {
     
+    @Override
     public Collection<String> getServiceTypes() {
         return singleton("broadcast");
     }

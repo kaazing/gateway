@@ -34,7 +34,7 @@ public class TcpExtensionFactoryImpl implements TcpExtensionFactory {
      */
     @Override
     public List<TcpExtension> bind(ResourceAddress address) {
-        List<TcpExtension> extensions = new ArrayList<TcpExtension>(factories.size());
+        List<TcpExtension> extensions = new ArrayList<>(factories.size());
         for (TcpExtensionFactorySpi factory : factories) {
             TcpExtension extension = factory.bind(address);
             if (extension != null) {
@@ -53,7 +53,7 @@ public class TcpExtensionFactoryImpl implements TcpExtensionFactory {
     }
     
     static TcpExtensionFactory newInstance(ServiceLoader<TcpExtensionFactorySpi> services) {
-        List<TcpExtensionFactorySpi> factories = new ArrayList<TcpExtensionFactorySpi>();
+        List<TcpExtensionFactorySpi> factories = new ArrayList<>();
         for (TcpExtensionFactorySpi service : services) {
             factories.add(service);
         }

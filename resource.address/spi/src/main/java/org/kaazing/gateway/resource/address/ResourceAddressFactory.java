@@ -77,7 +77,7 @@ public class ResourceAddressFactory {
             String schemeName = e.getKey();
             Map<String, ResourceAddressFactorySpi<?>> alternates = e.getValue();
             alternates = (alternates == null)
-                    ? Collections.<String, ResourceAddressFactorySpi<?>>emptyMap()
+                    ? Collections.emptyMap()
                     : Collections.unmodifiableMap(alternates);
             alternateAddressFactories.put(schemeName, alternates);
         }
@@ -206,7 +206,7 @@ public class ResourceAddressFactory {
 
     public Map<String, ResourceAddressFactorySpi<?>> getAlternateAddressFactories(String schemeName) {
         Map<String, ResourceAddressFactorySpi<?>> alternates = alternateAddressFactories.get(schemeName);
-        return alternates == null ? Collections.<String, ResourceAddressFactorySpi<?>>emptyMap() : alternates;
+        return alternates == null ? Collections.emptyMap() : alternates;
     }
 
 }

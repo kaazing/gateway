@@ -55,7 +55,7 @@ public abstract
     private final ClientBootstrapFactory bootstrapFactory;
     private final IoConnectorChannelHandlerFactory handlerFactory;
     private final List<IoSessionIdleTracker> sessionIdleTrackers
-        = Collections.synchronizedList(new ArrayList<IoSessionIdleTracker>());
+        = Collections.synchronizedList(new ArrayList<>());
     private final ThreadLocal<IoSessionIdleTracker> currentSessionIdleTracker
         = new VicariousThreadLocal<IoSessionIdleTracker>() {
         @Override
@@ -171,6 +171,7 @@ public abstract
         return processor;
     }
 
+    @Override
     public IoSessionIdleTracker getSessionIdleTracker() {
         return currentSessionIdleTracker.get();
     }

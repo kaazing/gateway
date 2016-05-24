@@ -196,7 +196,7 @@ public class BindingsTest {
     }
 
     public static <T extends Collection<?>> void assertEmpty(T collection) {
-        assertThat(collection, new IsCollectionEmpty<T>());
+        assertThat(collection, new IsCollectionEmpty<>());
     }
 
     private static final class IsCollectionEmpty<T extends Collection<?>> extends BaseMatcher<T> {

@@ -68,7 +68,7 @@ public class IoSessionFinder {
             throw new NullPointerException("sessions");
         }
         
-        Set<IoSession> answer = new LinkedHashSet<IoSession>();
+        Set<IoSession> answer = new LinkedHashSet<>();
         for (IoSession s: sessions) {
             OgnlContext context = (OgnlContext) Ognl.createDefaultContext(s);
             context.setTypeConverter(typeConverter);

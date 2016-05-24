@@ -32,6 +32,7 @@ public class BridgeAcceptHandler extends AbstractBridgeHandler {
         this.acceptor = acceptor;
     }
 
+    @Override
     protected IoHandler getHandler(IoSession session, boolean throwIfNull) throws Exception {
         IoHandler handler = DELEGATE_KEY.get(session);
         if (handler == null) {

@@ -437,6 +437,7 @@ public final class NioSocketAcceptorEx
          * @return <code>true</code> if there is at least one more
          * SockectChannel object to read
          */
+        @Override
         public boolean hasNext() {
             return iterator.hasNext();
         }
@@ -447,6 +448,7 @@ public final class NioSocketAcceptorEx
          *
          * @return The next SocketChannel in the iterator
          */
+        @Override
         public ServerSocketChannel next() {
             SelectionKey key = iterator.next();
 
@@ -460,6 +462,7 @@ public final class NioSocketAcceptorEx
         /**
          * Remove the current SocketChannel from the iterator
          */
+        @Override
         public void remove() {
             iterator.remove();
         }

@@ -33,7 +33,7 @@ public final class PatternCacheControl {
     private boolean defaultMaxAge;
     private String pattern;
     private int matchingPatternCount;
-    private Map<Directive, String> directives = new HashMap<Directive, String>();
+    private Map<Directive, String> directives = new HashMap<>();
 
     public PatternCacheControl(String pattern, String directives) {
         this.pattern = pattern;

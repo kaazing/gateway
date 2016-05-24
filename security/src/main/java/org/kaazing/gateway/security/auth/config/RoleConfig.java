@@ -20,6 +20,7 @@ import java.util.Collection;
 
 public interface RoleConfig extends Principal {
 
+    @Override
     String getName();
 
     String getDescription();

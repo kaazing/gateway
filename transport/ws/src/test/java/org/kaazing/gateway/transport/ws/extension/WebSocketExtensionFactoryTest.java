@@ -26,6 +26,7 @@ import java.net.ProtocolException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.mina.core.session.IoSession;
@@ -48,7 +49,6 @@ public class WebSocketExtensionFactoryTest {
     private WsResourceAddress address;
     private MockNegotiate mockNegotiate;
     private WebSocketExtension webSocketExtensionSpi;
-    private WebSocketExtension webSocketExtensionSpi2;
     private static final ExtensionHelper extensionHelper = new ExtensionHelper() {
 
         @Override
@@ -76,7 +76,6 @@ public class WebSocketExtensionFactoryTest {
         mockNegotiate = context.mock(MockNegotiate.class);
         MockWebSocketExtensionFactorySpi.setNegotiateBehavoir(mockNegotiate);
         webSocketExtensionSpi = context.mock(WebSocketExtension.class);
-        webSocketExtensionSpi2 = context.mock(WebSocketExtension.class, "webSocketExtensionSpi2");
     }
     
     @Test
@@ -94,7 +93,7 @@ public class WebSocketExtensionFactoryTest {
             }
         });
 
-        List<String> clientRequestedExtensions = Arrays.asList(new String[]{"mock"});
+        List<String> clientRequestedExtensions = Collections.singletonList("mock");
         List<WebSocketExtension> extension = wsExtFactory.negotiateWebSocketExtensions(address, clientRequestedExtensions, extensionHelper);
         assertNotNull(extension);
         assertSame(extension.get(0), webSocketExtensionSpi);
@@ -107,7 +106,7 @@ public class WebSocketExtensionFactoryTest {
             }
         });
 
-        List<String> clientRequestedExtensions = Arrays.asList(new String[]{"nonexistant"});
+        List<String> clientRequestedExtensions = Collections.singletonList("nonexistant");
         List<WebSocketExtension> extension = wsExtFactory.negotiateWebSocketExtensions(address, clientRequestedExtensions, extensionHelper);
         assertNotNull(extension);
         Assert.assertTrue(extension.isEmpty());

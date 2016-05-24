@@ -291,6 +291,7 @@ public class HttpRequestMessage extends HttpStartMessage {
                 sameOrEquals(this.parameters, that.parameters));
     }
 
+	@Override
 	protected Map<String, List<String>> createHeaders() {
 		return new TreeMap<>(HttpHeaderNameComparator.INSTANCE);
 	}

@@ -51,7 +51,7 @@ public final class NioSocketAcceptor
         extends AbstractPollingIoAcceptor<NioSession, ServerSocketChannel>
         implements SocketAcceptor {
 
-    private final static Logger LOGGER = LoggerFactory
+    private static final Logger LOGGER = LoggerFactory
             .getLogger(NioSocketAcceptor.class);
     /** 
      * Define the number of socket that can wait to be accepted. Default

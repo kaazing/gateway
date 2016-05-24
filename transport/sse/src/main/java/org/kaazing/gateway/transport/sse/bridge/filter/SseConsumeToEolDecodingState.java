@@ -35,6 +35,7 @@ public abstract class SseConsumeToEolDecodingState implements DecodingState {
     private boolean lastIsCR;
     private IoBufferEx buffer;
 
+    @Override
     public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out)
             throws Exception {
         IoBufferEx inEx = (IoBufferEx) in;
@@ -119,6 +120,7 @@ public abstract class SseConsumeToEolDecodingState implements DecodingState {
     /**
      * {@inheritDoc}
      */
+    @Override
     public DecodingState finishDecode(ProtocolDecoderOutput out) throws Exception {
         if (buffer == null) {
             return finishDecode(END_OF_STREAM_BUFFER, out);

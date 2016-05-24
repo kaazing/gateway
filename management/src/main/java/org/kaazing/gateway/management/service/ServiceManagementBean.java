@@ -308,6 +308,7 @@ public interface ServiceManagementBean extends ManagementBean {
             return managementContext.getServiceManagementListeners();
         }
 
+        @Override
         public String getServiceType() {
             return serviceContext.getServiceType();
         }
@@ -680,6 +681,7 @@ public interface ServiceManagementBean extends ManagementBean {
 
             // Call the listeners OFF the IO thread.
             runManagementTask(new Runnable() {
+                @Override
                 public void run() {
                     try {
                         // We need to gather current stats to send out notifications
@@ -716,6 +718,7 @@ public interface ServiceManagementBean extends ManagementBean {
         @Override
         public void doSessionClosedListeners(final long sessionId, final ManagementSessionType managementSessionType) {
             runManagementTask(new Runnable() {
+                @Override
                 public void run() {
                     try {
                         // We need to gather current stats to send out notifications
@@ -749,6 +752,7 @@ public interface ServiceManagementBean extends ManagementBean {
         @Override
         public  void doMessageReceivedListeners(final long sessionId, final long sessionReadBytes, final Object message) {
             runManagementTask(new Runnable() {
+                @Override
                 public void run() {
                     try {
                         if (message instanceof IoBuffer) {
@@ -789,6 +793,7 @@ public interface ServiceManagementBean extends ManagementBean {
             final Object message = writeRequest.getMessage();
 
             runManagementTask(new Runnable() {
+                @Override
                 public void run() {
                     try {
                         if (message instanceof IoBuffer) {
@@ -828,6 +833,7 @@ public interface ServiceManagementBean extends ManagementBean {
         @Override
         public void doExceptionCaughtListeners(final long sessionId, final Throwable cause) {
             runManagementTask(new Runnable() {
+                @Override
                 public void run() {
                     try {
                         final String exceptionMessage = Utils.getCauseString(cause);
@@ -1202,8 +1208,8 @@ public interface ServiceManagementBean extends ManagementBean {
                 arraySize *= 2;
                 data = new SessionMapEntry[arraySize];
 
-                for (int i = 0; i < oldData.length; i++) {
-                    SessionMapEntry entry = oldData[i];
+                for (SessionMapEntry anOldData : oldData) {
+                    SessionMapEntry entry = anOldData;
                     while (entry != null) {
                         int index = (int) (entry.id % arraySize);
                         SessionMapEntry newEntry = data[index];
@@ -1331,8 +1337,8 @@ public interface ServiceManagementBean extends ManagementBean {
                 arraySize *= 2;
                 data = new ByteCountMapEntry[arraySize];
 
-                for (int i = 0; i < oldData.length; i++) {
-                    ByteCountMapEntry entry = oldData[i];
+                for (ByteCountMapEntry anOldData : oldData) {
+                    ByteCountMapEntry entry = anOldData;
                     while (entry != null) {
                         int index = (int) (entry.id % arraySize);
                         ByteCountMapEntry newEntry = data[index];

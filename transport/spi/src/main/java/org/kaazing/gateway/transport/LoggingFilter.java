@@ -60,7 +60,7 @@ public class LoggingFilter extends IoFilterAdapter {
 
     private final String writeFormat;
 
-    private static enum Strategy {
+    private enum Strategy {
         DEBUG(LogLevel.DEBUG),
         ERROR(LogLevel.ERROR),
         INFO(LogLevel.INFO),

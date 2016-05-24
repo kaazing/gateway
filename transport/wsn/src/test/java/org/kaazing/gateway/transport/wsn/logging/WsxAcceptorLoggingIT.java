@@ -16,11 +16,11 @@
 package org.kaazing.gateway.transport.wsn.logging;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Rule;
@@ -94,20 +94,20 @@ public class WsxAcceptorLoggingIT {
         })
     public void shouldLogOpenWriteReceivedAndClose() throws Exception {
         k3po.finish();
-        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "tcp#.*OPENED",
-            "tcp#.*WRITE",
-            "tcp#.*RECEIVED",
-            "tcp#.*CLOSED",
-            "http#.*OPENED",
-            "http#.*CLOSED",
-            "wsn#.*OPENED",
-            "wsn#.*WRITE",
-            "wsn#.*RECEIVED",
-            "wsn#.*CLOSED"
+        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
+                "tcp#.*OPENED",
+                "tcp#.*WRITE",
+                "tcp#.*RECEIVED",
+                "tcp#.*CLOSED",
+                "http#.*OPENED",
+                "http#.*CLOSED",
+                "wsn#.*OPENED",
+                "wsn#.*WRITE",
+                "wsn#.*RECEIVED",
+                "wsn#.*CLOSED"
         }));
 
-        forbiddenPatterns = Arrays.asList("#.*EXCEPTION");    }
+        forbiddenPatterns = Collections.singletonList("#.*EXCEPTION");    }
 
     @Test
     @Specification({
@@ -117,16 +117,16 @@ public class WsxAcceptorLoggingIT {
         k3po.start();
         Thread.sleep(2000);
         k3po.finish();
-        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "tcp#.*OPENED",
-            "tcp#.*WRITE",
-            "tcp#.*RECEIVED",
-            "tcp#.*CLOSED",
-            "http#.*OPENED",
-            "http#.*CLOSED",
-            "wsn#.*OPENED",
-            "wsn#.*EXCEPTION.*IOException",
-            "wsn#.*CLOSED"
+        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
+                "tcp#.*OPENED",
+                "tcp#.*WRITE",
+                "tcp#.*RECEIVED",
+                "tcp#.*CLOSED",
+                "http#.*OPENED",
+                "http#.*CLOSED",
+                "wsn#.*OPENED",
+                "wsn#.*EXCEPTION.*IOException",
+                "wsn#.*CLOSED"
         }));
         forbiddenPatterns = null;
     }

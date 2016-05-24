@@ -36,7 +36,7 @@ public class PatternCacheControlTest {
 
         assertEquals(PATTERN, patternCacheControl.getPattern());
 
-        Map<Directive, String> directives = new HashMap<Directive, String>();
+        Map<Directive, String> directives = new HashMap<>();
         directives.put(Directive.PUBLIC, EMPTY_STRING_VALUE);
         directives.put(Directive.MAX_AGE, "100");
 
@@ -58,7 +58,7 @@ public class PatternCacheControlTest {
 
         assertEquals(PATTERN, patternCacheControl.getPattern());
 
-        Map<Directive, String> directives = new HashMap<Directive, String>();
+        Map<Directive, String> directives = new HashMap<>();
         directives.put(Directive.MAX_AGE, "0");
         assertEquals(patternCacheControl.getDirectives(), directives);
 

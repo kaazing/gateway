@@ -37,7 +37,7 @@ public class HttpIdentityResolverTest {
 
     @Test
     public void testResolve() {
-        Collection<Class<? extends Principal>> userPrincipalClasses = new ArrayList<Class<? extends Principal>>();
+        Collection<Class<? extends Principal>> userPrincipalClasses = new ArrayList<>();
         IdentityResolver resolver = new HttpIdentityResolver(userPrincipalClasses);
         Subject subject = buildSubject();
 

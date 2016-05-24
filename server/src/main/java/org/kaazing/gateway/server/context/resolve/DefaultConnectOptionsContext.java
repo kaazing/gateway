@@ -272,13 +272,13 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
     private void parseConnectOptionsType(ServiceConnectOptionsType connectOptionsType,
                                          ServiceConnectOptionsType defaultOptionsType) {
         if (connectOptionsType != null) {
-            Map<String, String> connectOptionsMap = new HashMap<String, String>();
+            Map<String, String> connectOptionsMap = new HashMap<>();
             parseOptions(connectOptionsType.getDomNode(), connectOptionsMap);
             setOptions(connectOptionsMap);
         }
 
         if (defaultOptionsType != null) {
-            Map<String, String> defaultConnectOptionsMap = new HashMap<String, String>();
+            Map<String, String> defaultConnectOptionsMap = new HashMap<>();
             parseOptions(defaultOptionsType.getDomNode(), defaultConnectOptionsMap);
             setDefaultOptions(defaultConnectOptionsMap);
         }

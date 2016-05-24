@@ -102,6 +102,7 @@ public class DummySessionEx extends AbstractIoSessionEx {
                     }
                 },
                 new Executor() {
+                    @Override
                     public void execute(Runnable command) {
                         // Do nothing
                     }
@@ -117,10 +118,12 @@ public class DummySessionEx extends AbstractIoSessionEx {
                 throw new UnsupportedOperationException();
             }
 
+            @Override
             public IoSession newSession(SocketAddress remoteAddress, SocketAddress localAddress) {
                 throw new UnsupportedOperationException();
             }
 
+            @Override
             public TransportMetadata getTransportMetadata() {
                 return TRANSPORT_METADATA;
             }
@@ -147,10 +150,12 @@ public class DummySessionEx extends AbstractIoSessionEx {
         service = acceptor;
 
         this.processor = processor != null ? processor : new IoProcessorEx<AbstractIoSessionEx>() {
+            @Override
             public void add(AbstractIoSessionEx session) {
                 // Do nothing
             }
 
+            @Override
             public void flush(AbstractIoSessionEx session) {
                 DummySessionEx s = (DummySessionEx) session;
                 WriteRequest req = s.getWriteRequestQueue().poll(session);
@@ -172,24 +177,29 @@ public class DummySessionEx extends AbstractIoSessionEx {
                 }
             }
 
+            @Override
             public void remove(AbstractIoSessionEx session) {
                 if (!session.getCloseFuture().isClosed()) {
                     session.getFilterChain().fireSessionClosed();
                 }
             }
 
+            @Override
             public void updateTrafficControl(AbstractIoSessionEx session) {
                 // Do nothing
             }
 
+            @Override
             public void dispose() {
                 // Do nothing
             }
 
+            @Override
             public boolean isDisposed() {
                 return false;
             }
 
+            @Override
             public boolean isDisposing() {
                 return false;
             }
@@ -226,6 +236,7 @@ public class DummySessionEx extends AbstractIoSessionEx {
         this.config = config;
     }
 
+    @Override
     public IoHandler getHandler() {
         return handler;
     }
@@ -241,10 +252,12 @@ public class DummySessionEx extends AbstractIoSessionEx {
         this.handler = handler;
     }
 
+    @Override
     public SocketAddress getLocalAddress() {
         return localAddress;
     }
 
+    @Override
     public SocketAddress getRemoteAddress() {
         return remoteAddress;
     }
@@ -272,6 +285,7 @@ public class DummySessionEx extends AbstractIoSessionEx {
         this.remoteAddress = remoteAddress;
     }
 
+    @Override
     public IoServiceEx getService() {
         return service;
     }
@@ -292,6 +306,7 @@ public class DummySessionEx extends AbstractIoSessionEx {
         return processor;
     }
 
+    @Override
     public TransportMetadata getTransportMetadata() {
         return transportMetadata;
     }

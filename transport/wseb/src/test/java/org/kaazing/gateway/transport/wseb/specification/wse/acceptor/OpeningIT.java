@@ -92,7 +92,7 @@ public class OpeningIT {
     @Test
     @Specification("request.header.x.websocket.protocol/handshake.request")
     public void shouldEstablishConnectionWithRequestHeaderXWebSocketProtocol() throws Exception {
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put(SUPPORTED_PROTOCOLS.name(), new String[]{"primary"});
         ResourceAddress address = resourceAddressFactory.newResourceAddress("wse://localhost:8080/path",
                 options);

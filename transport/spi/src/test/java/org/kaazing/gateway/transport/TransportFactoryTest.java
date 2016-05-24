@@ -48,7 +48,7 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.mina.core.future.UnbindFuture;
 
 public class TransportFactoryTest {
-    private final static Map<String, BridgeAcceptor> acceptors = new HashMap<String, BridgeAcceptor>();
+    private static final Map<String, BridgeAcceptor> acceptors = new HashMap<>();
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -87,7 +87,7 @@ public class TransportFactoryTest {
         TransportFactory transportFactory = TransportFactory.newTransportFactory(new TestClassLoader(
                 TestTransportFactory1.class.getName(),
                 TestTransportFactory2.class.getName()), empty);
-        Map<String, Object> resources = new HashMap<String, Object>();
+        Map<String, Object> resources = new HashMap<>();
         Object scheduler = new Object();
         resources.put("scheduler", scheduler);
 
@@ -236,7 +236,7 @@ public class TransportFactoryTest {
 
         @Override
         public Collection<?> getExtensions() {
-            return Arrays.asList(new Object[]{extension});
+            return Collections.singletonList(extension);
         }
     }
 

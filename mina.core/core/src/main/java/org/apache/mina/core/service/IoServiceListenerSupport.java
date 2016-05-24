@@ -44,12 +44,12 @@ public class IoServiceListenerSupport {
     /**
      * A list of {@link IoServiceListener}s.
      */
-    private final List<IoServiceListener> listeners = new CopyOnWriteArrayList<IoServiceListener>();
+    private final List<IoServiceListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
      * Tracks managed sessions.
      */
-    private final ConcurrentMap<Long, IoSession> managedSessions = new ConcurrentHashMap<Long, IoSession>();
+    private final ConcurrentMap<Long, IoSession> managedSessions = new ConcurrentHashMap<>();
 
     /**
      * Read only version of {@link #managedSessions}.
@@ -217,7 +217,7 @@ public class IoServiceListenerSupport {
         } finally {
             // Fire a virtual service deactivation event for the last session of the connector.
             if (session.getService() instanceof IoConnector) {
-                boolean lastSession = false;
+                boolean lastSession;
                 synchronized (managedSessions) {
                     lastSession = managedSessions.isEmpty();
                 }

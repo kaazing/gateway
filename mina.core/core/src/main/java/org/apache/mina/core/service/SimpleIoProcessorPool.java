@@ -81,7 +81,7 @@ public class SimpleIoProcessorPool<T extends AbstractIoSession> implements
     private static final AttributeKey PROCESSOR = new AttributeKey(
             SimpleIoProcessorPool.class, "processor");
 
-    private final static Logger LOGGER = LoggerFactory
+    private static final Logger LOGGER = LoggerFactory
             .getLogger(SimpleIoProcessorPool.class);
 
     private final IoProcessor<T>[] pool;

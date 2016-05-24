@@ -39,5 +39,6 @@ public abstract class ConcurrentMapProxy<K, V> extends MapProxy<K, V> implements
         return getDelegate().replace(key, value);
     }
 
+    @Override
     protected abstract ConcurrentMap<K, V> getDelegate();
 }

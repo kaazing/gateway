@@ -75,7 +75,7 @@ public final class Comparators {
     }
 
     public static <T> Comparator<T> compareNonNull(Comparator<T> comparator) {
-        return new NonNullComparator<T>(comparator);
+        return new NonNullComparator<>(comparator);
     }
 
     public static <T extends Comparable<T>> Comparator<T> compareComparable(Class<T> clazz) {

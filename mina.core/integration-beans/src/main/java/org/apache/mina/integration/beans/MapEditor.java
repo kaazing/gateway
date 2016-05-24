@@ -123,7 +123,7 @@ public class MapEditor extends AbstractPropertyEditor {
         Matcher m = ELEMENT.matcher(text);
         TokenType lastTokenType = TokenType.ENTRY_DELIM;
         Object key = null;
-        Object value = null;
+        Object value;
 
         while (m.find()) {
             if (m.group(1) != null) {
@@ -180,7 +180,7 @@ public class MapEditor extends AbstractPropertyEditor {
     }
     
     protected Map<Object, Object> newMap() {
-        return new LinkedHashMap<Object, Object>();
+        return new LinkedHashMap<>();
     }
     
     private enum TokenType {

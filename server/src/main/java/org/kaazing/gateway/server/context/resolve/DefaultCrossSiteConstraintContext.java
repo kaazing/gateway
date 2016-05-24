@@ -31,18 +31,22 @@ public class DefaultCrossSiteConstraintContext implements CrossSiteConstraintCon
         this.maximumAge = maximumAge;
     }
 
+    @Override
     public String getAllowOrigin() {
         return allowOrigin;
     }
 
+    @Override
     public String getAllowMethods() {
         return allowMethods;
     }
 
+    @Override
     public String getAllowHeaders() {
         return allowHeaders;
     }
 
+    @Override
     public Integer getMaximumAge() {
         return maximumAge;
     }

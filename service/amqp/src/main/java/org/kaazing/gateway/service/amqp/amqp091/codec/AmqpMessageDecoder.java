@@ -253,7 +253,7 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
             return false;
         }
         
-        AmqpClassMessage message = null;
+        AmqpClassMessage message;
         short            classIndex = (short) getUnsignedShort(in);
         ClassKind        classKind = ClassKind.get(classIndex);
         
@@ -354,7 +354,7 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
     
     private static AmqpConnectionMessage decodeConnection(IoSession session, IoBufferEx in) 
             throws ProtocolDecoderException {
-        AmqpConnectionMessage message = null;
+        AmqpConnectionMessage message;
         short                 methodId = (short) getUnsignedShort(in);
         ConnectionMethodKind  methodKind = ConnectionMethodKind.get(methodId);
 
@@ -594,7 +594,7 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
 
         message.setClientProperties(clientProperties);
         message.setSecurityMechanism(mechanism);
-        String[] credentials = null;
+        String[] credentials;
         if ("AMQPLAIN".equals(mechanism)) {
             credentials = decodeAuthAmqPlain(response);
         }
@@ -609,7 +609,7 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
         // The mechanism selected by client is needed later for secure-ok
         session.setAttribute(AMQP_AUTHENTICATION_MECHANISM, mechanism);
         
-        String   username = null;
+        String   username;
         if (credentials != null) {
             username = credentials[0];
             char[] password = credentials[1].toCharArray();
@@ -842,8 +842,8 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
 
     private static String getHexDump(byte[] bytes) {
         StringBuilder hexDump = new StringBuilder();
-        for (int i = 0; i < bytes.length; i++) {
-            hexDump.append(Integer.toHexString(bytes[i]&0xFF)).append(" ");
+        for (byte aByte : bytes) {
+            hexDump.append(Integer.toHexString(aByte & 0xFF)).append(" ");
         }
                 
         return hexDump.toString();
@@ -867,7 +867,7 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
 
     private static Object getObjectOfType(IoBufferEx buffer, AmqpType type) 
            throws ProtocolDecoderException {
-        Object value = null;
+        Object value;
         switch (type)
         {
             case BIT:

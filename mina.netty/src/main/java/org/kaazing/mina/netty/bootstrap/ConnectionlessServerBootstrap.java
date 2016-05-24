@@ -85,7 +85,7 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
         private final Map<SocketAddress, Map<SocketAddress, Channel>> childChannelsByLocalAddress;
 
         public ConnectionlessParentChannelHandler() {
-            childChannelsByLocalAddress = new ConcurrentHashMap<SocketAddress, Map<SocketAddress, Channel>>();
+            childChannelsByLocalAddress = new ConcurrentHashMap<>();
         }
 
         @Override
@@ -120,7 +120,7 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
             SocketAddress localAddress = channel.getLocalAddress();
             Map<SocketAddress, Channel> childChannelsByRemoteAddress = childChannelsByLocalAddress.get(localAddress);
             if (childChannelsByRemoteAddress == null && createIfNull) {
-                Map<SocketAddress, Channel> newChildChannels = new ConcurrentHashMap<SocketAddress, Channel>();
+                Map<SocketAddress, Channel> newChildChannels = new ConcurrentHashMap<>();
                 childChannelsByRemoteAddress = childChannelsByLocalAddress.put(localAddress, newChildChannels);
                 if (childChannelsByRemoteAddress == null) {
                     childChannelsByRemoteAddress = newChildChannels;

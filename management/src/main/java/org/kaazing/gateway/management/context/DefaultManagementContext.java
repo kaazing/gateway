@@ -437,10 +437,12 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
         }
     }
 
+    @Override
     public List<ManagementServiceHandler> getManagementServiceHandlers() {
         return managementServiceHandlers;
     }
 
+    @Override
     public void addManagementServiceHandler(ManagementServiceHandler managementServiceHandler) {
         if (!managementServiceHandlers.contains(managementServiceHandler)) {
             managementServiceHandlers.add(managementServiceHandler);
@@ -448,6 +450,7 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
         }
     }
 
+    @Override
     public void removeManagementServiceHandler(ManagementServiceHandler managementServiceHandler) {
         managementServiceHandlers.remove(managementServiceHandler);
     }
@@ -564,9 +567,9 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
 
         String hostAndPid = gatewayBean.getHostAndPid();
 
-        for (int i = 0; i < cpuManagementBeans.length; i++) {
+        for (CpuManagementBean cpuManagementBean : cpuManagementBeans) {
             for (ManagementServiceHandler handler : managementServiceHandlers) {
-                handler.addCpuManagementBean(cpuManagementBeans[i], hostAndPid);
+                handler.addCpuManagementBean(cpuManagementBean, hostAndPid);
             }
         }
 
@@ -591,9 +594,9 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
 
         String hostAndPid = gatewayBean.getHostAndPid();
 
-        for (int i = 0; i < nicManagementBeans.length; i++) {
+        for (NicManagementBean nicManagementBean : nicManagementBeans) {
             for (ManagementServiceHandler handler : managementServiceHandlers) {
-                handler.addNicManagementBean(nicManagementBeans[i], hostAndPid);
+                handler.addNicManagementBean(nicManagementBean, hostAndPid);
             }
         }
 

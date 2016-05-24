@@ -179,7 +179,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     private WebSocketExtensionFactory webSocketExtensionFactory;
 
     private final List<IoSessionIdleTracker> sessionInactivityTrackers
-        = Collections.synchronizedList(new ArrayList<IoSessionIdleTracker>());
+        = Collections.synchronizedList(new ArrayList<>());
     private final ThreadLocal<IoSessionIdleTracker> currentSessionIdleTracker
         = new VicariousThreadLocal<IoSessionIdleTracker>() {
             @Override
@@ -628,7 +628,14 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                     wsebSession.setPingEnabled(pingEnabled);
                     IoSessionEx extensionsSession = wsebSession.getTransportSession();
                     IoFilterChain extensionsFilterChain = extensionsSession.getFilterChain();
-                    WsUtils.addExtensionFilters(negotiated, extensionHelper, extensionsFilterChain, false);
+
+                    // we don't want IdleTimeoutFilter in the filter chain. It sends 0x8A (PONG)
+                    // and some clients don't understand it. WSEB anyway sends NOOP command when
+                    // writer is idle.
+                    List<WebSocketExtension> negotiatedCopy = new ArrayList<>(negotiated);
+                    negotiatedCopy.removeIf(e -> e.getExtensionHeader().getExtensionToken().equals("x-kaazing-idle-timeout"));
+                    WsUtils.addExtensionFilters(negotiatedCopy, extensionHelper, extensionsFilterChain, false);
+
                     extensionsFilterChain.fireSessionCreated();
                     extensionsFilterChain.fireSessionOpened();
                 }

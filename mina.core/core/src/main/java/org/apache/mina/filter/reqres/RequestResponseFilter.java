@@ -49,7 +49,7 @@ public class RequestResponseFilter extends WriteRequestFilter {
     private final ResponseInspectorFactory responseInspectorFactory;
     private final ScheduledExecutorService timeoutScheduler;
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(RequestResponseFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RequestResponseFilter.class);
 
     public RequestResponseFilter(final ResponseInspector responseInspector,
             ScheduledExecutorService timeoutScheduler) {
@@ -190,7 +190,7 @@ public class RequestResponseFilter extends WriteRequestFilter {
         }
 
         Map<Object, Request> requestStore = getRequestStore(session);
-        Object oldValue = null;
+        Object oldValue;
         Object requestId = request.getId();
         synchronized (requestStore) {
             oldValue = requestStore.get(requestId);
@@ -229,7 +229,7 @@ public class RequestResponseFilter extends WriteRequestFilter {
         Set<Request> unrespondedRequests = getUnrespondedRequestStore(session);
         List<Request> unrespondedRequestsCopy;
         synchronized (unrespondedRequests) {
-            unrespondedRequestsCopy = new ArrayList<Request>(
+            unrespondedRequestsCopy = new ArrayList<>(
                     unrespondedRequests);
             unrespondedRequests.clear();
         }
@@ -269,7 +269,7 @@ public class RequestResponseFilter extends WriteRequestFilter {
      */
     protected Map<Object, Request> createRequestStore(
             IoSession session) {
-        return new HashMap<Object, Request>();
+        return new HashMap<>();
     }
 
     /**
@@ -286,7 +286,7 @@ public class RequestResponseFilter extends WriteRequestFilter {
      */
     protected Set<Request> createUnrespondedRequestStore(
             IoSession session) {
-        return new LinkedHashSet<Request>();
+        return new LinkedHashSet<>();
     }
 
     /**

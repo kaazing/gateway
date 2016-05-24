@@ -297,7 +297,7 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
                         // to prevent possible deadlock.
                         // See #1310
                         if (causes == null) {
-                            causes = new ArrayList<Throwable>(1);
+                            causes = new ArrayList<>(1);
                         }
                         causes.add(t);
                     } else {

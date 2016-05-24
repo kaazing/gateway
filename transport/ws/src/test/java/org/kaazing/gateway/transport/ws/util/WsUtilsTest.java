@@ -74,7 +74,7 @@ public class WsUtilsTest {
         extension1 = context.mock(WebSocketExtension.class, "extension1");
         extension2 = context.mock(WebSocketExtension.class, "extension2");
         extension3  = context.mock(WebSocketExtension.class, "extension3");
-        extensions = Arrays.asList(new WebSocketExtension[]{ extension1, extension2, extension3});
+        extensions = Arrays.asList(extension1, extension2, extension3);
         extensionHeader1 = context.mock(ExtensionHeader.class, "extensionHeader1");
         extensionHeader2 = context.mock(ExtensionHeader.class, "extensionHeader2");
         extensionHeader3 = context.mock(ExtensionHeader.class, "extensionHeader3");

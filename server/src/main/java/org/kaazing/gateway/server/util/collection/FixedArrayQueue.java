@@ -46,6 +46,7 @@ public class FixedArrayQueue<E> implements Queue<E> {
         return 1 << (32 - Integer.numberOfLeadingZeros(size - 1));
     }
 
+    @Override
     public boolean add(final E e) {
         if (offer(e)) {
             return true;
@@ -54,6 +55,7 @@ public class FixedArrayQueue<E> implements Queue<E> {
         throw new IllegalStateException("Queue is full");
     }
 
+    @Override
     public boolean offer(final E e) {
         if (null == e) {
             throw new NullPointerException("item cannot be null");
@@ -70,6 +72,7 @@ public class FixedArrayQueue<E> implements Queue<E> {
         return true;
     }
 
+    @Override
     public E poll() {
         final long currentHead = head;
         if (tail == currentHead) {
@@ -84,6 +87,7 @@ public class FixedArrayQueue<E> implements Queue<E> {
         return e;
     }
 
+    @Override
     public E remove() {
         final E e = poll();
         if (null == e) {
@@ -93,6 +97,7 @@ public class FixedArrayQueue<E> implements Queue<E> {
         return e;
     }
 
+    @Override
     public E element() {
         final E e = peek();
         if (null == e) {
@@ -102,10 +107,12 @@ public class FixedArrayQueue<E> implements Queue<E> {
         return e;
     }
 
+    @Override
     public E peek() {
         return buffer[(int) head & mask];
     }
 
+    @Override
     public int size() {
         int size;
         do {
@@ -118,10 +125,12 @@ public class FixedArrayQueue<E> implements Queue<E> {
         return size;
     }
 
+    @Override
     public boolean isEmpty() {
         return tail == head;
     }
 
+    @Override
     public boolean contains(final Object o) {
         if (null == o) {
             return false;
@@ -137,22 +146,27 @@ public class FixedArrayQueue<E> implements Queue<E> {
         return false;
     }
 
+    @Override
     public Iterator<E> iterator() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Object[] toArray() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public <T> T[] toArray(final T[] a) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean remove(final Object o) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean containsAll(final Collection<?> c) {
         for (final Object o : c) {
             if (!contains(o)) {
@@ -163,6 +177,7 @@ public class FixedArrayQueue<E> implements Queue<E> {
         return true;
     }
 
+    @Override
     public boolean addAll(final Collection<? extends E> c) {
         for (final E o : c) {
             add(o);
@@ -171,14 +186,17 @@ public class FixedArrayQueue<E> implements Queue<E> {
         return true;
     }
 
+    @Override
     public boolean removeAll(final Collection<?> c) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean retainAll(final Collection<?> c) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void clear() {
         throw new UnsupportedOperationException();
     }

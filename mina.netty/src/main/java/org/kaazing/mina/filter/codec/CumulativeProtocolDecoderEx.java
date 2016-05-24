@@ -147,8 +147,9 @@ public abstract class CumulativeProtocolDecoderEx extends ProtocolDecoderAdapter
      * @throws IllegalStateException if your <tt>doDecode()</tt> returned
      *                               <tt>true</tt> not consuming the cumulative buffer.
      */
+    @Override
     public void decode(IoSession session, IoBuffer in,
-            ProtocolDecoderOutput out) throws Exception {
+                       ProtocolDecoderOutput out) throws Exception {
 
         IoBufferEx inEx = (IoBufferEx) in;
 

@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.transport;
 
-import java.net.URI;
 import static org.kaazing.gateway.transport.bridge.CachingMessageEncoder.IO_MESSAGE_ENCODER;
 
 import java.nio.ByteBuffer;

@@ -83,18 +83,22 @@ public class DefaultSocketSessionConfigEx extends AbstractSocketSessionConfigEx 
         reuseAddress = defaultReuseAddress;
     }
 
+    @Override
     public boolean isReuseAddress() {
         return reuseAddress;
     }
 
+    @Override
     public void setReuseAddress(boolean reuseAddress) {
         this.reuseAddress = reuseAddress;
     }
 
+    @Override
     public int getReceiveBufferSize() {
         return receiveBufferSize;
     }
 
+    @Override
     public void setReceiveBufferSize(int receiveBufferSize) {
         this.receiveBufferSize = receiveBufferSize;
 
@@ -111,50 +115,62 @@ public class DefaultSocketSessionConfigEx extends AbstractSocketSessionConfigEx 
         }
     }
 
+    @Override
     public int getSendBufferSize() {
         return sendBufferSize;
     }
 
+    @Override
     public void setSendBufferSize(int sendBufferSize) {
         this.sendBufferSize = sendBufferSize;
     }
 
+    @Override
     public int getTrafficClass() {
         return trafficClass;
     }
 
+    @Override
     public void setTrafficClass(int trafficClass) {
         this.trafficClass = trafficClass;
     }
 
+    @Override
     public boolean isKeepAlive() {
         return keepAlive;
     }
 
+    @Override
     public void setKeepAlive(boolean keepAlive) {
         this.keepAlive = keepAlive;
     }
 
+    @Override
     public boolean isOobInline() {
         return oobInline;
     }
 
+    @Override
     public void setOobInline(boolean oobInline) {
         this.oobInline = oobInline;
     }
 
+    @Override
     public int getSoLinger() {
         return soLinger;
     }
 
+    @Override
     public void setSoLinger(int soLinger) {
         this.soLinger = soLinger;
     }
 
+    @Override
     public boolean isTcpNoDelay() {
         return tcpNoDelay;
     }
 
+    @Override
     public void setTcpNoDelay(boolean tcpNoDelay) {
         this.tcpNoDelay = tcpNoDelay;
     }

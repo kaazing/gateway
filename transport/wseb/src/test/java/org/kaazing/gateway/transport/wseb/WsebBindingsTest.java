@@ -49,7 +49,6 @@ public class WsebBindingsTest {
     private SchedulerProvider schedulerProvider;
 
     private ResourceAddressFactory addressFactory;
-    private BridgeServiceFactory serviceFactory;
 
     private NioSocketConnector tcpConnector;
     private HttpConnector httpConnector;
@@ -58,7 +57,6 @@ public class WsebBindingsTest {
     private SslAcceptor sslAcceptor;
     private HttpAcceptor httpAcceptor;
     private WsebAcceptor wsebAcceptor;
-    private WsAcceptor wsAcceptor;
 
     private KeyStore keyStore;
     private String keyStoreFile;
@@ -159,7 +157,7 @@ public class WsebBindingsTest {
 
         addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.EMPTY_MAP);
-        serviceFactory = new BridgeServiceFactory(transportFactory);
+        BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
 
         tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
         tcpAcceptor.setResourceAddressFactory(addressFactory);
@@ -188,7 +186,7 @@ public class WsebBindingsTest {
         wsebAcceptor.setResourceAddressFactory(addressFactory);
         wsebAcceptor.setSchedulerProvider(schedulerProvider);
 
-        wsAcceptor = (WsAcceptor)transportFactory.getTransport("ws").getAcceptor();
+        WsAcceptor wsAcceptor = (WsAcceptor) transportFactory.getTransport("ws").getAcceptor();
         wsAcceptor.setWsebAcceptor(wsebAcceptor);
     }
 

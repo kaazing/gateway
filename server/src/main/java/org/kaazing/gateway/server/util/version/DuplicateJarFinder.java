@@ -52,7 +52,7 @@ public class DuplicateJarFinder {
      * @throws DuplicateJarsException
      */
     public void findDuplicateJars() throws IOException, DuplicateJarsException {
-        Map<String, List<String>> artifactsToVersion = new HashMap<String, List<String>>();
+        Map<String, List<String>> artifactsToVersion = new HashMap<>();
         Enumeration<URL> manifestURLs = classPathParser.getManifestURLs();
         while (manifestURLs.hasMoreElements()) {
             parseManifestFileFromClassPathEntry(manifestURLs.nextElement(), artifactsToVersion);
@@ -68,7 +68,7 @@ public class DuplicateJarFinder {
             artifactName = artifactName.replace("com.kaazing:", "").replace("com.kaazing:", "");
             List<String> versionList = artifactsToVersion.get(artifactName);
             if (versionList == null) {
-                versionList = new ArrayList<String>();
+                versionList = new ArrayList<>();
                 artifactsToVersion.put(artifactName, versionList);
             }
             versionList.add(version);

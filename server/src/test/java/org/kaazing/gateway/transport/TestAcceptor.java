@@ -17,6 +17,7 @@ package org.kaazing.gateway.transport;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.IoHandler;
@@ -27,7 +28,7 @@ import org.kaazing.mina.core.future.UnbindFuture;
  * Used for testing resource injection (see GatewayContextResolverTest)
  */
 public final class TestAcceptor implements BridgeAcceptor {
-    public Collection<?> extensions = Arrays.asList(new TestTransportExtension());
+    public Collection<?> extensions = Collections.singletonList(new TestTransportExtension());
 
     @Override
     public void dispose() {

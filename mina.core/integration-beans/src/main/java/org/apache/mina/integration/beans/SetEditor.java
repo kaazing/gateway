@@ -34,6 +34,6 @@ public class SetEditor extends CollectionEditor {
 
     @Override
     protected Collection<Object> newCollection() {
-        return new LinkedHashSet<Object>();
+        return new LinkedHashSet<>();
     }
 }

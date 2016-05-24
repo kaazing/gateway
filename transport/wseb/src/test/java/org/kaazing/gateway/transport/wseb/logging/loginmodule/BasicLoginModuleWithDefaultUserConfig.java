@@ -24,7 +24,6 @@ import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import com.sun.security.auth.UnixPrincipal;
 import org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig;
 
 /**
@@ -47,6 +46,7 @@ public class BasicLoginModuleWithDefaultUserConfig implements LoginModule {
     // testUser's RolePrincipal
     private RolePrincipal userPrincipal;
 
+    @Override
     public void initialize(Subject subject,
                            CallbackHandler callbackHandler,
                            Map<String, ?> sharedState,

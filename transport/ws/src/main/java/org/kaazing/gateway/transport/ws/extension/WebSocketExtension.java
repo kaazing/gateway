@@ -29,7 +29,7 @@ public abstract class WebSocketExtension {
 
     public WebSocketExtension(ExtensionHelper extensionHelper) {
         if (extensionHelper == null) {
-            throw new NullPointerException(String.format("extensionHelper is null"));
+            throw new NullPointerException("extensionHelper is null");
         }
         this.extensionHelper = extensionHelper;
     }
@@ -51,7 +51,7 @@ public abstract class WebSocketExtension {
      */
     public IoFilter getFilter() {
         return null;
-    };
+    }
 
     /**
      * This method allows extensions access to session methods which can be used within extension filters.

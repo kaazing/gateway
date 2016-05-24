@@ -150,7 +150,7 @@ public class WsCheckAliveFilterTest {
         final IoFilterChain filterChain = context.mock(IoFilterChain.class);
         final IoSessionEx session = context.mock(IoSessionEx.class);
         final IoSessionConfigEx sessionConfig = context.mock(IoSessionConfigEx.class);
-        final AtomicReference<WsCheckAliveFilter> filterHolder = new AtomicReference<WsCheckAliveFilter>();
+        final AtomicReference<WsCheckAliveFilter> filterHolder = new AtomicReference<>();
 
         context.checking(new Expectations() {
             {

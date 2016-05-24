@@ -87,7 +87,7 @@ public class TcpAcceptorIT {
         "establish.connection/client"
         })
     public void establishConnection() throws Exception {
-        bindTo8080(new IoHandlerAdapter<IoSessionEx>());
+        bindTo8080(new IoHandlerAdapter<>());
         k3po.finish();
     }
 
@@ -111,7 +111,7 @@ public class TcpAcceptorIT {
         "client.sent.data/client"
         })
     public void clientSentData() throws Exception {
-        bindTo8080(new IoHandlerAdapter<IoSessionEx>());
+        bindTo8080(new IoHandlerAdapter<>());
         k3po.finish();
     }
 

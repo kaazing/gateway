@@ -88,5 +88,6 @@ public abstract class IMapProxy<K, V> extends ConcurrentMapProxy<K, V> implement
         return getDelegate().getInstanceType();
     }
 
+    @Override
     protected abstract IMap<K, V> getDelegate();
 }

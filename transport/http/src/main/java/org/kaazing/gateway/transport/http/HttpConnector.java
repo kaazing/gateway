@@ -348,7 +348,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
             }
             if (connectionClose && !httpSession.isClosing()) {
                 httpSession.getProcessor().remove(httpSession);
-            };
+            }
 
             if (!session.isClosing()) {
                 IoFilterChain filterChain = session.getFilterChain();

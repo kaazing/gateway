@@ -27,7 +27,7 @@ import org.apache.mina.core.buffer.IoBuffer;
  */
 public abstract class AbstractProtocolEncoderOutput implements
         ProtocolEncoderOutput {
-    private final Queue<Object> messageQueue = new ConcurrentLinkedQueue<Object>();
+    private final Queue<Object> messageQueue = new ConcurrentLinkedQueue<>();
 
     private boolean buffersOnly = true;
 

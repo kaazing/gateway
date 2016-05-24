@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * @since MINA 2.0.0-M3
  */
 public class HttpBasicAuthLogicHandler extends AbstractAuthLogicHandler {
-    private final static Logger logger = LoggerFactory
+    private static final Logger logger = LoggerFactory
             .getLogger(HttpBasicAuthLogicHandler.class);
 
     /**
@@ -68,7 +68,7 @@ public class HttpBasicAuthLogicHandler extends AbstractAuthLogicHandler {
         // Send request
         HttpProxyRequest req = (HttpProxyRequest) request;
         Map<String, List<String>> headers = req.getHeaders() != null ? req
-                .getHeaders() : new HashMap<String, List<String>>();
+                .getHeaders() : new HashMap<>();
 
         String username = req.getProperties().get(
                 HttpProxyConstants.USER_PROPERTY);

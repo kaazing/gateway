@@ -57,7 +57,7 @@ public class UnorderedThreadPoolExecutor extends ThreadPoolExecutor {
         }
     };
 
-    private final Set<Worker> workers = new HashSet<Worker>();
+    private final Set<Worker> workers = new HashSet<>();
 
     private volatile int corePoolSize;
     private volatile int maximumPoolSize;
@@ -104,7 +104,7 @@ public class UnorderedThreadPoolExecutor extends ThreadPoolExecutor {
             int corePoolSize, int maximumPoolSize,
             long keepAliveTime, TimeUnit unit,
             ThreadFactory threadFactory, IoEventQueueHandler queueHandler) {
-        super(0, 1, keepAliveTime, unit, new LinkedBlockingQueue<Runnable>(), threadFactory, new AbortPolicy());
+        super(0, 1, keepAliveTime, unit, new LinkedBlockingQueue<>(), threadFactory, new AbortPolicy());
         if (corePoolSize < 0) {
             throw new IllegalArgumentException("corePoolSize: " + corePoolSize);
         }
@@ -244,7 +244,7 @@ public class UnorderedThreadPoolExecutor extends ThreadPoolExecutor {
     public List<Runnable> shutdownNow() {
         shutdown();
 
-        List<Runnable> answer = new ArrayList<Runnable>();
+        List<Runnable> answer = new ArrayList<>();
         Runnable task;
         while ((task = getQueue().poll()) != null) {
             if (task == EXIT_SIGNAL) {

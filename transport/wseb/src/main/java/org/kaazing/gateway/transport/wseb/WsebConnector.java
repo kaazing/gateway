@@ -130,7 +130,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
     };
 
     private final List<IoSessionIdleTracker> sessionIdleTrackers
-        = Collections.synchronizedList(new ArrayList<IoSessionIdleTracker>());
+        = Collections.synchronizedList(new ArrayList<>());
 
     private final ThreadLocal<IoSessionIdleTracker> currentSessionIdleTracker
         = new VicariousThreadLocal<IoSessionIdleTracker>() {
@@ -635,7 +635,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                 wsebSession.close(true);
             }
         }
-    };
+    }
 
     private static class FixedIdentityResolver extends IdentityResolver {
         final String identity;

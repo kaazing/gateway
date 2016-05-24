@@ -59,12 +59,12 @@ public abstract class AbstractPollingConnectionlessIoAcceptor<T extends Abstract
     private final Object lock = new Object();
     private final IoProcessor<T> processor = new ConnectionlessAcceptorProcessor();
     private final Queue<AcceptorOperationFuture> registerQueue =
-        new ConcurrentLinkedQueue<AcceptorOperationFuture>();
+            new ConcurrentLinkedQueue<>();
     private final Queue<AcceptorOperationFuture> cancelQueue =
-        new ConcurrentLinkedQueue<AcceptorOperationFuture>();
-    private final Queue<T> flushingSessions = new ConcurrentLinkedQueue<T>();
+            new ConcurrentLinkedQueue<>();
+    private final Queue<T> flushingSessions = new ConcurrentLinkedQueue<>();
     private final Map<SocketAddress, H> boundHandles =
-        Collections.synchronizedMap(new HashMap<SocketAddress, H>());
+        Collections.synchronizedMap(new HashMap<>());
 
     private IoSessionRecycler sessionRecycler = DEFAULT_RECYCLER;
 
@@ -170,7 +170,7 @@ public abstract class AbstractPollingConnectionlessIoAcceptor<T extends Abstract
         // Update the local addresses.
         // setLocalAddresses() shouldn't be called from the worker thread
         // because of deadlock.
-        Set<SocketAddress> newLocalAddresses = new HashSet<SocketAddress>();
+        Set<SocketAddress> newLocalAddresses = new HashSet<>();
 
         for (H handle:boundHandles.values()) {
             newLocalAddresses.add(localAddress(handle));
@@ -218,9 +218,7 @@ public abstract class AbstractPollingConnectionlessIoAcceptor<T extends Abstract
 
             try {
                 return newSessionWithoutLock(remoteAddress, localAddress);
-            } catch (RuntimeException e) {
-                throw e;
-            } catch (Error e) {
+            } catch (RuntimeException | Error e) {
                 throw e;
             } catch (Exception e) {
                 throw new RuntimeIoException("Failed to create a session.", e);
@@ -523,7 +521,7 @@ public abstract class AbstractPollingConnectionlessIoAcceptor<T extends Abstract
                 break;
             }
 
-            Map<SocketAddress, H> newHandles = new HashMap<SocketAddress, H>();
+            Map<SocketAddress, H> newHandles = new HashMap<>();
             List<SocketAddress> localAddresses = req.getLocalAddresses();
             try {
                 for (SocketAddress a: localAddresses) {

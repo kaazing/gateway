@@ -32,6 +32,7 @@ public class HttpCodecFilter extends HttpProtocolCodecFilter {
     
     private static class HttpClientCodecFactory implements ProtocolCodecFactory {
         
+        @Override
         public ProtocolEncoder getEncoder(IoSession session) {
             IoSessionEx sessionEx = (IoSessionEx) session;
             IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
@@ -44,6 +45,7 @@ public class HttpCodecFilter extends HttpProtocolCodecFilter {
             return new HttpRequestEncoder(allocator);
         }
         
+        @Override
         public ProtocolDecoder getDecoder(IoSession session) {
             return new HttpResponseDecoder();
         }
@@ -51,6 +53,7 @@ public class HttpCodecFilter extends HttpProtocolCodecFilter {
     
     private static class HttpServerCodecFactory implements ProtocolCodecFactory {
         
+        @Override
         public ProtocolEncoder getEncoder(IoSession session) {
             IoSessionEx sessionEx = (IoSessionEx) session;
             IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
@@ -63,6 +66,7 @@ public class HttpCodecFilter extends HttpProtocolCodecFilter {
             return new HttpResponseEncoder(allocator);
         }
         
+        @Override
         public ProtocolDecoder getDecoder(IoSession session) {
             return new HttpRequestDecoder();
         }

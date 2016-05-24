@@ -82,6 +82,7 @@ class AssertAlignedFilter extends IoFilterAdapter {
         super.filterWrite(nextFilter, session, writeRequest);
     }
 
+    @Override
     public void exceptionCaught(NextFilter nextFilter, IoSession session, Throwable cause) throws Exception {
         //verifyInIoThread(session, sessionEx.getIoThread());
         super.exceptionCaught(nextFilter, session, cause);

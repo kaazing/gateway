@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractProxyLogicHandler implements ProxyLogicHandler {
 
-    private final static Logger LOGGER = LoggerFactory
+    private static final Logger LOGGER = LoggerFactory
             .getLogger(AbstractProxyLogicHandler.class);
 
     /**
@@ -173,7 +173,7 @@ public abstract class AbstractProxyLogicHandler implements ProxyLogicHandler {
     public synchronized void enqueueWriteRequest(final NextFilter nextFilter,
             final WriteRequest writeRequest) {
         if (writeRequestQueue == null) {
-            writeRequestQueue = new LinkedList<Event>();
+            writeRequestQueue = new LinkedList<>();
         }
 
         writeRequestQueue.offer(new Event(nextFilter, writeRequest));
@@ -208,7 +208,7 @@ public abstract class AbstractProxyLogicHandler implements ProxyLogicHandler {
     /**
      * Event wrapper class for enqueued events.
      */
-    private final static class Event {
+    private static final class Event {
         private final NextFilter nextFilter;
 
         private final Object data;

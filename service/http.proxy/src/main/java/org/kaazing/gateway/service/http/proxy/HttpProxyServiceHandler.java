@@ -157,7 +157,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             for (ServiceProperties sp : locationProperties) {
                 locationMap.put(sp.get("from"), sp.get("to"));
             }
-            locationMap.put(connectURI.toString(), acceptURI.toString());
+            locationMap.put(connectURI, acceptURI);
         }
 
         useForwarded = properties.get("use-forwarded");

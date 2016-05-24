@@ -15,15 +15,7 @@
  */
 package org.kaazing.gateway.service.http.proxy;
 
-import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
-import javax.net.ssl.SSLSocket;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 class SecureOriginServer extends OriginServer {
 

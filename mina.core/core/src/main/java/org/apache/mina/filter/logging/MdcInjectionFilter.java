@@ -104,7 +104,7 @@ public class MdcInjectionFilter extends CommonEventFilter {
      * @see #setProperty(org.apache.mina.core.session.IoSession, String, String)
      */
     public MdcInjectionFilter(MdcKey... keys) {
-        Set<MdcKey> keySet = new HashSet<MdcKey>(Arrays.asList(keys));
+        Set<MdcKey> keySet = new HashSet<>(Arrays.asList(keys));
         this.mdcKeys = EnumSet.copyOf(keySet);
     }
 
@@ -155,7 +155,7 @@ public class MdcInjectionFilter extends CommonEventFilter {
     private static Map<String, String> getContext(final IoSession session) {
         Map<String, String> context = (Map<String, String>) session.getAttribute(CONTEXT_KEY);
         if (context == null) {
-            context = new ConcurrentHashMap<String, String>();
+            context = new ConcurrentHashMap<>();
             session.setAttribute(CONTEXT_KEY, context);
         }
         return context;

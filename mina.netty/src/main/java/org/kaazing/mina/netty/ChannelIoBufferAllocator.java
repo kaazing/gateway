@@ -46,6 +46,7 @@ public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<
             super(parent);
         }
 
+        @Override
         public abstract void buf(ByteBuffer newBuf);
 
         @Override
@@ -81,6 +82,7 @@ public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<
         }
 
         // ensure thread-local for final write since we no longer duplicate every write inside NETTY
+        @Override
         public ByteBuffer buf() {
             return bufRef.get();
         }

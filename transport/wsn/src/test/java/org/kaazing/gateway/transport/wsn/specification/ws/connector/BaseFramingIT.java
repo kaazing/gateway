@@ -23,7 +23,6 @@ import java.nio.charset.Charset;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -37,7 +36,6 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
-import org.kaazing.gateway.transport.wsn.WsnProtocol;
 import org.kaazing.gateway.transport.wsn.WsnSession;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;

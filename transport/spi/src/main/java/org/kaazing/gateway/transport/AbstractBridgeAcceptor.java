@@ -78,6 +78,7 @@ public abstract class AbstractBridgeAcceptor<T extends AbstractBridgeSession<?,?
         return null;
     }
 
+    @Override
     protected IoProcessorEx<T> initProcessor() {
         return new BridgeAcceptProcessor<>();
     }
@@ -100,13 +101,13 @@ public abstract class AbstractBridgeAcceptor<T extends AbstractBridgeSession<?,?
             throw new IllegalArgumentException(format("Unexpected scheme \"%s\" for URI: %s", schemeName, location));
         }
         
-        if (started.get() == false) {
-        	synchronized (started) {
-                if (started.get() == false) {
-	                init();
-	            	started.set(true);
+        if (!started.get()) {
+            synchronized (started) {
+                if (!started.get()) {
+                    init();
+                    started.set(true);
                 }
-        	}
+            }
         }
 
         boolean bindAlternate;

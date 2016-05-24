@@ -57,10 +57,10 @@ import org.w3c.dom.NodeList;
 public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     private static final Logger logger = LoggerFactory.getLogger(DefaultAcceptOptionsContext.class);
 
-    private static int DEFAULT_WEBSOCKET_MAXIMUM_MESSAGE_SIZE = 128 * 1024; //128KB
-    private static int DEFAULT_HTTP_KEEPALIVE_TIMEOUT = 30; //seconds
+    private static final int DEFAULT_WEBSOCKET_MAXIMUM_MESSAGE_SIZE = 128 * 1024; //128KB
+    private static final int DEFAULT_HTTP_KEEPALIVE_TIMEOUT = 30; //seconds
     private static final long UNLIMITED_MAX_OUTPUT_RATE = 0xFFFFFFFFL;
-    private static long DEFAULT_TCP_MAXIMUM_OUTBOUND_RATE = UNLIMITED_MAX_OUTPUT_RATE; //unlimited
+    private static final long DEFAULT_TCP_MAXIMUM_OUTBOUND_RATE = UNLIMITED_MAX_OUTPUT_RATE; //unlimited
 
     private static long DEFAULT_TCP_HANDSHAKE_TIMEOUT_MILLIS = 10000; //10 seconds
     private static long DEFAULT_SSL_HANDSHAKE_TIMEOUT_MILLIS = 10000; //10 seconds
@@ -180,6 +180,7 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         }
     }
 
+    @Override
     public Map<String, Object> asOptionsMap() {
         Map<String, Object> result = new LinkedHashMap<>();
 
@@ -275,30 +276,31 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     }
 
     private String resolveInternalBindOptionName(String externalBindOptionName) {
-        if (externalBindOptionName.equals("tcp")) {
-            return "tcp.bind";
-        } else if (externalBindOptionName.equals("ssl")) {
-            return "ssl.tcp.bind";
-        } else if (externalBindOptionName.equals("http")) {
-            return "http.tcp.bind";
-        } else if (externalBindOptionName.equals("https")) {
-            return "http.ssl.tcp.bind";
-        } else if (externalBindOptionName.equals("ws")) {
-            return "ws.http.tcp.bind";
-        } else if (externalBindOptionName.equals("wss")) {
-            return "ws.http.ssl.tcp.bind";
-        } else if (externalBindOptionName.equals("wsn")) {
-            return "wsn.http.tcp.bind";
-        } else if (externalBindOptionName.equals("wsn+ssl")) {
-            return "wsn.http.ssl.tcp.bind";
-        } else if (externalBindOptionName.equals("wsx")) {
-            return "wsn.http.wsn.http.tcp.bind";
-        } else if (externalBindOptionName.equals("wsx+ssl")) {
-            return "wsn.http.wsn.http.ssl.tcp.bind";
-        } else if (externalBindOptionName.equals("httpxe")) {
-            return "http.http.tcp.bind";
-        } else if (externalBindOptionName.equals("httpxe+ssl")) {
-            return "http.http.ssl.tcp.bind";
+        switch (externalBindOptionName) {
+            case "tcp":
+                return "tcp.bind";
+            case "ssl":
+                return "ssl.tcp.bind";
+            case "http":
+                return "http.tcp.bind";
+            case "https":
+                return "http.ssl.tcp.bind";
+            case "ws":
+                return "ws.http.tcp.bind";
+            case "wss":
+                return "ws.http.ssl.tcp.bind";
+            case "wsn":
+                return "wsn.http.tcp.bind";
+            case "wsn+ssl":
+                return "wsn.http.ssl.tcp.bind";
+            case "wsx":
+                return "wsn.http.wsn.http.tcp.bind";
+            case "wsx+ssl":
+                return "wsn.http.wsn.http.ssl.tcp.bind";
+            case "httpxe":
+                return "http.http.tcp.bind";
+            case "httpxe+ssl":
+                return "http.http.ssl.tcp.bind";
         }
         return null;
     }
@@ -341,7 +343,7 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     }
 
     private List<String> getWsExtensions(long wsInactivityTimeout) {
-        List<String> wsExtensions = null;
+        List<String> wsExtensions;
         if (wsInactivityTimeout > 0) {
             ArrayList<String> extensions = new ArrayList<>(DEFAULT_WEBSOCKET_EXTENSIONS);
             extensions.add(IDLE_TIMEOUT);
@@ -449,13 +451,13 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     private void parseAcceptOptionsType(ServiceAcceptOptionsType acceptOptionsType,
                                         ServiceAcceptOptionsType defaultOptionsType) {
         if (acceptOptionsType != null) {
-            Map<String, String> acceptOptionsMap = new HashMap<String, String>();
+            Map<String, String> acceptOptionsMap = new HashMap<>();
             parseOptions(acceptOptionsType.getDomNode(), acceptOptionsMap);
             setOptions(acceptOptionsMap);
         }
 
         if (defaultOptionsType != null) {
-            Map<String, String> defaultAcceptOptionsMap = new HashMap<String, String>();
+            Map<String, String> defaultAcceptOptionsMap = new HashMap<>();
             parseOptions(defaultOptionsType.getDomNode(), defaultAcceptOptionsMap);
             setDefaultOptions(defaultAcceptOptionsMap);
         }

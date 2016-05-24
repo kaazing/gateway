@@ -95,6 +95,7 @@ public class LocalIT {
         connector.setPipelineFactory(pipelineFactory(pipeline(new LoggingHandler(InternalLogLevel.INFO))));
         connector.setFilterChainBuilder(builder);
         connector.setHandler(new IoHandlerAdapter() {
+            @Override
             public void messageReceived(IoSession session, Object message)
                     throws Exception {
                 echoedMessageReceived.countDown();

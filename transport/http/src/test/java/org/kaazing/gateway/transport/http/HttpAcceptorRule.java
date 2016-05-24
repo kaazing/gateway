@@ -68,7 +68,7 @@ public class HttpAcceptorRule implements TestRule {
         @Override
         public void evaluate() throws Throwable {
             SchedulerProvider schedulerProvider = new SchedulerProvider();
-            TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object>emptyMap());
+            TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.emptyMap());
             addressFactory = ResourceAddressFactory.newResourceAddressFactory();
             Properties config = new Properties();
             config.setProperty(HTTPXE_SPECIFICATION.getPropertyName(), "true");

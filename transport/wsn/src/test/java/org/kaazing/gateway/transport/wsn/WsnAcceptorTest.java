@@ -50,10 +50,7 @@ public class WsnAcceptorTest {
     @Rule
     public final TestRule timeoutRule = timeoutRule(10, SECONDS);
 
-    private SchedulerProvider schedulerProvider;
-    
     private ResourceAddressFactory addressFactory;
-    private BridgeServiceFactory serviceFactory;
 
     private NioSocketConnector tcpConnector;
     private HttpConnector httpConnector;
@@ -62,16 +59,15 @@ public class WsnAcceptorTest {
     private NioSocketAcceptor tcpAcceptor;
     private HttpAcceptor httpAcceptor;
     private WsnAcceptor wsnAcceptor;
-    private WsAcceptor wsAcceptor;
 
     @Before
     public void init() {
-        schedulerProvider = new SchedulerProvider();
+        SchedulerProvider schedulerProvider = new SchedulerProvider();
          
         addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         Map<String, Object> config = Collections.emptyMap();
         TransportFactory transportFactory = TransportFactory.newTransportFactory(config);
-        serviceFactory = new BridgeServiceFactory(transportFactory);
+        BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
 
         tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
         tcpAcceptor.setResourceAddressFactory(addressFactory);
@@ -96,7 +92,7 @@ public class WsnAcceptorTest {
         wsnAcceptor.setResourceAddressFactory(addressFactory);
         wsnAcceptor.setSchedulerProvider(schedulerProvider);
 
-        wsAcceptor = (WsAcceptor)transportFactory.getTransport("ws").getAcceptor();
+        WsAcceptor wsAcceptor = (WsAcceptor) transportFactory.getTransport("ws").getAcceptor();
         wsAcceptor.setWsnAcceptor(wsnAcceptor);
         wsAcceptor.setConfiguration(new Properties());
 
@@ -177,11 +173,11 @@ public class WsnAcceptorTest {
     @Test
     public void shouldBindWsxAddressesWithTcpBind() throws Exception {
         String uri1 = "wsx://localhost:8003/";
-        HashMap<String, Object> options1 = new HashMap<String, Object>();
+        HashMap<String, Object> options1 = new HashMap<>();
         options1.put("tcp.bind", "7777");
 
         String uri2 = "wsx://localhost:8003/";
-        HashMap<String, Object> options2 = new HashMap<String, Object>();
+        HashMap<String, Object> options2 = new HashMap<>();
 
         ResourceAddress address1 = addressFactory.newResourceAddress(uri1, options1);
         ResourceAddress address2 = addressFactory.newResourceAddress(uri2, options2);

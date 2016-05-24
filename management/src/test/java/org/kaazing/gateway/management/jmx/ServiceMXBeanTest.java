@@ -53,12 +53,12 @@ public class ServiceMXBeanTest {
         final SessionMXBean sessionBean1 = context.mock(SessionMXBean.class, "sessionBean1");
         final SessionMXBean sessionBean4 = context.mock(SessionMXBean.class, "sessionBean2");
         final ObjectName objectName = context.mock(ObjectName.class);
-        final Map<Long, Map<String, String>> sessionPrincipalMap = new HashMap<Long, Map<String, String>>();
-        final Map<String, String> s1Principals = new HashMap<String, String>();
-        final Map<String, String> s2Principals = new HashMap<String, String>();
-        final Map<String, String> s3Principals = new HashMap<String, String>();
-        final Map<String, String> s4Principals = new HashMap<String, String>();
-        final Map<Long, Map<String, String>> activeSessionPrincipalMap = new HashMap<Long, Map<String, String>>();
+        final Map<Long, Map<String, String>> sessionPrincipalMap = new HashMap<>();
+        final Map<String, String> s1Principals = new HashMap<>();
+        final Map<String, String> s2Principals = new HashMap<>();
+        final Map<String, String> s3Principals = new HashMap<>();
+        final Map<String, String> s4Principals = new HashMap<>();
+        final Map<Long, Map<String, String>> activeSessionPrincipalMap = new HashMap<>();
 
         context.checking(new Expectations() {
             {
@@ -73,7 +73,7 @@ public class ServiceMXBeanTest {
                 will(new CustomAction("Delete sessionBean1") {
                     @Override
                     public Object invoke(Invocation invocation) throws Throwable {
-                        activeSessionPrincipalMap.remove(Long.valueOf(1));
+                        activeSessionPrincipalMap.remove(1L);
                         return null;
                     }
                 });
@@ -83,7 +83,7 @@ public class ServiceMXBeanTest {
                 will(new CustomAction("Delete sessionBean4") {
                     @Override
                     public Object invoke(Invocation invocation) throws Throwable {
-                        activeSessionPrincipalMap.remove(Long.valueOf(4));
+                        activeSessionPrincipalMap.remove(4L);
                         return null;
                     }
                 });
@@ -102,10 +102,10 @@ public class ServiceMXBeanTest {
         s4Principals.put("joe", "com.kaazing.demo.auth.MyUserPrincipal");
         s4Principals.put("MARKETING", "com.kaazing.demo.auth.MyRolePrincipal");
 
-        sessionPrincipalMap.put(Long.valueOf(1), s1Principals);
-        sessionPrincipalMap.put(Long.valueOf(2), s2Principals);
-        sessionPrincipalMap.put(Long.valueOf(3), s3Principals);
-        sessionPrincipalMap.put(Long.valueOf(4), s4Principals);
+        sessionPrincipalMap.put(1L, s1Principals);
+        sessionPrincipalMap.put(2L, s2Principals);
+        sessionPrincipalMap.put(3L, s3Principals);
+        sessionPrincipalMap.put(4L, s4Principals);
 
         activeSessionPrincipalMap.putAll(sessionPrincipalMap);
 
@@ -122,12 +122,12 @@ public class ServiceMXBeanTest {
         final SessionMXBean sessionBean1 = context.mock(SessionMXBean.class, "sessionBean1");
         final SessionMXBean sessionBean4 = context.mock(SessionMXBean.class, "sessionBean2");
         final ObjectName objectName = context.mock(ObjectName.class);
-        final Map<Long, Map<String, String>> sessionPrincipalMap = new HashMap<Long, Map<String, String>>();
-        final Map<String, String> s1Principals = new HashMap<String, String>();
-        final Map<String, String> s2Principals = new HashMap<String, String>();
-        final Map<String, String> s3Principals = new HashMap<String, String>();
-        final Map<String, String> s4Principals = new HashMap<String, String>();
-        final Map<Long, Map<String, String>> activeSessionPrincipalMap = new HashMap<Long, Map<String, String>>();
+        final Map<Long, Map<String, String>> sessionPrincipalMap = new HashMap<>();
+        final Map<String, String> s1Principals = new HashMap<>();
+        final Map<String, String> s2Principals = new HashMap<>();
+        final Map<String, String> s3Principals = new HashMap<>();
+        final Map<String, String> s4Principals = new HashMap<>();
+        final Map<Long, Map<String, String>> activeSessionPrincipalMap = new HashMap<>();
 
         context.checking(new Expectations() {
             {
@@ -157,10 +157,10 @@ public class ServiceMXBeanTest {
         s4Principals.put("joe", "com.kaazing.demo.auth.MyUserPrincipal");
         s4Principals.put("MARKETING", "com.kaazing.demo.auth.MyRolePrincipal");
 
-        sessionPrincipalMap.put(Long.valueOf(1), s1Principals);
-        sessionPrincipalMap.put(Long.valueOf(2), s2Principals);
-        sessionPrincipalMap.put(Long.valueOf(3), s3Principals);
-        sessionPrincipalMap.put(Long.valueOf(4), s4Principals);
+        sessionPrincipalMap.put(1L, s1Principals);
+        sessionPrincipalMap.put(2L, s2Principals);
+        sessionPrincipalMap.put(3L, s3Principals);
+        sessionPrincipalMap.put(4L, s4Principals);
 
         activeSessionPrincipalMap.putAll(sessionPrincipalMap);
 
@@ -177,12 +177,12 @@ public class ServiceMXBeanTest {
         final SessionMXBean sessionBean1 = context.mock(SessionMXBean.class, "sessionBean1");
         final SessionMXBean sessionBean4 = context.mock(SessionMXBean.class, "sessionBean2");
         final ObjectName objectName = context.mock(ObjectName.class);
-        final Map<Long, Map<String, String>> sessionPrincipalMap = new HashMap<Long, Map<String, String>>();
-        final Map<String, String> s1Principals = new HashMap<String, String>();
-        final Map<String, String> s2Principals = new HashMap<String, String>();
-        final Map<String, String> s3Principals = new HashMap<String, String>();
-        final Map<String, String> s4Principals = new HashMap<String, String>();
-        final Map<Long, Map<String, String>> activeSessionPrincipalMap = new HashMap<Long, Map<String, String>>();
+        final Map<Long, Map<String, String>> sessionPrincipalMap = new HashMap<>();
+        final Map<String, String> s1Principals = new HashMap<>();
+        final Map<String, String> s2Principals = new HashMap<>();
+        final Map<String, String> s3Principals = new HashMap<>();
+        final Map<String, String> s4Principals = new HashMap<>();
+        final Map<Long, Map<String, String>> activeSessionPrincipalMap = new HashMap<>();
 
         context.checking(new Expectations() {
             {
@@ -212,10 +212,10 @@ public class ServiceMXBeanTest {
         s4Principals.put("joe", "com.kaazing.demo.auth.MyUserPrincipal");
         s4Principals.put("MARKETING", "com.kaazing.demo.auth.MyRolePrincipal");
 
-        sessionPrincipalMap.put(Long.valueOf(1), s1Principals);
-        sessionPrincipalMap.put(Long.valueOf(2), s2Principals);
-        sessionPrincipalMap.put(Long.valueOf(3), s3Principals);
-        sessionPrincipalMap.put(Long.valueOf(4), s4Principals);
+        sessionPrincipalMap.put(1L, s1Principals);
+        sessionPrincipalMap.put(2L, s2Principals);
+        sessionPrincipalMap.put(3L, s3Principals);
+        sessionPrincipalMap.put(4L, s4Principals);
 
         activeSessionPrincipalMap.putAll(sessionPrincipalMap);
 
@@ -232,12 +232,12 @@ public class ServiceMXBeanTest {
         final SessionMXBean sessionBean1 = context.mock(SessionMXBean.class, "sessionBean1");
         final SessionMXBean sessionBean4 = context.mock(SessionMXBean.class, "sessionBean2");
         final ObjectName objectName = context.mock(ObjectName.class);
-        final Map<Long, Map<String, String>> sessionPrincipalMap = new HashMap<Long, Map<String, String>>();
-        final Map<String, String> s1Principals = new HashMap<String, String>();
-        final Map<String, String> s2Principals = new HashMap<String, String>();
-        final Map<String, String> s3Principals = new HashMap<String, String>();
-        final Map<String, String> s4Principals = new HashMap<String, String>();
-        final Map<Long, Map<String, String>> activeSessionPrincipalMap = new HashMap<Long, Map<String, String>>();
+        final Map<Long, Map<String, String>> sessionPrincipalMap = new HashMap<>();
+        final Map<String, String> s1Principals = new HashMap<>();
+        final Map<String, String> s2Principals = new HashMap<>();
+        final Map<String, String> s3Principals = new HashMap<>();
+        final Map<String, String> s4Principals = new HashMap<>();
+        final Map<Long, Map<String, String>> activeSessionPrincipalMap = new HashMap<>();
 
         context.checking(new Expectations() {
             {
@@ -267,10 +267,10 @@ public class ServiceMXBeanTest {
         s4Principals.put("joe", "com.kaazing.demo.auth.MyUserPrincipal");
         s4Principals.put("MARKETING", "com.kaazing.demo.auth.MyRolePrincipal");
 
-        sessionPrincipalMap.put(Long.valueOf(1), s1Principals);
-        sessionPrincipalMap.put(Long.valueOf(2), s2Principals);
-        sessionPrincipalMap.put(Long.valueOf(3), s3Principals);
-        sessionPrincipalMap.put(Long.valueOf(4), s4Principals);
+        sessionPrincipalMap.put(1L, s1Principals);
+        sessionPrincipalMap.put(2L, s2Principals);
+        sessionPrincipalMap.put(3L, s3Principals);
+        sessionPrincipalMap.put(4L, s4Principals);
 
         activeSessionPrincipalMap.putAll(sessionPrincipalMap);
 
@@ -287,12 +287,12 @@ public class ServiceMXBeanTest {
         final SessionMXBean sessionBean1 = context.mock(SessionMXBean.class, "sessionBean1");
         final SessionMXBean sessionBean4 = context.mock(SessionMXBean.class, "sessionBean2");
         final ObjectName objectName = context.mock(ObjectName.class);
-        final Map<Long, Map<String, String>> sessionPrincipalMap = new HashMap<Long, Map<String, String>>();
-        final Map<String, String> s1Principals = new HashMap<String, String>();
-        final Map<String, String> s2Principals = new HashMap<String, String>();
-        final Map<String, String> s3Principals = new HashMap<String, String>();
-        final Map<String, String> s4Principals = new HashMap<String, String>();
-        final Map<Long, Map<String, String>> activeSessionPrincipalMap = new HashMap<Long, Map<String, String>>();
+        final Map<Long, Map<String, String>> sessionPrincipalMap = new HashMap<>();
+        final Map<String, String> s1Principals = new HashMap<>();
+        final Map<String, String> s2Principals = new HashMap<>();
+        final Map<String, String> s3Principals = new HashMap<>();
+        final Map<String, String> s4Principals = new HashMap<>();
+        final Map<Long, Map<String, String>> activeSessionPrincipalMap = new HashMap<>();
 
         context.checking(new Expectations() {
             {
@@ -322,10 +322,10 @@ public class ServiceMXBeanTest {
         s4Principals.put("joe", "com.kaazing.demo.auth.MyUserPrincipal");
         s4Principals.put("MARKETING", "com.kaazing.demo.auth.MyRolePrincipal");
 
-        sessionPrincipalMap.put(Long.valueOf(1), s1Principals);
-        sessionPrincipalMap.put(Long.valueOf(2), s2Principals);
-        sessionPrincipalMap.put(Long.valueOf(3), s3Principals);
-        sessionPrincipalMap.put(Long.valueOf(4), s4Principals);
+        sessionPrincipalMap.put(1L, s1Principals);
+        sessionPrincipalMap.put(2L, s2Principals);
+        sessionPrincipalMap.put(3L, s3Principals);
+        sessionPrincipalMap.put(4L, s4Principals);
 
         activeSessionPrincipalMap.putAll(sessionPrincipalMap);
 
