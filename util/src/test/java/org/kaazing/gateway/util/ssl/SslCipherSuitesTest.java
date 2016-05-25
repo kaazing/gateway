@@ -149,12 +149,6 @@ public class SslCipherSuitesTest {
         "EXP-KRB5-RC4-MD5"
     };
 
-    @BeforeClass
-    public static void init()
-        throws Exception {
-        SslCipherSuites.reset();
-    }
-
     @Test
     public void shouldResolveJava6CipherSuites()
         throws Exception {

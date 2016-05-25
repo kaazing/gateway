@@ -22,12 +22,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class SslCipherSuites {
-
-    protected SslCipherSuites() {
-    }
+public final class SslCipherSuites {
 
     private enum CipherStrength {
         HIGH("HIGH"),
@@ -42,12 +40,8 @@ public class SslCipherSuites {
 
         private final String tokenName;
 
-        CipherStrength(final String tokenName) {
+        CipherStrength(String tokenName) {
             this.tokenName = tokenName;
-        }
-
-        public String getTokenName() {
-            return tokenName;
         }
     }
 
@@ -62,12 +56,8 @@ public class SslCipherSuites {
 
         private final String tokenName;
 
-        CipherKeyExchange(final String tokenName) {
+        CipherKeyExchange(String tokenName) {
             this.tokenName = tokenName;
-        }
-
-        public String getTokenName() {
-            return tokenName;
         }
     }
 
@@ -81,12 +71,8 @@ public class SslCipherSuites {
 
         private final String tokenName;
 
-        CipherAuthentication(final String tokenName) {
+        CipherAuthentication(String tokenName) {
             this.tokenName = tokenName;
-        }
-
-        public String getTokenName() {
-            return tokenName;
         }
     }
 
@@ -100,12 +86,8 @@ public class SslCipherSuites {
 
         private final String tokenName;
 
-        CipherEncryption(final String tokenName) {
+        CipherEncryption(String tokenName) {
             this.tokenName = tokenName;
-        }
-
-        public String getTokenName() {
-            return tokenName;
         }
     }
 
@@ -117,12 +99,8 @@ public class SslCipherSuites {
 
         private final String tokenName;
 
-        CipherMAC(final String tokenName) {
+        CipherMAC(String tokenName) {
             this.tokenName = tokenName;
-        }
-
-        public String getTokenName() {
-            return tokenName;
         }
     }
 
@@ -134,17 +112,13 @@ public class SslCipherSuites {
 
         private final String tokenName;
 
-        CipherProtocolVersion(final String tokenName) {
+        CipherProtocolVersion(String tokenName) {
             this.tokenName = tokenName;
-        }
-
-        public String getTokenName() {
-            return tokenName;
         }
     }
 
     private static class SslCipher implements Comparable<SslCipher> {
-        private final String name;
+        final String name;
         private final String nickname;
         private final Integer strengthBits;
         private final CipherStrength strength;
@@ -177,42 +151,6 @@ public class SslCipherSuites {
             this.fips = fips;
         }
 
-        public String getName() {
-            return name;
-        }
-
-        String getNickname() {
-            return nickname;
-        }
-
-        CipherStrength getStrength() {
-            return strength;
-        }
-
-        CipherKeyExchange getKeyExchange() {
-            return keyExchange;
-        }
-
-        public CipherAuthentication getAuthentication() {
-            return authentication;
-        }
-
-        public CipherEncryption getEncryption() {
-            return encryption;
-        }
-
-        CipherMAC getMAC() {
-            return mac;
-        }
-
-        CipherProtocolVersion getProtocolVersion() {
-            return protocolVersion;
-        }
-
-        boolean isFIPS() {
-            return fips;
-        }
-
         @Override
         public boolean equals(Object o) {
             if (this == o) {
@@ -243,7 +181,7 @@ public class SslCipherSuites {
             return String.format("%s:[%s/%s/%s/%s/%s/%s(%d)%s]", name,
                 keyExchange, authentication, encryption,
                 mac, protocolVersion, strength,
-                strengthBits, isFIPS() ? "/FIPS" : "");
+                strengthBits, fips ? "/FIPS" : "");
         }
     }
 
@@ -259,7 +197,7 @@ public class SslCipherSuites {
 
         @Override
         public int hashCode() {
-            return getName().hashCode();
+            return name.hashCode();
         }
 
         @Override
@@ -281,354 +219,103 @@ public class SslCipherSuites {
     //   openssl/ssl/s3_lib.c.
     //   openssl/ssl/ssl_locl.h
 
-    private static final Map<String, List<SslCipher>> CIPHER_STRENGTHS = new HashMap<>();
-    private static final Map<String, List<SslCipher>> CIPHER_KEY_EXCHANGES = new HashMap<>();
-    private static final Map<String, List<SslCipher>> CIPHER_AUTHNS = new HashMap<>();
-    private static final Map<String, List<SslCipher>> CIPHER_ENCRYPTS = new HashMap<>();
-    private static final Map<String, List<SslCipher>> CIPHER_MACS = new HashMap<>();
-    private static final Map<String, List<SslCipher>> CIPHER_PROTOCOLS = new HashMap<>();
-    private static final List<SslCipher> CIPHER_FIPS = new LinkedList<>();
-
     // Map of the ciphersuite name (as appearing in IETF specs) to
     // various details about that ciphersuite
-    private static final Map<String, SslCipher> CIPHERS = new ConcurrentHashMap<>();
+    private static final Map<String, SslCipher> CIPHERS;
 
     // Map of the ciphersuite name (as defined as a nickname in OpenSSL)
-    private static final Map<String, SslCipher> CIPHER_NICKNAMES = new ConcurrentHashMap<>();
-
+    private static final Map<String, SslCipher> CIPHER_NICKNAMES;
     static {
-        initJava8SunDefaultEnabledCipherSuites(CIPHERS, CIPHER_NICKNAMES);
-        initJava8SunDefaultDisabledCipherSuites(CIPHERS, CIPHER_NICKNAMES);
+        Map<String, SslCipher> ciphers = new HashMap<>();
+        Map<String, SslCipher> cipherNicknames = new HashMap<>();
 
+        initJava8SunDefaultEnabledCipherSuites(ciphers, cipherNicknames);
+        initJava8SunDefaultDisabledCipherSuites(ciphers, cipherNicknames);
 
-        initStrengthGroups(CIPHER_STRENGTHS);
-
-        initKeyExchangeGroups(CIPHER_KEY_EXCHANGES);
-
-        initAuthenticationGroups(CIPHER_AUTHNS);
-
-        initEncryptionGroups(CIPHER_ENCRYPTS);
-
-        initMACGroups(CIPHER_MACS);
-
-        initProtocolGroups(CIPHER_PROTOCOLS);
-
-        initFIPSGroup(CIPHER_FIPS);
+        CIPHERS = Collections.unmodifiableMap(ciphers);
+        CIPHER_NICKNAMES = Collections.unmodifiableMap(cipherNicknames);
     }
 
-    private static void initStrengthGroups(Map<String, List<SslCipher>> groups) {
-        // HIGH
-        List<SslCipher> highs = new LinkedList<>();
+    private static final Map<String, List<SslCipher>> CIPHER_STRENGTHS;
+    static {
+        Map<String, List<SslCipher>> cipherStrengths = CIPHERS.values()
+                .stream()
+                .collect(Collectors.groupingBy(s -> s.strength.tokenName));
 
-        // MEDIUM
-        List<SslCipher> mediums = new LinkedList<>();
+        Stream.of(CipherStrength.values())
+                .forEach(s -> cipherStrengths.putIfAbsent(s.tokenName, Collections.emptyList()));
 
-        // LOW
-        List<SslCipher> lows = new LinkedList<>();
-
-        // EXPORT40
-        List<SslCipher> export40s = new LinkedList<>();
-
-        // EXPORT56
-        List<SslCipher> export56s = new LinkedList<>();
-
-        // NONE
-        List<SslCipher> nones = new LinkedList<>();
-
-        for (SslCipher cipher : CIPHERS.values()) {
-            switch (cipher.getStrength()) {
-                case HIGH:
-                    highs.add(cipher);
-                    break;
-
-                case MEDIUM:
-                    mediums.add(cipher);
-                    break;
-
-                case LOW:
-                    lows.add(cipher);
-                    break;
-
-                case EXPORT40:
-                    export40s.add(cipher);
-                    break;
-
-                case EXPORT56:
-                    export56s.add(cipher);
-                    break;
-
-                case NONE:
-                    nones.add(cipher);
-                    break;
-            }
-        }
-
-        groups.put(CipherStrength.HIGH.getTokenName(), highs);
-        groups.put(CipherStrength.MEDIUM.getTokenName(), mediums);
-        groups.put(CipherStrength.LOW.getTokenName(), lows);
-        groups.put(CipherStrength.EXPORT40.getTokenName(), export40s);
-        groups.put(CipherStrength.EXPORT56.getTokenName(), export56s);
-        groups.put(CipherStrength.NONE.getTokenName(), nones);
+        CIPHER_STRENGTHS = Collections.unmodifiableMap(cipherStrengths);
     }
 
-    private static void initKeyExchangeGroups(Map<String, List<SslCipher>> groups) {
-        // RSA
-        List<SslCipher> rsas = new LinkedList<>();
+    private static final Map<String, List<SslCipher>> CIPHER_KEY_EXCHANGES;
+    static {
+        Map<String, List<SslCipher>> cipherKeyExchanges = CIPHERS.values()
+                .stream()
+                .collect(Collectors.groupingBy(s -> s.keyExchange.tokenName));
 
-        // DH
-        List<SslCipher> dhs = new LinkedList<>();
+        Stream.of(CipherKeyExchange.values())
+                .forEach(s -> cipherKeyExchanges.putIfAbsent(s.tokenName, Collections.emptyList()));
 
-        // DHE
-        List<SslCipher> dhes = new LinkedList<>();
-
-        // ECDH_ECDSA
-        List<SslCipher> ecdhEcdsas = new LinkedList<>();
-
-        // ECDH_RSA
-        List<SslCipher> ecdhRsas = new LinkedList<>();
-
-        // ECDHE
-        List<SslCipher> ecdhes = new LinkedList<>();
-
-        // KRB5
-        List<SslCipher> krb5s = new LinkedList<>();
-
-        for (SslCipher cipher : CIPHERS.values()) {
-            switch (cipher.getKeyExchange()) {
-                case RSA:
-                    rsas.add(cipher);
-                    break;
-
-                case DH:
-                    dhs.add(cipher);
-                    break;
-
-                case DHE:
-                    dhes.add(cipher);
-                    break;
-
-                case ECDH_ECDSA:
-                    ecdhEcdsas.add(cipher);
-                    break;
-
-                case ECDH_RSA:
-                    ecdhRsas.add(cipher);
-                    break;
-
-                case ECDHE:
-                    ecdhes.add(cipher);
-                    break;
-
-                case KRB5:
-                    krb5s.add(cipher);
-                    break;
-            }
-        }
-
-        groups.put(CipherKeyExchange.RSA.getTokenName(), rsas);
-        groups.put(CipherKeyExchange.DH.getTokenName(), dhs);
-        groups.put(CipherKeyExchange.DHE.getTokenName(), dhes);
-        groups.put(CipherKeyExchange.ECDH_ECDSA.getTokenName(), ecdhEcdsas);
-        groups.put(CipherKeyExchange.ECDH_RSA.getTokenName(), ecdhRsas);
-        groups.put(CipherKeyExchange.ECDHE.getTokenName(), ecdhes);
-        groups.put(CipherKeyExchange.KRB5.getTokenName(), krb5s);
+        CIPHER_KEY_EXCHANGES = Collections.unmodifiableMap(cipherKeyExchanges);
     }
 
-    private static void initAuthenticationGroups(Map<String, List<SslCipher>> groups) {
-        // RSA
-        List<SslCipher> rsas = new LinkedList<>();
+    private static final Map<String, List<SslCipher>> CIPHER_AUTHNS;
+    static {
+        Map<String, List<SslCipher>> cipherAuthns = CIPHERS.values()
+                .stream()
+                .collect(Collectors.groupingBy(s -> s.authentication.tokenName));
 
-        // DSS
-        List<SslCipher> dsss = new LinkedList<>();
+        Stream.of(CipherAuthentication.values())
+                .forEach(s -> cipherAuthns.putIfAbsent(s.tokenName, Collections.emptyList()));
 
-        // ECDH
-        List<SslCipher> ecdhs = new LinkedList<>();
-
-        // ECDSA
-        List<SslCipher> ecdsas = new LinkedList<>();
-
-        // KRB5
-        List<SslCipher> krb5s = new LinkedList<>();
-
-        // NULL
-        List<SslCipher> nulls = new LinkedList<>();
-
-        for (SslCipher cipher : CIPHERS.values()) {
-            switch (cipher.getAuthentication()) {
-                case RSA:
-                    rsas.add(cipher);
-                    break;
-
-                case DSS:
-                    dsss.add(cipher);
-                    break;
-
-                case ECDH:
-                    ecdhs.add(cipher);
-                    break;
-
-                case ECDSA:
-                    ecdsas.add(cipher);
-                    break;
-
-                case KRB5:
-                    krb5s.add(cipher);
-                    break;
-
-                case NULL:
-                    nulls.add(cipher);
-                    break;
-            }
-        }
-
-        groups.put(CipherAuthentication.RSA.getTokenName(), rsas);
-        groups.put(CipherAuthentication.DSS.getTokenName(), dsss);
-        groups.put(CipherAuthentication.ECDH.getTokenName(), ecdhs);
-        groups.put(CipherAuthentication.ECDSA.getTokenName(), ecdsas);
-        groups.put(CipherAuthentication.KRB5.getTokenName(), krb5s);
-        groups.put(CipherAuthentication.NULL.getTokenName(), nulls);
+        CIPHER_AUTHNS = Collections.unmodifiableMap(cipherAuthns);
     }
 
-    private static void initEncryptionGroups(Map<String, List<SslCipher>> groups) {
-        // RC4
-        List<SslCipher> rc4s = new LinkedList<>();
+    private static final Map<String, List<SslCipher>> CIPHER_ENCRYPTS;
+    static {
+        Map<String, List<SslCipher>> cipherEncrypts = CIPHERS.values()
+                .stream()
+                .collect(Collectors.groupingBy(s -> s.encryption.tokenName));
 
-        // AES128
-        List<SslCipher> aes128s = new LinkedList<>();
+        Stream.of(CipherEncryption.values())
+                .forEach(s -> cipherEncrypts.putIfAbsent(s.tokenName, Collections.emptyList()));
 
-        // AES256
-        List<SslCipher> aes256s = new LinkedList<>();
-
-        // 3DES
-        List<SslCipher> tripleDess = new LinkedList<>();
-
-        // DES
-        List<SslCipher> dess = new LinkedList<>();
-
-        // NULL
-        List<SslCipher> nulls = new LinkedList<>();
-
-        for (SslCipher cipher : CIPHERS.values()) {
-            switch (cipher.getEncryption()) {
-                case RC4:
-                    rc4s.add(cipher);
-                    break;
-
-                case AES128:
-                    aes128s.add(cipher);
-                    break;
-
-                case AES256:
-                    aes256s.add(cipher);
-                    break;
-
-                case TripleDES:
-                    tripleDess.add(cipher);
-                    break;
-
-                case DES:
-                    dess.add(cipher);
-                    break;
-
-                case NULL:
-                    nulls.add(cipher);
-                    break;
-            }
-        }
-
-        groups.put(CipherEncryption.RC4.getTokenName(), rc4s);
-        groups.put(CipherEncryption.AES128.getTokenName(), aes128s);
-        groups.put(CipherEncryption.AES256.getTokenName(), aes256s);
-        groups.put(CipherEncryption.TripleDES.getTokenName(), tripleDess);
-        groups.put(CipherEncryption.DES.getTokenName(), dess);
-        groups.put(CipherEncryption.NULL.getTokenName(), nulls);
+        CIPHER_ENCRYPTS = Collections.unmodifiableMap(cipherEncrypts);
     }
 
-    private static void initMACGroups(Map<String, List<SslCipher>> groups) {
-        // MD5
-        List<SslCipher> md5s = new LinkedList<>();
+    private static final Map<String, List<SslCipher>> CIPHER_MACS;
+    static {
+        Map<String, List<SslCipher>> cipherMacs = CIPHERS.values()
+                .stream()
+                .collect(Collectors.groupingBy(s -> s.mac.tokenName));
 
-        // SHA1
-        List<SslCipher> sha1s = new LinkedList<>();
+        Stream.of(CipherMAC.values())
+                .forEach(s -> cipherMacs.putIfAbsent(s.tokenName, Collections.emptyList()));
 
-        // SHA256
-        List<SslCipher> sha256s = new LinkedList<>();
-
-        // SHA384
-        List<SslCipher> sha384s = new LinkedList<>();
-
-        for (SslCipher cipher : CIPHERS.values()) {
-            switch (cipher.getMAC()) {
-                case MD5:
-                    md5s.add(cipher);
-                    break;
-
-                case SHA1:
-                    sha1s.add(cipher);
-                    break;
-
-                case SHA256:
-                    sha256s.add(cipher);
-                    break;
-
-                case SHA384:
-                    sha384s.add(cipher);
-                    break;
-            }
-        }
-
-        groups.put(CipherMAC.MD5.getTokenName(), md5s);
-        groups.put(CipherMAC.SHA1.getTokenName(), sha1s);
-        groups.put(CipherMAC.SHA256.getTokenName(), sha256s);
-        groups.put(CipherMAC.SHA384.getTokenName(), sha384s);
+        CIPHER_MACS = Collections.unmodifiableMap(cipherMacs);
     }
 
-    private static void initProtocolGroups(Map<String, List<SslCipher>> groups) {
+    private static final Map<String, List<SslCipher>> CIPHER_PROTOCOLS;
+    static {
+        Map<String, List<SslCipher>> cipherProtocols = CIPHERS.values()
+                .stream()
+                .collect(Collectors.groupingBy(s -> s.protocolVersion.tokenName));
 
-        // SSLv3
-        List<SslCipher> sslv3s = new LinkedList<>();
+        Stream.of(CipherProtocolVersion.values())
+                .forEach(s -> cipherProtocols.putIfAbsent(s.tokenName, Collections.emptyList()));
 
-        // TLSv1
-        List<SslCipher> tlsv1s = new LinkedList<>();
-
-        // TLSv1.1
-        List<SslCipher> tlsv11s = new LinkedList<>();
-
-        // TLSv1.2
-        List<SslCipher> tlsv12s = new LinkedList<>();
-
-        for (SslCipher cipher : CIPHERS.values()) {
-            switch (cipher.getProtocolVersion()) {
-                case SSLV3:
-                    sslv3s.add(cipher);
-                    break;
-
-                case TLSV1:
-                    tlsv1s.add(cipher);
-                    break;
-
-                case TLSV1_1:
-                    tlsv11s.add(cipher);
-                    break;
-
-                case TLSV1_2:
-                    tlsv12s.add(cipher);
-                    break;
-            }
-        }
-
-        groups.put(CipherProtocolVersion.SSLV3.getTokenName(), sslv3s);
-        groups.put(CipherProtocolVersion.TLSV1.getTokenName(), tlsv1s);
-        groups.put(CipherProtocolVersion.TLSV1_1.getTokenName(), tlsv11s);
-        groups.put(CipherProtocolVersion.TLSV1_2.getTokenName(), tlsv12s);
+        CIPHER_PROTOCOLS = Collections.unmodifiableMap(cipherProtocols);
     }
 
-    private static void initFIPSGroup(List<SslCipher> groups) {
-        for (SslCipher cipher : CIPHERS.values()) {
-            if (cipher.isFIPS()) {
-                groups.add(cipher);
-            }
-        }
+    private static final List<SslCipher> CIPHER_FIPS;
+    static {
+        List<SslCipher> fips = CIPHERS.values()
+                .stream()
+                .filter(s -> s.fips)
+                .collect(Collectors.toList());
+
+        CIPHER_FIPS = Collections.unmodifiableList(fips);
     }
 
     // Java 8 Sun provider's default enabled cipher suites
@@ -647,8 +334,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA384,
                 CipherProtocolVersion.TLSV1_2,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
         cipher = new SslCipher("TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
@@ -660,8 +347,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA384,
                 CipherProtocolVersion.TLSV1_2,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_RSA_WITH_AES_256_CBC_SHA256
         cipher = new SslCipher("TLS_RSA_WITH_AES_256_CBC_SHA256",
@@ -673,8 +360,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA256,
                 CipherProtocolVersion.TLSV1_2,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384
         cipher = new SslCipher("TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384",
@@ -686,8 +373,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA384,
                 CipherProtocolVersion.TLSV1_2,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384
         cipher = new SslCipher("TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384",
@@ -699,8 +386,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA384,
                 CipherProtocolVersion.TLSV1_2,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_DHE_RSA_WITH_AES_256_CBC_SHA256
         cipher = new SslCipher("TLS_DHE_RSA_WITH_AES_256_CBC_SHA256",
@@ -712,8 +399,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA256,
                 CipherProtocolVersion.TLSV1_2,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_DHE_DSS_WITH_AES_256_CBC_SHA256
         cipher = new SslCipher("TLS_DHE_DSS_WITH_AES_256_CBC_SHA256",
@@ -725,8 +412,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA256,
                 CipherProtocolVersion.TLSV1_2,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA
         cipher = new SslCipher("TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
@@ -738,8 +425,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
         cipher = new SslCipher("TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
@@ -751,8 +438,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_RSA_WITH_AES_256_CBC_SHA
         cipher = new SslCipher("TLS_RSA_WITH_AES_256_CBC_SHA",
@@ -764,8 +451,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA
         cipher = new SslCipher("TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
@@ -777,8 +464,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDH_RSA_WITH_AES_256_CBC_SHA
         cipher = new SslCipher("TLS_ECDH_RSA_WITH_AES_256_CBC_SHA",
@@ -790,8 +477,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_DHE_RSA_WITH_AES_256_CBC_SHA
         cipher = new SslCipher("TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
@@ -803,8 +490,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_DHE_DSS_WITH_AES_256_CBC_SHA
         cipher = new SslCipher("TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
@@ -816,8 +503,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
         cipher = new SslCipher("TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
@@ -829,8 +516,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA256,
                 CipherProtocolVersion.TLSV1_2,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256
         cipher = new SslCipher("TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
@@ -842,8 +529,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA256,
                 CipherProtocolVersion.TLSV1_2,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_RSA_WITH_AES_128_CBC_SHA256
         cipher = new SslCipher("TLS_RSA_WITH_AES_128_CBC_SHA256",
@@ -855,8 +542,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA256,
                 CipherProtocolVersion.TLSV1_2,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256
         cipher = new SslCipher("TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256",
@@ -868,8 +555,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA256,
                 CipherProtocolVersion.TLSV1_2,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256
         cipher = new SslCipher("TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256",
@@ -881,8 +568,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA256,
                 CipherProtocolVersion.TLSV1_2,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_DHE_RSA_WITH_AES_128_CBC_SHA256
         cipher = new SslCipher("TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
@@ -894,8 +581,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA256,
                 CipherProtocolVersion.TLSV1_2,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_DHE_DSS_WITH_AES_128_CBC_SHA256
         cipher = new SslCipher("TLS_DHE_DSS_WITH_AES_128_CBC_SHA256",
@@ -907,8 +594,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA256,
                 CipherProtocolVersion.TLSV1_2,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
         cipher = new SslCipher("TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
@@ -920,8 +607,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
         cipher = new SslCipher("TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
@@ -933,8 +620,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
 
         // TLS_RSA_WITH_AES_128_CBC_SHA
@@ -947,8 +634,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
 
         // TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA
@@ -961,8 +648,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDH_RSA_WITH_AES_128_CBC_SHA
         cipher = new SslCipher("TLS_ECDH_RSA_WITH_AES_128_CBC_SHA",
@@ -974,8 +661,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_DHE_RSA_WITH_AES_128_CBC_SHA
         cipher = new SslCipher("TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
@@ -987,8 +674,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_DHE_DSS_WITH_AES_128_CBC_SHA
         cipher = new SslCipher("TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
@@ -1000,8 +687,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDHE_ECDSA_WITH_RC4_128_SHA
         cipher = new SslCipher("TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
@@ -1013,8 +700,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDHE_RSA_WITH_RC4_128_SHA
         cipher = new SslCipher("TLS_ECDHE_RSA_WITH_RC4_128_SHA",
@@ -1026,8 +713,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // SSL_RSA_WITH_RC4_128_SHA
         cipher = new SslCipher("SSL_RSA_WITH_RC4_128_SHA",
@@ -1039,8 +726,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.SSLV3,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDH_ECDSA_WITH_RC4_128_SHA
         cipher = new SslCipher("TLS_ECDH_ECDSA_WITH_RC4_128_SHA",
@@ -1052,8 +739,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDH_RSA_WITH_RC4_128_SHA
         cipher = new SslCipher("TLS_ECDH_RSA_WITH_RC4_128_SHA",
@@ -1065,8 +752,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
 
         // TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
@@ -1121,8 +808,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA
         cipher = new SslCipher("TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
@@ -1134,8 +821,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // SSL_RSA_WITH_3DES_EDE_CBC_SHA
         cipher = new SslCipher("SSL_RSA_WITH_3DES_EDE_CBC_SHA",
@@ -1147,8 +834,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.SSLV3,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA
         cipher = new SslCipher("TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA",
@@ -1160,8 +847,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA
         cipher = new SslCipher("TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
@@ -1173,8 +860,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA
         cipher = new SslCipher("SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
@@ -1186,8 +873,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.SSLV3,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA
         cipher = new SslCipher("SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
@@ -1199,8 +886,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.SSLV3,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // SSL_RSA_WITH_RC4_128_MD5
         cipher = new SslCipher("SSL_RSA_WITH_RC4_128_MD5",
@@ -1212,8 +899,8 @@ public class SslCipherSuites {
                 CipherMAC.MD5,
                 CipherProtocolVersion.SSLV3,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_EMPTY_RENEGOTIATION_INFO_SCSV
         // TODO
@@ -1244,8 +931,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_DH_anon_WITH_AES_256_CBC_SHA
         cipher = new SslCipher("TLS_DH_anon_WITH_AES_256_CBC_SHA",
@@ -1257,8 +944,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_DH_anon_WITH_AES_128_CBC_SHA256
         // TODO
@@ -1273,8 +960,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_DH_anon_WITH_AES_128_CBC_SHA
         cipher = new SslCipher("TLS_DH_anon_WITH_AES_128_CBC_SHA",
@@ -1286,8 +973,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDH_anon_WITH_RC4_128_SHA
         cipher = new SslCipher("TLS_ECDH_anon_WITH_RC4_128_SHA",
@@ -1299,8 +986,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // SSL_DH_anon_WITH_RC4_128_MD5
         cipher = new SslCipher("SSL_DH_anon_WITH_RC4_128_MD5",
@@ -1312,8 +999,8 @@ public class SslCipherSuites {
                 CipherMAC.MD5,
                 CipherProtocolVersion.SSLV3,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA
         cipher = new SslCipher("TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA",
@@ -1325,8 +1012,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // SSL_DH_anon_WITH_3DES_EDE_CBC_SHA
         cipher = new SslCipher("SSL_DH_anon_WITH_3DES_EDE_CBC_SHA",
@@ -1338,8 +1025,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.SSLV3,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_RSA_WITH_NULL_SHA256
         cipher = new SslCipher("TLS_RSA_WITH_NULL_SHA256",
@@ -1351,8 +1038,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA256,
                 CipherProtocolVersion.TLSV1_2,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDHE_ECDSA_WITH_NULL_SHA
         //
@@ -1366,8 +1053,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDHE_RSA_WITH_NULL_SHA
         //
@@ -1381,8 +1068,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // SSL_RSA_WITH_NULL_SHA
         cipher = new SslCipher("SSL_RSA_WITH_NULL_SHA",
@@ -1394,8 +1081,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.SSLV3,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDH_ECDSA_WITH_NULL_SHA
         //
@@ -1409,8 +1096,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDH_RSA_WITH_NULL_SHA
         //
@@ -1424,8 +1111,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDH_anon_WITH_NULL_SHA
         //
@@ -1439,8 +1126,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // SSL_RSA_WITH_NULL_MD5
         cipher = new SslCipher("SSL_RSA_WITH_NULL_MD5",
@@ -1452,8 +1139,8 @@ public class SslCipherSuites {
                 CipherMAC.MD5,
                 CipherProtocolVersion.SSLV3,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // SSL_RSA_WITH_DES_CBC_SHA
         cipher = new SslCipher("SSL_RSA_WITH_DES_CBC_SHA",
@@ -1465,8 +1152,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.SSLV3,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // SSL_DHE_RSA_WITH_DES_CBC_SHA
         cipher = new SslCipher("SSL_DHE_RSA_WITH_DES_CBC_SHA",
@@ -1478,8 +1165,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.SSLV3,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // SSL_DHE_DSS_WITH_DES_CBC_SHA
         cipher = new SslCipher("SSL_DHE_DSS_WITH_DES_CBC_SHA",
@@ -1491,8 +1178,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.SSLV3,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
 
         // SSL_DH_anon_WITH_DES_CBC_SHA
@@ -1505,8 +1192,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.SSLV3,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // SSL_RSA_EXPORT_WITH_RC4_40_MD5
         cipher = new SslCipher("SSL_RSA_EXPORT_WITH_RC4_40_MD5",
@@ -1518,8 +1205,8 @@ public class SslCipherSuites {
                 CipherMAC.MD5,
                 CipherProtocolVersion.SSLV3,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // SSL_DH_anon_EXPORT_WITH_RC4_40_MD5
         cipher = new SslCipher("SSL_DH_anon_EXPORT_WITH_RC4_40_MD5",
@@ -1531,8 +1218,8 @@ public class SslCipherSuites {
                 CipherMAC.MD5,
                 CipherProtocolVersion.SSLV3,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // SSL_RSA_EXPORT_WITH_DES40_CBC_SHA
         cipher = new SslCipher("SSL_RSA_EXPORT_WITH_DES40_CBC_SHA",
@@ -1544,8 +1231,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.SSLV3,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA
         cipher = new SslCipher("SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA",
@@ -1557,8 +1244,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.SSLV3,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA
         cipher = new SslCipher("SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA",
@@ -1570,8 +1257,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.SSLV3,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA
         cipher = new SslCipher("SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA",
@@ -1583,8 +1270,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.SSLV3,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_KRB5_WITH_RC4_128_SHA
         cipher = new SslCipher("TLS_KRB5_WITH_RC4_128_SHA",
@@ -1596,8 +1283,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_KRB5_WITH_RC4_128_MD5
         cipher = new SslCipher("TLS_KRB5_WITH_RC4_128_MD5",
@@ -1609,8 +1296,8 @@ public class SslCipherSuites {
                 CipherMAC.MD5,
                 CipherProtocolVersion.TLSV1,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_KRB5_WITH_3DES_EDE_CBC_SHA
         cipher = new SslCipher("TLS_KRB5_WITH_3DES_EDE_CBC_SHA",
@@ -1622,8 +1309,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_KRB5_WITH_3DES_EDE_CBC_MD5
         cipher = new SslCipher("TLS_KRB5_WITH_3DES_EDE_CBC_MD5",
@@ -1635,8 +1322,8 @@ public class SslCipherSuites {
                 CipherMAC.MD5,
                 CipherProtocolVersion.TLSV1,
                 true);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_KRB5_WITH_DES_CBC_SHA
         cipher = new SslCipher("TLS_KRB5_WITH_DES_CBC_SHA",
@@ -1648,8 +1335,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_KRB5_WITH_DES_CBC_MD5
         cipher = new SslCipher("TLS_KRB5_WITH_DES_CBC_MD5",
@@ -1661,8 +1348,8 @@ public class SslCipherSuites {
                 CipherMAC.MD5,
                 CipherProtocolVersion.TLSV1,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_KRB5_EXPORT_WITH_RC4_40_SHA
         cipher = new SslCipher("TLS_KRB5_EXPORT_WITH_RC4_40_SHA",
@@ -1674,8 +1361,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_KRB5_EXPORT_WITH_RC4_40_MD5
         cipher = new SslCipher("TLS_KRB5_EXPORT_WITH_RC4_40_MD5",
@@ -1687,8 +1374,8 @@ public class SslCipherSuites {
                 CipherMAC.MD5,
                 CipherProtocolVersion.TLSV1,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_KRB5_EXPORT_WITH_DES_CBC_40_SHA
         cipher = new SslCipher("TLS_KRB5_EXPORT_WITH_DES_CBC_40_SHA",
@@ -1700,8 +1387,8 @@ public class SslCipherSuites {
                 CipherMAC.SHA1,
                 CipherProtocolVersion.TLSV1,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_KRB5_EXPORT_WITH_DES_CBC_40_MD5
         cipher = new SslCipher("TLS_KRB5_EXPORT_WITH_DES_CBC_40_MD5",
@@ -1713,14 +1400,8 @@ public class SslCipherSuites {
                 CipherMAC.MD5,
                 CipherProtocolVersion.TLSV1,
                 false);
-        ciphers.putIfAbsent(cipher.getName(), cipher);
-        ciphersByNickname.putIfAbsent(cipher.getNickname(), cipher);
-    }
-
-    public static void reset() {
-    }
-
-    public static void init() {
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
     }
 
     // The logic for building up the list of ciphersuite strings is based
@@ -1923,62 +1604,62 @@ public class SslCipherSuites {
             switch (token) {
                 case "DH":
                     iter.remove();
-                    iter.add(CipherKeyExchange.DH.getTokenName());
+                    iter.add(CipherKeyExchange.DH.tokenName);
 
                     break;
                 case "ADH":
                     iter.remove();
-                    iter.add(CipherKeyExchange.DHE.getTokenName());
-                    iter.add(CipherKeyExchange.ECDHE.getTokenName());
-                    iter.add(CipherAuthentication.NULL.getTokenName());
+                    iter.add(CipherKeyExchange.DHE.tokenName);
+                    iter.add(CipherKeyExchange.ECDHE.tokenName);
+                    iter.add(CipherAuthentication.NULL.tokenName);
 
                     break;
                 case "EDH":
                     iter.remove();
-                    iter.add(CipherKeyExchange.DHE.getTokenName());
-                    iter.add("!" + CipherKeyExchange.ECDHE.getTokenName());
-                    iter.add("!" + CipherAuthentication.NULL.getTokenName());
+                    iter.add(CipherKeyExchange.DHE.tokenName);
+                    iter.add("!" + CipherKeyExchange.ECDHE.tokenName);
+                    iter.add("!" + CipherAuthentication.NULL.tokenName);
 
                     break;
                 case "kECDH":
                     iter.remove();
-                    iter.add(CipherKeyExchange.ECDH_RSA.getTokenName());
-                    iter.add(CipherKeyExchange.ECDH_ECDSA.getTokenName());
-                    iter.add(CipherKeyExchange.ECDHE.getTokenName());
+                    iter.add(CipherKeyExchange.ECDH_RSA.tokenName);
+                    iter.add(CipherKeyExchange.ECDH_ECDSA.tokenName);
+                    iter.add(CipherKeyExchange.ECDHE.tokenName);
 
                     break;
                 case "ECDH":
                     iter.remove();
-                    iter.add(CipherKeyExchange.ECDH_RSA.getTokenName());
-                    iter.add(CipherKeyExchange.ECDH_ECDSA.getTokenName());
-                    iter.add(CipherKeyExchange.ECDHE.getTokenName());
+                    iter.add(CipherKeyExchange.ECDH_RSA.tokenName);
+                    iter.add(CipherKeyExchange.ECDH_ECDSA.tokenName);
+                    iter.add(CipherKeyExchange.ECDHE.tokenName);
 
                     break;
                 case "DSS":
                     iter.remove();
-                    iter.add(CipherAuthentication.DSS.getTokenName());
+                    iter.add(CipherAuthentication.DSS.tokenName);
 
                     break;
                 case "ECDSA":
                     iter.remove();
-                    iter.add(CipherAuthentication.ECDSA.getTokenName());
+                    iter.add(CipherAuthentication.ECDSA.tokenName);
 
                     break;
                 case "NULL":
                     iter.remove();
-                    iter.add(CipherEncryption.NULL.getTokenName());
+                    iter.add(CipherEncryption.NULL.tokenName);
 
                     break;
                 case "KRB5":
                     iter.remove();
-                    iter.add(CipherKeyExchange.KRB5.getTokenName());
-                    iter.add(CipherAuthentication.KRB5.getTokenName());
+                    iter.add(CipherKeyExchange.KRB5.tokenName);
+                    iter.add(CipherAuthentication.KRB5.tokenName);
 
                     break;
                 case "RSA":
                     iter.remove();
-                    iter.add(CipherKeyExchange.RSA.getTokenName());
-                    iter.add(CipherAuthentication.RSA.getTokenName());
+                    iter.add(CipherKeyExchange.RSA.tokenName);
+                    iter.add(CipherAuthentication.RSA.tokenName);
 
                     break;
                 case "AES":
@@ -1996,18 +1677,18 @@ public class SslCipherSuites {
                     break;
                 case "SHA":
                     iter.remove();
-                    iter.add(CipherMAC.SHA1.getTokenName());
+                    iter.add(CipherMAC.SHA1.tokenName);
 
                     break;
                 case "AECDH":
                     iter.remove();
-                    iter.add(CipherKeyExchange.ECDHE.getTokenName() + "+" +
-                            CipherAuthentication.NULL.getTokenName());
+                    iter.add(CipherKeyExchange.ECDHE.tokenName + "+" +
+                            CipherAuthentication.NULL.tokenName);
 
                     break;
                 case "EECDH":
                     iter.remove();
-                    iter.add(CipherKeyExchange.ECDH_ECDSA.getTokenName());
+                    iter.add(CipherKeyExchange.ECDH_ECDSA.tokenName);
 
                     break;
                 case "DEFAULT":
@@ -2031,13 +1712,13 @@ public class SslCipherSuites {
                     break;
                 case "COMPLEMENTOFDEFAULT":
                     iter.remove();
-                    iter.add(CipherKeyExchange.DHE.getTokenName());
-                    iter.add("!" + CipherEncryption.NULL.getTokenName());
+                    iter.add(CipherKeyExchange.DHE.tokenName);
+                    iter.add("!" + CipherEncryption.NULL.tokenName);
 
                     break;
                 case "COMPLEMENTOFALL":
                     iter.remove();
-                    iter.add(CipherEncryption.NULL.getTokenName());
+                    iter.add(CipherEncryption.NULL.tokenName);
 
                     break;
                 case "ALL":
@@ -2068,9 +1749,6 @@ public class SslCipherSuites {
     }
 
     public static List<String> resolve(List<String> tokens) {
-        // Lazily populate our group maps as needed
-        init();
-
         if (tokens == null ||
             tokens.isEmpty()) {
 
@@ -2097,7 +1775,7 @@ public class SslCipherSuites {
 
         List<String> resolvedNames = new ArrayList<>(resolvedCiphers.size());
         for (SslCipher c : resolvedCiphers) {
-            resolvedNames.add(c.getName());
+            resolvedNames.add(c.name);
         }
 
         return resolvedNames;

@@ -202,9 +202,6 @@ public class GatewayContextResolver {
 
         this.transportContextsBySchemeName = new HashMap<>();
         this.transportContextsByName = new HashMap<>();
-
-        // Initialize the SslCipherSuites (pertains to KG-7059)
-        SslCipherSuites.init();
     }
 
     public GatewayContext resolve(GatewayConfigDocument gatewayConfigDoc)

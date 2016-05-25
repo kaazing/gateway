@@ -59,6 +59,7 @@
 
     <build>
         <plugins>
+<!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
@@ -69,8 +70,6 @@
                         <phase>validate</phase>
                         <configuration>
                             <encoding>UTF-8</encoding>
-                            <!-- checkstyle doesn't like lambdas and· exceptions 
-                                and bails -->
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
                             <failOnViolation>true</failOnViolation>
@@ -88,6 +87,7 @@
                     </dependency>
                 </dependencies>
             </plugin>
+-->
         </plugins>
     </build>
 
