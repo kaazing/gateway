@@ -80,6 +80,8 @@ public final class SslCipherSuites {
         RC4("RC4"),
         AES128("AES128"),
         AES256("AES256"),
+        AESGCM128("AESGCM128"),
+        AESGCM256("AESGCM256"),
         TripleDES("3DES"),
         DES("DES"),
         NULL("eNULL");
@@ -95,7 +97,8 @@ public final class SslCipherSuites {
         MD5("MD5"),
         SHA1("SHA1"),
         SHA256("SHA256"),
-        SHA384("SHA384");
+        SHA384("SHA384"),
+        AEAD("AEAD");
 
         private final String tokenName;
 
@@ -755,48 +758,147 @@ public final class SslCipherSuites {
         ciphers.putIfAbsent(cipher.name, cipher);
         ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
-
         // TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-        // TODO
+        cipher = new SslCipher("TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+                "ECDHE-ECDSA-AES256-GCM-SHA384", 256,
+                CipherStrength.HIGH,
+                CipherKeyExchange.ECDHE,
+                CipherAuthentication.ECDSA,
+                CipherEncryption.AESGCM256,
+                CipherMAC.AEAD,
+                CipherProtocolVersion.TLSV1_2,
+                true);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
-        // TODO
+        cipher = new SslCipher("TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+                "ECDHE-ECDSA-AES128-GCM-SHA256", 128,
+                CipherStrength.HIGH,
+                CipherKeyExchange.ECDHE,
+                CipherAuthentication.ECDSA,
+                CipherEncryption.AESGCM128,
+                CipherMAC.SHA256,
+                CipherProtocolVersion.TLSV1_2,
+                true);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        // TODO
+        cipher = new SslCipher("TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                "ECDHE-RSA-AES256-GCM-SHA384", 256,
+                CipherStrength.HIGH,
+                CipherKeyExchange.ECDHE,
+                CipherAuthentication.RSA,
+                CipherEncryption.AESGCM256,
+                CipherMAC.AEAD,
+                CipherProtocolVersion.TLSV1_2,
+                true);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_RSA_WITH_AES_256_GCM_SHA384
-        // TODO
+        cipher = new SslCipher("TLS_RSA_WITH_AES_256_GCM_SHA384",
+                "AES256-GCM-SHA384", 256,
+                CipherStrength.HIGH,
+                CipherKeyExchange.RSA,
+                CipherAuthentication.RSA,
+                CipherEncryption.AESGCM256,
+                CipherMAC.AEAD,
+                CipherProtocolVersion.TLSV1_2,
+                true);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384
-        // TODO
+        // openssl doesn't have it
 
         // TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384
-        // TODO
+        // openssl doesn't have it
 
         // TLS_DHE_RSA_WITH_AES_256_GCM_SHA384
-        // TODO
+        cipher = new SslCipher("TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
+                "DHE-RSA-AES256-GCM-SHA384", 256,
+                CipherStrength.HIGH,
+                CipherKeyExchange.DHE,
+                CipherAuthentication.RSA,
+                CipherEncryption.AESGCM256,
+                CipherMAC.AEAD,
+                CipherProtocolVersion.TLSV1_2,
+                true);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_DHE_DSS_WITH_AES_256_GCM_SHA384
-        // TODO
+        cipher = new SslCipher("TLS_DHE_DSS_WITH_AES_256_GCM_SHA384",
+                "DHE-DSS-AES256-GCM-SHA384", 256,
+                CipherStrength.HIGH,
+                CipherKeyExchange.DHE,
+                CipherAuthentication.DSS,
+                CipherEncryption.AESGCM256,
+                CipherMAC.AEAD,
+                CipherProtocolVersion.TLSV1_2,
+                true);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        // TODO
+        cipher = new SslCipher("TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                "ECDHE-RSA-AES128-GCM-SHA256", 128,
+                CipherStrength.HIGH,
+                CipherKeyExchange.ECDHE,
+                CipherAuthentication.RSA,
+                CipherEncryption.AESGCM128,
+                CipherMAC.AEAD,
+                CipherProtocolVersion.TLSV1_2,
+                true);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_RSA_WITH_AES_128_GCM_SHA256
-        // TODO
+        cipher = new SslCipher("TLS_RSA_WITH_AES_128_GCM_SHA256",
+                "AES128-GCM-SHA256", 128,
+                CipherStrength.HIGH,
+                CipherKeyExchange.RSA,
+                CipherAuthentication.RSA,
+                CipherEncryption.AESGCM128,
+                CipherMAC.AEAD,
+                CipherProtocolVersion.TLSV1_2,
+                true);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256
-        // TODO
+        // openssl doesn't have it
 
         // TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256
-        // TODO
+        // openssl doesn't have it
 
         // TLS_DHE_RSA_WITH_AES_128_GCM_SHA256
-        // TODO
+        cipher = new SslCipher("TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
+                "DHE-RSA-AES128-GCM-SHA256", 128,
+                CipherStrength.HIGH,
+                CipherKeyExchange.DHE,
+                CipherAuthentication.RSA,
+                CipherEncryption.AESGCM128,
+                CipherMAC.AEAD,
+                CipherProtocolVersion.TLSV1_2,
+                true);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_DHE_DSS_WITH_AES_128_GCM_SHA256
-        // TODO
+        cipher = new SslCipher("TLS_DHE_DSS_WITH_AES_128_GCM_SHA256",
+                "DHE-DSS-AES128-GCM-SHA256", 128,
+                CipherStrength.HIGH,
+                CipherKeyExchange.DHE,
+                CipherAuthentication.DSS,
+                CipherEncryption.AESGCM128,
+                CipherMAC.AEAD,
+                CipherProtocolVersion.TLSV1_2,
+                true);
+        ciphers.putIfAbsent(cipher.name, cipher);
+        ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA
         cipher = new SslCipher("TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
@@ -903,7 +1005,7 @@ public final class SslCipherSuites {
         ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_EMPTY_RENEGOTIATION_INFO_SCSV
-        // TODO
+        // openssl doesn't have it
     }
 
     // Java 8 Sun provider's default disabled cipher suites
@@ -913,13 +1015,13 @@ public final class SslCipherSuites {
         SslCipher cipher;
 
         // TLS_DH_anon_WITH_AES_256_GCM_SHA384
-        // TODO
+        // TODO by default it is disabled so not adding it for now
 
         // TLS_DH_anon_WITH_AES_128_GCM_SHA256
-        // TODO
+        // TODO by default it is disabled so not adding it for now
 
         // TLS_DH_anon_WITH_AES_256_CBC_SHA256
-        // TODO
+        // TODO by default it is disabled so not adding it for now
 
         // TLS_ECDH_anon_WITH_AES_256_CBC_SHA
         cipher = new SslCipher("TLS_ECDH_anon_WITH_AES_256_CBC_SHA",
@@ -948,7 +1050,7 @@ public final class SslCipherSuites {
         ciphersByNickname.putIfAbsent(cipher.nickname, cipher);
 
         // TLS_DH_anon_WITH_AES_128_CBC_SHA256
-        // TODO
+        // TODO by default it is disabled so not adding it for now
 
         // TLS_ECDH_anon_WITH_AES_128_CBC_SHA
         cipher = new SslCipher("TLS_ECDH_anon_WITH_AES_128_CBC_SHA",
@@ -1664,8 +1766,28 @@ public final class SslCipherSuites {
                     break;
                 case "AES":
                     iter.remove();
-                    iter.add("AES128");
-                    iter.add("AES256");
+                    iter.add(CipherEncryption.AES128.tokenName);
+                    iter.add(CipherEncryption.AES256.tokenName);
+                    iter.add(CipherEncryption.AESGCM128.tokenName);
+                    iter.add(CipherEncryption.AESGCM256.tokenName);
+
+                    break;
+                case "AES128":
+                    iter.remove();
+                    iter.add(CipherEncryption.AES128.tokenName);
+                    iter.add(CipherEncryption.AESGCM128.tokenName);
+
+                    break;
+                case "AES256":
+                    iter.remove();
+                    iter.add(CipherEncryption.AES256.tokenName);
+                    iter.add(CipherEncryption.AESGCM256.tokenName);
+
+                    break;
+                case "AESGCM":
+                    iter.remove();
+                    iter.add(CipherEncryption.AESGCM128.tokenName);
+                    iter.add(CipherEncryption.AESGCM256.tokenName);
 
                     break;
                 case "EXP":
