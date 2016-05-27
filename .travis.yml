@@ -12,6 +12,8 @@ script:
     if [ ${TRAVIS_PULL_REQUEST} == "false" ]; then
     if [ ${TRAVIS_BRANCH} == "develop" ] || [ ${TRAVIS_BRANCH} == "master" ] || [[ ${TRAVIS_BRANCH} == release/* ]]; then
     mvn -B clean verify -Psonar && mvn -B sonar:sonar -Dsonar.host.url=https://repository.kaazing.com/secret-sauce/sonarqube -Dsonar.login=${SONAR_USER} -Dsonar.password=${SONAR_PASSWORD} -Dsonar.branch=${TRAVIS_BRANCH};
+    else
+    mvn -B clean verify && echo "SonarQube analysis is performed only for commits on the develop, master and release/* branches(not for PRs)";
     fi;
     else
     mvn -B clean verify && echo "SonarQube analysis is performed only for commits on the develop, master and release/* branches(not for PRs)";
