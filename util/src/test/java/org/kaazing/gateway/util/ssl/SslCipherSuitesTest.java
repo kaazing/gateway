@@ -149,12 +149,6 @@ public class SslCipherSuitesTest {
         "EXP-KRB5-RC4-MD5"
     };
 
-    @BeforeClass
-    public static void init()
-        throws Exception {
-        SslCipherSuites.reset();
-    }
-
     @Test
     public void shouldResolveJava6CipherSuites()
         throws Exception {
@@ -556,7 +550,7 @@ public class SslCipherSuitesTest {
         List<String> resolved = SslCipherSuites.resolve(configured);
         Assert.assertTrue("Expected FIPS cipher suites, got null", resolved != null && resolved.size() != 0);
 
-        int expected = 49;
+        int expected = 59;
         Assert.assertTrue(String.format("Expected %d matching ciphers, got %d", expected, resolved.size()), resolved.size() == expected);
     }
 
@@ -725,7 +719,7 @@ public class SslCipherSuitesTest {
         List<String> resolved = SslCipherSuites.resolve(configured);
         Assert.assertTrue("Expected EDH cipher suites, got null", resolved != null && resolved.size() != 0);
 
-        int expected = 14;
+        int expected = 18;
         Assert.assertTrue(String.format("Expected %d matching ciphers, got %d", expected, resolved.size()), resolved.size() == expected);
     }
 
@@ -739,7 +733,7 @@ public class SslCipherSuitesTest {
         List<String> resolved = SslCipherSuites.resolve(configured);
         Assert.assertTrue("Expected ADH cipher suites, got null", resolved != null && resolved.size() != 0);
 
-        int expected = 52;
+        int expected = 60;
         Assert.assertTrue(String.format("Expected %d matching ciphers, got %d", expected, resolved.size()), resolved.size() == expected);
     }
 
@@ -753,7 +747,7 @@ public class SslCipherSuitesTest {
         List<String> resolved = SslCipherSuites.resolve(configured);
         Assert.assertTrue("Expected ALL cipher suites, got null", resolved != null && resolved.size() != 0);
 
-        int expected = 69;
+        int expected = 79;
         Assert.assertTrue(String.format("Expected %d matching ciphers, got %d", expected, resolved.size()), resolved.size() == expected);
     }
 
@@ -805,7 +799,7 @@ public class SslCipherSuitesTest {
         List<String> resolved = SslCipherSuites.resolve(configured);
         Assert.assertTrue("Expected COMPLEMENTOFDEFAULT cipher suites, got null", resolved != null && resolved.size() != 0);
 
-        int expected = 21;
+        int expected = 25;
         Assert.assertTrue(String.format("Expected %d matching ciphers, got %d", expected, resolved.size()), resolved.size() == expected);
     }
 
@@ -968,7 +962,7 @@ public class SslCipherSuitesTest {
         List<String> resolved = SslCipherSuites.resolve(null);
         Assert.assertTrue("Expected default cipher suites, got null", resolved != null);
 
-        int expected = 19;
+        int expected = 21;
         Assert.assertTrue(String.format("Expected %d matching ciphers, got %d", expected, resolved.size()), resolved.size() == expected);
     }
 
@@ -982,7 +976,7 @@ public class SslCipherSuitesTest {
         List<String> resolved = SslCipherSuites.resolve(configured);
         Assert.assertTrue("Expected default cipher suites, got null", resolved != null);
 
-        int expected = 19;
+        int expected = 21;
         Assert.assertTrue(String.format("Expected %d matching ciphers, got %d", expected, resolved.size()), resolved.size() == expected);
     }
 
@@ -997,7 +991,7 @@ public class SslCipherSuitesTest {
         List<String> resolved = SslCipherSuites.resolve(configured);
         Assert.assertTrue("Expected default cipher suites, got null", resolved != null);
 
-        int expected = 24;
+        int expected = 26;
         Assert.assertTrue(String.format("Expected %d matching ciphers, got %d", expected, resolved.size()), resolved.size() == expected);
     }
 
@@ -1046,7 +1040,7 @@ public class SslCipherSuitesTest {
 
         Assert.assertTrue("Expected cipher suites, got null", resolved != null);
 
-        int expected = 23;
+        int expected = 25;
         Assert.assertTrue(String.format("Expected %d matching ciphers, got %d", expected, resolved.length), resolved.length == expected);
     }
 }
