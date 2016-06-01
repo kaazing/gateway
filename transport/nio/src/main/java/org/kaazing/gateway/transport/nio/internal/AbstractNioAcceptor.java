@@ -214,7 +214,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
 
             Long handshakeTimeout = localAddress.getOption(HANDSHAKE_TIMEOUT).longValue();
             if (handshakeTimeout != null && handshakeTimeout > 0) {
-                session.getFilterChain().addLast("idle", new NioHandshakeFilter(logger, handshakeTimeout, session));
+                session.getFilterChain().addLast("tcpHandshakeTimeout", new NioHandshakeFilter(logger, handshakeTimeout));
             }
 
             SocketAddress remoteSocketAddress = session.getRemoteAddress();
@@ -249,7 +249,6 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             return (ResourceAddress) socketAddress;
         }
 
-
     };
 
     private ResourceAddress createResourceAddress(InetSocketAddress inetSocketAddress) {
@@ -283,8 +282,6 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
         Binding binding = bindings.getBinding(address);
         return (binding != null) ? binding.handler() : null;
     }
-
-
 
     @Override
     public void bind(final ResourceAddress address,
@@ -464,7 +461,6 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
         return new InetSocketAddress(location.getHost(), location.getPort());
     }
 
-
     //
     // Tcp as a "virtual" bridge session when we specify tcp.transport option in a resource address.
     //
@@ -641,7 +637,6 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
                     return (IoSession) session.getAttribute(TCP_SESSION_KEY);
                 }
 
-
                 @Override
                 protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
                     //TODO: consider tcpBridgeSession.reset as an alternate impl.
@@ -663,13 +658,11 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
                     tcpBridgeSession.getFilterChain().fireSessionIdle(status);
                 }
 
-
                 @Override
                 protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
                     IoSession tcpBridgeSession = getTcpBridgeSession(session);
                     tcpBridgeSession.getFilterChain().fireMessageReceived(message);
                 }
-
 
             };
 }

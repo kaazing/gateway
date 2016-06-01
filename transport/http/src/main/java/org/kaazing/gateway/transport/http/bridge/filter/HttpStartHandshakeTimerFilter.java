@@ -54,7 +54,7 @@ public class HttpStartHandshakeTimerFilter extends IoFilterAdapter<IoSessionEx> 
                         "Closing http session %s because handshake timeout of %d milliseconds is exceeded", session,
                         handshakeTimeout));
             }
-            session.close(false);
+            session.close(true);
          }, handshakeTimeout, TimeUnit.MILLISECONDS);
     }
 }

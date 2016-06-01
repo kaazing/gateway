@@ -33,8 +33,8 @@ public class HttpStopHandshakeTimerFilter extends IoFilterAdapter<IoSessionEx> {
     }
 
     @Override
-    protected void doSessionCreated(NextFilter nextFilter, IoSessionEx session) throws Exception {
-        taskExecutor.shutdown();
-        nextFilter.sessionCreated(session);
+    protected void doSessionOpened(NextFilter nextFilter, IoSessionEx session) throws Exception {
+        taskExecutor.shutdownNow();
+        nextFilter.sessionOpened(session);
     }
 }

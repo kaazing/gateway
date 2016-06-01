@@ -15,8 +15,9 @@
  */
 package org.kaazing.gateway.transport.nio.internal;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.session.IoSession;
@@ -32,36 +33,34 @@ public class NioHandshakeFilter extends IoFilterAdapter<IoSessionEx> {
 
     private final Logger logger;
     private final Long handshakeTimeout;
-    private Timer timer;
+    private ScheduledExecutorService taskExecutor;
 
-    public NioHandshakeFilter(Logger logger, Long handshakeTimeout, IoSession session) {
+    public NioHandshakeFilter(Logger logger, Long handshakeTimeout) {
         this.logger = logger;
         this.handshakeTimeout = handshakeTimeout;
-        timer = new Timer();
+        taskExecutor = Executors.newScheduledThreadPool(1);
     }
 
     @Override
     public void onPostAdd(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception {
         IoSession session = parent.getSession();
         if (logger.isTraceEnabled()) {
-            logger.trace(String.format("Setting handshake timeout of %d milliseconds on TCP session %s ", handshakeTimeout, session));
+            logger.trace(String.format("Setting handshake timeout of %d milliseconds on TCP session %s ", handshakeTimeout,
+                    session));
         }
 
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(String.format("Closing tcp session %s because handshake timeout of %d milliseconds is exceeded",
-                            session, handshakeTimeout));
-                }
-                session.close(false);
+        taskExecutor.schedule(() -> {
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("Closing tcp session %s because handshake timeout of %d milliseconds is exceeded",
+                        session, handshakeTimeout));
             }
-        }, handshakeTimeout);
+            session.close(true);
+        }, handshakeTimeout, TimeUnit.MILLISECONDS);
     }
 
     @Override
-    protected void doSessionCreated(NextFilter nextFilter, IoSessionEx session) throws Exception {
-        timer.cancel();
-        nextFilter.sessionCreated(session);
+    protected void doSessionOpened(NextFilter nextFilter, IoSessionEx session) throws Exception {
+        taskExecutor.shutdownNow();
+        nextFilter.sessionOpened(session);
     }
 }
