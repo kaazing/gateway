@@ -199,11 +199,6 @@ public final class SslCipherSuites {
         }
 
         @Override
-        public int hashCode() {
-            return name.hashCode();
-        }
-
-        @Override
         public int compareTo(SslCipher o) {
             return 0;
         }
