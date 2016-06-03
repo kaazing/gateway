@@ -20,6 +20,7 @@ import static java.lang.String.format;
 import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,6 +34,7 @@ import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
+import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.filter.util.WriteRequestFilterEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -295,6 +297,20 @@ public abstract class AbstractProxyHandler extends IoHandlerAdapter {
             future.addListener(new IoFutureListener<WriteFuture>() {
                 @Override
                 public void operationComplete(WriteFuture future) {
+                    if (isAligned()) {
+                        completeWriteOperation();
+                    } else {
+                        executeInSessionIoThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // handle re-alignment
+                                completeWriteOperation();
+                            }
+                        });
+                    }
+                }
+
+                private void completeWriteOperation() {
                     int newScheduledWriteBytes = scheduledWriteBytes.addAndGet(-bytesWritten);
                     // Use <= to ensure we resume read in case where both values are 0
                     if (readSuspended.get() && newScheduledWriteBytes <= thresholdPendingBytes) {
@@ -309,6 +325,16 @@ public abstract class AbstractProxyHandler extends IoHandlerAdapter {
                             sourceSession.resumeRead();
                         }
                     }
+                }
+
+                private boolean isAligned() {
+                    Thread sessionIoThread = ((IoSessionEx) sourceSession).getIoThread();
+                    return Thread.currentThread() == sessionIoThread;
+                }
+
+                private void executeInSessionIoThread(Runnable task) {
+                    Executor ioExecutor = ((IoSessionEx) sourceSession).getIoExecutor();
+                    ioExecutor.execute(task);
                 }
             });
         }
