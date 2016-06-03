@@ -17,14 +17,6 @@
 connect tcp://localhost:8001
 connected
 
-read await BARRIER
 write "GET /clientaccesspolicy.xml HTTP/1.1\r\n"
-write "Accept-Language: en-US\r\n"
-write "User-Agent: Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)\r\n"
-write "Host: localhost:8001\r\n"
-write "\r\n"
 
-read "HTTP/1.1 404 Not Found\r\n"
-
-close
 closed

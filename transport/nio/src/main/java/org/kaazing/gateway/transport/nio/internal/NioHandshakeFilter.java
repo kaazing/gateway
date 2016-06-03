@@ -59,8 +59,8 @@ public class NioHandshakeFilter extends IoFilterAdapter<IoSessionEx> {
     }
 
     @Override
-    protected void doSessionOpened(NextFilter nextFilter, IoSessionEx session) throws Exception {
+    protected void doMessageReceived(NextFilter nextFilter, IoSessionEx session, Object message) throws Exception {
         taskExecutor.shutdownNow();
-        nextFilter.sessionOpened(session);
+        nextFilter.messageReceived(session, message);
     }
 }

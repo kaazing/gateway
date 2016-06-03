@@ -21,7 +21,6 @@ import static org.junit.rules.RuleChain.outerRule;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.service.IoHandler;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -45,7 +44,6 @@ public class TcpHandshakeTimeoutIT {
     @Rule
     public TestRule chain = outerRule(acceptor).around(k3po).around(timeout);
 
-    @Ignore ("TODO: Clarify this")
     @Test
     @Specification({"server.close/client"})
     public void serverCloseAfterOpenWithNoData() throws Exception {
