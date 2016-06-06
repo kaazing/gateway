@@ -44,4 +44,34 @@ public interface AcceptOptionsContext {
      */
     Map<String, String> getBinds();
 
+    class Wrapper implements AcceptOptionsContext {
+
+        private final AcceptOptionsContext delegate;
+
+        public Wrapper(AcceptOptionsContext delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public void addBind(String scheme, String authority) {
+            delegate.addBind(scheme, authority);
+        }
+
+        @Override
+        public Map<String, String> getBinds() {
+            return delegate.getBinds();
+        }
+
+        @Override
+        public String getInternalURI(String externalURI) {
+            return delegate.getInternalURI(externalURI);
+        }
+
+        @Override
+        public Map<String, Object> asOptionsMap() {
+            return delegate.asOptionsMap();
+        }
+
+    }
+
 }
