@@ -249,13 +249,21 @@ public class StandaloneClusterContext implements ClusterContext {
         }
 
         @Override
-        public Object getId() {
-            return this.name;
+        public String getPartitionKey() {
+            // TODO Auto-generated method stub
+            return null;
         }
 
         @Override
-        public InstanceType getInstanceType() {
-            return InstanceType.ID_GENERATOR;
+        public String getServiceName() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public boolean init(long paramLong) {
+            // TODO Auto-generated method stub
+            return false;
         }
     }
 }

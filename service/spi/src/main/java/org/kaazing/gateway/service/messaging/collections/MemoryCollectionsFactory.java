@@ -37,6 +37,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.hazelcast.core.EntryEvent;
+import com.hazelcast.core.EntryEventType;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.ICollection;
 import com.hazelcast.core.IList;
@@ -46,12 +47,15 @@ import com.hazelcast.core.IQueue;
 import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Instance;
 import com.hazelcast.core.ItemListener;
-import com.hazelcast.core.MapEntry;
+import com.hazelcast.core.EntryView;
+import com.hazelcast.core.EntryListener;
+import com.hazelcast.map.listener.MapListener;
 import com.hazelcast.monitor.LocalLockStats;
 import com.hazelcast.monitor.LocalMapStats;
 import com.hazelcast.monitor.LocalQueueStats;
 import com.hazelcast.query.Expression;
 import com.hazelcast.query.Predicate;
+
 import org.kaazing.gateway.service.cluster.EntryListenerSupport;
 import org.kaazing.gateway.util.AtomicCounter;
 
@@ -126,7 +130,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
     @Override @SuppressWarnings("unchecked")
     public <K, V> void addEntryListener(EntryListener<K, V> listener, String name) {
         IMapImpl<K ,V> map = (IMapImpl<K, V>)getMap(name);  // force create if not already created.
-        map.addEntryListener(listener, true);
+        map..addEntryListener(listener, true);
     }
 
     @Override
@@ -171,7 +175,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
     }
 
-    private class MapEntryImpl<K, V> implements MapEntry<K, V> {
+    private class MapEntryImpl<K, V> implements EntryView<K, V> {
         private final K key;
         private final V value;
 
@@ -191,7 +195,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public int getHits() {
+        public long getHits() {
             return 1;
         }
 
@@ -220,19 +224,14 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             return 1;
         }
 
-        @Override
-        public boolean isValid() {
-            return true;
-        }
-
-        @Override
+       @Override
         public boolean equals(Object o) {
             if (o == null ||
-                    !(o instanceof MapEntry)) {
+                    !(o instanceof EntryView)) {
                 return false;
             }
 
-            MapEntry that = (MapEntry) o;
+            EntryView that = (EntryView) o;
 
             return that.getKey().equals(getKey()) && that.getValue().equals(getValue());
 
@@ -248,13 +247,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             return value;
         }
 
-        @Override
-        public V setValue(V value) {
-            // This method isn't supported, and really should not be.
-            // To change a value, simply call setValue() on the map itself,
-            // not on this MapEntry object.
-            throw new UnsupportedOperationException("setValue");
-        }
 
         @Override
         public int hashCode() {
@@ -271,6 +263,12 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             sb.append(", value=").append(value);
             sb.append(" }");
             return sb.toString();
+        }
+
+        @Override
+        public long getTtl() {
+            // TODO Auto-generated method stub
+            return 0;
         }
     }
 
@@ -289,18 +287,16 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public void addEntryListener(EntryListener<K, V> listener, boolean includeValue) {
-            listenerSupport.addEntryListener(listener, includeValue);
+        public String addEntryListener(MapListener listener, boolean includeValue) {
+            listenerSupport.addEntryListener((EntryListener<K, V>) listener, includeValue); 
+        }
+        @Override
+        public String addEntryListener(MapListener listener, K key, boolean includeValue) {
+            listenerSupport.addEntryListener((EntryListener<K, V>)listener, key, includeValue);
         }
 
         @Override
-        public void addEntryListener(EntryListener<K, V> listener, K key, boolean includeValue) {
-            listenerSupport.addEntryListener(listener, key, includeValue);
-
-        }
-
-        @Override
-        public MapEntry<K, V> getMapEntry(K key) {
+        public EntryView<K, V> getEntryView(K key) {
             V value = map.get(key);
             return new MapEntryImpl<>(key, value);
         }
@@ -315,12 +311,10 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             supplyLock(key).lock();
         }
 
-        @Override
         public void removeEntryListener(EntryListener<K, V> listener) {
             listenerSupport.removeEntryListener(listener);
         }
 
-        @Override
         public void removeEntryListener(EntryListener<K, V> listener, K key) {
             listenerSupport.removeEntryListener(listener, key);
         }
@@ -350,11 +344,11 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public V putIfAbsent(K key, V value) {
             V oldValue = map.putIfAbsent(key, value);
             if (oldValue == null) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_ADDED, key, value);
+                EntryEvent<K, V> event = new EntryEvent(name, null, EntryEventType.ADDED, key, value);
                 listenerSupport.entryAdded(event);
             }
             else {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_UPDATED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED, key, value);
                 listenerSupport.entryUpdated(event);
             }
             return oldValue;
@@ -365,7 +359,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public boolean remove(Object key, Object value) {
             boolean wasRemoved = map.remove(key, value);
             if (wasRemoved) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_REMOVED, (K)key, (V)value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.REMOVED, (K)key, (V)value);
                 listenerSupport.entryRemoved(event);
             }
             return wasRemoved;
@@ -375,11 +369,11 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public V replace(K key, V value) {
             V oldValue = map.replace(key, value);
             if (oldValue != null) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_UPDATED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED, key, value);
                 listenerSupport.entryUpdated(event);
             }
             else {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_ADDED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.ADDED, key, value);
                 listenerSupport.entryAdded(event);
             }
             return oldValue;
@@ -389,7 +383,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public boolean replace(K key, V oldValue, V newValue) {
             boolean wasReplaced = map.replace(key, oldValue, newValue);
             if (wasReplaced) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_UPDATED, key, newValue);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED, key, newValue);
                 listenerSupport.entryUpdated(event);
             }
             return wasReplaced;
@@ -442,11 +436,11 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public V put(K key, V value) {
             V oldValue = map.put(key, value);
             if (oldValue != null) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_UPDATED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED, key, value);
                 listenerSupport.entryUpdated(event);
             }
             else {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_ADDED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.ADDED, key, value);
                 listenerSupport.entryAdded(event);
             }
             return oldValue;
@@ -475,15 +469,10 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             map.clear();
         }
 
-        @Override
         public Object getId() {
             return this;
         }
 
-        @Override
-        public InstanceType getInstanceType() {
-            return InstanceType.MAP;
-        }
 
         private Lock supplyLock(Object key) {
             Lock lock = locks.get(key);
@@ -523,7 +512,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             Object value = map.remove(key);
             boolean removed = (value !=  null);
             if (removed) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_EVICTED, (K)key, (V) value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.EVICTED, (K)key, (V) value);
                 listenerSupport.entryEvicted(event);
             }
             return removed;
@@ -558,11 +547,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public boolean lockMap(long time, TimeUnit timeunit) {
-            throw new UnsupportedOperationException("lockMap");
-        }
-
-        @Override
         public V put(K key, V value, long ttl, TimeUnit timeunit) {
             throw new UnsupportedOperationException("put");
         }
@@ -575,11 +559,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @Override
         public boolean tryPut(K key, V value, long timeout, TimeUnit timeunit) {
             throw new UnsupportedOperationException("tryPut");
-        }
-
-        @Override
-        public void unlockMap() {
-            throw new UnsupportedOperationException("unlockMap");
         }
 
         @Override
@@ -601,7 +580,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             V value = map.remove(key);
             boolean removed = (value !=  null);
             if (removed) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_REMOVED, (K)key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.REMOVED, (K)key, value);
                 listenerSupport.entryRemoved(event);
             }
             return value;
@@ -617,17 +596,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             throw new UnsupportedOperationException("putAsync");
         }
 
-        @Override
-        public void addIndex(Expression<?> arg0, boolean arg1) {
-            throw new UnsupportedOperationException("addIndex");
-        }
-
-        @Override
-        public void addLocalEntryListener(EntryListener<K, V> arg0) {
-            throw new UnsupportedOperationException("addLocalEntryListener");
-        }
-
-        @Override
+       @Override
         public void flush() {
             throw new UnsupportedOperationException("flush");
         }
@@ -635,11 +604,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @Override
         public Map<K, V> getAll(Set<K> arg0) {
             throw new UnsupportedOperationException("getAll");
-        }
-
-        @Override
-        public void putAndUnlock(K arg0, V arg1) {
-            throw new UnsupportedOperationException("putAndLock");
         }
 
         @Override
@@ -653,19 +617,12 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public V tryLockAndGet(K arg0, long arg1, TimeUnit arg2)
-                throws TimeoutException {
-            throw new UnsupportedOperationException("tryLockAndGet");
-        }
-
-        @Override
-        public Object tryRemove(K arg0, long arg1, TimeUnit arg2)
-                throws TimeoutException {
+        public boolean tryRemove(K arg0, long arg1, TimeUnit arg2) {
             throw new UnsupportedOperationException("tryRemove");
         }
     }
 
-    private abstract class InstanceImpl implements Instance {
+/*    private abstract class InstanceImpl implements Instance {
 
         @Override
         public abstract InstanceType getInstanceType();
@@ -679,9 +636,9 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public void destroy() {
         }
 
-    }
+    }*/
 
-    private class ILockImpl extends InstanceImpl implements ILock {
+    private class ILockImpl implements ILock {
 
         private final Object owner;
         private final Lock lock;
@@ -722,29 +679,14 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public InstanceType getInstanceType() {
-            return InstanceType.LOCK;
-        }
-
-        @Override
-        public Object getLockObject() {
-            return owner;
-        }
-
-        @Override
         public void destroy() {
             locks.remove(owner);
         }
 
-        @Override
-        public LocalLockStats getLocalLockStats() {
-            // TODO Auto-generated method stub
-            return null;
-        }
 
     }
 
-    private abstract class ICollectionImpl<E> extends InstanceImpl implements ICollection<E> {
+    private abstract class ICollectionImpl<E> implements ICollection<E> {
 
         private final String name;
         protected final ItemListenerSupport<E> listenerSupport;
@@ -760,7 +702,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public void addItemListener(ItemListener<E> listener, boolean includeValue) {
+        public String addItemListener(ItemListener<E> listener, boolean includeValue) {
             listenerSupport.addItemListener(listener, includeValue);
         }
 
@@ -779,12 +721,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             list = new LinkedList<>();
         }
 
-        @Override
-        public InstanceType getInstanceType() {
-            return InstanceType.LIST;
-        }
-
-        @Override
+       @Override
         public boolean add(E e) {
             return list.add(e);
         }
@@ -936,7 +873,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public void addItemListener(ItemListener<E> listener, boolean includeValue) {
+        public String addItemListener(ItemListener<E> listener, boolean includeValue) {
             this.itemListenerSupport.addItemListener(listener, includeValue);
         }
 
@@ -945,7 +882,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             return this.name;
         }
 
-        @Override
         public void removeItemListener(ItemListener<E> listener) {
             this.itemListenerSupport.removeItemListener(listener);
         }
@@ -955,15 +891,10 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             queue.clear();
         }
 
-        @Override
         public Object getId() {
             return this.name;
         }
 
-        @Override
-        public InstanceType getInstanceType() {
-            return InstanceType.QUEUE;
-        }
 
         @Override
         public boolean add(E e) {
