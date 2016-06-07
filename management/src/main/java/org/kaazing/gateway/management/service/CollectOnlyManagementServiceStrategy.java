@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ public class CollectOnlyManagementServiceStrategy implements ManagementServiceSt
         serviceBean.doSessionClosed(sessionId, managementSessionType);
     }
 
+    @Override
     public void doMessageReceived(final ServiceManagementBean serviceBean,
                                   final long sessionId,
                                   long sessionReadBytes,
@@ -49,6 +50,7 @@ public class CollectOnlyManagementServiceStrategy implements ManagementServiceSt
         serviceBean.doMessageReceived(sessionId, sessionReadBytes, message);
     }
 
+    @Override
     public void doFilterWrite(final ServiceManagementBean serviceBean,
                               final long sessionId,
                               long sessionWrittenBytes,
@@ -56,6 +58,7 @@ public class CollectOnlyManagementServiceStrategy implements ManagementServiceSt
         serviceBean.doFilterWrite(sessionId, sessionWrittenBytes, writeRequest);
     }
 
+    @Override
     public void doExceptionCaught(final ServiceManagementBean serviceBean,
                                   final long sessionId,
                                   final Throwable cause) throws Exception {

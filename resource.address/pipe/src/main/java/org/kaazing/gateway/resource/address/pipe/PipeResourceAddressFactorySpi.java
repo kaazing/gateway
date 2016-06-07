@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.net.URI;
 
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 
 public class PipeResourceAddressFactorySpi extends ResourceAddressFactorySpi<PipeResourceAddress> {
 
@@ -28,8 +29,8 @@ public class PipeResourceAddressFactorySpi extends ResourceAddressFactorySpi<Pip
 
     private static final String PROTOCOL_NAME = "pipe";
 
-    private static final String PIPE_PATH_ERROR_MESSAGE = "Using pipe://%s instead of pipe://%s%s "
-            + "because paths are ignored for pipe:// URIs. See 'pipe://' in the documentation for more details.";
+    private static final String PIPE_PATH_ERROR_MESSAGE = "Use pipe://%s instead of pipe://%s%s "
+                                        + "because named pipe URIs shouldn't contain paths.";
 
     @Override
     public String getSchemeName() {
@@ -52,14 +53,14 @@ public class PipeResourceAddressFactorySpi extends ResourceAddressFactorySpi<Pip
     }
 
     @Override
-    protected PipeResourceAddress newResourceAddress0(URI original, URI location) {
+    protected PipeResourceAddress newResourceAddress0(String original, String location) {
 
         // Unlike a normal-looking URI, our custom "pipe://" does not have
         // host/port/path components. Instead, the authority component
         // suffices.
 
-        String pipeName = location.getAuthority();
-        String pathName = location.getPath();
+        String pipeName = URIUtils.getAuthority(location);
+        String pathName = URIUtils.getPath(location);
         if (pipeName == null) {
             throw new IllegalArgumentException(String.format("URI %s missing pipe name", location));
         }
@@ -67,7 +68,8 @@ public class PipeResourceAddressFactorySpi extends ResourceAddressFactorySpi<Pip
             throw new IllegalArgumentException(String.format(PIPE_PATH_ERROR_MESSAGE, pipeName, pipeName, pathName));
         }
 
-        return new PipeResourceAddress(this, original, location);
+        URI uriLocation = URI.create(location);
+        return new PipeResourceAddress(this, original, uriLocation);
 
     }
 

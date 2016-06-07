@@ -1,5 +1,5 @@
 #
-# Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,10 +43,9 @@ connected
 
 read method "GET"
 read parameter "name" "value"
-read header "Via" "1.1 kaazing"
+read header "Via" /1.1 kaazing-.+/
 read header "User-Agent" "curl/7.37.1"
 read header "Host" "localhost:8081"
-read header "Forwarded" "for=127.0.0.1"
 read header "Accept" "*/*"
 read closed
 

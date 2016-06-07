@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -160,7 +160,7 @@ public class JmxManagementService implements ManagementService, NotificationList
             throw new IllegalStateException("Already started");
         }
 
-        URI uri = null;
+        URI uri;
         ServiceProperties properties = serviceContext.getProperties();
         String connectorServerAddress = properties.get("connector.server.address");
         if (connectorServerAddress != null) {
@@ -289,6 +289,7 @@ public class JmxManagementService implements ManagementService, NotificationList
             this.realm = realm;
         }
 
+        @Override
         public Subject authenticate(Object credentialsAsObject) {
 
             // verify that credentials is of type String[].
@@ -343,6 +344,7 @@ public class JmxManagementService implements ManagementService, NotificationList
             return MBeanServerForwarder.class.cast(proxy);
         }
 
+        @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
             final String methodName = method.getName();

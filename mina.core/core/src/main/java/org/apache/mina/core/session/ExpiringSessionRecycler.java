@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class ExpiringSessionRecycler implements IoSessionRecycler {
     }
 
     public ExpiringSessionRecycler(int timeToLive, int expirationInterval) {
-        sessionMap = new ExpiringMap<Object, IoSession>(timeToLive,
+        sessionMap = new ExpiringMap<>(timeToLive,
                 expirationInterval);
         mapExpirer = sessionMap.getExpirer();
         sessionMap.addExpirationListener(new DefaultExpirationListener());
@@ -96,7 +96,7 @@ public class ExpiringSessionRecycler implements IoSessionRecycler {
 
     private Object generateKey(SocketAddress localAddress,
             SocketAddress remoteAddress) {
-        List<SocketAddress> key = new ArrayList<SocketAddress>(2);
+        List<SocketAddress> key = new ArrayList<>(2);
         key.add(remoteAddress);
         key.add(localAddress);
         return key;

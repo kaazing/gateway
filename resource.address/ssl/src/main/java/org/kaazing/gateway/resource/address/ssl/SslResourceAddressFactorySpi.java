@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package org.kaazing.gateway.resource.address.ssl;
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceFactories.keepAuthorityOnly;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.CIPHERS;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.ENCRYPTION_ENABLED;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.KEY_SELECTOR;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.NEED_CLIENT_AUTH;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.TRANSPORT_NAME;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.WANT_CLIENT_AUTH;
 
@@ -32,6 +32,7 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.security.KeySelector;
+import org.kaazing.gateway.util.ssl.SslCipherSuites;
 
 public class SslResourceAddressFactorySpi extends ResourceAddressFactorySpi<SslResourceAddress> {
 
@@ -42,9 +43,9 @@ public class SslResourceAddressFactorySpi extends ResourceAddressFactorySpi<SslR
     private static final String PROTOCOL_NAME = "ssl";
 
     @Override
-	public String getSchemeName() {
-		return SCHEME_NAME;
-	}
+    public String getSchemeName() {
+        return SCHEME_NAME;
+    }
     
     @Override
     protected String getTransportName() {
@@ -62,14 +63,17 @@ public class SslResourceAddressFactorySpi extends ResourceAddressFactorySpi<SslR
     }
     
     @Override
-    protected void parseNamedOptions0(URI location, ResourceOptions options,
+    protected void parseNamedOptions0(String location, ResourceOptions options,
                                       Map<String, Object> optionsByName) {
-        
-        String[] ciphers = (String[]) optionsByName.remove(CIPHERS.name());
-        if (ciphers != null) {
-            options.setOption(CIPHERS, ciphers);
+        Object ciphers = optionsByName.remove(CIPHERS.name());
+        if (ciphers instanceof String) {
+            options.setOption(CIPHERS, SslCipherSuites.resolveCSV((String) ciphers));
+        } else if (ciphers instanceof String[]) {
+            options.setOption(CIPHERS, (String[]) ciphers);
+        } else {
+            assert ciphers == null;
         }
-        
+
         Boolean encryption = (Boolean) optionsByName.remove(ENCRYPTION_ENABLED.name());
         if (encryption != null) {
             options.setOption(ENCRYPTION_ENABLED, encryption);
@@ -98,24 +102,24 @@ public class SslResourceAddressFactorySpi extends ResourceAddressFactorySpi<SslR
     }
     
     @Override
-    protected SslResourceAddress newResourceAddress0(URI original, URI location) {
-        String host = location.getHost();
-        int port = location.getPort();
-        String path = location.getPath();
-        
-        if (host == null) {
+    protected SslResourceAddress newResourceAddress0(String original, String location) {
+
+        URI uriLocation = URI.create(location);
+        String path = uriLocation.getPath();
+
+        if (uriLocation.getHost() == null) {
             throw new IllegalArgumentException(format("Missing host in URI: %s", location));
         }
-        
-        if (port == -1) {
+
+        if (uriLocation.getPort() == -1) {
             throw new IllegalArgumentException(format("Missing port in URI: %s", location));
         }
-        
+
         if (path != null && !path.isEmpty()) {
             throw new IllegalArgumentException(format("Unexpected path \"%s\" in URI: %s", path, location));
         }
-        
-        return new SslResourceAddress(this, original, location);
+
+        return new SslResourceAddress(this, original, uriLocation);
     }
 
     @Override

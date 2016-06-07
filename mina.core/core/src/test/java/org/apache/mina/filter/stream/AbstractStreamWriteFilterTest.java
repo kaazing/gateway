@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -212,7 +212,7 @@ public abstract class AbstractStreamWriteFilterTest<M, U extends AbstractStreamW
         AbstractStreamWriteFilter<M> filter = createFilter();
         M message = createMessage(new byte[5]);
 
-        Queue<WriteRequest> queue = new LinkedList<WriteRequest>();
+        Queue<WriteRequest> queue = new LinkedList<>();
 
         /*
          * Make up the situation.
@@ -249,7 +249,7 @@ public abstract class AbstractStreamWriteFilterTest<M, U extends AbstractStreamW
                 new DefaultWriteRequest(new Object(), new DummyWriteFuture()),
                 new DefaultWriteRequest(new Object(), new DummyWriteFuture()),
                 new DefaultWriteRequest(new Object(), new DummyWriteFuture()) };
-        Queue<WriteRequest> queue = new LinkedList<WriteRequest>();
+        Queue<WriteRequest> queue = new LinkedList<>();
         queue.add(wrs[0]);
         queue.add(wrs[1]);
         queue.add(wrs[2]);

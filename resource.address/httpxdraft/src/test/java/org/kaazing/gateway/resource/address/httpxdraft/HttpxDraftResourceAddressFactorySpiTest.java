@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,12 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 public class HttpxDraftResourceAddressFactorySpiTest {
 
     private HttpxDraftResourceAddressFactorySpi addressFactorySpi;
-    private URI addressURI;
+    private String addressURI;
 
     @Before
     public void before() {
         addressFactorySpi = new HttpxDraftResourceAddressFactorySpi();
-        addressURI = URI.create("httpx-draft://localhost:2020/");
+        addressURI = "httpx-draft://localhost:2020/";
     }
 
     @Test 

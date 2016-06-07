@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,13 +49,13 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 public class WseSslResourceAddressFactorySpiTest {
 
     private WseSslResourceAddressFactorySpi addressFactorySpi;
-    private URI addressURI;
+    private String addressURI;
     private Map<String, Object> options;
     
     @Before
     public void before() {
         addressFactorySpi = new WseSslResourceAddressFactorySpi();
-        addressURI = URI.create("wse+ssl://localhost:2020/");
+        addressURI = "wse+ssl://localhost:2020/";
         options = new HashMap<>();
         options.put("ws.nextProtocol", "custom");
         options.put("ws.qualifier", "random");
@@ -66,7 +66,7 @@ public class WseSslResourceAddressFactorySpiTest {
         options.put("ws.inactivityTimeout", SECONDS.toMillis(5));
         options.put("ws.supportedProtocols", new String[] { "amqp/0.91", "amqp/1.0" });
         options.put("ws.requiredProtocols", new String[] { "amqp/0.91", "amqp/1.0" });
-        options.put("ws.transport", URI.create("https://localhost:2121/"));
+        options.put("ws.transport", "https://localhost:2121/");
     }
 
     @Test
@@ -76,17 +76,17 @@ public class WseSslResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireWseSslSchemeName() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("test://opaque"));
+        addressFactorySpi.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPath() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("wse+ssl://localhost:80"));
+        addressFactorySpi.newResourceAddress("wse+ssl://localhost:80");
     }
 
     @Test 
     public void shouldNotRequireExplicitPort() throws Exception {
-        ResourceAddress address = addressFactorySpi.newResourceAddress(URI.create("wse+ssl://localhost/"));
+        ResourceAddress address = addressFactorySpi.newResourceAddress("wse+ssl://localhost/");
         URI location = address.getResource();
         assertEquals(location.getPort(), 443);
     }
@@ -127,14 +127,14 @@ public class WseSslResourceAddressFactorySpiTest {
         assertNotNull(address.getOption(TRANSPORT_URI));
         //NOTE: the primary transport is still https(=http|ssl|tcp), the alternate is httpxe|http|ssl|tcp
         //      however in this unit test the alternate is not yet materialized.
-        assertEquals(URI.create("https://localhost:2020/"), address.getOption(TRANSPORT_URI));
+        assertEquals("https://localhost:2020/", address.getOption(TRANSPORT_URI));
     }
     
     @Test
     public void shouldCreateAddressWithTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI, options);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("https://localhost:2121/"), address.getOption(TRANSPORT_URI));
+        assertEquals("https://localhost:2121/", address.getOption(TRANSPORT_URI));
     }
 
     private void assertEmpty(String[] objects) {

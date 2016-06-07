@@ -1,5 +1,5 @@
 #
-# Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ connected
 # Send create request
 
 write "POST /;post/echo/;e/cb HTTP/1.1\r\n"
-write "X-WebSocket-Extensions: x-kaazing-http-revalidate\r\n"
 write "X-WebSocket-Version: wseb-1.0\r\n"
 write "X-Accept-Commands: ping\r\n"
 write "X-Origin: privileged://localhost:8123\r\n"
@@ -40,19 +39,18 @@ read await CREATE_REQUESTED
 
 read "HTTP/1.1 200 OK\r\n"
 read "Cache-Control: no-cache\r\n"
-read "Content-Length: 257\r\n"
+read "Content-Length: .*\r\n"
 read "Content-Type: text/plain;charset=UTF-8\r\n"
-read /Date: .*/ "\r\n"
+read /Date: .*\r\n/
 read "Server: Kaazing Gateway\r\n"
 read "\r\n"
 read "HTTP/1.1 201 Created\r\n"
 read "Content-Type: text/plain;charset=UTF-8\r\n"
-read "X-WebSocket-Extensions: x-kaazing-http-revalidate; 56414C49\r\n"
 # read "Content-Length: 132\r\n"
 read "\r\n"
 # Example: http://localhost:8123/echo/;e/ub/fUOutUjjl9sgFumZWv1XySfdooieOf7e
-read "http://localhost:8123" /(?<up>.*)/ "\n"
-read "http://localhost:8123" /(?<down>.*)/ "\n"
+read "http://localhost:8123" /(?<up>.*)\n/
+read "http://localhost:8123" /(?<down>.*)\n/
 
 read notify CREATED
 
@@ -63,7 +61,6 @@ write "POST /;post"
 write ${up}
 write " HTTP/1.1\r\n"
 write "Content-Type: application/octet-stream\r\n"
-write "X-WebSocket-Extensions: x-kaazing-http-revalidate\r\n"
 write "X-WebSocket-Version: wseb-1.0\r\n"
 write "X-Origin: privileged://localhost:8123\r\n"
 write "X-Origin-privileged%3A%2F%2Flocalhost%3A8123: privileged://localhost:8123\r\n"
@@ -79,7 +76,7 @@ write notify PONG_REPLY_SENT
 read "HTTP/1.1 200 OK\r\n"
 read "Content-Length: 19\r\n"
 read "Content-Type: text/plain;charset=UTF-8\r\n"
-read /Date: .*/ "\r\n"
+read /Date: .*\r\n/
 read "Server: Kaazing Gateway\r\n"
 read "\r\n"
 read "HTTP/1.1 200 OK\r\n"
@@ -96,7 +93,6 @@ write "POST /;post"
 write ${down}
 write "?.kf=0&.kp=2048&.kcc=private HTTP/1.1\r\n"
 write "Content-Type: text/plain\r\n"
-write "X-WebSocket-Extensions: x-kaazing-http-revalidate\r\n"
 write "X-WebSocket-Version: wseb-1.0\r\n"
 write "X-Origin: privileged://localhost:8123\r\n"
 write "X-Origin-privileged%3A%2F%2Flocalhost%3A8123: privileged://localhost:8123\r\n"
@@ -112,7 +108,7 @@ read "HTTP/1.1 200 OK\r\n"
 read "Cache-Control: private\r\n"
 read "Connection: close\r\n"
 read "Content-Type: application/octet-stream\r\n"
-read /Date: .*/ "\r\n"
+read /Date: .*\r\n/
 read "Server: Kaazing Gateway\r\n"
 read "X-Content-Type-Options: nosniff\r\n"
 read "\r\n"
@@ -139,7 +135,6 @@ write "POST /;post"
 write ${up}
 write " HTTP/1.1\r\n"
 write "Content-Type: application/octet-stream\r\n"
-write "X-WebSocket-Extensions: x-kaazing-http-revalidate\r\n"
 write "X-WebSocket-Version: wseb-1.0\r\n"
 write "X-Origin: privileged://localhost:8123\r\n"
 write "X-Origin-privileged%3A%2F%2Flocalhost%3A8123: privileged://localhost:8123\r\n"

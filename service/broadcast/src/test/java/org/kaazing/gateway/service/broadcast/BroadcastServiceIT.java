@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 package org.kaazing.gateway.service.broadcast;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
-
-import java.net.URI;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,9 +36,15 @@ public class BroadcastServiceIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("tcp://localhost:8090"))
-                            .connect(URI.create("tcp://localhost:7788"))
+                            .accept("tcp://localhost:8090")
+                            .connect("tcp://localhost:7788")
                             .type("broadcast")
+                        .done()
+                        .service()
+                            .accept("tcp://localhost:8091")
+                            .connect("tcp://localhost:7789")
+                            .type("broadcast")
+                            .property("on.client.message", "broadcast")
                         .done()
                     .done();
             // @formatter:on
@@ -51,22 +55,34 @@ public class BroadcastServiceIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-	@Specification("broadcast.backend.tcp.connect.and.close")
-	@Test
-	public void tcpConnectionToBackendAndClose() throws Exception {
-		robot.finish();
-	}
-
-	@Specification("broadcast.backend.tcp.connect.send.and.close")
-	@Test
-	public void tcpConnectionToBackendSendAndClose() throws Exception {
+    @Specification("broadcast.backend.tcp.connect.and.close")
+    @Test
+    public void tcpConnectionToBackendAndClose() throws Exception {
         robot.finish();
-	}
+    }
 
-	@Specification("broadcast.frontend.tcp.connect.and.close")
-	@Test
-	public void TcpConnectToFrontendAndClose() throws Exception {
+    @Specification("broadcast.backend.tcp.connect.send.and.close")
+    @Test
+    public void tcpConnectionToBackendSendAndClose() throws Exception {
         robot.finish();
-	}
+    }
+
+    @Specification("broadcast.frontend.tcp.connect.and.close")
+    @Test
+    public void tcpConnectToFrontendAndClose() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("tcp.frontend.broadcast")
+    @Test
+    public void tcpFrontEndBroadcast() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("tcp.frontend.broadcast.many")
+    @Test
+    public void tcpFrontEndBroadcastMany() throws Exception {
+        robot.finish();
+    }
 
 }

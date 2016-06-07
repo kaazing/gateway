@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.http.HttpOriginSecurity;
 import org.kaazing.gateway.resource.address.http.HttpOriginSecurity.HttpOriginConstraint;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
@@ -78,12 +79,12 @@ public class HttpOriginSecurityFilter extends HttpFilterAdapter<IoSessionEx> {
                 if (localAddress.getResource().getAuthority().equals(originAuthority)) {
                     crossOrigin = null;
                 } else {
-                    Collection<URI> balanceOrigins = localAddress.getOption(HttpResourceAddress.BALANCE_ORIGINS);
+                    Collection<String> balanceOrigins = localAddress.getOption(HttpResourceAddress.BALANCE_ORIGINS);
                     if (balanceOrigins != null && !balanceOrigins.isEmpty()) {
-                        for (URI targetURI : balanceOrigins) {
-                            boolean targetIsSecure = "https".equals(targetURI.getScheme());
-                            String targetScheme = targetURI.getScheme();
-                            String targetAuthority = HttpUtils.getHostAndPort(targetURI.getAuthority(), targetIsSecure);
+                        for (String targetURI : balanceOrigins) {
+                            boolean targetIsSecure = "https".equals(URIUtils.getScheme(targetURI));
+                            String targetScheme = URIUtils.getScheme(targetURI);
+                            String targetAuthority = HttpUtils.getHostAndPort(URIUtils.getAuthority(targetURI), targetIsSecure);
                             if ("privileged".equals(originScheme)
                                     || ((targetScheme.equals(originScheme) && targetAuthority.equals(originAuthority)))) {
                                 crossOrigin = null;

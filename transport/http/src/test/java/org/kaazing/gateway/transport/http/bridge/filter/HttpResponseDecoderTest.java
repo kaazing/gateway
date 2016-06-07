@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -82,7 +83,7 @@ public class HttpResponseDecoderTest {
         assertEquals(HttpStatus.SUCCESS_OK, httpResponse.getStatus());
         assertEquals("OK (Test)", httpResponse.getReason());
         assertNull(httpResponse.getContent());
-        assertEquals(Arrays.asList("Test"), httpResponse.getHeaderValues("Server"));
+        assertEquals(Collections.singletonList("Test"), httpResponse.getHeaderValues("Server"));
 
         assertTrue(session.getDecoderOutputQueue().isEmpty());
         decoder.finishDecode(session, session.getDecoderOutput());
@@ -199,11 +200,11 @@ public class HttpResponseDecoderTest {
         }});
 
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-        ResourceAddress address = addressFactory.newResourceAddress(URI.create("http://localhost:4232/"));
-        ResourceAddress remoteAddress = addressFactory.newResourceAddress(URI.create("http://localhost:8080/"));
+        ResourceAddress address = addressFactory.newResourceAddress("http://localhost:4232/");
+        ResourceAddress remoteAddress = addressFactory.newResourceAddress("http://localhost:8080/");
 
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
-        DefaultHttpSession httpSession = new DefaultHttpSession(httpService, processor, address, remoteAddress, session, null);
+        DefaultHttpSession httpSession = new DefaultHttpSession(httpService, processor, address, remoteAddress, session, null, new Properties());
         httpSession.setMethod(HttpMethod.HEAD);
         HttpConnector.HTTP_SESSION_KEY.set(session, httpSession);
         ProtocolDecoder decoder = new HttpResponseDecoder();

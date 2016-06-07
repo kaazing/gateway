@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.service.http.proxy;
 
+import static org.kaazing.test.util.ITUtil.createRuleChain;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -23,10 +25,6 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-
-import java.net.URI;
-
-import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 public class HttpProxyResponseStatusCodesIT {
 
@@ -37,8 +35,8 @@ public class HttpProxyResponseStatusCodesIT {
         GatewayConfiguration configuration =
                 new GatewayConfigurationBuilder()
                     .service()
-                        .accept(URI.create("http://localhost:8080/"))
-                        .connect(URI.create("http://localhost:8080/"))
+                        .accept("http://localhost:8080/")
+                        .connect("http://localhost:8080/")
                         .type("http.proxy")
                         .connectOption("http.transport", "tcp://localhost:8081")
                     .done()

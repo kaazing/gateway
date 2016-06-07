@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,25 +46,25 @@ public final class CompositeByteArray extends AbstractByteArray {
         /**
          * Called when the first component in the composite is entered by the cursor.
          */
-        public void enteredFirstComponent( int componentIndex, ByteArray component );
+        void enteredFirstComponent(int componentIndex, ByteArray component);
 
 
         /**
          * Called when the next component in the composite is entered by the cursor.
          */
-        public void enteredNextComponent( int componentIndex, ByteArray component );
+        void enteredNextComponent(int componentIndex, ByteArray component);
 
 
         /**
          * Called when the previous component in the composite is entered by the cursor.
          */
-        public void enteredPreviousComponent( int componentIndex, ByteArray component );
+        void enteredPreviousComponent(int componentIndex, ByteArray component);
 
 
         /**
          * Called when the last component in the composite is entered by the cursor.
          */
-        public void enteredLastComponent( int componentIndex, ByteArray component );
+        void enteredLastComponent(int componentIndex, ByteArray component);
     }
 
     /**
@@ -272,7 +272,7 @@ public final class CompositeByteArray extends AbstractByteArray {
             return Collections.emptyList();
         }
         
-        Collection<IoBuffer> result = new ArrayList<IoBuffer>();
+        Collection<IoBuffer> result = new ArrayList<>();
         Node node = bas.getFirst();
         
         for ( IoBuffer bb : node.getByteArray().getIoBuffers() ) {

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 package org.kaazing.gateway.transport.wsn.autobahn.framing;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
-
-import java.net.URI;
 
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -37,7 +35,7 @@ public class FramingBinaryMessagesIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("ws://localhost:8555/echo"))
+                            .accept("ws://localhost:8555/echo")
                             .type("echo")
                         .done()
                     .done();
@@ -49,50 +47,50 @@ public class FramingBinaryMessagesIT {
     public TestRule chain = createRuleChain(gateway, robot);
 
     @Specification("sendBinaryMessageWithPayloadLength125")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendBinaryMessageWithPayloadLength125() throws Exception {
         robot.finish();
     }
 
     @Specification("sendBinaryMessageWithPayloadLength126")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendBinaryMessageWithPayloadLength126() throws Exception {
         robot.finish();
     }
 
     @Specification("sendBinaryMessageWithPayloadLength127")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendBinaryMessageWithPayloadLength127() throws Exception {
         robot.finish();
     }
 
     @Specification("sendBinaryMessageWithPayloadLength128")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendBinaryMessageWithPayloadLength128() throws Exception {
         robot.finish();
     }
 
     @Specification("sendBinaryMessageWithPayloadLength65535")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendBinaryMessageWithPayloadLength65535() throws Exception {
         robot.finish();
     }
 
     @Specification("sendBinaryMessageWithPayloadLength65536")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendBinaryMessageWithPayloadLength65536() throws Exception {
         robot.finish();
     }
 
     @Specification("sendBinaryMessageWithPayloadLength65536InChopsOf997Octets")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendBinaryMessageWithPayloadLength65536InChopsOf997Octets() throws Exception {
         robot.finish();
     }
 
     @Ignore("KG-12366")
     @Specification("sendBinaryMessageWithPayloadLengthZero")
-    @Test(timeout = 1500)
+    @Test(timeout = 5000)
     public void sendBinaryMessageWithPayloadLengthZero() throws Exception {
         robot.finish();
     }

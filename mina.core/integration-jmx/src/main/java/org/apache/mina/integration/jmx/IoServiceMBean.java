@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ public class IoServiceMBean extends ObjectMBean<IoService> {
 
         if (name.equals("findAndRegisterSessions")) {
             IoSessionFinder finder = new IoSessionFinder((String) params[0]);
-            Set<IoSession> registeredSessions = new LinkedHashSet<IoSession>();
+            Set<IoSession> registeredSessions = new LinkedHashSet<>();
             for (IoSession s: finder.find(getSource().getManagedSessions().values())) {
                 try {
                     getServer().registerMBean(

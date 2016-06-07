@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.transport.Bindings;
 import org.kaazing.gateway.transport.Bindings.Binding;
 import org.kaazing.gateway.transport.http.HttpBindings.HttpBinding;
@@ -40,8 +41,12 @@ import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.mina.core.future.DefaultWriteFutureEx;
 import org.kaazing.mina.core.write.DefaultWriteRequestEx;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HttpNextAddressFilter extends HttpFilterAdapter<IoSession> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger("transport.http");
 
     private ResourceAddressFactory addressFactory;
     private Bindings<HttpBinding> bindings;
@@ -75,6 +80,7 @@ public class HttpNextAddressFilter extends HttpFilterAdapter<IoSession> {
 
         String nextProtocol = httpRequest.getHeader(HEADER_X_NEXT_PROTOCOL);
         ResourceAddress candidateAddress = createCandidateAddress(session, httpRequest, nextProtocol);
+        ResourceAddress nextProtocolCandidateAddress = candidateAddress;
         Binding binding = bindings.getBinding(candidateAddress);
         if (binding == null) {
             // try with null nextProtocol as this request may be websocket request but
@@ -89,6 +95,17 @@ public class HttpNextAddressFilter extends HttpFilterAdapter<IoSession> {
             super.httpRequestReceived(nextFilter, session, httpRequest);
         }
         else {
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("\n" +
+                        "*** HttpNextAddressFilter FAILED to find local address"+
+                        "\n*** via candidate1:\n" +
+                        nextProtocolCandidateAddress +
+                        "\n*** via candidate2:\n" +
+                        candidateAddress +
+                        "\n***with bindings [\n" +
+                        bindings +
+                        "]");
+            }
             HttpResponseMessage httpResponse = new HttpResponseMessage();
             httpResponse.setVersion(HTTP_1_1);
             httpResponse.setStatus(CLIENT_NOT_FOUND);
@@ -134,7 +151,7 @@ public class HttpNextAddressFilter extends HttpFilterAdapter<IoSession> {
         options.setOption(NEXT_PROTOCOL, nextProtocol);
         options.setOption(TRANSPORT, transport);
 
-        return addressFactory.newResourceAddress(candidateURI, options);
+        return addressFactory.newResourceAddress(URIUtils.uriToString(candidateURI), options);
     }
 
 }

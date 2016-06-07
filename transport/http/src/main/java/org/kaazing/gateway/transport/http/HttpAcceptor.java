@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import static org.kaazing.gateway.transport.http.HttpStatus.CLIENT_NOT_FOUND;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolHeaderFilter.PROTOCOL_HTTPXE_1_1;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter.PROTOCOL_HTTP_1_1;
 import static org.kaazing.gateway.transport.http.resource.HttpDynamicResourceFactory.newHttpDynamicResourceFactory;
+import static org.kaazing.gateway.util.InternalSystemProperty.HTTPXE_SPECIFICATION;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -47,6 +48,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -66,6 +68,7 @@ import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
 import org.kaazing.gateway.transport.Bindings;
@@ -107,6 +110,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
     public static final String MERGE_REQUEST_LOGGER_NAME = format("%s.mergeRequest", LOGGER_NAME);
     public static final AttributeKey SERVICE_REGISTRATION_KEY = new AttributeKey(HttpAcceptor.class, "serviceRegistration");
 
+    public static final TypedAttributeKey<Boolean> HTTPXE_SPEC_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "httpxeSpec");
     static final TypedAttributeKey<DefaultHttpSession> SESSION_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "session");
 
     private final Map<String, Set<HttpAcceptFilter>> acceptFiltersByProtocol;
@@ -119,9 +123,19 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
     private SchedulerProvider schedulerProvider;
 
+    private Properties configuration;
+
+    private boolean httpxeSpecCompliant;
+
     @Resource(name = "schedulerProvider")
     public void setSchedulerProvider(SchedulerProvider provider) {
         this.schedulerProvider = provider;
+    }
+
+    @Resource(name = "configuration")
+    public void setConfiguration(Properties configuration) {
+        this.configuration = configuration;
+        httpxeSpecCompliant = HTTPXE_SPECIFICATION.getBooleanProperty(configuration);
     }
 
     public HttpAcceptor() {
@@ -175,6 +189,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 return httpBinding;
             }
 
+            @Override
             protected boolean unbindAdditionalAddressesIfNecessary(ResourceAddress address, HttpBinding newHttpBinding) {
                 ResourceAddress resourcesAddress = getResourcesAddress(newHttpBinding);
                 if ( newHttpBinding.size()==1 && newHttpBinding.get(resourcesAddress.getResource().getPath()) != null) {
@@ -186,8 +201,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
             private ResourceAddress getResourcesAddress(HttpBinding newHttpBinding) {
                 ResourceAddress bindAddress = newHttpBinding.bindAddress();
-                URI location = bindAddress.getExternalURI();
-                URI resourcesURI = location.resolve("/;resource");
+                String location = bindAddress.getExternalURI();
+                String resourcesURI = URIUtils.resolve(location, "/;resource");
                 ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
                 options.setOption(TRANSPORT_URI, bindAddress.getOption(TRANSPORT_URI));
                 options.setOption(TRANSPORT, bindAddress.getOption(TRANSPORT));
@@ -310,6 +325,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
         @Override
         protected void doSessionCreated(IoSessionEx session) throws Exception {
+            HTTPXE_SPEC_KEY.set(session, httpxeSpecCompliant);
             IoFilterChain filterChain = session.getFilterChain();
             addBridgeFilters(filterChain);
         }
@@ -384,7 +400,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
             // TODO: if content is complete then suspendRead on iosession
             // TODO: in processor when complete resume iosession read (parent)
 
-            DefaultHttpSession httpSession = null;
+            DefaultHttpSession httpSession;
 
             HttpMessage httpMessage = (HttpMessage) message;
             switch (httpMessage.getKind()) {
@@ -438,7 +454,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                                 session,
                                 new HttpBufferAllocator(parentAllocator),
                                 httpRequest,
-                                localAddress.getResource());
+                                localAddress.getResource(),
+                                configuration);
 
                         IoHandler handler = getHandler(newHttpSession.getLocalAddress());
                         if ( handler == null && logger.isTraceEnabled() ) {
@@ -515,13 +532,20 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         IoSession transport = chain.getSession();
 
         SocketAddress localAddress = transport.getLocalAddress();
-        String nextProtocol = PROTOCOL_HTTP_1_1;
 
+        String nextProtocol = null;
         if (localAddress instanceof ResourceAddress) {
             ResourceAddress address = (ResourceAddress) localAddress;
             if (!address.hasOption(QUALIFIER)) {
                 nextProtocol = address.getOption(NEXT_PROTOCOL);
             }
+        }
+        if (nextProtocol == null) {
+            nextProtocol = PROTOCOL_HTTP_1_1;
+        }
+
+        if (logger.isTraceEnabled()) {
+            logger.trace(format("Adding http accept bridge filters using nextProtocol: %s", nextProtocol));
         }
 
         Set<HttpAcceptFilter> acceptFilters = acceptFiltersByProtocol.get(nextProtocol);

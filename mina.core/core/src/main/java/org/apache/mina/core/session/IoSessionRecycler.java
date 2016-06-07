@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public interface IoSessionRecycler {
      * make all session lifecycle events to be fired for every I/O for all connectionless
      * sessions.
      */
-    static IoSessionRecycler NOOP = new IoSessionRecycler() {
+    IoSessionRecycler NOOP = new IoSessionRecycler() {
         public void put(IoSession session) {
             // Do nothing
         }

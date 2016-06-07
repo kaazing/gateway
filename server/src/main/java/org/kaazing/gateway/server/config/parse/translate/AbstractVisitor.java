@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ public abstract class AbstractVisitor
     protected ListIterator<Element> toListIterator(Iterator iter) {
         // Copy the iterated items into a List, so we can modify the
         // list while iterating over it...
-        List<Element> elts = new ArrayList<Element>(1);
+        List<Element> elts = new ArrayList<>(1);
         while (iter.hasNext()) {
             elts.add((Element) iter.next());
         }

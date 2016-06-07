@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -172,6 +172,7 @@ public class SimpleTokenLoginModule implements LoginModule {
         // If we got here then the token was successfully validated. Set the principal (i.e. the role) now so it can be
         // returned in the commit() method.
         principal = new Principal() {
+            @Override
             public String getName() {
                 return "AUTHORIZED";
             }

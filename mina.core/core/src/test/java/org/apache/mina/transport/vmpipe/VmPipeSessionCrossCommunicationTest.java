@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class VmPipeSessionCrossCommunicationTest extends TestCase {
     public void testOneSessionTalkingBackAndForthDoesNotDeadlock() throws Exception {
         final VmPipeAddress address = new VmPipeAddress(1);
         final IoConnector connector = new VmPipeConnector();
-        final AtomicReference<IoSession> c1 = new AtomicReference<IoSession>();
+        final AtomicReference<IoSession> c1 = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
         final CountDownLatch messageCount = new CountDownLatch(2);
         IoAcceptor acceptor = new VmPipeAcceptor();

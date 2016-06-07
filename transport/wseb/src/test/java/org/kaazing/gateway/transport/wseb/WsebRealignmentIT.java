@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.kaazing.gateway.transport.wseb;
 
 import static org.junit.rules.RuleChain.outerRule;
 
-import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Rule;
@@ -50,8 +49,8 @@ public class WsebRealignmentIT {
                     //.property(WSE_SPECIFICATION.getPropertyName(), "true")
                     .service()
                         .type("proxy")
-                        .accept(URI.create("tcp://localhost:8080"))
-                        .connect(URI.create("wse://localhost:8081/app1"))
+                        .accept("tcp://localhost:8080")
+                        .connect("wse://localhost:8081/app1")
                         .connectOption("ws.inactivity.timeout", "1m")
                         .crossOrigin()
                             .allowOrigin("*")
@@ -69,8 +68,8 @@ public class WsebRealignmentIT {
                     //.property(WSE_SPECIFICATION.getPropertyName(), "true")
                     .service()
                         .type("proxy")
-                        .accept(URI.create("wse://localhost:8081/app1"))
-                        .connect(URI.create("tcp://localhost:3101"))
+                        .accept("wse://localhost:8081/app1")
+                        .connect("tcp://localhost:3101")
                         .acceptOption("ws.inactivity.timeout", "1m")
                     .done()
             .done();

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.kaazing.gateway.service.http.directory;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
-import java.net.URI;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,10 +30,10 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class HttpPipeliningIT {
 
-	private static String DIRECTORY_SERVICE_ACCEPT = "http://localhost:8000/";
-	private static String CROSS_ORIGIN_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8001/";
-	private static String ASTRISK_ORIGIN_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8002/";
-	private static String KEEPALIVE_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8003/keepAlive";
+	private static final String DIRECTORY_SERVICE_ACCEPT = "http://localhost:8000/";
+	private static final String CROSS_ORIGIN_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8001/";
+	private static final String ASTRISK_ORIGIN_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8002/";
+	private static final String KEEPALIVE_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8003/keepAlive";
 
 	private final K3poRule robot = new K3poRule();
 
@@ -44,7 +43,7 @@ public class HttpPipeliningIT {
 			GatewayConfiguration configuration = new GatewayConfigurationBuilder()
 					.webRootDirectory(new File("src/test/webapp"))
 					.service()
-					.accept(URI.create(KEEPALIVE_DIRECTORY_SERVICE_ACCEPT))
+					.accept(KEEPALIVE_DIRECTORY_SERVICE_ACCEPT)
 					.type("directory")
 					.property("directory", "/public")
 					// We have to use this name (which is from
@@ -55,13 +54,13 @@ public class HttpPipeliningIT {
 					// seconds
 					.done()
 					.service()
-					.accept(URI.create(DIRECTORY_SERVICE_ACCEPT))
+					.accept(DIRECTORY_SERVICE_ACCEPT)
 					.type("directory")
 					.property("directory", "/public")
 					.property("welcome-file", "index.html")
 					.done()
 					.service()
-					.accept(URI.create(CROSS_ORIGIN_DIRECTORY_SERVICE_ACCEPT))
+					.accept(CROSS_ORIGIN_DIRECTORY_SERVICE_ACCEPT)
 					.type("directory")
 					.property("directory", "/public")
 					.crossOrigin()
@@ -71,7 +70,7 @@ public class HttpPipeliningIT {
 					.done()
 					.done()
 					.service()
-					.accept(URI.create(ASTRISK_ORIGIN_DIRECTORY_SERVICE_ACCEPT))
+					.accept(ASTRISK_ORIGIN_DIRECTORY_SERVICE_ACCEPT)
 					.type("directory").property("directory", "/public")
 					.crossOrigin().allowOrigin("*").done().done().done();
 			// @formatter:on

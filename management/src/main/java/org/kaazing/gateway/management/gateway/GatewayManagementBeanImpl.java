@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,13 @@
  */
 package org.kaazing.gateway.management.gateway;
 
-import com.hazelcast.core.EntryEvent;
-import com.hazelcast.core.EntryListener;
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.util.CopyOnWriteMap;
@@ -50,13 +48,16 @@ import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hazelcast.core.EntryEvent;
+import com.hazelcast.core.EntryListener;
+
 /**
  * Implementation of the management 'data' bean for a session. This just contains the data. Wrappers for different management
  * protocols define the use of those data.
  */
 public class GatewayManagementBeanImpl extends AbstractManagementBean
         implements GatewayManagementBean, MembershipEventListener, InstanceKeyListener, BalancerMapListener,
-        EntryListener<MemberId, Collection<URI>> {
+        EntryListener<MemberId, Collection<String>> {
 
     private static final Logger logger = LoggerFactory.getLogger(GatewayManagementBeanImpl.class);
 
@@ -235,25 +236,26 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
 
         CollectionsFactory factory = clusterContext.getCollectionsFactory();
         Collection<MemberId> memberIds = clusterContext.getMemberIds();
-        Map<MemberId, Map<URI, List<URI>>> memberIdBalancerMap = factory.getMap(HttpBalancerService.MEMBERID_BALANCER_MAP_NAME);
+        Map<MemberId, Map<String, List<String>>> memberIdBalancerMap = factory
+                .getMap(HttpBalancerService.MEMBERID_BALANCER_MAP_NAME);
 
         JSONObject jsonObj = new JSONObject();
 
         try {
             for (MemberId memberId : memberIds) {
                 String instanceKey = clusterContext.getInstanceKey(memberId);
-                Map<URI, List<URI>> balancerURIMap = memberIdBalancerMap.get(memberId);
+                Map<String, List<String>> balancerURIMap = memberIdBalancerMap.get(memberId);
 
                 if (balancerURIMap != null) {
                     JSONObject uriMap = new JSONObject();
 
-                    for (URI balancerURI : balancerURIMap.keySet()) {
-                        List<URI> balanceeURIs = balancerURIMap.get(balancerURI);
+                    for (String balancerURI : balancerURIMap.keySet()) {
+                        List<String> balanceeURIs = balancerURIMap.get(balancerURI);
                         JSONArray jsonArray = new JSONArray();
-                        for (URI balanceeURI : balanceeURIs) {
-                            jsonArray.put(balanceeURI.toString());
+                        for (String balanceeURI : balanceeURIs) {
+                            jsonArray.put(balanceeURI);
                         }
-                        uriMap.put(balancerURI.toString(), jsonArray);
+                        uriMap.put(balancerURI, jsonArray);
                     }
 
                     jsonObj.put(instanceKey, uriMap);
@@ -276,7 +278,7 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
         }
 
         CollectionsFactory factory = clusterContext.getCollectionsFactory();
-        Map<MemberId, Collection<URI>> managementServices = factory.getMap(ManagementService.MANAGEMENT_SERVICE_MAP_NAME);
+        Map<MemberId, Collection<String>> managementServices = factory.getMap(ManagementService.MANAGEMENT_SERVICE_MAP_NAME);
         if ((managementServices == null) || managementServices.isEmpty()) {
             return "";
         }
@@ -289,11 +291,11 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
 
                 JSONArray jsonArray = new JSONArray();
 
-                Collection<URI> acceptURIs = managementServices.get(member);
+                Collection<String> acceptURIs = managementServices.get(member);
 
                 if (acceptURIs != null) {
-                    for (URI acceptURI : acceptURIs) {
-                        jsonArray.put(acceptURI.toString());
+                    for (String acceptURI : acceptURIs) {
+                        jsonArray.put(acceptURI);
                     }
                 }
 
@@ -314,7 +316,7 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
         }
 
         CollectionsFactory factory = clusterContext.getCollectionsFactory();
-        Map<URI, Collection<URI>> balancers = factory.getMap(HttpBalancerService.BALANCER_MAP_NAME);
+        Map<String, Collection<String>> balancers = factory.getMap(HttpBalancerService.BALANCER_MAP_NAME);
         if ((balancers == null) || balancers.isEmpty()) {
             return "";
         }
@@ -322,19 +324,19 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
         JSONObject jsonObj = new JSONObject();
 
         try {
-            for (URI uri : balancers.keySet()) {
+            for (String uri : balancers.keySet()) {
 
-                Collection<URI> balancees = balancers.get(uri);
+                Collection<String> balancees = balancers.get(uri);
                 if (balancees != null && balancees.size() > 0) {
                     JSONArray jsonArray = new JSONArray();
 
-                    for (URI balanceeURI : balancees) {
-                        jsonArray.put(balanceeURI.toString());
+                    for (String balanceeURI : balancees) {
+                        jsonArray.put(balanceeURI);
                     }
 
-                    jsonObj.put(uri.toString(), jsonArray);
+                    jsonObj.put(uri, jsonArray);
                 } else {
-                    jsonObj.put(uri.toString(), JSONObject.NULL);
+                    jsonObj.put(uri, JSONObject.NULL);
                 }
             }
         } catch (JSONException ex) {
@@ -387,7 +389,8 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
     @Override
     public void memberRemoved(MemberId removedMember) {
         CollectionsFactory factory = clusterContext.getCollectionsFactory();
-        Map<MemberId, Collection<URI>> managementServiceUriMap = factory.getMap(ManagementService.MANAGEMENT_SERVICE_MAP_NAME);
+        Map<MemberId, Collection<String>> managementServiceUriMap = factory.
+                getMap(ManagementService.MANAGEMENT_SERVICE_MAP_NAME);
         managementServiceUriMap.remove(removedMember);
     }
 
@@ -407,28 +410,28 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
 
 
     @Override
-    public void balancerEntryAdded(URI balancerURI, Collection<URI> balanceeURIs) {
+    public void balancerEntryAdded(String balancerURI, Collection<String> balanceeURIs) {
         for (ClusterManagementListener listener : clusterManagementListeners) {
             listener.balancerMapChanged("add", balancerURI, balanceeURIs);
         }
     }
 
     @Override
-    public void balancerEntryRemoved(URI balancerURI, Collection<URI> balanceeURIs) {
+    public void balancerEntryRemoved(String balancerURI, Collection<String> balanceeURIs) {
         for (ClusterManagementListener listener : clusterManagementListeners) {
             listener.balancerMapChanged("remove", balancerURI, balanceeURIs);
         }
     }
 
     @Override
-    public void balancerEntryUpdated(URI balancerURI, Collection<URI> balanceeURIs) {
+    public void balancerEntryUpdated(String balancerURI, Collection<String> balanceeURIs) {
         for (ClusterManagementListener listener : clusterManagementListeners) {
             listener.balancerMapChanged("update", balancerURI, balanceeURIs);
         }
     }
 
     @Override
-    public void entryAdded(EntryEvent<MemberId, Collection<URI>> event) {
+    public void entryAdded(EntryEvent<MemberId, Collection<String>> event) {
         MemberId memberId = event.getKey();
         String instanceKey = clusterContext.getInstanceKey(memberId);
         for (ClusterManagementListener listener : clusterManagementListeners) {
@@ -436,15 +439,18 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
         }
     }
 
-    public void entryEvicted(EntryEvent<MemberId, Collection<URI>> event) {
+    @Override
+    public void entryEvicted(EntryEvent<MemberId, Collection<String>> event) {
         // this listener is here to track when new management services are added, so we can ignore this
     }
 
-    public void entryRemoved(EntryEvent<MemberId, Collection<URI>> event) {
+    @Override
+    public void entryRemoved(EntryEvent<MemberId, Collection<String>> event) {
         // this listener is here to track when new management services are added, so we can ignore this
     }
 
-    public void entryUpdated(EntryEvent<MemberId, Collection<URI>> event) {
+    @Override
+    public void entryUpdated(EntryEvent<MemberId, Collection<String>> event) {
         // this listener is here to track when new management services are added, so we can ignore this
     }
 
@@ -465,6 +471,7 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
     @Override
     public void doSessionCreatedListeners(final long sessionId, final ManagementSessionType managementSessionType) {
         runManagementTask(new Runnable() {
+            @Override
             public void run() {
                 try {
                     // The particular management listeners change on strategy, so get them here.
@@ -495,6 +502,7 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
     @Override
     public void doSessionClosedListeners(final long sessionId, final ManagementSessionType managementSessionType) {
         runManagementTask(new Runnable() {
+            @Override
             public void run() {
                 try {
                     // The particular management listeners change on strategy, so get them here.
@@ -527,6 +535,7 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
     @Override
     public void doMessageReceivedListeners(final long sessionId, final long sessionReadBytes, final Object message) {
         runManagementTask(new Runnable() {
+            @Override
             public void run() {
                 try {
                     // The particular management listeners change on strategy, so get them here.
@@ -563,6 +572,7 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
     @Override
     public void doFilterWriteListeners(final long sessionId, final long sessionWrittenBytes, final WriteRequest writeRequest) {
         runManagementTask(new Runnable() {
+            @Override
             public void run() {
                 try {
                     // The particular management listeners change on strategy, so get them here.
@@ -593,6 +603,7 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
     @Override
     public void doExceptionCaughtListeners(final long sessionId, final Throwable cause) {
         runManagementTask(new Runnable() {
+            @Override
             public void run() {
                 try {
                     // The particular management listeners change on strategy, so get them here.

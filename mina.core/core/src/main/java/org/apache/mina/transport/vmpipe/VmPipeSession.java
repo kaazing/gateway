@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ class VmPipeSession extends AbstractIoSession {
         remoteAddress = serviceAddress = remoteEntry.getAddress();
         this.handler = handler;
         filterChain = new VmPipeFilterChain(this);
-        receivedMessageQueue = new LinkedBlockingQueue<Object>();
+        receivedMessageQueue = new LinkedBlockingQueue<>();
 
         remoteSession = new VmPipeSession(this, remoteEntry);
     }
@@ -97,7 +97,7 @@ class VmPipeSession extends AbstractIoSession {
         handler = entry.getHandler();
         filterChain = new VmPipeFilterChain(this);
         this.remoteSession = remoteSession;
-        receivedMessageQueue = new LinkedBlockingQueue<Object>();
+        receivedMessageQueue = new LinkedBlockingQueue<>();
     }
 
     public IoService getService() {

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ public class GatewayConfigTranslatorPipeline implements GatewayConfigTranslator 
     private List<GatewayConfigTranslator> translators;
 
     public GatewayConfigTranslatorPipeline() {
-        translators = new ArrayList<GatewayConfigTranslator>(1);
+        translators = new ArrayList<>(1);
     }
 
     public GatewayConfigTranslatorPipeline addTranslator(GatewayConfigTranslator translator) {
@@ -45,6 +45,7 @@ public class GatewayConfigTranslatorPipeline implements GatewayConfigTranslator 
         return this.translators;
     }
 
+    @Override
     public void translate(Document dom) throws Exception {
 
         for (GatewayConfigTranslator translator : translators) {

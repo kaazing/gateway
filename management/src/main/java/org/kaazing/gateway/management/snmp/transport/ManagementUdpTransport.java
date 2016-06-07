@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
 package org.kaazing.gateway.management.snmp.transport;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
+
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
@@ -57,46 +56,42 @@ public class ManagementUdpTransport extends ManagementTransport {
     public void sendMessage(final Address address, final byte[] message) throws IOException {
         if (address instanceof UdpAddress) {
             UdpAddress udpAddress = (UdpAddress) address;
-            try {
-                URI connectURI = new URI("udp://" + udpAddress.getInetAddress().getHostAddress() + ":" + udpAddress.getPort());
+            String connectURI = "udp://" + udpAddress.getInetAddress().getHostAddress() + ":" + udpAddress.getPort();
 
-                // FIXME:  IoSessionInitializer is null, but should set up security info, especially for SNMPv3...
-                ConnectFuture future = serviceContext.connect(connectURI, connectHandler, null);
-                future.addListener(new IoFutureListener<ConnectFuture>() {
-                    @Override
-                    public void operationComplete(ConnectFuture future) {
-                        if (future.isConnected()) {
-                            final IoSessionEx session = (IoSessionEx) future.getSession();
-                            ByteBuffer b = ByteBuffer.wrap(message);
-                            IoBufferEx buf = session.getBufferAllocator().wrap(b);
-                            // FIXME:  is just calling session.write() sufficient?
-                            WriteFuture writeFuture = session.write(buf);
-                            writeFuture.addListener(new IoFutureListener<WriteFuture>() {
-                                @Override
-                                public void operationComplete(WriteFuture writeFuture) {
-                                    if (writeFuture.isWritten()) {
-                                        if (LOGGER.isTraceEnabled()) {
-                                            LOGGER.trace("SNMP write operation completed, bytes written: " + message.length);
-                                        }
-                                    } else {
-                                        if (LOGGER.isDebugEnabled()) {
-                                            LOGGER.debug("SNMP write failure to address: " + address.toString());
-                                        }
+            // FIXME:  IoSessionInitializer is null, but should set up security info, especially for SNMPv3...
+            ConnectFuture future = serviceContext.connect(connectURI, connectHandler, null);
+            future.addListener(new IoFutureListener<ConnectFuture>() {
+                @Override
+                public void operationComplete(ConnectFuture future) {
+                    if (future.isConnected()) {
+                        final IoSessionEx session = (IoSessionEx) future.getSession();
+                        ByteBuffer b = ByteBuffer.wrap(message);
+                        IoBufferEx buf = session.getBufferAllocator().wrap(b);
+                        // FIXME:  is just calling session.write() sufficient?
+                        WriteFuture writeFuture = session.write(buf);
+                        writeFuture.addListener(new IoFutureListener<WriteFuture>() {
+                            @Override
+                            public void operationComplete(WriteFuture writeFuture) {
+                                if (writeFuture.isWritten()) {
+                                    if (LOGGER.isTraceEnabled()) {
+                                        LOGGER.trace("SNMP write operation completed, bytes written: " + message.length);
                                     }
-                                    // FIXME:  close the session now?
-                                    session.close(false);
+                                } else {
+                                    if (LOGGER.isDebugEnabled()) {
+                                        LOGGER.debug("SNMP write failure to address: " + address.toString());
+                                    }
                                 }
-                            });
-                        } else {
-                            // FIXME:  log warning?  blacklist the offending address in the MIB?  It's UDP, so maybe we don't
-                            // care
-                        }
+                                // FIXME:  close the session now?
+                                session.close(false);
+                            }
+                        });
+                    } else {
+                        // FIXME:  log warning?  blacklist the offending address in the MIB?  It's UDP, so maybe we don't
+                        // care
                     }
+                }
 
-                });
-            } catch (URISyntaxException ex) {
-                throw new IOException("Unable to send message to address: " + udpAddress, ex);
-            }
+            });
         }
     }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,10 +37,10 @@ import org.apache.mina.proxy.handlers.http.HttpSmartProxyHandler;
  */
 public class ProxyIoSession {
 
-    public final static String PROXY_SESSION = ProxyConnector.class.getName()
+    public static final String PROXY_SESSION = ProxyConnector.class.getName()
             + ".ProxySession";
 
-    private final static String DEFAULT_ENCODING = "ISO-8859-1";
+    private static final String DEFAULT_ENCODING = "ISO-8859-1";
 
     /**
      * The list contains the authentication methods to use. 

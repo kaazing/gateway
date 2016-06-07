@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.kaazing.gateway.transport.wseb.specification.wse.connector;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -89,7 +88,7 @@ public class DownstreamIT {
         connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         closed.await(4, SECONDS);
-        MemoryAppender.assertMessagesLogged(Arrays.asList(".*nexpected.*type.*"), EMPTY_STRING_SET, null, false);
+        MemoryAppender.assertMessagesLogged(Collections.singletonList(".*nexpected.*type.*"), EMPTY_STRING_SET, null, false);
     }
 
     @Test
@@ -110,7 +109,7 @@ public class DownstreamIT {
         connector.connect("ws://localhost:8080/path?query", null, handler);
         k3po.finish();
         closed.await(4, SECONDS);
-        MemoryAppender.assertMessagesLogged(Arrays.asList(".*nexpected.*status.*"), EMPTY_STRING_SET, null, false);
+        MemoryAppender.assertMessagesLogged(Collections.singletonList(".*nexpected.*status.*"), EMPTY_STRING_SET, null, false);
     }
 
     @Test
@@ -132,7 +131,7 @@ public class DownstreamIT {
         connector.connect("ws://localhost:8080/path?query", null, handler);
         k3po.finish();
         closed.await(4, SECONDS);
-        MemoryAppender.assertMessagesLogged(Arrays.asList(".*received.*after reconnect.*"), EMPTY_STRING_SET, null, false);
+        MemoryAppender.assertMessagesLogged(Collections.singletonList(".*received.*after reconnect.*"), EMPTY_STRING_SET, null, false);
     }
 
     // Only relevant for browser clients

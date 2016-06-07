@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -38,24 +37,31 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.TransportFactory;
-import org.kaazing.gateway.transport.test.TransportTestConnectSessionInitializer;
-import org.kaazing.gateway.transport.test.TransportTestIoHandlerAdapter;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
+import org.kaazing.gateway.transport.test.TransportTestConnectSessionInitializer;
+import org.kaazing.gateway.transport.test.TransportTestIoHandlerAdapter;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.future.UnbindFuture;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.test.util.ResolutionTestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HttpTransportOptionsTest {
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
 
     private static  Logger logger;
 
@@ -212,92 +218,53 @@ public class HttpTransportOptionsTest {
         final Map<String, Object> connectOptions = Collections.emptyMap();
 
 
-        httpConnectorToAcceptor(URI.create("http://localhost:8000/path"),
+        httpConnectorToAcceptor("http://localhost:8000/path",
                 connectHandler, acceptHandler, STANDARD_REQUEST_INITIALIZER,
                 bindOptions, connectOptions);
     }
 
     @Test
     public void shouldConstructCorrectLocalAndRemoteAddressesForHttpAcceptAndConnectSessions() {
-
-        final URI connectURI = URI.create("http://localhost:8000/path");
-
-        final TransportTestIoHandlerAdapter connectHandler = new TransportTestIoHandlerAdapter(1) {
-
-            @Override
-            protected void doSessionCreated(IoSessionEx session) throws Exception {
-                if ( logger.isDebugEnabled() ) { logger.debug("Client Http Session created"); }
-            }
-            @Override
-            protected void doSessionOpened(IoSessionEx session) throws Exception {
-                if ( logger.isDebugEnabled() ) { logger.debug("Client Http Session opened"); }
-            }
-            @Override
-            protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
-                if ( logger.isDebugEnabled() ) { logger.debug("Client Http Session received OK"); }
-
-                BridgeSession bridgeSession = (BridgeSession) session;
-                assertEquals("remote address of connect session was not " + connectURI, connectURI, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
-                assertEquals("local  address of connect session was not " + connectURI, connectURI, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
-                assertEquals("ephemeral port of local address' transport != ephemeral port of parent session's local address",
-                             BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getTransport().getResource().getPort(),
-                             BridgeSession.LOCAL_ADDRESS.get(bridgeSession.getParent()).getResource().getPort());
-                checkpoint();
-            }
-            @Override
-            public String getCheckpointFailureMessage() {
-                return "Failed to construct connect session local/remote addresses correctly.";
-            }
-        };
-
-
-        final TransportTestIoHandlerAdapter acceptHandler = new TransportTestIoHandlerAdapter(1) {
-            @Override
-            protected void doMessageReceived(final IoSessionEx session, Object message) throws Exception {
-                if ( logger.isDebugEnabled() ) { logger.debug("Server Http Session message received"); }
-
-                DefaultHttpSession httpSession = (DefaultHttpSession) session;
-                IoBufferAllocatorEx<?> allocator = httpSession.getBufferAllocator();
-                httpSession.setStatus(HttpStatus.SUCCESS_OK);
-                httpSession.setVersion(HttpVersion.HTTP_1_1);
-                httpSession.setWriteHeader("Server", "Test");
-                httpSession.write(allocator.wrap(ByteBuffer.wrap("Purrr".getBytes()))).addListener(new IoFutureListener<IoFuture>() {
-                    @Override
-                    public void operationComplete(IoFuture future) {
-
-                        BridgeSession bridgeSession = (BridgeSession) session;
-                        assertEquals("remote address of accept session was not " + connectURI, connectURI, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
-                        assertEquals("local  address of accept session was not " + connectURI, connectURI, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
-                        assertEquals("ephemeral port of remote address' transport != ephemeral port of parent session's remote address",
-                                     BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getTransport().getResource().getPort(),
-                                     BridgeSession.REMOTE_ADDRESS.get(bridgeSession.getParent()).getResource().getPort());
-                        checkpoint();
-                    }
-                });
-            }
-
-            @Override
-            public String getCheckpointFailureMessage() {
-                return "Failed to construct accept session local/remote addresses correctly.";
-            }
-        };
-
-
-
-        Map<String, Object> bindOptions = new HashMap<>();
-        final Map<String, Object> connectOptions = Collections.emptyMap();
-
-
-        httpConnectorToAcceptor(connectURI,
-                                connectHandler, acceptHandler, STANDARD_REQUEST_INITIALIZER,
-                                bindOptions, connectOptions);
+        helperConstructLocalRemoteAddressesForAcceptAndConnectSessions(null, null);
     }
 
+    @Test
+    public void shouldConstructCorrectLocalAndRemoteAddressesForHttpAcceptAndConnectSessionsOverrideTcpWithBrackets() {
+        Map<String, Object> acceptOptionsParam = new HashMap<>();
+        acceptOptionsParam.put("tcp.bind", "[@" + networkInterface + "]:8080");
+        Map<String, Object> connectOptionsParam = new HashMap<>();
+        connectOptionsParam.put("http.transport", "tcp://[@" + networkInterface + "]:8080");
+        helperConstructLocalRemoteAddressesForAcceptAndConnectSessions(acceptOptionsParam, connectOptionsParam);
+    }
+
+    @Test
+    public void shouldConstructCorrectLocalAndRemoteAddressesForHttpAcceptAndConnectSessionsOverrideTcpNoBrackets() {
+        Map<String, Object> acceptOptionsParam = new HashMap<>();
+        acceptOptionsParam.put("tcp.bind", "@" + networkInterface + ":8080");
+        Map<String, Object> connectOptionsParam = new HashMap<>();
+        connectOptionsParam.put("http.transport", "tcp://@" + networkInterface + ":8080");
+        if (networkInterface.contains(" ")) {
+            thrown.expect(IllegalArgumentException.class);
+            thrown.expectMessage(String.format("Bind address \"%s\" should be in "
+                    + "\"host/ipv4:port\", \"[ipv6]:port\", \"@network_interface:port\", \"[@network interface]:port\" or \"port\" "
+                    + "format.", "@" + networkInterface + ":8080"));
+        }
+        helperConstructLocalRemoteAddressesForAcceptAndConnectSessions( acceptOptionsParam, connectOptionsParam);
+    }
+
+    @Test
+    public void shouldConstructCorrectLocalAndRemoteAddressesForHttpAcceptAndConnectSessionsOverrideUdpWithBrackets() {
+        Map<String, Object> acceptOptionsParam = new HashMap<>();
+        acceptOptionsParam.put("tcp.bind", "[@" + networkInterface + "]:8080");
+        Map<String, Object> connectOptionsParam = new HashMap<>();
+        connectOptionsParam.put("http.transport", "tcp://[@" + networkInterface + "]:8080");
+        helperConstructLocalRemoteAddressesForAcceptAndConnectSessions(acceptOptionsParam, connectOptionsParam);
+    }
 
     @Test @Ignore("This test's sole purpose is to validate that a filter (SUBJECT_SECURITY) is not on the filter chain despite the fact that the filter is *always* on the filter chain.../facepalm")
     public void shouldNotConstructSecurityFiltersOnServerSideHttpBridgeFilterChain() {
 
-        final URI uri = URI.create("http://localhost:8000/path");
+        final String uri = "http://localhost:8000/path";
 
         final TransportTestIoHandlerAdapter connectHandler = new TransportTestIoHandlerAdapter(0) {
             @Override
@@ -344,8 +311,97 @@ public class HttpTransportOptionsTest {
         }
     }
 
+    /**
+     * Helper method for constructing this sc3enario with varying accept/connect options
+     * @param acceptOptionsParam
+     * @param connectOptionsParam
+     */
+    private void helperConstructLocalRemoteAddressesForAcceptAndConnectSessions(Map<String, Object> acceptOptionsParam,
+                                                                                    Map<String, Object> connectOptionsParam) {
+        final String connectURI = "http://localhost:8000/path";
 
-    private void httpConnectorToAcceptor(final URI connectURI,
+        final TransportTestIoHandlerAdapter connectHandler = new TransportTestIoHandlerAdapter(1) {
+
+            @Override
+            protected void doSessionCreated(IoSessionEx session) throws Exception {
+                if ( logger.isDebugEnabled() ) { logger.debug("Client Http Session created"); }
+            }
+            @Override
+            protected void doSessionOpened(IoSessionEx session) throws Exception {
+                if ( logger.isDebugEnabled() ) { logger.debug("Client Http Session opened"); }
+            }
+            @Override
+            protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
+                if ( logger.isDebugEnabled() ) { logger.debug("Client Http Session received OK"); }
+
+                BridgeSession bridgeSession = (BridgeSession) session;
+                URI uriConnectURI = URI.create(connectURI);
+                assertEquals("remote address of connect session was not " + connectURI, uriConnectURI, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
+                assertEquals("local  address of connect session was not " + connectURI, uriConnectURI, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
+                assertEquals("ephemeral port of local address' transport != ephemeral port of parent session's local address",
+                             BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getTransport().getResource().getPort(),
+                             BridgeSession.LOCAL_ADDRESS.get(bridgeSession.getParent()).getResource().getPort());
+                checkpoint();
+            }
+            @Override
+            public String getCheckpointFailureMessage() {
+                return "Failed to construct connect session local/remote addresses correctly.";
+            }
+        };
+
+
+        final TransportTestIoHandlerAdapter acceptHandler = new TransportTestIoHandlerAdapter(1) {
+            @Override
+            protected void doMessageReceived(final IoSessionEx session, Object message) throws Exception {
+                if ( logger.isDebugEnabled() ) { logger.debug("Server Http Session message received"); }
+
+                DefaultHttpSession httpSession = (DefaultHttpSession) session;
+                IoBufferAllocatorEx<?> allocator = httpSession.getBufferAllocator();
+                httpSession.setStatus(HttpStatus.SUCCESS_OK);
+                httpSession.setVersion(HttpVersion.HTTP_1_1);
+                httpSession.setWriteHeader("Server", "Test");
+                httpSession.write(allocator.wrap(ByteBuffer.wrap("Purrr".getBytes()))).addListener(new IoFutureListener<IoFuture>() {
+                    @Override
+                    public void operationComplete(IoFuture future) {
+
+                        BridgeSession bridgeSession = (BridgeSession) session;
+                        URI uriConnectURI = URI.create(connectURI);
+                        assertEquals("remote address of accept session was not " + connectURI, uriConnectURI,
+                                BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
+                        assertEquals("local  address of accept session was not " + connectURI, uriConnectURI,
+                                BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
+                        assertEquals("ephemeral port of remote address' transport != ephemeral port of parent session's remote address",
+                                     BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getTransport().getResource().getPort(),
+                                     BridgeSession.REMOTE_ADDRESS.get(bridgeSession.getParent()).getResource().getPort());
+                        checkpoint();
+                    }
+                });
+            }
+
+            @Override
+            public String getCheckpointFailureMessage() {
+                return "Failed to construct accept session local/remote addresses correctly.";
+            }
+        };
+
+
+
+        Map<String, Object> bindOptions = new HashMap<>();
+        if (acceptOptionsParam != null) {
+            bindOptions = acceptOptionsParam;
+        }
+        Map<String, Object> connectOptions = new HashMap<>();
+        if (connectOptionsParam != null) {
+            connectOptions = connectOptionsParam;
+        }
+
+
+        httpConnectorToAcceptor(connectURI,
+                                connectHandler, acceptHandler, STANDARD_REQUEST_INITIALIZER,
+                                bindOptions, connectOptions);
+    }
+
+    private void httpConnectorToAcceptor(final String connectURI,
                                          TransportTestIoHandlerAdapter connectHandler,
                                          TransportTestIoHandlerAdapter acceptHandler,
                                          final TransportTestConnectSessionInitializer connectSessionInitializer,

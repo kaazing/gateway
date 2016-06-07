@@ -348,24 +348,9 @@
                 <artifactId>k3po-maven-plugin</artifactId>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <skipTests>true</skipTests>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <!-- <disableXmlReport>true</disableXmlReport> <redirectTestOutputToFile>true</redirectTestOutputToFile> -->
-                </configuration>
+                <version>2.19.1</version>
             </plugin>
             <plugin>
                 <groupId>org.kaazing</groupId>

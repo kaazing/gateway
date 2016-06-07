@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ public abstract class AbstractStreamWriteFilter<T> extends IoFilterAdapter {
         if (session.getAttribute(CURRENT_STREAM) != null) {
             Queue<WriteRequest> queue = getWriteRequestQueue(session);
             if (queue == null) {
-                queue = new CircularQueue<WriteRequest>();
+                queue = new CircularQueue<>();
                 session.setAttribute(WRITE_REQUEST_QUEUE, queue);
             }
             queue.add(writeRequest);

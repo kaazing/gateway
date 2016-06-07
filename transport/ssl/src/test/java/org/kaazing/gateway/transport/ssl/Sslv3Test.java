@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.net.URI;
 import java.security.KeyStore;
 import java.security.Security;
 
@@ -99,7 +98,7 @@ public class Sslv3Test {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                             .service()
-                                .accept(URI.create("ssl://localhost:8555"))
+                                .accept("ssl://localhost:8555")
                                 .type("echo")
                                 .acceptOption("ssl.protocols", "SSLv3")
                             .done()
@@ -147,7 +146,7 @@ public class Sslv3Test {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                             .service()
-                                .accept(URI.create("ssl://localhost:8555"))
+                                .accept("ssl://localhost:8555")
                                 .type("echo")
                             .done()
                             .security()
@@ -187,13 +186,13 @@ public class Sslv3Test {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                             .service()
-                                .accept(URI.create("tcp://localhost:8557"))
-                                .connect(URI.create("ssl://localhost:8558"))
+                                .accept("tcp://localhost:8557")
+                                .connect("ssl://localhost:8558")
                                 .type("proxy")
                                 .connectOption("ssl.protocols", "SSLv3")
                             .done()
                             .service()
-                                .accept(URI.create("ssl://localhost:8558"))
+                                .accept("ssl://localhost:8558")
                                 .type("echo")
                                 .acceptOption("ssl.protocols", "SSLv3")
                             .done()
@@ -240,12 +239,12 @@ public class Sslv3Test {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                             .service()
-                                .accept(URI.create("tcp://localhost:9557"))
-                                .connect(URI.create("ssl://localhost:9558"))
+                                .accept("tcp://localhost:9557")
+                                .connect("ssl://localhost:9558")
                                 .type("proxy")
                             .done()
                             .service()
-                                .accept(URI.create("ssl://localhost:9558"))
+                                .accept("ssl://localhost:9558")
                                 .type("echo")
                             .done()
                             .security()
@@ -290,13 +289,13 @@ public class Sslv3Test {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                             .service()
-                                .accept(URI.create("tcp://localhost:8567"))
-                                .connect(URI.create("ssl://localhost:8568"))
+                                .accept("tcp://localhost:8567")
+                                .connect("ssl://localhost:8568")
                                 .type("proxy")
                                 .connectOption("ssl.protocols", "SSLv3")
                             .done()
                             .service()
-                                .accept(URI.create("ssl://localhost:8568"))
+                                .accept("ssl://localhost:8568")
                                 .type("echo")
                             .done()
                             .security()
@@ -341,12 +340,12 @@ public class Sslv3Test {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                             .service()
-                                .accept(URI.create("tcp://localhost:9567"))
-                                .connect(URI.create("ssl://localhost:9568"))
+                                .accept("tcp://localhost:9567")
+                                .connect("ssl://localhost:9568")
                                 .type("proxy")
                             .done()
                             .service()
-                                .accept(URI.create("ssl://localhost:9568"))
+                                .accept("ssl://localhost:9568")
                                 .type("echo")
                                 .acceptOption("ssl.protocols", "SSLv3")
                             .done()

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
         // We must fire session destroyed on the wsebSession only when the close handshake is complete,
         // which is when the transport session gets closed.
         if (session.getTransportSession().isClosing()) {
+            session.getTransportSession().getFilterChain().fireSessionClosed();
             super.doFireSessionDestroyed(session);
         }
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import static org.junit.Assert.assertSame;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.apache.mina.core.session.DummySession;
 import org.apache.mina.core.session.IoSession;
@@ -161,12 +162,12 @@ public class HttpUtilsTest {
 
     @Test
     public void hasCloseHeadersShouldDetectCaseCloseOutOfMany() {
-        assertTrue(HttpUtils.hasCloseHeader(Arrays.asList(new String[]{"doodah",  "close"})));
+        assertTrue(HttpUtils.hasCloseHeader(Arrays.asList("doodah", "close")));
     }
 
     @Test
     public void hasCloseHeadersShouldDetectCaseInsensitiveClose() {
-        assertTrue(HttpUtils.hasCloseHeader(Arrays.asList(new String[]{"cLosE"})));
+        assertTrue(HttpUtils.hasCloseHeader(Collections.singletonList("cLosE")));
     }
 
     @Test
@@ -185,8 +186,8 @@ public class HttpUtilsTest {
 
     @Test
     public void testNullFromURIGetsMergedCorrectly() throws Exception {
-        final URI into = URI.create("http://www.example.com/");
-        final URI actual = HttpUtils.mergeQueryParameters(null, into);
+        final String into = "http://www.example.com/";
+        final String actual = HttpUtils.mergeQueryParameters(null, into);
         assertEquals(into, actual);
         assertSame(into, actual);
     }
@@ -196,55 +197,55 @@ public class HttpUtilsTest {
 
         // from has no query param, into has none
         URI from = URI.create("http://from.example.com/path#fragment");
-        URI into = URI.create("http://into.example.com/path#fragment");
-        URI expected = into;
+        String into = "http://into.example.com/path#fragment";
+        String expected = into;
         verifyMergedURI(from, into, expected);
 
         // from has one query param, into has none
         from = URI.create("http://from.example.com/path?from1=value1#fragment");
-        into = URI.create("http://into.example.com/path#fragment");
-        expected = URI.create("http://into.example.com/path?from1=value1#fragment");
+        into = "http://into.example.com/path#fragment";
+        expected = "http://into.example.com/path?from1=value1#fragment";
         verifyMergedURI(from, into, expected);
 
         // from has 2 query param, into has none
         from = URI.create("http://from.example.com/path?from1=value1&from2=value2#fragment");
-        into = URI.create("http://into.example.com/path#fragment");
-        expected = URI.create("http://into.example.com/path?from1=value1&from2=value2#fragment");
+        into = "http://into.example.com/path#fragment";
+        expected = "http://into.example.com/path?from1=value1&from2=value2#fragment";
         verifyMergedURI(from, into, expected);
 
         // from has no query param, into has one
         from = URI.create("http://from.example.com/path#fragment");
-        into = URI.create("http://into.example.com/path?in1=value1#fragment");
-        expected = URI.create("http://into.example.com/path?in1=value1#fragment");
+        into = "http://into.example.com/path?in1=value1#fragment";
+        expected = "http://into.example.com/path?in1=value1#fragment";
         verifyMergedURI(from, into, expected);
 
         // from has one query param, into has one, from gets put at the end
         from = URI.create("http://from.example.com/path?from1=value1#fragment");
-        into = URI.create("http://into.example.com/path?in1=value1#fragment");
-        expected = URI.create("http://into.example.com/path?in1=value1&from1=value1#fragment");
+        into = "http://into.example.com/path?in1=value1#fragment";
+        expected = "http://into.example.com/path?in1=value1&from1=value1#fragment";
         verifyMergedURI(from, into, expected);
 
         // from has just ?
         from = URI.create("http://from.example.com/path?#fragment");
-        into = URI.create("http://into.example.com/path?in1=value1#fragment");
-        expected = URI.create("http://into.example.com/path?in1=value1#fragment");
+        into = "http://into.example.com/path?in1=value1#fragment";
+        expected = "http://into.example.com/path?in1=value1#fragment";
         verifyMergedURI(from, into, expected);
 
         // from has param= with no value
         from = URI.create("http://from.example.com/path?from1=#fragment");
-        into = URI.create("http://into.example.com/path?in1=value1#fragment");
-        expected = URI.create("http://into.example.com/path?in1=value1&from1=#fragment");
+        into = "http://into.example.com/path?in1=value1#fragment";
+        expected = "http://into.example.com/path?in1=value1&from1=#fragment";
         verifyMergedURI(from, into, expected);
 
         // from has param= with no value
         from = URI.create("http://from.example.com/path?from1=#fragment");
-        into = URI.create("http://into.example.com/path#fragment");
-        expected = URI.create("http://into.example.com/path?from1=#fragment");
+        into = "http://into.example.com/path#fragment";
+        expected = "http://into.example.com/path?from1=#fragment";
         verifyMergedURI(from, into, expected);
     }
 
-    private void verifyMergedURI(URI from, URI into, URI expected) throws URISyntaxException {
-        final URI actual = HttpUtils.mergeQueryParameters(from, into);
+    private void verifyMergedURI(URI from, String into, String expected) throws URISyntaxException {
+        final String actual = HttpUtils.mergeQueryParameters(from, into);
         assertEquals(expected, actual);
         assertNotSame(expected, actual);
     }

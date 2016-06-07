@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class HttpRequestMessage extends HttpStartMessage {
 	private ResourceAddress localAddress;
 	private Subject subject;
 	private ResultAwareLoginContext loginContext;
-	private URI externalURI;
+	private String externalURI;
 
 	private QueryUpdate queryUpdate;
 
@@ -81,11 +81,11 @@ public class HttpRequestMessage extends HttpStartMessage {
         return localAddress;
     }
 
-    public void setExternalURI(URI externalURI) {
+    public void setExternalURI(String externalURI) {
         this.externalURI = externalURI;
     }
 
-    public URI getExternalURI() {
+    public String getExternalURI() {
         return externalURI;
     }
 
@@ -291,6 +291,7 @@ public class HttpRequestMessage extends HttpStartMessage {
                 sameOrEquals(this.parameters, that.parameters));
     }
 
+	@Override
 	protected Map<String, List<String>> createHeaders() {
 		return new TreeMap<>(HttpHeaderNameComparator.INSTANCE);
 	}

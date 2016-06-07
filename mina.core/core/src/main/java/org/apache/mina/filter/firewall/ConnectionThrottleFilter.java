@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public class ConnectionThrottleFilter extends IoFilterAdapter {
 
     private final Map<String, Long> clients;
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ConnectionThrottleFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionThrottleFilter.class);
     /**
      * Default constructor.  Sets the wait time to 1 second
      */
@@ -58,7 +58,7 @@ public class ConnectionThrottleFilter extends IoFilterAdapter {
      */
     public ConnectionThrottleFilter(long allowedInterval) {
         this.allowedInterval = allowedInterval;
-        clients = Collections.synchronizedMap(new HashMap<String, Long>());
+        clients = Collections.synchronizedMap(new HashMap<>());
     }
 
     /**

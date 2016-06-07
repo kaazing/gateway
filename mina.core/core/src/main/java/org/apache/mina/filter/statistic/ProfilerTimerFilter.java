@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -284,7 +284,7 @@ public class ProfilerTimerFilter extends IoFilterAdapter {
      * @return a Set containing all the profiled {@link IoEventType} 
      */
     public Set<IoEventType> getEventsToProfile() {
-        Set<IoEventType> set = new HashSet<IoEventType>();
+        Set<IoEventType> set = new HashSet<>();
         
         if ( profileMessageReceived ) {
             set.add(IoEventType.MESSAGE_RECEIVED);

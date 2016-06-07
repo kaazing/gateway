@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.sse;
 import static java.lang.String.format;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -42,9 +41,7 @@ import org.kaazing.gateway.transport.AbstractBridgeConnector;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpSession;
@@ -55,8 +52,6 @@ import org.kaazing.gateway.transport.sse.bridge.filter.SseConnectCodecFilter;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SseConnector extends AbstractBridgeConnector<SseSession> {
 
@@ -199,7 +194,7 @@ public class SseConnector extends AbstractBridgeConnector<SseSession> {
                         Callable<SseSession> sseSessionFactory = new Callable<SseSession>() {
                             @Override
                             public SseSession call() throws Exception {
-								return new SseSession(SseConnector.this, getProcessor(), connectAddress, connectAddress, httpSession, allocator);
+                                return new SseSession(SseConnector.this, getProcessor(), connectAddress, connectAddress, httpSession, allocator);
                             }
                         };
 
@@ -291,8 +286,7 @@ public class SseConnector extends AbstractBridgeConnector<SseSession> {
                 if (location == null) {
                     sseSession.reset(new Exception("Redirect attempted without Location header").fillInStackTrace());
                 } else {
-                    URI locationURI = URI.create(location);
-                    ResourceAddress newConnectAddress = resourceAddressFactory.newResourceAddress(locationURI);
+                    ResourceAddress newConnectAddress = resourceAddressFactory.newResourceAddress(location);
                     BridgeConnector connector = bridgeServiceFactory.newBridgeConnector(newConnectAddress);
                     connector.connect(newConnectAddress, httpHandler, new IoSessionInitializer<ConnectFuture>() {
                         @Override

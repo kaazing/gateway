@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.net.URI;
 import java.nio.ByteBuffer;
-import java.sql.Savepoint;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,8 +44,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.IoFuture;
-import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.DefaultIoSessionDataStructureFactory;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
@@ -71,13 +69,11 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
-import org.kaazing.gateway.transport.AbstractBridgeService;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.gateway.transport.BridgeSessionInitializerAdapter;
 import org.kaazing.gateway.transport.IoFilterAdapter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.nio.TcpExtension;
-import org.kaazing.gateway.transport.nio.TcpExtensionFactorySpi;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -129,7 +125,7 @@ public class NioSocketAcceptorTest {
         final String connectURIString = "tcp://127.0.0.1:8000";
         final ResourceAddress bindAddress =
                 addressFactory.newResourceAddress(
-                        URI.create(connectURIString),
+                        connectURIString,
                         acceptOptions);
 
         final IoHandler ioHandler = new IoHandlerAdapter();
@@ -205,7 +201,7 @@ public class NioSocketAcceptorTest {
         final TcpExtension extension2 = context.mock(TcpExtension.class, "extension2");
 
         int bindPort = findFreePort();
-        URI bindURI = URI.create(format("tcp://localhost:%d", bindPort));
+        String bindURI = format("tcp://localhost:%d", bindPort);
         Map<String, Object> options = new HashMap<>();
         options.put(TCP_MAXIMUM_OUTBOUND_RATE, 0xFFFFFFFEL);
         options.put(NEXT_PROTOCOL, "test-protocol");
@@ -215,7 +211,7 @@ public class NioSocketAcceptorTest {
         context.checking(new Expectations() {
             {
                 oneOf(extensionFactory).bind(bindAddress);
-                will(returnValue(Arrays.asList(new TcpExtension[]{extension1, extension2})));
+                will(returnValue(Arrays.asList(extension1, extension2)));
             }
         });
 
@@ -287,7 +283,7 @@ public class NioSocketAcceptorTest {
         final CountDownLatch done = new CountDownLatch(1);
 
         int bindPort = findFreePort();
-        URI bindURI = URI.create(format("tcp://localhost:%d", bindPort));
+        String bindURI = format("tcp://localhost:%d", bindPort);
         Map<String, Object> options = new HashMap<>();
         options.put(TCP_MAXIMUM_OUTBOUND_RATE, 0xFFFFFFFEL);
         options.put(NEXT_PROTOCOL, "test-protocol");
@@ -447,7 +443,7 @@ public class NioSocketAcceptorTest {
 
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         acceptor.setResourceAddressFactory(addressFactory);
-        URI bindURI = URI.create(format("tcp://localhost:%d", bindPort));
+        String bindURI = format("tcp://localhost:%d", bindPort);
         Map<String,Object> opts = new HashMap<>();
         opts.put(NEXT_PROTOCOL, "test-protocol");
 
@@ -547,7 +543,7 @@ public class NioSocketAcceptorTest {
         for (int i=0; i<NB_ACCEPTS; i++) {
             bindPorts[i] = findFreePort();
             //System.out.println("Binding to " + bindPorts[i]);
-            ResourceAddress bindAddress = resourceAddressFactory.newResourceAddress(new URI("tcp://localhost:" + bindPorts[i]));
+            ResourceAddress bindAddress = resourceAddressFactory.newResourceAddress("tcp://localhost:" + bindPorts[i]);
             acceptor.bind(bindAddress, handler, new BridgeSessionInitializer<IoFuture>() {
 
                 @Override
@@ -612,7 +608,7 @@ public class NioSocketAcceptorTest {
     public void unbindDuringConnect() throws Exception {
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         int bindPort = findFreePort();
-        URI bindURI = URI.create(format("tcp://localhost:%d", bindPort));
+        String bindURI = format("tcp://localhost:%d", bindPort);
         final ResourceAddress bindAddress = addressFactory.newResourceAddress(bindURI);
 
         Mockery context = new Mockery();

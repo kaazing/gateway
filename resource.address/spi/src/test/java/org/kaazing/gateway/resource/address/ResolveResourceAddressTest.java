@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,9 +46,9 @@ public class ResolveResourceAddressTest {
 
 
     private ResourceAddress createTestAddress() {
-        URI addressURI = URI.create("test://opaque/path");
+        String addressURI = "test://opaque/path";
         Map<String, Object> options = new HashMap<>();
-        options.put(TRANSPORT.name(), URI.create("test://transport/path"));
+        options.put(TRANSPORT.name(), "test://transport/path");
         return addressFactory.newResourceAddress(addressURI, options);
     }
 

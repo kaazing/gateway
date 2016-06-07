@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.server.test.config;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -34,16 +33,16 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
     private Suppressible<String> _realmName;
     private Suppressible<String> _description;
 
-    private final Set<Suppressible<URI>> balances;
-    private final Set<Suppressible<URI>> accepts;
+    private final Set<Suppressible<String>> balances;
+    private final Set<Suppressible<String>> accepts;
     private final Map<String, Suppressible<String>> acceptOptions;
-    private final Set<Suppressible<URI>> connects;
+    private final Set<Suppressible<String>> connects;
     private final Map<String, Suppressible<String>> connectOptions;
     private final Map<String, Suppressible<String>> mimeMappings;
-    private final Set<URI> unsuppressibleAccepts;
-    private final Set<URI> unsuppressibleBalances;
+    private final Set<String> unsuppressibleAccepts;
+    private final Set<String> unsuppressibleBalances;
     private final Map<String, String> unsuppressibleAcceptOptions;
-    private final Set<URI> unsuppressibleConnects;
+    private final Set<String> unsuppressibleConnects;
     private final Map<String, String> unsuppressibleConnectOptions;
     private final Map<String, String> unsuppressibleMimeMappings;
     private final Map<String, Suppressible<String>> properties;
@@ -99,29 +98,29 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
     }
 
     // accept
-    public void addAccept(URI acceptURI) {
+    public void addAccept(String acceptURI) {
         unsuppressibleBalances.add(acceptURI);
     }
 
-    public Set<URI> getAccepts() {
+    public Set<String> getAccepts() {
         return unsuppressibleAccepts;
     }
 
     // balance
-    public void addBalance(URI balanceURI) {
+    public void addBalance(String balanceURI) {
         unsuppressibleBalances.add(balanceURI);
     }
 
-    public Set<URI> getBalances() {
+    public Set<String> getBalances() {
         return unsuppressibleBalances;
     }
 
     // connect
-    public void addConnect(URI connectURI) {
+    public void addConnect(String connectURI) {
         unsuppressibleConnects.add(connectURI);
     }
 
-    public Set<URI> getConnects() {
+    public Set<String> getConnects() {
         return unsuppressibleConnects;
     }
 
@@ -232,12 +231,12 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
         }
 
         @Override
-        public Set<Suppressible<URI>> getAccepts() {
+        public Set<Suppressible<String>> getAccepts() {
             return accepts;
         }
 
         @Override
-        public void addAccept(Suppressible<URI> acceptURI) {
+        public void addAccept(Suppressible<String> acceptURI) {
             accepts.add(acceptURI);
         }
 
@@ -302,22 +301,22 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
         }
 
         @Override
-        public Set<Suppressible<URI>> getBalances() {
+        public Set<Suppressible<String>> getBalances() {
             return balances;
         }
 
         @Override
-        public void addBalance(Suppressible<URI> balanceURI) {
+        public void addBalance(Suppressible<String> balanceURI) {
             balances.add(balanceURI);
         }
 
         @Override
-        public Set<Suppressible<URI>> getConnects() {
+        public Set<Suppressible<String>> getConnects() {
             return connects;
         }
 
         @Override
-        public void addConnect(Suppressible<URI> acceptURI) {
+        public void addConnect(Suppressible<String> acceptURI) {
             connects.add(acceptURI);
         }
 

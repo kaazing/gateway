@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ public class DemuxingProtocolEncoder implements ProtocolEncoder {
     private final AttributeKey STATE = new AttributeKey(getClass(), "state");
 
     @SuppressWarnings("unchecked")
-    private final Map<Class<?>, MessageEncoderFactory> type2encoderFactory = new CopyOnWriteMap<Class<?>, MessageEncoderFactory>();
+    private final Map<Class<?>, MessageEncoderFactory> type2encoderFactory = new CopyOnWriteMap<>();
 
     private static final Class<?>[] EMPTY_PARAMS = new Class[0];
 
@@ -141,7 +141,7 @@ public class DemuxingProtocolEncoder implements ProtocolEncoder {
     @SuppressWarnings("unchecked")
     private MessageEncoder<Object> findEncoder(
             State state, Class type, Set<Class> triedClasses) {
-        MessageEncoder encoder = null;
+        MessageEncoder encoder;
 
         if (triedClasses != null && triedClasses.contains(type)) {
             return null;
@@ -166,7 +166,7 @@ public class DemuxingProtocolEncoder implements ProtocolEncoder {
              */
 
             if (triedClasses == null) {
-                triedClasses = new IdentityHashSet<Class>();
+                triedClasses = new IdentityHashSet<>();
             }
             triedClasses.add(type);
 
@@ -221,10 +221,10 @@ public class DemuxingProtocolEncoder implements ProtocolEncoder {
     
     private class State {
         @SuppressWarnings("unchecked")
-        private final Map<Class<?>, MessageEncoder> findEncoderCache = new HashMap<Class<?>, MessageEncoder>();
+        private final Map<Class<?>, MessageEncoder> findEncoderCache = new HashMap<>();
 
         @SuppressWarnings("unchecked")
-        private final Map<Class<?>, MessageEncoder> type2encoder = new HashMap<Class<?>, MessageEncoder>();
+        private final Map<Class<?>, MessageEncoder> type2encoder = new HashMap<>();
         
         @SuppressWarnings("unchecked")
         private State() throws Exception {

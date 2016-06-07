@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
         private final Map<SocketAddress, Map<SocketAddress, Channel>> childChannelsByLocalAddress;
 
         public ConnectionlessParentChannelHandler() {
-            childChannelsByLocalAddress = new ConcurrentHashMap<SocketAddress, Map<SocketAddress, Channel>>();
+            childChannelsByLocalAddress = new ConcurrentHashMap<>();
         }
 
         @Override
@@ -120,7 +120,7 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
             SocketAddress localAddress = channel.getLocalAddress();
             Map<SocketAddress, Channel> childChannelsByRemoteAddress = childChannelsByLocalAddress.get(localAddress);
             if (childChannelsByRemoteAddress == null && createIfNull) {
-                Map<SocketAddress, Channel> newChildChannels = new ConcurrentHashMap<SocketAddress, Channel>();
+                Map<SocketAddress, Channel> newChildChannels = new ConcurrentHashMap<>();
                 childChannelsByRemoteAddress = childChannelsByLocalAddress.put(localAddress, newChildChannels);
                 if (childChannelsByRemoteAddress == null) {
                     childChannelsByRemoteAddress = newChildChannels;

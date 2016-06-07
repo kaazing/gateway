@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ public interface ExceptionHandler<E extends Throwable> {
      * A {@link ExceptionHandler} that does nothing.  This is useful when
      * you want to ignore an exception of a specific type silently.
      */
-    static ExceptionHandler<Throwable> NOOP = new ExceptionHandler<Throwable>() {
+    ExceptionHandler<Throwable> NOOP = new ExceptionHandler<Throwable>() {
         public void exceptionCaught(IoSession session, Throwable cause) {
             // Do nothing
         }
@@ -41,7 +41,7 @@ public interface ExceptionHandler<E extends Throwable> {
      * This is useful when you want to close the session when an exception of
      * a specific type is raised.
      */
-    static ExceptionHandler<Throwable> CLOSE = new ExceptionHandler<Throwable>() {
+    ExceptionHandler<Throwable> CLOSE = new ExceptionHandler<Throwable>() {
         public void exceptionCaught(IoSession session, Throwable cause) {
             session.close(true);
         }

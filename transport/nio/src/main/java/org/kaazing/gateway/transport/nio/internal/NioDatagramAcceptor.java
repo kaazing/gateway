@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.kaazing.gateway.transport.nio.internal;
 
 import java.net.InetAddress;
-import java.net.URI;
 import java.util.Properties;
 
 import javax.annotation.Resource;
@@ -26,11 +25,12 @@ import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.transport.BridgeAcceptHandler;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
+import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.NioBindException;
 import org.kaazing.gateway.transport.bio.MulticastAcceptor;
-import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.mina.core.service.IoAcceptorEx;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +53,8 @@ public class NioDatagramAcceptor extends AbstractNioAcceptor {
         this.configuration = configuration;
     }
 
-	protected IoAcceptorEx initAcceptor(final IoSessionInitializer<? extends IoFuture> initializer) {
+	@Override
+    protected IoAcceptorEx initAcceptor(final IoSessionInitializer<? extends IoFuture> initializer) {
 	    // TODO: use the following instead of Mina when/if we get NioDatagramChannelIoAcceptor working
 //	    DatagramChannelIoSessionConfig config;
 //        try {
@@ -109,8 +110,8 @@ public class NioDatagramAcceptor extends AbstractNioAcceptor {
                      BridgeSessionInitializer<? extends IoFuture> initializer) throws NioBindException {
         boolean useMCP = false;
         try {
-            URI uri = address.getExternalURI();
-            InetAddress inet = InetAddress.getByName(uri.getHost());
+            String uri = address.getExternalURI();
+            InetAddress inet = InetAddress.getByName(URIUtils.getHost(uri));
             if (inet.isMulticastAddress()) {
                 useMCP = true;
             }

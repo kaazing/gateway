@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import static java.util.Arrays.asList;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.SUPPORTED_PROTOCOLS;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -69,7 +68,7 @@ public class WsnConnectorRule implements TestRule {
         }
 
         ResourceAddress connectAddress =
-                addressFactory.newResourceAddress(URI.create(connect), connectOptions);
+                addressFactory.newResourceAddress(connect, connectOptions);
 
         return wsnConnector.connect(connectAddress, connectHandler, null);
     }
@@ -87,7 +86,7 @@ public class WsnConnectorRule implements TestRule {
         }
 
         ResourceAddress connectAddress =
-                addressFactory.newResourceAddress(URI.create(connect), connectOptions);
+                addressFactory.newResourceAddress(connect, connectOptions);
         return wsnConnector.connect(connectAddress, connectHandler, null);
     }
 
@@ -111,7 +110,7 @@ public class WsnConnectorRule implements TestRule {
                 schedulerProvider = new SchedulerProvider();
 
                 addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-                TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object> emptyMap());
+                TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.emptyMap());
                 BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
 
                 tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();

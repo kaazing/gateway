@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.wseb;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
-import java.net.URI;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,7 +31,7 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class WseHandshakeIT {
 
-    private static String ECHO_SERVICE_ACCEPT = "wse://localhost:8001/echo";
+    private static final String ECHO_SERVICE_ACCEPT = "wse://localhost:8001/echo";
 
     private final K3poRule robot = new K3poRule();
 
@@ -44,7 +43,7 @@ public class WseHandshakeIT {
                             .webRootDirectory(new File("src/test/webapp"))
                             .property(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY,"src/test/resources/gateway/conf")
                             .service()
-                                .accept(URI.create(ECHO_SERVICE_ACCEPT))
+                                .accept(ECHO_SERVICE_ACCEPT)
                                 .type("echo")
                             .done()
                         .done();
@@ -54,7 +53,7 @@ public class WseHandshakeIT {
     };
 
     @Rule
-    public TestRule chain = createRuleChain(gateway, robot);
+    public final TestRule chain = createRuleChain(gateway, robot);
 
     @Specification("wse.handshake.send.receive.3_5")
     @Test

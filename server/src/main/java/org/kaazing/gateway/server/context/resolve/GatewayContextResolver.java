@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,16 @@
  * limitations under the License.
  */
 package org.kaazing.gateway.server.context.resolve;
+
+import static org.kaazing.gateway.resource.address.uri.URIUtils.buildURIAsString;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getAuthority;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getFragment;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getHost;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getPath;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getPort;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getQuery;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getUserInfo;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -53,22 +63,22 @@ import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.config.SchemeConfig;
 import org.kaazing.gateway.server.config.parse.DefaultSchemeConfig;
-import org.kaazing.gateway.server.config.sep2014.AuthenticationType;
-import org.kaazing.gateway.server.config.sep2014.AuthorizationConstraintType;
-import org.kaazing.gateway.server.config.sep2014.ClusterConnectOptionsType;
-import org.kaazing.gateway.server.config.sep2014.ClusterType;
-import org.kaazing.gateway.server.config.sep2014.CrossSiteConstraintType;
-import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
-import org.kaazing.gateway.server.config.sep2014.LoginModuleOptionsType;
-import org.kaazing.gateway.server.config.sep2014.LoginModuleType;
-import org.kaazing.gateway.server.config.sep2014.MimeMappingType;
-import org.kaazing.gateway.server.config.sep2014.RealmType;
-import org.kaazing.gateway.server.config.sep2014.SecurityType;
-import org.kaazing.gateway.server.config.sep2014.ServiceAcceptOptionsType;
-import org.kaazing.gateway.server.config.sep2014.ServiceConnectOptionsType;
-import org.kaazing.gateway.server.config.sep2014.ServiceDefaultsType;
-import org.kaazing.gateway.server.config.sep2014.ServicePropertiesType;
-import org.kaazing.gateway.server.config.sep2014.ServiceType;
+import org.kaazing.gateway.server.config.nov2015.AuthenticationType;
+import org.kaazing.gateway.server.config.nov2015.AuthorizationConstraintType;
+import org.kaazing.gateway.server.config.nov2015.ClusterConnectOptionsType;
+import org.kaazing.gateway.server.config.nov2015.ClusterType;
+import org.kaazing.gateway.server.config.nov2015.CrossSiteConstraintType;
+import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.nov2015.LoginModuleOptionsType;
+import org.kaazing.gateway.server.config.nov2015.LoginModuleType;
+import org.kaazing.gateway.server.config.nov2015.MimeMappingType;
+import org.kaazing.gateway.server.config.nov2015.RealmType;
+import org.kaazing.gateway.server.config.nov2015.SecurityType;
+import org.kaazing.gateway.server.config.nov2015.ServiceAcceptOptionsType;
+import org.kaazing.gateway.server.config.nov2015.ServiceConnectOptionsType;
+import org.kaazing.gateway.server.config.nov2015.ServiceDefaultsType;
+import org.kaazing.gateway.server.config.nov2015.ServicePropertiesType;
+import org.kaazing.gateway.server.config.nov2015.ServiceType;
 import org.kaazing.gateway.server.context.DependencyContext;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.service.ServiceRegistry;
@@ -158,6 +168,8 @@ public class GatewayContextResolver {
 
     private ContextResolver<SecurityType, DefaultSecurityContext> securityResolver;
 
+    private Map<String, Object> injectables = new HashMap<>();
+
     public GatewayContextResolver(File configDir, File webDir, File tempDir) {
         this(configDir, webDir, tempDir, null);
     }
@@ -190,9 +202,6 @@ public class GatewayContextResolver {
 
         this.transportContextsBySchemeName = new HashMap<>();
         this.transportContextsByName = new HashMap<>();
-
-        // Initialize the SslCipherSuites (pertains to KG-7059)
-        SslCipherSuites.init();
     }
 
     public GatewayContext resolve(GatewayConfigDocument gatewayConfigDoc)
@@ -249,8 +258,6 @@ public class GatewayContextResolver {
                 clusterContext,
                 schedulerProvider);
 
-        // create map of injectable resources
-        Map<String, Object> injectables = new HashMap<>();
         injectables.putAll(dependencyContexts);
         injectables.put("serviceRegistry", servicesByURI);
         injectables.put("realmsContext", realmsContext);
@@ -291,12 +298,12 @@ public class GatewayContextResolver {
         // load the default scheme information based on service accepts
         Set<String> schemeNames = new HashSet<>();
         for (ServiceContext serviceContext : serviceContexts) {
-            for (URI acceptURI : serviceContext.getAccepts()) {
-                String schemeName = acceptURI.getScheme();
+            for (String acceptURI : serviceContext.getAccepts()) {
+                String schemeName = getScheme(acceptURI);
                 schemeNames.add(schemeName);
             }
-            for (URI connectURI : serviceContext.getConnects()) {
-                String schemeName = connectURI.getScheme();
+            for (String connectURI : serviceContext.getConnects()) {
+                String schemeName = getScheme(connectURI);
                 schemeNames.add(schemeName);
             }
             ServiceProperties properties = serviceContext.getProperties();
@@ -452,7 +459,7 @@ public class GatewayContextResolver {
         }
 
         // Used by client access policy xml. This parameter is not fully initialized until after the service c
-        List<Map<URI, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI =
+        List<Map<String, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI =
                 new ArrayList<>();
 
         for (ServiceType serviceConfig : serviceConfigs) {
@@ -462,9 +469,9 @@ public class GatewayContextResolver {
             String[] balanceStrings = serviceConfig.getBalanceArray();
             String[] connectStrings = serviceConfig.getConnectArray();
             String serviceType = serviceConfig.getType();
-            Service serviceInstance = null;
+            Service serviceInstance;
 
-            Class<? extends Service> serviceClass = null;
+            Class<? extends Service> serviceClass;
             if (serviceType.startsWith(SERVICE_TYPE_CLASS_PREFIX)) {
                 String className = serviceType.substring(SERVICE_TYPE_CLASS_PREFIX.length());
                 try {
@@ -488,14 +495,14 @@ public class GatewayContextResolver {
             DefaultServiceProperties properties = parsePropertiesType(propertiesType);
 
             // default ports
-            Collection<URI> acceptURIs = resolveURIs(acceptStrings);
-            Collection<URI> balanceURIs = resolveURIs(balanceStrings);
-            Collection<URI> connectURIs = resolveURIs(connectStrings);
+            Collection<String> acceptURIs = resolveURIs(acceptStrings);
+            Collection<String> balanceURIs = resolveURIs(balanceStrings);
+            Collection<String> connectURIs = resolveURIs(connectStrings);
 
             String acceptProperty = properties.get("accept");
             if (acceptProperty != null) {
                 acceptProperty = acceptProperty.trim();
-                acceptProperty = resolveURI(getCanonicalURI(acceptProperty, false)).toString();
+                acceptProperty = resolveURI(getCanonicalURI(acceptProperty, false));
                 properties.put("accept", acceptProperty);
             }
 
@@ -520,9 +527,9 @@ public class GatewayContextResolver {
                 mimeMappings.put(mimeMappingType.getExtension().toLowerCase(), mimeMappingType.getMimeType());
             }
 
-            Map<URI, Map<String, CrossSiteConstraintContext>> acceptConstraintsByURI =
+            Map<String, Map<String, CrossSiteConstraintContext>> acceptConstraintsByURI =
                     new HashMap<>();
-            for (URI acceptURI : acceptURIs) {
+            for (String acceptURI : acceptURIs) {
                 int wildcardOriginCount = 0;
                 CrossSiteConstraintType[] crossSiteConstraints = serviceConfig.getCrossSiteConstraintArray();
                 for (CrossSiteConstraintType crossSiteConstraint : crossSiteConstraints) {
@@ -539,22 +546,22 @@ public class GatewayContextResolver {
                     if ("*".equals(allowOrigin)) {
                         wildcardOriginCount++;
                     } else {
-                        URI allowOriginURI = getCanonicalURI(allowOrigin, false);
-                        allowOrigin = allowOriginURI.toString();
-                        String allowOriginScheme = allowOriginURI.getScheme();
+                        String allowOriginURI = getCanonicalURI(allowOrigin, false);
+                        allowOrigin = allowOriginURI;
+                        String allowOriginScheme = getScheme(allowOriginURI);
 
                         if (!"http".equals(allowOriginScheme) && !"https".equals(allowOriginScheme)) {
                             throw new IllegalArgumentException(
                                     "Cross-site allow-origin must have URI syntax with http or https scheme");
                         }
 
-                        if (allowOriginURI.getPath() != null && allowOriginURI.getQuery() != null
-                                || allowOriginURI.getFragment() != null) {
+                        if (getPath(allowOriginURI) != null && getQuery(allowOriginURI) != null
+                                || getFragment(allowOriginURI) != null) {
                             throw new IllegalArgumentException(
                                     "Cross-site allow-origin must have URI syntax without path, query or fragment");
                         }
 
-                        if (allowOriginURI.getPort() == -1) {
+                        if (getPort(allowOriginURI) == -1) {
                             // default the port
                             if ("http".equals(allowOriginScheme)) {
                                 allowOrigin += ":80";
@@ -600,7 +607,7 @@ public class GatewayContextResolver {
                             + "\". Remove the wildcard to specify more restrictive cross site constraints");
                 }
 
-                String host = acceptURI.getHost();
+                String host = getHost(acceptURI);
                 if (host == null || host.isEmpty()) {
                     throw new IllegalArgumentException("Host is required for service \"" + acceptURI + "\".");
                 }
@@ -660,13 +667,13 @@ public class GatewayContextResolver {
             serviceContexts.add(serviceContext);
 
             // register service for each acceptURI
-            for (URI acceptURI : acceptURIs) {
+            for (String acceptURI : acceptURIs) {
                 // verify we have a port set, otherwise set to default for scheme
-                String authority = acceptURI.getAuthority();
+                String authority = getAuthority(acceptURI);
                 if (authority.indexOf(':') == -1) {
-                    SchemeConfig schemeConfig = supplySchemeConfig(acceptURI.getScheme());
+                    SchemeConfig schemeConfig = supplySchemeConfig(getScheme(acceptURI));
                     authority += ":" + schemeConfig.getDefaultPort();
-                    acceptURI = URI.create(acceptURI.getScheme() + "://" + authority + acceptURI.getPath());
+                    acceptURI = getScheme(acceptURI) + "://" + authority + getPath(acceptURI);
                 }
                 serviceRegistry.register(acceptURI, serviceContext);
             }
@@ -721,31 +728,31 @@ public class GatewayContextResolver {
         }
     }
 
-    private Collection<URI> resolveURIs(String[] acceptURIs) throws URISyntaxException {
-        Collection<URI> urisWithPort = new HashSet<>();
+    private Collection<String> resolveURIs(String[] acceptURIs) throws URISyntaxException {
+        Collection<String> urisWithPort = new HashSet<>();
         for (String uri : acceptURIs) {
-            URI resolvedURI = resolveURI(getCanonicalURI(uri, true));
+            String resolvedURI = resolveURI(getCanonicalURI(uri, true));
             urisWithPort.add(resolvedURI);
         }
         return urisWithPort;
     }
 
-    private URI resolveURI(URI uri) throws URISyntaxException {
-        String schemeName = uri.getScheme();
+    private String resolveURI(String uri) throws URISyntaxException {
+        String schemeName = getScheme(uri);
         SchemeConfig schemeConfig = supplySchemeConfig(schemeName);
         int defaultPort = schemeConfig.getDefaultPort();
-        if (uri.getPort() == -1) {
+        if (getPort(uri) == -1) {
             if (defaultPort == -1) {
                 LOGGER.error("Missing port number in URI \"" + uri
                         + "\". You must include an explicit port number in this URI in your gateway configuration file.");
                 throw new IllegalArgumentException("Missing port for URI \"" + uri + "\"");
             }
             if (defaultPort != 0) {
-                String host = uri.getHost();
-                String path = uri.getPath();
-                String query = uri.getQuery();
-                String fragment = uri.getFragment();
-                uri = new URI(schemeName, null, host, defaultPort, path, query, fragment);
+                String host = getHost(uri);
+                String path = getPath(uri);
+                String query = getQuery(uri);
+                String fragment = getFragment(uri);
+                uri = buildURIAsString(schemeName, null, host, defaultPort, path, query, fragment);
             }
         } else {
             if (defaultPort == 0) {
@@ -804,7 +811,7 @@ public class GatewayContextResolver {
         List<MemberId> memberIds = new ArrayList<>();
         if (collection != null) {
             for (String member : collection) {
-                URI uri;
+                String uri;
                 try {
                     uri = getCanonicalURI(member, true);
                 } catch (IllegalArgumentException ex) {
@@ -812,14 +819,14 @@ public class GatewayContextResolver {
                     throw new IllegalArgumentException("Invalid URL in the cluster configuration:" + member, ex);
                 }
 
-                String scheme = uri.getScheme();
+                String scheme = getScheme(uri);
                 if ((scheme.equals("tcp")) || scheme.equals("udp") || scheme.equals("aws")) {
-                    int port = uri.getPort();
+                    int port = getPort(uri);
                     if (port == -1) {
                         GL.error("ha", "Port number is missing while processing {} for {}", processing, member);
                         throw new IllegalArgumentException("Invalid port number specified for " + processing + ": " + member);
                     }
-                    String host = uri.getHost();
+                    String host = getHost(uri);
                     if (scheme.equals("aws")) {
                         // There should be ONLY one <connect></connect> tag with
                         // aws:// scheme in the <cluster></cluster> tag for
@@ -827,27 +834,27 @@ public class GatewayContextResolver {
                         validateAwsClusterDiscovery(uri, connectOptions, processing, clusterPort, collection.length);
                     }
 
-                    memberIds.add(new MemberId(scheme, host, port, uri.getPath()));
+                    memberIds.add(new MemberId(scheme, host, port, getPath(uri)));
                 } else {
-                    GL.error("ha", "Unrecognized scheme {} for {} in {}", uri.getScheme(), processing, member);
-                    throw new IllegalArgumentException("Invalid scheme " + uri.getScheme() + " in the URL for " + processing
-                            + " in " + member);
+                    GL.error("ha", "Unrecognized scheme {} for {} in {}", getScheme(uri), processing, member);
+                    throw new IllegalArgumentException("Invalid scheme " + getScheme(uri) + " in the URL for " +
+                    processing + " in " + member);
                 }
             }
         }
         return memberIds;
     }
 
-    private void validateAwsClusterDiscovery(URI uri,
+    private void validateAwsClusterDiscovery(String uri,
                                              ClusterConnectOptionsType connectOptions,
                                              String processing,
                                              int clusterPort,
                                              int collectionLength) {
         if (!AwsUtils.isDeployedToAWS() || !processing.equals("<connect>")) {
             GL.error("ha", "Unrecognized scheme {} for {} in {}",
-                    uri.getScheme(), processing, uri.toString());
-            throw new IllegalStateException("Invalid scheme " + uri.getScheme()
-                    + " in the URL for " + processing + " in " + uri.toString());
+                    getScheme(uri), processing, uri);
+            throw new IllegalStateException("Invalid scheme " + getScheme(uri)
+                    + " in the URL for " + processing + " in " + uri);
         }
 
         if (connectOptions == null) {
@@ -863,26 +870,26 @@ public class GatewayContextResolver {
             throw new IllegalStateException("Only one <connect> tag should be specified in <cluster> for auto-discovery");
         }
 
-        if (clusterPort != uri.getPort()) {
+        if (clusterPort != getPort(uri)) {
             // For the Peer Gateway we should ensure that the clusterPort from the
             // <accept></accept> tag matches the one specified in
             // the <connect>aws://security-group:<port>/groupName</connect> tag.
-            GL.error("ha", "Mismatch in port numbers {} and {}", clusterPort, uri.getPort());
+            GL.error("ha", "Mismatch in port numbers {} and {}", clusterPort, getPort(uri));
             throw new IllegalArgumentException("Port numbers on the network interface in <accept> and the member in <connect> " +
                     "do not match");
         }
 
-        String scheme = uri.getScheme();
+        String scheme = getScheme(uri);
         if (!scheme.equalsIgnoreCase("aws")) {
             throw new IllegalStateException("Invalid scheme '" + scheme +
-                    "' specified in the URI " + uri.toString() +
+                    "' specified in the URI " + uri +
                     " instead of 'aws:'");
         }
 
-        String host = uri.getHost();
+        String host = getHost(uri);
         if (!host.equalsIgnoreCase("security-group")) {
             throw new IllegalStateException("Invalid host '" + host +
-                    "' specified in the URI " + uri.toString() +
+                    "' specified in the URI " + uri +
                     " instead of 'security-group'");
         }
 
@@ -1261,9 +1268,9 @@ public class GatewayContextResolver {
      * @return a URI with the host part of the authority lower-case and (optionally) trailing / added, or null if the uri is null
      * @throws IllegalArgumentException if the uriString is not valid syntax
      */
-    public static URI getCanonicalURI(String uriString, boolean canonicalizePath) {
+    public static String getCanonicalURI(String uriString, boolean canonicalizePath) {
         if ((uriString != null) && !"".equals(uriString)) {
-            return getCanonicalURI(URI.create(uriString), canonicalizePath);
+            return getCanonicalizedURI(uriString, canonicalizePath);
         }
         return null;
     }
@@ -1281,15 +1288,15 @@ public class GatewayContextResolver {
      * uri is null
      * @throws IllegalArgumentException if the uri is not valid syntax
      */
-    public static URI getCanonicalURI(URI uri, boolean canonicalizePath) {
-        URI canonicalURI = uri;
+    public static String getCanonicalizedURI(String uri, boolean canonicalizePath) {
+        String canonicalURI = uri;
         if (uri != null) {
-            String host = uri.getHost();
-            String path = uri.getPath();
+            String host = getHost(uri);
+            String path = getPath(uri);
             final boolean emptyPath = "".equals(path);
             final boolean noPathToCanonicalize = canonicalizePath && (path == null || emptyPath);
             final boolean trailingSlashPath = "/".equals(path);
-            final String scheme = uri.getScheme();
+            final String scheme = getScheme(uri);
             final boolean pathlessScheme =
                     "ssl".equals(scheme) || "tcp".equals(scheme) || "pipe".equals(scheme) || "udp".equals(scheme);
             final boolean trailingSlashWithPathlessScheme = trailingSlashPath && pathlessScheme;
@@ -1298,14 +1305,22 @@ public class GatewayContextResolver {
             if (((host != null) && !host.equals(host.toLowerCase())) || newPath != null) {
                 path = newPath == null ? path : newPath;
                 try {
-                    canonicalURI = new URI(scheme, uri.getUserInfo(), host == null ? null : host.toLowerCase(),
-                            uri.getPort(), path, uri.getQuery(), uri.getFragment());
+                    canonicalURI = buildURIAsString(scheme, getUserInfo(uri), host == null ?
+                            null : host.toLowerCase(), getPort(uri), path, getQuery(uri), getFragment(uri));
                 } catch (URISyntaxException ex) {
                     throw new IllegalArgumentException("Invalid URI: " + uri + " in Gateway configuration file", ex);
                 }
             }
         }
         return canonicalURI;
+    }
+
+    public void addInjectable(String key, Object value) {
+        this.injectables.put(key, value);
+    }
+
+    public Map<String, Object> getInjectables() {
+        return injectables;
     }
 
 }

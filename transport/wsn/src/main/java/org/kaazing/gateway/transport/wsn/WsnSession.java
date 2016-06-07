@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ public class WsnSession extends AbstractWsBridgeSession<WsnSession, WsBuffer> {
     };
 
     private URI httpRequestURI; // the URI of the pre-upgrade HTTP request
-    private Collection<URI> balanceeURIs;
+    private Collection<String> balanceeURIs;
     private WebSocketWireProtocol version;
     AtomicBoolean sendCloseFrame;
 
@@ -85,7 +85,7 @@ public class WsnSession extends AbstractWsBridgeSession<WsnSession, WsBuffer> {
         }
     }
 
-    Collection<URI> getBalanceeURIs() {
+    Collection<String> getBalanceeURIs() {
         return balanceeURIs;
     }
 
@@ -98,7 +98,7 @@ public class WsnSession extends AbstractWsBridgeSession<WsnSession, WsBuffer> {
         return (query != null) && query.contains(".kl=Y");
     }
 
-    public void setBalanceeURIs(Collection<URI> balanceeURIs) {
+    public void setBalanceeURIs(Collection<String> balanceeURIs) {
         this.balanceeURIs = balanceeURIs;
     }
 

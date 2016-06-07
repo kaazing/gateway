@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import javax.security.auth.callback.Callback;
  */
 public class LoginResultCallback implements Callback {
 
-    private AtomicReference<LoginResult> loginResult = new AtomicReference<LoginResult>();
+    private AtomicReference<LoginResult> loginResult = new AtomicReference<>();
 
         public LoginResultCallback() {
             super();

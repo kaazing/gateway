@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -162,7 +162,7 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
         WriteRequestQueue writeRequestQueue = session.getWriteRequestQueue();
         WriteRequest req;
 
-        List<WriteRequest> failedRequests = new ArrayList<WriteRequest>();
+        List<WriteRequest> failedRequests = new ArrayList<>();
 
         if ((req = writeRequestQueue.poll(session)) != null) {
             Object message = req.getMessage();

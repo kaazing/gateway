@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 import static org.kaazing.gateway.transport.ws.util.TestUtil.dispose;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
@@ -52,12 +51,11 @@ import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsAcceptorTest {
     @Rule
-    public TestRule testExecutionTrace = new MethodExecutionTrace();
+    public final TestRule testExecutionTrace = new MethodExecutionTrace();
 
-    private static boolean DEBUG = false;
+    private static final boolean DEBUG = false;
 
-    private ResourceAddressFactory resourceAddressFactory = ResourceAddressFactory.newResourceAddressFactory();
-    private BridgeServiceFactory bridgeServiceFactory;
+    private ResourceAddressFactory resourceAddressFactory;
 
 
     @After
@@ -92,7 +90,7 @@ public class WsAcceptorTest {
     public void setup() {
         resourceAddressFactory = ResourceAddressFactory.newResourceAddressFactory();
         TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.EMPTY_MAP);
-        bridgeServiceFactory = new BridgeServiceFactory(transportFactory);
+        BridgeServiceFactory bridgeServiceFactory = new BridgeServiceFactory(transportFactory);
         tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
         httpAcceptor = (HttpAcceptor)transportFactory.getTransport("http").getAcceptor();
         wsAcceptor = (WsAcceptor)transportFactory.getTransport("ws").getAcceptor();
@@ -119,7 +117,7 @@ public class WsAcceptorTest {
     public void shouldBindAndUnbindOnWsAddress()
             throws Exception {
 
-        URI uri = URI.create("ws://localhost:9000/FOO");
+        String uri = "ws://localhost:9000/FOO";
         ResourceAddress address = resourceAddressFactory.newResourceAddress(uri);
 
         final IoHandlerAdapter acceptHandler = new IoHandlerAdapter() {
@@ -195,7 +193,7 @@ public class WsAcceptorTest {
 
         // Set up an address to bind on
 
-        URI uri = URI.create("ws://localhost:9000/FOO");
+        String uri = "ws://localhost:9000/FOO";
         final ResourceAddress address = resourceAddressFactory.newResourceAddress(uri);
         final IoHandlerAdapter<IoSession> acceptHandler = new IoHandlerAdapter<IoSession>() {};
         final BridgeSessionInitializer<? extends IoFuture> initializer =
@@ -235,7 +233,7 @@ public class WsAcceptorTest {
     public void shouldNotBindOnNonWsAddress()
         throws Exception {
 
-            URI uri = URI.create("http://example.com/FOO");
+            String uri = "http://example.com/FOO";
             ResourceAddress address = resourceAddressFactory.newResourceAddress(uri);
 
         final IoHandlerAdapter<IoSession> acceptHandler = new IoHandlerAdapter<IoSession>() {

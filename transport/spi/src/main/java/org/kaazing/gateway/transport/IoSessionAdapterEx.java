@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,6 +74,7 @@ public class IoSessionAdapterEx extends AbstractIoSessionEx {
         return SimpleBufferAllocator.BUFFER_ALLOCATOR;
     }
 
+    @Override
     public IoSessionConfigEx getConfig() {
         return config;
     }
@@ -89,6 +90,7 @@ public class IoSessionAdapterEx extends AbstractIoSessionEx {
         this.config = config;
     }
 
+    @Override
     public IoHandler getHandler() {
         return handler;
     }
@@ -104,10 +106,12 @@ public class IoSessionAdapterEx extends AbstractIoSessionEx {
         this.handler = handler;
     }
 
+    @Override
     public SocketAddress getLocalAddress() {
         return localAddress;
     }
 
+    @Override
     public SocketAddress getRemoteAddress() {
         return remoteAddress;
     }
@@ -135,6 +139,7 @@ public class IoSessionAdapterEx extends AbstractIoSessionEx {
         this.remoteAddress = remoteAddress;
     }
 
+    @Override
     public IoServiceEx getService() {
         return service;
     }
@@ -150,10 +155,12 @@ public class IoSessionAdapterEx extends AbstractIoSessionEx {
         this.service = service;
     }
 
+    @Override
     public final IoProcessorEx<? extends IoSessionEx> getProcessor() {
         return processor;
     }
 
+    @Override
     public TransportMetadata getTransportMetadata() {
         return transportMetadata;
     }

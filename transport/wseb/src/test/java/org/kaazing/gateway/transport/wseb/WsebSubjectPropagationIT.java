@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import static org.kaazing.gateway.util.Utils.asByteBuffer;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.IOException;
-import java.net.URI;
 import java.security.Principal;
 import java.util.Map;
 import java.util.Set;
@@ -64,7 +63,7 @@ public class WsebSubjectPropagationIT {
                 .property(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY,
                     "src/test/resources/gateway/conf")
                 .service()
-                    .accept(URI.create("wse://localhost:8001/basic"))
+                    .accept("wse://localhost:8001/basic")
                     .type("class:" + SubjectService.class.getName())
                     // Websocket level  authentication with revalidate
                     .realmName("basic")
@@ -76,7 +75,7 @@ public class WsebSubjectPropagationIT {
                     .done()
                 .done()
                 .service()
-                    .accept(URI.create("wse://localhost:8001/appbasic"))
+                    .accept("wse://localhost:8001/appbasic")
                     .type("class:" + SubjectService.class.getName())
                     // Websocket level  authentication with revalidate
                     .realmName("appbasic")

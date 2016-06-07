@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,12 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.CIPHERS;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.ENCRYPTION_ENABLED;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.KEY_SELECTOR;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.NEED_CLIENT_AUTH;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.WANT_CLIENT_AUTH;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,18 +42,18 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 public class SslResourceAddressFactorySpiTest {
 
     private SslResourceAddressFactorySpi addressFactorySpi;
-    private URI addressURI;
+    private String addressURI;
     private Map<String, Object> options;
     
     @Before
     public void before() {
         addressFactorySpi = new SslResourceAddressFactorySpi();
-        addressURI = URI.create("ssl://localhost:2020");
+        addressURI = "ssl://localhost:2020";
         options = new HashMap<>();
         options.put("ssl.nextProtocol", "custom");
         options.put("ssl.qualifier", "random");
         options.put("ssl.encryptionEnabled", Boolean.FALSE);
-        options.put("ssl.transport", URI.create("tcp://localhost:2121"));
+        options.put("ssl.transport", "tcp://localhost:2121");
         options.put("ssl.protocols", new String[] { "SSLv3" });
     }
 
@@ -65,12 +64,12 @@ public class SslResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireSslSchemeName() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("test://opaque"));
+        addressFactorySpi.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPort() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("ssl://localhost"));
+        addressFactorySpi.newResourceAddress("ssl://localhost");
     }
 
     @Test
@@ -93,7 +92,7 @@ public class SslResourceAddressFactorySpiTest {
     public void shouldCreateAddressWithTcpTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("tcp://localhost:2020"), address.getOption(TRANSPORT_URI));
+        assertEquals("tcp://localhost:2020", address.getOption(TRANSPORT_URI));
     }
 
     @Test
@@ -104,7 +103,7 @@ public class SslResourceAddressFactorySpiTest {
         assertEquals("custom", address.getOption(NEXT_PROTOCOL));
         assertEquals("random", address.getOption(QUALIFIER));
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("tcp://localhost:2121"), address.getOption(TRANSPORT_URI));
+        assertEquals("tcp://localhost:2121", address.getOption(TRANSPORT_URI));
         assertFalse(address.getOption(ENCRYPTION_ENABLED));
         assertArrayEquals(new String[] { "SSLv3" }, address.getOption(PROTOCOLS));
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,12 @@
  */
 package org.kaazing.gateway.transport.wsn.proxy;
 
-import static org.kaazing.test.util.ITUtil.createRuleChain;
-
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -39,8 +38,8 @@ public class ProxyOrphanedConnectionIT {
                 .service()
                     .name("proxy")
                     .description("proxy")
-                    .accept(URI.create("ws://localhost:8555/"))
-                    .connect(URI.create("ws://localhost:8556/"))
+                    .accept("ws://localhost:8555/")
+                    .connect("ws://localhost:8556/")
                     .type("proxy")
                 .done()
             .done();
@@ -49,8 +48,10 @@ public class ProxyOrphanedConnectionIT {
         }
     };
 
+    private TestRule timeout = new DisableOnDebug(Timeout.seconds(2000000));
+
     @Rule
-    public TestRule chain = createRuleChain(gateway, robot);
+    public TestRule chain = RuleChain.outerRule(gateway).around(robot).around(timeout);
 
     @Specification("connectToFrontEndProxyAndKillFrontBeforeBackendIsEstablished")
     @Test

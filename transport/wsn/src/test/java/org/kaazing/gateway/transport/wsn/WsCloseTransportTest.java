@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.kaazing.gateway.transport.wsn;
 
 import static org.kaazing.gateway.util.InternalSystemProperty.WS_CLOSE_TIMEOUT;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -86,7 +85,7 @@ public class WsCloseTransportTest {
     private static final Integer ADAPTER_LATCH_UNEXPECTED_TIMEOUT = 2;
 
     private final ResourceAddressFactory resourceAddressFactory = ResourceAddressFactory.newResourceAddressFactory();
-    TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object> emptyMap());
+    TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.emptyMap());
     private final BridgeServiceFactory bridgeServiceFactory = new BridgeServiceFactory(transportFactory);
 //    private final ServiceRegistry serviceRegistry = new ServiceRegistry();
     private WsnAcceptor wsnAcceptor;
@@ -424,8 +423,8 @@ public class WsCloseTransportTest {
             }
         };
 
-        final URI uri = URI.create("wsn://localhost:4444/echo");
-        final List<URI> accepts = new ArrayList<>(1);
+        final String uri = "wsn://localhost:4444/echo";
+        final List<String> accepts = new ArrayList<>(1);
         accepts.add(uri);
 
 //        final Map<URI, ? extends CrossSiteConstraintContext> crossSiteConstraints = new HashMap<URI, DefaultCrossSiteConstraintContext>();
@@ -466,7 +465,7 @@ public class WsCloseTransportTest {
 
         IoSession clientSession = future.getSession();
 
-        UnbindFuture unbindFuture = null;
+        UnbindFuture unbindFuture;
         try {
             waitForLatch(clientSessionOpened, SESSION_LATCH_TIMEOUT,
                 TimeUnit.SECONDS,

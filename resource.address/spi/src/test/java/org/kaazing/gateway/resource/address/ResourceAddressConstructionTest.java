@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.net.URI;
 import java.util.Map;
 
 import org.junit.Before;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 
 public class ResourceAddressConstructionTest {
 
@@ -92,7 +93,7 @@ public class ResourceAddressConstructionTest {
             String expectedNextProtocol = expectedStructure[2];
 
             assertEquals("resource mismatch\n"+address, URI.create(expectedResourceURI), cursor.getResource());
-            assertEquals("scheme mismatch\n"+address, expectedExternalScheme, cursor.getExternalURI().getScheme());
+            assertEquals("scheme mismatch\n"+address, expectedExternalScheme, URIUtils.getScheme(cursor.getExternalURI()));
             assertEquals("nextprotocol mismatch\n"+address, expectedNextProtocol, cursor.getOption(ResourceAddress.NEXT_PROTOCOL));
 
             cursor = cursor.getTransport();

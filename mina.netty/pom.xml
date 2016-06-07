@@ -2,7 +2,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-      <parent>
+    <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
         <version>develop-SNAPSHOT</version>
@@ -30,12 +30,12 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>mina-core</artifactId>
-            <version>${kaazing.mina.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>mina-integration-beans</artifactId>
-            <version>${kaazing.mina.version}</version>
+            <version>${project.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.kaazing</groupId>
@@ -46,7 +46,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>mina-integration-jmx</artifactId>
-            <version>${kaazing.mina.version}</version>
+            <version>${project.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.kaazing</groupId>
@@ -57,7 +57,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>mina-integration-ognl</artifactId>
-            <version>${kaazing.mina.version}</version>
+            <version>${project.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.kaazing</groupId>
@@ -184,78 +184,11 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
-                <extensions>false</extensions>
-                <inherited>false</inherited>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <!-- ensure that only methods available in java 1.6 can
-                     be used even when compiling with java 1.7+ -->
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <version>1.8</version>
-                <configuration>
-                    <signature>
-                        <groupId>org.codehaus.mojo.signature</groupId>
-                        <artifactId>java16</artifactId>
-                        <version>1.0</version>
-                    </signature>
-                    <ignores>
-                        <ignore>sun.misc.Unsafe</ignore>
-                        <ignore>sun.misc.Cleaner</ignore>
-
-                        <ignore>java.util.zip.Deflater</ignore>
-
-                        <!-- Used for NIO UDP multicast -->
-                        <ignore>java.nio.channels.DatagramChannel</ignore>
-                        <ignore>java.nio.channels.MembershipKey</ignore>
-                        <ignore>java.net.StandardProtocolFamily</ignore>
-
-                        <!-- Used for NIO. 2 -->
-                        <ignore>java.nio.channels.AsynchronousChannel</ignore>
-                        <ignore>java.nio.channels.AsynchronousSocketChannel</ignore>
-                        <ignore>java.nio.channels.AsynchronousServerSocketChannel</ignore>
-                        <ignore>java.nio.channels.AsynchronousChannelGroup</ignore>
-                        <ignore>java.nio.channels.NetworkChannel</ignore>
-                        <ignore>java.nio.channels.InterruptedByTimeoutException</ignore>
-                        <ignore>java.net.StandardSocketOptions</ignore>
-                        <ignore>java.net.SocketOption</ignore>
-                    </ignores>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <skipTests>${skipTests}</skipTests>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <skipTests>${skipITs}</skipTests>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -326,7 +259,6 @@
     </profiles>
 
     <properties>
-        <kaazing.mina.version>${project.version}</kaazing.mina.version>
         <checkstyle.config.location>org/kaazing/code/quality/checkstyle.xml</checkstyle.config.location>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <skipTests>true</skipTests>

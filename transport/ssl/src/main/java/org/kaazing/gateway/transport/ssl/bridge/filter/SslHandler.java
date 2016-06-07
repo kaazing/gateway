@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -153,7 +153,7 @@ class SslHandler {
                 logger.trace(String.format("Supported SSL/TLS ciphersuites:\n  %s", toCipherString(supportedCiphers)));
 
             } else {
-                logger.trace(String.format("Supported SSL/TLS ciphersuites: none"));
+                logger.trace("Supported SSL/TLS ciphersuites: none");
             }
 
             List<String> enabledCiphers = toCipherList(sslEngine.getEnabledCipherSuites());
@@ -161,7 +161,7 @@ class SslHandler {
                 logger.trace(String.format("Default enabled SSL/TLS ciphersuites:\n  %s", toCipherString(enabledCiphers)));
 
             } else {
-                logger.trace(String.format("Enabled SSL/TLS ciphersuites: none"));
+                logger.trace("Enabled SSL/TLS ciphersuites: none");
             }
 
             if (sslEngine.getWantClientAuth() ||
@@ -200,7 +200,7 @@ class SslHandler {
         } else {
             boolean sslv3Enabled = isSslv3Enabled(protocols);
             if (sslv3Enabled && logger.isWarnEnabled()) {
-                logger.warn(String.format("SSLv3 protocol is enabled. SSLv3 known to have vulnerabilities"));
+                logger.warn("SSLv3 protocol is enabled. SSLv3 known to have vulnerabilities");
             }
         }
         if (logger.isTraceEnabled()) {

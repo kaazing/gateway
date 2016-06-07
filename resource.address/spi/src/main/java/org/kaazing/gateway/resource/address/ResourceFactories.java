@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
 package org.kaazing.gateway.resource.address;
 
 import static java.lang.String.format;
-import static org.kaazing.gateway.resource.address.URLUtils.modifyURIScheme;
 
-import java.net.URI;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 
 public class ResourceFactories {
 
@@ -43,8 +42,8 @@ public class ResourceFactories {
         }
         
         @Override
-        public URI createURI(URI location) {
-            return URI.create(format("%s://%s", newScheme, location.getAuthority()));
+        public String createURI(String location) {
+            return format("%s://%s", newScheme, URIUtils.getAuthority(location));
         }
     }
     
@@ -57,8 +56,8 @@ public class ResourceFactories {
         }
         
         @Override
-        public URI createURI(URI location) {
-            return modifyURIScheme(location, newScheme);
+        public String createURI(String location) {
+            return URIUtils.modifyURIScheme(location, newScheme);
         }
     }
 }

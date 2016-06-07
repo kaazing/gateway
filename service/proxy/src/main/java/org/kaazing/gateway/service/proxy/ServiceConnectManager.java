@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.kaazing.gateway.service.proxy;
 
 import static java.lang.String.format;
 
-import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -63,7 +62,7 @@ import org.slf4j.Logger;
 public final class ServiceConnectManager {
     private final ServiceContext serviceCtx;
     private final AbstractProxyHandler connectHandler;
-    private final URI connectURI;
+    private final String connectURI;
     private final AtomicBoolean serviceConnected = new AtomicBoolean(true);
     private final SchedulerProvider schedulerProvider;
 
@@ -92,7 +91,7 @@ public final class ServiceConnectManager {
     public ServiceConnectManager(ServiceContext service,
                                  AbstractProxyHandler connectHandler,
                                  BridgeServiceFactory bridgeServiceFactory,
-                                 URI connectURI,
+                                 String connectURI,
                                  int interval,
                                  final int preparedConnectionCount) {
         this.serviceCtx = service;
@@ -123,7 +122,7 @@ public final class ServiceConnectManager {
             if (logger.isWarnEnabled()) {
                 logger.warn(String.format(
                         "Configured prepared.connection.count %d for %s service has been increased to number of IO threads %d for extra efficiency",
-                        preparedConnectionCount, serviceCtx.getServiceType(), this.preparedConnectionCount, workerCount));
+                        preparedConnectionCount, serviceCtx.getServiceType(), workerCount));
             }
         }
         if (logger.isDebugEnabled()) {
@@ -306,8 +305,8 @@ public final class ServiceConnectManager {
                 if (!successfullyConnected) {
                     // if the connection state was changed to disconnected, then unbind the service and start the heartbeat
                     try {
-                        if ( logger.isTraceEnabled() ) {
-                            logger.trace(format("Quiescing service with connect uri '%s'.", connectURI));
+                        if (logger.isInfoEnabled()) {
+                            logger.info(format("Quiescing service with connect uri '%s'.", connectURI));
                         }
                         serviceCtx.getService().quiesce();
                         if ( logger.isTraceEnabled() ) {
@@ -326,8 +325,8 @@ public final class ServiceConnectManager {
 
                     // if the connection state was changed to connected, then rebind the service
                     try {
-                        if ( logger.isTraceEnabled() ) {
-                            logger.trace(format("Starting service with connect uri '%s'.", connectURI));
+                        if (logger.isInfoEnabled()) {
+                            logger.info(format("Starting service with connect uri '%s'.", connectURI));
                         }
                         serviceCtx.getService().start();
                         if ( logger.isTraceEnabled() ) {
@@ -413,8 +412,17 @@ public final class ServiceConnectManager {
                 if (logger.isTraceEnabled()) {
                     logger.trace(format("ServiceHeartBeat.run: Current Heartbeat task is "+currentHeartbeatTask+"; starting to heartbeat-connect to %s", connectURI));
                 }
-                ConnectFuture connectFuture = serviceCtx.connect(connectURI, handler, null);
-                connectFuture.addListener(heartbeatFilter.getConnectListener()); // dummy connection
+                ConnectFuture connectFuture = null;
+                try {
+                    connectFuture = serviceCtx.connect(connectURI, handler, null);
+                    connectFuture.addListener(heartbeatFilter.getConnectListener()); // dummy connection
+                } catch (Exception ex) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(format("ServiceHeartBeat.run: exception connecting to uri %s", connectURI), ex);
+                    } else {
+                        logger.info(format("ServiceHeartBeat.run: exception connecting to uri %s, %s", connectURI, ex));
+                    }
+                }
 
                 // the heartbeat does an exponential backoff trying to connect to the backend service,
                 // so if the maximum interval hasn't been reached, reschedule the task with the new delay
@@ -434,6 +442,9 @@ public final class ServiceConnectManager {
                 // to the service as this method was executing, then it's possible that the heartbeat
                 // was canceled and the task reference will be null, in which case we don't bother scheduling.
                 if (heartbeatTask.compareAndSet(currentHeartbeatTask, null)) {
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("ServiceHeartBeat.run adding listener to connect future to reschedule task");
+                    }
                     connectFuture.addListener(new IoFutureListener<ConnectFuture>() {
                         @Override
                         public void operationComplete(ConnectFuture future) {
@@ -456,6 +467,10 @@ public final class ServiceConnectManager {
                         }
                     });
                 }
+                if (logger.isTraceEnabled()) {
+                    logger.trace("ServiceHeartBeat.run finished executing heartbeat");
+                }
+
             }
         }
     }

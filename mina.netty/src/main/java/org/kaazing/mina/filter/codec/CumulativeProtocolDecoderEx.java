@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,8 +147,9 @@ public abstract class CumulativeProtocolDecoderEx extends ProtocolDecoderAdapter
      * @throws IllegalStateException if your <tt>doDecode()</tt> returned
      *                               <tt>true</tt> not consuming the cumulative buffer.
      */
+    @Override
     public void decode(IoSession session, IoBuffer in,
-            ProtocolDecoderOutput out) throws Exception {
+                       ProtocolDecoderOutput out) throws Exception {
 
         IoBufferEx inEx = (IoBufferEx) in;
 

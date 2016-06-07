@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,11 +37,11 @@ import org.slf4j.LoggerFactory;
 
 public class HttpPersistenceFilter extends HttpFilterAdapter<IoSessionEx> {
 
-	private static final String CONNECTION_CLOSE = "close";
-	private static final String HEADER_CONNECTION = "Connection";
-	private static final Pattern PATTERN_CONNECTION_CLOSE = Pattern.compile(".*\\s*[c|C][l|L][o|O][s|S][e|E]\\s*");
+    private static final String CONNECTION_CLOSE = "close";
+    private static final String HEADER_CONNECTION = "Connection";
+    private static final Pattern PATTERN_CONNECTION_CLOSE = Pattern.compile(".*\\s*[c|C][l|L][o|O][s|S][e|E]\\s*");
 
-	private static final AttributeKey CONNECTION_CLOSE_KEY = new AttributeKey(HttpPersistenceFilter.class, "connectionClose");
+    private static final AttributeKey CONNECTION_CLOSE_KEY = new AttributeKey(HttpPersistenceFilter.class, "connectionClose");
     private static final TypedAttributeKey<Integer> SESSION_IDLE_TIMEOUT_KEY =
         new TypedAttributeKey<>(HttpPersistenceFilter.class, "sessionIdleTimeout");
 
@@ -62,30 +62,30 @@ public class HttpPersistenceFilter extends HttpFilterAdapter<IoSessionEx> {
         super.sessionIdle(nextFilter, session, status);
     }
 
-	@Override
-	protected void httpRequestReceived(NextFilter nextFilter,
-			IoSessionEx session, HttpRequestMessage httpRequest) throws Exception {
+    @Override
+    protected void httpRequestReceived(NextFilter nextFilter,
+            IoSessionEx session, HttpRequestMessage httpRequest) throws Exception {
         // GL.debug("http", getClass().getSimpleName()+" request received.");
         if (isClosing(httpRequest)) {
-			session.setAttribute(CONNECTION_CLOSE_KEY);
-		}
+            session.setAttribute(CONNECTION_CLOSE_KEY);
+        }
 
         Integer keepAliveTimeout = httpRequest.getLocalAddress().getOption(HttpResourceAddress.KEEP_ALIVE_TIMEOUT);
         if (keepAliveTimeout != null && keepAliveTimeout > 0) {
             SESSION_IDLE_TIMEOUT_KEY.set(session, keepAliveTimeout);
         }
 
-		if (session.containsAttribute(SESSION_IDLE_TIMEOUT_KEY)) {
+        if (session.containsAttribute(SESSION_IDLE_TIMEOUT_KEY)) {
             deactivateSessionIdleTimeout(session);
         }
 
-		super.httpRequestReceived(nextFilter, session, httpRequest);
-	}
+        super.httpRequestReceived(nextFilter, session, httpRequest);
+    }
 
     @Override
-	protected Object doFilterWriteHttpResponse(NextFilter nextFilter,
-			IoSessionEx session, WriteRequest writeRequest, HttpResponseMessage httpResponse)
-			throws Exception {
+    protected Object doFilterWriteHttpResponse(NextFilter nextFilter,
+            IoSessionEx session, WriteRequest writeRequest, HttpResponseMessage httpResponse)
+            throws Exception {
 
         boolean isClosing = isClosing(httpResponse);
 
@@ -104,17 +104,17 @@ public class HttpPersistenceFilter extends HttpFilterAdapter<IoSessionEx> {
 
         if (httpResponse.isComplete()) {
             if (session.containsAttribute(CONNECTION_CLOSE_KEY)) {
-				writeRequest.getFuture().addListener(new IoFutureListener<WriteFuture>() {
-					@Override
-					public void operationComplete(WriteFuture future) {
-						IoSession session = future.getSession();
+                writeRequest.getFuture().addListener(new IoFutureListener<WriteFuture>() {
+                    @Override
+                    public void operationComplete(WriteFuture future) {
+                        IoSession session = future.getSession();
 
-						// close on flush at server
-						session.close(false);
-					}
+                        // close on flush at server
+                        session.close(false);
+                    }
 
-				});
-			}
+                });
+            }
             else {
                 switch (httpResponse.getStatus()) {
                 case INFO_SWITCHING_PROTOCOLS:
@@ -125,58 +125,61 @@ public class HttpPersistenceFilter extends HttpFilterAdapter<IoSessionEx> {
                     break;
                 }
             }
-		}
+        }
 
-		return super.doFilterWriteHttpResponse(nextFilter, session, writeRequest, httpResponse);
-	}
+        return super.doFilterWriteHttpResponse(nextFilter, session, writeRequest, httpResponse);
+    }
 
-	@Override
-	protected Object doFilterWriteHttpContent(NextFilter nextFilter,
-			IoSessionEx session, WriteRequest writeRequest, HttpContentMessage httpContent) throws Exception {
-		if (httpContent.isComplete()) {
-		    if (session.containsAttribute(CONNECTION_CLOSE_KEY)) {
-				writeRequest.getFuture().addListener(new IoFutureListener<WriteFuture>() {
-					@Override
-					public void operationComplete(WriteFuture future) {
-						IoSession session = future.getSession();
+    @Override
+    protected Object doFilterWriteHttpContent(NextFilter nextFilter,
+            IoSessionEx session, WriteRequest writeRequest, HttpContentMessage httpContent) throws Exception {
+        if (httpContent.isComplete()) {
+            if (session.containsAttribute(CONNECTION_CLOSE_KEY)) {
+                writeRequest.getFuture().addListener(new IoFutureListener<WriteFuture>() {
+                    @Override
+                    public void operationComplete(WriteFuture future) {
+                        IoSession session = future.getSession();
+                        if (logger.isTraceEnabled()) {
+                            logger.trace(String.format("Closing session %s because of Connection: close header in HTTP request", session));
+                        }
 
-						// close on flush at server
-						session.close(false);
-					}
+                        // close on flush at server
+                        session.close(false);
+                    }
 
-				});
-			}
-		    else {
+                });
+            }
+            else {
                 activateSessionIdleTimeout(session);
-		    }
-		}
+            }
+        }
 
-		return super.doFilterWriteHttpContent(nextFilter, session, writeRequest, httpContent);
-	}
+        return super.doFilterWriteHttpContent(nextFilter, session, writeRequest, httpContent);
+    }
 
-	static boolean isClosing(HttpStartMessage httpStart) {
-		switch (httpStart.getVersion()) {
-		case HTTP_1_0:
-			return true;
-		case HTTP_1_1:
-			boolean isClosing = httpStart.isContentLengthImplicit();
+    static boolean isClosing(HttpStartMessage httpStart) {
+        switch (httpStart.getVersion()) {
+        case HTTP_1_0:
+            return true;
+        case HTTP_1_1:
+            boolean isClosing = httpStart.isContentLengthImplicit();
 
-			List<String> connectionValues = httpStart.getHeaderValues(HEADER_CONNECTION, false);
-			if (connectionValues != null) {
-    			for (String connectionValue : connectionValues) {
-    				if (PATTERN_CONNECTION_CLOSE.matcher(connectionValue).matches()) {
-    					isClosing = true;
-    					break;
-    				}
-    			}
-			}
-			return isClosing;
-		default:
-			throw new IllegalArgumentException("Unexpected HTTP version: " + httpStart.getVersion());
-		}
-	}
+            List<String> connectionValues = httpStart.getHeaderValues(HEADER_CONNECTION, false);
+            if (connectionValues != null) {
+                for (String connectionValue : connectionValues) {
+                    if (PATTERN_CONNECTION_CLOSE.matcher(connectionValue).matches()) {
+                        isClosing = true;
+                        break;
+                    }
+                }
+            }
+            return isClosing;
+        default:
+            throw new IllegalArgumentException("Unexpected HTTP version: " + httpStart.getVersion());
+        }
+    }
 
-	private static void activateSessionIdleTimeout(IoSession session) {
+    private static void activateSessionIdleTimeout(IoSession session) {
         Integer keepaliveTimeout = SESSION_IDLE_TIMEOUT_KEY.get(session);
         if (keepaliveTimeout != null) {
             if (logger.isTraceEnabled()) {

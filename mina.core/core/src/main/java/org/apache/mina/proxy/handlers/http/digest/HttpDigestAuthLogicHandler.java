@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpDigestAuthLogicHandler extends AbstractAuthLogicHandler {
 
-    private final static Logger logger = LoggerFactory
+    private static final Logger logger = LoggerFactory
             .getLogger(HttpDigestAuthLogicHandler.class);
 
     /**
@@ -88,13 +88,13 @@ public class HttpDigestAuthLogicHandler extends AbstractAuthLogicHandler {
         
         HttpProxyRequest req = (HttpProxyRequest) request;
         Map<String, List<String>> headers = req.getHeaders() != null ? req
-                .getHeaders() : new HashMap<String, List<String>>();
+                .getHeaders() : new HashMap<>();
 
         if (step > 0) {
             logger.debug("  sending DIGEST challenge response");
 
             // Build a challenge response
-            HashMap<String, String> map = new HashMap<String, String>();
+            HashMap<String, String> map = new HashMap<>();
             map.put("username", req.getProperties().get(
                     HttpProxyConstants.USER_PROPERTY));
             StringUtilities.copyDirective(directives, map, "realm");

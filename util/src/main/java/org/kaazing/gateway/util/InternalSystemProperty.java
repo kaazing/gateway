@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.kaazing.gateway.util;
 
 import static java.lang.Boolean.parseBoolean;
@@ -42,6 +41,11 @@ public enum InternalSystemProperty {
     // Next property is to allow us to safely introduce changes
     // to conform with the WSE specification
     WSE_SPECIFICATION("com.kaazing.gateway.server.transport.wse.SPECIFICATION", "false"),
+
+    // Next property is to allow us to safely introduce changes
+    // to conform with the httpxe specification
+    HTTPXE_SPECIFICATION("com.kaazing.gateway.server.transport.httpxe.SPECIFICATION", "false"),
+
     // We are deliberately changing the default that Netty uses (availableProcessors() * 2):
     TCP_PROCESSOR_COUNT("org.kaazing.gateway.server.transport.tcp.PROCESSOR_COUNT",
                         Integer.toString(getRuntime().availableProcessors())),

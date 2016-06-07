@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -437,6 +437,7 @@ public final class NioSocketAcceptorEx
          * @return <code>true</code> if there is at least one more
          * SockectChannel object to read
          */
+        @Override
         public boolean hasNext() {
             return iterator.hasNext();
         }
@@ -447,6 +448,7 @@ public final class NioSocketAcceptorEx
          *
          * @return The next SocketChannel in the iterator
          */
+        @Override
         public ServerSocketChannel next() {
             SelectionKey key = iterator.next();
 
@@ -460,6 +462,7 @@ public final class NioSocketAcceptorEx
         /**
          * Remove the current SocketChannel from the iterator
          */
+        @Override
         public void remove() {
             iterator.remove();
         }

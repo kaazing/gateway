@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,6 +99,7 @@ public class DefaultIoFutureEx implements IoFutureEx {
     /**
      * @deprecated Replaced with {@link #awaitUninterruptibly()}.
      */
+    @Override
     @Deprecated
     public void join() {
         awaitUninterruptibly();
@@ -107,6 +108,7 @@ public class DefaultIoFutureEx implements IoFutureEx {
     /**
      * @deprecated Replaced with {@link #awaitUninterruptibly(long)}.
      */
+    @Override
     @Deprecated
     public boolean join(long timeoutMillis) {
         return awaitUninterruptibly(timeoutMillis);
@@ -352,7 +354,7 @@ public class DefaultIoFutureEx implements IoFutureEx {
                     firstListener = listener;
                 } else {
                     if (otherListeners == null) {
-                        otherListeners = new ArrayList<IoFutureListener<?>>(1);
+                        otherListeners = new ArrayList<>(1);
                     }
                     otherListeners.add(listener);
                 }

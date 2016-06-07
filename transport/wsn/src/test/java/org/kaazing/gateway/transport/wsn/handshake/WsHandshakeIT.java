@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 package org.kaazing.gateway.transport.wsn.handshake;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
-
-import java.net.URI;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,7 +36,7 @@ public class WsHandshakeIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("ws://localhost:8010/jms"))
+                            .accept("ws://localhost:8010/jms")
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("http://localhost:8000")
@@ -46,8 +44,8 @@ public class WsHandshakeIT {
                         .done()
                         .service()
                             .name("jms")
-                            .accept(URI.create("ws://localhost:8005/jms"))
-                            .accept(URI.create("wss://foo.example.com:443/jms"))
+                            .accept("ws://localhost:8005/jms")
+                            .accept("wss://foo.example.com:443/jms")
                             .type("echo")
                             .acceptOption("ssl.encryption", "disabled")
                             .acceptOption("wss.bind", "8011")
@@ -73,6 +71,16 @@ public class WsHandshakeIT {
     @Specification("websocket.handshake.missing.upgrade")
     @Test
     public void websocketHandshakeMissingUpgrade() throws Exception {
+        robot.finish();
+    }
+
+    // Test for legacy websocket handshake
+    // Deleting httpxdraft, wsxdraft resource address dependencies will fail the test
+    // Instead of sending 101, gateway sends 404 in that case as there is no binding
+    // for ws/draft-7x protocol
+    @Test
+    @Specification("websocket.handshake.legacy")
+    public void shouldNegotiateLegacyKaazingHandshake() throws Exception {
         robot.finish();
     }
 }

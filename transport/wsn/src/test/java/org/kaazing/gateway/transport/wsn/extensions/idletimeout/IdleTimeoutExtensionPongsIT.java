@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import static org.kaazing.test.util.ITUtil.createRuleChain;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URI;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,8 +38,8 @@ public class IdleTimeoutExtensionPongsIT {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                     .service()
-                        .accept(URI.create("wsn://localhost:8001/proxy"))
-                        .connect(URI.create("tcp://localhost:8002"))
+                        .accept("wsn://localhost:8001/proxy")
+                        .connect("tcp://localhost:8002")
                         .type("proxy")
 
                         .crossOrigin()

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import org.kaazing.gateway.util.http.UtilityHttpClient;
 public class ConfigParameterTest {
 
     @SuppressWarnings("serial")
-    private final static Map<String, String> parameters = new HashMap<String, String>() {
+    private static final Map<String, String> parameters = new HashMap<String, String>() {
         {
             put("SomeParameter", "SomeValue");
             put("Some Parameter", "Some Value");
@@ -45,7 +45,7 @@ public class ConfigParameterTest {
         }
     };
 
-    private final static Map<String, String> properties = new HashMap<>();
+    private static final Map<String, String> properties = new HashMap<>();
 
     @BeforeClass
     public static void setProperties() {

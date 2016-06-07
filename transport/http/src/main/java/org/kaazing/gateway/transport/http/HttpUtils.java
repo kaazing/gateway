@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.mina.core.session.IoSession;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.transport.SslUtils;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
@@ -288,11 +289,6 @@ public class HttpUtils {
 	public static void addLastModifiedHeader(HttpSession session, File requestFile) {
 		long lastModified = requestFile.lastModified();
 		session.setWriteHeader("Last-Modified", RFC822_FORMAT_PATTERN.format(lastModified));
-	}
-
-	public static void addExpiresHeader(HttpSession session) {
-		long currentTimeMillis = System.currentTimeMillis();
-		session.setWriteHeader("Expires", RFC822_FORMAT_PATTERN.format(currentTimeMillis));
 	}
 
 	public static String getETagHeaderValue(File requestFile) {
@@ -722,7 +718,7 @@ public class HttpUtils {
         }
 
         if ( to.getHeaders() == null ) {
-            to.setHeaders(new HashMap<String, List<String>>(fromHeaders.size()));
+            to.setHeaders(new HashMap<>(fromHeaders.size()));
         }
 
         // Get mutable headers
@@ -805,7 +801,7 @@ public class HttpUtils {
         }
 
         if ( to.getParameters() == null ) {
-            to.setParameters(new HashMap<String, List<String>>(fromParameters.size()));
+            to.setParameters(new HashMap<>(fromParameters.size()));
         }
 
         // Get mutable parameters
@@ -852,7 +848,7 @@ public class HttpUtils {
         }
     }
 
-    public static URI mergeQueryParameters(URI from,URI into) throws URISyntaxException {
+    public static String mergeQueryParameters(URI from, String into) throws URISyntaxException {
 
         if (into == null) {
             throw new URISyntaxException("<null>", "Cannot merge into a null URI");
@@ -863,7 +859,7 @@ public class HttpUtils {
         }
 
         final String fromQuery = from.getQuery();
-        final String intoQuery = into.getQuery();
+        final String intoQuery = URIUtils.getQuery(into);
         String query;
         if (intoQuery == null) {
             query = from.getQuery();
@@ -877,8 +873,8 @@ public class HttpUtils {
             }
         }
 
-        return new URI(into.getScheme(), into.getAuthority(),
-                into.getPath(), query, into.getFragment());
+        return URIUtils.buildURIAsString(URIUtils.getScheme(into), URIUtils.getAuthority(into),
+                URIUtils.getPath(into), query, URIUtils.getFragment(into));
     }
 
 
@@ -891,6 +887,13 @@ public class HttpUtils {
         return ("tcp".equalsIgnoreCase(scheme) || "ssl".equalsIgnoreCase(scheme));
     }
 
+    public static boolean hasStreamingScheme(String uri) {
+        if (uri == null || URIUtils.getScheme(uri) == null) {
+            return false;
+        }
 
+        final String scheme = URIUtils.getScheme(uri);
+        return ("tcp".equalsIgnoreCase(scheme) || "ssl".equalsIgnoreCase(scheme));
+    }
 
 }

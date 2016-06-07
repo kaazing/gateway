@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,13 @@ package org.kaazing.gateway.transport.wsn.logging;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -33,14 +32,13 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import org.kaazing.k3po.junit.annotation.Specification;
-import org.kaazing.k3po.junit.rules.K3poRule;
-
 import org.kaazing.gateway.server.test.GatewayRule;
-import org.kaazing.test.util.MemoryAppender;
-import org.kaazing.test.util.MethodExecutionTrace;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.test.util.MemoryAppender;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
  * WsnAcceptorUserLoggingIT - verifies that the principal name displayed in the principal class is logged accordingly
@@ -73,7 +71,7 @@ public class WsnAcceptorUserLoggingIT {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                 .service()
-                    .accept(URI.create("ws://localhost:8001/echoAuth"))
+                    .accept("ws://localhost:8001/echoAuth")
                     .type("echo")
                     .realmName(DEMO_REALM)
                         .authorization()
@@ -111,11 +109,12 @@ public class WsnAcceptorUserLoggingIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(k3po).around(timeoutRule).around(checkLogMessageRule).around(gateway);
 
+    @Ignore("https://github.com/kaazing/tickets/issues/550")
     @Specification("asyncBasicLoginModuleSuccess")
     @Test
     public void verifyPrincipalNameLoggedInLayersAboveHttp() throws Exception {
         k3po.finish();
-        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
                 "tcp#.* [^/]*:\\d*] OPENED",
                 "tcp#.* [^/]*:\\d*] WRITE",
                 "tcp#.* [^/]*:\\d*] RECEIVED",
@@ -127,10 +126,10 @@ public class WsnAcceptorUserLoggingIT {
                 "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] RECEIVED",
                 "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] EXCEPTION.*IOException",
                 "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] CLOSED"
-            }));
-        forbiddenPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+        }));
+        forbiddenPatterns = new ArrayList<>(Arrays.asList(new String[]{
                 TEST_PRINCIPAL_PASS
-            }));
+        }));
     }
 
 }

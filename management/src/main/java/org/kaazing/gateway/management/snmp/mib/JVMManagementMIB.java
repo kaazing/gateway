@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -447,7 +447,7 @@ public class JVMManagementMIB implements MOGroup {
         @Override
         public Variable getValue() {
             ClassLoadingMXBean bean = ManagementFactory.getClassLoadingMXBean();
-            long classLoadingLong = 0;
+            long classLoadingLong;
             switch (operation) {
                 case JVM_CLASSES_LOADED_OPER:
                     classLoadingLong = (long) bean.getLoadedClassCount();
@@ -504,10 +504,12 @@ public class JVMManagementMIB implements MOGroup {
             this.bean = ManagementFactory.getClassLoadingMXBean();
         }
 
+        @Override
         boolean isVerbose() {
             return bean.isVerbose();
         }
 
+        @Override
         void setVerbose(boolean verbose) {
             bean.setVerbose(verbose);
         }
@@ -521,10 +523,12 @@ public class JVMManagementMIB implements MOGroup {
             this.bean = ManagementFactory.getMemoryMXBean();
         }
 
+        @Override
         boolean isVerbose() {
             return bean.isVerbose();
         }
 
+        @Override
         void setVerbose(boolean verbose) {
             bean.setVerbose(verbose);
         }
@@ -628,7 +632,7 @@ public class JVMManagementMIB implements MOGroup {
 
         @Override
         public Variable getValue() {
-            String value = "";
+            String value;
 
             switch (operation) {
                 case SUMMARY_DATA_FIELDS_OPER:

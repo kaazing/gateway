@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.kaazing.gateway.resource.address.sse;
 
 import static org.kaazing.gateway.resource.address.ResourceFactories.changeSchemeOnly;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,14 +31,14 @@ public class SseSslResourceAddressFactorySpi extends SseResourceAddressFactorySp
     private static final ResourceFactory TRANSPORT_FACTORY = changeSchemeOnly("https");
 
     @Override
-	public String getSchemeName() {
-		return SCHEME_NAME;
-	}
+    public String getSchemeName() {
+        return SCHEME_NAME;
+    }
 
-	@Override
-	protected int getSchemePort() {
-		return SCHEME_PORT;
-	}
+    @Override
+    protected int getSchemePort() {
+        return SCHEME_PORT;
+    }
 
     @Override
     protected ResourceFactory getTransportFactory() {
@@ -47,7 +46,7 @@ public class SseSslResourceAddressFactorySpi extends SseResourceAddressFactorySp
     }
 
     @Override
-    protected void setAlternateOption(URI location,
+    protected void setAlternateOption(String location,
                                       ResourceOptions options,
                                       Map<String, Object> optionsByName) {
 

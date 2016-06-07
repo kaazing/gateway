@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -514,7 +514,7 @@ public class NioSocketIT {
 
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
         final CountDownLatch idleFired = new CountDownLatch(2);
-        final List<String> fails = new ArrayList<String>();
+        final List<String> fails = new ArrayList<>();
         builder.addLast("idleTimeoutTestFilter", new IoFilterAdapter() {
             private long idleTimeoutSetAt;
 
@@ -639,7 +639,7 @@ public class NioSocketIT {
 
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
         final CountDownLatch setIdleTimeCalled = new CountDownLatch(1);
-        final List<String> fails = new ArrayList<String>();
+        final List<String> fails = new ArrayList<>();
         builder.addLast("idleTimeoutTestFilter", new IoFilterAdapter() {
             private long idleTimeoutSetAt;
             private boolean idleTimeoutSet;

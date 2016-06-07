@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import static org.jmock.Expectations.returnValue;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 import static org.kaazing.mina.core.session.IoSessionEx.IMMEDIATE_EXECUTOR;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
+import java.util.Properties;
 import java.util.concurrent.Executor;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -49,12 +49,12 @@ import org.kaazing.gateway.transport.http.bridge.filter.HttpBuffer;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBufferAllocator;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpCodecFilter;
 import org.kaazing.gateway.transport.test.Expectations;
-import org.kaazing.test.util.Mockery;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.buffer.SimpleBufferAllocator;
 import org.kaazing.mina.core.service.IoServiceEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.core.write.DefaultWriteRequestEx.ShareableWriteRequest;
+import org.kaazing.test.util.Mockery;
 
 public class HttpAcceptProcessorTest {
 
@@ -117,11 +117,11 @@ public class HttpAcceptProcessorTest {
         HttpAcceptProcessor processor = new HttpAcceptProcessor();
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
-        options.setOption(TRANSPORT_URI, URI.create("pipe://test"));
-        ResourceAddress address = addressFactory.newResourceAddress(URI.create("http://localhost:8000/"));
-        ResourceAddress remoteAddress = addressFactory.newResourceAddress(URI.create("http://localhost:42342/"));
+        options.setOption(TRANSPORT_URI, "pipe://test");
+        ResourceAddress address = addressFactory.newResourceAddress("http://localhost:8000/");
+        ResourceAddress remoteAddress = addressFactory.newResourceAddress("http://localhost:42342/");
 
-        DefaultHttpSession httpSession = new DefaultHttpSession(httpService, processor, address, remoteAddress, session, httpAllocator);
+        DefaultHttpSession httpSession = new DefaultHttpSession(httpService, processor, address, remoteAddress, session, httpAllocator, new Properties());
         httpSession.setHandler(handler);
         httpSession.setWriteRequestQueue(writeRequestQueue);
         httpSession.commit();
@@ -182,11 +182,11 @@ public class HttpAcceptProcessorTest {
         HttpAcceptProcessor processor = new HttpAcceptProcessor();
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
-        options.setOption(TRANSPORT_URI, URI.create("pipe://test"));
-        ResourceAddress address = addressFactory.newResourceAddress(URI.create("http://localhost:8000/"));
-        ResourceAddress remoteAddress = addressFactory.newResourceAddress(URI.create("http://localhost:42342/"));
+        options.setOption(TRANSPORT_URI, "pipe://test");
+        ResourceAddress address = addressFactory.newResourceAddress("http://localhost:8000/");
+        ResourceAddress remoteAddress = addressFactory.newResourceAddress("http://localhost:42342/");
 
-        DefaultHttpSession httpSession = new DefaultHttpSession(httpService, processor, address, remoteAddress, session, httpAllocator);
+        DefaultHttpSession httpSession = new DefaultHttpSession(httpService, processor, address, remoteAddress, session, httpAllocator, new Properties());
         httpSession.setHandler(handler);
         httpSession.setWriteRequestQueue(writeRequestQueue);
         httpSession.commit();
@@ -269,10 +269,10 @@ public class HttpAcceptProcessorTest {
         HttpAcceptProcessor processor = new HttpAcceptProcessor();
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
-        options.setOption(TRANSPORT_URI, URI.create("pipe://test"));
-        ResourceAddress address = addressFactory.newResourceAddress(URI.create("http://localhost:8000/"));
-        ResourceAddress remoteAddress = addressFactory.newResourceAddress(URI.create("http://localhost:42342/"));
-        DefaultHttpSession httpSession = new DefaultHttpSession(httpService, processor, address, remoteAddress, session, httpAllocator);
+        options.setOption(TRANSPORT_URI, "pipe://test");
+        ResourceAddress address = addressFactory.newResourceAddress("http://localhost:8000/");
+        ResourceAddress remoteAddress = addressFactory.newResourceAddress("http://localhost:42342/");
+        DefaultHttpSession httpSession = new DefaultHttpSession(httpService, processor, address, remoteAddress, session, httpAllocator, new Properties());
         httpSession.setConnectionClose();
         httpSession.setWriteHeader("Connection", "close");
         httpSession.setHandler(handler);
@@ -344,10 +344,10 @@ public class HttpAcceptProcessorTest {
         HttpAcceptProcessor processor = new HttpAcceptProcessor();
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
-        options.setOption(TRANSPORT_URI, URI.create("pipe://test"));
-        ResourceAddress address = addressFactory.newResourceAddress(URI.create("http://localhost:8000/"));
-        ResourceAddress remoteAddress = addressFactory.newResourceAddress(URI.create("http://localhost:42342/"));
-        DefaultHttpSession httpSession = new DefaultHttpSession(httpService, processor, address, remoteAddress, session, httpAllocator);
+        options.setOption(TRANSPORT_URI, "pipe://test");
+        ResourceAddress address = addressFactory.newResourceAddress("http://localhost:8000/");
+        ResourceAddress remoteAddress = addressFactory.newResourceAddress("http://localhost:42342/");
+        DefaultHttpSession httpSession = new DefaultHttpSession(httpService, processor, address, remoteAddress, session, httpAllocator, new Properties());
         httpSession.setConnectionClose();
         httpSession.setWriteHeader("Connection", "close");
         httpSession.setHandler(handler);
@@ -376,10 +376,10 @@ public class HttpAcceptProcessorTest {
         buf.mark();
         buf.putMessage("KEY", message);
         final Executor executor = new Executor() {
-			@Override
-			public void execute(Runnable command) {
-				command.run();
-			}
+            @Override
+            public void execute(Runnable command) {
+                command.run();
+            }
         };
 
         context.checking(new Expectations() {
@@ -425,11 +425,11 @@ public class HttpAcceptProcessorTest {
         HttpAcceptProcessor processor = new HttpAcceptProcessor();
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
-        options.setOption(TRANSPORT_URI, URI.create("pipe://test"));
-        ResourceAddress address = addressFactory.newResourceAddress(URI.create("http://localhost:8000/"));
-        ResourceAddress remoteAddress = addressFactory.newResourceAddress(URI.create("http://localhost:42342/"));
+        options.setOption(TRANSPORT_URI, "pipe://test");
+        ResourceAddress address = addressFactory.newResourceAddress("http://localhost:8000/");
+        ResourceAddress remoteAddress = addressFactory.newResourceAddress("http://localhost:42342/");
 
-        DefaultHttpSession httpSession = new DefaultHttpSession(httpService, processor, address, remoteAddress, session, httpAllocator);
+        DefaultHttpSession httpSession = new DefaultHttpSession(httpService, processor, address, remoteAddress, session, httpAllocator, new Properties());
         httpSession.setHandler(handler);
         httpSession.setWriteRequestQueue(writeRequestQueue);
         httpSession.commit();
@@ -456,10 +456,10 @@ public class HttpAcceptProcessorTest {
         buf.mark();
         buf.putMessage("KEY", message);
         final Executor executor = new Executor() {
-			@Override
-			public void execute(Runnable command) {
-				command.run();
-			}
+            @Override
+            public void execute(Runnable command) {
+                command.run();
+            }
         };
 
         context.checking(new Expectations() {
@@ -501,11 +501,11 @@ public class HttpAcceptProcessorTest {
         HttpAcceptProcessor processor = new HttpAcceptProcessor();
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
-        options.setOption(TRANSPORT_URI, URI.create("pipe://test"));
-        ResourceAddress address = addressFactory.newResourceAddress(URI.create("http://localhost:8000/"));
-        ResourceAddress remoteAddress = addressFactory.newResourceAddress(URI.create("http://localhost:42342/"));
+        options.setOption(TRANSPORT_URI, "pipe://test");
+        ResourceAddress address = addressFactory.newResourceAddress("http://localhost:8000/");
+        ResourceAddress remoteAddress = addressFactory.newResourceAddress("http://localhost:42342/");
 
-        DefaultHttpSession httpSession = new DefaultHttpSession(httpService, processor, address, remoteAddress, session, httpAllocator);
+        DefaultHttpSession httpSession = new DefaultHttpSession(httpService, processor, address, remoteAddress, session, httpAllocator, new Properties());
         httpSession.setHandler(handler);
         httpSession.setWriteRequestQueue(writeRequestQueue);
         httpSession.commit();

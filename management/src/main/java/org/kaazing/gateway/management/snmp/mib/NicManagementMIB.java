@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -306,7 +306,7 @@ public class NicManagementMIB implements MOGroup, CounterListener, AgentCapabili
                 return new Null();
             }
 
-            long counterValue = 0;
+            long counterValue;
             if (scalarValue instanceof Double) {
                 counterValue = (long) ((Double) scalarValue * 1000);
             } else if (scalarValue instanceof Float) {
@@ -336,7 +336,7 @@ public class NicManagementMIB implements MOGroup, CounterListener, AgentCapabili
 
         @Override
         public Variable getValue() {
-            String value = "";
+            String value;
 
             switch (operation) {
                 case NET_INTERFACE_NAMES_OPER:

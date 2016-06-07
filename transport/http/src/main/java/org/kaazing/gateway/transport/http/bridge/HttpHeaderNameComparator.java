@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ public class HttpHeaderNameComparator implements Comparator<String> {
 
     public static final HttpHeaderNameComparator INSTANCE = new HttpHeaderNameComparator();
 
+    @Override
     public int compare(String o1, String o2) {
         // Note: this is reverse ordering to deal with
         // explicit ordering of WebSocket handshake headers

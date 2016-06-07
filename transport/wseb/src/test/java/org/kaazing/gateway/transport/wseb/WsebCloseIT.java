@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +59,7 @@ public class WsebCloseIT {
             stop = true;
         }
 
+        @Override
         public void run() {
             while(!stop) {
                 try {
@@ -94,10 +95,12 @@ public class WsebCloseIT {
         new Thread(barrier, "barrier").start();
 
         acceptorRule.bind("wse://localhost:8000/echo", new IoHandlerAdapter<WsebSession>() {
+            @Override
             protected void doExceptionCaught(WsebSession session, Throwable cause) throws Exception {
                 cause.printStackTrace();
             }
 
+            @Override
             protected void doMessageReceived(WsebSession session, Object message) throws Exception {
                 Backend backend = new Backend(session);
                 new Thread(backend, "Backend").start();
@@ -122,14 +125,17 @@ public class WsebCloseIT {
                 }
             }
 
+            @Override
             protected void doSessionClosed(WsebSession session) throws Exception {
                 System.out.println("WsebCloseIT#doSessionClosed");
             }
 
+            @Override
             protected void doSessionCreated(WsebSession session) throws Exception {
                 System.out.println("WsebCloseIT#doSessionCreated");
             }
 
+            @Override
             protected void doSessionOpened(WsebSession session) throws Exception {
                 System.out.println("WsebCloseIT#doSessionOpened");
             }

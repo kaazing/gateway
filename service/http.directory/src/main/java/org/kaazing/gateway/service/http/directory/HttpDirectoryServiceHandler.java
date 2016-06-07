@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,22 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.kaazing.gateway.service.ServiceContext;
+import org.kaazing.gateway.service.http.directory.cachecontrol.CacheControlHandler;
+import org.kaazing.gateway.service.http.directory.cachecontrol.PatternCacheControl;
+import org.kaazing.gateway.service.http.directory.cachecontrol.PatternMatcherUtils;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpMethod;
+import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.util.file.FileUtils;
@@ -42,6 +51,15 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
     private String welcomeFile;
     private File errorPagesDir;
     private boolean indexes;
+
+    private List<PatternCacheControl> patterns;
+    private Map<String, CacheControlHandler> urlCacheControlMap = new ConcurrentHashMap<>();
+
+    private static final DateFormat RFC822_FORMAT_PATTERN =
+            new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);
+    static {
+        RFC822_FORMAT_PATTERN.setTimeZone(TimeZone.getTimeZone("GMT"));
+    }
 
     HttpDirectoryServiceHandler() {
     }
@@ -82,14 +100,22 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
         this.indexes = indexes;
     }
 
+    void setPatterns(List<PatternCacheControl> patterns) {
+        this.patterns = patterns;
+    }
+
+    void emptyUrlCacheControlMap() {
+        urlCacheControlMap.clear();
+    }
+
     @Override
     public void doSessionCreated(HttpAcceptSession session) throws Exception {
-    	// NOOP no license check needed
+        // NOOP no license check needed
     }
 
     @Override
     public void doSessionClosed(HttpAcceptSession session) throws Exception {
-    	// NOOP no license check needed
+        // NOOP no license check needed
     }
 
     @Override
@@ -135,7 +161,7 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
         boolean underBaseDir = false;
         File baseDirCannonical = baseDir.getCanonicalFile();
         for (File candidate = requestFile.getCanonicalFile(); candidate != null; candidate = candidate.getParentFile()) {
-            if ( candidate.equals(baseDirCannonical) ) {
+            if (candidate.equals(baseDirCannonical)) {
                 underBaseDir = true;
                 break;
             }
@@ -187,8 +213,10 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
             return;
         }
 
-        
-        // check to see if the file has been modified sense last request
+        String requestPath = requestFile.getPath().replaceAll("\\\\", "/");
+        addCacheControl(session, requestFile, requestPath);
+
+        // check to see if the file has been modified since the last request
         String etag = HttpUtils.getETagHeaderValue(requestFile);
         boolean modified = HttpUtils.hasBeenModified(session, etag, requestFile);
         if (!modified) {
@@ -201,7 +229,7 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
         // add cached content file headers.
         HttpUtils.addLastModifiedHeader(session, requestFile);
-        HttpUtils.addExpiresHeader(session);
+
         session.setWriteHeader("ETag", etag);
 
         // add the content type, based on file extension.
@@ -235,7 +263,7 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
         sb.append("]");
         return sb.toString();
     }
-    
+
     private void reportError(HttpAcceptSession session, HttpStatus status) throws IOException {
         session.setStatus(status);
         if (errorPagesDir != null && errorPagesDir.exists()) {
@@ -249,6 +277,38 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
             }
         }
 
+    }
+
+    /**
+     * Matches the file URL with the most specific pattern and caches this information in a map
+     * Sets cache-control and expires headers
+     * @param session
+     * @param requestFile
+     * @param requestPath
+     */
+    private void addCacheControl(HttpAcceptSession session, File requestFile, String requestPath) {
+        CacheControlHandler cacheControlHandler = urlCacheControlMap.computeIfAbsent(requestPath, 
+                path -> patterns.stream()
+                     .filter(patternCacheControl -> PatternMatcherUtils.caseInsensitiveMatch(requestPath, patternCacheControl.getPattern()))
+                     .findFirst()
+                     .map(patternCacheControl -> new CacheControlHandler(requestFile, patternCacheControl))
+                     .orElse(null)
+        );
+
+        if (cacheControlHandler != null) {
+            addCacheControlHeader(session, requestFile, cacheControlHandler);
+        }
+    }
+
+    private static final void addCacheControlHeader(HttpSession session, File requestFile,
+        CacheControlHandler cacheControlHandler) {
+        cacheControlHandler.resetState();
+        session.setWriteHeader("Cache-Control", cacheControlHandler.getCacheControlHeader());
+        addExpiresHeader(session, cacheControlHandler.getExpiresHeader());
+    }
+
+    private static void addExpiresHeader(HttpSession session, long time) {
+        session.setWriteHeader("Expires", RFC822_FORMAT_PATTERN.format(time));
     }
 
     static class DirectoryListingUtils {

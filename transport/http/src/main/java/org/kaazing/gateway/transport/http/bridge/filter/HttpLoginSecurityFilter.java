@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static java.util.Arrays.asList;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_FORWARDED;
+import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
 
 import java.net.InetAddress;
 import java.net.URI;
@@ -110,7 +111,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
             return new AppConfigurationEntry[] {
                     new AppConfigurationEntry(YesLoginModule.class.getName(), AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
-                            new HashMap<String, Object>())};
+                            new HashMap<>())};
         }
     }
 
@@ -149,7 +150,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                                       AuthenticationToken authToken,
                                       TypedCallbackHandlerMap additionalCallbacks) {
 
-        DefaultLoginResult loginResult = null;
+        DefaultLoginResult loginResult;
 
         // We build a LoginContext here and call login() so that login
         // modules have a chance to any challenge parameters to the initial
@@ -457,56 +458,69 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         callbackHandlerMap.put(AuthenticationTokenCallback.class, authenticationTokenCallbackHandler);
 
         String forwarded = httpRequest.getHeader(HEADER_FORWARDED);
-        Matcher matcher = PATTERN_HEADER_FORWARDED.matcher(forwarded.toLowerCase());
-        if (!matcher.matches()) {
-            throw new IllegalStateException(format("Invalid format: '%s'", forwarded));
-        }
-
-        // RFC 7239(http://tools.ietf.org/html/rfc7239) allows 'Forwarded' header to include IPv4 and IPv6
-        // addresses along with port number like this:
-        //    Forwarded: for=192.0.2.43:47011
-        //    Forwarded: for="[2001:db8:cafe::17]:47011"
-        //
-        // Get the IP address without the port number and the quotes(for IPv6).
-        String ipAddress = matcher.group(1);
-        if (ipAddress.charAt(0) == '"') {
-            int length = ipAddress.length();
-            assert length > 2;
-
-            if (ipAddress.charAt(length -1) != '"') {
+        if (forwarded != null) {
+            Matcher matcher = PATTERN_HEADER_FORWARDED.matcher(forwarded.toLowerCase());
+            if (!matcher.matches()) {
                 throw new IllegalStateException(format("Invalid format: '%s'", forwarded));
             }
 
-            // Quoted string represents an IPv6 address. Remove the quotes to create an InetAddress.
-            ipAddress = ipAddress.substring(1, length - 2);
-        }
+            // RFC 7239(http://tools.ietf.org/html/rfc7239) allows 'Forwarded' header to include IPv4 and IPv6
+            // addresses along with port number like this:
+            // Forwarded: for=192.0.2.43:47011
+            // Forwarded: for="[2001:db8:cafe::17]:47011"
+            //
+            // Get the IP address without the port number and the quotes(for IPv6).
+            String ipAddress = matcher.group(1);
+            if (ipAddress.charAt(0) == '"') {
+                int length = ipAddress.length();
+                assert length > 2;
 
-        // RFC 7239(http://tools.ietf.org/html/rfc7239) allows 'Forwarded' header to include an 'unknown'
-        // value like this:
-        //     Forwarded: for=unknown
-        //
-        // In for=unknown, Gateway does not register the InetAddressCallback. If a LoginModule uses
-        // InetAddressCallback to retrieve the remote InetAddress, then it will detect it's absence and
-        // throw an exception that will result in a 403 response.
-        if (!ipAddress.equals(HEADER_FORWARDED_UNKNOWN_VALUE)) {
-            URI uri = URI.create(format(FORWARDED_URI, ipAddress));
-            String remoteIpAddress = uri.getHost();
-            InetAddress remoteAddr = null;
-
-            try {
-                remoteAddr = InetAddress.getByName(remoteIpAddress);
-            }
-            catch (UnknownHostException e) {
-                if (logger.isTraceEnabled()) {
-                    logger.trace(e.getMessage());
+                if (ipAddress.charAt(length - 1) != '"') {
+                    throw new IllegalStateException(format("Invalid format: '%s'", forwarded));
                 }
 
-                throw new IllegalStateException(e);
+                // Quoted string represents an IPv6 address. Remove the quotes to create an InetAddress.
+                ipAddress = ipAddress.substring(1, length - 2);
             }
 
-            InetAddressCallbackHandler inetAddressCallbackHandler = new InetAddressCallbackHandler(remoteAddr);
-            callbackHandlerMap.put(InetAddressCallback.class, inetAddressCallbackHandler);
+            // RFC 7239(http://tools.ietf.org/html/rfc7239) allows 'Forwarded' header to include an 'unknown'
+            // value like this:
+            // Forwarded: for=unknown
+            //
+            // In for=unknown, Gateway does not register the InetAddressCallback. If a LoginModule uses
+            // InetAddressCallback to retrieve the remote InetAddress, then it will detect it's absence and
+            // throw an exception that will result in a 403 response.
+            if (!ipAddress.equals(HEADER_FORWARDED_UNKNOWN_VALUE)) {
+                URI uri = URI.create(format(FORWARDED_URI, ipAddress));
+                populateRemoteAddress(callbackHandlerMap, uri);
+            }
+        } else {
+            ResourceAddress resourceAddress = REMOTE_ADDRESS.get(session);
+            ResourceAddress tcpResourceAddress = resourceAddress.findTransport("tcp");
+            if (tcpResourceAddress != null) {
+                URI resource = tcpResourceAddress.getResource();
+                populateRemoteAddress(callbackHandlerMap, resource);
+            }
         }
+    }
+
+    private void populateRemoteAddress(TypedCallbackHandlerMap callbackHandlerMap, URI resource) {
+        String remoteIpAddress = resource.getHost();
+        InetAddress remoteAddr;
+
+        try {
+            remoteAddr = InetAddress.getByName(remoteIpAddress);
+        }
+        catch (UnknownHostException e) {
+            if (logger.isTraceEnabled()) {
+                logger.trace(e.getMessage());
+            }
+
+            throw new IllegalStateException(e);
+        }
+
+        InetAddressCallbackHandler inetAddressCallbackHandler = new InetAddressCallbackHandler(remoteAddr);
+        callbackHandlerMap.put(InetAddressCallback.class, inetAddressCallbackHandler);
     }
 
     protected void writeSessionCookie(IoSession session, HttpRequestMessage httpRequest, DefaultLoginResult loginResult) {

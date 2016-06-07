@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 package org.kaazing.gateway.server;
 
-import java.net.URI;
 import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.ServiceContext;
@@ -39,15 +39,14 @@ public class Launcher {
 
     private GatewayContext context;
 
-    private GatewayObserver gatewayListener;
+    private final GatewayObserver gatewayListener;
 
-    public Launcher() {
-
+    public Launcher(GatewayObserver gatewayListener) {
+        this.gatewayListener = gatewayListener;
     }
 
     public void init(GatewayContext context) throws Exception {
-        gatewayListener = GatewayObserver.newInstance(context.getInjectables());
-        gatewayListener.startingGateway();
+        gatewayListener.startingGateway(context);
         try {
             initInternal(context);
         } catch (Exception e) {
@@ -82,13 +81,13 @@ public class Launcher {
             serviceContext.start();
             gatewayListener.startedService(serviceContext);
             AcceptOptionsContext ctx = serviceContext.getAcceptOptionsContext();
-            Collection<URI> serviceAccepts = serviceContext.getAccepts();
-            for (URI serviceAccept : serviceAccepts) {
-                URI mappedURI = ctx.getInternalURI(serviceAccept);
+            Collection<String> serviceAccepts = serviceContext.getAccepts();
+            for (String serviceAccept : serviceAccepts) {
+                String mappedURI = ctx.getInternalURI(serviceAccept);
                 if ((mappedURI == null) || mappedURI.equals(serviceAccept)) {
-                    mappedURIs.add(serviceAccept.toString());
+                    mappedURIs.add(serviceAccept);
                 } else {
-                    mappedURIs.add(serviceAccept + " @ " + mappedURI.getAuthority());
+                    mappedURIs.add(serviceAccept + " @ " + URIUtils.getAuthority(mappedURI));
                 }
             }
         }
@@ -117,7 +116,7 @@ public class Launcher {
     public void destroy() throws Exception {
         long stopAt = System.currentTimeMillis();
 
-        Set<URI> boundURIs = new TreeSet<>();
+        Set<String> boundURIs = new TreeSet<>();
         for (ServiceContext serviceContext : context.getServices()) {
             boundURIs.addAll(serviceContext.getAccepts());
             try {
@@ -134,7 +133,7 @@ public class Launcher {
             }
         }
 
-        gatewayListener.stoppedGateway();
+        gatewayListener.stoppedGateway(context);
 
         context.dispose();
 
@@ -143,7 +142,7 @@ public class Launcher {
         LOGGER.info("Stopping server");
         if (!boundURIs.isEmpty()) {
             LOGGER.info("Stopping services");
-            for (URI boundURI : boundURIs) {
+            for (String boundURI : boundURIs) {
                 LOGGER.info("  " + boundURI);
             }
             LOGGER.info("Stopped services");

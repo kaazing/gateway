@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import java.nio.ByteBuffer;
 public final class Utf8Util {
     public static final int INVALID_UTF8 = -1;
 
-    private static final String MSG_INVALID_CODEPOINT = "Invalid UTF-16 codepoint %d";
+    private static final String MSG_INVALID_CODEPOINT = "Invalid UTF-16 codepoint %c";
 
     private Utf8Util() {
     }

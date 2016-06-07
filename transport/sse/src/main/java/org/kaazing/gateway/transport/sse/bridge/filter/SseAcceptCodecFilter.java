@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,8 @@ public class SseAcceptCodecFilter extends ProtocolCodecFilter {
 
 	private static class SseAcceptCodecFactory implements ProtocolCodecFactory {
 	    
-	    public ProtocolEncoder getEncoder(IoSession session) {
+	    @Override
+		public ProtocolEncoder getEncoder(IoSession session) {
             IoSessionEx sessionEx = (IoSessionEx) session;
             IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
             
@@ -45,9 +46,11 @@ public class SseAcceptCodecFilter extends ProtocolCodecFilter {
 	        return new SseEncoder(allocator);
 	    }
 	    
-	    public ProtocolDecoder getDecoder(IoSession session) {
+	    @Override
+		public ProtocolDecoder getDecoder(IoSession session) {
 	        return new ProtocolDecoderAdapter() {
-                public void decode(IoSession session, IoBuffer in, ProtocolDecoderOutput out) {
+                @Override
+				public void decode(IoSession session, IoBuffer in, ProtocolDecoderOutput out) {
                     in.skip(in.remaining());
                 }
             };

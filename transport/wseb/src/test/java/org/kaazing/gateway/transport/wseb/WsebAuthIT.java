@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.kaazing.gateway.transport.wseb;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
 import java.security.Principal;
 import java.util.Map;
 
@@ -44,7 +43,7 @@ public class WsebAuthIT {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                 .service()
-                    .accept(URI.create("wse://localhost:8001/basic"))
+                    .accept("wse://localhost:8001/basic")
                     .type("echo")
                     .realmName("basic")
                     .crossOrigin()

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,18 @@
  */
 package org.kaazing.gateway.service;
 
-import java.net.URI;
 
 public class ServiceRegistration {
 
-    private final URI serviceURI;
+    private final String serviceURI;
     private final ServiceContext serviceContext;
 
-    public ServiceRegistration(URI serviceURI, ServiceContext serviceContext) {
+    public ServiceRegistration(String serviceURI, ServiceContext serviceContext) {
         this.serviceURI = serviceURI;
         this.serviceContext = serviceContext;
     }
 
-    public URI getURI() {
+    public String getURI() {
         return serviceURI;
     }
 

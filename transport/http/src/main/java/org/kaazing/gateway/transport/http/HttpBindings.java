@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 package org.kaazing.gateway.transport.http;
 
-import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
-
 import java.net.URI;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -28,6 +26,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.kaazing.gateway.resource.address.Comparators;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.transport.Bindings;
 import org.kaazing.gateway.transport.http.HttpBindings.HttpBinding;
 
@@ -117,10 +116,10 @@ public class HttpBindings extends Bindings<HttpBinding> {
             Entry<ResourceAddress, HttpBinding> e = i.next();
             ResourceAddress key = e.getKey();
             HttpBinding value = e.getValue();
-            URI location = key.getExternalURI();
+            String location = key.getExternalURI();
             String nextProtocol = key.getOption(ResourceAddress.NEXT_PROTOCOL);
             String nextProtocolStr = nextProtocol == null ? "" : " " + nextProtocol;
-            sb.append("  ").append('[').append(location.resolve("/")).append(nextProtocolStr).append(']');
+            sb.append("  ").append('[').append(URIUtils.resolve(location, "/")).append(nextProtocolStr).append(']');
             sb.append('=');
             sb.append(value);
             if (! i.hasNext()) {

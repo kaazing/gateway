@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import static org.kaazing.gateway.transport.wsn.WsnSession.SESSION_KEY;
 
 import java.io.IOException;
 import java.net.ConnectException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -47,6 +46,7 @@ import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.AbstractBridgeConnector;
 import org.kaazing.gateway.transport.BridgeConnector;
@@ -147,21 +147,20 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
     public void addBridgeFilters(IoFilterChain filterChain) {
         IoSession session = filterChain.getSession();
         Encoding encoding = (Encoding) session.getAttribute(ENCODING_KEY);
-
-        switch (encoding) {
-        case BASE64:
-            // add framing before encoding
-            filterChain.addLast(CODEC_FILTER, codec);
-            filterChain.addLast(BASE64_FILTER, base64);
-            break;
-        case TEXT:
-            // add framing before encoding
-            filterChain.addLast(CODEC_FILTER, codec);
-            filterChain.addLast(TEXT_FILTER, text);
-            break;
-        default:
-            filterChain.addLast(CODEC_FILTER, codec);
-            break;
+        filterChain.addLast(CODEC_FILTER, codec);
+        if (encoding != null) {
+            switch (encoding) {
+                case BASE64:
+                    // add framing before encoding
+                    filterChain.addLast(BASE64_FILTER, base64);
+                    break;
+                case TEXT:
+                    // add framing before encoding
+                    filterChain.addLast(TEXT_FILTER, text);
+                    break;
+                default:
+                    break;
+            }
         }
 
         // We speak a new enough version of the WebSocket protocol that
@@ -326,10 +325,10 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 // emulation sends same-origin header
                 // TODO: determine appropriate HTML5 Origin header for desktop
                 // clients
-                URI resource = wsnConnectAddress.getExternalURI();
-                Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(resource.getScheme());
+                String resource = wsnConnectAddress.getExternalURI();
+                Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(URIUtils.getScheme(resource));
                 String wsScheme = protocol.isSecure() ? "https" : "http";
-                String origin = wsScheme + "://" + resource.getAuthority();
+                String origin = wsScheme + "://" + URIUtils.getAuthority(resource);
 
                 // note: WebSocket Version 13 upgrades to "websocket" (not "WebSocket")
                 // see http://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-13
@@ -434,7 +433,9 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
             }
 
             WsnSession wsnSession = SESSION_KEY.get(session);
-            wsnSession.setCloseException(cause);
+            if (wsnSession != null) {
+                wsnSession.setCloseException(cause);
+            }
 
             session.close(true);
 
@@ -526,6 +527,17 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
         }
 
         private void doUpgrade(final HttpConnectSession httpSession) {
+            String upgradeHeader = httpSession.getReadHeader("Upgrade");
+            if (upgradeHeader == null) {
+                logger.info("WebSocket connection failed: No Upgrade: websocket response header");
+                wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: No Upgrade header"));
+                return;
+            } else if (!upgradeHeader.equalsIgnoreCase("websocket")) {
+                logger.info(format("WebSocket connection failed: Invalid Upgrade: %s response header", upgradeHeader));
+                wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: Invalid Upgrade header"));
+                return;
+            }
+
             String wsAcceptHeader = httpSession.getReadHeader("Sec-WebSocket-Accept");
             if (wsAcceptHeader == null) {
                 logger.info("WebSocket connection failed: missing Sec-WebSocket-Accept response header, does not comply with RFC 6455 - use connect options or another protocol");
@@ -579,8 +591,6 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                         parent.setAttribute(ENCODING_KEY, Encoding.BINARY);
                     } else if ("base64".equals(frameType)) {
                         parent.setAttribute(ENCODING_KEY, Encoding.BASE64);
-                    } else {
-                        parent.setAttribute(ENCODING_KEY, Encoding.TEXT);
                     }
 
                     WSN_SESSION_FACTORY_KEY.set(parent, createSession);

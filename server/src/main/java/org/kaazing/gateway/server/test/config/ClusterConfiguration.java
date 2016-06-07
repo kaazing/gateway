@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.server.test.config;
 
-import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,10 +22,10 @@ public class ClusterConfiguration implements Configuration<SuppressibleClusterCo
 
     private final SuppressibleClusterConfiguration _configuration;
 
-    private final Set<Suppressible<URI>> accepts;
-    private final Set<URI> unsurpressibleAccepts;
-    private final Set<Suppressible<URI>> connects;
-    private final Set<URI> unsurpressibleConnects;
+    private final Set<Suppressible<String>> accepts;
+    private final Set<String> unsurpressibleAccepts;
+    private final Set<Suppressible<String>> connects;
+    private final Set<String> unsurpressibleConnects;
 
     private Suppressible<String> _name;
     private Suppressible<String> _awsAccessKeyId;
@@ -53,20 +52,20 @@ public class ClusterConfiguration implements Configuration<SuppressibleClusterCo
     }
 
     // accepts
-    public void addAccept(URI acceptURI) {
+    public void addAccept(String acceptURI) {
         unsurpressibleAccepts.add(acceptURI);
     }
 
-    public Set<URI> getAccepts() {
+    public Set<String> getAccepts() {
         return unsurpressibleAccepts;
     }
 
     // connect
-    public void addConnect(URI connectURI) {
+    public void addConnect(String connectURI) {
         unsurpressibleAccepts.add(connectURI);
     }
 
-    public Set<URI> getConnects() {
+    public Set<String> getConnects() {
         return unsurpressibleConnects;
     }
 
@@ -155,23 +154,23 @@ public class ClusterConfiguration implements Configuration<SuppressibleClusterCo
 
         // Connects
         @Override
-        public Set<Suppressible<URI>> getConnects() {
+        public Set<Suppressible<String>> getConnects() {
             return connects;
         }
 
         @Override
-        public void addConnect(Suppressible<URI> connect) {
+        public void addConnect(Suppressible<String> connect) {
             connects.add(connect);
         }
 
         // Accepts
         @Override
-        public Set<Suppressible<URI>> getAccepts() {
+        public Set<Suppressible<String>> getAccepts() {
             return accepts;
         }
 
         @Override
-        public void addAccept(Suppressible<URI> accept) {
+        public void addAccept(Suppressible<String> accept) {
             accepts.add(accept);
         }
     }

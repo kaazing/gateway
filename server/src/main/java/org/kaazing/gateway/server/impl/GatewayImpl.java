@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,10 +34,11 @@ import org.apache.log4j.helpers.FileWatchdog;
 import org.apache.log4j.helpers.OptionConverter;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.kaazing.gateway.server.Gateway;
+import org.kaazing.gateway.server.GatewayObserver;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.api.GatewayAlreadyRunningException;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
-import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.context.resolve.GatewayContextResolver;
 import org.kaazing.gateway.server.util.version.DuplicateJarFinder;
@@ -233,7 +234,7 @@ final class GatewayImpl implements Gateway {
         //    (of course, the user may have modified that file and just be using the same name.)
         //  * If that doesn't exist, we'll look for the default "minimal" gateway config.
         //  * If none of those exists (and is a readable file), that's an error.
-        File gatewayConfigFile = null;
+        File gatewayConfigFile;
         String gatewayConfigProperty = configuration.getProperty(GATEWAY_CONFIG_PROPERTY);
 
         // If config property is a url then we download it and reset the property
@@ -296,12 +297,14 @@ final class GatewayImpl implements Gateway {
 
         LOGGER.info("Configuration file: " + gatewayConfigFile.getCanonicalPath());
 
+        GatewayObserver gatewayObserver = GatewayObserver.newInstance();
         GatewayConfigParser parser = new GatewayConfigParser(configuration);
         GatewayConfigDocument config = parser.parse(gatewayConfigFile);
         GatewayContextResolver resolver = new GatewayContextResolver(configDir, webRootDir, tempDir, jmxMBeanServer);
+        gatewayObserver.initingGateway(configuration, resolver.getInjectables());
         GatewayContext context = resolver.resolve(config, configuration);
 
-        gateway = new Launcher();
+        gateway = new Launcher(gatewayObserver);
 
         try {
             gateway.init(context);

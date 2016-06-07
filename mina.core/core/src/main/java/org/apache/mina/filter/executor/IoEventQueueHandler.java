@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ public interface IoEventQueueHandler extends EventListener {
     /**
      * A dummy handler which always accepts event doing nothing particular.
      */
-    static IoEventQueueHandler NOOP = new IoEventQueueHandler() {
+    IoEventQueueHandler NOOP = new IoEventQueueHandler() {
         public boolean accept(Object source, IoEvent event) {
             return true;
         }

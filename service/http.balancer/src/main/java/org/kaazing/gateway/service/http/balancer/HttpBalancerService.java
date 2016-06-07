@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,12 @@
  */
 package org.kaazing.gateway.service.http.balancer;
 
-import java.net.URI;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.buildURIAsString;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getAuthority;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getPath;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getQuery;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -101,12 +106,12 @@ public class HttpBalancerService implements Service {
                 @Override
                 public void initializeSession(IoSession session, ConnectFuture future) {
                     HttpAcceptSession httpSession = (HttpAcceptSession) session;
-                    List<URI> availableBalanceeURIs = wsebHandler.getBalanceeURIs(httpSession.isSecure());
-                    List<URI> selectedBalanceeURIs = null;
+                    List<String> availableBalanceeURIs = wsebHandler.getBalanceeURIs(httpSession.isSecure());
+                    List<String> selectedBalanceeURIs;
                     if (availableBalanceeURIs.isEmpty()) {
                         selectedBalanceeURIs = Collections.emptyList();
                     } else {
-                        URI selectedBalanceeURI = availableBalanceeURIs.get((int) (Math.random() * availableBalanceeURIs.size()));
+                        String selectedBalanceeURI = availableBalanceeURIs.get((int) (Math.random() * availableBalanceeURIs.size()));
                         selectedBalanceeURIs = new ArrayList<>(1);
                         selectedBalanceeURIs.add(selectedBalanceeURI);
                         GL.debug(GL.CLUSTER_LOGGER_NAME, "HttpBalancerService initializeSession Selected Balancee URI: {}", selectedBalanceeURI);
@@ -122,7 +127,7 @@ public class HttpBalancerService implements Service {
                 WsnSession wsnSession = (WsnSession) session;
                 if (wsnSession.isBalanceSupported()) {
                     IoSession parent = wsnSession.getParent();
-                    List<URI> selectedBalanceeURIs = (List<URI>) parent.getAttribute(BALANCEES_KEY);
+                    List<String> selectedBalanceeURIs = (List<String>) parent.getAttribute(BALANCEES_KEY);
                     wsnSession.setBalanceeURIs(selectedBalanceeURIs);
                 }
             }
@@ -169,26 +174,27 @@ public class HttpBalancerService implements Service {
      * @return the converted URIs
      * @throws Exception
      */
-    private static Collection<URI> toWsBalancerURIs(Collection<URI> uris,
+    private static Collection<String> toWsBalancerURIs(Collection<String> uris,
                                                     AcceptOptionsContext acceptOptionsCtx,
                                                     TransportFactory transportFactory) throws Exception {
-        List<URI> httpURIs = new ArrayList<>(uris.size());
-        for (URI uri : uris) {
-            Protocol protocol = transportFactory.getProtocol(uri);
+        List<String> httpURIs = new ArrayList<>(uris.size());
+        for (String uri : uris) {
+            String schemeFromAcceptURI = uri.substring(0, uri.indexOf(':'));
+            Protocol protocol = transportFactory.getProtocol(schemeFromAcceptURI);
             if( WsProtocol.WS.equals(protocol) || WsProtocol.WSS.equals(protocol)) {
                 for (String scheme: Arrays.asList("wsn", "wsx")) {
                     boolean secure = protocol.isSecure();
                     String wsBalancerUriScheme = secure ? scheme+"+ssl" : scheme;
-                    String httpAuthority = uri.getAuthority();
-                    String httpPath = uri.getPath();
-                    String httpQuery = uri.getQuery();
-                    httpURIs.add(new URI(wsBalancerUriScheme, httpAuthority, httpPath, httpQuery, null));
+                    String httpAuthority = getAuthority(uri);
+                    String httpPath = getPath(uri);
+                    String httpQuery = getQuery(uri);
+                    httpURIs.add(buildURIAsString(wsBalancerUriScheme, httpAuthority, httpPath, httpQuery, null));
 
                     // ensure that the accept-options is updated with bindings if they exist for ws and/or wss
                     // so that the Gateway binds to the correct host:port as per the service configuration.
-                    URI internalURI = acceptOptionsCtx.getInternalURI(uri);
+                    String internalURI = acceptOptionsCtx.getInternalURI(uri);
                     if ((internalURI != null) && !internalURI.equals(uri)) {
-                        String authority = internalURI.getAuthority();
+                        String authority = getAuthority(internalURI);
                         acceptOptionsCtx.addBind(wsBalancerUriScheme, authority);
                     }
                 }
@@ -207,33 +213,34 @@ public class HttpBalancerService implements Service {
      * @return the converted URIs
      * @throws Exception
      */
-    private static Collection<URI> toHttpBalancerURIs(Collection<URI> uris,
+    private static Collection<String> toHttpBalancerURIs(Collection<String> uris,
                                                       AcceptOptionsContext acceptOptionsCtx,
                                                       TransportFactory transportFactory) throws Exception {
-        List<URI> httpURIs = new ArrayList<>(uris.size());
-        for (URI uri : uris) {
-            Protocol protocol = transportFactory.getProtocol(uri);
+        List<String> httpURIs = new ArrayList<>(uris.size());
+        for (String uri : uris) {
+            Protocol protocol = transportFactory.getProtocol(getScheme(uri));
             boolean secure = protocol.isSecure();
 
             for ( int i = 0; i < HTTP_TRANSPORTS.size(); i+=2) {
                 String httpScheme = secure ? HTTP_TRANSPORTS.get(i) : HTTP_TRANSPORTS.get(i+1); // "httpxe+ssl" : "httpxe";
-                String httpAuthority = uri.getAuthority();
-                String httpPath = uri.getPath();
-                String httpQuery = uri.getQuery();
+                String httpAuthority = getAuthority(uri);
+                String httpPath = getPath(uri);
+                String httpQuery = getQuery(uri);
                 if (WsProtocol.WS.equals(protocol) || WsProtocol.WSS.equals(protocol)) {
-                    httpURIs.add(new URI(httpScheme, httpAuthority, URLUtils.replaceMultipleSlashesWithSingleSlash(httpPath + WsebAcceptor.EMULATED_SUFFIX), httpQuery, null));
+                    httpURIs.add(buildURIAsString(httpScheme, httpAuthority,
+                    URLUtils.replaceMultipleSlashesWithSingleSlash(httpPath + WsebAcceptor.EMULATED_SUFFIX), httpQuery, null));
 
                     // ensure that the accept-options is updated with bindings if they exist for ws and/or wss
                     // so that the Gateway binds to the correct host:port as per the service configuration.
-                    URI internalURI = acceptOptionsCtx.getInternalURI(uri);
+                    String internalURI = acceptOptionsCtx.getInternalURI(uri);
                     if ((internalURI != null) && !internalURI.equals(uri)) {
-                        String authority = internalURI.getAuthority();
+                        String authority = getAuthority(internalURI);
                         acceptOptionsCtx.addBind(httpScheme, authority);
                     }
                 }
                 else if (SseProtocol.SSE.equals(protocol) || SseProtocol.SSE_SSL.equals(protocol) ||
                          HttpProtocol.HTTP.equals(protocol) || HttpProtocol.HTTPS.equals(protocol)) {
-                    httpURIs.add(new URI(httpScheme, httpAuthority, httpPath, httpQuery, null));
+                    httpURIs.add(buildURIAsString(httpScheme, httpAuthority, httpPath, httpQuery, null));
                 }
                 else {
                     // we do not balance anything other than http, ws and sse

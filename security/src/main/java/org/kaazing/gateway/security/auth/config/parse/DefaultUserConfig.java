@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,10 +35,12 @@ public class DefaultUserConfig implements UserConfig {
         this.name = name;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public Collection<String> getRoleNames() {
         return roleNames;
     }
@@ -47,6 +49,7 @@ public class DefaultUserConfig implements UserConfig {
         this.password = password;
     }
 
+    @Override
     public String getPassword() {
         return password;
     }

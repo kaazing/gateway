@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -181,7 +181,7 @@ public class TransportFactory {
      * transport. This can be used to inject resources into other objects which require acceptors or connectors to be injected.
      */
     public Map<String, Object> injectResources(Map<String, Object> resources) {
-        Map<String, Object> allResources = new HashMap<String, Object>(resources);
+        Map<String, Object> allResources = new HashMap<>(resources);
         for (Entry<String, Transport> entry : transportsByName.entrySet()) {
             allResources.put(entry.getKey() + ".acceptor", entry.getValue().getAcceptor());
             allResources.put(entry.getKey() + ".connector", entry.getValue().getConnector());

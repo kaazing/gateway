@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ abstract class AbstractNioSelector implements NioSelector {
      */
     protected final AtomicBoolean wakenUp = new AtomicBoolean();
 
-    private final Queue<Runnable> taskQueue = new ConcurrentLinkedQueue<Runnable>();
+    private final Queue<Runnable> taskQueue = new ConcurrentLinkedQueue<>();
 
     private volatile int cancelledKeys; // should use AtomicInteger but we just need approximation
 
@@ -350,7 +350,7 @@ abstract class AbstractNioSelector implements NioSelector {
             } catch (Throwable t) {
                 logger.warn(
                         "Unexpected exception in the selector loop.", t);
-                PERF_LOGGER.warn(format("Unexpected exception in selector loop", t));
+                PERF_LOGGER.warn(format("Unexpected exception %s in selector loop", t));
                 t.printStackTrace();
                 // Prevent possible consecutive immediate failures that lead to
                 // excessive CPU consumption.

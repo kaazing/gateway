@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.kaazing.gateway.util.Utils;
 public class WsCloseMessage extends WsMessage {
     public static final WsCloseMessage NORMAL_CLOSE = new WsCloseMessage(1000, null);
     public static final WsCloseMessage PROTOCOL_ERROR = new WsCloseMessage(1002, null);
+    public static final WsCloseMessage MESSAGE_TOO_LONG_ERROR = new WsCloseMessage(1009, null);
     public static final WsCloseMessage UNEXPECTED_CONDITION = new WsCloseMessage(1011, null);
 
     private final int status;

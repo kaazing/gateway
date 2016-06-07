@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.service.proxy;
 
-import java.net.URI;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -37,7 +36,7 @@ class ConnectionPool {
     
     private final ServiceContext serviceContext;
     private final AbstractProxyHandler connectHandler;
-    private final URI connectURI;
+    private final String connectURI;
     private final HeartbeatFilter heartbeatFilter;
     private final IoFutureListener<ConnectFuture> connectListener;
     private final int preparedConnectionCount;
@@ -51,7 +50,7 @@ class ConnectionPool {
     /**
      * hearbeatFilter the only parameter that can be null
      */
-    ConnectionPool(ServiceContext serviceContext, AbstractProxyHandler connectHandler, URI connectURI, HeartbeatFilter heartbeatFilter,
+    ConnectionPool(ServiceContext serviceContext, AbstractProxyHandler connectHandler, String connectURI, HeartbeatFilter heartbeatFilter,
             IoFutureListener<ConnectFuture> connectListener, int preparedConnectionCount, boolean isThreadAligned) {
         this.serviceContext = serviceContext;
         this.connectHandler = connectHandler;
@@ -234,15 +233,18 @@ class ConnectionPool {
             connectFutures = new ConcurrentSkipListMap<>();
         }
 
+        @Override
         ConnectFuture pollFirstEntry() {
             Entry<Long, ConnectFuture> entry = connectFutures.pollFirstEntry();
             return entry == null ? null : entry.getValue();
         }
 
+        @Override
         ConnectFuture remove(Object key) {
             return connectFutures.remove(key);
         }
 
+        @Override
         Object add(ConnectFuture future) {
             Long key = nextFutureId.getAndIncrement();
             connectFutures.put(key,  future);

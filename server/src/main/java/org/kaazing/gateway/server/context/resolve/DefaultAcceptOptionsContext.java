@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,12 @@
 package org.kaazing.gateway.server.context.resolve;
 
 import static java.lang.String.format;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.buildURIAsString;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getAuthority;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getFragment;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getPath;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getQuery;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
 import static org.kaazing.gateway.service.TransportOptionNames.HTTP_SERVER_HEADER_ENABLED;
 import static org.kaazing.gateway.service.TransportOptionNames.PIPE_TRANSPORT;
 import static org.kaazing.gateway.service.TransportOptionNames.SSL_CIPHERS;
@@ -28,7 +34,6 @@ import static org.kaazing.gateway.service.TransportOptionNames.SUPPORTED_PROTOCO
 import static org.kaazing.gateway.service.TransportOptionNames.TCP_MAXIMUM_OUTBOUND_RATE;
 import static org.kaazing.gateway.service.TransportOptionNames.TCP_TRANSPORT;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +44,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-import org.kaazing.gateway.server.config.sep2014.ServiceAcceptOptionsType;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
+import org.kaazing.gateway.server.config.nov2015.ServiceAcceptOptionsType;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.ssl.SslCipherSuites;
@@ -51,10 +57,10 @@ import org.w3c.dom.NodeList;
 public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     private static final Logger logger = LoggerFactory.getLogger(DefaultAcceptOptionsContext.class);
 
-    private static int DEFAULT_WEBSOCKET_MAXIMUM_MESSAGE_SIZE = 128 * 1024; //128KB
-    private static int DEFAULT_HTTP_KEEPALIVE_TIMEOUT = 30; //seconds
+    private static final int DEFAULT_WEBSOCKET_MAXIMUM_MESSAGE_SIZE = 128 * 1024; //128KB
+    private static final int DEFAULT_HTTP_KEEPALIVE_TIMEOUT = 30; //seconds
     private static final long UNLIMITED_MAX_OUTPUT_RATE = 0xFFFFFFFFL;
-    private static long DEFAULT_TCP_MAXIMUM_OUTBOUND_RATE = UNLIMITED_MAX_OUTPUT_RATE; //unlimited
+    private static final long DEFAULT_TCP_MAXIMUM_OUTBOUND_RATE = UNLIMITED_MAX_OUTPUT_RATE; //unlimited
 
     /**
      * The name of the extended handshake protocol to be sent on the wire.
@@ -132,14 +138,14 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     }
 
     @Override
-    public URI getInternalURI(URI externalURI) {
-        String authority = externalURI.getAuthority();
-        String internalAuthority = binds.get(externalURI.getScheme());
+    public String getInternalURI(String externalURI) {
+        String authority = getAuthority(externalURI);
+        String internalAuthority = binds.get(getScheme(externalURI));
         if (internalAuthority != null) {
             if (!internalAuthority.equals(authority)) {
                 try {
-                    return new URI(externalURI.getScheme(), internalAuthority, externalURI.getPath(),
-                            externalURI.getQuery(), externalURI.getFragment());
+                    return buildURIAsString(getScheme(externalURI), internalAuthority,
+                           getPath(externalURI), getQuery(externalURI), getFragment(externalURI));
                 } catch (URISyntaxException e) {
                     // ignore
                 }
@@ -169,6 +175,7 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         }
     }
 
+    @Override
     public Map<String, Object> asOptionsMap() {
         Map<String, Object> result = new LinkedHashMap<>();
 
@@ -205,6 +212,7 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         result.put(TCP_TRANSPORT, getTransportURI("tcp.transport"));
         result.put(SSL_TRANSPORT, getTransportURI("ssl.transport"));
         result.put("http[http/1.1].transport", getTransportURI("http.transport"));
+        result.put("http.transport", null);
 
         result.put(TCP_MAXIMUM_OUTBOUND_RATE, getTcpMaximumOutboundRate());
 
@@ -237,8 +245,11 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
                 // Special check for *.transport which should be validated as a URI
                 if (key.endsWith(".transport")) {
                     try {
-                        URI transportURI = URI.create(entry.getValue());
-                        result.put(key, transportURI);
+                        // Exception will be thrown in an invalid *.transport format provided
+                        // (including Network Interface syntax)
+                        URIUtils.getHost(entry.getValue());
+                        // if successful, put value in map
+                        result.put(key, entry.getValue());
                     } catch (IllegalArgumentException ex) {
                         if (logger.isInfoEnabled()) {
                             logger.info(String.format("Skipping option %s, expected valid URI but recieved: %s",
@@ -255,30 +266,31 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     }
 
     private String resolveInternalBindOptionName(String externalBindOptionName) {
-        if (externalBindOptionName.equals("tcp")) {
-            return "tcp.bind";
-        } else if (externalBindOptionName.equals("ssl")) {
-            return "ssl.tcp.bind";
-        } else if (externalBindOptionName.equals("http")) {
-            return "http.tcp.bind";
-        } else if (externalBindOptionName.equals("https")) {
-            return "http.ssl.tcp.bind";
-        } else if (externalBindOptionName.equals("ws")) {
-            return "ws.http.tcp.bind";
-        } else if (externalBindOptionName.equals("wss")) {
-            return "ws.http.ssl.tcp.bind";
-        } else if (externalBindOptionName.equals("wsn")) {
-            return "wsn.http.tcp.bind";
-        } else if (externalBindOptionName.equals("wsn+ssl")) {
-            return "wsn.http.ssl.tcp.bind";
-        } else if (externalBindOptionName.equals("wsx")) {
-            return "wsn.http.wsn.http.tcp.bind";
-        } else if (externalBindOptionName.equals("wsx+ssl")) {
-            return "wsn.http.wsn.http.ssl.tcp.bind";
-        } else if (externalBindOptionName.equals("httpxe")) {
-            return "http.http.tcp.bind";
-        } else if (externalBindOptionName.equals("httpxe+ssl")) {
-            return "http.http.ssl.tcp.bind";
+        switch (externalBindOptionName) {
+            case "tcp":
+                return "tcp.bind";
+            case "ssl":
+                return "ssl.tcp.bind";
+            case "http":
+                return "http.tcp.bind";
+            case "https":
+                return "http.ssl.tcp.bind";
+            case "ws":
+                return "ws.http.tcp.bind";
+            case "wss":
+                return "ws.http.ssl.tcp.bind";
+            case "wsn":
+                return "wsn.http.tcp.bind";
+            case "wsn+ssl":
+                return "wsn.http.ssl.tcp.bind";
+            case "wsx":
+                return "wsn.http.wsn.http.tcp.bind";
+            case "wsx+ssl":
+                return "wsn.http.wsn.http.ssl.tcp.bind";
+            case "httpxe":
+                return "http.http.tcp.bind";
+            case "httpxe+ssl":
+                return "http.http.ssl.tcp.bind";
         }
         return null;
     }
@@ -306,12 +318,12 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         return wsInactivityTimeout;
     }
 
-    private URI getTransportURI(String transportKey) {
-        URI transportURI = null;
+    private String getTransportURI(String transportKey) {
+        String transportURI = null;
         String transport = options.get(transportKey);
         if (transport != null) {
-            transportURI = URI.create(transport);
-            if (!transportURI.isAbsolute()) {
+            transportURI = transport;
+            if (!URIUtils.isAbsolute(transportURI)) {
                 throw new IllegalArgumentException(format(
                         "%s must contain an absolute URI, not \"%s\"", transportKey, transport));
             }
@@ -321,7 +333,7 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     }
 
     private List<String> getWsExtensions(long wsInactivityTimeout) {
-        List<String> wsExtensions = null;
+        List<String> wsExtensions;
         if (wsInactivityTimeout > 0) {
             ArrayList<String> extensions = new ArrayList<>(DEFAULT_WEBSOCKET_EXTENSIONS);
             extensions.add(IDLE_TIMEOUT);
@@ -417,13 +429,13 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     private void parseAcceptOptionsType(ServiceAcceptOptionsType acceptOptionsType,
                                         ServiceAcceptOptionsType defaultOptionsType) {
         if (acceptOptionsType != null) {
-            Map<String, String> acceptOptionsMap = new HashMap<String, String>();
+            Map<String, String> acceptOptionsMap = new HashMap<>();
             parseOptions(acceptOptionsType.getDomNode(), acceptOptionsMap);
             setOptions(acceptOptionsMap);
         }
 
         if (defaultOptionsType != null) {
-            Map<String, String> defaultAcceptOptionsMap = new HashMap<String, String>();
+            Map<String, String> defaultAcceptOptionsMap = new HashMap<>();
             parseOptions(defaultOptionsType.getDomNode(), defaultAcceptOptionsMap);
             setDefaultOptions(defaultAcceptOptionsMap);
         }

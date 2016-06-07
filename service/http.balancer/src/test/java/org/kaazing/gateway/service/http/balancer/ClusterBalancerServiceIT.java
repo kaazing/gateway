@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@ package org.kaazing.gateway.service.http.balancer;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -26,60 +24,73 @@ import org.kaazing.gateway.server.test.GatewayClusterRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.test.util.ITUtil;
+import org.kaazing.test.util.ResolutionTestUtils;
 
 public class ClusterBalancerServiceIT {
+    private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
 
     private GatewayClusterRule rule = new GatewayClusterRule() {
         {
-            URI balancerURI1 = URI.create("ws://gateway.example.com:8001");
-            URI clusterMember1URI =URI.create("tcp://localhost:8555");
-            URI clusterMember2URI =URI.create("tcp://localhost:8556");
+
+            String clusterMember1URI = "tcp://localhost:8555";
+            String clusterMember2URI = "tcp://localhost:8556";
+            String clusterMemberNetworkInterface1URI = "tcp://[@" + networkInterface + "]:855";
+            String clusterMemberNetworkInterfaceTcp2URI = "tcp://[@" + networkInterface + "]:8558";
+            String clusterMemberNetworkInterfaceUdp2URI = "udp://[@" + networkInterface + "]:8559";
             
-            GatewayConfiguration config1 = new GatewayConfigurationBuilder()
-                    .cluster()
-                        .accept(clusterMember1URI)
-                        .connect(clusterMember2URI)
-                        .name("clusterName")
-                    .done()
-                    .service()
-                        .type("balancer")
-                        .accept(balancerURI1)
-                        .acceptOption("ws.bind", "7001")
-                    .done()
-                    .service()
-                        .type("echo")
-                        .accept(URI.create("tcp://localhost:8000"))
-                        .balance(balancerURI1)
-                    .done()
-                .done();
-            GatewayConfiguration config2= new GatewayConfigurationBuilder()
-                    .cluster()
-                    .name("clusterName")
-                    .accept(clusterMember2URI)
-                    .connect(clusterMember1URI)
-                .done()
-                .service()
-                    .type("balancer")
-                    .accept(balancerURI1)
-                    .acceptOption("ws.bind", "7000")
-                .done()
-                .service()
-                    .type("echo")
-                    .accept(URI.create("tcp://localhost:8001"))
-                    .balance(balancerURI1)
-                .done()
-            .done();
-            init(config1, config2);
+            GatewayConfiguration config1 = createGatewayConfigBuilder(
+                    clusterMember1URI, clusterMember2URI, "7001", "8000");
+            GatewayConfiguration config2 = createGatewayConfigBuilder(
+                    clusterMember2URI, clusterMember1URI, "7000", "8001");
+            // network interface validation
+            GatewayConfiguration config3 = createGatewayConfigBuilder(
+                    clusterMemberNetworkInterface1URI + "1",
+                    clusterMemberNetworkInterfaceTcp2URI, "7011", "8011");
+            GatewayConfiguration config4 = createGatewayConfigBuilder(
+                    clusterMemberNetworkInterface1URI + "2",
+                    clusterMemberNetworkInterfaceUdp2URI, "7111", "8111");
+            init(config1, config2, config3, config4);
         }
+
     };
-    
+
     @Rule
-    public RuleChain chain = ITUtil.createRuleChain(rule, 15, SECONDS);
+    public RuleChain chain = ITUtil.createRuleChain(rule, 30, SECONDS);
 
     @Test
     public void testLaunchBalancerService() throws Exception {
         //only throwing exception when trace data needed
         // this test should always pass
        // throw new Exception("Excpetion");
+    }
+
+    /**
+     * Helper method constructing a GatewayConfigurationBuilder
+     * @param clusterMember1URI
+     * @param clusterMember2URI
+     * @param servicePort
+     * @param wsbindPort
+     * @return
+     */
+    private GatewayConfiguration createGatewayConfigBuilder(String clusterMember1URI,
+        String clusterMember2URI, String wsbindPort, String servicePort) {
+        String balancerURI1 = "ws://gateway.example.com:8001";
+        return new GatewayConfigurationBuilder()
+                .cluster()
+                    .accept(clusterMember1URI)
+                    .connect(clusterMember2URI)
+                    .name("clusterName")
+                .done()
+                .service()
+                    .type("balancer")
+                    .accept(balancerURI1)
+                    .acceptOption("ws.bind", wsbindPort)
+                .done()
+                .service()
+                    .type("echo")
+                    .accept("tcp://localhost:" + servicePort)
+                    .balance(balancerURI1)
+                .done()
+            .done();
     }
 }

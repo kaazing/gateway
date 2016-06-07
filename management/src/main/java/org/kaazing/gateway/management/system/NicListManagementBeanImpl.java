@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ public class NicListManagementBeanImpl extends AbstractSystemManagementBean impl
         JSONArray nicData = new JSONArray();
 
         for (int i = 0; i < netInterfaceNames.length; i++) {
-            String nicName = null;
+            String nicName;
 
             nicName = netInterfaceNames[i];
 

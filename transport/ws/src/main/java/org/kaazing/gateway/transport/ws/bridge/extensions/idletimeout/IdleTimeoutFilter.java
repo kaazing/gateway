@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,6 @@ class IdleTimeoutFilter extends IoFilterAdapter<IoSessionEx>  {
     private static final Logger LOGGER = LoggerFactory.getLogger(IdleTimeoutFilter.class);
 
     private final long pongDelayMillis; // how long to wait before sending pong
-
-    private long pongSentTime = 0;
 
     private final IoFutureListener<WriteFuture> setPongTimeOnWrite = new IoFutureListener<WriteFuture>() {
         @Override
@@ -87,7 +85,7 @@ class IdleTimeoutFilter extends IoFilterAdapter<IoSessionEx>  {
     }
 
     void pongWritten(long currentTimeMillis) {
-        pongSentTime = currentTimeMillis;
+        long pongSentTime = currentTimeMillis;
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("IdleTimeoutFilter.pongWritten at time " + pongSentTime);
         }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.net.ServerSocket;
-import java.net.URI;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -41,8 +40,6 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.TransportFactory;
-import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
-import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class NioSocketConnectorTest {
@@ -93,13 +90,14 @@ public class NioSocketConnectorTest {
 
         try {
             for (int i=0; i<NB_WORKERS; i++) {
-                ResourceAddress bindAddress = addressFactory.newResourceAddress(new URI("tcp://localhost:" + port));
+                ResourceAddress bindAddress = addressFactory.newResourceAddress("tcp://localhost:" + port);
                 connector.connect(bindAddress, handler, new IoSessionInitializer<ConnectFuture>() {
 
                     @Override
                     public void initializeSession(IoSession session, ConnectFuture future) {
                         session.getFilterChain().addFirst("test", new IoFilterAdapter(){
 
+                            @Override
                             public void sessionOpened(NextFilter nextFilter, IoSession session) throws Exception {
                                     try {
                                         //System.out.println("sessionOpened executing in thread " + Thread.currentThread());

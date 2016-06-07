@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -297,7 +297,7 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
                         // to prevent possible deadlock.
                         // See #1310
                         if (causes == null) {
-                            causes = new ArrayList<Throwable>(1);
+                            causes = new ArrayList<>(1);
                         }
                         causes.add(t);
                     } else {

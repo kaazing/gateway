@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ public abstract class AbstractPollingIoConnector<T extends AbstractIoSession, H>
      *            type.
      */
     protected AbstractPollingIoConnector(IoSessionConfig sessionConfig, Class<? extends IoProcessor<T>> processorClass) {
-        this(sessionConfig, null, new SimpleIoProcessorPool<T>(processorClass), true);
+        this(sessionConfig, null, new SimpleIoProcessorPool<>(processorClass), true);
     }
 
     /**
@@ -106,7 +106,7 @@ public abstract class AbstractPollingIoConnector<T extends AbstractIoSession, H>
      * @param processorCount the amount of processor to instantiate for the pool
      */
     protected AbstractPollingIoConnector(IoSessionConfig sessionConfig, Class<? extends IoProcessor<T>> processorClass, int processorCount) {
-        this(sessionConfig, null, new SimpleIoProcessorPool<T>(processorClass, processorCount), true);
+        this(sessionConfig, null, new SimpleIoProcessorPool<>(processorClass, processorCount), true);
     }
 
     /**

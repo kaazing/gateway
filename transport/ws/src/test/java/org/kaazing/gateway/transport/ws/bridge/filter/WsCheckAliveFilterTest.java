@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -150,7 +150,7 @@ public class WsCheckAliveFilterTest {
         final IoFilterChain filterChain = context.mock(IoFilterChain.class);
         final IoSessionEx session = context.mock(IoSessionEx.class);
         final IoSessionConfigEx sessionConfig = context.mock(IoSessionConfigEx.class);
-        final AtomicReference<WsCheckAliveFilter> filterHolder = new AtomicReference<WsCheckAliveFilter>();
+        final AtomicReference<WsCheckAliveFilter> filterHolder = new AtomicReference<>();
 
         context.checking(new Expectations() {
             {

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
-import java.net.URI;
 import java.security.KeyStore;
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,7 +49,6 @@ public class WsebBindingsTest {
     private SchedulerProvider schedulerProvider;
 
     private ResourceAddressFactory addressFactory;
-    private BridgeServiceFactory serviceFactory;
 
     private NioSocketConnector tcpConnector;
     private HttpConnector httpConnector;
@@ -59,7 +57,6 @@ public class WsebBindingsTest {
     private SslAcceptor sslAcceptor;
     private HttpAcceptor httpAcceptor;
     private WsebAcceptor wsebAcceptor;
-    private WsAcceptor wsAcceptor;
 
     private KeyStore keyStore;
     private String keyStoreFile;
@@ -160,7 +157,7 @@ public class WsebBindingsTest {
 
         addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.EMPTY_MAP);
-        serviceFactory = new BridgeServiceFactory(transportFactory);
+        BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
 
         tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
         tcpAcceptor.setResourceAddressFactory(addressFactory);
@@ -189,7 +186,7 @@ public class WsebBindingsTest {
         wsebAcceptor.setResourceAddressFactory(addressFactory);
         wsebAcceptor.setSchedulerProvider(schedulerProvider);
 
-        wsAcceptor = (WsAcceptor)transportFactory.getTransport("ws").getAcceptor();
+        WsAcceptor wsAcceptor = (WsAcceptor) transportFactory.getTransport("ws").getAcceptor();
         wsAcceptor.setWsebAcceptor(wsebAcceptor);
     }
 
@@ -220,7 +217,7 @@ public class WsebBindingsTest {
         final String connectURIString = "ws://localhost:8000/echo";
         final ResourceAddress bindAddress =
                 addressFactory.newResourceAddress(
-                        URI.create(connectURIString),
+                        connectURIString,
                         acceptOptions);
 
         final IoHandler ioHandler = new IoHandlerAdapter();
@@ -250,7 +247,7 @@ public class WsebBindingsTest {
         final String connectURIString = "wss://localhost:8000/echo";
         final ResourceAddress bindAddress =
                 addressFactory.newResourceAddress(
-                        URI.create(connectURIString),
+                        connectURIString,
                         acceptOptions);
 
         final IoHandler ioHandler = new IoHandlerAdapter();

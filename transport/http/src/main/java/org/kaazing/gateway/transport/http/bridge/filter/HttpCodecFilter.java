@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ public class HttpCodecFilter extends HttpProtocolCodecFilter {
     
     private static class HttpClientCodecFactory implements ProtocolCodecFactory {
         
+        @Override
         public ProtocolEncoder getEncoder(IoSession session) {
             IoSessionEx sessionEx = (IoSessionEx) session;
             IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
@@ -44,6 +45,7 @@ public class HttpCodecFilter extends HttpProtocolCodecFilter {
             return new HttpRequestEncoder(allocator);
         }
         
+        @Override
         public ProtocolDecoder getDecoder(IoSession session) {
             return new HttpResponseDecoder();
         }
@@ -51,6 +53,7 @@ public class HttpCodecFilter extends HttpProtocolCodecFilter {
     
     private static class HttpServerCodecFactory implements ProtocolCodecFactory {
         
+        @Override
         public ProtocolEncoder getEncoder(IoSession session) {
             IoSessionEx sessionEx = (IoSessionEx) session;
             IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
@@ -63,6 +66,7 @@ public class HttpCodecFilter extends HttpProtocolCodecFilter {
             return new HttpResponseEncoder(allocator);
         }
         
+        @Override
         public ProtocolDecoder getDecoder(IoSession session) {
             return new HttpRequestDecoder();
         }

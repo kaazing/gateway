@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,8 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
-import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
-import org.kaazing.gateway.server.config.sep2014.ServiceConnectOptionsType;
+import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.nov2015.ServiceConnectOptionsType;
 import org.kaazing.gateway.service.ConnectOptionsContext;
 import org.kaazing.gateway.service.TransportOptionNames;
 
@@ -44,20 +44,10 @@ import org.kaazing.gateway.service.TransportOptionNames;
  */
 public class ConnectOptionsTest {
     private static GatewayConfigParser parser;
-    private static GatewayContextResolver resolver;
 
     @BeforeClass
     public static void init() {
         parser = new GatewayConfigParser();
-
-        try {
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            File keyStoreFile = new File(classLoader.getResource("keystore.db").toURI());
-
-            resolver = new GatewayContextResolver(new File(keyStoreFile.getParent()), null, null);
-        } catch (Exception ex) {
-            Assert.fail("Failed to load keystore.db, unable to init test due to exception: " + ex);
-        }
     }
 
     @Test @Ignore
@@ -80,14 +70,10 @@ public class ConnectOptionsTest {
         expectValidateFailure("tcp.transport", null);
     }
 
-    @Test @Ignore
+    @Test
     public void testHttpTransportOption() throws Exception {
-        expectSuccess("http.transport", "tcp://127.0.0.1:80", "http[http/1.1].transport", URI.create("tcp://127.0.0.1:80"));
-
-        expectValidateFailure("tcp.transport", "//not.absolute");
-        expectValidateFailure("tcp.transport", "-1");
-        expectValidateFailure("tcp.transport", "");
-        expectValidateFailure("tcp.transport", null);
+        expectSuccess("http.transport", "tcp://127.0.0.1:80", "http[http/1.1].transport", "tcp://127.0.0.1:80");
+        expectSuccess("http.transport", "tcp://127.0.0.1:80", "http.transport", null);
     }
 
     @Test @Ignore
@@ -129,12 +115,12 @@ public class ConnectOptionsTest {
 
     void expectParseFailure(String optionName,
                             String optionValue) throws Exception {
-        runTestCase(optionName, optionValue, TestResult.PARSE_FAILURE, null, null, null);
+        runTestCase(optionName, optionValue, TestResult.PARSE_FAILURE, null, null);
     }
 
     void expectValidateFailure(String optionName,
                                String optionValue) throws Exception {
-        runTestCase(optionName, optionValue, TestResult.VALIDATE_FAILURE, null, null, null);
+        runTestCase(optionName, optionValue, TestResult.VALIDATE_FAILURE, null, null);
     }
 
     void runTestCase(String optionName,
@@ -145,13 +131,13 @@ public class ConnectOptionsTest {
                      Object... extras) throws Exception {
 
 
-        File configFile = null;
+        File configFile;
         configFile =
                 createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-connect-options" +
                                 "-template.xml",
                         optionName, optionValue);
 
-        GatewayConfigDocument doc = null;
+        GatewayConfigDocument doc;
         try {
             doc = parser.parse(configFile);
         } catch (Exception e) {
@@ -164,7 +150,7 @@ public class ConnectOptionsTest {
         }
         Assert.assertNotNull(doc);
         ServiceConnectOptionsType connectOptionsType = doc.getGatewayConfig().getServiceArray(0).getConnectOptions();
-        ConnectOptionsContext connectOptionsContext = null;
+        ConnectOptionsContext connectOptionsContext;
         try {
             connectOptionsContext = new DefaultConnectOptionsContext(connectOptionsType, ServiceConnectOptionsType.Factory.newInstance());
         } catch (Exception e) {
@@ -199,7 +185,7 @@ public class ConnectOptionsTest {
 
     }
 
-    private File createTempFileFromResource(String resourceName, String... values) throws IOException {
+    private File createTempFileFromResource(String resourceName, Object... values) throws IOException {
         File file = File.createTempFile("gateway-config", "xml");
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         InputStream is = classLoader.getResource(resourceName).openStream();

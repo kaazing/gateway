@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,9 @@ import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.uriToString;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,7 +77,7 @@ public class ResourceAddressFactory {
             String schemeName = e.getKey();
             Map<String, ResourceAddressFactorySpi<?>> alternates = e.getValue();
             alternates = (alternates == null)
-                    ? Collections.<String, ResourceAddressFactorySpi<?>>emptyMap()
+                    ? Collections.emptyMap()
                     : Collections.unmodifiableMap(alternates);
             alternateAddressFactories.put(schemeName, alternates);
         }
@@ -107,13 +108,13 @@ public class ResourceAddressFactory {
         this.alternateAddressFactories = alternateAddressFactories;
     }
 
-    public ResourceAddress newResourceAddress(URI location) {
+    public ResourceAddress newResourceAddress(String location) {
         Map<String, Object> EMPTY_OPTIONS = Collections.emptyMap();
         return newResourceAddress(location, EMPTY_OPTIONS);
     }
 
     // convenience method only, consider removing from API
-    public ResourceAddress newResourceAddress(URI location, String nextProtocol) {
+    public ResourceAddress newResourceAddress(String location, String nextProtocol) {
         if (nextProtocol != null) {
             ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
             options.setOption(NEXT_PROTOCOL, nextProtocol);
@@ -130,7 +131,7 @@ public class ResourceAddressFactory {
      * @param options cannot be null, otherwise NullPointerException is thrown
      * @return resource address
      */
-    public ResourceAddress newResourceAddress(URI location, ResourceOptions options) {
+    public ResourceAddress newResourceAddress(String location, ResourceOptions options) {
         return newResourceAddress(location, options, null /* qualifier */);
     }
 
@@ -140,24 +141,24 @@ public class ResourceAddressFactory {
      * @param options cannot be null, otherwise NullPointerException is thrown
      * @return resource address
      */
-    public ResourceAddress newResourceAddress(URI location,
+    public ResourceAddress newResourceAddress(String location,
                                               ResourceOptions options,
                                               Object qualifier) {
         Objects.requireNonNull(options, "options cannot be null");
-        ResourceAddressFactorySpi<?> resourceAddressFactory = findResourceAddressFactory(location.getScheme());
+        ResourceAddressFactorySpi<?> resourceAddressFactory = findResourceAddressFactory(getScheme(location));
         return resourceAddressFactory.newResourceAddress(location, options, qualifier);
     }
 
 
-    public ResourceAddress newResourceAddress(URI location, Map<String, Object> options) {
-        ResourceAddressFactorySpi<?> resourceAddressFactory = findResourceAddressFactory(location.getScheme());
+    public ResourceAddress newResourceAddress(String location, Map<String, Object> options) {
+        ResourceAddressFactorySpi<?> resourceAddressFactory = findResourceAddressFactory(getScheme(location));
         return resourceAddressFactory.newResourceAddress(location, options, ResourceOptions.FACTORY);
     }
 
-    public ResourceAddress newResourceAddress(final URI location,
+    public ResourceAddress newResourceAddress(final String location,
                                               final Map<String, Object> options,
                                               final String nextProtocol) {
-        ResourceAddressFactorySpi<?> resourceAddressFactory = findResourceAddressFactory(location.getScheme());
+        ResourceAddressFactorySpi<?> resourceAddressFactory = findResourceAddressFactory(getScheme(location));
         if (nextProtocol != null) {
             return resourceAddressFactory.newResourceAddress(location, options, new ResourceOptions.Factory() {
 
@@ -186,7 +187,7 @@ public class ResourceAddressFactory {
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
         options.setOption(TRANSPORT, transportAddress);
         options.setOption(NEXT_PROTOCOL, uriAddress.getOption(NEXT_PROTOCOL));
-        return newResourceAddress(uriAddress.getResource(),options);
+        return newResourceAddress(uriToString(uriAddress.getResource()), options);
     }
 
     private ResourceAddressFactorySpi<?> findResourceAddressFactory(String schemeName) throws IllegalArgumentException {
@@ -205,7 +206,7 @@ public class ResourceAddressFactory {
 
     public Map<String, ResourceAddressFactorySpi<?>> getAlternateAddressFactories(String schemeName) {
         Map<String, ResourceAddressFactorySpi<?>> alternates = alternateAddressFactories.get(schemeName);
-        return alternates == null ? Collections.<String, ResourceAddressFactorySpi<?>>emptyMap() : alternates;
+        return alternates == null ? Collections.emptyMap() : alternates;
     }
 
 }

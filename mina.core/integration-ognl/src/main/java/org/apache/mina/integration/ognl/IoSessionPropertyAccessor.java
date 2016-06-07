@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class IoSessionPropertyAccessor extends AbstractPropertyAccessor {
     protected Object getProperty0(OgnlContext context, Object target,
             String name) throws OgnlException {
         if (target instanceof IoSession && "attributes".equals(name)) {
-            Map<String, Object> attributes = new TreeMap<String, Object>();
+            Map<String, Object> attributes = new TreeMap<>();
             IoSession s = (IoSession) target;
             for (Object key: s.getAttributeKeys()) {
                 Object value = s.getAttribute(key);

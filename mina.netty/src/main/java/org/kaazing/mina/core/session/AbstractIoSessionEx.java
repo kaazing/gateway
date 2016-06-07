@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 public abstract class AbstractIoSessionEx extends AbstractIoSession implements IoSessionEx {
 
     // TODO: move to non-static on NioSocketChannelIoAcceptor / NioSocketChannelIoConnector
-    public static final ThreadLocal<Executor> CURRENT_WORKER = new VicariousThreadLocal<Executor>();
+    public static final ThreadLocal<Executor> CURRENT_WORKER = new VicariousThreadLocal<>();
 
     private final boolean ioAligned;
     private final int ioLayer;
@@ -94,8 +94,8 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
             }
         };
 
-        subjectChangeListeneres = ioAligned ? new ArrayList<SubjectChangeListener>()
-                : new CopyOnWriteArrayList<SubjectChangeListener>();
+        subjectChangeListeneres = ioAligned ? new ArrayList<>()
+                : new CopyOnWriteArrayList<>();
     }
 
     @Override
@@ -179,6 +179,7 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
         return super.nextWriteRequest(message, remoteAddress);
     }
 
+    @Override
     @SuppressWarnings("rawtypes")
     public abstract IoProcessorEx getProcessor();
 

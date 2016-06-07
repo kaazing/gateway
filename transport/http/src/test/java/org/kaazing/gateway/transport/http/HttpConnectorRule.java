@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.kaazing.gateway.transport.http;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,7 +53,7 @@ public class HttpConnectorRule implements TestRule {
     public ConnectFuture connect(String connect, IoHandler connectHandler, IoSessionInitializer<? extends ConnectFuture> initializer) {
         Map<String, Object> connectOptions = new HashMap<>();
         ResourceAddress connectAddress =
-                addressFactory.newResourceAddress(URI.create(connect), connectOptions);
+                addressFactory.newResourceAddress(connect, connectOptions);
 
         return httpConnector.connect(connectAddress, connectHandler, initializer);
     }
@@ -79,7 +77,7 @@ public class HttpConnectorRule implements TestRule {
                 schedulerProvider = new SchedulerProvider();
 
                 addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-                TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object> emptyMap());
+                TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.emptyMap());
                 BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
 
                 tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,14 +29,14 @@ public class IdentityHashSet<E> extends MapBackedSet<E> {
     private static final long serialVersionUID = 6948202189467167147L;
 
     public IdentityHashSet() {
-        super(new IdentityHashMap<E, Boolean>());
+        super(new IdentityHashMap<>());
     }
     
     public IdentityHashSet(int expectedMaxSize) {
-        super(new IdentityHashMap<E, Boolean>(expectedMaxSize));
+        super(new IdentityHashMap<>(expectedMaxSize));
     }
 
     public IdentityHashSet(Collection<E> c) {
-        super(new IdentityHashMap<E, Boolean>(), c);
+        super(new IdentityHashMap<>(), c);
     }
 }

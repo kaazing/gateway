@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -126,13 +126,13 @@ public class CachedBufferAllocator implements IoBufferAllocator {
 
     Map<Integer, Queue<CachedBuffer>> newPoolMap() {
         Map<Integer, Queue<CachedBuffer>> poolMap =
-            new HashMap<Integer, Queue<CachedBuffer>>();
+                new HashMap<>();
         int poolSize = maxPoolSize == 0? DEFAULT_MAX_POOL_SIZE : maxPoolSize;
         for (int i = 0; i < 31; i ++) {
-            poolMap.put(1 << i, new CircularQueue<CachedBuffer>(poolSize));
+            poolMap.put(1 << i, new CircularQueue<>(poolSize));
         }
-        poolMap.put(0, new CircularQueue<CachedBuffer>(poolSize));
-        poolMap.put(Integer.MAX_VALUE, new CircularQueue<CachedBuffer>(poolSize));
+        poolMap.put(0, new CircularQueue<>(poolSize));
+        poolMap.put(Integer.MAX_VALUE, new CircularQueue<>(poolSize));
         return poolMap;
     }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
@@ -76,7 +75,7 @@ public class ServiceConnectManagerTest {
         }
 
         final int maxConnectionsPerThread = PREPARED_CONNECTION_COUNT/IO_THREADS + 1;
-        final URI CONNECT_URI = new URI("http://localhost:8051");
+        final String CONNECT_URI = "http://localhost:8051";
         final Object threadAttributeKey = new Object();
 
         context.checking(new Expectations() {
@@ -172,7 +171,7 @@ public class ServiceConnectManagerTest {
         final TransportFactory transportFactory = context.mock(TransportFactory.class);
         final Transport transport = context.mock(Transport.class);
         final NioSocketAcceptor acceptor = context.mock(NioSocketAcceptor.class);
-        final URI CONNECT_URI = new URI("http://localhost:8051");
+        final String CONNECT_URI = "http://localhost:8051";
         final int PREPARED_CONNECTION_COUNT = 2; // LT IO_THREADS
         final int IO_THREADS = 3;
 
@@ -219,7 +218,7 @@ public class ServiceConnectManagerTest {
         // The following executors represent the worker threads
         final CompletionService<Throwable> executor = new ExecutorCompletionService<>(Executors.newFixedThreadPool(1)); // single thread
 
-        final URI CONNECT_URI = new URI("http://localhost:8051");
+        final String CONNECT_URI = "http://localhost:8051";
         final Object threadAttributeKey = new Object();
 
         context.checking(new Expectations() {
@@ -309,7 +308,7 @@ public class ServiceConnectManagerTest {
         // The following executors represent the worker threads
         final CompletionService<Throwable> executor = new ExecutorCompletionService<>(Executors.newFixedThreadPool(1)); // single thread
 
-        final URI CONNECT_URI = new URI("http://localhost:8051");
+        final String CONNECT_URI = "http://localhost:8051";
         final Object threadAttributeKey = new Object();
         final AtomicInteger connectionCount = new AtomicInteger(0);
         final SchedulerProvider schedulerProvider = new SchedulerProvider();

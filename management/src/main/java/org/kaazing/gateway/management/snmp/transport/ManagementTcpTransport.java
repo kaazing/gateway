@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
 package org.kaazing.gateway.management.snmp.transport;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
+
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
@@ -55,40 +54,36 @@ public class ManagementTcpTransport extends ManagementTransport {
     public void sendMessage(Address address, final byte[] message) throws IOException {
         if (address instanceof TcpAddress) {
             TcpAddress tcpAddress = (TcpAddress) address;
-            try {
-                URI connectURI = new URI("tcp://" + tcpAddress.getInetAddress().getHostAddress() + ":" + tcpAddress.getPort());
+            String connectURI = "tcp://" + tcpAddress.getInetAddress().getHostAddress() + ":" + tcpAddress.getPort();
 
-                // FIXME:  IoSessionInitializer is null, but should set up security info, especially for SNMPv3...
-                ConnectFuture future = serviceContext.connect(connectURI, tcpConnectHandler, null);
-                future.addListener(new IoFutureListener<ConnectFuture>() {
-                    @Override
-                    public void operationComplete(ConnectFuture future) {
-                        if (future.isConnected()) {
-                            final IoSessionEx session = (IoSessionEx) future.getSession();
-                            ByteBuffer b = ByteBuffer.wrap(message);
-                            IoBufferEx buf = session.getBufferAllocator().wrap(b);
-                            WriteFuture writeFuture = session.write(buf); // FIXME:  is this sufficient?
-                            writeFuture.addListener(new IoFutureListener<WriteFuture>() {
-                                @Override
-                                public void operationComplete(WriteFuture writeFuture) {
-                                    if (writeFuture.isWritten()) {
-                                        // FIXME:  trace logging on success?  what about failure?  warning?
+            // FIXME:  IoSessionInitializer is null, but should set up security info, especially for SNMPv3...
+            ConnectFuture future = serviceContext.connect(connectURI, tcpConnectHandler, null);
+            future.addListener(new IoFutureListener<ConnectFuture>() {
+                @Override
+                public void operationComplete(ConnectFuture future) {
+                    if (future.isConnected()) {
+                        final IoSessionEx session = (IoSessionEx) future.getSession();
+                        ByteBuffer b = ByteBuffer.wrap(message);
+                        IoBufferEx buf = session.getBufferAllocator().wrap(b);
+                        WriteFuture writeFuture = session.write(buf); // FIXME:  is this sufficient?
+                        writeFuture.addListener(new IoFutureListener<WriteFuture>() {
+                            @Override
+                            public void operationComplete(WriteFuture writeFuture) {
+                                if (writeFuture.isWritten()) {
+                                    // FIXME:  trace logging on success?  what about failure?  warning?
 //                                        String msg = "SNMP write operation completed, bytes written: " + message.length;
 //                                        logger.trace(msg);
-                                    }
-                                    // close the session now?
-                                    //session.close(false);
                                 }
-                            });
-                        } else {
-                            // FIXME:  log warning?  blacklist the offending address in the MIB?
-                        }
+                                // close the session now?
+                                //session.close(false);
+                            }
+                        });
+                    } else {
+                        // FIXME:  log warning?  blacklist the offending address in the MIB?
                     }
+                }
 
-                });
-            } catch (URISyntaxException ex) {
-                throw new IOException("Unable to send message to address: " + tcpAddress, ex);
-            }
+            });
         }
     }
 

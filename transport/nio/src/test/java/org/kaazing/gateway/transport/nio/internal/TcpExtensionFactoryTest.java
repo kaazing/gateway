@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
@@ -43,7 +42,7 @@ public class TcpExtensionFactoryTest {
 
     @Before
     public void before() throws Exception {
-        address = newResourceAddressFactory().newResourceAddress(new URI("tcp://localhost:8888"));
+        address = newResourceAddressFactory().newResourceAddress("tcp://localhost:8888");
     }
 
     @Test

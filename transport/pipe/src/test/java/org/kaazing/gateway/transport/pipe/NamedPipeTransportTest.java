@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.pipe;
 import static org.junit.Assert.fail;
 import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
@@ -162,12 +161,12 @@ public class NamedPipeTransportTest {
 
         final ResourceAddress bindAddress =
                 resourceAddressFactory.newResourceAddress(
-                        URI.create(connectURI),
+                        connectURI,
                         acceptOptions);
 
         final ResourceAddress connectAddress =
                 resourceAddressFactory.newResourceAddress(
-                        URI.create(connectURI),
+                        connectURI,
                         connectOptions);
         pipeAcceptor.bind(bindAddress, acceptHandler, null);
 
@@ -227,7 +226,7 @@ public class NamedPipeTransportTest {
         final String connectURIString = "pipe://transport";
         final ResourceAddress bindAddress =
                 resourceAddressFactory.newResourceAddress(
-                        URI.create(connectURIString),
+                        connectURIString,
                         acceptOptions);
 
         final IoHandler ioHandler = new IoHandlerAdapter();

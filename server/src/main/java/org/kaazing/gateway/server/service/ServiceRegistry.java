@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,15 @@
  */
 package org.kaazing.gateway.server.service;
 
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getAuthority;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getFragment;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getQuery;
+
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceRegistration;
 
@@ -42,15 +47,15 @@ public class ServiceRegistry {
         return entries.get(authority);
     }
 
-    public ServiceContext register(URI serviceURI, ServiceContext serviceContext) {
-        if (serviceURI.getQuery() != null || serviceURI.getFragment() != null) {
+    public ServiceContext register(String serviceURI, ServiceContext serviceContext) {
+        if (getQuery(serviceURI) != null || getFragment(serviceURI) != null) {
             throw new IllegalArgumentException("Service URI query and fragment must be null");
         }
 
-        ServiceAuthority serviceAuthority = entries.get(serviceURI.getAuthority());
+        ServiceAuthority serviceAuthority = entries.get(getAuthority(serviceURI));
         if (serviceAuthority == null) {
             serviceAuthority = new ServiceAuthority();
-            entries.put(serviceURI.getAuthority(), serviceAuthority);
+            entries.put(getAuthority(serviceURI), serviceAuthority);
         }
 
         ServiceRegistration serviceRegistration = serviceAuthority.register(serviceURI, serviceContext);

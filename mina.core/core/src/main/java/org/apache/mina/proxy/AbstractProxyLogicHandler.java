@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractProxyLogicHandler implements ProxyLogicHandler {
 
-    private final static Logger LOGGER = LoggerFactory
+    private static final Logger LOGGER = LoggerFactory
             .getLogger(AbstractProxyLogicHandler.class);
 
     /**
@@ -173,7 +173,7 @@ public abstract class AbstractProxyLogicHandler implements ProxyLogicHandler {
     public synchronized void enqueueWriteRequest(final NextFilter nextFilter,
             final WriteRequest writeRequest) {
         if (writeRequestQueue == null) {
-            writeRequestQueue = new LinkedList<Event>();
+            writeRequestQueue = new LinkedList<>();
         }
 
         writeRequestQueue.offer(new Event(nextFilter, writeRequest));
@@ -208,7 +208,7 @@ public abstract class AbstractProxyLogicHandler implements ProxyLogicHandler {
     /**
      * Event wrapper class for enqueued events.
      */
-    private final static class Event {
+    private static final class Event {
         private final NextFilter nextFilter;
 
         private final Object data;

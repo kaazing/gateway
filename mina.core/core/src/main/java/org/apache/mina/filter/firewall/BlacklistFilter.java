@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,9 +37,9 @@ import org.slf4j.LoggerFactory;
  * @org.apache.xbean.XBean
  */
 public class BlacklistFilter extends IoFilterAdapter {
-    private final List<Subnet> blacklist = new CopyOnWriteArrayList<Subnet>();
+    private final List<Subnet> blacklist = new CopyOnWriteArrayList<>();
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(BlacklistFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BlacklistFilter.class);
     /**
      * Sets the addresses to be blacklisted.
      *

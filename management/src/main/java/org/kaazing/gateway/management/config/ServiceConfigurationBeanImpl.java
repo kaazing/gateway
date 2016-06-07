@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import static org.kaazing.gateway.service.TransportOptionNames.SSL_ENCRYPTION_EN
 import static org.kaazing.gateway.service.TransportOptionNames.SUPPORTED_PROTOCOLS;
 import static org.kaazing.gateway.service.TransportOptionNames.WS_PROTOCOL_VERSION;
 
-import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -86,7 +85,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
     @Override
     public String getAccepts() {
         if (serviceContext.supportsAccepts()) {
-            Collection<URI> accepts = serviceContext.getAccepts();
+            Collection<String> accepts = serviceContext.getAccepts();
             return accepts == null ? "" : new JSONArray(accepts).toString();
         } else {
             return null;
@@ -170,24 +169,24 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                         jsonOptions.put("http.keepalive.timeout", httpKeepAlive);
                     }
 
-                    URI pipeTransport = (URI) acceptOptions.remove("pipe.transport");
+                    String pipeTransport = (String) acceptOptions.remove("pipe.transport");
                     if (pipeTransport != null) {
-                        jsonOptions.put("pipe.transport", pipeTransport.toString());
+                        jsonOptions.put("pipe.transport", pipeTransport);
                     }
 
-                    URI tcpTransport = (URI) acceptOptions.remove("tcp.transport");
+                    String tcpTransport = (String) acceptOptions.remove("tcp.transport");
                     if (tcpTransport != null) {
-                        jsonOptions.put("tcp.transport", tcpTransport.toString());
+                        jsonOptions.put("tcp.transport", tcpTransport);
                     }
 
-                    URI sslTransport = (URI) acceptOptions.remove("ssl.transport");
+                    String sslTransport = (String) acceptOptions.remove("ssl.transport");
                     if (sslTransport != null) {
-                        jsonOptions.put("ssl.transport", sslTransport.toString());
+                        jsonOptions.put("ssl.transport", sslTransport);
                     }
 
-                    URI httpTransport = (URI) acceptOptions.remove("http[http/1.1].transport");
+                    String httpTransport = (String) acceptOptions.remove("http[http/1.1].transport");
                     if (httpTransport != null) {
-                        jsonOptions.put("http.transport", httpTransport.toString());
+                        jsonOptions.put("http.transport", httpTransport);
                     }
 
                     long tcpMaxOutboundRate = (Long) acceptOptions.remove("tcp.maximumOutboundRate");
@@ -224,14 +223,14 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
 
     @Override
     public String getBalances() {
-        Collection<URI> balances = serviceContext.getBalances();
+        Collection<String> balances = serviceContext.getBalances();
         return balances == null ? "" : new JSONArray(balances).toString();
     }
 
     @Override
     public String getConnects() {
         if (serviceContext.supportsConnects()) {
-            Collection<URI> connects = serviceContext.getConnects();
+            Collection<String> connects = serviceContext.getConnects();
             return connects == null ? "" : new JSONArray(connects).toString();
         } else {
             return null;
@@ -276,24 +275,24 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                         jsonOptions.put("ws.version", wsVersion);
                     }
 
-                    URI pipeTransport = (URI) connectOptions.remove("pipe.transport");
+                    String pipeTransport = (String) connectOptions.remove("pipe.transport");
                     if (pipeTransport != null) {
-                        jsonOptions.put("pipe.transport", pipeTransport.toString());
+                        jsonOptions.put("pipe.transport", pipeTransport);
                     }
 
-                    URI tcpTransport = (URI) connectOptions.remove("tcp.transport");
+                    String tcpTransport = (String) connectOptions.remove("tcp.transport");
                     if (tcpTransport != null) {
-                        jsonOptions.put("tcp.transport", tcpTransport.toString());
+                        jsonOptions.put("tcp.transport", tcpTransport);
                     }
 
-                    URI sslTransport = (URI) connectOptions.remove("ssl.transport");
+                    String sslTransport = (String) connectOptions.remove("ssl.transport");
                     if (sslTransport != null) {
-                        jsonOptions.put("ssl.transport", sslTransport.toString());
+                        jsonOptions.put("ssl.transport", sslTransport);
                     }
 
-                    URI httpTransport = (URI) connectOptions.remove("http[http/1.1].transport");
+                    String httpTransport = (String) connectOptions.remove("http[http/1.1].transport");
                     if (httpTransport != null) {
-                        jsonOptions.put("http.transport", httpTransport.toString());
+                        jsonOptions.put("http.transport", httpTransport);
                     }
 
                     Long inactivityTimeout = (Long) connectOptions.remove(INACTIVITY_TIMEOUT);
@@ -351,7 +350,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
 
     @Override
     public String getCrossSiteConstraints() {
-        Map<URI, ? extends Map<String, ? extends CrossSiteConstraintContext>> crossSiteConstraints =
+        Map<String, ? extends Map<String, ? extends CrossSiteConstraintContext>> crossSiteConstraints =
                 serviceContext.getCrossSiteConstraints();
 
         JSONArray jsonConstraints = new JSONArray();

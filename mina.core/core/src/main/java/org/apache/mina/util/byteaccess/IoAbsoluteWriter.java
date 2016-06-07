@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public interface IoAbsoluteWriter
     /**
      * Puts bytes from the <code>IoBuffer</code> at the given index.
      */
-    public void put( int index, IoBuffer bb );
+    void put(int index, IoBuffer bb);
 
 
     /**

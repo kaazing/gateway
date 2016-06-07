@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,10 @@
  */
 package org.kaazing.gateway.transport.wseb;
 
+import static org.junit.rules.RuleChain.outerRule;
+
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -27,11 +31,6 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-import java.net.URI;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.rules.RuleChain.outerRule;
-
 public class WsebNotFoundIT {
 
     private final K3poRule robot = new K3poRule();
@@ -40,7 +39,7 @@ public class WsebNotFoundIT {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                 .service()
-                    .accept(URI.create("wse://localhost:8001/echoAuth"))
+                    .accept("wse://localhost:8001/echoAuth")
                     .type("echo")
                     .realmName("demo")
                         .authorization()

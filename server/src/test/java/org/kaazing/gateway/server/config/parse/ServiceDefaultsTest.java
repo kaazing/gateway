@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import static org.kaazing.gateway.service.TransportOptionNames.HTTP_KEEP_ALIVE;
 import static org.kaazing.gateway.service.TransportOptionNames.HTTP_KEEP_ALIVE_TIMEOUT_KEY;
 import static org.kaazing.gateway.service.TransportOptionNames.HTTP_SERVER_HEADER_ENABLED;
 
-import java.net.URI;
 import java.util.Map;
 
 import org.junit.Assert;
@@ -53,7 +52,7 @@ public class ServiceDefaultsTest {
             .service()
                 .type("echo")
                 .name("test1")
-                .accept(URI.create("ws://localhost:8000"))
+                .accept("ws://localhost:8000")
             .done()
         .done();
         //@formatter:on
@@ -89,7 +88,7 @@ public class ServiceDefaultsTest {
                 .service()
                     .type("echo")
                     .name("test1")
-                    .accept(URI.create("ws://localhost:8000"))
+                    .accept("ws://localhost:8000")
                 .done()
         .done();
         //@formatter:on

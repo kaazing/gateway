@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,11 +71,13 @@ public class HttpRequestDecodingState extends DecodingStateMachine {
 
 	protected final DecodingState FLUSH_MESSAGES = new DecodingState() {
 
+		@Override
 		public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out)
 				throws Exception {
 			return SKIP_EMPTY_LINES;
 		}
 
+		@Override
 		public DecodingState finishDecode(ProtocolDecoderOutput out)
 				throws Exception {
 			return SKIP_EMPTY_LINES;
@@ -138,7 +140,10 @@ public class HttpRequestDecodingState extends DecodingStateMachine {
                 hostHeaderValues.add(requestURI.getHost()
                         + (requestURI.getPort() == -1 ? "" : ":" + requestURI.getPort()));
                 headers.put(HEADER_HOST, hostHeaderValues);
-                requestURI = URI.create(requestURI.getPath());
+                String query = requestURI.getQuery();
+                requestURI = (query == null)
+                    ? URI.create(requestURI.getPath())
+                    : URI.create(requestURI.getPath() + "?" + query);
             }   
 
 			// KG-1469 Canonicalize Host header to make hostname lowercase to ensure correct lookup in service registry

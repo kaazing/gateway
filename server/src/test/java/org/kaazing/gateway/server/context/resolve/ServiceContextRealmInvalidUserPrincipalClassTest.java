@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,10 @@
  */
 package org.kaazing.gateway.server.context.resolve;
 
-import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.net.URI;
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
 import org.junit.Test;
-
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -39,7 +35,7 @@ public class ServiceContextRealmInvalidUserPrincipalClassTest {
         GatewayConfiguration configuration = new GatewayConfigurationBuilder()
             .property(WSE_SPECIFICATION.getPropertyName(), "true")
             .service()
-                .accept(URI.create("ws://localhost:8080/path"))
+                .accept("ws://localhost:8080/path")
                 .type("echo")
                 .crossOrigin()
                     .allowOrigin("http://localhost:8001")

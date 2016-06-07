@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,21 +70,21 @@ import org.slf4j.LoggerFactory;
 public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSessionEx> {
 
     public static final String PROTOCOL_HTTPXE_1_1 = "httpxe/1.1";
-    
+
     private static final String CONTENT_TYPE_APPLICATION_X_MESSAGE_HTTP = "application/x-message-http";
 
     private static final String PROTOCOL_WSE_1_0 = "wse/1.0";
-    
+
     private static final String HEADER_CREATE_ENCODING = "X-Create-Encoding";
     private static final String HEADER_X_HTTP_VERSION = "X-Http-Version";
     private static final String HEADER_VALUE_HTTPE_VERSION_1_0 = "httpe-1.0";
 
     public static final String PARAMETER_X_SEQUENCE_NO = ".ksn";
-    
+
     private static final String QUERY_PARAM_METHOD = ".km";
     private static final String QUERY_PARAM_RESOURCE = ".kr";
     private static final String QUERY_PARAM_RANDOM_NUMBER = ".krn";
-    
+
     private static final String RESOURCE_NAME_CLIENT_ACCESS_POLICY_XML = "clientaccesspolicy.xml";
     private static final String REQUEST_PATH_CLIENT_ACCESS_POLICY_XML = format("/%s", RESOURCE_NAME_CLIENT_ACCESS_POLICY_XML);
 
@@ -103,7 +103,6 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
     private static final Collection<String> EXTENDED_PATHS = asList("ct", "ut", "dt", "cte", "ute", "dte", "cb", "ub", "db", "ctm", "utm", "dtm", "ctem", "utem", "dtem", "cbm", "ubm", "dbm", "cr");
 
     private static final String AUTHORIZATION_PATH = "/;a";
-    private static final int AUTHORIZATION_PATH_LENGTH = AUTHORIZATION_PATH.length();
     private static final Collection<String> AUTHORIZATION_KINDS = asList("a", "ae", "ar");
 
     private static final String[] HTTPXE_ENVELOPE_HEADERS = new String[] { HEADER_AUTHORIZATION, HEADER_CONTENT_LENGTH, HEADER_CONTENT_TYPE };
@@ -125,7 +124,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
         PATH_ENCODED_METHODS = pathEncodedMethods;
     }
 
-    
+
     private static final Map<String, String> CREATE_ENCODINGS;
     static {
         Map<String, String> createEncodings = new HashMap<>();
@@ -137,8 +136,8 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
         createEncodings.put("cbm", "binary/mixed");
         CREATE_ENCODINGS = unmodifiableMap(createEncodings);
     }
-    
-    private final static Logger logger = LoggerFactory.getLogger("transport.http");
+
+    private static final Logger logger = LoggerFactory.getLogger("transport.http");
 
     @Override
     public void sessionOpened(NextFilter nextFilter, final IoSession session) throws Exception {
@@ -214,6 +213,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                 // install a filter to conditionally wrap the response -
                 // sometimes we want to respond wrapped(e.g. create response 401),
                 // and other times we do not (e.g. create response 201)
+
                 session.getFilterChain().addBefore(HttpAcceptFilter.PROTOCOL_HTTPXE.filterName(),
                                                    HttpAcceptFilter.CONDITIONAL_WRAPPED_RESPONSE.filterName(),
                                                    HttpAcceptFilter.CONDITIONAL_WRAPPED_RESPONSE.filter());
@@ -230,20 +230,20 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                 httpRequest.setHeader(HEADER_X_NEXT_PROTOCOL, PROTOCOL_HTTPXE_1_1);
             }
         }
-        
+
         // validate httpe version (if present)
         if (!httpRequest.hasHeader(HEADER_X_NEXT_PROTOCOL)) {
             List<String> httpVersions = httpRequest.removeHeader(HEADER_X_HTTP_VERSION);
             if (httpVersions != null && !httpVersions.isEmpty()) {
                 String httpVersion = httpVersions.get(0);
-                
+
                 // TODO: remove this code when we verify that missing binds present a good enough response (404)
                 if (!httpVersion.equals(HEADER_VALUE_HTTPE_VERSION_1_0)) {
                     HttpResponseMessage httpResponse = new HttpResponseMessage();
                     httpResponse.setVersion(httpRequest.getVersion());
                     httpResponse.setStatus(HttpStatus.SERVER_NOT_IMPLEMENTED);
                     httpResponse.setReason("Http-Version not supported");
-                    
+
                     WriteFuture writeFuture = new DefaultWriteFuture(session);
                     nextFilter.filterWrite(session, new DefaultWriteRequest(httpResponse, writeFuture));
                     nextFilter.filterClose(session);
@@ -261,18 +261,18 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                 session.getFilterChain().addAfter(HttpAcceptFilter.CODEC.filterName(), WrappedHttpTextEventStreamFilter.getFilterName(), new  WrappedHttpTextEventStreamFilter());
             }
         }
-        
+
         // default next-protocol header for backwards compatibility with httpe-1.0, wse-1.0,
         if (!httpRequest.hasHeader(HEADER_X_NEXT_PROTOCOL)) {
             URI requestURI = httpRequest.getRequestURI();
             String path = requestURI.getPath();
-            
+
             int extensionAt = path.indexOf(EXTENSION_PATH);
             if (extensionAt != -1) {
                 int extendedPathAt = extensionAt + EXTENSION_PATH_LENGTH;
                 int nextSlashAt = path.indexOf('/', extendedPathAt + 1);
                 String extendedPath = (nextSlashAt != -1) ? path.substring(extendedPathAt, nextSlashAt) : path.substring(extendedPathAt);
-                // TODO: once WsebAcceptor create handler generates upstream and downstream URLs with .knp query parameter, 
+                // TODO: once WsebAcceptor create handler generates upstream and downstream URLs with .knp query parameter,
                 //       remove ut, dt, ute, dte, ub, db from extended paths
                 if (EXTENDED_PATHS.contains(extendedPath)) {
                     String nextProtocol = getNextProtocol(session);
@@ -286,7 +286,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                                 // balancer requests are terminal so have no next protocol
                                 httpRequest.removeHeader(HEADER_X_NEXT_PROTOCOL);
                             } else {
-                                // ct, cte, cb, ut, ute, ub, dt, dte, db, cbm, ubm, dbm, ctm, utm, dtm, ctem, utem, dtem 
+                                // ct, cte, cb, ut, ute, ub, dt, dte, db, cbm, ubm, dbm, ctm, utm, dtm, ctem, utem, dtem
                                 httpRequest.setHeader(HEADER_X_NEXT_PROTOCOL, PROTOCOL_WSE_1_0);
                             }
 
@@ -329,13 +329,13 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                 }
             }
         }
-        
+
         // support .km query parameter as compatibility *only*
         // since going forward the real method should be placed the POST request body
         if (!httpRequest.hasHeader(HEADER_X_NEXT_PROTOCOL)) {
             emulateMethod(httpRequest);
         }
-        
+
         // process path-encoded methods for Silverlight emulation
         URI requestURI = httpRequest.getRequestURI();
         String requestPath = requestURI.getPath();
@@ -358,7 +358,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                         emulatedOrigin = emulatedOrigins.get(0);
                     }
 
-                    List<String> validatedOrigins = null;
+                    List<String> validatedOrigins;
                     if (emulatedOrigin != null) {
                         String validatedOriginsHeader = "X-Origin-" + URLEncoder.encode(emulatedOrigin, "UTF-8");
                         validatedOrigins = httpRequest.removeHeader(validatedOriginsHeader);
@@ -433,7 +433,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
             URI newRequestURI = requestURI1.resolve(format(RESOURCE_NAME_PATTERN, resourceName));
             httpRequest.setRequestURI(newRequestURI);
         }
-        
+
         // convert /clientaccesspolicy.xml to a dynamic resource request
         URI requestURI1 = httpRequest.getRequestURI();
         String requestPath1 = requestURI1.getPath();
@@ -492,6 +492,10 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                     break;
                 case 'T':
                     httpRequest.setMethod(HttpMethod.TRACE);
+                    //httpRequest.removeParameter(QUERY_PARAM_METHOD);
+                    break;
+                case 'H':
+                    httpRequest.setMethod(HttpMethod.HEAD);
                     //httpRequest.removeParameter(QUERY_PARAM_METHOD);
                     break;
                 }
@@ -569,12 +573,16 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
             req.setHeaders(requestHeaders);
             HttpUtils.restrictHeaders(req, HTTPXE_ENVELOPE_HEADERS);
 
+            // Propagate the subject and login context onto the new httprequest for use in HttpSubjectSecurityFilter
+            req.setSubject(session.getSubject());
+            req.setLoginContext(session.getLoginContext());
+
             // mutate the session, defer changing the GET method to a post if there is a GET method.
             // that will be handled at the httpxe-filter-chain's protocol compat filter.
             // for now, make sure the outer content type is valid httpxe value
             DefaultHttpSession httpSession = session;
             Map<String,List<String>> sessionHeaders = new HashMap<>(httpSession.getReadHeaders());
-            sessionHeaders.put(HEADER_CONTENT_TYPE, asList(CONTENT_TYPE_APPLICATION_X_MESSAGE_HTTP));
+            sessionHeaders.put(HEADER_CONTENT_TYPE, Collections.singletonList(CONTENT_TYPE_APPLICATION_X_MESSAGE_HTTP));
             httpSession.setReadHeaders(sessionHeaders);
 
             return req;
@@ -658,14 +666,14 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                 HttpAcceptSession httpSession = (HttpAcceptSession) session;
                 // note: would prefer to use explicit "application/x-message-http" content type header,
                 //       but that has already been faulted in by compatibility filter before the test
-                //       is made for conditionally wrapped response 
+                //       is made for conditionally wrapped response
                 return //!isExplicitEnvelopedContentType(httpSession) &&
                        !isExplicitAccessControl(httpSession) &&
                         isLegacyClient(httpSession) &&
                         (httpSession.getMethod() == HttpMethod.GET // java clients
                          || isEmulatedWebSocketRequest(httpSession)
                          || isRevalidateWebSocketRequest(httpSession)
-                         || isBalancerRequest(httpSession) 
+                         || isBalancerRequest(httpSession)
                          );
             }
             return false;
@@ -684,6 +692,17 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                 // we want wrapping so remove this filter
                 session.getFilterChain().remove(this);
                 break;
+
+            case REDIRECT_FOUND:
+            case CLIENT_BAD_REQUEST:
+            case SUCCESS_CREATED:
+                boolean httpxeSpecCompliant = httpSession.isHttpxeSpecCompliant();
+                if (httpxeSpecCompliant) {
+                    // we want wrapping so remove this filter
+                    session.getFilterChain().remove(this);
+                    break;
+                }
+                // fall-through
             default:
 
                 // we do not want wrapped responses so push data to parent http/1.1 session
@@ -783,12 +802,12 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
     }
 
     public static class WrappedHttpTextEventStreamFilter extends HttpFilterAdapter<IoSessionEx> {
-        private final static Charset UTF_8 = Charset.forName("UTF-8");
-        private final static CharsetEncoder UTF_8_ENCODER = UTF_8.newEncoder();
-        private final static CharSequence WRAPPED_HTTP = "HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\n\r\n";
-        private final static String FILTER_NAME = "WrappedHttpTextEventStreamFilter";
-        private final static int TO_ALLOCATE = WRAPPED_HTTP.length();
-        
+        private static final Charset UTF_8 = Charset.forName("UTF-8");
+        private static final CharsetEncoder UTF_8_ENCODER = UTF_8.newEncoder();
+        private static final CharSequence WRAPPED_HTTP = "HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\n\r\n";
+        private static final String FILTER_NAME = "WrappedHttpTextEventStreamFilter";
+        private static final int TO_ALLOCATE = WRAPPED_HTTP.length();
+
         @Override
         protected void filterWriteHttpResponse(NextFilter nextFilter, IoSessionEx session, WriteRequest writeRequest,
                 HttpResponseMessage httpResponse) throws Exception {

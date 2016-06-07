@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENG
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_TYPE;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_ACCEPT_COMMANDS;
 import static org.kaazing.gateway.transport.ws.util.WsUtils.HEADER_X_WEBSOCKET_EXTENSIONS;
-import static org.kaazing.gateway.transport.wseb.util.WseUtils.HEADER_X_WEBSOCKET_PROTOCOL;
 import static org.kaazing.gateway.transport.wseb.WsebAcceptor.WSE_VERSION;
+import static org.kaazing.gateway.transport.wseb.util.WseUtils.HEADER_X_WEBSOCKET_PROTOCOL;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
 import java.io.IOException;
@@ -57,6 +57,7 @@ import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.AbstractBridgeConnector;
 import org.kaazing.gateway.transport.BridgeConnector;
@@ -129,7 +130,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
     };
 
     private final List<IoSessionIdleTracker> sessionIdleTrackers
-        = Collections.synchronizedList(new ArrayList<IoSessionIdleTracker>());
+        = Collections.synchronizedList(new ArrayList<>());
 
     private final ThreadLocal<IoSessionIdleTracker> currentSessionIdleTracker
         = new VicariousThreadLocal<IoSessionIdleTracker>() {
@@ -199,11 +200,11 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                                                                                         wseConnectFuture);
 
         ResourceAddress httpxeAddress = connectAddress.getTransport();
-        URI uri = appendURI(ensureTrailingSlash(httpxeAddress.getExternalURI()), CREATE_SUFFIX);
-        String query = uri.getQuery();
-        String pathAndQuery = uri.getPath();
+        String uri = appendURI(ensureTrailingSlash(httpxeAddress.getExternalURI()), CREATE_SUFFIX);
+        String query = URIUtils.getQuery(uri);
+        String pathAndQuery = URIUtils.getPath(uri);
         if (query != null) {
-            pathAndQuery += "?"+uri.getQuery();
+            pathAndQuery += "?" + URIUtils.getQuery(uri);
         }
         ResourceAddress createAddress = httpxeAddress.resolve(pathAndQuery);
         BridgeConnector connector = bridgeServiceFactory.newBridgeConnector(createAddress);
@@ -287,14 +288,18 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                 String[] supportedProtocols = connectAddressNext.getOption(WsResourceAddress.SUPPORTED_PROTOCOLS);
                 if (supportedProtocols != null) {
                     for (String protocol : supportedProtocols) {
-                        httpSession.addWriteHeader(HEADER_X_WEBSOCKET_PROTOCOL, protocol);
+                        if (protocol != null) {
+                            httpSession.addWriteHeader(HEADER_X_WEBSOCKET_PROTOCOL, protocol);
+                        }
                     }
                 }
 
                 List<String> wsExtensions = connectAddressNext.getOption(WsResourceAddress.EXTENSIONS);
                 if (wsExtensions!= null) {
                     for (String extension : wsExtensions) {
-                        httpSession.addWriteHeader(HEADER_X_WEBSOCKET_EXTENSIONS, extension);
+                        if (extension != null) {
+                            httpSession.addWriteHeader(HEADER_X_WEBSOCKET_EXTENSIONS, extension);
+                        }
                     }
                 }
 
@@ -492,7 +497,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
             ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions(writeAddress);
             options.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
-            return resourceAddressFactory.newResourceAddress(writeAddress.getResource(), options);
+            return resourceAddressFactory.newResourceAddress(URIUtils.uriToString(writeAddress.getResource()), options);
         }
 
         private ResourceAddress createReadAddress(URI readUri, HttpSession transport, WsebSession wsebSession) {
@@ -504,7 +509,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
             ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions(readAddress);
             options.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
-            return resourceAddressFactory.newResourceAddress(readAddress.getResource(), options);
+            return resourceAddressFactory.newResourceAddress(URIUtils.uriToString(readAddress.getResource()), options);
         }
 
         @Override
@@ -630,7 +635,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                 wsebSession.close(true);
             }
         }
-    };
+    }
 
     private static class FixedIdentityResolver extends IdentityResolver {
         final String identity;

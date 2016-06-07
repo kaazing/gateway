@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ public interface ByteArray extends IoAbsoluteReader, IoAbsoluteWriter
      * same index, have the same byte order, and contain the same bytes at each
      * index.
      */
-    public boolean equals( Object other );
+    boolean equals(Object other);
 
 
     /**
@@ -95,7 +95,7 @@ public interface ByteArray extends IoAbsoluteReader, IoAbsoluteWriter
     /**
      * @inheritDoc
      */
-    public void get( int index, IoBuffer bb );
+    void get(int index, IoBuffer bb);
 
 
     /**
@@ -123,7 +123,7 @@ public interface ByteArray extends IoAbsoluteReader, IoAbsoluteWriter
      * Should this be <code>Cloneable</code> to allow cheap mark/position
      * emulation?
      */
-    public interface Cursor extends IoRelativeReader, IoRelativeWriter
+    interface Cursor extends IoRelativeReader, IoRelativeWriter
     {
 
         /**

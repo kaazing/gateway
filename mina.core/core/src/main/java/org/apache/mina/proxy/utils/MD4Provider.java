@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,22 +28,22 @@ public class MD4Provider extends Provider {
     /**
      * The serial version UID.
      */
-    private final static long serialVersionUID = -1616816866935565456L;
+    private static final long serialVersionUID = -1616816866935565456L;
 
     /**
      * Provider name.
      */
-    public final static String PROVIDER_NAME = "MINA";
+    public static final String PROVIDER_NAME = "MINA";
 
     /**
      * Provider version.
      */    
-    public final static double VERSION = 1.00;
+    public static final double VERSION = 1.00;
 
     /**
      * Provider information.
      */
-    public final static String INFO = "MINA MD4 Provider v" + VERSION;
+    public static final String INFO = "MINA MD4 Provider v" + VERSION;
 
     /**
      * Default constructor that registers {@link MD4} as the <i>Service Provider 

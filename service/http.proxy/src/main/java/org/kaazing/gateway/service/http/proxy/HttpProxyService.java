@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,18 @@ package org.kaazing.gateway.service.http.proxy;
 
 import static java.lang.String.format;
 
+import java.util.Collection;
+
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.proxy.AbstractProxyService;
-
-import java.net.URI;
-import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * Http proxy service
  */
 public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandler> {
-    private static final String TRAILING_SLASH_ERROR = "Accept URI is '%s' and connect URI is '%s'. Either both URI should end with / or not.";
+    private static final String TRAILING_SLASH_ERROR = "The accept URI is '%s' and the connect URI is '%s'. "
+            + "One has a trailing slash and one doesn't. Both URIs either need to include a trailing slash or omit it.";
 
     @Override
     public String getType() {
@@ -38,7 +38,7 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
     @Override
     public void init(ServiceContext serviceContext) throws Exception {
         super.init(serviceContext);
-        Collection<URI> connectURIs = serviceContext.getConnects();
+        Collection<String> connectURIs = serviceContext.getConnects();
         if (connectURIs == null || connectURIs.isEmpty()) {
             throw new IllegalArgumentException("Missing required element: <connect>");
         }
@@ -47,20 +47,20 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
 
         HttpProxyServiceHandler handler = getHandler();
         handler.setConnectURIs(connectURIs);
-        handler.initServiceConnectManager();
+        handler.init();
     }
 
     private void checkForTrailingSlashes(ServiceContext serviceContext) {
-        Collection<URI> acceptURIs = serviceContext.getAccepts();
-        Collection<URI> connectURIs = serviceContext.getConnects();
+        Collection<String> acceptURIs = serviceContext.getAccepts();
+        Collection<String> connectURIs = serviceContext.getConnects();
 
         assert acceptURIs.size() == 1;
         assert connectURIs.size() == 1;
 
-        URI acceptURI = acceptURIs.iterator().next();
-        URI connectURI = connectURIs.iterator().next();
-        String acceptPath = acceptURI.getPath();
-        String connectPath = connectURI.getPath();
+        String acceptURI = acceptURIs.iterator().next();
+        String connectURI = connectURIs.iterator().next();
+        String acceptPath = URIUtils.getPath(acceptURI);
+        String connectPath = URIUtils.getPath(connectURI);
 
         boolean acceptPathIsSlash = acceptPath.endsWith("/");
         boolean connectPathIsSlash = connectPath.endsWith("/");

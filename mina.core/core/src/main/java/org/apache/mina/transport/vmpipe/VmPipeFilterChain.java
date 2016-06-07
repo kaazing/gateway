@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import org.apache.mina.core.write.WriteToClosedSessionException;
  */
 class VmPipeFilterChain extends DefaultIoFilterChain {
 
-    private final Queue<IoEvent> eventQueue = new ConcurrentLinkedQueue<IoEvent>();
+    private final Queue<IoEvent> eventQueue = new ConcurrentLinkedQueue<>();
     private final IoProcessor<VmPipeSession> processor = new VmPipeIoProcessor();
 
     private volatile boolean flushEnabled;
@@ -201,7 +201,7 @@ class VmPipeFilterChain extends DefaultIoFilterChain {
 
                 flushPendingDataQueues(session);
             } else {
-                List<WriteRequest> failedRequests = new ArrayList<WriteRequest>();
+                List<WriteRequest> failedRequests = new ArrayList<>();
                 WriteRequest req;
                 while ((req = queue.poll(session)) != null) {
                     failedRequests.add(req);
@@ -249,7 +249,7 @@ class VmPipeFilterChain extends DefaultIoFilterChain {
 
         public void updateTrafficControl(VmPipeSession session) {
             if ( ! session.isReadSuspended()) {
-                List<Object> data = new ArrayList<Object>();
+                List<Object> data = new ArrayList<>();
                 session.receivedMessageQueue.drainTo(data);
                 for (Object aData : data) {
                     VmPipeFilterChain.this.fireMessageReceived(aData);

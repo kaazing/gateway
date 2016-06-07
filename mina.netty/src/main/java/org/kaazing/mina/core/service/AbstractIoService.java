@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,6 +103,7 @@ public abstract class AbstractIoService implements IoService {
     private final IoSessionConfig sessionConfig;
 
     private final IoServiceListener serviceActivationListener = new IoServiceListener() {
+        @Override
         public void serviceActivated(IoService service) {
             // Update lastIoTime.
 //            AbstractIoService s = (AbstractIoService) service;
@@ -113,18 +114,22 @@ public abstract class AbstractIoService implements IoService {
 
         }
 
+        @Override
         public void serviceDeactivated(IoService service) {
             // Empty handler
         }
 
+        @Override
         public void serviceIdle(IoService service, IdleStatus idleStatus) {
             // Empty handler
         }
 
+        @Override
         public void sessionCreated(IoSession session) {
             // Empty handler
         }
 
+        @Override
         public void sessionDestroyed(IoSession session) {
             // Empty handler
         }
@@ -533,6 +538,7 @@ public abstract class AbstractIoService implements IoService {
             super(null);
         }
 
+        @Override
         public final boolean isDone() {
             return getValue() == Boolean.TRUE;
         }

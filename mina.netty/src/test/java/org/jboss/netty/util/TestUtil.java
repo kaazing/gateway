@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,7 +120,7 @@ public final class TestUtil {
     private static final int END_PORT = 65536;
     private static final int NUM_CANDIDATES = END_PORT - START_PORT;
 
-    private static final List<Integer> PORTS = new ArrayList<Integer>();
+    private static final List<Integer> PORTS = new ArrayList<>();
     private static Iterator<Integer> portIterator;
 
     static {

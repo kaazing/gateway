@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.kaazing.gateway.transport.http.bridge.filter;
 import java.net.URI;
 import java.util.List;
 
+import org.kaazing.gateway.transport.http.HttpAcceptor;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.mina.core.session.IoSessionEx;
@@ -31,12 +32,12 @@ public class HttpOriginHeaderFilter extends HttpFilterAdapter<IoSessionEx> {
         // TODO: revisit this logic
         //       suggestion: (if in same origin by referrer, observe X-Origin, .ko), falling back to Origin
         //       error: if no effective Origin is present (see compatibility origin header filter rejection for Silverlight checks)
-        emulateOriginHeader(httpRequest);
+        emulateOriginHeader(httpRequest, session);
         
         super.httpRequestReceived(nextFilter, session, httpRequest);
     }
 
-    private void emulateOriginHeader(HttpRequestMessage httpRequest) {
+    private void emulateOriginHeader(HttpRequestMessage httpRequest, IoSessionEx session) {
         // lookup request Origin header
         String origin = httpRequest.getHeader("Origin");
 
@@ -61,7 +62,12 @@ public class HttpOriginHeaderFilter extends HttpFilterAdapter<IoSessionEx> {
                 String candidateOrigin = emulatedOrigins.get(0);
                 emulatedOrigin = getEmulatedOriginIfRequestMatchesOrigin(httpRequest, candidateOrigin);
             } else {
-                emulatedOrigin = emulatedOrigins.get(0);
+                boolean httpxeSpecCompliant = HttpAcceptor.HTTPXE_SPEC_KEY.get(session);
+                if (httpxeSpecCompliant) {
+                    emulatedOrigin = getEmulatedOriginIfReferrerMatches(httpRequest, emulatedOrigins.get(0));
+                } else {
+                    emulatedOrigin = emulatedOrigins.get(0);
+                }
             }
         }
 
@@ -98,16 +104,16 @@ public class HttpOriginHeaderFilter extends HttpFilterAdapter<IoSessionEx> {
         String referer = httpRequest.getHeader("Referer");
         if (referer != null) {
             URI refererURI = URI.create(referer);
-            if (refererURI != null) {
-                boolean isSecure = httpRequest.isSecure();
-                String scheme = isSecure ? "https" : "http";
-                String authority = HttpUtils.getHostAndPort(httpRequest, isSecure);
-                String refererAuthority = HttpUtils.getHostAndPort(refererURI.getAuthority(), isSecure);
-                if (refererURI.getScheme().equals(scheme) && refererAuthority.equals(authority)) {
-                    // cross-origin request emulated via same-origin request,
-                    // use .ko query parameter for Origin
-                    emulatedOrigin = candidateOrigin;
-                }
+            boolean isSecure = httpRequest.isSecure();
+            String scheme = isSecure ? "https" : "http";
+            String authority = HttpUtils.getHostAndPort(httpRequest, isSecure);
+            String refererAuthority = HttpUtils.getHostAndPort(refererURI.getAuthority(), isSecure);
+            if (refererURI.getScheme().equals(scheme) && refererAuthority.equals(authority)) {
+                // cross-origin request emulated via same-origin request,
+                // use .ko query parameter for Origin
+                emulatedOrigin = candidateOrigin;
+            } else {
+                emulatedOrigin = "null";
             }
         }
         return emulatedOrigin;

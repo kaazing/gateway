@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,9 @@
 package org.kaazing.gateway.management.snmp;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -652,9 +650,9 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
          */
         protected void launch() {
             if (tableSizeLimit != null) {
-                for (int i = 0; i < servers.length; i++) {
-                    DefaultMOServer.unregisterTableRowListener(servers[i], tableSizeLimit);
-                    DefaultMOServer.registerTableRowListener(servers[i], tableSizeLimit);
+                for (MOServer server1 : servers) {
+                    DefaultMOServer.unregisterTableRowListener(server1, tableSizeLimit);
+                    DefaultMOServer.registerTableRowListener(server1, tableSizeLimit);
                 }
             }
             dispatcher.removeCommandResponder(agent);
@@ -696,8 +694,8 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             }
             // saveState();
             if (tableSizeLimit != null) {
-                for (int i = 0; i < servers.length; i++) {
-                    DefaultMOServer.unregisterTableRowListener(servers[i], tableSizeLimit);
+                for (MOServer server1 : servers) {
+                    DefaultMOServer.unregisterTableRowListener(server1, tableSizeLimit);
                 }
             }
             unregisterMIBs(null);
@@ -714,9 +712,9 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                 snmp4jConfigMIB.setPrimaryProvider(this.persistenceProvider);
             }
             if (persistenceProvider != null) {
-                for (int i = 0; i < persistenceProvider.length; i++) {
-                    if (persistenceProvider[i] != this.persistenceProvider) {
-                        snmp4jConfigMIB.addPersistenceProvider(persistenceProvider[i]);
+                for (MOPersistenceProvider aPersistenceProvider : persistenceProvider) {
+                    if (aPersistenceProvider != this.persistenceProvider) {
+                        snmp4jConfigMIB.addPersistenceProvider(aPersistenceProvider);
                     }
                 }
             }
@@ -771,8 +769,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         @SuppressWarnings("unchecked")
         protected void registerTransportMappings() {
             ArrayList<TransportMapping> l = new ArrayList<>(dispatcher.getTransportMappings());
-            for (Iterator<TransportMapping> it = l.iterator(); it.hasNext();) {
-                TransportMapping tm = it.next();
+            for (TransportMapping tm : l) {
                 tm.removeTransportListener(dispatcher);
                 tm.addTransportListener(dispatcher);
             }
@@ -807,8 +804,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
          */
         protected void stopTransportMappings(Collection<TransportMapping> transportMappings) throws IOException {
             ArrayList<TransportMapping> l = new ArrayList<>(transportMappings);
-            for (Iterator<TransportMapping> it = l.iterator(); it.hasNext();) {
-                TransportMapping tm = it.next();
+            for (TransportMapping tm : l) {
                 if (tm.isListening()) {
                     tm.close();
                 }
@@ -1035,8 +1031,8 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             linkCounterListener();
             // use VACM-MIB as VACM by default
             agent.setVacm(vacm());
-            for (int i = 0; i < servers.length; i++) {
-                agent.addMOServer(servers[i]);
+            for (MOServer server1 : servers) {
+                agent.addMOServer(server1);
             }
             agent.setCoexistenceProvider(communityMIB);
             if (notificationOriginator == null) {
@@ -1066,14 +1062,14 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
          */
         public void setTableSizeLimits(Properties sizeLimits) {
             if ((tableSizeLimit != null) && (servers != null)) {
-                for (int i = 0; i < servers.length; i++) {
-                    DefaultMOServer.unregisterTableRowListener(servers[i], tableSizeLimit);
+                for (MOServer server1 : servers) {
+                    DefaultMOServer.unregisterTableRowListener(server1, tableSizeLimit);
                 }
             }
             tableSizeLimit = new MOTableSizeLimit(sizeLimits);
             // if (getState() == STATE_RUNNING) {
-            for (int i = 0; i < servers.length; i++) {
-                DefaultMOServer.registerTableRowListener(servers[i], tableSizeLimit);
+            for (MOServer server1 : servers) {
+                DefaultMOServer.registerTableRowListener(server1, tableSizeLimit);
             }
             // }
         }
@@ -1086,14 +1082,14 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
          */
         public void setTableSizeLimit(int sizeLimit) {
             if ((tableSizeLimit != null) && (servers != null)) {
-                for (int i = 0; i < servers.length; i++) {
-                    DefaultMOServer.unregisterTableRowListener(servers[i], tableSizeLimit);
+                for (MOServer server1 : servers) {
+                    DefaultMOServer.unregisterTableRowListener(server1, tableSizeLimit);
                 }
             }
             tableSizeLimit = new MOTableSizeLimit(sizeLimit);
             // if (getState() == STATE_RUNNING) {
-            for (int i = 0; i < servers.length; i++) {
-                DefaultMOServer.registerTableRowListener(servers[i], tableSizeLimit);
+            for (MOServer server1 : servers) {
+                DefaultMOServer.registerTableRowListener(server1, tableSizeLimit);
             }
             // }
         }
@@ -1902,9 +1898,9 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                                     // if value == null, it's a param without a name (the value
                                     // is actually in the name;
                                     if (value == null) {
-                                        paramsArray.put(name.toString());
+                                        paramsArray.put(name);
                                     } else {
-                                        paramsArray.put(name.toString() + "=" + value.toString());
+                                        paramsArray.put(name + "=" + value);
                                     }
                                 }
                             }
@@ -2057,7 +2053,8 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         }
 
         @Override
-        public void managementServicesChanged(String changeType, String instanceKey, Collection<URI> managementServiceAccepts) {
+        public void managementServicesChanged(String changeType, String instanceKey, Collection<String>
+            managementServiceAccepts) {
             OID gatewayOID = new OID(new int[]{1}); // hardcoded to 1 for now
 
             OID notificationOID = MIBConstants.oidClusterManagementServiceEvent;
@@ -2070,8 +2067,8 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             StringBuffer sb = new StringBuffer();
             String managementServiceAcceptsValue = "";
             if (managementServiceAccepts != null) {
-                for (URI managementServiceAccept : managementServiceAccepts) {
-                    sb.append(managementServiceAccept.toString() + '\n');
+                for (String managementServiceAccept : managementServiceAccepts) {
+                    sb.append(managementServiceAccept + '\n');
                 }
                 if (sb.length() > 1) {
                     managementServiceAcceptsValue = sb.substring(0, sb.length() - 1); // trim final \n char
@@ -2086,7 +2083,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         }
 
         @Override
-        public void balancerMapChanged(String changeType, URI balancerURI, Collection<URI> balanceeURIs) {
+        public void balancerMapChanged(String changeType, String balancerURI, Collection<String> balanceeURIs) {
             OID gatewayOID = new OID(new int[]{1}); // hardcoded to 1 for now
 
             OID notificationOID = MIBConstants.oidClusterBalancerMapEvent;
@@ -2097,8 +2094,8 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             StringBuffer sb = new StringBuffer();
             String balanceeURIsValue = "";
             if (balanceeURIs != null) {
-                for (URI balanceeURI : balanceeURIs) {
-                    sb.append(balanceeURI.toString() + '\n');
+                for (String balanceeURI : balanceeURIs) {
+                    sb.append(balanceeURI + '\n');
                 }
                 if (sb.length() > 1) {
                     balanceeURIsValue = sb.substring(0, sb.length() - 1); // trim final \n char
@@ -2107,7 +2104,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
             VariableBinding[] variables = new VariableBinding[3];
             variables[0] = new VariableBinding(balancerMapNotificationEventTypeOID, new OctetString(changeType));
-            variables[1] = new VariableBinding(balancerMapNotificationBalancerUriOID, new OctetString(balancerURI.toString()));
+            variables[1] = new VariableBinding(balancerMapNotificationBalancerUriOID, new OctetString(balancerURI));
             variables[2] = new VariableBinding(balancerMapNotificationBalanceeUrisOID, new OctetString(balanceeURIsValue));
             sendNotification(notificationOID, variables);
 

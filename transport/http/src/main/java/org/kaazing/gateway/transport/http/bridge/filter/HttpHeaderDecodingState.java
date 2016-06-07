@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,6 +69,13 @@ public abstract class HttpHeaderDecodingState extends DecodingStateMachine {
         COMMA_SEPARATED_HEADERS.add("Via");
         COMMA_SEPARATED_HEADERS.add("Warning");
         COMMA_SEPARATED_HEADERS.add("WWW-Authenticate");
+
+        COMMA_SEPARATED_HEADERS.add("Forwarded");
+        COMMA_SEPARATED_HEADERS.add("X-Forwarded-For");
+        COMMA_SEPARATED_HEADERS.add("X-Forwarded-Server");
+        COMMA_SEPARATED_HEADERS.add("X-Forwarded-Proto");
+        COMMA_SEPARATED_HEADERS.add("X-Forwarded-Host");
+
     }
 
     private static final String HEADER_WEBSOCKET_KEY_PREFIX = "Sec-WebSocket-Key";

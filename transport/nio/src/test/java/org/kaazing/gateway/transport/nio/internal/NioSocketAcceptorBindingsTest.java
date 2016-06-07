@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newRes
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -41,7 +40,6 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.transport.Bindings;
 import org.kaazing.gateway.transport.Bindings.Binding;
-import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.transport.BridgeSessionInitializerAdapter;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.future.DefaultUnbindFuture;
@@ -84,12 +82,12 @@ public class NioSocketAcceptorBindingsTest {
         IoHandlerAdapter handler = new IoHandlerAdapter();
         BridgeSessionInitializerAdapter<IoFuture> initializer = new BridgeSessionInitializerAdapter<>();
         int[] bindPorts = new int[NUMBER_DISTINCT_ADDRESSES];
-        URI[] bindURIs = new URI[NUMBER_DISTINCT_ADDRESSES];
+        String[] bindURIs = new String[NUMBER_DISTINCT_ADDRESSES];
         ResourceAddress[] bindAddresses = new ResourceAddress[NUMBER_DISTINCT_ADDRESSES];
 
         for(int i = 0; i < NUMBER_DISTINCT_ADDRESSES; i++) {
             bindPorts[i] = findFreePort();
-            bindURIs[i] = URI.create(format("tcp://127.0.0.1:%d", bindPorts[i]));
+            bindURIs[i] = format("tcp://127.0.0.1:%d", bindPorts[i]);
             bindAddresses[i] = addressFactory.newResourceAddress(bindURIs[i], opts);
         }
 
@@ -148,7 +146,7 @@ public class NioSocketAcceptorBindingsTest {
     public void referenceCountingWorksForOneOrMoreBinds() throws Exception {
 
         int bindPort = findFreePort();
-        URI bindURI = URI.create(format("tcp://localhost:%d", bindPort));
+        String bindURI = format("tcp://localhost:%d", bindPort);
         Map<String,Object> opts = new HashMap<>();
         IoHandlerAdapter handler = new IoHandlerAdapter();
         ResourceAddress bindAddress = addressFactory.newResourceAddress(bindURI, opts);
@@ -192,7 +190,7 @@ public class NioSocketAcceptorBindingsTest {
     public void bindFollowedByTwoUnbindsSucceeds() throws Exception {
 
         int bindPort = findFreePort();
-        URI bindURI = URI.create(format("tcp://localhost:%d", bindPort));
+        String bindURI = format("tcp://localhost:%d", bindPort);
         Map<String,Object> opts = new HashMap<>();
         IoHandlerAdapter handler = new IoHandlerAdapter();
         ResourceAddress bindAddress = addressFactory.newResourceAddress(bindURI, opts);
@@ -238,12 +236,12 @@ public class NioSocketAcceptorBindingsTest {
 
         IoHandlerAdapter handler = new IoHandlerAdapter();
         BridgeSessionInitializerAdapter<IoFuture> initializer = new BridgeSessionInitializerAdapter<>();
-        URI[] bindURIs = new URI[NUMBER_DISTINCT_ADDRESSES];
+        String[] bindURIs = new String[NUMBER_DISTINCT_ADDRESSES];
         ResourceAddress[] bindAddresses = new ResourceAddress[NUMBER_DISTINCT_ADDRESSES];
 
         int bindPort = findFreePort();
         for(int i = 0; i < NUMBER_DISTINCT_ADDRESSES; i++) {
-            bindURIs[i] = URI.create(format("tcp://127.0.0.1:%d", bindPort));
+            bindURIs[i] = format("tcp://127.0.0.1:%d", bindPort);
             ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
             options.setOption(NEXT_PROTOCOL, format("starts-with-ascii-%s", (65 + i)));
             bindAddresses[i] = addressFactory.newResourceAddress(bindURIs[i], options);

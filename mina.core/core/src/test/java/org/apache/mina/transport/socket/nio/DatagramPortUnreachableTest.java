@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,14 @@ import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
 import org.apache.mina.util.AvailablePortFinder;
+import org.junit.Ignore;
 
 /**
  * Tests {@link DatagramSessionConfig#setCloseOnPortUnreachable(boolean)}.
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
+@Ignore("Tests ignored out as per https://github.com/kaazing/tickets/issues/474")
 public class DatagramPortUnreachableTest extends TestCase {
 
     Object mutex = new Object();

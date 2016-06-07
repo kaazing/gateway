@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,15 @@
  */
 package org.kaazing.gateway.server.test.config.builder;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
+
 import org.junit.Test;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.NestedServicePropertiesConfiguration;
-import static org.junit.Assert.assertEquals;
 
 
 public class GatewayConfigurationBuilderTest {
@@ -33,7 +34,7 @@ public class GatewayConfigurationBuilderTest {
                 new GatewayConfigurationBuilder()
                         .webRootDirectory(new File("src/test/webapp"))
                         .service()
-                        .accept(URI.create("ws://localhost:8001/jms"))
+                        .accept("ws://localhost:8001/jms")
                         .type("test.service")
                         .property("a", "aValue")
                         .property("b", "bValue")
@@ -52,7 +53,7 @@ public class GatewayConfigurationBuilderTest {
                         .webRootDirectory(new File("src/test/webapp"))
                         .service()
                         .type("test.service")
-                        .accept(URI.create("ws://localhost:8001/jms"))
+                        .accept("ws://localhost:8001/jms")
                         .property("a", "aValue")
                         .property("b", "bValue")
                         .nestedProperty("nested1")

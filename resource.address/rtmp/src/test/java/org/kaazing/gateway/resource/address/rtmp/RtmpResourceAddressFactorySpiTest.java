@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,17 +34,17 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 public class RtmpResourceAddressFactorySpiTest {
 
     private RtmpResourceAddressFactorySpi addressFactorySpi;
-    private URI addressURI;
+    private String addressURI;
     private Map<String, Object> options;
     
     @Before
     public void before() {
         addressFactorySpi = new RtmpResourceAddressFactorySpi();
-        addressURI = URI.create("rtmp://localhost:2020/");
+        addressURI = "rtmp://localhost:2020/";
         options = new HashMap<>();
         options.put("rtmp.nextProtocol", "custom");
         options.put("rtmp.qualifier", "random");
-        options.put("rtmp.transport", URI.create("tcp://localhost:2121"));
+        options.put("rtmp.transport", "tcp://localhost:2121");
     }
 
     @Test
@@ -54,17 +54,17 @@ public class RtmpResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireRtmpSchemeName() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("test://opaque"));
+        addressFactorySpi.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPath() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("rtmp://localhost:2020"));
+        addressFactorySpi.newResourceAddress("rtmp://localhost:2020");
     }
 
     @Test
     public void shouldNotRequireExplicitPort() throws Exception {
-        ResourceAddress address = addressFactorySpi.newResourceAddress(URI.create("rtmp://localhost/"));
+        ResourceAddress address = addressFactorySpi.newResourceAddress("rtmp://localhost/");
         URI location = address.getResource();
         assertEquals(location.getPort(), 1935);
     }
@@ -89,14 +89,14 @@ public class RtmpResourceAddressFactorySpiTest {
     public void shouldCreateAddressWithDefaultTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("tcp://localhost:2020"), address.getOption(TRANSPORT_URI));
+        assertEquals("tcp://localhost:2020", address.getOption(TRANSPORT_URI));
     }
     
     @Test
     public void shouldCreateAddressWithTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI, options);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("tcp://localhost:2121"), address.getOption(TRANSPORT_URI));
+        assertEquals("tcp://localhost:2121", address.getOption(TRANSPORT_URI));
     }
     
 }

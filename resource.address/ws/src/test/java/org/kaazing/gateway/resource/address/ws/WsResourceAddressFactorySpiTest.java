@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,18 +56,19 @@ import org.junit.Test;
 import org.kaazing.gateway.resource.address.Comparators;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 
 public class WsResourceAddressFactorySpiTest {
     private final ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
 
     private WsResourceAddressFactorySpi addressFactorySpi;
-    private URI addressURI;
+    private String addressURI;
     private Map<String, Object> options;
     
     @Before
     public void before() {
         addressFactorySpi = new WsResourceAddressFactorySpi();
-        addressURI = URI.create("ws://localhost:2020/");
+        addressURI = "ws://localhost:2020/";
         options = new HashMap<>();
         options.put("ws.nextProtocol", "custom");
         options.put("ws.qualifier", "random");
@@ -78,7 +79,7 @@ public class WsResourceAddressFactorySpiTest {
         options.put("ws.inactivityTimeout", SECONDS.toMillis(5));
         options.put("ws.supportedProtocols", new String[] { "amqp/0.91", "amqp/1.0" });
         options.put("ws.requiredProtocols", new String[] { "amqp/0.91", "amqp/1.0" });
-        options.put("ws.transport", URI.create("http://localhost:2121/"));
+        options.put("ws.transport", "http://localhost:2121/");
     }
 
     @Test
@@ -88,17 +89,17 @@ public class WsResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireWsnSchemeName() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("test://opaque"));
+        addressFactorySpi.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPath() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("ws://localhost:80"));
+        addressFactorySpi.newResourceAddress("ws://localhost:80");
     }
 
     @Test 
     public void shouldNotRequireExplicitPort() throws Exception {
-        ResourceAddress address = addressFactorySpi.newResourceAddress(URI.create("ws://localhost/"));
+        ResourceAddress address = addressFactorySpi.newResourceAddress("ws://localhost/");
         URI location = address.getResource();
         assertEquals(location.getPort(), 80);
     }
@@ -137,14 +138,14 @@ public class WsResourceAddressFactorySpiTest {
     public void shouldCreateAddressWithDefaultTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("http://localhost:2020/"), address.getOption(TRANSPORT_URI));
+        assertEquals("http://localhost:2020/", address.getOption(TRANSPORT_URI));
     }
     
     @Test
     public void shouldCreateAddressWithTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI, options);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("http://localhost:2121/"), address.getOption(TRANSPORT_URI));
+        assertEquals("http://localhost:2121/", address.getOption(TRANSPORT_URI));
     }
 
     @Test
@@ -154,7 +155,7 @@ public class WsResourceAddressFactorySpiTest {
         addressFactorySpi.setResourceAddressFactory(addressFactory);
 
         ResourceAddress address = addressFactory.newResourceAddress(addressURI);
-        assertEquals(addressURI, address.getResource());
+        assertEquals(URI.create(addressURI), address.getResource());
         // bind alternate should be false for all ws resource addresses... only while WsAcceptor
         // delegates the binds explicitly.  If we ever remove WsAcceptor this will change.
         assertFalse(address.getOption(BIND_ALTERNATE));
@@ -166,16 +167,16 @@ public class WsResourceAddressFactorySpiTest {
         ResourceAddress address = addressFactory.newResourceAddress(addressURI);
 
         ResourceAddress wse = address.getOption(ALTERNATE);
-        assertEquals("wse", wse.getExternalURI().getScheme());
+        assertEquals("wse", URIUtils.getScheme(wse.getExternalURI()));
 
         ResourceAddress wsx = wse.getOption(ALTERNATE);
-        assertEquals("wsx", wsx.getExternalURI().getScheme());
+        assertEquals("wsx", URIUtils.getScheme(wsx.getExternalURI()));
 
         ResourceAddress wsdraft = wsx.getOption(ALTERNATE);
-        assertEquals("ws-draft", wsdraft.getExternalURI().getScheme());
+        assertEquals("ws-draft", URIUtils.getScheme(wsdraft.getExternalURI()));
 
         ResourceAddress wsxdraft = wsdraft.getOption(ALTERNATE);
-        assertEquals("wsx-draft", wsxdraft.getExternalURI().getScheme());
+        assertEquals("wsx-draft", URIUtils.getScheme(wsxdraft.getExternalURI()));
 
     }
 
@@ -238,22 +239,22 @@ public class WsResourceAddressFactorySpiTest {
     @Test
     public void testAlternateAddressComparison() throws Exception {
         Comparator<ResourceAddress> cmp = Comparators.compareResourceOriginPathAlternatesAndProtocolStack();
-        ResourceAddress addr1 = makeResourceAddress(new URI("ws://localhost:8001/echo"));
+        ResourceAddress addr1 = makeResourceAddress("ws://localhost:8001/echo");
 
 
         Map<String, Object> options = new HashMap<>();
         options.put("http.nextProtocol", "wse/1.0");
-        ResourceAddress addr3 = addressFactory.newResourceAddress(new URI("wse://localhost:8001/echo"), options);
+        ResourceAddress addr3 = addressFactory.newResourceAddress("wse://localhost:8001/echo", options);
         assertEquals(0, cmp.compare(addr1, addr3));
 
         options = new HashMap<>();
         options.put("http.nextProtocol", "xxx/1.0");
-        ResourceAddress addr4 = addressFactory.newResourceAddress(new URI("wse://localhost:8001/echo"), options);
+        ResourceAddress addr4 = addressFactory.newResourceAddress("wse://localhost:8001/echo", options);
         assertNotEquals(0, cmp.compare(addr1, addr4));
 
         options = new HashMap<>();
-        options.put("http.transport", new URI("tcp://localhost:8002"));
-        ResourceAddress addr5 = addressFactory.newResourceAddress(new URI("ws://localhost:8001/echo"), options);
+        options.put("http.transport", "tcp://localhost:8002");
+        ResourceAddress addr5 = addressFactory.newResourceAddress("ws://localhost:8001/echo", options);
         assertNotEquals(0, cmp.compare(addr1, addr5));
     }
 
@@ -292,17 +293,17 @@ public class WsResourceAddressFactorySpiTest {
     private ResourceAddress makeLayeredResourceAddress(int port) throws Exception {
         Map<String, Object> options = new HashMap<>();
         options.put("tcp.nextProtocol", "http/1.1");
-        options.put("tcp.transport", URI.create("tcp://localhost:"+port));
-        ResourceAddress tcp = addressFactory.newResourceAddress(new URI("tcp://localhost:8005"), options);
+        options.put("tcp.transport", "tcp://localhost:"+port);
+        ResourceAddress tcp = addressFactory.newResourceAddress("tcp://localhost:8005", options);
 
-        ResourceAddress addr1 = addressFactory.newResourceAddress(new URI("http://localhost:8002/echo"), "ws/rfc6455");
+        ResourceAddress addr1 = addressFactory.newResourceAddress("http://localhost:8002/echo", "ws/rfc6455");
         ResourceAddress http = addressFactory.newResourceAddress(addr1, tcp);
 
-        ResourceAddress addr2 = addressFactory.newResourceAddress(new URI("wss://localhost:8001/echo"));
+        ResourceAddress addr2 = addressFactory.newResourceAddress("wss://localhost:8001/echo");
         return addressFactory.newResourceAddress(addr2, http);
     }
 
-    private ResourceAddress makeResourceAddress(URI location) {
+    private ResourceAddress makeResourceAddress(String location) {
         return addressFactory.newResourceAddress(location);
     }
 

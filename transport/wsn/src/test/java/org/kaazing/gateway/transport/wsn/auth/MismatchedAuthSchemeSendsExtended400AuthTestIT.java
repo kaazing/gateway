@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.FileInputStream;
-import java.net.URI;
 import java.security.KeyStore;
 
 import org.junit.Rule;
@@ -50,7 +49,7 @@ public class MismatchedAuthSchemeSendsExtended400AuthTestIT {
 
 			GatewayConfiguration configuration = new GatewayConfigurationBuilder()
 					.service()
-			            .accept(URI.create("ws://localhost:8001/echoAuth"))
+			            .accept("ws://localhost:8001/echoAuth")
 			            .type("echo")
 			            .realmName("demo")
 			            .authorization()
@@ -75,7 +74,7 @@ public class MismatchedAuthSchemeSendsExtended400AuthTestIT {
 	};
 
 	@Rule
-	public TestRule chain = createRuleChain(gateway, robot, 1500, MILLISECONDS);
+	public TestRule chain = createRuleChain(gateway, robot, 5000, MILLISECONDS);
 
 	@Specification("shouldFailDueToMismatchedAuthSchemes")
 	@Test

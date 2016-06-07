@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,6 +149,7 @@ public abstract class SuspendableIoFilterAdapter extends IoFilterAdapter {
             this.session = session;
         }
 
+        @Override
         public void fire() throws Exception {
             SuspendableIoFilterAdapter.this.doSessionCreated(nextFilter, session);
         }
@@ -163,6 +164,7 @@ public abstract class SuspendableIoFilterAdapter extends IoFilterAdapter {
             this.session = session;
         }
 
+        @Override
         public void fire() throws Exception {
             SuspendableIoFilterAdapter.this.doSessionOpened(nextFilter, session);
         }
@@ -177,6 +179,7 @@ public abstract class SuspendableIoFilterAdapter extends IoFilterAdapter {
             this.session = session;
         }
 
+        @Override
         public void fire() throws Exception {
             SuspendableIoFilterAdapter.this.doSessionClosed(nextFilter, session);
         }
@@ -193,6 +196,7 @@ public abstract class SuspendableIoFilterAdapter extends IoFilterAdapter {
             this.message = message;
         }
 
+        @Override
         public void fire() throws Exception {
             SuspendableIoFilterAdapter.this.doMessageReceived(nextFilter, session, message);
         }

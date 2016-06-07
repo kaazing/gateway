@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,6 @@
  */
 package org.kaazing.gateway.transport.http.bridge.filter;
 
-
-import static java.lang.String.format;
-import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_FORWARDED;
-
-import java.net.URI;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -29,7 +23,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.security.auth.Subject;
-import javax.security.auth.login.LoginContext;
 
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
@@ -68,8 +61,6 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
     public static final String AUTH_SCHEME_BASIC = "Basic";
     public static final String AUTH_SCHEME_NEGOTIATE = "Negotiate";
 
-    private static final String HEADER_FORWARDED_REMOTE_IP_ADDRESS = "for=%s";
-
     static final AttributeKey NEW_SESSION_COOKIE_KEY = new AttributeKey(HttpSubjectSecurityFilter.class, "sessionCookie");
 
     private final AuthorizationMap authorizationMap;
@@ -105,26 +96,6 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         HttpRequestMessage httpRequest = (HttpRequestMessage) message;
         final boolean loggerIsEnabled = logger != null && logger.isTraceEnabled();
 
-        String forwarded = httpRequest.getHeader(HEADER_FORWARDED);
-        if ((forwarded == null) || (forwarded.length() == 0)) {
-            String remoteIpAddress = null;
-            ResourceAddress resourceAddress = REMOTE_ADDRESS.get(session);
-            ResourceAddress tcpResourceAddress = resourceAddress.findTransport("tcp");
-
-            if (tcpResourceAddress != null) {
-                URI resource = tcpResourceAddress.getResource();
-                remoteIpAddress = resource.getHost();
-
-                if (loggerIsEnabled) {
-                    logger.trace(format("HttpSubjectSecurityFilter: Remote IP Address: '%s'", remoteIpAddress));
-                }
-            }
-
-            if (remoteIpAddress != null) {
-                httpRequest.setHeader(HEADER_FORWARDED, format(HEADER_FORWARDED_REMOTE_IP_ADDRESS, remoteIpAddress));
-            }
-        }
-
         // Make sure we start with the subject from the underlying transport session in case it already has an authenticated subject
         // (e.g. we are httpxe and our transport is http or transport is SSL with a client certificate)
         if (httpRequest.getSubject() == null) {
@@ -157,6 +128,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         securityMessageReceived(nextFilter, session, httpRequest);
     }
 
+    @Override
     protected void writeSessionCookie(IoSession session, HttpRequestMessage httpRequest, DefaultLoginResult loginResult) {
         // secure requests always have cookie accessible, even
         // on first access

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -175,7 +175,7 @@ public class NTLMUtilities implements NTLMConstants {
      */
     public static byte[] createType1Message(String workStation,
             String domain, Integer customFlags, byte[] osVersion) {
-        byte[] msg = null;
+        byte[] msg;
 
         if (osVersion != null && osVersion.length != 8) {
             throw new IllegalArgumentException(
@@ -415,7 +415,7 @@ public class NTLMUtilities implements NTLMConstants {
     public static byte[] createType3Message(String user, String password,
             byte[] challenge, String target, String workstation,
             Integer serverFlags, byte[] osVersion) {
-        byte[] msg = null;
+        byte[] msg;
 
         if (challenge == null || challenge.length != 8) {
             throw new IllegalArgumentException(

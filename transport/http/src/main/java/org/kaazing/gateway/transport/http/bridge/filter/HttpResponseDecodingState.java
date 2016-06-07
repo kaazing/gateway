@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,10 +68,12 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
 
     protected final DecodingState FLUSH_MESSAGES = new DecodingState() {
 
+        @Override
         public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out) throws Exception {
             return SKIP_EMPTY_LINES;
         }
 
+        @Override
         public DecodingState finishDecode(ProtocolDecoderOutput out) throws Exception {
             return SKIP_EMPTY_LINES;
         }
@@ -114,7 +116,11 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
                 LOGGER.debug("\"" + status + " " + httpResponse.getReason() + " " + version + "\"");
             }
 
-            if (httpSession != null && httpSession.getMethod() == HttpMethod.HEAD) {
+            if (status == HttpStatus.REDIRECT_NOT_MODIFIED) {
+                httpResponse.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), true));
+                out.write(httpResponse);
+                return null;
+            } else if (httpSession != null && httpSession.getMethod() == HttpMethod.HEAD) {
                 httpResponse.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), true));
                 out.write(httpResponse);
                 return null;

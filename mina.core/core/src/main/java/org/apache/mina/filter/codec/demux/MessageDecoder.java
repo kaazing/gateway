@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,21 +37,21 @@ public interface MessageDecoder {
      * {@link #decode(IoSession, IoBuffer, ProtocolDecoderOutput)}.  Please
      * refer to each method's documentation for detailed explanation.
      */
-    static MessageDecoderResult OK = MessageDecoderResult.OK;
+    MessageDecoderResult OK = MessageDecoderResult.OK;
 
     /**
      * Represents a result from {@link #decodable(IoSession, IoBuffer)} and
      * {@link #decode(IoSession, IoBuffer, ProtocolDecoderOutput)}.  Please
      * refer to each method's documentation for detailed explanation.
      */
-    static MessageDecoderResult NEED_DATA = MessageDecoderResult.NEED_DATA;
+    MessageDecoderResult NEED_DATA = MessageDecoderResult.NEED_DATA;
 
     /**
      * Represents a result from {@link #decodable(IoSession, IoBuffer)} and
      * {@link #decode(IoSession, IoBuffer, ProtocolDecoderOutput)}.  Please
      * refer to each method's documentation for detailed explanation.
      */
-    static MessageDecoderResult NOT_OK = MessageDecoderResult.NOT_OK;
+    MessageDecoderResult NOT_OK = MessageDecoderResult.NOT_OK;
 
     /**
      * Checks the specified buffer is decodable by this decoder.

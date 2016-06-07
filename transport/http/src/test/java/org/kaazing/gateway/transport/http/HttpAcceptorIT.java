@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import static org.kaazing.gateway.transport.http.HttpMatchers.hasReadHeader;
 import static org.kaazing.gateway.transport.http.HttpMethod.POST;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 
@@ -44,7 +43,6 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
-import org.kaazing.gateway.resource.address.http.HttpInjectableHeader;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
@@ -89,9 +87,9 @@ public class HttpAcceptorIT {
         tcpAcceptor.setResourceAddressFactory(addressFactory);
         tcpAcceptor.setBridgeServiceFactory(serviceFactory);
 
-        URI location = URI.create("http://localhost:8000/path");
+        String location = "http://localhost:8000/path";
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
-        options.setOption(INJECTABLE_HEADERS, Collections.<HttpInjectableHeader>emptySet());
+        options.setOption(INJECTABLE_HEADERS, Collections.emptySet());
         ResourceAddress httpAddress = addressFactory.newResourceAddress(location, options);
 
         this.tcpAcceptor = tcpAcceptor;

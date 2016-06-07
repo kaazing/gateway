@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newRes
 import static org.kaazing.test.util.Assert.assertEmpty;
 
 import java.net.InetAddress;
-import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -85,7 +84,7 @@ public class HttpBindingsTest {
     @Test
     public void testAddHttpBinding() throws Exception {
 
-        URI fooURI = URI.create("http://example.com/foo");
+        String fooURI = "http://example.com/foo";
         ResourceAddress address = addressFactory.newResourceAddress(fooURI, makeOpts());
 
         Bindings.Binding binding = new Bindings.Binding(address, handler, initializer);
@@ -103,7 +102,7 @@ public class HttpBindingsTest {
     @Test
     public void testRemoveHttpBinding() throws Exception {
 
-        URI fooURI = URI.create("http://example.com/foo");
+        String fooURI = "http://example.com/foo";
         ResourceAddress address = addressFactory.newResourceAddress(fooURI, makeOpts());
 
         Bindings.Binding binding = new Bindings.Binding(address, handler, initializer);
@@ -128,8 +127,8 @@ public class HttpBindingsTest {
     @Test
     public void testTwoAddsAndOneRemoveHttpBindingLeavesUsWithAOneReferenceCountBinding() throws Exception {
 
-        URI uri1 = URI.create("http://example.com/foo");
-        URI uri2 = URI.create("http://example.com/foo");
+        String uri1 = "http://example.com/foo";
+        String uri2 = "http://example.com/foo";
         ResourceAddress address1 = addressFactory.newResourceAddress(uri1, makeOpts());
         ResourceAddress address2 = addressFactory.newResourceAddress(uri2, makeOpts());
 
@@ -161,12 +160,12 @@ public class HttpBindingsTest {
 
     @Test
     public void shouldCorrectlyBindTwoAddressesWithTcpBind() throws Exception {
-        URI uri1 = URI.create("http://localhost:8001/");
-        HashMap<String, Object> options1 = new HashMap<String, Object>();
+        String uri1 = "http://localhost:8001/";
+        HashMap<String, Object> options1 = new HashMap<>();
         options1.put("tcp.bind", "7777");
 
-        URI uri2 = URI.create("http://localhost:8001/");
-        HashMap<String, Object> options2 = new HashMap<String, Object>();
+        String uri2 = "http://localhost:8001/";
+        HashMap<String, Object> options2 = new HashMap<>();
 
 
         ResourceAddress address1 = addressFactory.newResourceAddress(uri1, options1);
@@ -183,12 +182,12 @@ public class HttpBindingsTest {
 
     @Test
     public void shouldCorrectlyBindTwoSecureAddressesWithTcpBind() throws Exception {
-        URI uri1 = URI.create("https://localhost:8001/");
-        HashMap<String, Object> options1 = new HashMap<String, Object>();
+        String uri1 = "https://localhost:8001/";
+        HashMap<String, Object> options1 = new HashMap<>();
         options1.put("tcp.bind", "7777");
 
-        URI uri2 = URI.create("https://localhost:8001/");
-        HashMap<String, Object> options2 = new HashMap<String, Object>();
+        String uri2 = "https://localhost:8001/";
+        HashMap<String, Object> options2 = new HashMap<>();
 
 
         ResourceAddress address1 = addressFactory.newResourceAddress(uri1, options1);
@@ -205,7 +204,7 @@ public class HttpBindingsTest {
 
     @Test
     public void testAddHttpBindingTwiceShouldIncrementHttpBindingBindingReferenceCount() throws Exception {
-        URI fooURI = URI.create("http://example.com/foo");
+        String fooURI = "http://example.com/foo";
         ResourceAddress address = addressFactory.newResourceAddress(fooURI, makeOpts());
 
         Bindings.Binding binding = new Bindings.Binding(address, handler, initializer);
@@ -228,8 +227,8 @@ public class HttpBindingsTest {
     public void shouldCorrectlyBindTwoAddressesWithDistinctOrigins() throws Exception {
         Bindings.Binding oldBinding;
 
-        URI origin1URI = URI.create("http://origin1.com/foo");
-        URI origin2URI = URI.create("http://origin2.com/foo");
+        String origin1URI = "http://origin1.com/foo";
+        String origin2URI = "http://origin2.com/foo";
 
         ResourceAddress address1 = addressFactory.newResourceAddress(origin1URI, makeOpts());
         ResourceAddress address2 = addressFactory.newResourceAddress(origin2URI, makeOpts());
@@ -247,8 +246,8 @@ public class HttpBindingsTest {
         assertEquals(1, binding2.referenceCount());
 
         // Now look up with suffix addresses, should find original binding1 and binding2
-        URI origin1aURI = URI.create("http://origin1.com/foo/bar");
-        URI origin2aURI = URI.create("http://origin2.com/foo/bar");
+        String origin1aURI = "http://origin1.com/foo/bar";
+        String origin2aURI = "http://origin2.com/foo/bar";
         ResourceAddress address1a = addressFactory.newResourceAddress(origin1aURI, makeOpts());
         ResourceAddress address2a = addressFactory.newResourceAddress(origin2aURI, makeOpts());
 
@@ -270,8 +269,8 @@ public class HttpBindingsTest {
 
         Bindings.Binding oldBinding;
 
-        URI stack1URI = URI.create("http://origin1.com/foo");
-        URI stack2URI = URI.create("httpx://origin1.com/foo");
+        String stack1URI = "http://origin1.com/foo";
+        String stack2URI = "httpx://origin1.com/foo";
 
         ResourceAddress address1 = addressFactory.newResourceAddress(stack1URI, makeOpts());
         ResourceAddress address2 = addressFactory.newResourceAddress(stack2URI, makeOpts());
@@ -289,8 +288,8 @@ public class HttpBindingsTest {
         assertEquals(1, binding2.referenceCount());
 
         // Now look up with suffix addresses, should find original binding1 and binding2
-        URI stack1aURI = URI.create("http://origin1.com/foo/bar");
-        URI stack2aURI = URI.create("httpx://origin1.com/foo/bar");
+        String stack1aURI = "http://origin1.com/foo/bar";
+        String stack2aURI = "httpx://origin1.com/foo/bar";
         ResourceAddress address1a = addressFactory.newResourceAddress(stack1aURI, makeOpts());
         ResourceAddress address2a = addressFactory.newResourceAddress(stack2aURI, makeOpts());
 
@@ -312,8 +311,8 @@ public class HttpBindingsTest {
 
         Bindings.Binding oldBinding;
 
-        URI stack1URI = URI.create("http://origin1.com/foo");
-        URI stack2URI = URI.create("httpx://origin1.com/foo");
+        String stack1URI = "http://origin1.com/foo";
+        String stack2URI = "httpx://origin1.com/foo";
 
         ResourceAddress address1 = addressFactory.newResourceAddress(stack1URI, makeOpts("ws/rfc6455"));
         ResourceAddress address2 = addressFactory.newResourceAddress(stack2URI, makeOpts("ws/rfc6455"));
@@ -383,10 +382,10 @@ public class HttpBindingsTest {
             /bar/fiz                     <fiz address>
             /bar/buz                     <buz address>
          */
-        URI fooURI = URI.create("http://example.com/foo");
-        URI bazURI = URI.create("http://example.com/foo/baz");
-        URI fizURI = URI.create("http://example.com/bar/fiz");
-        URI buzURI = URI.create("http://example.com/bar/buz");
+        String fooURI = "http://example.com/foo";
+        String bazURI = "http://example.com/foo/baz";
+        String fizURI = "http://example.com/bar/fiz";
+        String buzURI = "http://example.com/bar/buz";
 
         ResourceAddress fooBindAddress = addressFactory.newResourceAddress(fooURI, makeOpts());
         ResourceAddress bazBindAddress = addressFactory.newResourceAddress(bazURI, makeOpts());
@@ -404,28 +403,28 @@ public class HttpBindingsTest {
         assertNull(httpBindings.addBinding(buzBinding));
 
         // Do not expect to get addresses at these urls
-        assertNull(httpBindings.getBinding(addressFactory.newResourceAddress(URI.create("http://example.com/"), makeOpts())));
-        assertNull(httpBindings.getBinding(addressFactory.newResourceAddress(URI.create("http://example.com/extra"), makeOpts())));
-        assertNull(httpBindings.getBinding(addressFactory.newResourceAddress(URI.create("http://example.com/bar"), makeOpts())));
-        assertNull(httpBindings.getBinding(addressFactory.newResourceAddress(URI.create("http://example.com/bar/extra"), makeOpts())));
+        assertNull(httpBindings.getBinding(addressFactory.newResourceAddress("http://example.com/", makeOpts())));
+        assertNull(httpBindings.getBinding(addressFactory.newResourceAddress("http://example.com/extra", makeOpts())));
+        assertNull(httpBindings.getBinding(addressFactory.newResourceAddress("http://example.com/bar", makeOpts())));
+        assertNull(httpBindings.getBinding(addressFactory.newResourceAddress("http://example.com/bar/extra", makeOpts())));
 
         // Expect to find specific addresses at these urls
         assertSame(fooBinding, httpBindings.getBinding(fooBindAddress));
         assertSame(bazBinding, httpBindings.getBinding(bazBindAddress));
         assertSame(fizBinding, httpBindings.getBinding(fizBindAddress));
         assertSame(buzBinding, httpBindings.getBinding(buzBindAddress));
-        assertSame(fooBinding, httpBindings.getBinding(addressFactory.newResourceAddress(URI.create("http://example.com/foo/bar"), makeOpts())));
-        assertSame(bazBinding, httpBindings.getBinding(addressFactory.newResourceAddress(URI.create("http://example.com/foo/baz/extra"), makeOpts())));
-        assertSame(bazBinding, httpBindings.getBinding(addressFactory.newResourceAddress(URI.create("http://example.com/foo/baz/extra/extra"), makeOpts())));
-        assertSame(fizBinding, httpBindings.getBinding(addressFactory.newResourceAddress(URI.create("http://example.com/bar/fiz/extra/extra"), makeOpts())));
-        assertSame(fizBinding, httpBindings.getBinding(addressFactory.newResourceAddress(URI.create("http://example.com/bar/fiz/extra"), makeOpts())));
+        assertSame(fooBinding, httpBindings.getBinding(addressFactory.newResourceAddress("http://example.com/foo/bar", makeOpts())));
+        assertSame(bazBinding, httpBindings.getBinding(addressFactory.newResourceAddress("http://example.com/foo/baz/extra", makeOpts())));
+        assertSame(bazBinding, httpBindings.getBinding(addressFactory.newResourceAddress("http://example.com/foo/baz/extra/extra", makeOpts())));
+        assertSame(fizBinding, httpBindings.getBinding(addressFactory.newResourceAddress("http://example.com/bar/fiz/extra/extra", makeOpts())));
+        assertSame(fizBinding, httpBindings.getBinding(addressFactory.newResourceAddress("http://example.com/bar/fiz/extra", makeOpts())));
     }
 
     @Test
     public void testBindPutLogic() throws Exception {
 
         // Basic bind to start with
-        URI bindUri = URI.create("http://localhost/foo/bar");
+        String bindUri = "http://localhost/foo/bar";
         ResourceAddress bindAddress = addressFactory.newResourceAddress(bindUri, makeOpts());
         Bindings.Binding binding = new Bindings.Binding(bindAddress, new IoHandlerAdapter());
         Bindings.Binding oldBinding = httpBindings.addBinding(binding);
@@ -438,7 +437,7 @@ public class HttpBindingsTest {
         assertNull(oldBinding);
 
         // Now bind a handler at /foo.
-        URI fooBindUri = URI.create("http://localhost/foo");
+        String fooBindUri = "http://localhost/foo";
         ResourceAddress fooBindAddress = addressFactory.newResourceAddress(fooBindUri, makeOpts());
         Bindings.Binding fooBinding = new Bindings.Binding(fooBindAddress, new IoHandlerAdapter());
         oldBinding = httpBindings.addBinding(fooBinding);
@@ -450,7 +449,7 @@ public class HttpBindingsTest {
         assertNotNull(oldBinding);
 
         // Put a non-matching address, expect to get different binding out
-        URI wsFooBindUri = URI.create("ws://localhost/foo");
+        String wsFooBindUri = "ws://localhost/foo";
         ResourceAddress wsFooBindAddress = addressFactory.newResourceAddress(wsFooBindUri);
         Bindings.Binding wsFooBinding = new Bindings.Binding(wsFooBindAddress, new IoHandlerAdapter());
         oldBinding = httpBindings.addBinding(wsFooBinding);

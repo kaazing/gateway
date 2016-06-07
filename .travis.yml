@@ -1,6 +1,20 @@
-sudo: false
+sudo: required
 language: Java
-jdk:
-  - oraclejdk8
-install: mvn -q clean -DskipTests -DskipITs install
-script: mvn verify && mvn cobertura:cobertura-integration-test coveralls:report
+jdk: oraclejdk8
+env:
+  global:
+    - secure: "sG5h/UB/s3uhN6DF4F4jRHLKDTbqGipDdCBaUu/8mZ8kqgtZtMAh6yodj1HrRbEzov0kCsjDYTnv90YzZWIbmrzRNY3M/B/P47DKkCxjf6ejbSY9D0OJnqbjzOyfiDP6bAs64pUzfjylkYuvNVhkCxN0Ay7k8cvT9D0XOX3nUHc="
+    - secure: "P5oMhssZHp8eBezF2WEUZrzR6du/ibhcNRmZhSC8uKN0NO6AKlGLBID2llQrWED7RoZLoYhReR04LqdQZboGKvmqZ1TRHDkhwUOsFAGFIC2wxFrZPNy06anOjaT+ZfOsMZCtN+mXCaCARSBCSJP7L0vyEIdfaw+ZG2LxBV2GrK0="
+before_install: certificates/add-to-cacerts.sh
+install: mvn -q -B -U install -DskipTests -DskipITs
+script:
+  - >
+    if [ ${TRAVIS_PULL_REQUEST} == "false" ]; then
+    if [ ${TRAVIS_BRANCH} == "develop" ] || [ ${TRAVIS_BRANCH} == "master" ] || [[ ${TRAVIS_BRANCH} == release/* ]]; then
+    mvn -B clean verify -Psonar && mvn -B sonar:sonar -Dsonar.host.url=https://repository.kaazing.com/secret-sauce/sonarqube -Dsonar.login=${SONAR_USER} -Dsonar.password=${SONAR_PASSWORD} -Dsonar.branch=${TRAVIS_BRANCH};
+    else
+    mvn -B clean verify && echo "SonarQube analysis is performed only for commits on the develop, master and release/* branches(not for PRs)";
+    fi;
+    else
+    mvn -B clean verify && echo "SonarQube analysis is performed only for commits on the develop, master and release/* branches(not for PRs)";
+    fi;

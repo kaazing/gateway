@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package org.kaazing.gateway.server.test.config.builder;
 
-import java.net.URI;
 import java.util.Set;
+
 import org.kaazing.gateway.server.test.config.AuthorizationConstraintConfiguration;
 import org.kaazing.gateway.server.test.config.CrossOriginConstraintConfiguration;
 import org.kaazing.gateway.server.test.config.NestedServicePropertiesConfiguration;
@@ -27,14 +27,14 @@ import org.kaazing.gateway.server.test.config.SuppressibleConfiguration.Suppress
 public abstract class AbstractServiceConfigurationBuilder<R> extends
         AbstractConfigurationBuilder<ServiceConfiguration, R> {
 
-    public AbstractServiceConfigurationBuilder<R> balance(URI balance) {
+    public AbstractServiceConfigurationBuilder<R> balance(String balance) {
         configuration.getSuppressibleConfiguration().addBalance(
                 new Suppressible<>(balance, getCurrentSuppressions()));
         return this;
     }
 
-    public AbstractServiceConfigurationBuilder<R> accept(URI accept) {
-        configuration.getSuppressibleConfiguration().addAccept(new Suppressible<>(accept, getCurrentSuppressions()));
+    public AbstractServiceConfigurationBuilder<R> accept(String string) {
+        configuration.getSuppressibleConfiguration().addAccept(new Suppressible<>(string, getCurrentSuppressions()));
         return this;
     }
 
@@ -44,9 +44,9 @@ public abstract class AbstractServiceConfigurationBuilder<R> extends
         return this;
     }
 
-    public AbstractServiceConfigurationBuilder<R> connect(URI connect) {
+    public AbstractServiceConfigurationBuilder<R> connect(String string) {
         configuration.getSuppressibleConfiguration().addConnect(
-                new Suppressible<>(connect, getCurrentSuppressions()));
+                new Suppressible<>(string, getCurrentSuppressions()));
         return this;
     }
 

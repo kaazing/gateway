@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package org.kaazing.gateway.management;
 
-import java.net.URI;
 import java.util.Collection;
+
 import org.kaazing.gateway.management.gateway.GatewayManagementBean;
 
 /**
@@ -29,8 +29,8 @@ public interface ClusterManagementListener {
 
     void membershipChanged(String changeType, String instanceKey);
 
-    void managementServicesChanged(String changeType, String instanceKey, Collection<URI> managementServiceAccepts);
+    void managementServicesChanged(String changeType, String instanceKey, Collection<String> managementServiceAccepts);
 
-    void balancerMapChanged(String changeType, URI balancerURI, Collection<URI> balanceeURIs);
+    void balancerMapChanged(String changeType, String balancerURI, Collection<String> balanceeURIs);
 
 }

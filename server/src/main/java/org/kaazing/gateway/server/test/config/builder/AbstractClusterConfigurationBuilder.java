@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package org.kaazing.gateway.server.test.config.builder;
 
-import java.net.URI;
 import java.util.Set;
+
 import org.kaazing.gateway.server.test.config.ClusterConfiguration;
 import org.kaazing.gateway.server.test.config.Suppressible;
 import org.kaazing.gateway.server.test.config.SuppressibleConfiguration.Suppression;
@@ -34,12 +34,12 @@ public abstract class AbstractClusterConfigurationBuilder<R> extends
         return this;
     }
 
-    public AbstractClusterConfigurationBuilder<R> accept(URI accept) {
+    public AbstractClusterConfigurationBuilder<R> accept(String accept) {
         configuration.getSuppressibleConfiguration().addAccept(new Suppressible<>(accept, getCurrentSuppressions()));
         return this;
     }
 
-    public AbstractClusterConfigurationBuilder<R> connect(URI connect) {
+    public AbstractClusterConfigurationBuilder<R> connect(String connect) {
         configuration.getSuppressibleConfiguration().addConnect(
                 new Suppressible<>(connect, getCurrentSuppressions()));
         return this;

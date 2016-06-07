@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,7 +104,7 @@ public final class Asn1Utils {
             throw new IllegalArgumentException("Insufficient content for GeneralizedTime");
         }
 
-        Date date = null;
+        Date date;
 
         byte[] dst = new byte[len];
         buf.get(dst);

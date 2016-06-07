@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.wseb.logging;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,7 +71,7 @@ public class WsebAcceptorUserLoggingIT {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                 .property(WSE_SPECIFICATION.getPropertyName(), "true")
                 .service()
-                    .accept(URI.create("ws://localhost:8080/path"))
+                    .accept("ws://localhost:8080/path")
                     .type("echo")
                     .crossOrigin()
                         .allowOrigin("http://localhost:8001")
@@ -89,7 +88,7 @@ public class WsebAcceptorUserLoggingIT {
                         .httpChallengeScheme("Basic")
                         .userPrincipalClass("org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig")
                         .loginModule()
-                            .type("class:org.kaazing.gateway.transport.wseb.logging.BasicLoginModuleWithDefaultUserConfig")
+                            .type("class:org.kaazing.gateway.transport.wseb.logging.loginmodule.BasicLoginModuleWithDefaultUserConfig")
                             .success("requisite")
                             .option("roles", ROLE)
                         .done()
@@ -114,7 +113,7 @@ public class WsebAcceptorUserLoggingIT {
     @Test
     public void verifyPrincipalNameLoggedInLayersAboveHttp() throws Exception {
         k3po.finish();
-        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
                 "tcp#.* [^/]*:\\d*] OPENED",
                 "tcp#.* [^/]*:\\d*] WRITE",
                 "tcp#.* [^/]*:\\d*] RECEIVED",
@@ -127,10 +126,10 @@ public class WsebAcceptorUserLoggingIT {
                 "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] WRITE",
                 "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] RECEIVED",
                 "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] CLOSED"
-            }));
-        forbiddenPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+        }));
+        forbiddenPatterns = new ArrayList<>(Arrays.asList(new String[]{
                 TEST_PRINCIPAL_PASS
-            }));
+        }));
     }
 
 }

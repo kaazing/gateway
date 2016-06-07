@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.kaazing.gateway.transport.wsn.logging;
 
 import static org.kaazing.test.util.ITUtil.timeoutRule;
@@ -23,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -56,7 +56,7 @@ import org.kaazing.mina.core.session.IoSessionEx;
 
 // This is a subset of BaseFramingIT (connector version) used to verify wsn transport level logging
 public class WsnConnectorLoggingIT {
-    private static String TEXT_FILTER_NAME = WsnProtocol.NAME + "#text";
+    private static final String TEXT_FILTER_NAME = WsnProtocol.NAME + "#text";
     private final WsnConnectorRule connector = new WsnConnectorRule();
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws");
     private List<String> expectedPatterns;
@@ -113,17 +113,17 @@ public class WsnConnectorLoggingIT {
 
         k3po.finish();
 
-        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "tcp#.*OPENED",
-            "tcp#.*WRITE",
-            "tcp#.*RECEIVED",
-            "tcp#.*CLOSED",
-            "http#.*OPENED",
-            "http#.*CLOSED",
-            "wsn#.*OPENED",
-            "tcp#.*EXCEPTION.*Protocol.*Exception",
-            "wsn#.*EXCEPTION.*IOException.*caused by.*Protocol.*Exception",
-            "wsn#.*CLOSED"
+        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
+                "tcp#.*OPENED",
+                "tcp#.*WRITE",
+                "tcp#.*RECEIVED",
+                "tcp#.*CLOSED",
+                "http#.*OPENED",
+                "http#.*CLOSED",
+                "wsn#.*OPENED",
+                "tcp#.*EXCEPTION.*Protocol.*Exception",
+                "wsn#.*EXCEPTION.*IOException.*caused by.*Protocol.*Exception",
+                "wsn#.*CLOSED"
         }));
 
         forbiddenPatterns = null;
@@ -179,18 +179,18 @@ public class WsnConnectorLoggingIT {
 
         k3po.finish();
 
-        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "tcp#.*OPENED",
-            "tcp#.*WRITE",
-            "tcp#.*RECEIVED",
-            "tcp#.*CLOSED",
-            "http#.*OPENED",
-            "http#.*CLOSED",
-            "wsn#.*OPENED",
-            "wsn#.*WRITE",
-            "wsn#.*RECEIVED",
-            "wsn#.*EXCEPTION", // because the script does not complete the WebSocket close handshake
-            "wsn#.*CLOSED"
+        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
+                "tcp#.*OPENED",
+                "tcp#.*WRITE",
+                "tcp#.*RECEIVED",
+                "tcp#.*CLOSED",
+                "http#.*OPENED",
+                "http#.*CLOSED",
+                "wsn#.*OPENED",
+                "wsn#.*WRITE",
+                "wsn#.*RECEIVED",
+                "wsn#.*EXCEPTION", // because the script does not complete the WebSocket close handshake
+                "wsn#.*CLOSED"
         }));
 
         forbiddenPatterns = null;
@@ -225,18 +225,18 @@ public class WsnConnectorLoggingIT {
         k3po.finish();
         assertTrue(close.await(10, SECONDS));
 
-        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "tcp#.* [^/]*:\\d*] OPENED",
-            "tcp#.* [^/]*:\\d*] WRITE",
-            "tcp#.* [^/]*:\\d*] RECEIVED",
-            "tcp#.* [^/]*:\\d*] CLOSED",
-            "http#.* [^/]*:\\d*] OPENED",
-            "http#.* [^/]*:\\d*] CLOSED",
-            "wsn#.* [^/]*:\\d*] OPENED",
-            "wsn#.* [^/]*:\\d*] CLOSED"
+        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
+                "tcp#.* [^/]*:\\d*] OPENED",
+                "tcp#.* [^/]*:\\d*] WRITE",
+                "tcp#.* [^/]*:\\d*] RECEIVED",
+                "tcp#.* [^/]*:\\d*] CLOSED",
+                "http#.* [^/]*:\\d*] OPENED",
+                "http#.* [^/]*:\\d*] CLOSED",
+                "wsn#.* [^/]*:\\d*] OPENED",
+                "wsn#.* [^/]*:\\d*] CLOSED"
         }));
 
-        forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
+        forbiddenPatterns = Collections.singletonList("#.*EXCEPTION");
     }
 
 }

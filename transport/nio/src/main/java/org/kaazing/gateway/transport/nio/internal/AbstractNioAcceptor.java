@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,7 @@ import org.kaazing.gateway.resource.address.Comparators;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.transport.Bindings;
 import org.kaazing.gateway.transport.Bindings.Binding;
 import org.kaazing.gateway.transport.BridgeAcceptHandler;
@@ -194,7 +195,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
         private void sessionCreated0(IoSession session) throws Exception {
             SocketAddress boundAddress0 = session.getLocalAddress();
             ResourceAddress boundAddress = asResourceAddress(boundAddress0);
-            URI candidateURI = boundAddress.getExternalURI();
+            String candidateURI = boundAddress.getExternalURI();
 
             ResourceOptions candidateOptions = ResourceOptions.FACTORY.newResourceOptions(boundAddress);
             String nextProtocol = NEXT_PROTOCOL_KEY.get(session);
@@ -220,7 +221,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             LOCAL_ADDRESS.set(session, localAddress);
 
             SocketAddress remoteSocketAddress = session.getRemoteAddress();
-            URI remoteExternalURI = asResourceURI((InetSocketAddress) remoteSocketAddress);
+            String remoteExternalURI = asResourceURI((InetSocketAddress) remoteSocketAddress);
             ResourceAddress remoteAddress = resourceAddressFactory.newResourceAddress(remoteExternalURI, nextProtocol);
             REMOTE_ADDRESS.set(session, remoteAddress);
 
@@ -255,17 +256,17 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
     };
 
     private ResourceAddress createResourceAddress(InetSocketAddress inetSocketAddress) {
-        URI transport = asResourceURI(inetSocketAddress);
+        String transport = asResourceURI(inetSocketAddress);
         return resourceAddressFactory.newResourceAddress(transport);
     }
 
-    private URI asResourceURI(InetSocketAddress inetSocketAddress) {
+    private String asResourceURI(InetSocketAddress inetSocketAddress) {
         String transportName = getTransportName();
         InetAddress inetAddress = inetSocketAddress.getAddress();
         String hostAddress = inetAddress.getHostAddress();
         String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
         int port = inetSocketAddress.getPort();
-        return URI.create(format(addressFormat, transportName, hostAddress, port));
+        return format(addressFormat, transportName, hostAddress, port);
     }
 
     protected final void init() {
@@ -401,9 +402,9 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
     }
 
     protected final void initIfNecessary() {
-        if (started.get() == false) {
+        if (!started.get()) {
             synchronized (started) {
-                if (started.get() == false) {
+                if (!started.get()) {
                     init();
                     started.set(true);
                 }
@@ -475,10 +476,12 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
     public static final String PARENT_KEY = "tcp.parentKey.key"; // holds parent of tcp bridge session
 
     private final IoProcessorEx<IoSessionAdapterEx> tcpBridgeProcessor = new IoProcessorEx<IoSessionAdapterEx>() {
+        @Override
         public void add(IoSessionAdapterEx session) {
             // Do nothing
         }
 
+        @Override
         public void flush(IoSessionAdapterEx session) {
             IoSession parent = (IoSession) session.getAttribute(PARENT_KEY);
             WriteRequest req = session.getWriteRequestQueue().poll(session);
@@ -508,6 +511,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             }
         }
 
+        @Override
         public void remove(IoSessionAdapterEx session) {
             LOG.debug("AbstractNioAcceptor Fake Processor remove session "+session);
             IoSession parent = (IoSession) session.getAttribute(PARENT_KEY);
@@ -515,18 +519,22 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             acceptor.getListeners().fireSessionDestroyed(session);
         }
 
+        @Override
         public void updateTrafficControl(IoSessionAdapterEx session) {
             // Do nothing
         }
 
+        @Override
         public void dispose() {
             // Do nothing
         }
 
+        @Override
         public boolean isDisposed() {
             return false;
         }
 
+        @Override
         public boolean isDisposing() {
             return false;
         }
@@ -629,7 +637,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
 
                     candidateOptions.setOption(NEXT_PROTOCOL, NEXT_PROTOCOL_KEY.get(session));
                     candidateOptions.setOption(TRANSPORT, candidateTransportAddress);
-                    return resourceAddressFactory.newResourceAddress(candidateURI, candidateOptions);
+                    return resourceAddressFactory.newResourceAddress(URIUtils.uriToString(candidateURI), candidateOptions);
                 }
 
                 private IoSession getTcpBridgeSession(IoSession session) {

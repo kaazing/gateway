@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
 
-import java.net.URI;
 import java.util.Collection;
 import java.util.Properties;
 
@@ -28,7 +27,6 @@ import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.BridgeAcceptor;
 import org.kaazing.gateway.transport.BridgeConnector;
-import org.kaazing.gateway.transport.nio.TcpTransport;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.kaazing.gateway.transport.nio.internal.TcpExtensionFactory;
@@ -41,7 +39,7 @@ public class TcpTransportTest {
 
     @Before
     public void before() throws Exception {
-        address = newResourceAddressFactory().newResourceAddress(new URI("tcp://localhost:8888"));
+        address = newResourceAddressFactory().newResourceAddress("tcp://localhost:8888");
     }
 
     @Test

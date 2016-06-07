@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,10 +40,10 @@ public class SseSslResourceAddressFactorySpiTest {
     private static final ResourceFactory HTTPS_RESOURCE_FACTORY = changeSchemeOnly("https");
     private static final ResourceFactory HTTPXE_SSL_RESOURCE_FACTORY = changeSchemeOnly("httpxe+ssl");
 
-    private static final URI ADDRESS_URI = URI.create("sse+ssl://localhost:2020/events");
-    private static final URI HTTPS_ADDRESS_URI = HTTPS_RESOURCE_FACTORY.createURI(ADDRESS_URI);
-    private static final URI HTTPXE_SSL_ADDRESS_URI = HTTPXE_SSL_RESOURCE_FACTORY.createURI(ADDRESS_URI);
-    private static final URI OPTIONS_ADDRESS_URI = URI.create("https://localhost:2121/events");
+    private static final String ADDRESS_URI = "sse+ssl://localhost:2020/events";
+    private static final String HTTPS_ADDRESS_URI = HTTPS_RESOURCE_FACTORY.createURI(ADDRESS_URI);
+    private static final String HTTPXE_SSL_ADDRESS_URI = HTTPXE_SSL_RESOURCE_FACTORY.createURI(ADDRESS_URI);
+    private static final String OPTIONS_ADDRESS_URI = "https://localhost:2121/events";
 
     private SseSslResourceAddressFactorySpi addressFactorySpi;
     private ResourceAddress httpTransportAddress;
@@ -64,7 +64,7 @@ public class SseSslResourceAddressFactorySpiTest {
         options = new HashMap<>();
         options.put("sse.nextProtocol", "custom");
         options.put("sse.qualifier", "random");
-        options.put("sse.transport", URI.create("https://localhost:2121/events"));
+        options.put("sse.transport", "https://localhost:2121/events");
     }
 
     @Test
@@ -74,17 +74,17 @@ public class SseSslResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireSseSslSchemeName() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("test://opaque"));
+        addressFactorySpi.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPath() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("sse+ssl://localhost:2020"));
+        addressFactorySpi.newResourceAddress("sse+ssl://localhost:2020");
     }
 
     @Test
     public void shouldNotRequireExplicitPort() throws Exception {
-        ResourceAddress address = addressFactorySpi.newResourceAddress(URI.create("sse+ssl://localhost/"));
+        ResourceAddress address = addressFactorySpi.newResourceAddress("sse+ssl://localhost/");
         URI location = address.getResource();
         assertEquals(location.getPort(), 443);
     }

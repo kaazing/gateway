@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ public class ArrayEditor extends AbstractPropertyEditor {
     @Override
     protected Object toValue(String text) throws IllegalArgumentException {
         PropertyEditor e = getComponentEditor();
-        List<Object> values = new ArrayList<Object>();
+        List<Object> values = new ArrayList<>();
         Matcher m = CollectionEditor.ELEMENT.matcher(text);
         boolean matchedDelimiter = true;
 

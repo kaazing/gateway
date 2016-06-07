@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import static org.kaazing.gateway.util.Utils.initCaps;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.security.KeyStore;
 import java.util.Collection;
 import java.util.Iterator;
@@ -32,30 +31,31 @@ import java.util.Set;
 
 import javax.management.MBeanServer;
 
+import org.kaazing.gateway.server.GatewayObserver;
 import org.kaazing.gateway.server.Launcher;
-import org.kaazing.gateway.server.config.sep2014.AuthenticationType;
-import org.kaazing.gateway.server.config.sep2014.AuthenticationType.AuthorizationMode;
-import org.kaazing.gateway.server.config.sep2014.AuthenticationType.HttpChallengeScheme;
-import org.kaazing.gateway.server.config.sep2014.AuthorizationConstraintType;
-import org.kaazing.gateway.server.config.sep2014.ClusterConnectOptionsType;
-import org.kaazing.gateway.server.config.sep2014.ClusterType;
-import org.kaazing.gateway.server.config.sep2014.CrossSiteConstraintType;
-import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
-import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument.GatewayConfig;
-import org.kaazing.gateway.server.config.sep2014.LoginModuleOptionsType;
-import org.kaazing.gateway.server.config.sep2014.LoginModuleType;
-import org.kaazing.gateway.server.config.sep2014.LoginModulesType;
-import org.kaazing.gateway.server.config.sep2014.MimeMappingType;
-import org.kaazing.gateway.server.config.sep2014.RealmType;
-import org.kaazing.gateway.server.config.sep2014.SecurityStoreType;
-import org.kaazing.gateway.server.config.sep2014.SecurityStoreType.Type;
-import org.kaazing.gateway.server.config.sep2014.SecurityType;
-import org.kaazing.gateway.server.config.sep2014.ServiceAcceptOptionsType;
-import org.kaazing.gateway.server.config.sep2014.ServiceConnectOptionsType;
-import org.kaazing.gateway.server.config.sep2014.ServiceDefaultsType;
-import org.kaazing.gateway.server.config.sep2014.ServicePropertiesType;
-import org.kaazing.gateway.server.config.sep2014.ServiceType;
-import org.kaazing.gateway.server.config.sep2014.SuccessType;
+import org.kaazing.gateway.server.config.nov2015.AuthenticationType;
+import org.kaazing.gateway.server.config.nov2015.AuthenticationType.AuthorizationMode;
+import org.kaazing.gateway.server.config.nov2015.AuthenticationType.HttpChallengeScheme;
+import org.kaazing.gateway.server.config.nov2015.AuthorizationConstraintType;
+import org.kaazing.gateway.server.config.nov2015.ClusterConnectOptionsType;
+import org.kaazing.gateway.server.config.nov2015.ClusterType;
+import org.kaazing.gateway.server.config.nov2015.CrossSiteConstraintType;
+import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument.GatewayConfig;
+import org.kaazing.gateway.server.config.nov2015.LoginModuleOptionsType;
+import org.kaazing.gateway.server.config.nov2015.LoginModuleType;
+import org.kaazing.gateway.server.config.nov2015.LoginModulesType;
+import org.kaazing.gateway.server.config.nov2015.MimeMappingType;
+import org.kaazing.gateway.server.config.nov2015.RealmType;
+import org.kaazing.gateway.server.config.nov2015.SecurityStoreType;
+import org.kaazing.gateway.server.config.nov2015.SecurityStoreType.Type;
+import org.kaazing.gateway.server.config.nov2015.SecurityType;
+import org.kaazing.gateway.server.config.nov2015.ServiceAcceptOptionsType;
+import org.kaazing.gateway.server.config.nov2015.ServiceConnectOptionsType;
+import org.kaazing.gateway.server.config.nov2015.ServiceDefaultsType;
+import org.kaazing.gateway.server.config.nov2015.ServicePropertiesType;
+import org.kaazing.gateway.server.config.nov2015.ServiceType;
+import org.kaazing.gateway.server.config.nov2015.SuccessType;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.context.resolve.ContextResolver;
 import org.kaazing.gateway.server.context.resolve.DefaultSecurityContext;
@@ -81,7 +81,8 @@ public class Gateway {
         STARTING, STARTED, STOPPING, STOPPED
     }
 
-    private final Launcher launcher = new Launcher();
+    private final GatewayObserver gatewayObserver = GatewayObserver.newInstance();
+    private final Launcher launcher = new Launcher(gatewayObserver);
     private volatile State state = State.STOPPED;
 
     public void start(GatewayConfiguration configuration) throws Exception {
@@ -121,7 +122,10 @@ public class Gateway {
 
         GatewayContextResolver resolver = new GatewayContextResolver(securityResolver, webRootDir, tempDir,
                 jmxMBeanServer);
-        GatewayContext context = resolver.resolve(gatewayConfigDocument, asProperties(configuration.getProperties()));
+        Properties properties = new Properties();
+        properties.putAll(configuration.getProperties());
+        gatewayObserver.initingGateway(properties, resolver.getInjectables());
+        GatewayContext context = resolver.resolve(gatewayConfigDocument, properties);
         return context;
     }
 
@@ -222,9 +226,9 @@ public class Gateway {
                 if (loginModuleConfig.getSuccess() != null) {
                     loginModule.setSuccess(SuccessType.Enum.forString(loginModuleConfig.getSuccess()));
                 }
-                Node domNode = null;
-                Document ownerDocument = null;
-                LoginModuleOptionsType newOptions = null;
+                Node domNode;
+                Document ownerDocument;
+                LoginModuleOptionsType newOptions;
                 Map<String, String> options = loginModuleConfig.getOptions();
 
                 if (!options.isEmpty()) {
@@ -362,23 +366,23 @@ public class Gateway {
 
     private void appendBalances(ServiceType newService, ServiceConfiguration service) {
         // balances
-        Set<URI> balances = service.getBalances();
+        Set<String> balances = service.getBalances();
         String[] newBalances = new String[balances.size()];
         int i = 0;
-        for (URI balance : balances) {
-            newBalances[i++] = balance.toASCIIString();
+        for (String balance : balances) {
+            newBalances[i++] = balance;
         }
         newService.setBalanceArray(newBalances);
     }
 
     private void appendAccepts(ServiceType newService, ServiceConfiguration service) {
         // accepts
-        Set<URI> accepts = service.getAccepts();
+        Set<String> accepts = service.getAccepts();
         if (!accepts.isEmpty()) {
             String[] newAccepts = new String[accepts.size()];
             int i = 0;
-            for (URI accept : accepts) {
-                newAccepts[i++] = accept.toASCIIString();
+            for (String accept : accepts) {
+                newAccepts[i++] = accept;
             }
             newService.setAcceptArray(newAccepts);
         }
@@ -409,12 +413,12 @@ public class Gateway {
 
     private void appendConnects(ServiceType newService, ServiceConfiguration service) {
         // connects
-        Set<URI> connects = service.getConnects();
+        Set<String> connects = service.getConnects();
         if (!connects.isEmpty()) {
             String[] newConnects = new String[connects.size()];
             int i = 0;
-            for (URI connect : connects) {
-                newConnects[i++] = connect.toASCIIString();
+            for (String connect : connects) {
+                newConnects[i++] = connect;
             }
             newService.setConnectArray(newConnects);
         }
@@ -551,15 +555,15 @@ public class Gateway {
             return;
         }
         ClusterType newCluster = gatewayConfig.addNewCluster();
-        Collection<URI> accepts = cluster.getAccepts();
-        Collection<URI> connects = cluster.getConnects();
+        Collection<String> accepts = cluster.getAccepts();
+        Collection<String> connects = cluster.getConnects();
 
-        for (URI accept : accepts) {
-            newCluster.addAccept(accept.toASCIIString());
+        for (String accept : accepts) {
+            newCluster.addAccept(accept);
         }
 
-        for (URI connect : connects) {
-            newCluster.addConnect(connect.toASCIIString());
+        for (String connect : connects) {
+            newCluster.addConnect(connect);
         }
 
         String name = cluster.getName();
@@ -583,6 +587,7 @@ public class Gateway {
         private KeyStore trustStore;
         private String keyStoreFile;
         private char[] trustStorePassword;
+        private String keyStoreFilePath;
 
         @SuppressWarnings("deprecation")
         SecurityContextResolver(SecurityConfiguration configuration) {
@@ -605,12 +610,14 @@ public class Gateway {
                 if (configuration.getTrustStorePassword() != null) {
                     trustStorePassword = configuration.getTrustStorePassword();
                 }
+                if (configuration.getKeyStoreFile() != null) {
+                    keyStoreFilePath = configuration.getKeyStoreFile();
+                }
             }
         }
 
         @Override
         public DefaultSecurityContext resolve(SecurityType config) throws Exception {
-            String keyStoreFilePath = null;
             String keyStorePasswordFile = null;
             String trustStoreFile = null;
             String trustStoreFilePath = null;

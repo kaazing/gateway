@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -153,7 +153,7 @@ public class ClosingIT {
         // Check no exceptions occurred (like "expected current thread... to match..." as in issue #427)
         // except for IOException which is expected because of client abrupt close
         final Set<String> EMPTY_STRING_SET = Collections.emptySet();
-        MemoryAppender.assertMessagesLogged(EMPTY_STRING_SET, Arrays.asList(new String[]{"[^O]Exception"}), null, false);
+        MemoryAppender.assertMessagesLogged(EMPTY_STRING_SET, Collections.singletonList("[^O]Exception"), null, false);
     }
 
     // Client only test

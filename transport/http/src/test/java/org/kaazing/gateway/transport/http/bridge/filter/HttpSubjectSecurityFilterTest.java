@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import javax.security.auth.Subject;
-import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.apache.mina.core.filterchain.IoFilter.NextFilter;
@@ -321,7 +320,7 @@ public class HttpSubjectSecurityFilterTest {
         final IoSessionEx session = context.mock(IoSessionEx.class);
         final ResourceAddress address = context.mock(ResourceAddress.class);
         TcpResourceAddressFactorySpi factory = new TcpResourceAddressFactorySpi();
-        URI addressURI = URI.create("tcp://localhost:2020");
+        String addressURI = "tcp://localhost:2020";
         ResourceAddress tcpResourceAddress = factory.newResourceAddress(addressURI);
 
         final HttpRequestMessage message = new HttpRequestMessage();

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,7 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
     
     private final DecodingState VALIDATE_METHOD_START = new DecodingState() {
 
+        @Override
         public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out) throws Exception {
             if (in.hasRemaining()) {
                 byte initialByte = in.get(in.position());
@@ -93,7 +94,7 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
             }
 
             String httpMethod = buffer.getString(US_ASCII_DECODER);
-            HttpMethod method = null;
+            HttpMethod method;
             try
             {
                 method = HttpMethod.valueOf(httpMethod);
@@ -164,7 +165,7 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
         protected DecodingState finishDecode(IoBuffer buffer,
                 ProtocolDecoderOutput out) throws Exception {
             String httpVersion = buffer.getString(US_ASCII_DECODER);
-            HttpVersion version = null;
+            HttpVersion version;
             try
             {
                 version = HttpVersion.valueOf(httpVersion

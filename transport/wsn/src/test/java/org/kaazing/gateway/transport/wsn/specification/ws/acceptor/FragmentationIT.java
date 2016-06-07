@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -257,7 +257,7 @@ public class FragmentationIT {
      */
     private IoHandlerAdapter<IoSessionEx> textFragmentIoHandlerAdapter(WsBuffer.Kind kind) {
         IoHandlerAdapter<IoSessionEx> acceptHandler = new IoHandlerAdapter<IoSessionEx>() {
-            List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+            List<ByteBuffer> bufferList = new ArrayList<>();
 
             @Override
             protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {

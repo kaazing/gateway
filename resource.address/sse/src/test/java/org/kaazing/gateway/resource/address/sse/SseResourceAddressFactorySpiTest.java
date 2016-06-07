@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,10 +40,10 @@ public class SseResourceAddressFactorySpiTest {
     private static final ResourceFactory HTTP_RESOURCE_FACTORY = changeSchemeOnly("http");
     private static final ResourceFactory HTTPXE_RESOURCE_FACTORY = changeSchemeOnly("httpxe");
 
-    private static final URI ADDRESS_URI = URI.create("sse://localhost:2020/events");
-    private static final URI HTTP_ADDRESS_URI = HTTP_RESOURCE_FACTORY.createURI(ADDRESS_URI);
-    private static final URI HTTPXE_ADDRESS_URI = HTTPXE_RESOURCE_FACTORY.createURI(ADDRESS_URI);
-    private static final URI OPTIONS_ADDRESS_URI = URI.create("http://localhost:2121/events");
+    private static final String ADDRESS_URI = "sse://localhost:2020/events";
+    private static final String HTTP_ADDRESS_URI = HTTP_RESOURCE_FACTORY.createURI(ADDRESS_URI);
+    private static final String HTTPXE_ADDRESS_URI = HTTPXE_RESOURCE_FACTORY.createURI(ADDRESS_URI);
+    private static final String OPTIONS_ADDRESS_URI = "http://localhost:2121/events";
 
     private SseResourceAddressFactorySpi addressFactorySpi;
     private ResourceAddress httpTransportAddress;
@@ -74,17 +74,17 @@ public class SseResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireSseSchemeName() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("test://opaque"));
+        addressFactorySpi.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPath() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("sse://localhost:2020"));
+        addressFactorySpi.newResourceAddress("sse://localhost:2020");
     }
 
     @Test
     public void shouldNotRequireExplicitPort() throws Exception {
-        ResourceAddress address = addressFactorySpi.newResourceAddress(URI.create("sse://localhost/"));
+        ResourceAddress address = addressFactorySpi.newResourceAddress("sse://localhost/");
         URI location = address.getResource();
         assertEquals(location.getPort(), 80);
     }

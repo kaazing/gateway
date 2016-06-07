@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,10 +113,6 @@ public abstract class AbstractBridgeProcessor<T extends AbstractBridgeSession<?,
                 try {
                     // hold current remaining bytes so we know how much was written
                     int remaining = buf.remaining();
-
-                    if (remaining == 0) {
-                        throw new IllegalStateException("Unexpected empty buffer");
-                    }
 
                     // drain the unwritten write requests to ensure that session.close(false)
                     // still triggers the session close future

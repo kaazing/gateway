@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.net.InetSocketAddress;
-import java.net.URI;
 import java.security.KeyStore;
 import java.util.Collections;
 import java.util.HashMap;
@@ -61,7 +60,7 @@ public class SslAcceptorTest {
     }
 
     private ResourceAddressFactory resourceAddressFactory = ResourceAddressFactory.newResourceAddressFactory();
-    TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object>emptyMap());
+    TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.emptyMap());
     private BridgeServiceFactory bridgeServiceFactory = new BridgeServiceFactory(transportFactory);
     private SslAcceptor sslAcceptor;
     private NioSocketAcceptor tcpAcceptor;
@@ -198,7 +197,7 @@ public class SslAcceptorTest {
             return;
         }
 
-        URI firstURI = URI.create("ssl://one.example.test:443");
+        String firstURI = "ssl://one.example.test:443";
         ResourceAddress firstAccept =
             resourceAddressFactory.newResourceAddress(firstURI, opts);
         sslAcceptor.bind(firstAccept, acceptHandler, null);
@@ -207,7 +206,7 @@ public class SslAcceptorTest {
         opts = buildSslOptionsMap();
 
         try {
-            URI secondURI = URI.create("ssl://two.example.test:443");
+            String secondURI = "ssl://two.example.test:443";
             ResourceAddress secondAccept =
                 resourceAddressFactory.newResourceAddress(secondURI, opts);
             sslAcceptor.bind(secondAccept, acceptHandler, null);
@@ -267,7 +266,7 @@ public class SslAcceptorTest {
 
         Map<String, Object> opts = buildSslOptionsMap();
 
-        URI firstURI = URI.create("ssl://one.example.test:443");
+        String firstURI = "ssl://one.example.test:443";
         ResourceAddress firstAccept =
             resourceAddressFactory.newResourceAddress(firstURI, opts);
         sslAcceptor.bind(firstAccept, acceptHandler, null);
@@ -277,7 +276,7 @@ public class SslAcceptorTest {
 
         try {
             opts.put(ResourceAddress.TRANSPORT_URI.name(), "tcp://127.0.0.1:443");
-            URI secondURI = URI.create("ssl://otherhost:443");
+            String secondURI = "ssl://otherhost:443";
             ResourceAddress secondAccept =
                 resourceAddressFactory.newResourceAddress(secondURI, opts);
             sslAcceptor.bind(secondAccept, acceptHandler, null);
@@ -367,7 +366,7 @@ public class SslAcceptorTest {
             return;
         }
 
-        URI firstURI = URI.create("ssl://one.kaazing.test:443");
+        String firstURI = "ssl://one.kaazing.test:443";
         ResourceAddress firstAccept =
             resourceAddressFactory.newResourceAddress(firstURI, opts);
         sslAcceptor.bind(firstAccept, acceptHandler, null);
@@ -382,7 +381,7 @@ public class SslAcceptorTest {
         // is not hosted by the running machine.
         opts.put("tcp.bind", "127.0.0.1:8778");
 
-        URI secondURI = URI.create("ssl://two.kaazing.test:443");
+        String secondURI = "ssl://two.kaazing.test:443";
         ResourceAddress secondAccept =
             resourceAddressFactory.newResourceAddress(secondURI, opts);
         sslAcceptor.bind(secondAccept, acceptHandler, null);

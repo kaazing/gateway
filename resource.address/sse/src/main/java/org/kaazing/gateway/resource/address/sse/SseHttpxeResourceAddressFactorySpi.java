@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.kaazing.gateway.resource.address.sse;
 
 import static org.kaazing.gateway.resource.address.ResourceFactories.changeSchemeOnly;
 
-import java.net.URI;
 import java.util.Map;
 
 import org.kaazing.gateway.resource.address.ResourceFactory;
@@ -39,7 +38,7 @@ public class SseHttpxeResourceAddressFactorySpi extends SseResourceAddressFactor
     }
 
     @Override
-    protected void setAlternateOption(URI location,
+    protected void setAlternateOption(String location,
                                       ResourceOptions options,
                                       Map<String, Object> optionsByName) {
         // no-op (no alternate addresses for this scheme)

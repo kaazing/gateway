@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ public class ExtensionHeaderBuilder implements ExtensionHeader {
             this.extensionToken = elts[0].trim();
 
             for (int i = 1; i < elts.length; i++) {
-                String key = null;
+                String key;
                 String value = null;
 
                 idx = elts[i].indexOf('=');

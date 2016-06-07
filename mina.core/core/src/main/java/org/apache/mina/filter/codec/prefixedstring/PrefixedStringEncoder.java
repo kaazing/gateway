@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,9 @@ import java.nio.charset.Charset;
  */
 public class PrefixedStringEncoder extends ProtocolEncoderAdapter {
 
-    public final static int DEFAULT_PREFIX_LENGTH = 4;
+    public static final int DEFAULT_PREFIX_LENGTH = 4;
 
-    public final static int DEFAULT_MAX_DATA_LENGTH = 2048;
+    public static final int DEFAULT_MAX_DATA_LENGTH = 2048;
 
     private final Charset charset;
 

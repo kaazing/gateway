@@ -45,6 +45,7 @@
             <artifactId>snmp4j-agent</artifactId>
             <version>1.4.3</version>
         </dependency>
+        
         </dependencies>
     </dependencyManagement>
 
@@ -69,6 +70,11 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.service.http.balancer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.transport.ws</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -104,6 +110,12 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.wsxdraft</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.resource.address.wsn</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -154,6 +166,18 @@
             <groupId>org.jmock</groupId>
             <artifactId>jmock-legacy</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.test.ca</artifactId>
+            <version>[1.0.0.0,1.1.0.0)</version>
+            <classifier>keystore</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.service.echo</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -184,9 +208,6 @@
                         </projectDescription>
                     </projectHints>
                 </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -239,6 +260,40 @@
                 </executions>
                 <inherited>true</inherited>
             </plugin>
+            
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <argLine>@{failsafeArgLine}</argLine>
+                            <skipTests>${skipITs}</skipTests>
+                        </configuration>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.8</version>
+                <executions>
+                    <execution>
+                        <id>unpack-truststore</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeArtifactIds>gateway.test.ca</includeArtifactIds>
+                            <outputDirectory>${basedir}/target/truststore</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
         <pluginManagement>
             <plugins>
@@ -289,6 +344,7 @@
     </reporting>
 
     <properties>
+        <failsafeArgLine>-Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Djava.rmi.server.hostname=localhost -Djava.library.path=target/sigar -Djavax.net.ssl.truststore=${project.basedir}/target/truststore/truststore.db</failsafeArgLine>
         <xmlbeans.debug>false</xmlbeans.debug>
         <checkstyle.config.location>org/kaazing/code/quality/checkstyle.xml</checkstyle.config.location>
     </properties>

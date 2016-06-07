@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package org.kaazing.gateway.transport.tcp.specification;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
@@ -25,27 +27,45 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.test.util.ResolutionTestUtils;
 
 /**
  * RFC-793
  */
+@RunWith(Parameterized.class)
 public class TcpAcceptorIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/tcp/rfc793");
     
     private TcpAcceptorRule acceptor = new TcpAcceptorRule();
 
+    private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
+
+    @Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][] {     
+                {"tcp://127.0.0.1:8080"}, {"tcp://[@" + networkInterface + "]:8080"}
+           });
+    }
+
+    @Parameter
+    public String uri;
+
     @Rule
     public TestRule chain = createRuleChain(acceptor, k3po);
 
     private void bindTo8080(IoHandlerAdapter<IoSessionEx> handler) throws InterruptedException {
-        acceptor.bind("tcp://127.0.0.1:8080", handler);
+        acceptor.bind(uri, handler);
         k3po.start();
         k3po.notifyBarrier("BOUND");
     }
@@ -67,7 +87,7 @@ public class TcpAcceptorIT {
         "establish.connection/client"
         })
     public void establishConnection() throws Exception {
-        bindTo8080(new IoHandlerAdapter<IoSessionEx>());
+        bindTo8080(new IoHandlerAdapter<>());
         k3po.finish();
     }
 
@@ -91,7 +111,7 @@ public class TcpAcceptorIT {
         "client.sent.data/client"
         })
     public void clientSentData() throws Exception {
-        bindTo8080(new IoHandlerAdapter<IoSessionEx>());
+        bindTo8080(new IoHandlerAdapter<>());
         k3po.finish();
     }
 

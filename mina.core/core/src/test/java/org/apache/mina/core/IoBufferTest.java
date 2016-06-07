@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -574,7 +574,7 @@ public class IoBufferTest {
     public void testObjectSerialization() throws Exception {
         IoBuffer buf = IoBuffer.allocate(16);
         buf.setAutoExpand(true);
-        List<Object> o = new ArrayList<Object>();
+        List<Object> o = new ArrayList<>();
         o.add(new Date());
         o.add(long.class);
 

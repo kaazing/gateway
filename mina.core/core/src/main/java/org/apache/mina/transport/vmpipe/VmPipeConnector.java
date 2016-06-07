@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,7 +143,7 @@ public final class VmPipeConnector extends AbstractIoConnector {
         return null;
     }
 
-    private static final Set<VmPipeAddress> TAKEN_LOCAL_ADDRESSES = new HashSet<VmPipeAddress>();
+    private static final Set<VmPipeAddress> TAKEN_LOCAL_ADDRESSES = new HashSet<>();
 
     private static int nextLocalPort = -1;
 

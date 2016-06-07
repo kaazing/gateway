@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,14 +123,13 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
 
     private final AtomicReference<DistributedNioWorkerPool> currentWorkerPool = new AtomicReference<>();
 
-    NioSocketAcceptor(Properties configuration, TcpExtensionFactory extensionFactory) {
+    public NioSocketAcceptor(Properties configuration, TcpExtensionFactory extensionFactory) {
         super(configuration, LoggerFactory.getLogger(LOGGER_NAME));
         this.extensionFactory = extensionFactory;
     }
 
-    public NioSocketAcceptor(Properties configuration) {
-        super(configuration, LoggerFactory.getLogger(LOGGER_NAME));
-        this.extensionFactory = TcpExtensionFactory.newInstance();
+    NioSocketAcceptor(Properties configuration) {
+        this(configuration, TcpExtensionFactory.newInstance());
     }
 
     @Override

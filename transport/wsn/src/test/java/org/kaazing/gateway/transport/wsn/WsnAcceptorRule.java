@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.kaazing.gateway.transport.wsn;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.Collections;
 import java.util.Properties;
 
@@ -65,7 +64,7 @@ public class WsnAcceptorRule implements TestRule {
     public void bind(String accept, IoHandler acceptHandler) {
 
         final ResourceAddress acceptAddress =
-                addressFactory.newResourceAddress(URI.create(accept));
+                addressFactory.newResourceAddress(accept);
 
         wsnAcceptor.bind(acceptAddress, acceptHandler, null);
     }
@@ -106,7 +105,7 @@ public class WsnAcceptorRule implements TestRule {
                 schedulerProvider = new SchedulerProvider();
 
                 addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-                TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object> emptyMap());
+                TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.emptyMap());
                 BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
 
                 tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();

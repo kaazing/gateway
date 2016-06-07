@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.kaazing.gateway.service.http.directory;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
-import java.net.URI;
 
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -47,7 +46,7 @@ public class HttpDirectoryServiceIT {
                     new GatewayConfigurationBuilder()
                         .webRootDirectory(new File("src/test/webapp"))
                             .service()
-                                .accept(URI.create(KEEPALIVE_DIRECTORY_SERVICE_ACCEPT))
+                                .accept(KEEPALIVE_DIRECTORY_SERVICE_ACCEPT)
                                 .type("directory")
                                 .property("directory", "/public")
                                 // We have to use this name (which is from TransportOptionNames) instead of "http.keepalive.timeout",
@@ -55,13 +54,13 @@ public class HttpDirectoryServiceIT {
                                 .acceptOption("http.keepalive.timeout", "3") // seconds
                         .done()
                         .service()
-                            .accept(URI.create(DIRECTORY_SERVICE_ACCEPT))
+                            .accept(DIRECTORY_SERVICE_ACCEPT)
                             .type("directory")
                             .property("directory", "/public")
                             .property("welcome-file", "index.html")
                         .done()
                         .service()
-                            .accept(URI.create(CROSS_ORIGIN_DIRECTORY_SERVICE_ACCEPT))
+                            .accept(CROSS_ORIGIN_DIRECTORY_SERVICE_ACCEPT)
                             .type("directory")
                             .property("directory", "/public")
                                 .crossOrigin().allowOrigin("http://localhost:8000")
@@ -69,14 +68,14 @@ public class HttpDirectoryServiceIT {
                             .done()
                         .done()
                         .service()
-                            .accept(URI.create(ASTRISK_ORIGIN_DIRECTORY_SERVICE_ACCEPT))
+                            .accept(ASTRISK_ORIGIN_DIRECTORY_SERVICE_ACCEPT)
                             .type("directory")
                             .property("directory", "/public")
                                 .crossOrigin().allowOrigin("*")
                             .done()
                         .done()
                             .service()
-                            .accept(URI.create(NO_SERVER_HEADER))
+                            .accept(NO_SERVER_HEADER)
                             .type("directory")
                             .acceptOption("http.server.header", "disabled")
                             .property("directory", "/public")

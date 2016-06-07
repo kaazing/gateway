@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.wseb.test;
 import static org.junit.Assert.fail;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,13 +66,13 @@ public class WsebConnectorRule implements TestRule {
     public ConnectFuture connect(final String connect,
                                   final Long wsInactivityTimeout,
                                   IoHandler connectHandler) throws InterruptedException {
-        Map<String, Object> connectOptions = new HashMap<String, Object>();
+        Map<String, Object> connectOptions = new HashMap<>();
         if (wsInactivityTimeout != null) {
             connectOptions.put("inactivityTimeout", wsInactivityTimeout);
         }
         final ResourceAddress connectAddress =
                 resourceAddressFactory.newResourceAddress(
-                        URI.create(connect),
+                        connect,
                         connectOptions);
         return connect(connectAddress, connectHandler);
     }

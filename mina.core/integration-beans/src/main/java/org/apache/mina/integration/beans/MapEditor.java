@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,7 +123,7 @@ public class MapEditor extends AbstractPropertyEditor {
         Matcher m = ELEMENT.matcher(text);
         TokenType lastTokenType = TokenType.ENTRY_DELIM;
         Object key = null;
-        Object value = null;
+        Object value;
 
         while (m.find()) {
             if (m.group(1) != null) {
@@ -180,7 +180,7 @@ public class MapEditor extends AbstractPropertyEditor {
     }
     
     protected Map<Object, Object> newMap() {
-        return new LinkedHashMap<Object, Object>();
+        return new LinkedHashMap<>();
     }
     
     private enum TokenType {

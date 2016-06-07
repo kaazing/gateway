@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,10 +56,10 @@ public class ByteArrayPool implements ByteArrayFactory
     public ByteArrayPool( boolean direct, int maxFreeBuffers, int maxFreeMemory )
     {
         this.direct = direct;
-        freeBuffers = new ArrayList<Stack<DirectBufferByteArray>>();
+        freeBuffers = new ArrayList<>();
         for ( int i = 0; i < MAX_BITS; i++ )
         {
-            freeBuffers.add( new Stack<DirectBufferByteArray>() );
+            freeBuffers.add(new Stack<>() );
         }
         this.maxFreeBuffers = maxFreeBuffers;
         this.maxFreeMemory = maxFreeMemory;

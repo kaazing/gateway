@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,18 @@
  */
 package org.kaazing.gateway.transport;
 
-import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.kaazing.gateway.resource.address.Comparators.compareResourceOriginAndProtocolStack;
+
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.hamcrest.BaseMatcher;
@@ -24,18 +34,8 @@ import org.hamcrest.Description;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.URI;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-
-import static org.kaazing.gateway.resource.address.Comparators.compareResourceOriginAndProtocolStack;
-import static org.junit.Assert.*;
+import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 
 public class BindingsTest {
 
@@ -57,7 +57,7 @@ public class BindingsTest {
         IoHandler handler = new IoHandlerAdapter();
         BridgeSessionInitializer<? extends IoFuture> initializer = new BridgeSessionInitializerAdapter<>();
 
-        URI location = URI.create("tcp://localhost:8000");
+        String location = "tcp://localhost:8000";
         ResourceAddress bindAddress = makeResourceAddress(location);
         Bindings.Binding newBinding = new Bindings.Binding(bindAddress, handler, initializer);
         bindings.addBinding(newBinding);
@@ -83,7 +83,7 @@ public class BindingsTest {
 
         IoHandler handler = new IoHandlerAdapter();
         BridgeSessionInitializer<? extends IoFuture> initializer = new BridgeSessionInitializerAdapter<>();
-        URI location = URI.create("tcp://localhost:8000");
+        String location = "tcp://localhost:8000";
 
         // Add binding
         ResourceAddress bindAddress = makeResourceAddress(location);
@@ -107,7 +107,7 @@ public class BindingsTest {
 
         IoHandler handler = new IoHandlerAdapter();
         BridgeSessionInitializer<? extends IoFuture> initializer = new BridgeSessionInitializerAdapter<>();
-        URI location = URI.create("tcp://localhost:8000");
+        String location = "tcp://localhost:8000";
         Set<Map.Entry<ResourceAddress, Bindings.Binding>> entries = bindings.entrySet();
 
         for (int i = 0; i < BIND_COUNT; i++) {
@@ -147,7 +147,7 @@ public class BindingsTest {
 
         // Create bindings
         for (int i = 0; i < 10; i++) {
-            URI location = URI.create(String.format("tcp://localhost:%d", i));
+            String location = String.format("tcp://localhost:%d", i);
             testBindings[i] = new Bindings.Binding(makeResourceAddress(location),
                     new IoHandlerAdapter(), new BridgeSessionInitializerAdapter<>());
         }
@@ -191,12 +191,12 @@ public class BindingsTest {
 
     }
 
-    private ResourceAddress makeResourceAddress(URI location) {
+    private ResourceAddress makeResourceAddress(String location) {
         return addressFactory.newResourceAddress(location);
     }
 
     public static <T extends Collection<?>> void assertEmpty(T collection) {
-        assertThat(collection, new IsCollectionEmpty<T>());
+        assertThat(collection, new IsCollectionEmpty<>());
     }
 
     private static final class IsCollectionEmpty<T extends Collection<?>> extends BaseMatcher<T> {

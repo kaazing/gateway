@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpNTLMAuthLogicHandler extends AbstractAuthLogicHandler {
 
-    private final static Logger LOGGER = LoggerFactory
+    private static final Logger LOGGER = LoggerFactory
             .getLogger(HttpNTLMAuthLogicHandler.class);
 
     /**
@@ -75,7 +75,7 @@ public class HttpNTLMAuthLogicHandler extends AbstractAuthLogicHandler {
         
         HttpProxyRequest req = (HttpProxyRequest) request;
         Map<String, List<String>> headers = req.getHeaders() != null ? req
-                .getHeaders() : new HashMap<String, List<String>>();
+                .getHeaders() : new HashMap<>();
 
         String domain = req.getProperties().get(
                 HttpProxyConstants.DOMAIN_PROPERTY);

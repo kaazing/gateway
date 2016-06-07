@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public final class BufferedWriteFilter extends IoFilterAdapter {
     /**
      * Default buffer size value in bytes.
      */
-    public final static int DEFAULT_BUFFER_SIZE = 8192;
+    public static final int DEFAULT_BUFFER_SIZE = 8192;
 
     /**
      * The buffer size allocated for each new session's buffer.
@@ -93,7 +93,7 @@ public final class BufferedWriteFilter extends IoFilterAdapter {
         super();
         this.bufferSize = bufferSize;
         if (buffersMap == null) {
-            this.buffersMap = new LazyInitializedCacheMap<IoSession, IoBuffer>();
+            this.buffersMap = new LazyInitializedCacheMap<>();
         } else {
             this.buffersMap = buffersMap;
         }
@@ -194,7 +194,7 @@ public final class BufferedWriteFilter extends IoFilterAdapter {
      */
     private void internalFlush(NextFilter nextFilter, IoSession session,
             IoBuffer buf) throws Exception {
-        IoBuffer tmp = null;
+        IoBuffer tmp;
         synchronized (buf) {
             buf.flip();
             tmp = buf.duplicate();

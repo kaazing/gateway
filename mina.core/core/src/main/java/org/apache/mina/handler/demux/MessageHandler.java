@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ public interface MessageHandler<E> {
      * A {@link MessageHandler} that does nothing.  This is useful when
      * you want to ignore a message of a specific type silently.
      */
-    static MessageHandler<Object> NOOP = new MessageHandler<Object>() {
+    MessageHandler<Object> NOOP = new MessageHandler<Object>() {
         public void handleMessage(IoSession session, Object message) {
             // Do nothing
         }

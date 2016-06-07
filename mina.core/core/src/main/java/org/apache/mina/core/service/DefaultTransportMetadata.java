@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ public class DefaultTransportMetadata implements TransportMetadata {
         this.sessionConfigType = sessionConfigType;
 
         Set<Class<?>> newEnvelopeTypes =
-            new IdentityHashSet<Class<?>>();
+                new IdentityHashSet<>();
         Collections.addAll(newEnvelopeTypes, envelopeTypes);
         this.envelopeTypes = Collections.unmodifiableSet(newEnvelopeTypes);
     }

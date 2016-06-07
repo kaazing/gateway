@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.kaazing.gateway.transport.nio.internal;
 
 import java.net.InetAddress;
-import java.net.URI;
 import java.util.Properties;
 
 import javax.annotation.Resource;
@@ -26,6 +25,7 @@ import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.bio.MulticastConnector;
 import org.kaazing.mina.core.service.IoConnectorEx;
@@ -100,8 +100,8 @@ public class NioDatagramConnector extends AbstractNioConnector {
                                  IoSessionInitializer<? extends ConnectFuture> initializer) {
         boolean useMCP = false;
         try {
-            URI uri = address.getExternalURI();
-            InetAddress inet = InetAddress.getByName(uri.getHost());
+            String uri = address.getExternalURI();
+            InetAddress inet = InetAddress.getByName(URIUtils.getHost(uri));
             if (inet.isMulticastAddress()) {
                 useMCP = true;
             }

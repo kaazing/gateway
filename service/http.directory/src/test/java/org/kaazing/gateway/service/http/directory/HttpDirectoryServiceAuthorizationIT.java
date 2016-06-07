@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.net.URI;
 import java.security.KeyStore;
 
 import org.junit.Rule;
@@ -61,13 +60,13 @@ public class HttpDirectoryServiceAuthorizationIT {
                         .webRootDirectory(new File("src/test/webapp"))
                         .property(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY, "src/test/resources/gateway/conf")
                         .service()
-                            .accept(URI.create(DIRECTORY_SERVICE_ACCEPT))
+                            .accept(DIRECTORY_SERVICE_ACCEPT)
                             .type("directory")
                             .property("directory", "/public")
                             .property("welcome-file", "index.html")
                         .done()
                         .service()
-                            .accept(URI.create(BASIC_AUTH_DIRECTORY_SERVICE_ACCEPT))
+                            .accept(BASIC_AUTH_DIRECTORY_SERVICE_ACCEPT)
                             .type("directory")
                             .property("directory", "/public")
                             .property("welcome-file", "index.html")
@@ -77,7 +76,7 @@ public class HttpDirectoryServiceAuthorizationIT {
                             .done()
                         .done()
                         .service()
-                            .accept(URI.create(APP_BASIC_AUTH_DIRECTORY_SERVICE_ACCEPT))
+                            .accept(APP_BASIC_AUTH_DIRECTORY_SERVICE_ACCEPT)
                             .type("directory")
                             .property("directory", "/public")
                             .property("welcome-file", "index.html")
@@ -87,7 +86,7 @@ public class HttpDirectoryServiceAuthorizationIT {
                             .done()
                         .done()
                         .service()
-                            .accept(URI.create(TOKEN_AUTH_DIRECTORY_SERVICE_ACCEPT))
+                            .accept(TOKEN_AUTH_DIRECTORY_SERVICE_ACCEPT)
                             .type("directory")
                             .property("directory", "/public")
                             .property("welcome-file", "index.html")

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ public class NioIdleFilter extends IoFilterAdapter<IoSessionEx> {
             logger.debug(String.format("Setting idle timeout %d on TCP session %s ", idleTimeout, session));
         }
         session.getConfig().setBothIdleTime(idleTimeout);
-    };
+    }
 
     @Override
     protected void doSessionIdle(NextFilter nextFilter, IoSessionEx session, IdleStatus status) throws Exception {

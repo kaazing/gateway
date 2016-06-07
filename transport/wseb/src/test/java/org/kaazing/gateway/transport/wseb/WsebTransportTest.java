@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.fail;
 import static org.kaazing.gateway.util.Utils.asByteBuffer;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
@@ -59,18 +58,15 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsebTransportTest {
-    @Rule
-    public TestRule testExecutionTrace = new MethodExecutionTrace("log4j-trace.properties");
+	private static final int NETWORK_OPERATION_WAIT_SECS = 10; // was 3, increasing for loaded environments
+
+	@Rule
+    public final TestRule testExecutionTrace = new MethodExecutionTrace("log4j-trace.properties");
 
     @Rule
-    public TestRule timeout = new DisableOnDebug(new Timeout(20, SECONDS));
-
-    private static int NETWORK_OPERATION_WAIT_SECS = 10; // was 3, increasing for loaded environments
-
-    private SchedulerProvider schedulerProvider;
+    public final TestRule timeout = new DisableOnDebug(new Timeout(20, SECONDS));
 
 	private ResourceAddressFactory addressFactory;
-	private BridgeServiceFactory serviceFactory;
 
 	private NioSocketConnector tcpConnector;
 	private HttpConnector httpConnector;
@@ -82,12 +78,12 @@ public class WsebTransportTest {
 
 	@Before
 	public void init() {
-		schedulerProvider = new SchedulerProvider();
+		SchedulerProvider schedulerProvider = new SchedulerProvider();
 
 		addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         Map<String, ?> config = Collections.emptyMap();
         TransportFactory transportFactory = TransportFactory.newTransportFactory(config);
-        serviceFactory = new BridgeServiceFactory(transportFactory);
+		BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
 
         tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
 
@@ -149,7 +145,7 @@ public class WsebTransportTest {
     @Test
     public void connectorShouldReceiveMessageFromAcceptor() throws Exception {
 
-        URI location = URI.create("wse://localhost:8000/echo");
+        String location = "wse://localhost:8000/echo";
         Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
         ResourceAddress address = addressFactory.newResourceAddress(location, addressOptions);
         final CountDownLatch acceptSessionClosed = new CountDownLatch(1);
@@ -208,7 +204,7 @@ public class WsebTransportTest {
 	@Test
 	public void connectorShouldWriteAndReceiveMessage() throws Exception {
 
-		URI location = URI.create("wse://localhost:8000/echo");
+		String location = "wse://localhost:8000/echo";
 		Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
 		ResourceAddress address = addressFactory.newResourceAddress(location, addressOptions);
 		final CountDownLatch acceptSessionClosed = new CountDownLatch(1);
@@ -261,7 +257,7 @@ public class WsebTransportTest {
 //                "sessionClosed did not fire on the acceptor");
 	}
 
-    static void waitForLatch(CountDownLatch l,
+    private static void waitForLatch(CountDownLatch l,
                                     final int delay,
                                     final TimeUnit unit,
                                     final String failureMessage)

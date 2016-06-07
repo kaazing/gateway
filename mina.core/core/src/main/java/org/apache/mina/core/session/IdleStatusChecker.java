@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class IdleStatusChecker {
     
     // the list of session to check
     private final Set<AbstractIoSession> sessions =
-        new ConcurrentHashSet<AbstractIoSession>();
+            new ConcurrentHashSet<>();
 
     /* create a task you can execute in the transport code,
      * if the transport is like NIO or APR you don't need to call it,

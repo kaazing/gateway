@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.kaazing.gateway.transport.wsn.specification.extensions.idletimeout;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,10 +49,10 @@ public class IdleTimeoutExtensionWSNAcceptorIT {
     @Test
     @Specification("standard.pong.frames.sent.by.server.no.client.timeout/request")
     public void standardPongFramesSentByServerNoClientTimeout() throws Exception {
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put("ws.inactivityTimeout", 2000L);
         ResourceAddress address = addressFactory.newResourceAddress(
-                new URI("ws://localhost:8001/echo"), options);
+                "ws://localhost:8001/echo", options);
         acceptor.bind(address, new IoHandlerAdapter<IoSessionEx>());
         k3po.start();        
         Thread.sleep(700);
@@ -71,10 +70,10 @@ public class IdleTimeoutExtensionWSNAcceptorIT {
     @Test
     @Specification("extension.pong.frames.sent.by.server.no.client.timeout/request")
     public void extensionPongFramesSentByServerNoClientTimeout() throws Exception {
-    	Map<String, Object> options = new HashMap<String, Object>();
+    	Map<String, Object> options = new HashMap<>();
         options.put("ws.inactivityTimeout", 2000L);
         ResourceAddress address = addressFactory.newResourceAddress(
-                new URI("ws://localhost:8001/echo"), options);
+                "ws://localhost:8001/echo", options);
         acceptor.bind(address, new IoHandlerAdapter<IoSessionEx>());
         k3po.start();        
         Thread.sleep(700);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+    Copyright 2007-2016, Kaazing Corporation. All rights reserved.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 
 -->
 <schema elementFormDefault="qualified"
-        targetNamespace="http://xmlns.kaazing.org/2014/09/gateway"
+        targetNamespace="http://xmlns.kaazing.org/2015/11/gateway"
         xmlns="http://www.w3.org/2001/XMLSchema"
-        xmlns:gateway="http://xmlns.kaazing.org/2014/09/gateway">
+        xmlns:gateway="http://xmlns.kaazing.org/2015/11/gateway">
     <annotation>
         <documentation>Configuration for the Kaazing gateway Management service
             extensions.

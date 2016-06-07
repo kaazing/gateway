@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,7 +130,7 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
             private void sessionCreated0(IoSession session) throws Exception {
                 SocketAddress boundAddress0 = session.getLocalAddress();
                 ResourceAddress boundAddress = asResourceAddress(boundAddress0);
-                URI candidateURI = boundAddress.getExternalURI();
+                String candidateURI = boundAddress.getExternalURI();
 
                 ResourceOptions candidateOptions = ResourceOptions.FACTORY.newResourceOptions(boundAddress);
                 String nextProtocol = NEXT_PROTOCOL_KEY.get(session);
@@ -205,7 +205,7 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
                 String hostAddress = inetAddress.getHostAddress();
                 String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
                 int port = multicastAddress.getBindPort();
-                URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
+                String transport = format(addressFormat, transportName, hostAddress, port);
                 return resourceAddressFactory.newResourceAddress(transport, nextProtocol);
             }
 
@@ -213,7 +213,7 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
                 String transportName = getTransportName();
                 String addressFormat = "%s://%s";
                 String pipeName = namedPipeAddress.getPipeName();
-                URI transport = URI.create(format(addressFormat, transportName, pipeName));
+                String transport = format(addressFormat, transportName, pipeName);
                 return resourceAddressFactory.newResourceAddress(transport, nextProtocol);
             }
 
@@ -223,7 +223,7 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
                 String hostAddress = inetAddress.getHostAddress();
                 String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
                 int port = inetSocketAddress.getPort();
-                URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
+                String transport = format(addressFormat, transportName, hostAddress, port);
                 return resourceAddressFactory.newResourceAddress(transport, nextProtocol);
             }
         });
@@ -241,8 +241,14 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
 
     @Override
     public void bind(ResourceAddress address, IoHandler handler, BridgeSessionInitializer<? extends IoFuture> initializer) {
-        if (started.compareAndSet(false, true)) {
-            init();
+
+        if (!started.get()) {
+            synchronized (started) {
+                if (!started.get()) {
+                    init();
+                    started.set(true);
+                }
+            }
         }
 
         ResourceAddress failedAddress = null;

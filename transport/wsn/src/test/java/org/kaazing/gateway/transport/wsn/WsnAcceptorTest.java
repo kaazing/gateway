@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,10 @@
  */
 package org.kaazing.gateway.transport.wsn;
 
-import java.net.URI;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertTrue;
+import static org.kaazing.test.util.ITUtil.timeoutRule;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,19 +45,12 @@ import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.future.UnbindFuture;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertTrue;
-import static org.kaazing.test.util.ITUtil.timeoutRule;
-
 public class WsnAcceptorTest {
 
     @Rule
     public final TestRule timeoutRule = timeoutRule(10, SECONDS);
 
-    private SchedulerProvider schedulerProvider;
-    
     private ResourceAddressFactory addressFactory;
-    private BridgeServiceFactory serviceFactory;
 
     private NioSocketConnector tcpConnector;
     private HttpConnector httpConnector;
@@ -63,16 +59,15 @@ public class WsnAcceptorTest {
     private NioSocketAcceptor tcpAcceptor;
     private HttpAcceptor httpAcceptor;
     private WsnAcceptor wsnAcceptor;
-    private WsAcceptor wsAcceptor;
 
     @Before
     public void init() {
-        schedulerProvider = new SchedulerProvider();
+        SchedulerProvider schedulerProvider = new SchedulerProvider();
          
         addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         Map<String, Object> config = Collections.emptyMap();
         TransportFactory transportFactory = TransportFactory.newTransportFactory(config);
-        serviceFactory = new BridgeServiceFactory(transportFactory);
+        BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
 
         tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
         tcpAcceptor.setResourceAddressFactory(addressFactory);
@@ -97,7 +92,7 @@ public class WsnAcceptorTest {
         wsnAcceptor.setResourceAddressFactory(addressFactory);
         wsnAcceptor.setSchedulerProvider(schedulerProvider);
 
-        wsAcceptor = (WsAcceptor)transportFactory.getTransport("ws").getAcceptor();
+        WsAcceptor wsAcceptor = (WsAcceptor) transportFactory.getTransport("ws").getAcceptor();
         wsAcceptor.setWsnAcceptor(wsnAcceptor);
         wsAcceptor.setConfiguration(new Properties());
 
@@ -133,42 +128,37 @@ public class WsnAcceptorTest {
 
         Map<String, Object> acceptOptions = new HashMap<>();
 
-        final String connectURIString = "ws://localhost:8000/echo";
+        final String connectURIString = "ws://localhost:8001/echo";
         final ResourceAddress bindAddress =
                 addressFactory.newResourceAddress(
-                        URI.create(connectURIString),
+                        connectURIString,
                         acceptOptions);
 
         final IoHandler ioHandler = new IoHandlerAdapter();
 
-        int[] rounds = new int[]{1,2,10};
-        for ( int iterationCount: rounds ) {
-            for ( int i = 0; i < iterationCount; i++) {
-                wsnAcceptor.bind(bindAddress, ioHandler, null);
-            }
-            for (int j = 0; j < iterationCount; j++) {
-                UnbindFuture future = wsnAcceptor.unbind(bindAddress);
-                org.junit.Assert.assertTrue("Unbind failed", future.await(1, TimeUnit.SECONDS));
-            }
-            org.junit.Assert.assertTrue(wsnAcceptor.emptyBindings());
-            org.junit.Assert.assertTrue(httpAcceptor.emptyBindings());
-            org.junit.Assert.assertTrue(tcpAcceptor.emptyBindings());
-
+        for ( int i = 0; i < 10; i++) {
+            wsnAcceptor.bind(bindAddress, ioHandler, null);
         }
+
+        for (int j = 0; j < 10; j++) {
+            UnbindFuture future = wsnAcceptor.unbind(bindAddress);
+            org.junit.Assert.assertTrue("Unbind failed", future.await(1, TimeUnit.SECONDS));
+        }
+        org.junit.Assert.assertTrue(wsnAcceptor.emptyBindings());
+        org.junit.Assert.assertTrue(httpAcceptor.emptyBindings());
+        org.junit.Assert.assertTrue(tcpAcceptor.emptyBindings());
     }
 
     @Test
     public void shouldBeAbleToBindAndUnbindWsxAndWsnAddresses() throws Exception {
 
-        URI location = URI.create("wsn://localhost:8000/echo");
+        String location = "wsn://localhost:8002/echo";
         Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
         ResourceAddress wsnAddress = addressFactory.newResourceAddress(location, addressOptions);
 
-        location = URI.create("wsx://localhost:8000/echo");
+        location = "wsx://localhost:8002/echo";
         addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
         ResourceAddress wsxAddress = addressFactory.newResourceAddress(location, addressOptions);
-
-
 
         IoHandler acceptHandler = new IoHandlerAdapter() {};
         wsnAcceptor.bind(wsnAddress, acceptHandler, null);
@@ -182,12 +172,12 @@ public class WsnAcceptorTest {
 
     @Test
     public void shouldBindWsxAddressesWithTcpBind() throws Exception {
-        URI uri1 = URI.create("wsx://localhost:8001/");
-        HashMap<String, Object> options1 = new HashMap<String, Object>();
+        String uri1 = "wsx://localhost:8003/";
+        HashMap<String, Object> options1 = new HashMap<>();
         options1.put("tcp.bind", "7777");
 
-        URI uri2 = URI.create("wsx://localhost:8001/");
-        HashMap<String, Object> options2 = new HashMap<String, Object>();
+        String uri2 = "wsx://localhost:8003/";
+        HashMap<String, Object> options2 = new HashMap<>();
 
         ResourceAddress address1 = addressFactory.newResourceAddress(uri1, options1);
         ResourceAddress address2 = addressFactory.newResourceAddress(uri2, options2);

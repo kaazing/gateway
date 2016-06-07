@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParserException;
-import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
-import org.kaazing.gateway.server.config.sep2014.ServiceAcceptOptionsType;
+import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.nov2015.ServiceAcceptOptionsType;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.TransportOptionNames;
 
@@ -92,6 +92,12 @@ public class AcceptOptionsTest {
         expectParseFailure("http.keepalive.timeout", "-1 seconds");
         expectParseFailure("http.keepalive.timeout", "abc");
         expectParseFailure("http.keepalive.timeout", null);
+    }
+
+    @Test
+    public void testHttpTransportOption() throws Exception {
+        expectSuccess("http.transport", "tcp://127.0.0.1:80", "http[http/1.1].transport", "tcp://127.0.0.1:80");
+        expectSuccess("http.transport", "tcp://127.0.0.1:80", "http.transport", null);
     }
 
     @Test
@@ -247,17 +253,17 @@ public class AcceptOptionsTest {
 
     void expectParseFailure(String optionName,
                             String optionValue) throws Exception {
-        runTestCase(optionName, optionValue, TestResult.PARSE_FAILURE, null, null, null);
+        runTestCase(optionName, optionValue, TestResult.PARSE_FAILURE, null, null);
     }
 
     void expectValidateFailure(String optionName,
                                String optionValue) throws Exception {
-        runTestCase(optionName, optionValue, TestResult.VALIDATE_FAILURE, null, null, null);
+        runTestCase(optionName, optionValue, TestResult.VALIDATE_FAILURE, null, null);
     }
 
     void expectRuntimeFailure(String optionName,
                               String optionValue) throws Exception {
-        runTestCase(optionName, optionValue, TestResult.RUNTIME_EXCEPTION, null, null, null);
+        runTestCase(optionName, optionValue, TestResult.RUNTIME_EXCEPTION, null, null);
     }
 
     void runTestCase(String optionName,
@@ -267,13 +273,13 @@ public class AcceptOptionsTest {
                      Object expectedValue,
                      Object... extras) throws Exception {
 
-        File configFile = null;
+        File configFile;
         configFile =
                 createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-accept-options-template" +
                                 ".xml",
                         optionName, optionValue);
 
-        GatewayConfigDocument doc = null;
+        GatewayConfigDocument doc;
         try {
             doc = parser.parse(configFile);
 
@@ -287,7 +293,7 @@ public class AcceptOptionsTest {
         }
         Assert.assertNotNull(doc);
         ServiceAcceptOptionsType serviceAcceptOptionsType = doc.getGatewayConfig().getServiceArray(0).getAcceptOptions();
-        AcceptOptionsContext acceptOptionsContext = null;
+        AcceptOptionsContext acceptOptionsContext;
         try {
             acceptOptionsContext = new DefaultAcceptOptionsContext(serviceAcceptOptionsType, null);
 
@@ -328,7 +334,7 @@ public class AcceptOptionsTest {
 
     }
 
-    private File createTempFileFromResource(String resourceName, String... values) throws IOException {
+    private File createTempFileFromResource(String resourceName, Object... values) throws IOException {
         File file = File.createTempFile("gateway-config", "xml");
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         InputStream is = classLoader.getResource(resourceName).openStream();

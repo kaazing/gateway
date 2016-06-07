@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,8 @@ import org.slf4j.LoggerFactory;
 
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.core.write.WriteRequestEx;
+
+import static java.lang.String.format;
 
 /**
  * An {@link IoFilter} which translates binary or protocol specific data into
@@ -102,10 +104,12 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
 
         // Create the inner Factory based on the two parameters
         this.factory = new ProtocolCodecFactory() {
+            @Override
             public ProtocolEncoder getEncoder(IoSession session) {
                 return encoder;
             }
 
+            @Override
             public ProtocolDecoder getDecoder(IoSession session) {
                 return decoder;
             }
@@ -154,10 +158,12 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
         // Create the inner factory based on the two parameters. We instantiate
         // the encoder and decoder locally.
         this.factory = new ProtocolCodecFactory() {
+            @Override
             public ProtocolEncoder getEncoder(IoSession session) throws Exception {
                 return encoderClass.newInstance();
             }
 
+            @Override
             public ProtocolDecoder getDecoder(IoSession session) throws Exception {
                 return decoderClass.newInstance();
             }
@@ -218,6 +224,9 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
         IoBuffer in = (IoBuffer) message;
         ProtocolDecoder decoder = getDecoder(session);
         ProtocolDecoderOutput decoderOut = getDecoderOut(session, nextFilter);
+        IoSessionEx sessionEx = (IoSessionEx)session;
+
+        Thread ioThread = sessionEx.getIoThread();
 
         // Loop until we don't have anymore byte in the buffer,
         // or until the decoder throws an unrecoverable exception or
@@ -225,15 +234,23 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
         // data in the buffer
         // Note: break out to let old I/O thread unwind after deregistering
         while (in.hasRemaining()) {
+            // If the session is realigned, let the new thread deal with the decoding
+            if (sessionEx.getIoThread() != ioThread) {
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace(format("Decoding for session=%s will be continued by new thread=%s old thread=%s",
+                            session, sessionEx.getIoThread(), ioThread));
+                }
+                break;
+            }
             int oldPos = in.position();
             try {
                 synchronized (decoderOut) {
                     // Call the decoder with the read bytes
                     decoder.decode(session, in, decoderOut);
-                }
 
-                // Finish decoding if no exception was thrown.
-                decoderOut.flush(nextFilter, session);
+                    // Finish decoding if no exception was thrown.
+                    decoderOut.flush(nextFilter, session);
+                }
             } catch (Throwable t) {
                 ProtocolDecoderException pde;
                 if (t instanceof ProtocolDecoderException) {
@@ -251,7 +268,9 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
                 }
 
                 // Fire the exceptionCaught event.
-                decoderOut.flush(nextFilter, session);
+                synchronized (decoderOut) {
+                    decoderOut.flush(nextFilter, session);
+                }
                 nextFilter.exceptionCaught(session, pde);
 
                 // Retry only if the type of the caught exception is
@@ -272,7 +291,10 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
 
         if (writeRequest == IoSessionEx.REGISTERED_EVENT) {
             ProtocolDecoderOutput decoderOut = getDecoderOut(session, nextFilter);
-            decoderOut.flush(nextFilter, session);
+            // synchronizing so that realigned thread wait until original thread unwinds
+            synchronized (decoderOut) {
+                decoderOut.flush(nextFilter, session);
+            }
         }
 
         nextFilter.messageSent(session, writeRequest);
@@ -350,14 +372,24 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
             // Do nothing
         }
 
+        @Override
         public void flush(NextFilter nextFilter, IoSession session) {
             IoSessionEx sessionEx = (IoSessionEx) session;
             if (!sessionEx.isIoRegistered()) {
                 return;
             }
 
+            Thread ioThread = sessionEx.getIoThread();
             Queue<Object> messageQueue = getMessageQueue();
             while (!messageQueue.isEmpty()) {
+                // If the session is realigned, let the new thread deal with it
+                if (sessionEx.getIoThread() != ioThread) {
+                    if (LOGGER.isTraceEnabled()) {
+                        LOGGER.trace(format("Decoding for session=%s will be continued by new thread=%s old thread=%s",
+                                session, sessionEx.getIoThread(), ioThread));
+                    }
+                    break;
+                }
                 nextFilter.messageReceived(session, messageQueue.poll());
             }
         }

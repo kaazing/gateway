@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import static org.kaazing.gateway.transport.http.HttpStatus.REDIRECT_FOUND;
 import static org.kaazing.gateway.transport.http.HttpStatus.SUCCESS_OK;
 import static org.kaazing.gateway.transport.http.HttpVersion.HTTP_1_1;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
@@ -106,8 +105,8 @@ public class HttpxeTransportTest {
         pipeConnector.setResourceAddressFactory(addressFactory);
         pipeConnector.setNamedPipeAcceptor(pipeAcceptor);
 
-        URI transportURI = URI.create("pipe://integrate");
-        URI location = URI.create("httpxe://localhost:8000/");
+        String transportURI = "pipe://integrate";
+        String location = "httpxe://localhost:8000/";
         Map<String, Object> options = new HashMap<>();
         options.put("http[http/1.1].injectableHeaders", noneOf(HttpInjectableHeader.class));
         options.put("http[http/1.1].transport", transportURI);
@@ -133,12 +132,12 @@ public class HttpxeTransportTest {
     public void shouldBindAndUnbindLeavingEmptyBindingsMaps() throws Exception {
 
         Map<String, Object> acceptOptions = new HashMap<>();
-        acceptOptions.put(TRANSPORT.name(), URI.create("pipe://transport"));
+        acceptOptions.put(TRANSPORT.name(), "pipe://transport");
 
         final String connectURIString = "httpxe://localhost:8000/path";
         final ResourceAddress bindAddress =
                 addressFactory.newResourceAddress(
-                        URI.create(connectURIString),
+                        connectURIString,
                         acceptOptions);
 
         final IoHandler ioHandler = new org.kaazing.gateway.transport.IoHandlerAdapter();

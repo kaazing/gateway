@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,13 +62,13 @@ import org.jdom.output.XMLOutputter;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.config.parse.translate.GatewayConfigTranslator;
 import org.kaazing.gateway.server.config.parse.translate.GatewayConfigTranslatorFactory;
-import org.kaazing.gateway.server.config.sep2014.ClusterType;
-import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
-import org.kaazing.gateway.server.config.sep2014.PropertiesType;
-import org.kaazing.gateway.server.config.sep2014.PropertyType;
-import org.kaazing.gateway.server.config.sep2014.SecurityType;
-import org.kaazing.gateway.server.config.sep2014.ServiceDefaultsType;
-import org.kaazing.gateway.server.config.sep2014.ServiceType;
+import org.kaazing.gateway.server.config.nov2015.ClusterType;
+import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.nov2015.PropertiesType;
+import org.kaazing.gateway.server.config.nov2015.PropertyType;
+import org.kaazing.gateway.server.config.nov2015.SecurityType;
+import org.kaazing.gateway.server.config.nov2015.ServiceDefaultsType;
+import org.kaazing.gateway.server.config.nov2015.ServiceType;
 import org.kaazing.gateway.util.parse.ConfigParameter;
 import org.slf4j.Logger;
 import org.xml.sax.Attributes;
@@ -194,7 +194,7 @@ public class GatewayConfigParser {
         parseOptions.setLoadStripWhitespace();
         parseOptions.setLoadStripComments();
 
-        File translatedConfigFile = null;
+        File translatedConfigFile;
         try {
             translatedConfigFile = getTranslatedConfigFile(configFile);
         } catch (Exception e) {
@@ -419,7 +419,7 @@ public class GatewayConfigParser {
      * @return
      */
     private static InputStream bufferToTraceLog(InputStream input, String message, Logger log) {
-        InputStream output = input;
+        InputStream output;
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             int read;
@@ -508,6 +508,7 @@ public class GatewayConfigParser {
          *
          * @return <code>true</code> if processed without errors, <code>false</code> otherwise
          */
+        @Override
         public Boolean call() throws Exception {
             try {
                 SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
@@ -581,7 +582,7 @@ public class GatewayConfigParser {
                 };
                 parser.getXMLReader().setProperty("http://xml.org/sax/properties/lexical-handler", handler);
                 parser.getXMLReader().setProperty("http://apache.org/xml/properties/input-buffer-size",
-                        new Integer(souceInput.available()));
+                        souceInput.available());
                 parser.parse(souceInput, handler);
             } finally {
                 close();
@@ -616,6 +617,7 @@ public class GatewayConfigParser {
          *
          * @return <code>true</code> if processed without errors, <code>false</code> otherwise
          */
+        @Override
         public Boolean call() throws Exception {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             URL resource = classLoader.getResource(stylesheet);

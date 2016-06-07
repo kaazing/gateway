@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,9 +38,11 @@ public abstract class DecodingStateMachine implements DecodingState {
             .getLogger(DecodingStateMachine.class);
 
     private final ProtocolDecoderOutput childOutput = new ProtocolDecoderOutput() {
-		public void flush(NextFilter nextFilter, IoSession session) {
+		@Override
+        public void flush(NextFilter nextFilter, IoSession session) {
 		}
 
+        @Override
         public void write(Object message) {
             childProducts.add(message);
         }
@@ -67,6 +69,7 @@ public abstract class DecodingStateMachine implements DecodingState {
 
     protected abstract void destroy() throws Exception;
 
+    @Override
     public DecodingState decode(IoBuffer in, final ProtocolDecoderOutput out)
             throws Exception {
         DecodingState state = getCurrentState();
@@ -112,6 +115,7 @@ public abstract class DecodingStateMachine implements DecodingState {
         }
     }
 
+    @Override
     public DecodingState finishDecode(final ProtocolDecoderOutput out)
             throws Exception {
         DecodingState nextState;

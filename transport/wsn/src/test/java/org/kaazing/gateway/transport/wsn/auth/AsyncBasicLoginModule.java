@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,8 +44,9 @@ public class AsyncBasicLoginModule implements LoginModule {
     // testUser's RolePrincipal
     private RolePrincipal userPrincipal;
 
+    @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler,
-            Map<String, ?> sharedState, Map<String, ?> options) {
+                           Map<String, ?> sharedState, Map<String, ?> options) {
         this.subject = subject;
         this.sharedState = sharedState;
     }

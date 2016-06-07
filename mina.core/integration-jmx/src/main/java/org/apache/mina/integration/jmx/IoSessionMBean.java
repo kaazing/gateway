@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ public class IoSessionMBean extends ObjectMBean<IoSession> {
     @Override
     protected Object getAttribute0(String fqan) throws Exception {
         if (fqan.equals("attributes")) {
-            Map<String, String> answer = new LinkedHashMap<String, String>();
+            Map<String, String> answer = new LinkedHashMap<>();
             for (Object key: getSource().getAttributeKeys()) {
                 answer.put(String.valueOf(key), String.valueOf(getSource().getAttribute(key)));
             }

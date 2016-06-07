@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import java.nio.charset.Charset;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -37,7 +36,6 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
-import org.kaazing.gateway.transport.wsn.WsnProtocol;
 import org.kaazing.gateway.transport.wsn.WsnSession;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
@@ -54,7 +52,6 @@ public class BaseFramingIT {
                 .withLookingForStuckThread(true).build());
     private final TestRule trace = new MethodExecutionTrace();
 
-    private static String TEXT_FILTER_NAME = WsnProtocol.NAME + "#text";
     private static Charset UTF_8 = Charset.forName("UTF-8");
 
     private JUnitRuleMockery context = new JUnitRuleMockery() {
@@ -92,14 +89,6 @@ public class BaseFramingIT {
         assertTrue(connectFuture.isConnected());
 
         WsnSession wsnConnectSession = (WsnSession) connectFuture.getSession();
-        // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
-        //                  instead of BINARY is resolved.
-        if (wsnConnectSession != null) {
-            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
-            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
-                parentFilterChain.remove(TEXT_FILTER_NAME);
-            }
-        }
 
         byte[] bytes = new byte[0];
         IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
@@ -136,14 +125,6 @@ public class BaseFramingIT {
         assertTrue(connectFuture.isConnected());
 
         WsnSession wsnConnectSession = (WsnSession) connectFuture.getSession();
-        // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
-        //                  instead of BINARY is resolved.
-        if (wsnConnectSession != null) {
-            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
-            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
-                parentFilterChain.remove(TEXT_FILTER_NAME);
-            }
-        }
 
         IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
@@ -180,14 +161,6 @@ public class BaseFramingIT {
         assertTrue(connectFuture.isConnected());
 
         WsnSession wsnConnectSession = (WsnSession) connectFuture.getSession();
-        // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
-        //                  instead of BINARY is resolved.
-        if (wsnConnectSession != null) {
-            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
-            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
-                parentFilterChain.remove(TEXT_FILTER_NAME);
-            }
-        }
 
         IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
@@ -224,14 +197,6 @@ public class BaseFramingIT {
         assertTrue(connectFuture.isConnected());
 
         WsnSession wsnConnectSession = (WsnSession) connectFuture.getSession();
-        // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
-        //                  instead of BINARY is resolved.
-        if (wsnConnectSession != null) {
-            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
-            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
-                parentFilterChain.remove(TEXT_FILTER_NAME);
-            }
-        }
 
         IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
@@ -269,14 +234,6 @@ public class BaseFramingIT {
         assertTrue(connectFuture.isConnected());
 
         WsnSession wsnConnectSession = (WsnSession) connectFuture.getSession();
-        // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
-        //                  instead of BINARY is resolved.
-        if (wsnConnectSession != null) {
-            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
-            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
-                parentFilterChain.remove(TEXT_FILTER_NAME);
-            }
-        }
 
         IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
@@ -313,14 +270,6 @@ public class BaseFramingIT {
         assertTrue(connectFuture.isConnected());
 
         WsnSession wsnConnectSession = (WsnSession) connectFuture.getSession();
-        // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
-        //                  instead of BINARY is resolved.
-        if (wsnConnectSession != null) {
-            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
-            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
-                parentFilterChain.remove(TEXT_FILTER_NAME);
-            }
-        }
 
         IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
@@ -357,15 +306,6 @@ public class BaseFramingIT {
         assertTrue(connectFuture.isConnected());
 
         WsnSession wsnConnectSession = (WsnSession) connectFuture.getSession();
-        // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
-        //                  instead of BINARY is resolved.
-        if (wsnConnectSession != null) {
-            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
-            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
-                parentFilterChain.remove(TEXT_FILTER_NAME);
-            }
-        }
-
         IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.BINARY);

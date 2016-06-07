@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,13 +51,13 @@ import org.slf4j.LoggerFactory;
  */
 class SslHandler {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(SslHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SslHandler.class);
     private final SslFilter parent;
     private final SSLContext sslContext;
     private final IoSession session;
-    private final Queue<IoFilterEvent> preHandshakeEventQueue = new CircularQueue<IoFilterEvent>();
-    private final Queue<IoFilterEvent> filterWriteEventQueue = new ConcurrentLinkedQueue<IoFilterEvent>();
-    private final Queue<IoFilterEvent> messageReceivedEventQueue = new ConcurrentLinkedQueue<IoFilterEvent>();
+    private final Queue<IoFilterEvent> preHandshakeEventQueue = new CircularQueue<>();
+    private final Queue<IoFilterEvent> filterWriteEventQueue = new ConcurrentLinkedQueue<>();
+    private final Queue<IoFilterEvent> messageReceivedEventQueue = new ConcurrentLinkedQueue<>();
     private SSLEngine sslEngine;
 
     /**

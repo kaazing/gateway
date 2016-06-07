@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import java.util.Map;
 public final class MockTcpTransportFactorySpi extends TransportFactorySpi {
 
     private final Collection<String> TCP_SCHEMES = Collections.unmodifiableCollection(
-            Arrays.asList("tcp"));
+            Collections.singletonList("tcp"));
 
     @Override
     public String getTransportName() {

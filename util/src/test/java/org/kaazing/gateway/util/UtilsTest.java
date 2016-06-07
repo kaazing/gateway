@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class UtilsTest {
     public static class TestInnerClass {
         public static int INT_FIELD = 11;
     }
-    private static String NON_ASCII_UTF8_STRING = "\u6C34"; // CJK UNIFIED IDEOGRAPH-6C34 (water)
+    private static final String NON_ASCII_UTF8_STRING = "\u6C34"; // CJK UNIFIED IDEOGRAPH-6C34 (water)
 
 
 

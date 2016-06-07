@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ public class IoSessionFinder {
             throw new NullPointerException("sessions");
         }
         
-        Set<IoSession> answer = new LinkedHashSet<IoSession>();
+        Set<IoSession> answer = new LinkedHashSet<>();
         for (IoSession s: sessions) {
             OgnlContext context = (OgnlContext) Ognl.createDefaultContext(s);
             context.setTypeConverter(typeConverter);

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,9 @@ public final class Utils {
     private Utils() {
     }
 
+    private static final int NO_OF_DAYS_IN_A_YEAR = 365;
+    private static final int NO_OF_DAYS_IN_A_WEEK = 7;
+
     public static final Charset UTF_8 = Charset.forName("UTF-8");
 
     public static final Charset US_ASCII = Charset.forName("US-ASCII");
@@ -68,7 +71,8 @@ public final class Utils {
     private static final int INTEGER_MIN_VALUE_BYTES_LENGTH = INTEGER_MIN_VALUE_BYTES.length;
 
     private static final String TIME_UNIT_REGEX_STRING =
-            "(?i:(ms|milli|millis|millisecond|milliseconds|s|sec|secs|second|seconds|m|min|mins|minute|minutes|h|hour|hours)?)";
+            "(?i:(ms|milli|millis|millisecond|milliseconds|s|sec|secs|second|seconds|m|min|mins|minute|minutes|"
+                    + "h|hour|hours|d|day|days|w|week|weeks|y|year|years)?)";
 
     private static final String TIME_INTERVAL_REGEX_STRING = "([0-9\\.]+)\\s*" + TIME_UNIT_REGEX_STRING;
 
@@ -85,6 +89,15 @@ public final class Utils {
 
     public static final Set<String> HOURS_UNITS =
             new HashSet<>(Arrays.asList("h", "hour", "hours"));
+
+    static final Set<String> DAYS_UNITS =
+            new HashSet<>(Arrays.asList("d", "day", "days"));
+
+    static final Set<String> WEEKS_UNITS =
+            new HashSet<>(Arrays.asList("w", "week", "weeks"));
+
+    static final Set<String> YEARS_UNITS =
+            new HashSet<>(Arrays.asList("y", "year", "years"));
 
     private static final String[] PERMITTED_DATA_RATE_UNITS =
             new String[] {"MiB/s", "KiB/s", "MB/s", "kB/s", "B/s"};
@@ -138,7 +151,7 @@ public final class Utils {
     public static String toHex(byte[] data) {
         int len = data.length;
         byte[] out = new byte[len << 1];
-        byte cur = 0;
+        byte cur;
         for (int i = 0; i < len; i++) {
             cur = data[i];
             out[(i << 1) + 1] = TO_HEX[cur & 0xF];
@@ -362,7 +375,7 @@ public final class Utils {
      * (so thread safe) and minimizing GC (i.e. object creation)
      */
     public static byte[] asByteArray(ByteBuffer buf) {
-        byte[] result = null;
+        byte[] result;
         if (buf.hasArray() && buf.arrayOffset() == 0 && buf.capacity() == buf.remaining()) {
             result = buf.array();
         }
@@ -618,6 +631,12 @@ public final class Utils {
                     result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.MINUTES));
                 } else if (HOURS_UNITS.contains(unit.toLowerCase())) {
                     result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.HOURS));
+                } else if (DAYS_UNITS.contains(unit.toLowerCase())) {
+                    result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.DAYS));
+                } else if (WEEKS_UNITS.contains(unit.toLowerCase())) {
+                    result = (long) (providedMultiplier * outputUnit.convert(NO_OF_DAYS_IN_A_WEEK * result, TimeUnit.DAYS));
+                } else if (YEARS_UNITS.contains(unit.toLowerCase())) {
+                    result = (long) (providedMultiplier * outputUnit.convert(NO_OF_DAYS_IN_A_YEAR * result, TimeUnit.DAYS));
                 }
                 if (result < 0) {
                     throw new NumberFormatException("Expected a non-negative time interval, received \""
@@ -635,7 +654,7 @@ public final class Utils {
         }
     }
 
-    private static String TIME_INTERVAL_INFORMATION =
+    private static final String TIME_INTERVAL_INFORMATION =
             "Time intervals can be specified as numeric amounts of the following units: millisecond, second, minute, hour.\n" +
                     "For example, \"1800 second\" or \"30 minutes\" or \"0.5 hour\".";
     /**

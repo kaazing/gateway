@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,13 @@
  */
 package org.kaazing.gateway.service.broadcast;
 
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getHost;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getPort;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -65,11 +67,11 @@ public class TestServiceContext implements ServiceContext {
     private final String name;
     private final TestAcceptor acceptor;
     private final TestConnector connector;
-    private final URI acceptURI;
-    private final URI connectURI;
+    private final String acceptURI;
+    private final String connectURI;
     private final ServiceProperties serviceProperties;
 
-    public TestServiceContext(Service service, String name, URI acceptURI, URI connectURI) {
+    public TestServiceContext(Service service, String name, String acceptURI, String connectURI) {
         this.service = service;
         this.name = name;
         this.acceptor = new TestAcceptor();
@@ -110,17 +112,17 @@ public class TestServiceContext implements ServiceContext {
     }
 
     @Override
-    public Collection<URI> getAccepts() {
+    public Collection<String> getAccepts() {
         return Collections.singletonList(acceptURI);
     }
 
     @Override
-    public Collection<URI> getBalances() {
+    public Collection<String> getBalances() {
         return Collections.emptyList();
     }
 
     @Override
-    public Collection<URI> getConnects() {
+    public Collection<String> getConnects() {
         return Collections.singletonList(connectURI);
     }
 
@@ -150,7 +152,7 @@ public class TestServiceContext implements ServiceContext {
     }
 
     @Override
-    public Map<URI, ? extends Map<String, ? extends CrossSiteConstraintContext>> getCrossSiteConstraints() {
+    public Map<String, ? extends Map<String, ? extends CrossSiteConstraintContext>> getCrossSiteConstraints() {
         return null;
     }
 
@@ -175,17 +177,17 @@ public class TestServiceContext implements ServiceContext {
     }
 
     @Override
-    public void bind(Collection<URI> acceptURIs, IoHandler handler) {
+    public void bind(Collection<String> acceptURIs, IoHandler handler) {
         bind(acceptURIs, handler, null, null);
     }
 
     @Override
-    public void bind(Collection<URI> acceptURIs, IoHandler handler, AcceptOptionsContext acceptOptionsContext) {
+    public void bind(Collection<String> acceptURIs, IoHandler handler, AcceptOptionsContext acceptOptionsContext) {
         bind(acceptURIs, handler, acceptOptionsContext, null);
     }
 
     @Override
-    public void bind(Collection<URI> acceptURIs,
+    public void bind(Collection<String> acceptURIs,
                      IoHandler handler,
                      AcceptOptionsContext acceptOptionsContext,
                      BridgeSessionInitializer<ConnectFuture> bridgeSessionInitializer) {
@@ -197,23 +199,23 @@ public class TestServiceContext implements ServiceContext {
     }
 
     @Override
-    public void bind(Collection<URI> acceptURIs,
+    public void bind(Collection<String> acceptURIs,
                      IoHandler handler,
                      BridgeSessionInitializer<ConnectFuture> bridgeSessionInitializer) {
         bind(acceptURIs, handler, null, bridgeSessionInitializer);
     }
 
     @Override
-    public void bindConnectsIfNecessary(Collection<URI> connectURIs) {
+    public void bindConnectsIfNecessary(Collection<String> connectURIs) {
     }
 
     @Override
-    public void unbind(Collection<URI> acceptURIs, IoHandler handler) {
+    public void unbind(Collection<String> acceptURIs, IoHandler handler) {
         acceptor.unbind(acceptURIs);
     }
 
     @Override
-    public void unbindConnectsIfNecessary(Collection<URI> connectURIs) {
+    public void unbindConnectsIfNecessary(Collection<String> connectURIs) {
     }
 
     @Override
@@ -227,7 +229,7 @@ public class TestServiceContext implements ServiceContext {
     }
 
     @Override
-    public ConnectFuture connect(URI connectURI,
+    public ConnectFuture connect(String connectURI,
                                  IoHandler connectHandler,
                                  IoSessionInitializer<ConnectFuture> ioSessionInitializer) {
         return connector.connect(connectURI, connectHandler, ioSessionInitializer);
@@ -309,7 +311,7 @@ public class TestServiceContext implements ServiceContext {
     }
 
     @Override
-    public void setListsOfAcceptConstraintsByURI(List<Map<URI, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI) {
+    public void setListsOfAcceptConstraintsByURI(List<Map<String, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI) {
     }
 
     private class TestAcceptor {
@@ -386,19 +388,19 @@ public class TestServiceContext implements ServiceContext {
             });
         }
 
-        private void bind(Collection<URI> bindURIs, IoHandler handler) throws IOException {
-            for (URI bindURI : bindURIs) {
+        private void bind(Collection<String> bindURIs, IoHandler handler) throws IOException {
+            for (String bindURI : bindURIs) {
                 // should be only one since this is a test class
-                InetSocketAddress address = new InetSocketAddress(bindURI.getHost(), bindURI.getPort());
+                InetSocketAddress address = new InetSocketAddress(getHost(bindURI), getPort(bindURI));
                 bindings.put(address, handler);
                 ioAcceptor.bind(address);
             }
         }
 
-        private void unbind(Collection<URI> bindURIs) {
-            for (URI bindURI : bindURIs) {
+        private void unbind(Collection<String> bindURIs) {
+            for (String bindURI : bindURIs) {
                 // should be only one since this is a test class
-                InetSocketAddress address = new InetSocketAddress(bindURI.getHost(), bindURI.getPort());
+                InetSocketAddress address = new InetSocketAddress(getHost(bindURI), getPort(bindURI));
                 ioAcceptor.unbind(address);
             }
         }
@@ -411,8 +413,8 @@ public class TestServiceContext implements ServiceContext {
             ioConnector = new NioSocketConnectorEx(1);
         }
 
-        private ConnectFuture connect(URI connectURI, IoHandler connectHandler, final IoSessionInitializer<ConnectFuture> ioSessionInitializer) {
-            InetSocketAddress address = new InetSocketAddress(connectURI.getHost(), connectURI.getPort());
+        private ConnectFuture connect(String connectURI, IoHandler connectHandler, final IoSessionInitializer<ConnectFuture> ioSessionInitializer) {
+            InetSocketAddress address = new InetSocketAddress(getHost(connectURI), getPort(connectURI));
             ioConnector.setHandler(connectHandler);
             return ioConnector.connect(address, new IoSessionInitializer<ConnectFuture>() {
                 @Override

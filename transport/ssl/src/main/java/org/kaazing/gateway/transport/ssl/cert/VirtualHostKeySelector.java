@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ import org.kaazing.gateway.transport.ssl.bridge.filter.SslCertificateSelectionFi
 public class VirtualHostKeySelector
     extends AbstractKeySelector {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(VirtualHostKeySelector.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(VirtualHostKeySelector.class);
 
     // Set of certificate aliases that can be delivered for SSL connections
     // for a given host.
@@ -222,6 +222,7 @@ public class VirtualHostKeySelector
         }
     }
 
+    @Override
     public void bind(ResourceAddress resourceAddress) throws Exception {
 
         URI resourceURI = resourceAddress.getResource();
@@ -385,6 +386,7 @@ public class VirtualHostKeySelector
         }
     }
 
+    @Override
     public void unbind(ResourceAddress resourceAddress) {
         // Next, check SSL settings.  Specifically, the <ssl.ciphers> and
         // <ssl.verify-client> configurations.

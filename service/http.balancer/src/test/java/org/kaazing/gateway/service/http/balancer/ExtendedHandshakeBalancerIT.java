@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 package org.kaazing.gateway.service.http.balancer;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
-
-import java.net.URI;
 
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -38,7 +36,7 @@ public class ExtendedHandshakeBalancerIT {
                     // balancer service
                     .service()
                         .type("balancer")
-                        .accept(URI.create("ws://localhost:8080/path"))
+                        .accept("ws://localhost:8080/path")
                         .crossOrigin()
                             .allowOrigin("*")
                         .done()
@@ -46,8 +44,8 @@ public class ExtendedHandshakeBalancerIT {
                     // echo service
                     .service()
                         .type("echo")
-                        .accept(URI.create("ws://localhost:8090/path"))
-                        .balance(URI.create("ws://localhost:8080/path"))
+                        .accept("ws://localhost:8090/path")
+                        .balance("ws://localhost:8080/path")
                         .crossOrigin()
                             .allowOrigin("*")
                         .done()

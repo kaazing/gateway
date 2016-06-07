@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package org.kaazing.gateway.service.proxy;
-
-import java.net.URI;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,8 +32,8 @@ public class ProxyServiceExtensionIT {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                 .service()
-                    .accept(URI.create("tcp://localhost:8001"))
-                    .connect(URI.create("tcp://localhost:8002"))
+                    .accept("tcp://localhost:8001")
+                    .connect("tcp://localhost:8002")
                     .type("proxy")
                     .crossOrigin()
                         .allowOrigin("*")

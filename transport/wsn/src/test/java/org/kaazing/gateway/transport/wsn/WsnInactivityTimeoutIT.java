@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@ package org.kaazing.gateway.transport.wsn;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -37,7 +35,7 @@ public class WsnInactivityTimeoutIT {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                     .service()
-                        .accept(URI.create("ws://localhost:8001/echo"))
+                        .accept("ws://localhost:8001/echo")
                         .type("echo")
                         .crossOrigin()
                             .allowOrigin("*")
@@ -45,7 +43,7 @@ public class WsnInactivityTimeoutIT {
                         .acceptOption("ws.inactivity.timeout", "2sec")
                     .done()
                     .service()
-                        .accept(URI.create("ws://localhost:80/echo80"))
+                        .accept("ws://localhost:80/echo80")
                         .type("echo")
                         .crossOrigin()
                             .allowOrigin("*")
@@ -94,6 +92,12 @@ public class WsnInactivityTimeoutIT {
     @Specification("shouldInactivityTimeoutWhenNetworkFailsDuringExtendedHandshake")
     @Test
     public void shouldInactivityTimeoutWhenNetworkFailsDuringExtendedHandshake() throws Exception {
+        robot.finish();
+    }
+
+    @Test
+    @Specification("shouldSendPingForExtendedHandshake")
+    public void shouldSendPingForExtendedHandshake() throws Exception {
         robot.finish();
     }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.kaazing.gateway.transport;
 
-import static org.kaazing.gateway.resource.address.ResourceAddress.IDENTITY_RESOLVER;
 import static org.junit.Assert.assertEquals;
+import static org.kaazing.gateway.resource.address.ResourceAddress.IDENTITY_RESOLVER;
 
 import java.io.IOException;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.URI;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,8 +36,6 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Rule;
 import org.junit.Test;
-import org.slf4j.Logger;
-
 import org.kaazing.gateway.resource.address.IdentityResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactories;
@@ -47,15 +43,12 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.http.HttpIdentityResolver;
 import org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig;
-
 import org.kaazing.gateway.transport.test.Expectations;
-import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
-import org.kaazing.gateway.transport.LoggingFilter;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.mina.core.service.IoAcceptorEx;
 import org.kaazing.mina.core.service.IoConnectorEx;
 import org.kaazing.mina.core.service.IoServiceEx;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.slf4j.Logger;
 
 public class LoggingFilterTest {
 
@@ -221,7 +214,7 @@ public class LoggingFilterTest {
     public void getUserIdentifierShouldReturnTcpEndpointFromTransport() throws Exception {
 
         ResourceAddressFactory addressFactory = ResourceAddressFactories.newResourceAddressFactory();
-        URI transportURI = URI.create("tcp://localhost:2121");
+        String transportURI = "tcp://localhost:2121";
         final ResourceAddress transport = addressFactory.newResourceAddress(transportURI);
 
         final IoAcceptorEx  service = context.mock(IoAcceptorEx .class, "service");
@@ -241,7 +234,7 @@ public class LoggingFilterTest {
     @Test
     public void getUserIdentifierShouldReturnTcpEndpointFromHttpAddress() throws Exception {
         ResourceAddressFactory addressFactory = ResourceAddressFactories.newResourceAddressFactory();
-        URI addressURI = URI.create("http://localhost:2121/jms");
+        String addressURI = "http://localhost:2121/jms";
         final ResourceAddress address = addressFactory.newResourceAddress(addressURI);
         final IoServiceEx service = context.mock(IoServiceEx.class, "service");
         final Subject subject = new Subject();
@@ -260,7 +253,7 @@ public class LoggingFilterTest {
     @Test
     public void getUserIdentifierShouldReturnPrincipalFromHttpAddressIdentifierSet() throws Exception {
         ResourceAddressFactory addressFactory = ResourceAddressFactories.newResourceAddressFactory();
-        URI addressURI = URI.create("http://localhost:2121/jms");
+        String addressURI = "http://localhost:2121/jms";
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
         buildIdentityResolverOption(options);
 
@@ -281,7 +274,7 @@ public class LoggingFilterTest {
     @Test
     public void getUserIdentifierShouldReturnTcpEndpointFromWsAddress() throws Exception {
         ResourceAddressFactory addressFactory = ResourceAddressFactories.newResourceAddressFactory();
-        URI addressURI = URI.create("ws://localhost:2121/jms");
+        String addressURI = "ws://localhost:2121/jms";
         final SocketAddress address = addressFactory.newResourceAddress(addressURI);
 
         final IoServiceEx service = context.mock(IoServiceEx.class, "service");
@@ -300,7 +293,7 @@ public class LoggingFilterTest {
     @Test
     public void getUserIdentifierShouldReturnPrincipalFromWsAddressIdentifierSet() throws Exception {
         ResourceAddressFactory addressFactory = ResourceAddressFactories.newResourceAddressFactory();
-        URI addressURI = URI.create("ws://localhost:2121/jms");
+        String addressURI = "ws://localhost:2121/jms";
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
         buildIdentityResolverOption(options);
 
@@ -351,7 +344,7 @@ public class LoggingFilterTest {
      * @param options
      */
     private void buildIdentityResolverOption(ResourceOptions options) {
-        Collection<Class<? extends Principal>> realmUserPrincipalClasses = new ArrayList<Class<? extends Principal>>();
+        Collection<Class<? extends Principal>> realmUserPrincipalClasses = new ArrayList<>();
         realmUserPrincipalClasses.add(DefaultUserConfig.class);
         IdentityResolver httpIdentityResolver = new HttpIdentityResolver(realmUserPrincipalClasses );
         options.setOption(IDENTITY_RESOLVER, httpIdentityResolver);

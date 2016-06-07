@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,10 @@ public interface HttpHeaders {
     String HEADER_X_CREATE_ENCODING = "X-Create-Encoding";
     String HEADER_X_ACCEPT_COMMANDS = "X-Accept-Commands";
     String HEADER_FORWARDED = "Forwarded";
+    String HEADER_X_FORWARDED_FOR = "X-Forwarded-For";
+    String HEADER_X_FORWARDED_SERVER = "X-Forwarded-Server";
+    String HEADER_X_FORWARDED_HOST = "X-Forwarded-Host";
+    String HEADER_X_FORWARDED_PROTO = "X-Forwarded-Proto";
     String HEADER_CACHE_CONTROL = "Cache-Control";
 
     String HEADER_UPGRADE = "Upgrade";
@@ -39,5 +43,7 @@ public interface HttpHeaders {
     String HEADER_CONNECTION = "Connection";
     String HEADER_TRANSFER_ENCODING = "Transfer-Encoding";
     String HEADER_X_SEQUENCE_NO = "X-Sequence-No";
+    String HEADER_SET_COOKIE = "Set-Cookie";
+    String HEADER_LOCATION = "Location";
 
 }

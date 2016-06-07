@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public class McpResourceAddressFactorySpi extends UdpResourceAddressFactorySpi {
     }
     
     @Override
-    protected UdpResourceAddress newResourceAddress0(URI original, URI location) {
+    protected UdpResourceAddress newResourceAddress0(String original, String location) {
         
         UdpResourceAddress address = super.newResourceAddress0(original, location);
         URI resource = address.getResource();

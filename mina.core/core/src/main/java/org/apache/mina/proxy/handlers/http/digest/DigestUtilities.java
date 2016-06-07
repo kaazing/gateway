@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ import org.apache.mina.proxy.utils.StringUtilities;
  */
 public class DigestUtilities {
 
-    public final static String SESSION_HA1 = DigestUtilities.class
+    public static final String SESSION_HA1 = DigestUtilities.class
             + ".SessionHA1";
 
     private static MessageDigest md5;
@@ -52,7 +52,7 @@ public class DigestUtilities {
     /**
      * The supported qualities of protections.
      */
-    public final static String[] SUPPORTED_QOPS = new String[] { "auth",
+    public static final String[] SUPPORTED_QOPS = new String[] { "auth",
             "auth-int" };
 
     /**

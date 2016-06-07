@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,8 +80,8 @@ public class ExpiringMap<K, V> implements Map<K, V> {
      *  The time between checks to see if a value should be removed (seconds)
      */
     public ExpiringMap(int timeToLive, int expirationInterval) {
-        this(new ConcurrentHashMap<K, ExpiringObject>(),
-                new CopyOnWriteArrayList<ExpirationListener<V>>(), timeToLive,
+        this(new ConcurrentHashMap<>(),
+                new CopyOnWriteArrayList<>(), timeToLive,
                 expirationInterval);
     }
 

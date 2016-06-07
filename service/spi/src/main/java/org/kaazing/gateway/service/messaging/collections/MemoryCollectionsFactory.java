@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         // TODO: avoid memory leak
         maps = new ConcurrentHashMap<>();
         lists = new ConcurrentHashMap<>();
-        locks = Collections.synchronizedMap(new WeakHashMap<Object, ILockImpl>());
+        locks = Collections.synchronizedMap(new WeakHashMap<>());
         atomicCounters = new ConcurrentHashMap<>();
     }
 

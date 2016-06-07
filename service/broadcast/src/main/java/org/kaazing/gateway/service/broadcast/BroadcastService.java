@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@ package org.kaazing.gateway.service.broadcast;
 import static org.kaazing.gateway.util.Utils.parseBoolean;
 import static org.kaazing.gateway.util.Utils.parsePositiveInteger;
 
-import java.net.URI;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
@@ -36,13 +34,12 @@ import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Gateway service of type "broadcast".
@@ -57,6 +54,7 @@ public class BroadcastService implements Service {
     // services
     private static final String BROADCAST_SERVICE_MAXIMUM_PENDING_BYTES = "org.kaazing.gateway.server.service.broadcast.MAXIMUM_PENDING_BYTES";
     private static final String BROADCAST_SERVICE_DISCONNECT_CLIENTS_ON_RECONNECT = "org.kaazing.gateway.server.service.broadcast.DISCONNECT_CLIENTS_ON_RECONNECT"; // true or false
+    private static final String ON_CLIENT_MESSAGE = "on.client.message";
     // FIXME: end of remove me
 
     private ScheduledExecutorService scheduler;
@@ -65,7 +63,7 @@ public class BroadcastService implements Service {
     private ServiceContext serviceContext;
     private Properties configuration;
 
-    private URI connectURI;
+    private String connectURI;
     private int reconnectDelay;
 
     private final ConnectTask connectTask;
@@ -106,15 +104,16 @@ public class BroadcastService implements Service {
                 configuration.getProperty(BROADCAST_SERVICE_MAXIMUM_PENDING_BYTES),
 //                BROADCAST_SERVICE_MAXIMUM_PENDING_BYTES.getProperty(configuration),
                 Long.MAX_VALUE);
+        OnClientMessage onClientMessage = OnClientMessage.fromString(serviceContext.getProperties().get(ON_CLIENT_MESSAGE));
         if ( maximumScheduledWriteBytes != Long.MAX_VALUE ) {
             // The system property was specified
             gatewayLogger.info(String.format("Broadcast service: limiting maximum scheduled write bytes to %d",
                     maximumScheduledWriteBytes));
         }
         this.handler = new BroadcastServiceHandler(disconnectClientsOnReconnect, maximumScheduledWriteBytes,
-                serviceContext.getLogger());
+                onClientMessage, serviceContext.getLogger());
 
-        Collection<URI> connectURIs = serviceContext.getConnects();
+        Collection<String> connectURIs = serviceContext.getConnects();
         ServiceProperties properties = serviceContext.getProperties();
         String reconnectDelay = properties.get("reconnect.delay");
         if ((connectURIs == null || connectURIs.isEmpty())) {
@@ -163,7 +162,7 @@ public class BroadcastService implements Service {
         reconnect.set(false);
 
         if (serviceContext != null) {
-            serviceContext.unbind(serviceContext.getAccepts(), handler);           
+            serviceContext.unbind(serviceContext.getAccepts(), handler);
         }
     }
 
@@ -210,6 +209,28 @@ public class BroadcastService implements Service {
                     }
                 }
             });
+        }
+    }
+
+    public enum OnClientMessage {
+        NOOP("noop"), BROADCAST("broadcast");
+
+        private final String type;
+
+        OnClientMessage(String type) {
+            this.type = type;
+        }
+
+        static OnClientMessage fromString(String str) throws Exception {
+            if(str == null){
+                return OnClientMessage.NOOP;
+            }
+            for (OnClientMessage e : OnClientMessage.values()) {
+                if (e.type.equalsIgnoreCase(str)) {
+                    return e;
+                }
+            }
+            throw new Exception(String.format("%s type not valid Enum type for %s", str, OnClientMessage.class));
         }
     }
 }

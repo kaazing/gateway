@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.jmock.api.Invocation;
@@ -38,7 +37,6 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
-import org.kaazing.gateway.transport.wsn.WsnProtocol;
 import org.kaazing.gateway.transport.wsn.WsnSession;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
@@ -49,7 +47,6 @@ import org.kaazing.test.util.ITUtil;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class FragmentationIT {
-    private static String TEXT_FILTER_NAME = WsnProtocol.NAME + "#text";
     private final WsnConnectorRule connector = new WsnConnectorRule();
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws/fragmentation");
     private final TestRule trace = new MethodExecutionTrace();
@@ -73,7 +70,7 @@ public class FragmentationIT {
         "server.echo.binary.payload.length.0.fragmented.with.injected.ping.pong/handshake.response.and.frames" })
     public void shouldEchoServerSendBinaryFrameWithEmptyPayloadFragmentedAndInjectedPingPong() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -95,13 +92,6 @@ public class FragmentationIT {
                                 buffer.put(bb);
                             }
                             buffer.flip();
-
-                            // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
-                            //                  instead of BINARY is resolved.
-                            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
-                            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
-                                parentFilterChain.remove(TEXT_FILTER_NAME);
-                            }
 
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
                             WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
@@ -126,7 +116,7 @@ public class FragmentationIT {
         "server.echo.binary.payload.length.125.fragmented/handshake.response.and.frames" })
     public void shouldEchoServerSendBinaryFrameWithPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -148,13 +138,6 @@ public class FragmentationIT {
                                 buffer.put(bb);
                             }
                             buffer.flip();
-
-                            // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
-                            //                  instead of BINARY is resolved.
-                            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
-                            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
-                                parentFilterChain.remove(TEXT_FILTER_NAME);
-                            }
 
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
                             WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
@@ -179,7 +162,7 @@ public class FragmentationIT {
         "server.echo.binary.payload.length.125.fragmented.with.injected.ping.pong/handshake.response.and.frames" })
     public void shouldEchoServerSendBinaryFrameWithPayloadFragmentedAndInjectedPingPong() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -201,13 +184,6 @@ public class FragmentationIT {
                                 buffer.put(bb);
                             }
                             buffer.flip();
-
-                            // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
-                            //                  instead of BINARY is resolved.
-                            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
-                            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
-                                parentFilterChain.remove(TEXT_FILTER_NAME);
-                            }
 
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
                             WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
@@ -232,7 +208,7 @@ public class FragmentationIT {
         "server.echo.binary.payload.length.125.fragmented.with.some.empty.fragments/handshake.response.and.frames" })
     public void shouldEchoServerSendBinaryFrameWithPayloadFragmentedWithSomeEmptyFragments() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -254,13 +230,6 @@ public class FragmentationIT {
                                 buffer.put(bb);
                             }
                             buffer.flip();
-
-                            // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
-                            //                  instead of BINARY is resolved.
-                            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
-                            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
-                                parentFilterChain.remove(TEXT_FILTER_NAME);
-                            }
 
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
                             WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
@@ -285,7 +254,7 @@ public class FragmentationIT {
         "server.echo.binary.payload.length.125.not.fragmented/handshake.response.and.frame" })
     public void shouldEchoServerSendBinaryFrameWithPayloadNotFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -307,13 +276,6 @@ public class FragmentationIT {
                                 buffer.put(bb);
                             }
                             buffer.flip();
-
-                            // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
-                            //                  instead of BINARY is resolved.
-                            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
-                            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
-                                parentFilterChain.remove(TEXT_FILTER_NAME);
-                            }
 
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
                             WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
@@ -340,7 +302,7 @@ public class FragmentationIT {
         })
     public void shouldEchoServerSendTextFrameWithEmptyPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -388,7 +350,7 @@ public class FragmentationIT {
         })
     public void shouldEchoServerSendTextFrameWithEmptyPayloadFragmentedAndInjectedPingPong() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -434,7 +396,7 @@ public class FragmentationIT {
         "server.echo.text.payload.length.125.fragmented/handshake.response.and.frames" })
     public void shouldEchoServerSendTextFrameWithPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -480,7 +442,7 @@ public class FragmentationIT {
         "server.echo.text.payload.length.125.fragmented.but.not.utf8.aligned/handshake.response.and.frames" })
     public void shouldEchoServerSendTextFrameWithPayloadFragmentedEvenWhenNotUTF8Aligned() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -526,7 +488,7 @@ public class FragmentationIT {
         "server.echo.text.payload.length.125.fragmented.with.injected.ping.pong/handshake.response.and.frames" })
     public void shouldEchoServerSendTextFrameWithPayloadFragmentedAndInjectedPingPong() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -572,7 +534,7 @@ public class FragmentationIT {
         "server.echo.text.payload.length.125.fragmented.with.some.empty.fragments/handshake.response.and.frames" })
     public void shouldEchoServerSendTextFrameWithPayloadFragmentedWithSomeEmptyFragments() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {
@@ -618,7 +580,7 @@ public class FragmentationIT {
         "server.echo.text.payload.length.125.not.fragmented/handshake.response.and.frame" })
     public void shouldEchoServerSendTextFrameWithPayloadNotFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final List<ByteBuffer> bufferList = new ArrayList<>();
 
         context.checking(new Expectations() {
             {

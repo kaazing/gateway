@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,10 @@
  */
 package org.kaazing.gateway.server;
 
+import java.util.Map;
+import java.util.Properties;
+
+import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.ServiceContext;
 
 /**
@@ -86,12 +90,23 @@ public interface GatewayObserverApi {
 
     /**
      * Notification that the gateway is starting
+     * @param gatewayContext
      */
-    void startingGateway();
+    void startingGateway(GatewayContext gatewayContext);
 
     /**
      * Notification that the gateway is stopped
+     * @param gatewayContext
      */
-    void stoppedGateway();
+    void stoppedGateway(GatewayContext gatewayContext);
+
+    /**
+     * Notification that the gateway is being initialized.
+     * This provides a hook point to add injectable resources.
+     * Note, injection will not be done at this point on any resource that the GatewayObserver depends on.
+     * @param configuration
+     * @param injectables
+     */
+    void initingGateway(Properties configuration, Map<String, Object> injectables);
 
 }

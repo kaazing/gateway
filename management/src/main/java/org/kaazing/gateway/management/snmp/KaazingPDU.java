@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ public class KaazingPDU extends PDU {
      * Decode an incoming encoded request. The following is a modified copy of SNMP4J.PDU's version of this method to support our
      * methods.
      */
+    @Override
     public void decodeBER(BERInputStream inputStream) throws IOException {
         BER.MutableByte pduType = new BER.MutableByte();
         int length = BER.decodeHeader(inputStream, pduType);
@@ -109,6 +110,7 @@ public class KaazingPDU extends PDU {
         }
     }
 
+    @Override
     public Object clone() {
         // The following if statement only exists to help checkstyle
         // think we are calling super.clone() when we in fact do not want that.

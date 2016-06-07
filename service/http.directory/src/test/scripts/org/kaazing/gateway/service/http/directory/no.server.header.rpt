@@ -1,5 +1,5 @@
 #
-# Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ read "Content-Length: 119\r\n"
 read "Content-Type: text/html\r\n"
 read /Date: .*/ "\r\n"
 read /ETag: .*/ "\r\n"
-read /Expires: .*/ "\r\n"
 read /Last-Modified: .*/ "\r\n"
 # Shouldn't have the following header
 # Server: Kaazing Gateway

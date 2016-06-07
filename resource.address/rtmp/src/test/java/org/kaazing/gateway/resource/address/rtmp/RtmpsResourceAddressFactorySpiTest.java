@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,17 +33,17 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 public class RtmpsResourceAddressFactorySpiTest {
 
     private RtmpsResourceAddressFactorySpi addressFactorySpi;
-    private URI addressURI;
+    private String addressURI;
     private Map<String, Object> options;
     
     @Before
     public void before() {
         addressFactorySpi = new RtmpsResourceAddressFactorySpi();
-        addressURI = URI.create("rtmps://localhost:2020/");
+        addressURI = "rtmps://localhost:2020/";
         options = new HashMap<>();
         options.put("rtmp.nextProtocol", "custom");
         options.put("rtmp.qualifier", "random");
-        options.put("rtmp.transport", URI.create("ssl://localhost:2121"));
+        options.put("rtmp.transport", "ssl://localhost:2121");
     }
 
     @Test
@@ -54,17 +53,17 @@ public class RtmpsResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireRtmpsSchemeName() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("test://opaque"));
+        addressFactorySpi.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPath() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("rtmps://localhost:2020"));
+        addressFactorySpi.newResourceAddress("rtmps://localhost:2020");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPort() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("rtmps://localhost/"));
+        addressFactorySpi.newResourceAddress("rtmps://localhost/");
     }
 
     @Test
@@ -87,14 +86,14 @@ public class RtmpsResourceAddressFactorySpiTest {
     public void shouldCreateAddressWithDefaultTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("ssl://localhost:2020"), address.getOption(TRANSPORT_URI));
+        assertEquals("ssl://localhost:2020", address.getOption(TRANSPORT_URI));
     }
     
     @Test
     public void shouldCreateAddressWithTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI, options);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("ssl://localhost:2121"), address.getOption(TRANSPORT_URI));
+        assertEquals("ssl://localhost:2121", address.getOption(TRANSPORT_URI));
     }
     
 }

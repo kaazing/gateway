@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.sse;
 import static java.lang.Thread.currentThread;
 import static org.kaazing.mina.core.session.IoSessionEx.IMMEDIATE_EXECUTOR;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.apache.mina.core.service.IoHandler;
@@ -68,8 +67,8 @@ public class SseSessionTest {
 			}
 		});
 		
-        ResourceAddress localAddress = ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(new URI("sse://localhost:8000/sse"));
-        ResourceAddress remoteAddress = ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(new URI("sse://localhost:8000/sse"));
+        ResourceAddress localAddress = ResourceAddressFactory.newResourceAddressFactory().newResourceAddress("sse://localhost:8000/sse");
+        ResourceAddress remoteAddress = ResourceAddressFactory.newResourceAddressFactory().newResourceAddress("sse://localhost:8000/sse");
 		SseSession session = new SseSession(service, processor, localAddress, remoteAddress, parent, allocator);
 		session.getConfig(); // Was causing ClassCastException (KG-1466)
 		

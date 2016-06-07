@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,35 @@
  * limitations under the License.
  */
 package org.kaazing.gateway.transport.ssl;
+
+import static java.lang.String.format;
+import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.CIPHERS;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.ENCRYPTION_ENABLED;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.KEY_SELECTOR;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.NEED_CLIENT_AUTH;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.WANT_CLIENT_AUTH;
+import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
+import static org.kaazing.gateway.transport.BridgeSession.NEXT_PROTOCOL_KEY;
+import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
+
+import java.io.IOException;
+import java.net.URI;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.concurrent.Callable;
+
+import javax.annotation.Resource;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.filterchain.IoFilterChain;
@@ -39,20 +68,15 @@ import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.gateway.transport.BridgeSessionInitializerAdapter;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.NextProtocolBindings;
 import org.kaazing.gateway.transport.NextProtocolBindings.NextProtocolBinding;
 import org.kaazing.gateway.transport.NextProtocolFilter;
 import org.kaazing.gateway.transport.NioBindException;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.TransportKeySelector;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.dispatch.ProtocolDispatcher;
 import org.kaazing.gateway.transport.ssl.bridge.filter.SslCertificateSelectionFilter;
-import org.kaazing.gateway.transport.ssl.bridge.filter.SslCipherSelectionFilter;
-import org.kaazing.gateway.transport.ssl.bridge.filter.SslClientHelloDecoder;
-import org.kaazing.gateway.transport.ssl.bridge.filter.SslClientHelloEncoder;
 import org.kaazing.gateway.transport.ssl.bridge.filter.SslFilter;
 import org.kaazing.gateway.transport.ssl.cert.VirtualHostKeySelector;
 import org.kaazing.gateway.util.ssl.SslCipherSuites;
@@ -60,37 +84,6 @@ import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.future.UnbindFuture;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
-import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Resource;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import java.io.IOException;
-import java.net.URI;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.concurrent.Callable;
-
-import static java.lang.String.format;
-import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.CIPHERS;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.ENCRYPTION_ENABLED;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.KEY_SELECTOR;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.NEED_CLIENT_AUTH;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.WANT_CLIENT_AUTH;
-import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
-import static org.kaazing.gateway.transport.BridgeSession.NEXT_PROTOCOL_KEY;
-import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
 
 public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocolBinding> {
 
@@ -248,15 +241,12 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
             // Enable the configured SSL protocols like TLSv1 etc
             sslFilter.setEnabledProtocols(sslAddress.getOption(PROTOCOLS));
 
-            SslCipherSelectionFilter cipherSelection = new SslCipherSelectionFilter(CIPHER_SELECTION_FILTER, CODEC_FILTER, sslFilter, logger);
-            
             IoSessionEx sessionEx = (IoSessionEx) session;
             IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
 
             // Filter are armed and ready, now add them to the filter chain.
             filterChain.addFirst(CERTIFICATE_SELECTION_FILTER, certificateSelection);
-            filterChain.addAfter(CERTIFICATE_SELECTION_FILTER, CLIENT_HELLO_CODEC_FILTER, new ProtocolCodecFilter(new SslClientHelloEncoder(), new SslClientHelloDecoder(allocator)));
-            filterChain.addAfter(CLIENT_HELLO_CODEC_FILTER, CIPHER_SELECTION_FILTER, cipherSelection);
+            filterChain.addAfter(CERTIFICATE_SELECTION_FILTER, CODEC_FILTER, sslFilter);
         }
 
         // detect next-protocol
@@ -524,7 +514,7 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
                     assert (boundAddress != null);
 
                     // construct the candidate address with observed transport and next protocol
-                    URI candidateURI = boundAddress.getExternalURI();
+                    String candidateURI = boundAddress.getExternalURI();
                     ResourceOptions candidateOptions = ResourceOptions.FACTORY.newResourceOptions(boundAddress);
                     candidateOptions.setOption(NEXT_PROTOCOL, NEXT_PROTOCOL_KEY.get(session));
                     candidateOptions.setOption(TRANSPORT, LOCAL_ADDRESS.get(session));

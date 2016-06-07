@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class IoHandlerChain implements IoHandlerCommand {
     private final String NEXT_COMMAND = IoHandlerChain.class.getName() + '.'
             + id + ".nextCommand";
 
-    private final Map<String, Entry> name2entry = new HashMap<String, Entry>();
+    private final Map<String, Entry> name2entry = new HashMap<>();
 
     private final Entry head;
 
@@ -129,7 +129,7 @@ public class IoHandlerChain implements IoHandlerCommand {
     }
 
     public synchronized void clear() throws Exception {
-        Iterator<String> it = new ArrayList<String>(name2entry.keySet())
+        Iterator<String> it = new ArrayList<>(name2entry.keySet())
                 .iterator();
         while (it.hasNext()) {
             this.remove(it.next());
@@ -197,7 +197,7 @@ public class IoHandlerChain implements IoHandlerCommand {
     }
 
     public List<Entry> getAll() {
-        List<Entry> list = new ArrayList<Entry>();
+        List<Entry> list = new ArrayList<>();
         Entry e = head.nextEntry;
         while (e != tail) {
             list.add(e);
@@ -208,7 +208,7 @@ public class IoHandlerChain implements IoHandlerCommand {
     }
 
     public List<Entry> getAllReversed() {
-        List<Entry> list = new ArrayList<Entry>();
+        List<Entry> list = new ArrayList<>();
         Entry e = tail.prevEntry;
         while (e != head) {
             list.add(e);

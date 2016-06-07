@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import static org.jmock.lib.script.ScriptedAction.perform;
 import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.INJECTABLE_HEADERS;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
@@ -95,7 +94,7 @@ public class SseAcceptorIT {
         tcpAcceptor.setResourceAddressFactory(addressFactory);
         tcpAcceptor.setBridgeServiceFactory(serviceFactory);
 
-        URI location = URI.create("sse://localhost:8000/path");
+        String location = "sse://localhost:8000/path";
         Map<String, Object> options = new HashMap<>();
         options.put(format("http.%s", INJECTABLE_HEADERS.name()), emptySet());
         ResourceAddress sseAddress = addressFactory.newResourceAddress(location, options);

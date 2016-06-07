@@ -1,5 +1,5 @@
 /**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.kaazing.gateway.resource.address.uri.URIUtils;
+
 public final class TestResourceAddressFactorySpi extends ResourceAddressFactorySpi<TestResourceAddress> {
 
 
@@ -29,13 +31,13 @@ public final class TestResourceAddressFactorySpi extends ResourceAddressFactoryS
     }
 
     @Override
-    protected TestResourceAddress newResourceAddress0(URI original, URI location) {
-        return new TestResourceAddress(this, original, location);
+    protected TestResourceAddress newResourceAddress0(String original, String location) {
+        return new TestResourceAddress(this, original, URI.create(location));
     }
 
     @Override
-    protected List<TestResourceAddress> newResourceAddresses0(URI original,
-                                                              URI location,
+    protected List<TestResourceAddress> newResourceAddresses0(String original,
+                                                              String location,
                                                               ResourceOptions options) {
 
         return getAlternateStrategy().makeAlternates(original, location, options);
@@ -68,7 +70,7 @@ public final class TestResourceAddressFactorySpi extends ResourceAddressFactoryS
     }
 
     @Override
-    protected void parseNamedOptions0(URI location,
+    protected void parseNamedOptions0(String location,
                                       ResourceOptions options, Map<String, Object> optionsByName) {
 
         String option = (String) optionsByName.remove(TestResourceAddress.OPTION.name());
@@ -89,20 +91,21 @@ public final class TestResourceAddressFactorySpi extends ResourceAddressFactoryS
         public DifferentPaths() {
         }
 
-        public List<TestResourceAddress> makeAlternates(URI original,
-                                                                  URI location,
-                                                                  ResourceOptions options) {
+        @Override
+        public List<TestResourceAddress> makeAlternates(String original,
+                                                        String location,
+                                                        ResourceOptions options) {
 
             List<TestResourceAddress> addresses = new ArrayList<>();
             addresses.add(TestResourceAddressFactorySpi.super.newResourceAddress0(original, location, options));
-            String path = location.getPath();
+            String path = URIUtils.getPath(location);
             if (path == null || "".equals(path)) {
                 path = "/";
             }
 
             for (int i = 0; i < 3; i++) {
                 addresses.add(TestResourceAddressFactorySpi.super.newResourceAddress0(original,
-                        URLUtils.modifyURIPath(location, path + String.valueOf(i)),
+                        (URIUtils.modifyURIPath(location, path + String.valueOf(i))),
                         options));
             }
 
@@ -114,8 +117,9 @@ public final class TestResourceAddressFactorySpi extends ResourceAddressFactoryS
         public DuplicateAlternates() {
         }
 
-        public List<TestResourceAddress> makeAlternates(URI original,
-                                                        URI location,
+        @Override
+        public List<TestResourceAddress> makeAlternates(String original,
+                                                        String location,
                                                         ResourceOptions options) {
 
             List<TestResourceAddress> addresses = new ArrayList<>();
@@ -134,15 +138,16 @@ public final class TestResourceAddressFactorySpi extends ResourceAddressFactoryS
         public DifferentAuthorities() {
         }
 
-        public List<TestResourceAddress> makeAlternates(URI original,
-                                                        URI location,
+        @Override
+        public List<TestResourceAddress> makeAlternates(String original,
+                                                        String location,
                                                         ResourceOptions options) {
 
             List<TestResourceAddress> addresses = new ArrayList<>();
             addresses.add(TestResourceAddressFactorySpi.super.newResourceAddress0(original, location, options));
             for (int i = 0; i < 3; i++) {
                 addresses.add(TestResourceAddressFactorySpi.super.newResourceAddress0(original,
-                        URLUtils.modifyURIAuthority(location, location.getAuthority() + String.valueOf(i)),
+                        (URIUtils.modifyURIAuthority(location, URIUtils.getAuthority(location) + String.valueOf(i))),
                         options));
             }
 
@@ -151,8 +156,8 @@ public final class TestResourceAddressFactorySpi extends ResourceAddressFactoryS
     }
 
     interface AlternateStrategy {
-         List<TestResourceAddress> makeAlternates(URI original,
-                                                  URI location,
+         List<TestResourceAddress> makeAlternates(String original,
+                                                  String location,
                                                   ResourceOptions options);
     }
 }
