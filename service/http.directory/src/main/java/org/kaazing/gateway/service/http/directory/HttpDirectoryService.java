@@ -210,9 +210,6 @@ public class HttpDirectoryService implements Service {
             URI locationURI = URI.create(location);
             locationFile = new File(locationURI.getPath());
             if (locationURI.getScheme() == null) {
-                if (location.length() > 0 && location.charAt(0) == '/') {
-                    location = location.substring(1);
-                }
                 locationFile = new File(rootDir, location);
             } else if (!"file".equals(locationURI.getScheme())) {
                 throw new IllegalArgumentException("Unexpected resources directory: " + location);
