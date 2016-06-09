@@ -205,7 +205,7 @@ public class HttpDirectoryService implements Service {
      * @return the file corresponding to the location
      */
     private File toFile(File rootDir, String location) {
-        File locationFile = null;
+        File locationFile = rootDir;
         if (location != null) {
             URI locationURI = URI.create(location);
             locationFile = new File(locationURI.getPath());
