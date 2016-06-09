@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -108,6 +109,7 @@ public class WsnAcceptorUserLoggingIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(k3po).around(timeoutRule).around(checkLogMessageRule).around(gateway);
 
+    @Ignore("https://github.com/kaazing/tickets/issues/550")
     @Specification("asyncBasicLoginModuleSuccess")
     @Test
     public void verifyPrincipalNameLoggedInLayersAboveHttp() throws Exception {
