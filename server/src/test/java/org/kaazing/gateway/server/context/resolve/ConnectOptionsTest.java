@@ -76,6 +76,14 @@ public class ConnectOptionsTest {
         expectSuccess("http.transport", "tcp://127.0.0.1:80", "http.transport", null);
     }
 
+    @Test
+    public void testWsInactivityTimeout() throws Exception {
+        expectSuccess("ws.inactivity.timeout", "60", "ws.inactivityTimeout", 60000L, "http[http/1.1].keepAliveTimeout", 60);
+        expectSuccess("ws.inactivity.timeout", "60s", "ws.inactivityTimeout", 60000L, "http[http/1.1].keepAliveTimeout", 60);
+        //https://github.com/kaazing/gateway/issues/595
+        //expectSuccess("ws.inactivity.timeout", "60000ms", "ws.inactivityTimeout", 60000L, "http[http/1.1].keepAliveTimeout", 60);
+    }
+
     @Test @Ignore
     public void testSslTransportOption() throws Exception {
         expectSuccess("ssl.transport", "tcp://127.0.0.1:443", TransportOptionNames.SSL_TRANSPORT, URI
