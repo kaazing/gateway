@@ -14,14 +14,18 @@
 # limitations under the License.
 #
 
-connect tcp://localhost:8008
+connect http://localhost:8008/index.html
 connected
 
-write "GET /index.html HTTP/1.1\r\n"
-write "Host: localhost:8008\r\n"
-write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:8.0) Gecko/20100101 Firefox/8.0\r\nAccept: text/html, application/xhtml+xml, application/xml;q=0.9,*/*;q=0.8\r\n\r\n"
+write method "GET"
+write version "HTTP/1.1"
+write header "User-Agent" "curl/7.37.1"
+write header host
+write header "Accept" "text/css"
+write flush
 
-read "HTTP/1.1 404 Not Found\r\n"
+read status "404" "Not Found"
+read version "HTTP/1.1"
 
 close
 closed
