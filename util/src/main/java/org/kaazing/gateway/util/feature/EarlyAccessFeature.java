@@ -68,7 +68,8 @@ public class EarlyAccessFeature {
         return Boolean.parseBoolean(value);
     }
 
-    private String getPropertyName() {
+    // public to allow use by tests
+    public String getPropertyName() {
         return "feature." + name;
     }
 
