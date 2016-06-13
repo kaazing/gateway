@@ -63,11 +63,26 @@ fi
 # below sets the Java maximum memory to 512MB.
 [ -z "$GATEWAY_OPTS" ] && GATEWAY_OPTS="-Xmx512m"
 
+# You can define flags to opt into using early access features by setting the value
+# of the GATEWAY_FEATURES environment variable to a comma separated list of features
+# to enable before calling this script.
+# The script itself should not be changed.
+FEATURE_OPTS=""
+if [ -n "$GATEWAY_FEATURES" ]
+then
+   echo Enabling early access features: $GATEWAY_FEATURES  
+   set -f; IFS=,
+   for feature in $GATEWAY_FEATURES; do
+      FEATURE_OPTS="$FEATURE_OPTS -Dfeature.$feature"
+   done
+   set =f; unset IFS
+fi
+
 # Add a directory for management support
 JAVA_LIBRARY_PATH="$GW_HOME/lib/sigar"
 
 if [ $INSTALLED_LINUX == "true" ]; then
-    exec java $GATEWAY_OPTS -Djava.library.path="$JAVA_LIBRARY_PATH" -Dgateway.hostname=$HOSTNAME -cp "$GW_HOME/lib/*" org.kaazing.gateway.server.InstalledLinuxMain $*
+    exec java $GATEWAY_OPTS $FEATURE_OPTS -Djava.library.path="$JAVA_LIBRARY_PATH" -Dgateway.hostname=$HOSTNAME -cp "$GW_HOME/lib/*" org.kaazing.gateway.server.InstalledLinuxMain $*
 else
-    exec java $GATEWAY_OPTS -Djava.library.path="$JAVA_LIBRARY_PATH" -Dgateway.hostname=$HOSTNAME -cp "$GW_HOME/lib/*" org.kaazing.gateway.server.Main $*
+    exec java $GATEWAY_OPTS $FEATURE_OPTS -Djava.library.path="$JAVA_LIBRARY_PATH" -Dgateway.hostname=$HOSTNAME -cp "$GW_HOME/lib/*" org.kaazing.gateway.server.Main $*
 fi
