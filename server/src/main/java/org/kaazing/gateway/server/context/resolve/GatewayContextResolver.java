@@ -512,10 +512,22 @@ public class GatewayContextResolver {
                 properties.remove("connect");
                 connectURIs.add(resolveURI(getCanonicalURI(connectProperty, true)));
             }
-
+            
+            
+            
             Collection<String> requireRolesCollection = new LinkedList<>();
             for (AuthorizationConstraintType authConstraint : serviceConfig.getAuthorizationConstraintArray()) {
                 Collections.addAll(requireRolesCollection, authConstraint.getRequireRoleArray());
+            }
+            RealmContext realmContext = null;
+            String name = serviceConfig.getRealmName();
+            if (serviceConfig.isSetRealmName()) {
+                realmContext = realmsContext.getRealmContext(name);
+                if (realmContext != null) {
+                    if (requireRolesCollection.size() == 0) {
+                        Collections.addAll(requireRolesCollection, "*");
+                    }
+                }
             }
             String[] requireRoles = requireRolesCollection.toArray(new String[requireRolesCollection.size()]);
 

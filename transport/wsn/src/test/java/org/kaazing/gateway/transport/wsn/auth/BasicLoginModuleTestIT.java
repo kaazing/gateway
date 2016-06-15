@@ -37,9 +37,9 @@ public class BasicLoginModuleTestIT {
                     .accept("ws://localhost:8001/echoAuth")
                     .type("echo")
                     .realmName("demo")
-                        .authorization()
-                        .requireRole("USER")
-                    .done()
+//                        .authorization()
+//                        .requireRole("USER")
+//                    .done()
                 .done()
                 .security()
                     .realm()
@@ -49,7 +49,7 @@ public class BasicLoginModuleTestIT {
                         .loginModule()
                             .type("class:org.kaazing.gateway.transport.wsn.auth.TestBasicLoginModule")
                             .success("requisite")
-                            .option("roles", "USER")
+//                          .option("roles", "USER")
                         .done()
                     .done()
                 .done()
@@ -69,7 +69,7 @@ public class BasicLoginModuleTestIT {
 
     @Specification("basicLoginModuleSecondRequestSuccess")
     @Test
-    public void basicLoginModuleSecondRequestSuccess() throws Exception {
+    public void BASICLOGINMODULESECONDREQUESTSUCCESS() throws Exception {
         robot.finish();
     }
 
