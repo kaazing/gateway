@@ -69,7 +69,7 @@ public class BasicLoginModuleTestIT {
 
     @Specification("basicLoginModuleSecondRequestSuccess")
     @Test
-    public void BASICLOGINMODULESECONDREQUESTSUCCESS() throws Exception {
+    public void basicLoginModuleSecondRequestSuccess() throws Exception {
         robot.finish();
     }
 
