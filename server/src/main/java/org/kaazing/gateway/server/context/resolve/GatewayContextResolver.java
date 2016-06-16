@@ -511,9 +511,7 @@ public class GatewayContextResolver {
                 connectProperty = connectProperty.trim();
                 properties.remove("connect");
                 connectURIs.add(resolveURI(getCanonicalURI(connectProperty, true)));
-            }
-            
-            
+            }         
             
             Collection<String> requireRolesCollection = new LinkedList<>();
             for (AuthorizationConstraintType authConstraint : serviceConfig.getAuthorizationConstraintArray()) {

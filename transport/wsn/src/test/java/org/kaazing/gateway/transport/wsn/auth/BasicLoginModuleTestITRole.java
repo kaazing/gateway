@@ -26,7 +26,7 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-public class BasicLoginModuleTestIT {
+public class BasicLoginModuleTestITRole {
 
     private K3poRule robot = new K3poRule();
 
@@ -37,6 +37,9 @@ public class BasicLoginModuleTestIT {
                     .accept("ws://localhost:8001/echoAuth")
                     .type("echo")
                     .realmName("demo")
+                        .authorization()
+                        .requireRole("USER")
+                    .done()
                 .done()
                 .security()
                     .realm()
@@ -46,6 +49,7 @@ public class BasicLoginModuleTestIT {
                         .loginModule()
                             .type("class:org.kaazing.gateway.transport.wsn.auth.TestBasicLoginModule")
                             .success("requisite")
+                          .option("roles", "USER")
                         .done()
                     .done()
                 .done()
@@ -57,11 +61,11 @@ public class BasicLoginModuleTestIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-	@Specification("basicLoginModuleFirstRequestSuccess")
-	@Test
-	public void basicLoginModuleFirstRequestSuccess() throws Exception {
-		robot.finish();
-	}
+    @Specification("basicLoginModuleFirstRequestSuccess")
+    @Test
+    public void basicLoginModuleFirstRequestSuccess() throws Exception {
+        robot.finish();
+    }
 
     @Specification("basicLoginModuleSecondRequestSuccess")
     @Test
