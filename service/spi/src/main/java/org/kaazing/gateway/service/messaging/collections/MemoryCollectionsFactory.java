@@ -30,76 +30,48 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.kaazing.gateway.service.cluster.EntryListenerSupport;
+import org.kaazing.gateway.util.AtomicCounter;
+
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryEventType;
 import com.hazelcast.core.EntryListener;
+import com.hazelcast.core.EntryView;
+import com.hazelcast.core.ExecutionCallback;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ICollection;
+import com.hazelcast.core.ICondition;
 import com.hazelcast.core.IList;
 import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 import com.hazelcast.core.ITopic;
-import com.hazelcast.core.Instance;
+import com.hazelcast.core.ItemEvent;
 import com.hazelcast.core.ItemListener;
-import com.hazelcast.core.EntryView;
-import com.hazelcast.core.EntryListener;
+import com.hazelcast.map.EntryProcessor;
+import com.hazelcast.map.MapInterceptor;
 import com.hazelcast.map.listener.MapListener;
-import com.hazelcast.monitor.LocalLockStats;
+import com.hazelcast.map.listener.MapPartitionLostListener;
+import com.hazelcast.mapreduce.JobTracker;
+import com.hazelcast.mapreduce.aggregation.Aggregation;
+import com.hazelcast.mapreduce.aggregation.Supplier;
 import com.hazelcast.monitor.LocalMapStats;
 import com.hazelcast.monitor.LocalQueueStats;
-import com.hazelcast.query.Expression;
 import com.hazelcast.query.Predicate;
-
-import org.kaazing.gateway.service.cluster.EntryListenerSupport;
-import org.kaazing.gateway.util.AtomicCounter;
 
 public class MemoryCollectionsFactory implements CollectionsFactory {
 
     private final ConcurrentMap<String, IMapImpl<?, ?>> maps;
-    private final ConcurrentMap<String, IListImpl<?>> lists;
-    private final Map<Object, ILockImpl> locks;
-    private final ConcurrentMap<String, AtomicCounter> atomicCounters;
 
     public MemoryCollectionsFactory() {
-        // TODO: avoid memory leak
-        maps = new ConcurrentHashMap<>();
-        lists = new ConcurrentHashMap<>();
-        locks = Collections.synchronizedMap(new WeakHashMap<>());
-        atomicCounters = new ConcurrentHashMap<>();
+         maps = new ConcurrentHashMap<>();
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <E> IList<E> getList(String name) {
-        IListImpl<E> list = (IListImpl<E>)lists.get(name);
-        if (list == null) {
-            IListImpl<E> newList = new IListImpl<>(name);
-            list = (IListImpl<E>)lists.putIfAbsent(name, newList);
-            if (list == null) {
-                list = newList;
-            }
-        }
-        return list;
-    }
-
-    @Override
-    public <E> IQueue<E> getQueue(String name) {
-        // TODO: what should be the queue size
-        return new IQueueImpl<>(name, 100);
-    }
-
-    @Override
-    public <E> ITopic<E> getTopic(String name) {
-        throw new UnsupportedOperationException("getTopic");
-    }
-
-    @SuppressWarnings("unchecked")
     @Override
     public <K, V> IMap<K, V> getMap(String name) {
         IMapImpl<K, V> map = (IMapImpl<K, V>)maps.get(name);
@@ -113,73 +85,20 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         return map;
     }
 
-    @Override
-    public ILock getLock(Object owner) {
-        synchronized (locks) {
-            ILock lock = locks.get(owner);
-            if (lock == null) {
-                ILockImpl newLock = new ILockImpl(owner);
-                locks.put(owner, newLock);
-                lock = newLock;
-            }
-            assert (lock != null);
-            return lock;
-        }
-    }
+   
 
-    @Override @SuppressWarnings("unchecked")
-    public <K, V> void addEntryListener(EntryListener<K, V> listener, String name) {
+    @Override
+    public <K, V> void addEntryListener(MapListener listener, String name) {
         IMapImpl<K ,V> map = (IMapImpl<K, V>)getMap(name);  // force create if not already created.
-        map..addEntryListener(listener, true);
+        map.addEntryListener(listener, true);
     }
 
-    @Override
-    public AtomicCounter getAtomicCounter(String name) {
-        if (atomicCounters.containsKey(name)) {
-            return atomicCounters.get(name);
-        } else {
-            StandaloneAtomicCounter counter = new StandaloneAtomicCounter(new AtomicLong(0));
-            AtomicCounter existingCounter = atomicCounters.putIfAbsent(name, counter);
-            if (existingCounter == null) {
-                existingCounter = counter;
-            }
-            return existingCounter;
-        }
-    }
 
-    private class StandaloneAtomicCounter implements AtomicCounter {
-        private AtomicLong atomicLong;
-
-        private StandaloneAtomicCounter(AtomicLong number) {
-            atomicLong = number;
-        }
-
-        @Override
-        public long get() {
-            return atomicLong.get();
-        }
-
-        @Override
-        public long incrementAndGet() {
-            return atomicLong.incrementAndGet();
-        }
-
-        @Override
-        public long decrementAndGet() {
-            return atomicLong.decrementAndGet();
-        }
-
-        @Override
-        public boolean compareAndSet(long expect, long update) {
-            return atomicLong.compareAndSet(expect, update);
-        }
-    }
-
-    private class MapEntryImpl<K, V> implements EntryView<K, V> {
+    private class MapEntryViewImpl<K, V> implements EntryView<K, V> {
         private final K key;
         private final V value;
 
-        public MapEntryImpl(K key, V value) {
+        public MapEntryViewImpl(K key, V value) {
             this.key = key;
             this.value = value;
         }
@@ -216,6 +135,11 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         @Override
         public long getLastUpdateTime() {
+            return 0;
+        }
+
+        @Override
+        public long getTtl() {
             return 0;
         }
 
@@ -264,12 +188,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             sb.append(" }");
             return sb.toString();
         }
-
-        @Override
-        public long getTtl() {
-            // TODO Auto-generated method stub
-            return 0;
-        }
     }
 
     private class IMapImpl<K, V> implements IMap<K, V> {
@@ -288,17 +206,19 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         @Override
         public String addEntryListener(MapListener listener, boolean includeValue) {
-            listenerSupport.addEntryListener((EntryListener<K, V>) listener, includeValue); 
+            listenerSupport.addEntryListener((EntryListener<K, V>) listener, includeValue);
+            return name; 
         }
         @Override
         public String addEntryListener(MapListener listener, K key, boolean includeValue) {
             listenerSupport.addEntryListener((EntryListener<K, V>)listener, key, includeValue);
+            return name;
         }
 
         @Override
         public EntryView<K, V> getEntryView(K key) {
             V value = map.get(key);
-            return new MapEntryImpl<>(key, value);
+            return new MapEntryViewImpl<>(key, value);
         }
 
         @Override
@@ -311,13 +231,10 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             supplyLock(key).lock();
         }
 
-        public void removeEntryListener(EntryListener<K, V> listener) {
-            listenerSupport.removeEntryListener(listener);
-        }
-
-        public void removeEntryListener(EntryListener<K, V> listener, K key) {
-            listenerSupport.removeEntryListener(listener, key);
-        }
+        @Override
+        public boolean removeEntryListener(String listener) {
+            return listenerSupport.removeEntryListener(listener);
+         }
 
         @Override
         public boolean tryLock(K key) {
@@ -344,11 +261,11 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public V putIfAbsent(K key, V value) {
             V oldValue = map.putIfAbsent(key, value);
             if (oldValue == null) {
-                EntryEvent<K, V> event = new EntryEvent(name, null, EntryEventType.ADDED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.ADDED.getType(), key, value);
                 listenerSupport.entryAdded(event);
             }
             else {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED.getType(), key, value);
                 listenerSupport.entryUpdated(event);
             }
             return oldValue;
@@ -359,7 +276,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public boolean remove(Object key, Object value) {
             boolean wasRemoved = map.remove(key, value);
             if (wasRemoved) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.REMOVED, (K)key, (V)value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null,EntryEventType.REMOVED.getType(), (K)key, (V)value);
                 listenerSupport.entryRemoved(event);
             }
             return wasRemoved;
@@ -369,11 +286,11 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public V replace(K key, V value) {
             V oldValue = map.replace(key, value);
             if (oldValue != null) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED.getType(), key, value);
                 listenerSupport.entryUpdated(event);
             }
             else {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.ADDED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.ADDED.getType(), key, value);
                 listenerSupport.entryAdded(event);
             }
             return oldValue;
@@ -383,7 +300,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public boolean replace(K key, V oldValue, V newValue) {
             boolean wasReplaced = map.replace(key, oldValue, newValue);
             if (wasReplaced) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED, key, newValue);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED.getType(), key, newValue);
                 listenerSupport.entryUpdated(event);
             }
             return wasReplaced;
@@ -436,11 +353,11 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public V put(K key, V value) {
             V oldValue = map.put(key, value);
             if (oldValue != null) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED.getType(), key, value);
                 listenerSupport.entryUpdated(event);
             }
             else {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.ADDED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.ADDED.getType(), key, value);
                 listenerSupport.entryAdded(event);
             }
             return oldValue;
@@ -469,10 +386,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             map.clear();
         }
 
-        public Object getId() {
-            return this;
-        }
-
 
         private Lock supplyLock(Object key) {
             Lock lock = locks.get(key);
@@ -497,8 +410,8 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public Set<Map.Entry<K, V>> entrySet(Predicate predicate) {
             Set<Map.Entry<K, V>> entrySet = new LinkedHashSet<>();
             for (Map.Entry<K, V> entry : map.entrySet()) {
-                MapEntry me = getMapEntry(entry.getKey());
-                if (predicate.apply(me)) {
+               // EntryView me = getEntryView(entry.getKey());
+                if (predicate.apply(entry)) {
                     entrySet.add(entry);
                 }
             }
@@ -512,7 +425,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             Object value = map.remove(key);
             boolean removed = (value !=  null);
             if (removed) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.EVICTED, (K)key, (V) value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.EVICTED.getType(), (K)key, (V) value);
                 listenerSupport.entryEvicted(event);
             }
             return removed;
@@ -526,16 +439,17 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @Override
         public Set<K> keySet(Predicate predicate) {
             Set<K> keySet = new LinkedHashSet<>();
-            for (K key : map.keySet()) {
-                MapEntry me = getMapEntry(key);
-                if (predicate.apply(me)) {
-                    keySet.add(key);
+            for (Map.Entry<K, V> entry : map.entrySet()) {
+               // EntryView me = getEntryView(entry.getKey());
+                if (predicate.apply(entry)) {
+                    keySet.add(entry.getKey());
                 }
             }
 
             return keySet;
         }
-
+       
+        
         @Override
         public Set<K> localKeySet() {
             return map.keySet();
@@ -565,8 +479,8 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public Collection<V> values(Predicate predicate) {
             Set<V> values = new LinkedHashSet<>();
             for (Map.Entry<K, V> entry : map.entrySet()) {
-                MapEntry me = getMapEntry(entry.getKey());
-                if (predicate.apply(me)) {
+                EntryView me = getEntryView(entry.getKey());
+                if (predicate.apply(entry)) {
                     values.add(entry.getValue());
                 }
             }
@@ -580,7 +494,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             V value = map.remove(key);
             boolean removed = (value !=  null);
             if (removed) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.REMOVED, (K)key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.REMOVED.getType(), (K)key, value);
                 listenerSupport.entryRemoved(event);
             }
             return value;
@@ -620,478 +534,259 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public boolean tryRemove(K arg0, long arg1, TimeUnit arg2) {
             throw new UnsupportedOperationException("tryRemove");
         }
+
+        @Override
+        public String getPartitionKey() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String getServiceName() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void delete(Object paramObject) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void loadAll(boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void loadAll(Set<K> paramSet, boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public Future<V> putAsync(K paramK, V paramV, long paramLong, TimeUnit paramTimeUnit) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void set(K paramK, V paramV) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void set(K paramK, V paramV, long paramLong, TimeUnit paramTimeUnit) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void lock(K paramK, long paramLong, TimeUnit paramTimeUnit) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public boolean isLocked(K paramK) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public boolean tryLock(K paramK,
+                               long paramLong1,
+                               TimeUnit paramTimeUnit1,
+                               long paramLong2,
+                               TimeUnit paramTimeUnit2) throws InterruptedException {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public void forceUnlock(K paramK) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public String addLocalEntryListener(MapListener paramMapListener) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addLocalEntryListener(EntryListener paramEntryListener) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addLocalEntryListener(MapListener paramMapListener,
+                                            Predicate<K, V> paramPredicate,
+                                            boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addLocalEntryListener(EntryListener paramEntryListener,
+                                            Predicate<K, V> paramPredicate,
+                                            boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addLocalEntryListener(MapListener paramMapListener,
+                                            Predicate<K, V> paramPredicate,
+                                            K paramK,
+                                            boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addLocalEntryListener(EntryListener paramEntryListener,
+                                            Predicate<K, V> paramPredicate,
+                                            K paramK,
+                                            boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addInterceptor(MapInterceptor paramMapInterceptor) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void removeInterceptor(String paramString) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public String addEntryListener(EntryListener paramEntryListener, boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addPartitionLostListener(MapPartitionLostListener paramMapPartitionLostListener) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public boolean removePartitionLostListener(String paramString) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public String addEntryListener(EntryListener paramEntryListener, K paramK, boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addEntryListener(MapListener paramMapListener,
+                                       Predicate<K, V> paramPredicate,
+                                       boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addEntryListener(EntryListener paramEntryListener,
+                                       Predicate<K, V> paramPredicate,
+                                       boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addEntryListener(MapListener paramMapListener,
+                                       Predicate<K, V> paramPredicate,
+                                       K paramK,
+                                       boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addEntryListener(EntryListener paramEntryListener,
+                                       Predicate<K, V> paramPredicate,
+                                       K paramK,
+                                       boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void evictAll() {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public Object executeOnKey(K paramK, EntryProcessor paramEntryProcessor) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Map<K, Object> executeOnKeys(Set<K> paramSet, EntryProcessor paramEntryProcessor) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void submitToKey(K paramK, EntryProcessor paramEntryProcessor, ExecutionCallback paramExecutionCallback) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public Future submitToKey(K paramK, EntryProcessor paramEntryProcessor) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Map<K, Object> executeOnEntries(EntryProcessor paramEntryProcessor) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Map<K, Object> executeOnEntries(EntryProcessor paramEntryProcessor, Predicate paramPredicate) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <SuppliedValue, Result> Result aggregate(Supplier<K, V, SuppliedValue> paramSupplier,
+                                                        Aggregation<K, SuppliedValue, Result> paramAggregation) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <SuppliedValue, Result> Result aggregate(Supplier<K, V, SuppliedValue> paramSupplier,
+                                                        Aggregation<K, SuppliedValue, Result> paramAggregation,
+                                                        JobTracker paramJobTracker) {
+            // TODO Auto-generated method stub
+            return null;
+        }
     }
 
-/*    private abstract class InstanceImpl implements Instance {
+    
 
-        @Override
-        public abstract InstanceType getInstanceType();
 
-        @Override
-        public Object getId() {
-            return this;
-        }
 
-        @Override
-        public void destroy() {
-        }
-
-    }*/
-
-    private class ILockImpl implements ILock {
-
-        private final Object owner;
-        private final Lock lock;
-
-        public ILockImpl(Object owner) {
-            this.owner = owner;
-            this.lock = new ReentrantLock();
-        }
-
-        @Override
-        public void lock() {
-            lock.lock();
-        }
-
-        @Override
-        public void lockInterruptibly() throws InterruptedException {
-            lock.lockInterruptibly();
-        }
-
-        @Override
-        public Condition newCondition() {
-            return lock.newCondition();
-        }
-
-        @Override
-        public boolean tryLock() {
-            return lock.tryLock();
-        }
-
-        @Override
-        public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
-            return lock.tryLock(time, unit);
-        }
-
-        @Override
-        public void unlock() {
-            lock.unlock();
-        }
-
-        @Override
-        public void destroy() {
-            locks.remove(owner);
-        }
-
-
-    }
-
-    private abstract class ICollectionImpl<E> implements ICollection<E> {
-
-        private final String name;
-        protected final ItemListenerSupport<E> listenerSupport;
-
-        public ICollectionImpl(String name) {
-            this.name = name;
-            this.listenerSupport = new ItemListenerSupport<>();
-        }
-
-        @Override
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public String addItemListener(ItemListener<E> listener, boolean includeValue) {
-            listenerSupport.addItemListener(listener, includeValue);
-        }
-
-        @Override
-        public void removeItemListener(ItemListener<E> listener) {
-            listenerSupport.removeItemListener(listener);
-        }
-
-    }
-
-    private class IListImpl<E> extends ICollectionImpl<E> implements IList<E> {
-        private List<E> list;
-
-        public IListImpl(String name) {
-            super(name);
-            list = new LinkedList<>();
-        }
-
-       @Override
-        public boolean add(E e) {
-            return list.add(e);
-        }
-
-        @Override
-        public void add(int index, E element) {
-            list.add(index, element);
-            listenerSupport.fireItemAdded(element);
-        }
-
-        @Override
-        public boolean addAll(Collection<? extends E> c) {
-            return list.addAll(c);
-        }
-
-        @Override
-        public boolean addAll(int index, Collection<? extends E> c) {
-            return list.addAll(index, c);
-        }
-
-        @Override
-        public void clear() {
-            Iterator<E> iterator = list.iterator();
-            listenerSupport.fireItemRemoved(iterator);
-            list = new LinkedList<>();
-        }
-
-        @Override
-        public boolean contains(Object o) {
-            return list.contains(o);
-        }
-
-        @Override
-        public boolean containsAll(Collection<?> c) {
-            return list.containsAll(c);
-        }
-
-        @Override
-        public E get(int index) {
-            return list.get(index);
-        }
-
-        @Override
-        public int indexOf(Object o) {
-            return list.indexOf(o);
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return list.isEmpty();
-        }
-
-        @Override
-        public Iterator<E> iterator() {
-            return list.iterator();
-        }
-
-        @Override
-        public int lastIndexOf(Object o) {
-            return list.lastIndexOf(o);
-        }
-
-        @Override
-        public ListIterator<E> listIterator() {
-            return list.listIterator();
-        }
-
-        @Override
-        public ListIterator<E> listIterator(int index) {
-            return list.listIterator(index);
-        }
-
-        @Override
-        public E remove(int index) {
-            E element = list.remove(index);
-            listenerSupport.fireItemRemoved(element);
-            return element;
-        }
-
-        @Override
-        public boolean remove(Object o) {
-            boolean wasRemoved = list.remove(o);
-            if (wasRemoved) {
-                listenerSupport.fireItemRemoved(o);
-            }
-            return wasRemoved;
-        }
-
-        @Override
-        public boolean removeAll(Collection<?> c) {
-            boolean wasAnyRemoved = false;
-            for (Object o : c) {
-                wasAnyRemoved |= remove(o);
-            }
-            return wasAnyRemoved;
-        }
-
-        @Override
-        public boolean retainAll(Collection<?> c) {
-            //return list.retainAll(c);
-            throw new UnsupportedOperationException("retainAll does not support notifications");
-        }
-
-        @Override
-        public E set(int index, E element) {
-            E oldValue = list.set(index, element);
-            if (oldValue != element) {
-                listenerSupport.fireItemRemoved(oldValue);
-                listenerSupport.fireItemAdded(element);
-            }
-            return oldValue;
-        }
-
-        @Override
-        public int size() {
-            return list.size();
-        }
-
-        @Override
-        public List<E> subList(int fromIndex, int toIndex) {
-            return list.subList(fromIndex, toIndex);
-        }
-
-        @Override
-        public Object[] toArray() {
-            return list.toArray();
-        }
-
-        @Override
-        public <T> T[] toArray(T[] a) {
-            return list.toArray(a);
-        }
-
-    }
-
-    private class IQueueImpl<E> implements IQueue<E> {
-
-        private ArrayBlockingQueue<E> queue;
-        private static final long serialVersionUID = 1L;
-        private final String name;
-        private final int capacity;
-        private final ItemListenerSupport<E> itemListenerSupport;
-
-        public IQueueImpl(String name, int capacity) {
-            this.name = name;
-            this.capacity = capacity;
-            this.queue = new ArrayBlockingQueue<>(capacity);
-            this.itemListenerSupport = new ItemListenerSupport<>();
-        }
-
-        @Override
-        public String addItemListener(ItemListener<E> listener, boolean includeValue) {
-            this.itemListenerSupport.addItemListener(listener, includeValue);
-        }
-
-        @Override
-        public String getName() {
-            return this.name;
-        }
-
-        public void removeItemListener(ItemListener<E> listener) {
-            this.itemListenerSupport.removeItemListener(listener);
-        }
-
-        @Override
-        public void destroy() {
-            queue.clear();
-        }
-
-        public Object getId() {
-            return this.name;
-        }
-
-
-        @Override
-        public boolean add(E e) {
-            boolean added = queue.add(e);
-            itemListenerSupport.fireItemAdded(e);
-            return added;
-        }
-
-        @Override
-        public void clear() {
-            ArrayBlockingQueue<E> oldQueue = queue;
-            queue = new ArrayBlockingQueue<>(capacity);
-            itemListenerSupport.fireItemRemoved(oldQueue.iterator());
-            oldQueue.clear();
-        }
-
-        @Override
-        public int drainTo(Collection<? super E> c, int maxElements) {
-            int drained = queue.drainTo(c, maxElements);
-            itemListenerSupport.fireItemRemoved(c.iterator());
-            return drained;
-        }
-
-        @Override
-        public int drainTo(Collection<? super E> c) {
-            int drained = queue.drainTo(c);
-            itemListenerSupport.fireItemRemoved(c.iterator());
-            return drained;
-        }
-
-        @Override
-        public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException {
-            boolean offered = queue.offer(e, timeout, unit);
-            itemListenerSupport.fireItemAdded(e);
-            return offered;
-        }
-
-        @Override
-        public boolean offer(E e) {
-            boolean offered = queue.offer(e);
-            itemListenerSupport.fireItemAdded(e);
-            return offered;
-        }
-
-        @Override
-        public E poll() {
-            E item = queue.poll();
-            itemListenerSupport.fireItemRemoved(item);
-            return item;
-        }
-
-        @Override
-        public E poll(long timeout, TimeUnit unit) throws InterruptedException {
-            E item = queue.poll(timeout, unit);
-            itemListenerSupport.fireItemRemoved(item);
-            return item;
-        }
-
-        @Override
-        public void put(E e) throws InterruptedException {
-            queue.put(e);
-            itemListenerSupport.fireItemAdded(e);
-        }
-
-        @Override
-        public boolean remove(Object o) {
-            boolean removed = queue.remove(o);
-            itemListenerSupport.fireItemRemoved(o);
-            return removed;
-        }
-
-        @Override
-        public E take() throws InterruptedException {
-            E item = queue.take();
-            itemListenerSupport.fireItemRemoved(item);
-            return item;
-        }
-
-        @Override
-        public boolean addAll(Collection<? extends E> c) {
-            boolean allAdded = queue.addAll(c);
-            itemListenerSupport.fireItemAdded(c.iterator());
-            return allAdded;
-        }
-
-        @Override
-        public E remove() {
-            E item = queue.remove();
-            itemListenerSupport.fireItemRemoved(item);
-            return item;
-        }
-
-        @Override
-        public boolean removeAll(Collection<?> c) {
-            boolean allRemoved = queue.removeAll(c);
-            itemListenerSupport.fireItemRemoved(c.iterator());
-            return allRemoved;
-        }
-
-        @Override
-        public boolean contains(Object o) {
-            return queue.contains(o);
-        }
-
-        @Override
-        public int remainingCapacity() {
-            return queue.remainingCapacity();
-        }
-
-        @Override
-        public E element() {
-            return queue.element();
-        }
-
-        @Override
-        public E peek() {
-            return queue.peek();
-        }
-
-        @Override
-        public boolean containsAll(Collection<?> c) {
-            return queue.containsAll(c);
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return queue.isEmpty();
-        }
-
-        @Override
-        public Iterator<E> iterator() {
-            return queue.iterator();
-        }
-
-        @Override
-        public boolean retainAll(Collection<?> c) {
-            return queue.retainAll(c);
-        }
-
-        @Override
-        public int size() {
-            return queue.size();
-        }
-
-        @Override
-        public Object[] toArray() {
-            return queue.toArray();
-        }
-
-        @Override
-        public <T> T[] toArray(T[] a) {
-            return queue.toArray(a);
-        }
-
-        @Override
-        public LocalQueueStats getLocalQueueStats() {
-            throw new UnsupportedOperationException("getLocalQueueStats");
-        }
-
-    }
-
-    private class ItemListenerSupport<E> {
-
-        private ConcurrentHashMap<ItemListener<E>, Boolean> listenersMap = new ConcurrentHashMap<>();
-
-        public void addItemListener(ItemListener<E> listener, boolean includeValue) {
-            listenersMap.put(listener, includeValue);
-        }
-
-        public void removeItemListener(ItemListener<E> listener) {
-            listenersMap.remove(listener);
-        }
-
-        public void fireItemAdded(Iterator<? extends E> iterator) {
-            while (iterator.hasNext()) {
-                fireItemAdded(iterator.next());
-            }
-        }
-
-        public void fireItemAdded(E item) {
-            for (ItemListener<E> listener : listenersMap.keySet()) {
-                listener.itemAdded(listenersMap.get(listener) ? item : null);
-            }
-        }
-
-        public void fireItemRemoved(Iterator<? super E> iterator) {
-            while (iterator.hasNext()) {
-                fireItemRemoved(iterator.next());
-            }
-        }
-
-        @SuppressWarnings("unchecked")
-        public void fireItemRemoved(Object item) {
-            for (ItemListener<E> listener : listenersMap.keySet()) {
-                listener.itemRemoved(listenersMap.get(listener) ? (E)item : null);
-            }
-        }
-
-    }
 }

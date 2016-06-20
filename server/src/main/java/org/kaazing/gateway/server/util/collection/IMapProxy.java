@@ -15,27 +15,22 @@
  */
 package org.kaazing.gateway.server.util.collection;
 
-import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.MapEntry;
+import com.hazelcast.core.EntryView;
+import com.hazelcast.map.listener.MapListener;
+
 import java.util.concurrent.TimeUnit;
 
 public abstract class IMapProxy<K, V> extends ConcurrentMapProxy<K, V> implements IMap<K, V> {
 
     @Override
-    public void addEntryListener(EntryListener<K, V> listener, boolean includeValue) {
-        getDelegate().addEntryListener(listener, includeValue);
+    public String addEntryListener(MapListener listener, boolean includeValue) {
+        return getDelegate().addEntryListener(listener, includeValue);
     }
 
     @Override
-    public void addEntryListener(EntryListener<K, V> listener, K key,
-                                 boolean includeValue) {
-        getDelegate().addEntryListener(listener, key, includeValue);
-    }
-
-    @Override
-    public MapEntry<K, V> getMapEntry(K key) {
-        return getDelegate().getMapEntry(key);
+    public EntryView<K, V> getEntryView(K key) {
+        return getDelegate().getEntryView(key);
     }
 
     @Override
@@ -49,18 +44,19 @@ public abstract class IMapProxy<K, V> extends ConcurrentMapProxy<K, V> implement
     }
 
     @Override
-    public void removeEntryListener(EntryListener<K, V> listener, K key) {
-        getDelegate().removeEntryListener(listener, key);
-    }
-
-    @Override
-    public void removeEntryListener(EntryListener<K, V> listener) {
-        getDelegate().removeEntryListener(listener);
+    public boolean removeEntryListener(String name) {
+        return getDelegate().removeEntryListener(name);
     }
 
     @Override
     public boolean tryLock(K key, long time, TimeUnit timeunit) {
-        return getDelegate().tryLock(key, time, timeunit);
+        try {
+            return getDelegate().tryLock(key, time, timeunit);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @Override
@@ -76,16 +72,6 @@ public abstract class IMapProxy<K, V> extends ConcurrentMapProxy<K, V> implement
     @Override
     public void destroy() {
         getDelegate().destroy();
-    }
-
-    @Override
-    public Object getId() {
-        return getDelegate().getId();
-    }
-
-    @Override
-    public InstanceType getInstanceType() {
-        return getDelegate().getInstanceType();
     }
 
     @Override

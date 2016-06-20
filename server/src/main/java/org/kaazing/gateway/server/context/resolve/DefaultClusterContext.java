@@ -34,18 +34,13 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 import org.kaazing.gateway.resource.address.ResolutionUtils;
-import org.kaazing.gateway.server.messaging.buffer.ClusterMemoryMessageBufferFactory;
 import org.kaazing.gateway.server.messaging.collections.ClusterCollectionsFactory;
 import org.kaazing.gateway.service.cluster.BalancerMapListener;
 import org.kaazing.gateway.service.cluster.ClusterConnectOptionsContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
-import org.kaazing.gateway.service.cluster.ClusterMessaging;
 import org.kaazing.gateway.service.cluster.InstanceKeyListener;
 import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
-import org.kaazing.gateway.service.cluster.ReceiveListener;
-import org.kaazing.gateway.service.cluster.SendListener;
-import org.kaazing.gateway.service.messaging.buffer.MessageBufferFactory;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 import org.kaazing.gateway.util.GL;
 import org.kaazing.gateway.util.Utils;
@@ -56,7 +51,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hazelcast.config.AwsConfig;
 import com.hazelcast.config.Config;
-import com.hazelcast.config.Join;
+import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MulticastConfig;
 import com.hazelcast.config.NetworkConfig;
@@ -68,20 +63,24 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
+import com.hazelcast.core.MapEvent;
 import com.hazelcast.core.Member;
+import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
-import com.hazelcast.impl.GroupProperties;
+import com.hazelcast.instance.GroupProperties;
 import com.hazelcast.logging.LogEvent;
 import com.hazelcast.logging.LogListener;
 import com.hazelcast.logging.LoggingService;
-import com.hazelcast.nio.Address;
 
 /**
  * ClusterContext for KEG
  * <p/>
- * <br>Balancer data<ol> <li> HttpBalancerService.MEMBERID_BALANCER_MAP_NAME: <ul><li> List of balanced URIs for one member
- * <li>Key: Cluster member id <li>Value: Map(key: balancerURI, value: acceptURIs) </ul> <li>HttpBalancerService.BALANCER_MAP_NAME
+ * <br>Balancer data<ol>
+ * <li> HttpBalancerService.MEMBERID_BALANCER_MAP_NAME: <ul>
+ * <li> List of balanced URIs for one member
+ * <li>Key: Cluster member id <li>Value: Map(key: balancerURI, value: acceptURIs) </ul>
+ *  <li>HttpBalancerService.BALANCER_MAP_NAME
  * <ul><li> List of balanced URIs for whole cluster <li>Key: balanceURI <li>Value: acceptURIs </ul> </ol>
  */
 public class DefaultClusterContext implements ClusterContext, LogListener {
@@ -93,14 +92,12 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
     private final String localInstanceKey = Utils.randomHexString(16);
 
-    private MessageBufferFactory messageBufferFactory;
     private CollectionsFactory collectionsFactory;
     private List<MemberId> localInterfaces = new ArrayList<>();
     private final List<MemberId> clusterMembers = new ArrayList<>();
     private final List<MembershipEventListener> membershipEventListeners = new ArrayList<>();
     private final List<InstanceKeyListener> instanceKeyListeners = new ArrayList<>();
     private final List<BalancerMapListener> balancerMapListeners = new ArrayList<>();
-    private ClusterMessaging clusterMessaging;
     private MemberId localNodeId;
     private final String clusterName;
     private HazelcastInstance clusterInstance;
@@ -161,12 +158,6 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
     @Override
     public void dispose() {
-        // If we're in client mode, then we may not have this clusterMessaging
-        // object.  So don't try to destroy it if it is not there at all
-        // (KG-3496).
-        if (clusterMessaging != null) {
-            clusterMessaging.destroy();
-        }
 
         if (clusterInstance != null) {
             // KG-5837: do not call Hazelcast.shutdownAll() since that will hobble all in-process gateways
@@ -190,7 +181,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         memberBalancerMapConfig.setBackupCount(Integer.MAX_VALUE);
 
         // disable port auto increment
-        hazelCastConfig.setPortAutoIncrement(false);
+        hazelCastConfig.getNetworkConfig().setPortAutoIncrement(false);
 
         // The first accepts port is the port used by all network interfaces.
         int clusterPort = (localInterfaces.size() > 0) ? localInterfaces.get(0).getPort() : -1;
@@ -202,7 +193,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
         // initialize hazelcast
         if (clusterPort != -1) {
-            hazelCastConfig.setPort(clusterPort);
+            hazelCastConfig.getNetworkConfig().setPort(clusterPort);
         }
 
         NetworkConfig networkConfig = new NetworkConfig();
@@ -235,7 +226,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
         boolean usingMulticast = false;
 
-        Join joinConfig = networkConfig.getJoin();
+        JoinConfig joinConfig = networkConfig.getJoin();
         MulticastConfig multicastConfig = joinConfig.getMulticastConfig();
 
         // Disable multicast to avoid using the default multicast address 224.2.2.3:54327.
@@ -289,7 +280,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             if (unicastAddresses.size() > 0) {
                 tcpIpConfig.setEnabled(!usingMulticast);
                 for (InetSocketAddress unicastAddress : unicastAddresses) {
-                    tcpIpConfig.addAddress(new Address(unicastAddress));
+                    tcpIpConfig.addMember(unicastAddress.getHostName());//TODO not sure this is correct
                 }
             }
 
@@ -579,6 +570,11 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             GL.info(GL.CLUSTER_LOGGER_NAME, "Member Removed");
             logClusterStateAtInfoLevel();
         }
+
+        @Override
+        public void memberAttributeChanged(MemberAttributeEvent paramMemberAttributeEvent) {
+            throw new UnsupportedOperationException("memberAttributeChanged");
+        }
     };
 
     @Override
@@ -620,6 +616,16 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         public void entryUpdated(EntryEvent<MemberId, String> updatedEntryEvent) {
             throw new RuntimeException("Instance keys can not be updated, only added or removed.");
         }
+
+        @Override
+        public void mapCleared(MapEvent paramMapEvent) {
+            throw new UnsupportedOperationException("mapCleared");
+        }
+
+        @Override
+        public void mapEvicted(MapEvent paramMapEvent) {
+            throw new UnsupportedOperationException("mapEvicted");
+        }
     };
 
     private EntryListener<String, Collection<String>> balancerMapEntryListener = new
@@ -649,13 +655,23 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
                     .getKey(), updatedEntryEvent.getValue());
             fireBalancerEntryUpdated(updatedEntryEvent);
         }
+
+        @Override
+        public void mapCleared(MapEvent paramMapEvent) {
+            throw new UnsupportedOperationException("mapCleared");
+        }
+
+        @Override
+        public void mapEvicted(MapEvent paramMapEvent) {
+            throw new UnsupportedOperationException("mapEvicted");
+        }
     };
 
     // cluster collections
 
     @Override
     public Lock getLock(Object obj) {
-        return clusterInstance.getLock(obj);
+        return clusterInstance.getLock((String) obj);
     }
 
     @Override
@@ -665,67 +681,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
     // cluster communication
 
-    @Override
-    public void addReceiveQueue(String name) {
-        if (clusterMessaging != null) {
-            clusterMessaging.addReceiveQueue(name);
-        }
-    }
 
-    @Override
-    public void addReceiveTopic(String name) {
-        if (clusterMessaging != null) {
-            clusterMessaging.addReceiveTopic(name);
-        }
-    }
-
-    @Override
-    public void send(Object msg, SendListener listener, MemberId member) {
-        if (clusterMessaging != null) {
-            clusterMessaging.send(msg, listener, member);
-        }
-    }
-
-    @Override
-    public void send(Object msg, SendListener listener, String name) {
-        if (clusterMessaging != null) {
-            clusterMessaging.send(msg, listener, name);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Object send(Object msg, MemberId member) throws Exception {
-        if (clusterMessaging != null) {
-            return clusterMessaging.send(msg, member);
-        }
-
-        return null;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Object send(Object msg, String name) throws Exception {
-        if (clusterMessaging != null) {
-            return clusterMessaging.send(msg, name);
-        }
-
-        return null;
-    }
-
-    @Override
-    public <T> void setReceiver(Class<T> type, ReceiveListener<T> receiveListener) {
-        if (clusterMessaging != null) {
-            clusterMessaging.setReceiver(type, receiveListener);
-        }
-    }
-
-    @Override
-    public <T> void removeReceiver(Class<T> type) {
-        if (clusterMessaging != null) {
-            clusterMessaging.removeReceiver(type);
-        }
-    }
 
     @Override
     public void addMembershipEventListener(MembershipEventListener eventListener) {
@@ -794,10 +750,6 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         return connectOptions;
     }
 
-    @Override
-    public MessageBufferFactory getMessageBufferFactory() {
-        return messageBufferFactory;
-    }
 
     @Override
     /*
@@ -990,9 +942,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             loggingService.addLogListener(Level.FINEST, this);
 
             this.collectionsFactory = new ClusterCollectionsFactory(clusterInstance);
-            this.messageBufferFactory = new ClusterMemoryMessageBufferFactory(clusterInstance);
             localNodeId = getMemberId(cluster.getLocalMember());
-            clusterMessaging = new ClusterMessaging(this, clusterInstance, schedulerProvider);
 
             IMap<MemberId, String> instanceKeyMap = collectionsFactory.getMap(INSTANCE_KEY_MAP);
             instanceKeyMap.put(localNodeId, localInstanceKey);
