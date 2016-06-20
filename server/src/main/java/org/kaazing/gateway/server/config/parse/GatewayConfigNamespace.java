@@ -28,6 +28,7 @@ public enum GatewayConfigNamespace {
     AUGUST_2012,
     SEPTEMBER_2012,
     SEPTEMBER_2014,
+    NOVEMBER_2015,
     CURRENT_NS;
 
     private static final String NS_DRAGONFIRE_URI = "http://xmlns.kaazing.com/gateway-config/dragonfire";
@@ -37,7 +38,8 @@ public enum GatewayConfigNamespace {
     private static final String NS_SEPTEMBER_2012_URI = "http://xmlns.kaazing.com/2012/09/gateway";
     private static final String NS_SEPTEMBER_2014_URI = "http://xmlns.kaazing.org/2014/09/gateway";
     private static final String NS_NOVEMBER_2015_URI = "http://xmlns.kaazing.org/2015/11/gateway";
-
+    private static final String NS_JUNE_2016_URI = "http://xmlns.kaazing.org/2016/06/gateway";
+    
     GatewayConfigNamespace() {
     }
 
@@ -69,8 +71,12 @@ public enum GatewayConfigNamespace {
         if (nsURI.equalsIgnoreCase(NS_SEPTEMBER_2014_URI)) {
             return SEPTEMBER_2014;
         }
-
+        
         if (nsURI.equalsIgnoreCase(NS_NOVEMBER_2015_URI)) {
+            return NOVEMBER_2015;
+        }
+        
+        if (nsURI.equalsIgnoreCase(NS_JUNE_2016_URI)) {
             return CURRENT_NS;
         }
 

@@ -54,11 +54,17 @@ public class CommunityGatewayConfigTranslatorFactorySpi implements GatewayConfig
             GatewayConfigTranslator november2015Validator = new November2015Validator();
             result.addTranslator(november2015Validator);
         }
-
-        if (ns.equals(GatewayConfigNamespace.CURRENT_NS)) {
+        
+        if (ns.equals(GatewayConfigNamespace.NOVEMBER_2015)) {
             result = new GatewayConfigTranslatorPipeline();
             GatewayConfigTranslator november2015Validator = new November2015Validator();
             result.addTranslator(november2015Validator);
+        }
+
+        if (ns.equals(GatewayConfigNamespace.CURRENT_NS)) {
+            result = new GatewayConfigTranslatorPipeline();
+            GatewayConfigTranslator june2016Validator = new July2016Validator();
+            result.addTranslator(june2016Validator);
         }
 
         return result;

@@ -46,7 +46,7 @@ public class UpdateCheckTask implements Runnable {
     public UpdateCheckTask(UpdateCheckService updateCheckService, String webServiceUrl, String productName) {
         this.updateCheckService = updateCheckService;
         if (webServiceUrl.endsWith("/")) {
-            this.versionServiceUrl = format("%s%s/%s/latest", webServiceUrl, productName, protocolVersion);
+            this.versionServiceUrl = format("%s%s/%s/latest", webServiceUrl, productName, protocolVersion);        
         } else {
             this.versionServiceUrl = format("%s/%s/%s/latest", webServiceUrl, productName, protocolVersion);
         }
