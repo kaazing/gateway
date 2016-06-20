@@ -205,15 +205,12 @@ public class HttpDirectoryService implements Service {
      * @return the file corresponding to the location
      */
     private File toFile(File rootDir, String location) {
-        File locationFile = null;
+        File locationFile = rootDir;
         if (location != null) {
             URI locationURI = URI.create(location);
             locationFile = new File(locationURI.getPath());
             if (locationURI.getScheme() == null) {
-                if (location.charAt(0) == '/') {
-                    location = location.substring(1);
-                    locationFile = new File(rootDir, location);
-                }
+                locationFile = new File(rootDir, location);
             } else if (!"file".equals(locationURI.getScheme())) {
                 throw new IllegalArgumentException("Unexpected resources directory: " + location);
             }

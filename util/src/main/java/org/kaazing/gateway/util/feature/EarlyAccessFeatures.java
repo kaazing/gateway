@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service;
+package org.kaazing.gateway.util.feature;
 
-import java.util.Map;
+/**
+ * Specifies new features which are being released as early access features.
+ */
+public interface EarlyAccessFeatures {
 
-public interface ConnectOptionsContext {
+    static EarlyAccessFeature HTTP_PROXY_SERVICE = new EarlyAccessFeature("http.proxy", "HTTP Proxy Service", false);
 
-    Map<String, Object> asOptionsMap();
 }

@@ -260,6 +260,7 @@
                             <overWriteSnapshots>true</overWriteSnapshots>
                             <silent>false</silent>
                             <outputDirectory>target/sigar</outputDirectory>
+                            <excludes>**/log4j.jar</excludes>
                         </configuration>
                     </execution>
                 </executions>
