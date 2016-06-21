@@ -71,11 +71,11 @@ public enum GatewayConfigNamespace {
         if (nsURI.equalsIgnoreCase(NS_SEPTEMBER_2014_URI)) {
             return SEPTEMBER_2014;
         }
-        
+
         if (nsURI.equalsIgnoreCase(NS_NOVEMBER_2015_URI)) {
             return NOVEMBER_2015;
         }
-        
+
         if (nsURI.equalsIgnoreCase(NS_JUNE_2016_URI)) {
             return CURRENT_NS;
         }

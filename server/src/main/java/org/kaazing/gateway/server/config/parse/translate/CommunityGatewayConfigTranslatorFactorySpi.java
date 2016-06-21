@@ -70,7 +70,7 @@ public class CommunityGatewayConfigTranslatorFactorySpi implements GatewayConfig
             if (result == null) {
                 result = new GatewayConfigTranslatorPipeline();
             } 
-            GatewayConfigTranslator june2016Validator = new July2016Validator();
+            GatewayConfigTranslator june2016Validator = new June2016Validator();
             result.addTranslator(june2016Validator);
         }
         return result;

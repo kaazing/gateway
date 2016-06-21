@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.kaazing.gateway.server.config.parse.translate.july2016;
+package org.kaazing.gateway.server.config.parse.translate.june2016;
 
 import java.util.List;
 
