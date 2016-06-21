@@ -45,7 +45,6 @@ import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 import org.kaazing.gateway.util.GL;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.aws.AwsUtils;
-import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,26 +100,22 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     private MemberId localNodeId;
     private final String clusterName;
     private HazelcastInstance clusterInstance;
-    private final SchedulerProvider schedulerProvider;
     private final ClusterConnectOptionsContext connectOptions;
     private final AtomicBoolean clusterInitialized = new AtomicBoolean(false);
 
     public DefaultClusterContext(String name,
                                  List<MemberId> interfaces,
-                                 List<MemberId> members,
-                                 SchedulerProvider schedulerProvider) {
-        this(name, interfaces, members, schedulerProvider, null);
+                                 List<MemberId> members) {
+        this(name, interfaces, members, null);
     }
 
     public DefaultClusterContext(String name,
                                  List<MemberId> interfaces,
                                  List<MemberId> members,
-                                 SchedulerProvider schedulerProvider,
                                  ClusterConnectOptionsContext connectOptions) {
         this.clusterName = name;
         this.localInterfaces.addAll(interfaces);
         this.clusterMembers.addAll(members);
-        this.schedulerProvider = schedulerProvider;
         this.connectOptions = connectOptions;
     }
 
