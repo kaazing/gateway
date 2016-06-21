@@ -26,7 +26,7 @@ import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
-import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.june2016.GatewayConfigDocument;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.context.resolve.GatewayContextResolver;
 

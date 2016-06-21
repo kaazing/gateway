@@ -15,6 +15,9 @@
  */
 package org.kaazing.gateway.server.config.parse.translate;
 
+import static org.kaazing.gateway.server.config.parse.GatewayConfigNamespace.NOVEMBER_2015;
+import static org.kaazing.gateway.server.config.parse.GatewayConfigNamespace.SEPTEMBER_2014;
+
 import org.kaazing.gateway.server.config.parse.GatewayConfigNamespace;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.config.parse.translate.spi.GatewayConfigTranslatorFactorySpi;
@@ -51,22 +54,25 @@ public class CommunityGatewayConfigTranslatorFactorySpi implements GatewayConfig
             result = new GatewayConfigTranslatorPipeline();
             GatewayConfigTranslator september2014Translator = new September2014ToNovember2015Translator();
             result.addTranslator(september2014Translator);
-            GatewayConfigTranslator november2015Validator = new November2015Validator();
-            result.addTranslator(november2015Validator);
+            ns = GatewayConfigNamespace.NOVEMBER_2015;
         }
         
         if (ns.equals(GatewayConfigNamespace.NOVEMBER_2015)) {
-            result = new GatewayConfigTranslatorPipeline();
+            if (result == null) {
+                result = new GatewayConfigTranslatorPipeline();
+            }   
             GatewayConfigTranslator november2015Validator = new November2015Validator();
             result.addTranslator(november2015Validator);
+            ns = GatewayConfigNamespace.CURRENT_NS;
         }
 
         if (ns.equals(GatewayConfigNamespace.CURRENT_NS)) {
-            result = new GatewayConfigTranslatorPipeline();
+            if (result == null) {
+                result = new GatewayConfigTranslatorPipeline();
+            } 
             GatewayConfigTranslator june2016Validator = new July2016Validator();
             result.addTranslator(june2016Validator);
         }
-
         return result;
     }
 }

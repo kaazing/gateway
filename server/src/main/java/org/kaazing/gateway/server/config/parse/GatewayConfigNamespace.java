@@ -111,8 +111,12 @@ public enum GatewayConfigNamespace {
                 uri = NS_SEPTEMBER_2014_URI;
                 break;
 
-            case CURRENT_NS:
+            case NOVEMBER_2015:
                 uri = NS_NOVEMBER_2015_URI;
+                break;
+                
+            case CURRENT_NS:
+                uri = NS_JUNE_2016_URI;
                 break;
         }
 
