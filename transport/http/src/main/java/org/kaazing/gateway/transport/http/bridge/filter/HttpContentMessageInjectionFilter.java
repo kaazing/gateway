@@ -41,7 +41,7 @@ public class HttpContentMessageInjectionFilter extends HttpFilterAdapter<IoSessi
         // GL.debug("http", getClass().getSimpleName() + " filterWriteHttpResponse.");
         HttpContentMessage content = httpResponse.getContent();
         String contentLength = httpResponse.getHeader(HEADER_CONTENT_LENGTH);
-        if (content == null || contentLength == null) {
+        if (content == null || (contentLength == null && content.isComplete() )) {
             HttpStatus httpStatus = httpResponse.getStatus();
             if (contentAutomaticallyInjectable(httpStatus)) {
                 if (!httpResponse.isContentExcluded()) {
