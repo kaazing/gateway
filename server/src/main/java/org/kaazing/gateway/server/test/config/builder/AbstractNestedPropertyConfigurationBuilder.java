@@ -16,9 +16,9 @@
 package org.kaazing.gateway.server.test.config.builder;
 
 import java.util.Set;
+
 import org.kaazing.gateway.server.test.config.NestedServicePropertiesConfiguration;
 import org.kaazing.gateway.server.test.config.SuppressibleConfiguration.Suppression;
-import org.kaazing.gateway.server.test.config.builder.AbstractServiceConfigurationBuilder.AddNestedPropertyBuilder;
 
 public abstract class AbstractNestedPropertyConfigurationBuilder<R> extends
         AbstractConfigurationBuilder<NestedServicePropertiesConfiguration, R> {
