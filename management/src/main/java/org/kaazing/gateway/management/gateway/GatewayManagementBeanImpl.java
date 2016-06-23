@@ -726,13 +726,13 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
     @Override
     public void mapCleared(MapEvent paramMapEvent) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void mapEvicted(MapEvent paramMapEvent) {
         // TODO Auto-generated method stub
-        
+
     }
 
 }

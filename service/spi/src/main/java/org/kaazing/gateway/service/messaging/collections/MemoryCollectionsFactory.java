@@ -16,43 +16,21 @@
 package org.kaazing.gateway.service.messaging.collections;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.kaazing.gateway.service.cluster.EntryListenerSupport;
-import org.kaazing.gateway.util.AtomicCounter;
-
-import com.hazelcast.core.EntryEvent;
-import com.hazelcast.core.EntryEventType;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.EntryView;
 import com.hazelcast.core.ExecutionCallback;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.ICollection;
-import com.hazelcast.core.ICondition;
-import com.hazelcast.core.IList;
-import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.IQueue;
-import com.hazelcast.core.ITopic;
-import com.hazelcast.core.ItemEvent;
-import com.hazelcast.core.ItemListener;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.map.MapInterceptor;
 import com.hazelcast.map.listener.MapListener;
@@ -61,7 +39,6 @@ import com.hazelcast.mapreduce.JobTracker;
 import com.hazelcast.mapreduce.aggregation.Aggregation;
 import com.hazelcast.mapreduce.aggregation.Supplier;
 import com.hazelcast.monitor.LocalMapStats;
-import com.hazelcast.monitor.LocalQueueStats;
 import com.hazelcast.query.Predicate;
 
 public class MemoryCollectionsFactory implements CollectionsFactory {
@@ -84,15 +61,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
         return map;
     }
-
-   
-
-    @Override
-    public <K, V> void addEntryListener(MapListener listener, String name) {
-        IMapImpl<K ,V> map = (IMapImpl<K, V>)getMap(name);  // force create if not already created.
-        map.addEntryListener(listener, true);
-    }
-
 
     private class MapEntryViewImpl<K, V> implements EntryView<K, V> {
         private final K key;
@@ -193,26 +161,13 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
     private class IMapImpl<K, V> implements IMap<K, V> {
 
         private final ConcurrentHashMap<K, V> map;
-        private final EntryListenerSupport<K,V> listenerSupport;
         private final ConcurrentMap<Object, Lock> locks;
         private final String name;
 
         public IMapImpl(String name) {
             this.name = name;
             this.map = new ConcurrentHashMap<>();
-            this.listenerSupport = new EntryListenerSupport<>();
             this.locks = new ConcurrentHashMap<>();
-        }
-
-        @Override
-        public String addEntryListener(MapListener listener, boolean includeValue) {
-            listenerSupport.addEntryListener((EntryListener<K, V>) listener, includeValue);
-            return name; 
-        }
-        @Override
-        public String addEntryListener(MapListener listener, K key, boolean includeValue) {
-            listenerSupport.addEntryListener((EntryListener<K, V>)listener, key, includeValue);
-            return name;
         }
 
         @Override
@@ -230,11 +185,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public void lock(K key) {
             supplyLock(key).lock();
         }
-
-        @Override
-        public boolean removeEntryListener(String listener) {
-            return listenerSupport.removeEntryListener(listener);
-         }
 
         @Override
         public boolean tryLock(K key) {
@@ -260,14 +210,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @Override
         public V putIfAbsent(K key, V value) {
             V oldValue = map.putIfAbsent(key, value);
-            if (oldValue == null) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.ADDED.getType(), key, value);
-                listenerSupport.entryAdded(event);
-            }
-            else {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED.getType(), key, value);
-                listenerSupport.entryUpdated(event);
-            }
             return oldValue;
         }
 
@@ -275,34 +217,18 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 		@Override
         public boolean remove(Object key, Object value) {
             boolean wasRemoved = map.remove(key, value);
-            if (wasRemoved) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null,EntryEventType.REMOVED.getType(), (K)key, (V)value);
-                listenerSupport.entryRemoved(event);
-            }
             return wasRemoved;
         }
 
         @Override
         public V replace(K key, V value) {
             V oldValue = map.replace(key, value);
-            if (oldValue != null) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED.getType(), key, value);
-                listenerSupport.entryUpdated(event);
-            }
-            else {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.ADDED.getType(), key, value);
-                listenerSupport.entryAdded(event);
-            }
             return oldValue;
         }
 
         @Override
         public boolean replace(K key, V oldValue, V newValue) {
             boolean wasReplaced = map.replace(key, oldValue, newValue);
-            if (wasReplaced) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED.getType(), key, newValue);
-                listenerSupport.entryUpdated(event);
-            }
             return wasReplaced;
         }
 
@@ -352,14 +278,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @Override
         public V put(K key, V value) {
             V oldValue = map.put(key, value);
-            if (oldValue != null) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED.getType(), key, value);
-                listenerSupport.entryUpdated(event);
-            }
-            else {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.ADDED.getType(), key, value);
-                listenerSupport.entryAdded(event);
-            }
             return oldValue;
         }
 
@@ -424,10 +342,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public boolean evict(Object key) {
             Object value = map.remove(key);
             boolean removed = (value !=  null);
-            if (removed) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.EVICTED.getType(), (K)key, (V) value);
-                listenerSupport.entryEvicted(event);
-            }
             return removed;
         }
 
@@ -493,10 +407,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 	public V remove(Object key) {
             V value = map.remove(key);
             boolean removed = (value !=  null);
-            if (removed) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.REMOVED.getType(), (K)key, value);
-                listenerSupport.entryRemoved(event);
-            }
             return value;
 		}
 
@@ -688,46 +598,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public String addEntryListener(EntryListener paramEntryListener, K paramK, boolean paramBoolean) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public String addEntryListener(MapListener paramMapListener,
-                                       Predicate<K, V> paramPredicate,
-                                       boolean paramBoolean) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public String addEntryListener(EntryListener paramEntryListener,
-                                       Predicate<K, V> paramPredicate,
-                                       boolean paramBoolean) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public String addEntryListener(MapListener paramMapListener,
-                                       Predicate<K, V> paramPredicate,
-                                       K paramK,
-                                       boolean paramBoolean) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public String addEntryListener(EntryListener paramEntryListener,
-                                       Predicate<K, V> paramPredicate,
-                                       K paramK,
-                                       boolean paramBoolean) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
         public void evictAll() {
             // TODO Auto-generated method stub
             
@@ -783,6 +653,60 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             // TODO Auto-generated method stub
             return null;
         }
+
+        @Override
+        public String addEntryListener(MapListener arg0, boolean arg1) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addEntryListener(MapListener arg0, K arg1, boolean arg2) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addEntryListener(EntryListener arg0, K arg1, boolean arg2) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addEntryListener(MapListener arg0, Predicate<K, V> arg1, boolean arg2) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addEntryListener(EntryListener arg0, Predicate<K, V> arg1, boolean arg2) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addEntryListener(MapListener arg0, Predicate<K, V> arg1, K arg2, boolean arg3) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addEntryListener(EntryListener arg0, Predicate<K, V> arg1, K arg2, boolean arg3) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public boolean removeEntryListener(String arg0) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+    }
+
+    @Override
+    public <K, V> void addEntryListener(MapListener listener, String name) {
+        // TODO Auto-generated method stub
+        
     }
 
     

@@ -71,6 +71,7 @@ import com.hazelcast.instance.GroupProperties;
 import com.hazelcast.logging.LogEvent;
 import com.hazelcast.logging.LogListener;
 import com.hazelcast.logging.LoggingService;
+import com.hazelcast.map.impl.MapListenerAdapter;
 
 /**
  * ClusterContext for KEG
@@ -582,7 +583,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         return instanceKeyMap.get(memberId);
     }
 
-    private EntryListener<MemberId, String> instanceKeyEntryListener = new EntryListener<MemberId, String>() {
+    private MapListenerAdapter<MemberId, String> instanceKeyEntryListener = new MapListenerAdapter<MemberId, String>() {
         // WE're supporting the idea of 'instance keys' (i.e. random strings that are supposed
         // to be unique per instance of a gateway) solely for management to be able to tell the
         // difference between two instances of a gateway accessed through the same management URL.
@@ -623,8 +624,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         }
     };
 
-    private EntryListener<String, Collection<String>> balancerMapEntryListener = new
-            EntryListener<String, Collection<String>>() {
+    private MapListenerAdapter<String, Collection<String>> balancerMapEntryListener = new
+            MapListenerAdapter<String, Collection<String>>() {
         @Override
         public void entryAdded(EntryEvent<String, Collection<String>> newEntryEvent) {
             GL.trace(GL.CLUSTER_LOGGER_NAME, "New entry for balance URI: {}   value: {}", newEntryEvent.getKey(), newEntryEvent
@@ -653,13 +654,16 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
         @Override
         public void mapCleared(MapEvent paramMapEvent) {
-            throw new UnsupportedOperationException("mapCleared");
+            // TODO Auto-generated method stub
+            
         }
 
         @Override
         public void mapEvicted(MapEvent paramMapEvent) {
-            throw new UnsupportedOperationException("mapEvicted");
+            // TODO Auto-generated method stub
+            
         }
+
     };
 
     // cluster collections
@@ -880,8 +884,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         GL.debug(GL.CLUSTER_LOGGER_NAME, "Firing balancerEntryAdded for: {}", balancerURI);
         for (BalancerMapListener listener : balancerMapListeners) {
             try {
-                listener.balancerEntryAdded(balancerURI, entryEvent.getValue());
             } catch (Throwable e) {
+                listener.balancerEntryAdded(balancerURI, entryEvent.getValue());
                 GL.error(GL.CLUSTER_LOGGER_NAME, "Error in balancerEntryAdded event {}", e);
             }
         }

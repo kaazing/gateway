@@ -37,7 +37,7 @@ import com.hazelcast.core.IdGenerator;
 
 /**
  * This class is the standalone case where the current node is itself the master this does not have any high availability
- * functionality. The only supported method for now is the Map.
+ * functionality. The only supported method for now is the Map. Does not need to support listeners of any kind.
  */
 public class StandaloneClusterContext implements ClusterContext {
 

@@ -19,9 +19,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
-import com.hazelcast.core.IdGenerator;
-import org.kaazing.gateway.service.messaging.buffer.MessageBufferFactory;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
+
+import com.hazelcast.core.IdGenerator;
 
 public interface ClusterContext {
 
