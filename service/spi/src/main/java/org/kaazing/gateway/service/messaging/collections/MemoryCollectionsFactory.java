@@ -61,6 +61,11 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
         return map;
     }
+    @Override
+    public <K, V> void addEntryListener(MapListener listener, String name) {
+        throw new UnsupportedOperationException("addEntryListener");
+        
+    }
 
     private class MapEntryViewImpl<K, V> implements EntryView<K, V> {
         private final K key;
@@ -402,13 +407,13 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             return values;
         }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public V remove(Object key) {
+        @SuppressWarnings("unchecked")
+        @Override
+        public V remove(Object key) {
             V value = map.remove(key);
-            boolean removed = (value !=  null);
+            boolean removed = (value != null);
             return value;
-		}
+        }
 
         @Override
         public Future<V> getAsync(K key) {
@@ -447,62 +452,52 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         @Override
         public String getPartitionKey() {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public String getServiceName() {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public void delete(Object paramObject) {
-            // TODO Auto-generated method stub
-            
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public void loadAll(boolean paramBoolean) {
-            // TODO Auto-generated method stub
-            
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public void loadAll(Set<K> paramSet, boolean paramBoolean) {
-            // TODO Auto-generated method stub
-            
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public Future<V> putAsync(K paramK, V paramV, long paramLong, TimeUnit paramTimeUnit) {
-            // TODO Auto-generated method stub
-            return null;
-        }
+            throw new UnsupportedOperationException();
+       }
 
         @Override
         public void set(K paramK, V paramV) {
-            // TODO Auto-generated method stub
-            
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public void set(K paramK, V paramV, long paramLong, TimeUnit paramTimeUnit) {
-            // TODO Auto-generated method stub
-            
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public void lock(K paramK, long paramLong, TimeUnit paramTimeUnit) {
-            // TODO Auto-generated method stub
-            
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public boolean isLocked(K paramK) {
-            // TODO Auto-generated method stub
-            return false;
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -511,42 +506,37 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
                                TimeUnit paramTimeUnit1,
                                long paramLong2,
                                TimeUnit paramTimeUnit2) throws InterruptedException {
-            // TODO Auto-generated method stub
-            return false;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public void forceUnlock(K paramK) {
-            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException();
             
         }
 
         @Override
         public String addLocalEntryListener(MapListener paramMapListener) {
-            // TODO Auto-generated method stub
-            return null;
-        }
+            throw new UnsupportedOperationException();
+         }
 
         @Override
         public String addLocalEntryListener(EntryListener paramEntryListener) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public String addLocalEntryListener(MapListener paramMapListener,
                                             Predicate<K, V> paramPredicate,
                                             boolean paramBoolean) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public String addLocalEntryListener(EntryListener paramEntryListener,
                                             Predicate<K, V> paramPredicate,
                                             boolean paramBoolean) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -554,8 +544,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
                                             Predicate<K, V> paramPredicate,
                                             K paramK,
                                             boolean paramBoolean) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -563,154 +552,121 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
                                             Predicate<K, V> paramPredicate,
                                             K paramK,
                                             boolean paramBoolean) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public String addInterceptor(MapInterceptor paramMapInterceptor) {
-            // TODO Auto-generated method stub
-            return null;
-        }
+            throw new UnsupportedOperationException();
+       }
 
         @Override
         public void removeInterceptor(String paramString) {
-            // TODO Auto-generated method stub
-            
-        }
+            throw new UnsupportedOperationException();
+       }
 
         @Override
         public String addEntryListener(EntryListener paramEntryListener, boolean paramBoolean) {
-            // TODO Auto-generated method stub
-            return null;
-        }
+            throw new UnsupportedOperationException();
+         }
 
         @Override
         public String addPartitionLostListener(MapPartitionLostListener paramMapPartitionLostListener) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public boolean removePartitionLostListener(String paramString) {
-            // TODO Auto-generated method stub
-            return false;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public void evictAll() {
-            // TODO Auto-generated method stub
-            
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public Object executeOnKey(K paramK, EntryProcessor paramEntryProcessor) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public Map<K, Object> executeOnKeys(Set<K> paramSet, EntryProcessor paramEntryProcessor) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public void submitToKey(K paramK, EntryProcessor paramEntryProcessor, ExecutionCallback paramExecutionCallback) {
-            // TODO Auto-generated method stub
-            
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public Future submitToKey(K paramK, EntryProcessor paramEntryProcessor) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public Map<K, Object> executeOnEntries(EntryProcessor paramEntryProcessor) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public Map<K, Object> executeOnEntries(EntryProcessor paramEntryProcessor, Predicate paramPredicate) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public <SuppliedValue, Result> Result aggregate(Supplier<K, V, SuppliedValue> paramSupplier,
                                                         Aggregation<K, SuppliedValue, Result> paramAggregation) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public <SuppliedValue, Result> Result aggregate(Supplier<K, V, SuppliedValue> paramSupplier,
                                                         Aggregation<K, SuppliedValue, Result> paramAggregation,
                                                         JobTracker paramJobTracker) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public String addEntryListener(MapListener arg0, boolean arg1) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public String addEntryListener(MapListener arg0, K arg1, boolean arg2) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public String addEntryListener(EntryListener arg0, K arg1, boolean arg2) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public String addEntryListener(MapListener arg0, Predicate<K, V> arg1, boolean arg2) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public String addEntryListener(EntryListener arg0, Predicate<K, V> arg1, boolean arg2) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public String addEntryListener(MapListener arg0, Predicate<K, V> arg1, K arg2, boolean arg3) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public String addEntryListener(EntryListener arg0, Predicate<K, V> arg1, K arg2, boolean arg3) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public boolean removeEntryListener(String arg0) {
-            // TODO Auto-generated method stub
-            return false;
+            throw new UnsupportedOperationException();
         }
     }
-
-    @Override
-    public <K, V> void addEntryListener(MapListener listener, String name) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    
-
-
 
 }
