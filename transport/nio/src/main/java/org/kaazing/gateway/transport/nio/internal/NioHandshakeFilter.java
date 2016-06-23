@@ -61,6 +61,9 @@ public class NioHandshakeFilter extends IoFilterAdapter<IoSessionEx> {
     @Override
     protected void doMessageReceived(NextFilter nextFilter, IoSessionEx session, Object message) throws Exception {
         taskExecutor.shutdownNow();
+        // auto-remove after receiving the first message and shutting down the task executor
+        IoFilterChain filterChain = session.getFilterChain();
+        filterChain.remove(this);
         nextFilter.messageReceived(session, message);
     }
 }

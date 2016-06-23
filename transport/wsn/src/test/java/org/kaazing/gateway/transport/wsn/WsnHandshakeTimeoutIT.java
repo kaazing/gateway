@@ -41,7 +41,7 @@ public class WsnHandshakeTimeoutIT {
                 .service()
                     .accept("ws://localhost:8001/")
                     .type("echo")
-                    .acceptOption("ws.handshake.timeout", "6")
+                    .acceptOption("http.handshake.timeout", "6")
                 .done()
             .done();
             // @formatter:on
@@ -49,7 +49,7 @@ public class WsnHandshakeTimeoutIT {
         }
     };
 
-    private TestRule timeout = new DisableOnDebug(new Timeout(10, SECONDS));
+    private TestRule timeout = new DisableOnDebug(new Timeout(15, SECONDS));
 
     @Rule
     public TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(gateway).around(robot).around(timeout);

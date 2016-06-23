@@ -43,6 +43,7 @@ import static org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolH
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter.PROTOCOL_HTTP_1_1;
 import static org.kaazing.gateway.transport.http.resource.HttpDynamicResourceFactory.newHttpDynamicResourceFactory;
 import static org.kaazing.gateway.util.InternalSystemProperty.HTTPXE_SPECIFICATION;
+import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -277,6 +278,9 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         final ResourceAddress transportAddress = address.getTransport();
 
         handshakeTimeoutByTransportAddress.put(transportAddress, address.getOption(HANDSHAKE_TIMEOUT).longValue());
+        if(transportAddress.hasOption(ALTERNATE)) {
+            handshakeTimeoutByTransportAddress.put(transportAddress.getOption(ALTERNATE), address.getOption(HANDSHAKE_TIMEOUT).longValue());
+        }
 
         final URI transportURI = transportAddress.getResource();
 
