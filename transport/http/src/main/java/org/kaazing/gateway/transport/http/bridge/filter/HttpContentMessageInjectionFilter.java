@@ -41,20 +41,19 @@ public class HttpContentMessageInjectionFilter extends HttpFilterAdapter<IoSessi
         // GL.debug("http", getClass().getSimpleName() + " filterWriteHttpResponse.");
         HttpContentMessage content = httpResponse.getContent();
         String contentLength = httpResponse.getHeader(HEADER_CONTENT_LENGTH);
-        if (content == null || (contentLength == null && content.isComplete() )) {
-            HttpStatus httpStatus = httpResponse.getStatus();
-            if (contentAutomaticallyInjectable(httpStatus)) {
-                if (!httpResponse.isContentExcluded()) {
-                    IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-                    ByteBuffer nioBuf = allocator.allocate(256);
-                    IoBufferEx buf = allocator.wrap(nioBuf);
-                    String message = String.format("<html><head></head><body><h1>%d %s</h1></body></html>",
-                            httpStatus.code(), httpResponse.getBodyReason());
-                    buf.putString(message, US_ASCII.newEncoder());
-                    buf.flip();
-                    httpResponse.setHeader("Content-Type", "text/html");
-                    httpResponse.setContent(new HttpContentMessage(buf, true));
-                }
+        HttpStatus httpStatus = httpResponse.getStatus();
+        boolean noContent = content == null || (content.length() == 0 && content.isComplete());
+        if (contentLength == null && contentAutomaticallyInjectable(httpStatus) && noContent) {
+            if (!httpResponse.isContentExcluded()) {
+                IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+                ByteBuffer nioBuf = allocator.allocate(256);
+                IoBufferEx buf = allocator.wrap(nioBuf);
+                String message = String.format("<html><head></head><body><h1>%d %s</h1></body></html>",
+                        httpStatus.code(), httpResponse.getBodyReason());
+                buf.putString(message, US_ASCII.newEncoder());
+                buf.flip();
+                httpResponse.setHeader("Content-Type", "text/html");
+                httpResponse.setContent(new HttpContentMessage(buf, true));
             }
         }
 
