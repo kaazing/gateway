@@ -22,21 +22,26 @@ import static java.util.EnumSet.complementOf;
 import static java.util.EnumSet.of;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.MAXIMUM_REDIRECTS;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.http.HttpConnectFilter.CONTENT_LENGTH_ADJUSTMENT;
 import static org.kaazing.gateway.transport.http.HttpConnectFilter.PROTOCOL_HTTPXE;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_LOCATION;
+import static org.kaazing.gateway.transport.http.HttpStatus.REDIRECT_FOUND;
 import static org.kaazing.gateway.transport.http.HttpUtils.hasCloseHeader;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolHeaderFilter.PROTOCOL_HTTPXE_1_1;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter.PROTOCOL_HTTP_1_1;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.Resource;
 
@@ -52,6 +57,8 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.ResourceOption;
+import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.transport.AbstractBridgeConnector;
 import org.kaazing.gateway.transport.BridgeConnector;
@@ -66,6 +73,7 @@ import org.kaazing.gateway.transport.http.bridge.HttpMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBuffer;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBufferAllocator;
+import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
@@ -73,7 +81,7 @@ import org.kaazing.mina.core.session.IoSessionEx;
 
 public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
-    private static final TypedAttributeKey<Callable<DefaultHttpSession>> HTTP_SESSION_FACTORY_KEY = new TypedAttributeKey<>(HttpConnector.class, "httpSessionFactory");
+    private static final TypedAttributeKey<HttpSessionFactory> HTTP_SESSION_FACTORY_KEY = new TypedAttributeKey<>(HttpConnector.class, "httpSessionFactory");
     public static final TypedAttributeKey<DefaultHttpSession> HTTP_SESSION_KEY = new TypedAttributeKey<>(HttpConnector.class, "httpSession");
     private static final TypedAttributeKey<ConnectFuture> HTTP_CONNECT_FUTURE_KEY = new TypedAttributeKey<>(HttpConnector.class, "httpConnectFuture");
 
@@ -83,6 +91,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     private ResourceAddressFactory addressFactory;
     private final PersistentConnectionPool persistentConnectionsStore;
     private Properties configuration;
+    private ScheduledExecutorService schedulerProvider;
 
     public HttpConnector() {
         super(new DefaultIoSessionConfigEx());
@@ -111,6 +120,11 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         this.configuration = configuration;
     }
 
+    @Resource(name = "schedulerProvider")
+    public void setSchedulerProvider(SchedulerProvider provider) {
+        this.schedulerProvider = provider.getScheduler("HttpConnector", true);
+    }
+
     @Override
     protected IoProcessorEx<DefaultHttpSession> initProcessor() {
         return new HttpConnectProcessor(persistentConnectionsStore, logger);
@@ -133,15 +147,23 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         final ConnectFuture connectFuture =  new DefaultConnectFuture();
         final ResourceAddress transportAddress = address.getTransport();
 
+        // initializer for bridge session to specify bridge handler,
+        // and call user-defined bridge session initializer if present
+        final IoSessionInitializer<T> httpSessionInitializer = createHttpSessionInitializer(handler, initializer);
+
+        // factory to create a new bridge session
+        HttpSessionFactory httpSessionFactory = createHttpSession(address, httpSessionInitializer, connectFuture);
+
+
         if (transportAddress != null) {
             Executor ioExecutor = org.kaazing.mina.core.session.AbstractIoSessionEx.CURRENT_WORKER.get();
             if (ioExecutor == null) {
-                connectInternal0(connectFuture, address, handler, initializer);
+                connectInternal0(connectFuture, address, handler, httpSessionFactory);
             } else {
                 ioExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        connectInternal0(connectFuture, address, handler, initializer);
+                        connectInternal0(connectFuture, address, handler, httpSessionFactory);
                     }
                 });
             }
@@ -151,24 +173,20 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     }
 
     private <T extends ConnectFuture> void connectInternal0(ConnectFuture connectFuture,
-            final ResourceAddress address, final IoHandler handler, final IoSessionInitializer<T> initializer) {
+            final ResourceAddress address, final IoHandler handler, HttpSessionFactory httpSessionFactory) {
 
         IoSession transportSession = persistentConnectionsStore.take((HttpResourceAddress) address);
         if (transportSession != null) {
-            connectUsingExistingTransport(connectFuture, address, transportSession, handler, initializer);
+            connectUsingExistingTransport(connectFuture, address, transportSession, handler, httpSessionFactory);
         } else {
-            connectUsingNewTransport(connectFuture, address, handler, initializer);
+            connectUsingNewTransport(connectFuture, address, handler, httpSessionFactory);
         }
 
     }
 
     protected <T extends ConnectFuture> void connectUsingExistingTransport(final ConnectFuture connectFuture,
                 ResourceAddress address, IoSession transportSession, IoHandler handler,
-                IoSessionInitializer<T> initializer) {
-
-        IoSessionInitializer<T> httpSessionInitializer = createHttpSessionInitializer(handler, initializer);
-
-        Callable<DefaultHttpSession> httpSessionFactory = createHttpSession(address, transportSession, httpSessionInitializer, connectFuture);
+                HttpSessionFactory httpSessionFactory) {
 
         HTTP_SESSION_FACTORY_KEY.set(transportSession, httpSessionFactory);
         HTTP_CONNECT_FUTURE_KEY.set(transportSession, connectFuture);
@@ -181,7 +199,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     }
 
     private <T extends ConnectFuture> void connectUsingNewTransport(final ConnectFuture connectFuture,
-               ResourceAddress address, IoHandler handler, IoSessionInitializer<T> initializer) {
+               ResourceAddress address, IoHandler handler, HttpSessionFactory httpSessionFactory) {
 
         // propagate connection failure, if necessary
         IoFutureListener<ConnectFuture> parentConnectListener = new IoFutureListener<ConnectFuture>() {
@@ -197,7 +215,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         ResourceAddress transportAddress = address.getTransport();
         BridgeConnector connector = bridgeServiceFactory.newBridgeConnector(transportAddress);
         IoSessionInitializer<ConnectFuture> parentInitializer = createParentInitializer(address,
-                handler, initializer, connectFuture);
+                handler, connectFuture, httpSessionFactory);
         connector.connect(transportAddress, bridgeHandler, parentInitializer).addListener(parentConnectListener);
 
     }
@@ -252,19 +270,13 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     }
 
     private <T extends ConnectFuture> IoSessionInitializer<ConnectFuture> createParentInitializer(final ResourceAddress connectAddress,
-            final IoHandler handler, final IoSessionInitializer<T> initializer, final ConnectFuture httpConnectFuture) {
+            final IoHandler handler, final ConnectFuture httpConnectFuture,
+            HttpSessionFactory httpSessionFactory) {
         // initialize parent session before connection attempt
         return new IoSessionInitializer<ConnectFuture>() {
             @Override
             public void initializeSession(final IoSession parent, ConnectFuture future) {
-                // initializer for bridge session to specify bridge handler,
-                // and call user-defined bridge session initializer if present
-                final IoSessionInitializer<T> httpSessionInitializer = createHttpSessionInitializer(handler, initializer);
-
-                // factory to create a new bridge session
-                Callable<DefaultHttpSession> createSession = createHttpSession(connectAddress, parent, httpSessionInitializer, httpConnectFuture);
-
-                HTTP_SESSION_FACTORY_KEY.set(parent, createSession);
+                HTTP_SESSION_FACTORY_KEY.set(parent, httpSessionFactory);
                 HTTP_CONNECT_FUTURE_KEY.set(parent, httpConnectFuture);
             }
 
@@ -289,12 +301,11 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     }
 
     // factory to create a new bridge session
-    private <T extends ConnectFuture> Callable<DefaultHttpSession> createHttpSession(final ResourceAddress connectAddress,
-                final IoSession parent, final IoSessionInitializer<T> httpSessionInitializer,
-                final ConnectFuture connectFuture) {
-        return new Callable<DefaultHttpSession>() {
+    private <T extends ConnectFuture> HttpSessionFactory createHttpSession(final ResourceAddress connectAddress,
+                final IoSessionInitializer<T> httpSessionInitializer, final ConnectFuture connectFuture) {
+        return new HttpSessionFactory() {
             @Override
-            public DefaultHttpSession call() throws Exception {
+            public DefaultHttpSession get(IoSession parent) throws Exception {
                 ResourceAddress transportAddress = LOCAL_ADDRESS.get(parent);
                 final ResourceAddress localAddress =
                         addressFactory.newResourceAddress(connectAddress, transportAddress);
@@ -323,15 +334,14 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
     private IoHandler bridgeHandler = new IoHandlerAdapter<IoSessionEx>() {
 
-
         @Override
         protected void doSessionOpened(IoSessionEx session) throws Exception {
 
             IoFilterChain filterChain = session.getFilterChain();
             addBridgeFilters(filterChain);
 
-            Callable<DefaultHttpSession> sessionFactory = HTTP_SESSION_FACTORY_KEY.remove(session);
-            DefaultHttpSession httpSession = sessionFactory.call();
+            HttpSessionFactory sessionFactory = HTTP_SESSION_FACTORY_KEY.remove(session);
+            DefaultHttpSession httpSession = sessionFactory.get(session);
 
             HTTP_SESSION_KEY.set(session, httpSession);
             HTTP_CONNECT_FUTURE_KEY.remove(session);
@@ -392,10 +402,19 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
             DefaultHttpSession httpSession = HTTP_SESSION_KEY.get(session);
             HttpMessage httpMessage = (HttpMessage) message;
+
             switch (httpMessage.getKind()) {
             case RESPONSE:
                 HttpResponseMessage httpResponse = (HttpResponseMessage)httpMessage;
                 HttpStatus httpStatus = httpResponse.getStatus();
+
+                Integer redirctBehavior = httpSession.getRemoteAddress().getOption(MAXIMUM_REDIRECTS);
+                // Handle temporary redirect (status 302), for example from http load balancer service
+                if (redirctBehavior != null && redirctBehavior > 0 && httpStatus == REDIRECT_FOUND) {
+                    followRedirect(httpSession, httpResponse);
+                    return;
+                }
+
                 httpSession.setStatus(httpStatus);
                 httpSession.setReason(httpResponse.getReason());
                 httpSession.setVersion(httpResponse.getVersion());
@@ -446,6 +465,44 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
             }
         }
 
+        private void followRedirect(DefaultHttpSession httpSession, HttpResponseMessage httpResponse) {
+            String location = httpResponse.getHeader(HEADER_LOCATION);
+//            
+            ResourceAddress newConnectAddress =
+                    addressFactory.newResourceAddress(URI.create(location).toString(), new ResourceOptions() {
+
+                        @Override
+                        public <T> T setOption(ResourceOption<T> key, T value) {
+                            return httpSession.getRemoteAddress().setOption(key, value);
+                        }
+
+                        @Override
+                        public <T> boolean hasOption(ResourceOption<T> key) {
+                            if(ResourceAddress.TRANSPORT_URI.equals(key) || ResourceAddress.TRANSPORT.equals(key) || ResourceAddress.TRANSPORTED_URI.equals(key)){
+                                return false;
+                            }
+                            return httpSession.getRemoteAddress().hasOption(key);
+                        }
+
+                        @Override
+                        public <T> T getOption(ResourceOption<T> key) {
+                            if(ResourceAddress.TRANSPORT_URI.equals(key) || ResourceAddress.TRANSPORT.equals(key) || ResourceAddress.TRANSPORTED_URI.equals(key)){
+                                return null;
+                            }
+                            if (HttpResourceAddress.MAXIMUM_REDIRECTS.equals(key)) {
+                                return (T) new Integer(((Integer) httpSession.getRemoteAddress().getOption(key)) - 1);
+                            }
+                            return httpSession.getRemoteAddress().getOption(key);
+                        }
+                    });
+
+            httpSession.setRemoteAddress(newConnectAddress);
+            schedulerProvider.submit(() -> {
+                final HttpSessionFactory httpSessionFactory = getReconnectSessionFactory(httpSession);
+                connectInternal0(new DefaultConnectFuture(), newConnectAddress, httpSession.getHandler(), httpSessionFactory);
+            });
+        }
+
         private void fireContentReceived(HttpSession session, HttpContentMessage content) {
             IoBufferEx buffer = content.asBuffer();
             if (buffer != null && buffer.hasRemaining()) {
@@ -459,4 +516,28 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
             }
         }
     };
+
+    interface HttpSessionFactory {
+
+        DefaultHttpSession get(IoSession parent) throws Exception;
+
+    }
+
+    private HttpSessionFactory getReconnectSessionFactory(final DefaultHttpSession httpSession) {
+        return parent -> {
+            ResourceAddress rmA = httpSession.getRemoteAddress();
+            String prot = rmA.getOption(ResourceAddress.NEXT_PROTOCOL);
+            if(prot == null){
+                // if next prot == null and HTTP is end of the line then
+                // we need to reset the parent as the close future
+                // of the session is tied to the old session
+                // and will close everything
+                httpSession.resetParent((IoSessionEx) parent);
+            }
+            HttpConnectProcessor processor = (HttpConnectProcessor) httpSession.getProcessor();
+            processor.finishConnect(httpSession);
+            return httpSession;
+        };
+    }
+
 }

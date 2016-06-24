@@ -44,6 +44,7 @@ public class HttpConnectorRule implements TestRule {
 
     private ResourceAddressFactory addressFactory;
     private HttpConnector httpConnector;
+    private Map<String, Object> connectOptions = new HashMap<>();
 
     @Override
     public Statement apply(Statement base, Description description) {
@@ -51,11 +52,14 @@ public class HttpConnectorRule implements TestRule {
     }
 
     public ConnectFuture connect(String connect, IoHandler connectHandler, IoSessionInitializer<? extends ConnectFuture> initializer) {
-        Map<String, Object> connectOptions = new HashMap<>();
         ResourceAddress connectAddress =
-                addressFactory.newResourceAddress(connect, connectOptions);
+                addressFactory.newResourceAddress(connect, getConnectOptions());
 
         return httpConnector.connect(connectAddress, connectHandler, initializer);
+    }
+
+    public Map<String, Object> getConnectOptions() {
+        return connectOptions;
     }
 
     private final class ConnectorStatement extends Statement {
@@ -93,6 +97,7 @@ public class HttpConnectorRule implements TestRule {
                 httpConnector = (HttpConnector)transportFactory.getTransport("http").getConnector();
                 httpConnector.setBridgeServiceFactory(serviceFactory);
                 httpConnector.setResourceAddressFactory(addressFactory);
+                httpConnector.setSchedulerProvider(schedulerProvider);
 
                 base.evaluate();
             } finally {

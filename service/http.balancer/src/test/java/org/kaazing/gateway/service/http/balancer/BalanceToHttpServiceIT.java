@@ -15,31 +15,35 @@
  */
 package org.kaazing.gateway.service.http.balancer;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
+import static org.junit.rules.RuleChain.outerRule;
+
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.test.util.MethodExecutionTrace;
 
-public class WsxBalancerIT {
+public class BalanceToHttpServiceIT {
+    private final K3poRule robot = new K3poRule();
 
-    private final K3poRule k3po = new K3poRule();
+    public TestRule timeout = new DisableOnDebug(new Timeout(10, TimeUnit.SECONDS));
+    public MethodExecutionTrace testExecutionTrace = new MethodExecutionTrace();
 
-    private final GatewayRule gateway = new GatewayRule() {
+    public GatewayRule gateway = new GatewayRule() {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                     // balancer service to echo
                     .service()
                         .type("balancer")
-                        .accept("ws://gateway.kaazing.com:8001/echo")
-                        .acceptOption("tcp.bind", "localhost:8001")
+                        .accept("http://localhost:8001/echo")
                         .crossOrigin()
                             .allowOrigin("*")
                         .done()
@@ -47,14 +51,12 @@ public class WsxBalancerIT {
                     // echo service
                     .service()
                         .type("echo")
-                        .accept("ws://node.kaazing.com:8001/echo")
-                        .balance("ws://gateway.kaazing.com:8001/echo")
-                        .acceptOption("tcp.bind", "localhost:8001")
+                        .accept("ws://localhost:8001/echo1")
+                        .balance("http://localhost:8001/echo")
                         .crossOrigin()
                             .allowOrigin("*")
                         .done()
                     .done()
-                    .property(EarlyAccessFeatures.WSX_302_REDIRECT.getPropertyName(), "true")
             .done();
 
             init(configuration);
@@ -63,12 +65,12 @@ public class WsxBalancerIT {
 
 
     @Rule
-    public TestRule chain = createRuleChain(gateway, k3po,  10, SECONDS);
+    public TestRule chain = outerRule(robot).around(gateway).around(timeout).around(testExecutionTrace);
 
     @Test
-    @Specification("wsx.balancer.request")
-    public void balancerFrameShouldIncludeClusterMembersURL() throws Exception {
-        k3po.finish();
+    @Specification("http.balancer.request")
+    public void getsRedirect() throws Exception {
+        robot.finish();
     }
 
 }
