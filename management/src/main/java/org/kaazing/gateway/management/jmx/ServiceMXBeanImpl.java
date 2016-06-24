@@ -240,8 +240,8 @@ public class ServiceMXBeanImpl implements ServiceMXBean {
             return;
         }
 
-        principalName = principalName.trim();
-        principalClassName = principalClassName.trim();
+        String principalTrim = principalName.trim();
+        String principalClassTrim = principalClassName.trim();
 
         Map<Long, Map<String, String>> sessionPrincipalMap = serviceManagementBean.getLoggedInSessions();
 
@@ -254,7 +254,7 @@ public class ServiceMXBeanImpl implements ServiceMXBean {
                 String value = principal.getValue();
 
                 // Case sensitive for both name and class-name.
-                if (key.equals(principalName) && (value.equals(principalClassName))) {
+                if (key.equals(principalTrim) && (value.equals(principalClassTrim))) {
                     SessionMXBean sessionBean = managementServiceHandler.getSessionMXBean(sessionId);
                     sessionBean.close();
                     serviceManagementBean.removeSessionManagementBean(sessionId);

@@ -20,6 +20,9 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.service.amqp.amqp091.filter.AmqpFilter;
 
+/**
+ * TODO Add class documentation
+ */
 public class AmqpTuneMessage extends AmqpConnectionMessage {
     private int   maxChannels;
     private int   maxFrameSize;
@@ -81,7 +84,7 @@ public class AmqpTuneMessage extends AmqpConnectionMessage {
     }
     
     public String toString() {
-        StringBuffer buffer = new StringBuffer("TUNE: ");
+    	StringBuffer buffer = new StringBuffer("TUNE: ");
         buffer.append("max-channels = '").append(maxChannels).append("'")
               .append("   max-frame-size = '").append(maxFrameSize).append("'")
               .append("   heartbeat-delay = '").append(heartbeatDelay).append("'");

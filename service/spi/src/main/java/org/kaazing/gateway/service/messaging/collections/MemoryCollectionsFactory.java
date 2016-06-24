@@ -118,7 +118,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
                 locks.put(owner, newLock);
                 lock = newLock;
             }
-            assert (lock != null);
+            assert lock != null;
             return lock;
         }
     }
@@ -494,7 +494,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
                     lock = newLock;
                 }
             }
-            assert (lock != null);
+            assert lock != null;
             return lock;
         }
 
@@ -521,7 +521,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @Override
         public boolean evict(Object key) {
             Object value = map.remove(key);
-            boolean removed = (value !=  null);
+            boolean removed = value !=  null;
             if (removed) {
                 EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_EVICTED, (K)key, (V) value);
                 listenerSupport.entryEvicted(event);
@@ -599,7 +599,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 	@Override
 	public V remove(Object key) {
             V value = map.remove(key);
-            boolean removed = (value !=  null);
+            boolean removed = value !=  null;
             if (removed) {
                 EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_REMOVED, (K)key, value);
                 listenerSupport.entryRemoved(event);

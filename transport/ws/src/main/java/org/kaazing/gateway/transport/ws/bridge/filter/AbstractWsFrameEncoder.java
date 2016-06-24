@@ -67,21 +67,14 @@ public abstract class AbstractWsFrameEncoder extends ProtocolEncoderAdapter {
         switch (message.getKind()) {
             case CONTINUATION:
                 return doContinuationEncode(allocator, flags, message);
-            case BINARY: {
+            case BINARY:
+            case PING:
+            case PONG:
                 return doBinaryEncode(allocator, flags, message);
-            }
-            case TEXT: {
+            case TEXT:
                 return doTextEncode(allocator, flags, message);
-            }
-            case PING: {
-                return doBinaryEncode(allocator, flags, message);
-            }
-            case PONG: {
-                 return doBinaryEncode(allocator, flags, message);
-            }
-            case CLOSE: {
+            case CLOSE:
                 return doCloseEncode(allocator, flags, (WsCloseMessage)message);
-            }
             default:
                 throw new IllegalStateException("Unrecognized frame type: " + message.getKind());
         }

@@ -282,8 +282,7 @@ public class SystemManagementMIB implements MOGroup {
                     throw new RuntimeException("SystemString incorrectly configured with unsupported operation: " + operation);
             }
 
-            OctetString val = (OctetString) Utils.stringToVariable(value);
-            return val;
+            return (OctetString) Utils.stringToVariable(value);
         }
     }
 

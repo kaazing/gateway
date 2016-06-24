@@ -62,7 +62,7 @@ public abstract class HttpStartMessage extends HttpMessage {
     }
     
     public boolean hasCookies() {
-        return (cookies != null && !cookies.isEmpty());
+        return cookies != null && !cookies.isEmpty();
     }
     
     public Iterator<HttpCookie> iterateCookies() {
@@ -70,39 +70,39 @@ public abstract class HttpStartMessage extends HttpMessage {
     }
     
 	public Set<HttpCookie> getCookies() {
-		Set<HttpCookie> cookies = getCookies(false);
-		return (cookies != null && !cookies.isEmpty()) ? unmodifiableSet(cookies) : EMPTY_COOKIES;
+		Set<HttpCookie> httpCookies = getCookies(false);
+		return (httpCookies != null && !httpCookies.isEmpty()) ? unmodifiableSet(httpCookies) : EMPTY_COOKIES;
 	}
 	
 	public void addCookie(HttpCookie cookie) {
 		if (cookie == null) {
 			throw new NullPointerException("cookie");
 		}
-		Set<HttpCookie> cookies = getCookies(true);
-		cookies.add(cookie);
+		Set<HttpCookie> httpCookies = getCookies(true);
+		httpCookies.add(cookie);
 	}
 	
 	public void removeCookie(HttpCookie cookie) {
         if (cookie == null) {
             throw new NullPointerException("cookie");
         }
-		Set<HttpCookie> cookies = getCookies(false);
-		if (cookies != null) {
-			cookies.remove(cookie);
+		Set<HttpCookie> httpCookies = getCookies(false);
+		if (httpCookies != null) {
+			httpCookies.remove(cookie);
 		}
 	}
 	
 	public void clearCookies() {
-		Set<HttpCookie> cookies = getCookies(false);
-		if (cookies != null) {
-			cookies.clear();
+		Set<HttpCookie> httpCookies = getCookies(false);
+		if (httpCookies != null) {
+			httpCookies.clear();
 		}
 	}
 	
 	public void setCookies(Collection<HttpCookie> newCookies) {
-		Set<HttpCookie> cookies = getCookies(true);
-		cookies.clear();
-		cookies.addAll(newCookies);
+		Set<HttpCookie> httpCookies = getCookies(true);
+		httpCookies.clear();
+		httpCookies.addAll(newCookies);
 	}
 
 	public void setHeader(String headerName, String headerValue) {
@@ -129,32 +129,32 @@ public abstract class HttpStartMessage extends HttpMessage {
 	}
 
 	public List<String> removeHeader(String headerName) {
-		Map<String, List<String>> headers = getHeaders(false);
+		Map<String, List<String>> headerMap = getHeaders(false);
 
-		if (headers != null) {
-			return headers.remove(headerName);
+		if (headerMap != null) {
+			return headerMap.remove(headerName);
 		}
 		
 		return EMPTY_HEADER;
 	}
 	
 	public void clearHeaders() {
-		Map<String, List<String>> headers = getHeaders(false);
+		Map<String, List<String>> headerMap = getHeaders(false);
 		
-		if (headers != null) {
-			headers.clear();
+		if (headerMap != null) {
+			headerMap.clear();
 		}
 	}
 	
 	public void setHeaders(Map<String, List<String>> newHeaders) {
-		Map<String, List<String>> headers = getHeaders(true);
-		headers.clear();
-		headers.putAll(newHeaders);
+		Map<String, List<String>> headerMap = getHeaders(true);
+		headerMap.clear();
+		headerMap.putAll(newHeaders);
 	}
 
 	public void putHeaders(Map<String, List<String>> newHeaders) {
-		Map<String, List<String>> headers = getHeaders(true);
-		headers.putAll(newHeaders);
+		Map<String, List<String>> headerMap = getHeaders(true);
+		headerMap.putAll(newHeaders);
 	}
 
     public Iterator<String> iterateHeaderNames() {
@@ -162,18 +162,18 @@ public abstract class HttpStartMessage extends HttpMessage {
     }
     
     public Set<String> getHeaderNames() {
-        Map<String, List<String>> headers = getHeaders(false);
-        return (headers != null && !headers.isEmpty()) ? unmodifiableSet(headers.keySet()) : EMPTY_HEADER_NAMES;
+        Map<String, List<String>> headerMap = getHeaders(false);
+        return (headerMap != null && !headerMap.isEmpty()) ? unmodifiableSet(headerMap.keySet()) : EMPTY_HEADER_NAMES;
     }
     
 	public Map<String, List<String>> getHeaders() {
-		Map<String, List<String>> headers = getHeaders(false);
-		return (headers != null && !headers.isEmpty()) ? unmodifiableMap(headers) : EMPTY_HEADERS;
+		Map<String, List<String>> headerMap = getHeaders(false);
+		return (headerMap != null && !headerMap.isEmpty()) ? unmodifiableMap(headerMap) : EMPTY_HEADERS;
 	}
 
     public Map<String, List<String>> getModifiableHeaders() {
-        Map<String, List<String>> headers = getHeaders(false);
-        return (headers != null && !headers.isEmpty()) ? headers : EMPTY_HEADERS;
+        Map<String, List<String>> headerMap = getHeaders(false);
+        return (headerMap != null && !headerMap.isEmpty()) ? headerMap : EMPTY_HEADERS;
     }
 
 	public List<String> getHeaderValues(String headerName) {
@@ -191,11 +191,11 @@ public abstract class HttpStartMessage extends HttpMessage {
 	}
 
     public boolean hasHeaders() {
-        return (headers != null && !headers.isEmpty());
+        return headers != null && !headers.isEmpty();
     }
 	
 	public boolean hasHeader(String headerName) {
-		return (headers != null && headers.containsKey(headerName));
+		return headers != null && headers.containsKey(headerName);
 	}
 	
 	public void setVersion(HttpVersion version) {
@@ -231,15 +231,15 @@ public abstract class HttpStartMessage extends HttpMessage {
 	protected abstract Map<String, List<String>> createHeaders();
 
 	public List<String> getHeaderValues(String headerName, boolean createIfNull) {
-		Map<String, List<String>> headers = getHeaders(createIfNull);
-		if (headers == null) {
-			return null;
+		Map<String, List<String>> headerMap = getHeaders(createIfNull);
+		if (headerMap == null) {
+			return Collections.emptyList();
 		}
 		
-		List<String> headerValues = headers.get(headerName);
+		List<String> headerValues = headerMap.get(headerName);
 		if (headerValues == null && createIfNull) {
 			headerValues = new LinkedList<>();
-			headers.put(headerName, headerValues);
+			headerMap.put(headerName, headerValues);
 		}
 		return headerValues;
 	}
@@ -263,10 +263,11 @@ public abstract class HttpStartMessage extends HttpMessage {
 	}
 	
 	protected boolean equals(HttpStartMessage that) {
-	    return (sameOrEquals(this.version, that.version) &&
-	            sameOrEquals(this.headers, that.headers) &&
-	            sameOrEquals(this.cookies, that.cookies) &&
-	            sameOrEquals(this.content, that.content));
+	    return that != null && 
+	    	   sameOrEquals(this.version, that.version) &&
+	           sameOrEquals(this.headers, that.headers) &&
+	           sameOrEquals(this.cookies, that.cookies) &&
+	           sameOrEquals(this.content, that.content);
 	}
 
     static boolean sameOrEquals(Object this_, Object that) {

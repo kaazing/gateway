@@ -15,6 +15,9 @@
  */
 package org.kaazing.gateway.transport.http.security.auth.token;
 
+/**
+ * TODO Add class documentation
+ */
 public class DefaultAuthenticationTokenExtractor extends AbstractAuthenticationTokenExtractor {
 
     public static final DefaultAuthenticationTokenExtractor INSTANCE = new DefaultAuthenticationTokenExtractor();

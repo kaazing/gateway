@@ -22,6 +22,9 @@ import org.kaazing.gateway.service.proxy.ProxyService;
 import org.kaazing.gateway.service.proxy.ProxyServiceHandler;
 import org.slf4j.Logger;
 
+/**
+ * TODO Add class documentation
+ */
 public class AmqpProxyService extends ProxyService {
     private Logger logger;
 

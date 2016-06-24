@@ -128,8 +128,12 @@ public class ExtensionHeaderBuilder implements ExtensionHeader {
     // Default equality is by extension token, ignoring parameters.
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || !(o instanceof ExtensionHeader)) return false;
+        if (this == o) {
+        	return true;
+        }
+        if (o == null || !(o instanceof ExtensionHeader)) {
+        	return false;
+        }
 
         ExtensionHeader that = (ExtensionHeader) o;
 

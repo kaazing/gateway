@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FullManagementGatewayStrategy extends CollectOnlyManagementGatewayStrategy {
 
-    private static final Logger logger = LoggerFactory.getLogger(FullManagementGatewayStrategy.class);
+//    private static final Logger logger = LoggerFactory.getLogger(FullManagementGatewayStrategy.class);
 
     public FullManagementGatewayStrategy() {
     }

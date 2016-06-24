@@ -99,7 +99,7 @@ import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.aws.AwsUtils;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
-import org.kaazing.gateway.util.ssl.SslCipherSuites;
+//import org.kaazing.gateway.util.ssl.SslCipherSuites;
 import org.slf4j.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -191,12 +191,12 @@ public class GatewayContextResolver {
         this.jmxMBeanServer = mbeanServer;
         this.loginModuleClassNames = new HashMap<>();
 
-        Map<String, LoginModuleControlFlag> loginModuleControlFlags = new HashMap<>();
-        loginModuleControlFlags.put("optional", LoginModuleControlFlag.OPTIONAL);
-        loginModuleControlFlags.put("required", LoginModuleControlFlag.REQUIRED);
-        loginModuleControlFlags.put("requisite", LoginModuleControlFlag.REQUISITE);
-        loginModuleControlFlags.put("sufficient", LoginModuleControlFlag.SUFFICIENT);
-        this.loginModuleControlFlags = loginModuleControlFlags;
+        Map<String, LoginModuleControlFlag> loginModuleControlFlagMap = new HashMap<>();
+        loginModuleControlFlagMap.put("optional", LoginModuleControlFlag.OPTIONAL);
+        loginModuleControlFlagMap.put("required", LoginModuleControlFlag.REQUIRED);
+        loginModuleControlFlagMap.put("requisite", LoginModuleControlFlag.REQUISITE);
+        loginModuleControlFlagMap.put("sufficient", LoginModuleControlFlag.SUFFICIENT);
+        this.loginModuleControlFlags = loginModuleControlFlagMap;
 
         this.schemeConfigsByName = new HashMap<>();
 
@@ -383,8 +383,7 @@ public class GatewayContextResolver {
             schemeConfig = findSchemeConfig(schemeName);
             if (schemeConfig == null) {
                 throw new IllegalArgumentException("Missing scheme \"" + schemeName + "\"");
-            }
-            if (schemeConfig != null) {
+            } else {
                 schemeConfigsByName.put(schemeName, schemeConfig);
             }
         }
@@ -482,7 +481,7 @@ public class GatewayContextResolver {
                     serviceClass = (Class<? extends Service>) clazz;
                     serviceInstance = serviceClass.newInstance();
                 } catch (ClassNotFoundException e) {
-                    throw new IllegalArgumentException("Unknown gateway service class: " + className);
+                    throw new IllegalArgumentException("Unknown gateway service class: " + className, e);
                 }
             } else {
                 serviceInstance = serviceFactory.newService(serviceType);
@@ -644,7 +643,7 @@ public class GatewayContextResolver {
             Key encryptionKey = null;
 
             if (serviceRealmContext == null &&
-                    requireRolesCollection.size() > 0) {
+                    !requireRolesCollection.isEmpty()) {
 
                 throw new IllegalArgumentException("Authorization constraints require a " +
                         "specified realm-name for service \"" + serviceDescription + "\"");
@@ -699,7 +698,7 @@ public class GatewayContextResolver {
             Node node = childNodes.item(i);
             if (Node.ELEMENT_NODE == node.getNodeType()) {
                 NodeList content = node.getChildNodes();
-                String nodeValue = "";
+                StringBuilder nodeValue = new StringBuilder();
                 boolean isSimpleProperty = true;
                 for (int j = 0; j < content.getLength(); j++) {
                     Node child = content.item(j);
@@ -715,14 +714,14 @@ public class GatewayContextResolver {
                             // the parser coughs up text content as more than one Text node.
                             String fragment = child.getNodeValue();
                             if (fragment != null) {
-                                nodeValue = nodeValue + fragment;
+                                nodeValue.append(fragment);
                             }
                         }
                         // Skip over other node types
                     }
                 }
                 if (isSimpleProperty) {
-                    properties.put(node.getLocalName(), nodeValue);
+                    properties.put(node.getLocalName(), nodeValue.toString());
                 }
             }
         }
@@ -741,27 +740,28 @@ public class GatewayContextResolver {
         String schemeName = getScheme(uri);
         SchemeConfig schemeConfig = supplySchemeConfig(schemeName);
         int defaultPort = schemeConfig.getDefaultPort();
-        if (getPort(uri) == -1) {
+        String uriResolved = uri;
+        if (getPort(uriResolved) == -1) {
             if (defaultPort == -1) {
-                LOGGER.error("Missing port number in URI \"" + uri
+                LOGGER.error("Missing port number in URI \"" + uriResolved
                         + "\". You must include an explicit port number in this URI in your gateway configuration file.");
-                throw new IllegalArgumentException("Missing port for URI \"" + uri + "\"");
+                throw new IllegalArgumentException("Missing port for URI \"" + uriResolved + "\"");
             }
             if (defaultPort != 0) {
-                String host = getHost(uri);
-                String path = getPath(uri);
-                String query = getQuery(uri);
-                String fragment = getFragment(uri);
-                uri = buildURIAsString(schemeName, null, host, defaultPort, path, query, fragment);
+                String host = getHost(uriResolved);
+                String path = getPath(uriResolved);
+                String query = getQuery(uriResolved);
+                String fragment = getFragment(uriResolved);
+                uriResolved = buildURIAsString(schemeName, null, host, defaultPort, path, query, fragment);
             }
         } else {
             if (defaultPort == 0) {
-                LOGGER.error("Port number not allowed in URI \"" + uri
+                LOGGER.error("Port number not allowed in URI \"" + uriResolved
                         + "\". You must remove the port number from this URI in your gateway configuration file.");
-                throw new IllegalArgumentException("Port not allowed in URI \"" + uri + "\"");
+                throw new IllegalArgumentException("Port not allowed in URI \"" + uriResolved + "\"");
             }
         }
-        return uri;
+        return uriResolved;
     }
 
     private ClusterContext resolveCluster(ClusterType clusterConfig,
@@ -774,7 +774,7 @@ public class GatewayContextResolver {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Invalid name in the cluster configuration");
         }
-        name = name.trim();
+//        name = name.trim();
 
         final ClusterConnectOptionsType connectOptions = clusterConfig.getConnectOptions();
         ClusterConnectOptionsContext connectOptionsContext = new ClusterConnectOptionsContext() {
@@ -792,7 +792,7 @@ public class GatewayContextResolver {
         List<MemberId> accepts = processClusterMembers(clusterConfig.getAcceptArray(), "<accept>", null, -1);
 
         // The first accepts port is the port used by all network interfaces.
-        int clusterPort = (accepts.size() > 0) ? accepts.get(0).getPort() : -1;
+        int clusterPort = !accepts.isEmpty() ? accepts.get(0).getPort() : -1;
 
         List<MemberId> connects =
                 processClusterMembers(clusterConfig.getConnectArray(), "<connect>", connectOptions, clusterPort);
@@ -820,14 +820,14 @@ public class GatewayContextResolver {
                 }
 
                 String scheme = getScheme(uri);
-                if ((scheme.equals("tcp")) || scheme.equals("udp") || scheme.equals("aws")) {
+                if ((("tcp").equals(scheme)) || ("udp").equals(scheme) || ("aws").equals(scheme)) {
                     int port = getPort(uri);
                     if (port == -1) {
                         GL.error("ha", "Port number is missing while processing {} for {}", processing, member);
                         throw new IllegalArgumentException("Invalid port number specified for " + processing + ": " + member);
                     }
                     String host = getHost(uri);
-                    if (scheme.equals("aws")) {
+                    if (("aws").equals(scheme)) {
                         // There should be ONLY one <connect></connect> tag with
                         // aws:// scheme in the <cluster></cluster> tag for
                         // AWS auto-discovery.
@@ -850,7 +850,7 @@ public class GatewayContextResolver {
                                              String processing,
                                              int clusterPort,
                                              int collectionLength) {
-        if (!AwsUtils.isDeployedToAWS() || !processing.equals("<connect>")) {
+        if (!AwsUtils.isDeployedToAWS() || !("<connect>").equals(processing)) {
             GL.error("ha", "Unrecognized scheme {} for {} in {}",
                     getScheme(uri), processing, uri);
             throw new IllegalStateException("Invalid scheme " + getScheme(uri)
@@ -880,14 +880,14 @@ public class GatewayContextResolver {
         }
 
         String scheme = getScheme(uri);
-        if (!scheme.equalsIgnoreCase("aws")) {
+        if (!("aws").equalsIgnoreCase(scheme)) {
             throw new IllegalStateException("Invalid scheme '" + scheme +
                     "' specified in the URI " + uri +
                     " instead of 'aws:'");
         }
 
         String host = getHost(uri);
-        if (!host.equalsIgnoreCase("security-group")) {
+        if (!("security-group").equalsIgnoreCase(host)) {
             throw new IllegalStateException("Invalid host '" + host +
                     "' specified in the URI " + uri +
                     " instead of 'security-group'");
@@ -1159,8 +1159,8 @@ public class GatewayContextResolver {
      * @return
      */
     private boolean supportsAccepts(String serviceType) {
-        return !serviceType.equals("management.jmx") &&
-                !serviceType.equals("$management.jmx$");
+        return !("management.jmx").equals(serviceType) &&
+                !("$management.jmx$").equals(serviceType);
     }
 
     /**
@@ -1170,13 +1170,13 @@ public class GatewayContextResolver {
      * @return
      */
     private boolean supportsConnects(String serviceType) {
-        return !serviceType.equals("jms") &&
-                !serviceType.equals("echo") &&
-                !serviceType.equals("management.jmx") &&
-                !serviceType.equals("$management.jmx$") &&
-                !serviceType.equals("management.snmp") &&
-                !serviceType.equals("$management.snmp$") &&
-                !serviceType.equals("directory");
+        return !("jms").equals(serviceType) &&
+                !("echo").equals(serviceType) &&
+                !("management.jmx").equals(serviceType) &&
+                !("$management.jmx$").equals(serviceType) &&
+                !("management.snmp").equals(serviceType) &&
+                !("$management.snmp$").equals(serviceType) &&
+                !("directory").equals(serviceType);
     }
 
     /**
@@ -1187,7 +1187,7 @@ public class GatewayContextResolver {
      * @return
      */
     private boolean supportsMimeMappings(String serviceType) {
-        return serviceType.equals("directory");
+        return ("directory").equals(serviceType);
     }
 
 
@@ -1218,17 +1218,18 @@ public class GatewayContextResolver {
                                  Map<String, Object> injectables) {
 
         // add all of the transport acceptors, connectors and extensions
-        injectables = bridgeServiceFactory.getTransportFactory().injectResources(injectables);
+    	Map<String, Object> injectableMap = injectables;
+    	injectableMap = bridgeServiceFactory.getTransportFactory().injectResources(injectableMap);
 
         // inject services
         for (ServiceContext serviceContext : services) {
-            injectResources(serviceContext.getService(), injectables);
+            injectResources(serviceContext.getService(), injectableMap);
         }
 
         // in case any of the DependencyContexts have dependencies on each other,
         // or the other resources added to the map, inject resources for them as well.
         for (Object obj : dependencyContexts.values()) {
-            injectResources(obj, injectables);
+            injectResources(obj, injectableMap);
         }
     }
 

@@ -15,7 +15,7 @@
  */
 package org.kaazing.gateway.transport.wsn;
 
-import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT_OPTION;
 
 import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.transport.ws.AbstractWsAcceptProcessor;
@@ -28,7 +28,7 @@ public class WsnAcceptProcessor extends AbstractWsAcceptProcessor<WsnSession> {
     @Override
     protected Object getMessageFromWriteRequest(WsnSession session, WriteRequest request) {
         Object message = super.getMessageFromWriteRequest(session, request);
-        boolean unwrapWsMessages = session.getLocalAddress().getOption(LIGHTWEIGHT);
+        boolean unwrapWsMessages = session.getLocalAddress().getOption(LIGHTWEIGHT_OPTION);
         if (unwrapWsMessages && message instanceof WsMessage) {
             WsMessage wsMessage = (WsMessage)message;
             IoBufferEx ioBufferEx = ((WsMessage) message).getBytes();
@@ -60,6 +60,6 @@ public class WsnAcceptProcessor extends AbstractWsAcceptProcessor<WsnSession> {
 
     @Override
     protected boolean shouldAccountForWrittenBytes(WsnSession session) {
-        return !session.getLocalAddress().getOption(LIGHTWEIGHT);
+        return !session.getLocalAddress().getOption(LIGHTWEIGHT_OPTION);
     }
 }

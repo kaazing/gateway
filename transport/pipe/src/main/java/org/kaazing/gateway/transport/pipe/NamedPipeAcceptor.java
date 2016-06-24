@@ -57,8 +57,7 @@ public class NamedPipeAcceptor extends AbstractBioAcceptor<NamedPipeAddress> {
 
 	@Override
 	protected IoAcceptor initAcceptor() {
-		NamedPipeAcceptorImpl acceptor = new NamedPipeAcceptorImpl();
-		return acceptor;
+		return new NamedPipeAcceptorImpl();
 	}
 
 	@Override

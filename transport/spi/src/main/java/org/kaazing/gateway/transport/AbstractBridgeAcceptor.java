@@ -15,7 +15,7 @@
  */
 package org.kaazing.gateway.transport;
 
-import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
+import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.BIND_ALTERNATE;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static java.lang.String.format;
@@ -38,6 +38,12 @@ import org.kaazing.mina.core.future.UnbindFuture;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionConfigEx;
 
+/**
+ * TODO Add class documentation
+ * 
+ * @param <T> AbstractBridgeSession type
+ * @param <B> Binding type
+ */
 public abstract class AbstractBridgeAcceptor<T extends AbstractBridgeSession<?,?>, B extends Binding> extends AbstractBridgeService<T> implements
         BridgeAcceptor {
 
@@ -66,11 +72,12 @@ public abstract class AbstractBridgeAcceptor<T extends AbstractBridgeSession<?,?
         if (binding != null) {
             return binding.handler();
         }
-        System.out.println(String.format("ERROR in getHandler: bindings: %s\naddress: %s", bindings, address));
+        //changed from System.out.println
+        logger.warn(String.format("ERROR in getHandler: bindings: %s\naddress: %s", bindings, address));
         return null;
     }
 
-    protected IoSessionInitializer<?> getInitializer(ResourceAddress address) {
+    protected IoSessionInitializer getInitializer(ResourceAddress address) {
         Binding binding = bindings.getBinding(address);
         if (binding != null) {
             return binding.initializer();
@@ -97,6 +104,7 @@ public abstract class AbstractBridgeAcceptor<T extends AbstractBridgeSession<?,?
         // bind only address with matching scheme
         URI location = address.getResource();
         String schemeName = location.getScheme();
+        ResourceAddress bindAddress = address;
         if (!canBind(schemeName)) {
             throw new IllegalArgumentException(format("Unexpected scheme \"%s\" for URI: %s", schemeName, location));
         }
@@ -112,24 +120,24 @@ public abstract class AbstractBridgeAcceptor<T extends AbstractBridgeSession<?,?
 
         boolean bindAlternate;
         do {
-            bindAlternate = address.getOption(BIND_ALTERNATE);
+            bindAlternate = bindAddress.getOption(BIND_ALTERNATE);
             //
             // add binding, expecting no clashing (according to BINDINGS_COMPARATOR)
             //
-            Binding newBinding = new Binding(address, handler, initializer);
+            Binding newBinding = new Binding(bindAddress, handler, initializer);
             Binding oldBinding = bindings.addBinding(newBinding);
 
             //System.out.println(getClass().getSimpleName()+"@"+hashCode()+" binding: "+address.getExternalURI()+" -- "+address.getOption(NEXT_PROTOCOL));
 
             if (oldBinding != null) {
-                throw new RuntimeException("Unable to bind address " + address
+                throw new RuntimeException("Unable to bind address " + bindAddress
                         + " because it collides with an already bound address " + oldBinding.bindAddress());
             }
 
-            bindInternal(address, handler, initializer);
-            address = address.getOption(ALTERNATE);
+            bindInternal(bindAddress, handler, initializer);
+            bindAddress = bindAddress.getOption(ALTERNATE_OPTION);
             
-        } while (address != null && bindAlternate);
+        } while (bindAddress != null && bindAlternate);
     }
 
     protected abstract <F extends IoFuture>
@@ -138,21 +146,22 @@ public abstract class AbstractBridgeAcceptor<T extends AbstractBridgeSession<?,?
     @Override
     public final UnbindFuture unbind(ResourceAddress address) {
         UnbindFuture future = null;
+        ResourceAddress unbindAddress = address;
 
         boolean unbindAlternate;
         do {
 
             //System.out.println(getClass().getSimpleName()+"@"+hashCode()+" unbinding: "+address.getExternalURI()+" -- "+address.getOption(NEXT_PROTOCOL));
-            unbindAlternate = address.getOption(BIND_ALTERNATE);
+            unbindAlternate = unbindAddress.getOption(BIND_ALTERNATE);
 
-            Binding binding = bindings.getBinding(address);
-            bindings.removeBinding(address, binding);
+            Binding binding = bindings.getBinding(unbindAddress);
+            bindings.removeBinding(unbindAddress, binding);
             // Using address (instead of binding.bindAddress()) as two different addresses may have the same binding
             // due to alternates. For example: sse (with http transport) has alternate sse(with httpxe transport)
             // Say, they are A and its alternate B. A and B share the same binding as alternates comparator consider
             // A and B are equal. Unbinding A happens fine. While unbinding B, the binding.bindAddress() would be A
             // with alternate B and this would cause problems(as A is already used for unbinding).
-            UnbindFuture newFuture = unbindInternal(address,
+            UnbindFuture newFuture = unbindInternal(unbindAddress,
                     binding.handler(),
                     binding.initializer());
 
@@ -163,9 +172,9 @@ public abstract class AbstractBridgeAcceptor<T extends AbstractBridgeSession<?,?
                 future = newFuture;
             }
 
-            address = address.getOption(ALTERNATE);
+            unbindAddress = unbindAddress.getOption(ALTERNATE_OPTION);
             
-        } while (address != null && unbindAlternate);
+        } while (unbindAddress != null && unbindAlternate);
         
         return future;
     }

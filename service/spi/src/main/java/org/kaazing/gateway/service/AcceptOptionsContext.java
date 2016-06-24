@@ -44,6 +44,9 @@ public interface AcceptOptionsContext {
      */
     Map<String, String> getBinds();
 
+    /**
+     * TODO Add class documentation
+     */
     class Wrapper implements AcceptOptionsContext {
 
         private final AcceptOptionsContext delegate;

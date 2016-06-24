@@ -20,7 +20,9 @@ import java.util.HashSet;
 
 import org.kaazing.gateway.security.auth.config.RoleConfig;
 
-
+/**
+ * TODO Add class documentation
+ */
 public class DefaultRoleConfig implements RoleConfig {
 
     private String name;

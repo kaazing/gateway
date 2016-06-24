@@ -20,7 +20,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertSame;
 import static org.jboss.netty.util.CharsetUtil.UTF_8;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
 import static org.kaazing.gateway.transport.http.HttpStatus.CLIENT_NOT_FOUND;
 import static org.kaazing.gateway.transport.http.HttpStatus.REDIRECT_FOUND;
@@ -132,7 +132,7 @@ public class HttpxeTransportTest {
     public void shouldBindAndUnbindLeavingEmptyBindingsMaps() throws Exception {
 
         Map<String, Object> acceptOptions = new HashMap<>();
-        acceptOptions.put(TRANSPORT.name(), "pipe://transport");
+        acceptOptions.put(TRANSPORT_OPTION.name(), "pipe://transport");
 
         final String connectURIString = "httpxe://localhost:8000/path";
         final ResourceAddress bindAddress =

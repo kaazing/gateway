@@ -57,12 +57,12 @@ public final class UdpResourceAddress extends ResourceAddress {
                 case MAXIMUM_OUTBOUND_RATE:
                     return (V) Long.valueOf(maximumOutboundRate);
                 case INTERFACE:
-                NetworkInterface udpInterface2 = getUpdInterface();
-                if(udpInterface2 == null){
-                    return null;
-                } else {
-                    return (V) udpInterface2.getDisplayName();
-                }
+	                NetworkInterface udpInterface2 = getUpdInterface();
+	                if(udpInterface2 == null){
+	                    return null;
+	                } else {
+	                    return (V) udpInterface2.getDisplayName();
+	                }
             }
         }
 		
@@ -88,7 +88,7 @@ public final class UdpResourceAddress extends ResourceAddress {
                             updInterface = NetworkInterface.getByName(udpInterfaceName);
                         } catch (SocketException e) {
                             throw new RuntimeException(String.format("Network interface %s on udp interface does not exist",
-                                    udpInterfaceName));
+                                    udpInterfaceName), e);
                         }
                     }
                     return;

@@ -51,9 +51,7 @@ public class EncodingFilter extends WriteRequestFilterEx {
 
         IoSessionEx sessionEx = (IoSessionEx) session;
         IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
-        IoBufferEx encodedEx = allocator.wrap(encoded, decodedEx.flags());
-
-        return encodedEx;
+        return allocator.wrap(encoded, decodedEx.flags());
     }
 
     @Override

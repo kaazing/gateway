@@ -18,6 +18,9 @@ package org.kaazing.gateway.management.jmx;
 import javax.management.ObjectName;
 import org.kaazing.gateway.management.system.CpuListManagementBean;
 
+/**
+ * TODO Add class documentation
+ */
 public class CpuListMXBeanImpl implements CpuListMXBean {
 
     /*

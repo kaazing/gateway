@@ -32,6 +32,12 @@ import org.kaazing.mina.core.session.AbstractIoSessionEx;
 import org.kaazing.mina.core.session.IoSessionConfigEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 
+/**
+ * TODO Add class documentation
+ * 
+ * @param <S> IoSession type
+ * @param <B> IoBuffer type
+ */
 public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoBufferEx> extends AbstractIoSessionEx implements BridgeSession {
 
     private final IoProcessorEx<S> processor;
@@ -233,19 +239,18 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
     
     @Override
     protected void setIoAlignment0(Thread ioThread, Executor ioExecutor) {
-        IoSessionEx parent = this.parent.get();
-        if (parent != null) {
-            parent.setIoAlignment(ioThread, ioExecutor);
+        IoSessionEx sessionParent = this.parent.get();
+        if (sessionParent != null) {
+        	sessionParent.setIoAlignment(ioThread, ioExecutor);
         }
     }
 
     @Override
     protected void suspendRead1() {
         suspendRead2();
-
-        IoSession parent = this.parent.get();
-        if (parent != null) {
-            parent.suspendRead();
+        IoSession sessionParent = this.parent.get();
+        if (sessionParent != null) {
+        	sessionParent.suspendRead();
         }
     }
     
@@ -257,10 +262,9 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
     protected void resumeRead1() {
         // call super first to trigger processor.consume()
         resumeRead2();
-
-        IoSession parent = this.parent.get();
-        if (parent != null) {
-            parent.resumeRead();
+        IoSession sessionParent = this.parent.get();
+        if (sessionParent != null) {
+        	sessionParent.resumeRead();
         }
     }
 
@@ -283,6 +287,7 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
     /**
      * TODO: remove when SocksSession "upgrades" like HttpSession for WebSocket handshake (SocksSession
      * should eject itself from the transport layer hierarchy)
+     * @deprecated
      */
     @Deprecated
     public void reset() {
@@ -300,6 +305,9 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
         }
     }
 
+    /**
+     * @deprecated
+     */
     @SuppressWarnings("unchecked")
     @Deprecated
     private void reset0() {
@@ -320,8 +328,7 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
             sb.append('(').append(getIdAsString()).append(": ").append(getServiceName());
             sb.append(", server, ").append(externalRemoteURI).append(" => ");
             sb.append(externalLocalURI).append(')');
-            String result = sb.toString();
-            return result;
+            return sb.toString();
         } else {
             return "(" + getIdAsString() + ": " + getServiceName() + ", client, " +
                     externalLocalURI + " => " + externalRemoteURI + ')';
@@ -358,9 +365,9 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
         public void setIdleTime(IdleStatus status, int idleTime) {
             // Don't allow setAll to overwrite idle time settings on the parent, grandparent, etc.
             if (propagateIdleTime) {
-                IoSessionEx parent = AbstractBridgeSession.this.parent.get();
-                if (parent != null) {
-                    parent.getConfig().setIdleTime(status, idleTime);
+                IoSessionEx sessionParent = AbstractBridgeSession.this.parent.get();
+                if (sessionParent != null) {
+                	sessionParent.getConfig().setIdleTime(status, idleTime);
                 }
                 else {
                     super.setIdleTime(status, idleTime);
@@ -372,9 +379,9 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
         public void setIdleTimeInMillis(IdleStatus status, long idleTimeMillis) {
             // Don't allow setAll to overwrite idle time settings on the parent, grandparent, etc.
             if (propagateIdleTime) {
-                IoSessionEx parent = AbstractBridgeSession.this.parent.get();
-                if (parent != null) {
-                    IoSessionConfigEx config = parent.getConfig();
+                IoSessionEx sessionParent = AbstractBridgeSession.this.parent.get();
+                if (sessionParent != null) {
+                    IoSessionConfigEx config = sessionParent.getConfig();
                     config.setIdleTimeInMillis(status, idleTimeMillis);
                 }
             }
@@ -382,9 +389,9 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
 
         @Override
         public int getIdleTime(IdleStatus status) {
-            IoSessionEx parent = AbstractBridgeSession.this.parent.get();
-            if (parent != null) {
-                return parent.getConfig().getIdleTime(status);
+            IoSessionEx sessionParent = AbstractBridgeSession.this.parent.get();
+            if (sessionParent != null) {
+                return sessionParent.getConfig().getIdleTime(status);
             }
             else {
                 return super.getIdleTime(status);
@@ -393,9 +400,9 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
 
         @Override
         public long getIdleTimeInMillis(IdleStatus status) {
-            IoSessionEx parent = AbstractBridgeSession.this.parent.get();
-            if (parent != null) {
-                IoSessionConfigEx config = parent.getConfig();
+            IoSessionEx sessionParent = AbstractBridgeSession.this.parent.get();
+            if (sessionParent != null) {
+                IoSessionConfigEx config = sessionParent.getConfig();
                 return config.getIdleTimeInMillis(status);
             }
             else {
@@ -405,6 +412,7 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
 
         @Override
         protected void doSetAll(IoSessionConfigEx config) {
+        	// FIXME: do we need this?
         }
     }
 

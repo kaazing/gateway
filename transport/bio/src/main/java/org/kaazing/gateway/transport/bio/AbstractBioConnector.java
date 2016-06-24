@@ -40,6 +40,11 @@ import org.kaazing.gateway.transport.NamedPipeAddress;
 import org.kaazing.gateway.transport.SocketAddressFactory;
 import org.slf4j.Logger;
 
+/**
+ * TODO Add class documentation
+ * 
+ * @param <T> SocketAddress type
+ */
 public abstract class AbstractBioConnector<T extends SocketAddress> implements BridgeConnector {
 
     private IoConnector connector;
@@ -114,8 +119,8 @@ public abstract class AbstractBioConnector<T extends SocketAddress> implements B
         final String nextProtocol = remoteAddress.getOption(ResourceAddress.NEXT_PROTOCOL);
         ResourceAddress transport = remoteAddress.getTransport();
         if (transport != null) {
-            BridgeConnector connector = bridgeServiceFactory.newBridgeConnector(transport);
-            future = connector.connect(transport, handler, new IoSessionInitializer<F>() {
+            BridgeConnector bridgeConnector = bridgeServiceFactory.newBridgeConnector(transport);
+            future = bridgeConnector.connect(transport, handler, new IoSessionInitializer<F>() {
                 @Override
                 public void initializeSession(IoSession session, F future) {
                     REMOTE_ADDRESS.set(session, remoteAddress);

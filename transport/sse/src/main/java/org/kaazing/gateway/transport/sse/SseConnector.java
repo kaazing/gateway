@@ -65,16 +65,16 @@ public class SseConnector extends AbstractBridgeConnector<SseSession> {
 
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory resourceAddressFactory;
+    
+    private IoFilter sseCodec;
+    
+    public SseConnector() {
+        super(new DefaultSseSessionConfig());
+    }
 
     @Resource(name = "bridgeServiceFactory")
     public void setBridgeServiceFactory(BridgeServiceFactory bridgeServiceFactory) {
         this.bridgeServiceFactory = bridgeServiceFactory;
-    }
-
-    private IoFilter sseCodec;
-
-    public SseConnector() {
-        super(new DefaultSseSessionConfig());
     }
 
     @Resource(name = "schedulerProvider")
@@ -111,7 +111,7 @@ public class SseConnector extends AbstractBridgeConnector<SseSession> {
 
     @Override
     protected boolean canConnect(String transportName) {
-        return transportName.equals("sse");
+        return ("sse").equals(transportName);
     }
 
     @Override
@@ -277,7 +277,7 @@ public class SseConnector extends AbstractBridgeConnector<SseSession> {
         @Override
         protected void doSessionClosed(HttpSession session) throws Exception {
             final SseSession sseSession = SSE_SESSION_KEY.remove(session);
-            assert (sseSession != null);
+            assert sseSession != null;
 
             // TODO: move redirect handling to HttpConnector (optionally)
             switch (session.getStatus()) {

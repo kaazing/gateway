@@ -23,6 +23,9 @@ import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 
+/**
+ * TODO Add class documentation
+ */
 public abstract class AbstractInboundEventFilter extends IoFilterAdapter {
 
     private final TypedAttributeKey<Queue<InboundEvent>> inboundEventsKey = 

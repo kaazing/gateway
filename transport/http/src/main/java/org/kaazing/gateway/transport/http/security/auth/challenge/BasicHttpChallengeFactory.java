@@ -18,6 +18,9 @@ package org.kaazing.gateway.transport.http.security.auth.challenge;
 
 import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
 
+/**
+ * TODO Add class documentation
+ */
 public class BasicHttpChallengeFactory extends HttpChallengeFactoryAdapter {
 
     @Override

@@ -36,6 +36,11 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.service.AbstractIoProcessor;
 import org.kaazing.mina.core.session.IoSessionEx;
 
+/**
+ * TODO Add class documentation
+ * 
+ * @param <T> AbstractBridgeSession type
+ */
 public abstract class AbstractBridgeProcessor<T extends AbstractBridgeSession<?, ?>> extends AbstractIoProcessor<T> {
 
     private final ConcurrentHashMap<SocketAddress, IoSession> sessionMap;

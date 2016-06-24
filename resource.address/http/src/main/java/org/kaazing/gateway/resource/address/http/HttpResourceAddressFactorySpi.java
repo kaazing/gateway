@@ -47,7 +47,7 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.TRAN
 import java.io.File;
 import java.net.URI;
 import java.security.Principal;
-import java.util.Arrays;
+//import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -242,7 +242,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
             options.setOption(IDENTITY_RESOLVER, httpIdentityResolver);
         }
         else {
-            if (realmUserPrincipalClasses != null && realmUserPrincipalClasses.size() > 0) {
+            if (realmUserPrincipalClasses != null && !realmUserPrincipalClasses.isEmpty()) {
                 httpIdentityResolver = new HttpIdentityResolver(realmUserPrincipalClasses);
                 options.setOption(IDENTITY_RESOLVER, httpIdentityResolver);
             }
@@ -278,7 +278,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
             }
 
             // save the alternate chain into this address.
-            options.setOption(ResourceAddress.ALTERNATE, alternateAddress);
+            options.setOption(ResourceAddress.ALTERNATE_OPTION, alternateAddress);
         }
     }
 
@@ -335,7 +335,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         address.setOption0(REALM_USER_PRINCIPAL_CLASSES, options.getOption(REALM_USER_PRINCIPAL_CLASSES));
         if (address.getOption(IDENTITY_RESOLVER) == null) {
              Collection<Class<? extends Principal>> realmUserPrincipalClasses = address.getOption(REALM_USER_PRINCIPAL_CLASSES);
-             if (realmUserPrincipalClasses != null && realmUserPrincipalClasses.size() > 0) {
+             if (realmUserPrincipalClasses != null && !realmUserPrincipalClasses.isEmpty()) {
                  IdentityResolver httpIdentityResolver = new HttpIdentityResolver(realmUserPrincipalClasses);
                  address.setIdentityResolver(IDENTITY_RESOLVER, httpIdentityResolver);
              }

@@ -445,27 +445,29 @@ public final class ServiceConnectManager {
                     if (logger.isTraceEnabled()) {
                         logger.trace("ServiceHeartBeat.run adding listener to connect future to reschedule task");
                     }
-                    connectFuture.addListener(new IoFutureListener<ConnectFuture>() {
-                        @Override
-                        public void operationComplete(ConnectFuture future) {
-                            if (logger.isTraceEnabled()) {
-                                logger.trace(format("ServiceHeartBeat.run.connectFuture.operationComplete (%s): nextDelay is %d", connectURI, nextDelay.get()));
-                            }
-
-                            Throwable t = future.getException();
-                            if ((t != null) && (t instanceof IllegalStateException)) {
-                                // do not reschedule the heartbeatTask as the connector is being shut down
-                                if (logger.isTraceEnabled()) {
-                                    logger.trace("ServiceHeartBeat.run.connectFuture.Completed: not rescheduling as connector is being shut down.", t);
-                                }
-                                return;
-                            }
-
-                            if ( nextDelay.get() != 0 ) {
-                                schedule(nextDelay.get());
-                            }
-                        }
-                    });
+                    if (connectFuture != null) {
+	                    connectFuture.addListener(new IoFutureListener<ConnectFuture>() {
+	                        @Override
+	                        public void operationComplete(ConnectFuture future) {
+	                            if (logger.isTraceEnabled()) {
+	                                logger.trace(format("ServiceHeartBeat.run.connectFuture.operationComplete (%s): nextDelay is %d", connectURI, nextDelay.get()));
+	                            }
+	
+	                            Throwable t = future.getException();
+	                            if ((t != null) && (t instanceof IllegalStateException)) {
+	                                // do not reschedule the heartbeatTask as the connector is being shut down
+	                                if (logger.isTraceEnabled()) {
+	                                    logger.trace("ServiceHeartBeat.run.connectFuture.Completed: not rescheduling as connector is being shut down.", t);
+	                                }
+	                                return;
+	                            }
+	
+	                            if ( nextDelay.get() != 0 ) {
+	                                schedule(nextDelay.get());
+	                            }
+	                        }
+	                    });
+                    }
                 }
                 if (logger.isTraceEnabled()) {
                     logger.trace("ServiceHeartBeat.run finished executing heartbeat");

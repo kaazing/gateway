@@ -69,7 +69,7 @@ public class HttpOriginSecurityFilter extends HttpFilterAdapter<IoSessionEx> {
                 URI originURI = new URI(crossOrigin);
                 String originScheme = originURI.getScheme();
                 String originAuthority = originURI.getAuthority();
-                originAuthority = HttpUtils.getHostAndPort(originAuthority, originScheme.equals("https"));
+                originAuthority = HttpUtils.getHostAndPort(originAuthority, ("https").equals(originScheme));
 
 
                 if (!originAuthority.equals(originURI.getAuthority())) {
@@ -86,7 +86,7 @@ public class HttpOriginSecurityFilter extends HttpFilterAdapter<IoSessionEx> {
                             String targetScheme = URIUtils.getScheme(targetURI);
                             String targetAuthority = HttpUtils.getHostAndPort(URIUtils.getAuthority(targetURI), targetIsSecure);
                             if ("privileged".equals(originScheme)
-                                    || ((targetScheme.equals(originScheme) && targetAuthority.equals(originAuthority)))) {
+                                    || (targetScheme.equals(originScheme) && targetAuthority.equals(originAuthority))) {
                                 crossOrigin = null;
                                 break;
                             }
@@ -98,7 +98,7 @@ public class HttpOriginSecurityFilter extends HttpFilterAdapter<IoSessionEx> {
                         String targetAuthority = HttpUtils.getHostAndPort(httpRequest, targetIsSecure);
 
                         if ("privileged".equals(originScheme)
-                                || ((targetScheme.equals(originScheme) && targetAuthority.equals(originAuthority)))) {
+                                || (targetScheme.equals(originScheme) && targetAuthority.equals(originAuthority))) {
                             crossOrigin = null;
                         }
 

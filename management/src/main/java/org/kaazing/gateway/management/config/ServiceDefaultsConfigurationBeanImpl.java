@@ -161,7 +161,7 @@ public class ServiceDefaultsConfigurationBeanImpl implements ServiceDefaultsConf
                 String[] sslCiphersArray = (String[]) connectOptions.remove("ssl.ciphers");
                 if (sslCiphersArray != null) {
                     List<String> sslCiphers = Arrays.asList(sslCiphersArray);
-                    if (sslCiphers.size() > 0) {
+                    if (!sslCiphers.isEmpty()) {
                         jsonOptions.put("ssl.ciphers", sslCiphers);
                     }
                 }

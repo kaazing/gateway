@@ -46,12 +46,15 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
 
     public static final ResourceOption<String> NEXT_PROTOCOL = new NextProtocolOption();
     public static final ResourceOption<String> TRANSPORT_URI = new TransportURIStringOption();
-    public static final ResourceOption<ResourceAddress> TRANSPORT = new TransportOption();
-    public static final ResourceOption<ResourceAddress> ALTERNATE = new AlternateOption();
-    public static final ResourceOption<NameResolver> RESOLVER = new ResolverOption(); // consider moving to TcpResourceAddress, ...
+    public static final ResourceOption<ResourceAddress> TRANSPORT_OPTION = new TransportOption();
+    public static final ResourceOption<ResourceAddress> ALTERNATE_OPTION = new AlternateOption();
+    public static final ResourceOption<NameResolver> RESOLVER_OPTION = new ResolverOption(); // consider moving to TcpResourceAddress, ...
     public static final ResourceOption<Boolean> BIND_ALTERNATE = new BindAlternateOption();
     public static final ResourceOption<Boolean> CONNECT_REQUIRES_INIT = new ConnectRequiresInitOption();
 
+    /**
+     * @deprecated
+     */
     @Deprecated // Move separately to WSEB, PROXY, etc (different types)
     public static final ResourceOption<Object> QUALIFIER = new QualifierOption();
     public static final ResourceOption<URI> TRANSPORTED_URI = new TransportedURIOption();
@@ -112,27 +115,29 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
         } else {
             prefixes = Collections.singletonList(myTransportName);
         }
+        
+        String searchQuery = query;
 
         // strip off current transport prefix for option names
         for (String prefix : prefixes) {
             if (result == null) {
 
                 // do we exact match except for the trailing '.' on the prefix?
-                if (query.equals(prefix.substring(0, prefix.length()-1))) {
+                if (searchQuery.equals(prefix.substring(0, prefix.length()-1))) {
                     return this;
                 }
 
                 // if query starts with prefix but is longer
-                if (query.startsWith(prefix)) {
-                    query = query.substring(prefix.length());
-                    result = getTransport().findTransport(query);
+                if (searchQuery.startsWith(prefix)) {
+                    searchQuery = searchQuery.substring(prefix.length());
+                    result = getTransport().findTransport(searchQuery);
                 }
             }
         }
         if (getTransport() == null) {
             return null;
         } else {
-            return getTransport().findTransport(query);
+            return getTransport().findTransport(searchQuery);
         }
     }
 
@@ -148,13 +153,13 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
             switch(resourceOption.kind) {
                 case NEXT_PROTOCOL:
                     return nextProtocol != null;
-                case TRANSPORT:
+                case TRANSPORT_OPTION:
                     return transport != null;
                 case TRANSPORT_URI:
                     return transportURI != null;
-                case ALTERNATE:
+                case ALTERNATE_OPTION:
                     return alternate != null;
-                case RESOLVER:
+                case RESOLVER_OPTION:
                     return resolver != null;
                 case BIND_ALTERNATE:
                     return bindAlternate != null;
@@ -165,7 +170,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                 case CONNECT_REQUIRES_INIT:
                     return connectRequiresInit != null;
                 case IDENTITY_RESOLVER:
-                    return (identityResolver != null);
+                    return identityResolver != null;
             }
         }
 
@@ -202,7 +207,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
 
     protected final ResourceAddress resolve(String oldPath, String newPath) {
         URI addressURI = getResource();
-        String externalURI = getExternalURI();
+        String someExternalURI = getExternalURI();
 
         boolean newPathDiffersFromOld = !oldPath.equals(newPath);
         if ( !newPathDiffersFromOld ) {
@@ -215,7 +220,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
         }
 
         URI newResourceURI = addressURI.resolve(newPath);
-        String newExternalURI = URIUtils.resolve(externalURI, newPath);
+        String newExternalURI = URIUtils.resolve(someExternalURI, newPath);
         ResourceOptions newOptions = FACTORY.newResourceOptions(this);
         resolve(oldPath, newPath, newOptions);
         String externalUriToString = newExternalURI;
@@ -224,14 +229,14 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     }
 
     protected void resolve(String oldPath, String newPath, ResourceOptions newOptions) {
-        ResourceAddress transport = getOption(TRANSPORT);
-        if (transport != null) {
-            newOptions.setOption(TRANSPORT, transport.resolve(oldPath, newPath));
+        ResourceAddress newTransport = getOption(TRANSPORT_OPTION);
+        if (newTransport != null) {
+            newOptions.setOption(TRANSPORT_OPTION, newTransport.resolve(oldPath, newPath));
         }
 
-        ResourceAddress alternate = getOption(ALTERNATE);
-        if (alternate != null) {
-            newOptions.setOption(ALTERNATE, alternate.resolve(oldPath, newPath));
+        ResourceAddress someAlternate = getOption(ALTERNATE_OPTION);
+        if (someAlternate != null) {
+            newOptions.setOption(ALTERNATE_OPTION, someAlternate.resolve(oldPath, newPath));
         }
     }
 
@@ -242,13 +247,13 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
             switch(resourceOption.kind) {
                 case NEXT_PROTOCOL:
                     return (V) nextProtocol;
-                case TRANSPORT:
+                case TRANSPORT_OPTION:
                     return (V) transport;
                 case TRANSPORT_URI:
                     return (V) transportURI;
-                case ALTERNATE:
+                case ALTERNATE_OPTION:
                     return (V) alternate;
-                case RESOLVER:
+                case RESOLVER_OPTION:
                     return (V) resolver;
                 case BIND_ALTERNATE:
                     return (V) bindAlternate;
@@ -276,13 +281,13 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                 case TRANSPORT_URI:
                     transportURI = (String) value;
                     return;
-                case TRANSPORT:
+                case TRANSPORT_OPTION:
                     transport = (ResourceAddress) value;
                     return;
-                case ALTERNATE:
+                case ALTERNATE_OPTION:
                     alternate = (ResourceAddress) value;
                     return;
-                case RESOLVER:
+                case RESOLVER_OPTION:
                     resolver = (NameResolver) value;
                     return;
                 case BIND_ALTERNATE:
@@ -322,8 +327,12 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+        	return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+        	return false;
+        }
 
         ResourceAddress address = (ResourceAddress) o;
 
@@ -387,10 +396,10 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     public static class DefaultResourceOption<T> extends ResourceOption<T> {
 
         enum Kind { NEXT_PROTOCOL,
-                           TRANSPORT,
+                           TRANSPORT_OPTION,
                            TRANSPORT_URI,
-                           ALTERNATE,
-                           RESOLVER,
+                           ALTERNATE_OPTION,
+                           RESOLVER_OPTION,
                            BIND_ALTERNATE,
                            QUALIFIER,
                            TRANSPORTED_URI,
@@ -425,20 +434,20 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     
     private static class TransportOption extends DefaultResourceOption<ResourceAddress> {
         private TransportOption() {
-            super(Kind.TRANSPORT, "transport");
+            super(Kind.TRANSPORT_OPTION, "transport");
         }
     }
     
     private static class AlternateOption extends DefaultResourceOption<ResourceAddress> {
         private AlternateOption() {
-            super(Kind.ALTERNATE, "alternate");
+            super(Kind.ALTERNATE_OPTION, "alternate");
         }
     }
     
     private static class ResolverOption extends DefaultResourceOption<NameResolver> {
 
         private ResolverOption() {
-            super(Kind.RESOLVER, "resolver", new NameResolver() {
+            super(Kind.RESOLVER_OPTION, "resolver", new NameResolver() {
                 
                 private final Map<String, NameResolver> wildcards;
                 
@@ -469,8 +478,8 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                 }
                 
                 {
-                    Map<String, NameResolver> wildcards = new HashMap<>();
-                    wildcards.put("0.0.0.0", new WildcardNameResolver() {
+                    Map<String, NameResolver> wildcardMap = new HashMap<>();
+                    wildcardMap.put("0.0.0.0", new WildcardNameResolver() {
 
                         @Override
                         public Collection<InetAddress> getAllByName(String host) throws UnknownHostException {
@@ -483,7 +492,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                             return inetAddresses;
                         }
                     });
-                    this.wildcards = wildcards;
+                    this.wildcards = wildcardMap;
                 }
                 
                 @Override

@@ -38,7 +38,7 @@ public abstract class Transport {
      * @return  Available transport extensions or empty set if there are none
      */
     public Collection<?> getExtensions() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     /**

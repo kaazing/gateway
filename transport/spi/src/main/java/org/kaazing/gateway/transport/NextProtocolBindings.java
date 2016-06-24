@@ -78,11 +78,9 @@ public class NextProtocolBindings extends Bindings<NextProtocolBinding> {
     @Override
     public final boolean removeBinding(ResourceAddress address, Binding oldBinding) {
         NextProtocolBinding nextBinding = super.getBinding0(address);
-        if (nextBinding != null) {
-            if (nextBinding.removeBinding(address, oldBinding) && nextBinding.getNextProtocolNames().size() == 0) {
-                removeBinding1(address, nextBinding);
-                return true;
-            }
+        if (nextBinding != null && nextBinding.removeBinding(address, oldBinding) && nextBinding.getNextProtocolNames().isEmpty()) {
+            removeBinding1(address, nextBinding);
+            return true;
         }
         return false;
     }
@@ -164,32 +162,33 @@ public class NextProtocolBindings extends Bindings<NextProtocolBinding> {
         }
 
         public boolean removeBinding(ResourceAddress address, Binding binding) {
-            ResourceAddress bindAddress = binding.bindAddress();
+        	Binding someBinding = binding;
+            ResourceAddress bindAddress = someBinding.bindAddress();
             String nextProtocol = bindAddress.getOption(NEXT_PROTOCOL);
 
             if (nextProtocol == null) {
                 Binding oldBinding = nullNextProtocol.get();
-                if (equivalent(oldBinding, binding)) {
-                    binding = oldBinding;
+                if (equivalent(oldBinding, someBinding)) {
+                	someBinding = oldBinding;
                 }
-                if (binding.decrementReferenceCount() == 0) {
-                    return nullNextProtocol.compareAndSet(binding, null);
+                if (someBinding.decrementReferenceCount() == 0) {
+                    return nullNextProtocol.compareAndSet(someBinding, null);
                 }
                 return false;
             }
 
             Binding oldBinding = nextProtocols.get(nextProtocol);
-            if (equivalent(oldBinding, binding)) {
-                binding = oldBinding;
+            if (equivalent(oldBinding, someBinding)) {
+            	someBinding = oldBinding;
             }
-            if (binding.decrementReferenceCount() == 0) {
-                return nextProtocols.remove(nextProtocol, binding);
+            if (someBinding.decrementReferenceCount() == 0) {
+                return nextProtocols.remove(nextProtocol, someBinding);
             }
             return false;
         }
 
         public boolean hasNullNextProtocol() {
-            return (nullNextProtocol.get() != null);
+            return nullNextProtocol.get() != null;
         }
 
         public SortedSet<String> getNextProtocolNames() {
@@ -249,7 +248,8 @@ public class NextProtocolBindings extends Bindings<NextProtocolBinding> {
         }
 
         protected final boolean equals(NextProtocolBinding that) {
-            return this.nullNextProtocol.equals(that.nullNextProtocol) && 
+            return that != null && 
+            		this.nullNextProtocol.equals(that.nullNextProtocol) && 
                     this.nextProtocols.equals(that.nextProtocols) && 
                     super.equals(that);
         }

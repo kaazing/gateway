@@ -350,8 +350,7 @@ public class CpuManagementMIB implements MOGroup, CounterListener, AgentCapabili
                     throw new RuntimeException("SystemString incorrectly configured with unsupported operation: " + operation);
             }
 
-            OctetString val = (OctetString) Utils.stringToVariable(value);
-            return val;
+            return (OctetString) Utils.stringToVariable(value);
         }
     }
 
@@ -367,16 +366,13 @@ public class CpuManagementMIB implements MOGroup, CounterListener, AgentCapabili
         public Variable getValue() {
             int value;
 
-            switch (operation) {
-                case NUM_CPUS_OPER:
-                    value = bean.getNumCpus();
-                    break;
-                default:
-                    throw new RuntimeException("SystemString incorrectly configured with unsupported operation: " + operation);
+            if (operation == NUM_CPUS_OPER) {
+            	value = bean.getNumCpus();
+            } else {
+            	throw new RuntimeException("SystemString incorrectly configured with unsupported operation: " + operation);
             }
 
-            Integer32 val = new Integer32(value);
-            return val;
+            return new Integer32(value);
         }
     }
 

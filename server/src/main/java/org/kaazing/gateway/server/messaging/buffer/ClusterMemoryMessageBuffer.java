@@ -27,6 +27,9 @@ import org.kaazing.gateway.service.messaging.buffer.MessageBufferListener;
 import org.kaazing.gateway.util.GL;
 import org.kaazing.gateway.util.Utils;
 
+/**
+ * TODO Add class documentation
+ */
 public class ClusterMemoryMessageBuffer implements MessageBuffer, Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -41,7 +41,9 @@ public class WsConnector implements BridgeConnector {
 
     private Map<String, BridgeConnector> wsBridgeConnectorMap;
 
-
+    public WsConnector() {
+    }
+    
     @Resource(name = "wsn.connector")
     public void setWsnConnector(BridgeConnector wsnConnector) {
         this.wsnConnector = wsnConnector;
@@ -50,10 +52,6 @@ public class WsConnector implements BridgeConnector {
     @Resource(name = "wseb.connector")
     public void setWsebConnector(BridgeConnector wsebConnector) {
         this.wsebConnector = wsebConnector;
-    }
-
-
-    public WsConnector() {
     }
 
     @Override

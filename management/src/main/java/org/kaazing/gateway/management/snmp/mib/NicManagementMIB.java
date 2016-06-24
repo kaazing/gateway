@@ -210,7 +210,6 @@ public class NicManagementMIB implements MOGroup, CounterListener, AgentCapabili
 
     @Override
     public void incrementCounter(CounterEvent event) {
-        // FIXME: do we need this?
     }
 
     @Override
@@ -352,8 +351,7 @@ public class NicManagementMIB implements MOGroup, CounterListener, AgentCapabili
                     throw new RuntimeException("SystemString incorrectly configured with unsupported operation: " + operation);
             }
 
-            OctetString val = (OctetString) Utils.stringToVariable(value);
-            return val;
+            return (OctetString) Utils.stringToVariable(value);
         }
     }
 }

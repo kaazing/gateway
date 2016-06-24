@@ -17,7 +17,9 @@ package org.kaazing.gateway.service.amqp.amqp091.codec;
 
 import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
 
-
+/**
+ * TODO Add class documentation
+ */
 public class AmqpCodecFilter extends ProtocolCodecFilter {
     public static final String NAME = "amqp.codec";
 

@@ -45,6 +45,9 @@ public final class Asn1Utils {
     private static final String GENERALIZED_TIME_FORMAT = "yyyyMMddHHmmss'Z'"; // always use UTC
 
     private static final int[] BIT_STRING_MASK = { 128, 64, 32, 16, 8, 4, 2, 1 };
+    
+    private Asn1Utils() {
+    }
 
     /**
      * Decode an ASN.1 BIT STRING.
@@ -452,9 +455,6 @@ public final class Asn1Utils {
      */
     public static int sizeOfSequence(int length) {
         return DerUtils.sizeOf(ASN1_SEQUENCE_TAG_NUM, length);
-    }
-
-    private Asn1Utils() {
     }
 
 }

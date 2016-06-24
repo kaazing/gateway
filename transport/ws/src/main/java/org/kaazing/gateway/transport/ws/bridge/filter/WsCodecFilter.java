@@ -29,6 +29,7 @@ public class WsCodecFilter extends ProtocolCodecFilter {
 
     /**
      * @param wsMaxMessageSize   Maximum permitted number of bytes in a message being decoded. If <0 there is no limit.
+     * @param maskSends
      */
     public WsCodecFilter(int wsMaxMessageSize, boolean maskSends) {
         super(new WsCodecFactory(wsMaxMessageSize > 0 ? wsMaxMessageSize : 0, maskSends));

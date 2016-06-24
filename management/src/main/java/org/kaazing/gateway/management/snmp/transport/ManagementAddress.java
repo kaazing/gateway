@@ -47,10 +47,8 @@ public class ManagementAddress implements Address {
 
     @Override
     public int compareTo(Object o) {
-        if (o instanceof ManagementAddress) {
-            if (session.equals(((ManagementAddress) o).getSession())) {
-                return 0;
-            }
+        if (o instanceof ManagementAddress && session.equals(((ManagementAddress) o).getSession())) {
+        	return 0;
         }
         return -1;
     }

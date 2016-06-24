@@ -26,9 +26,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NicManagementBeanImpl implements NicManagementBean {
+	
+	private final int id;
+
+    private final String interfaceName;
+	
+	/**
+     * Constructor.
+     * 
+     * @param id
+     * @param interfaceName
+     */
+    public NicManagementBeanImpl(int id, String interfaceName) {
+        this.id = id;
+        this.interfaceName = interfaceName;
+    }
 
     public static double roundTo(double val, int places) {
-        long temp = (long) ((val * Math.pow(10, places)));
+        long temp = (long) (val * Math.pow(10, places));
         return (double) temp / Math.pow(10, places);
     }
 
@@ -39,9 +54,6 @@ public class NicManagementBeanImpl implements NicManagementBean {
     // we want to use it in place of some map key or something.  The SNMP
     // support for sessions also depends on knowing this value.
 //    private static final AtomicInteger maxServiceIndex = new AtomicInteger(1);
-    private final int id;
-
-    private final String interfaceName;
 
     // note: update will be called to set this before any request for data.
     private Long[] netInterfaceStats;
@@ -52,16 +64,8 @@ public class NicManagementBeanImpl implements NicManagementBean {
 
     private long updateTimeMillis = -1;  // last time the update occurred
 
-    private static final Logger logger = LoggerFactory.getLogger(NicManagementBeanImpl.class);
-
-    /**
-     * Constructor.
-     */
-    public NicManagementBeanImpl(int id, String interfaceName) {
-        this.id = id;
-        this.interfaceName = interfaceName;
-    }
-
+//    private static final Logger logger = LoggerFactory.getLogger(NicManagementBeanImpl.class);
+    
     @Override
     public int getId() {
         return id;

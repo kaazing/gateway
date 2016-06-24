@@ -19,6 +19,9 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 
 import java.util.Collections;
 
+/**
+ * TODO Add class documentation
+ */
 public class BridgeServiceFactory {
 
     private final TransportFactory transportFactory;

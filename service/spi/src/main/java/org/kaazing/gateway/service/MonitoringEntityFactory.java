@@ -26,7 +26,7 @@ package org.kaazing.gateway.service;
 public interface MonitoringEntityFactory {
     /**
      * Method returning a LongMonitoringCounter object
-     * @param label - the name associated to the counter
+     * @param name - the name associated to the counter
      * @return - LongMonitoringCounter
      */
     LongMonitoringCounter makeLongMonitoringCounter(String name);

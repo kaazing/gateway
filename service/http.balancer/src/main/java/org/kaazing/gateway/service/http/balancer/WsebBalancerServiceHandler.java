@@ -100,7 +100,7 @@ class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
             String balanceePath = getPath(selectedBalanceeURI);
             String requestPath = requestURI.getPath();
             int emIndex = (requestPath != null) ? requestPath.indexOf(WsebAcceptor.EMULATED_SUFFIX) : -1;
-            if ((emIndex != -1) && (!requestPath.contains(WsebAcceptor.EMULATED_SUFFIX + "/cookies"))) {
+            if ((emIndex != -1) && (requestPath != null) && (!requestPath.contains(WsebAcceptor.EMULATED_SUFFIX + "/cookies"))) {
                 balanceePath += requestPath.substring(emIndex);
             }
             String balanceeQuery = requestURI.getQuery();
@@ -159,14 +159,16 @@ class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
                 sb.append("accepts are null, ");
             }
 
-            if (clusterContext.getCollectionsFactory() == null) {
+            if (clusterContext != null && clusterContext.getCollectionsFactory() == null) {
                 sb.append("cluster context collections factory is null");
             }
 
             GL.debug("CLUSTER_LOGGER_NAME", sb.toString());
         }
         GL.debug(GL.CLUSTER_LOGGER_NAME,"Exit WsebBalancerService.getBalanceeURIs");
-        clusterContext.logClusterState();
+        if (clusterContext != null) {
+        	clusterContext.logClusterState();
+        }
         return balanceeURIs;
     }
 

@@ -68,7 +68,7 @@ final class GatewayImpl implements Gateway {
     private static final String DEFAULT_GATEWAY_CONFIG_MINIMAL_XML = "gateway-config-minimal.xml";
     private static final String DEFAULT_LOG4J_CONFIG_XML = "log4j-config.xml";
     private static final String DEFAULT_LOG_DIRECTORY = "log/";
-    private static final long DEFAULT_LOG_REFRESH_INTERVAL_MILLIS = 60 * 1000;
+    private static final long DEFAULT_LOG_REFRESH_INTERVAL_MILLIS = 60L * 1000;
 
     private static final Logger LOGGER = Launcher.getGatewayStartupLogger();
 
@@ -168,9 +168,9 @@ final class GatewayImpl implements Gateway {
 
         String bypassPlatformCheckStr = configuration.getProperty(BYPASS_PLATFORM_CHECK_PROPERTY);
         boolean bypassPlatformCheck = bypassPlatformCheckStr != null &&
-                !bypassPlatformCheckStr.equalsIgnoreCase("false") &&
-                !bypassPlatformCheckStr.equalsIgnoreCase("no") &&
-                !bypassPlatformCheckStr.equalsIgnoreCase("n");
+                !("false").equalsIgnoreCase(bypassPlatformCheckStr) &&
+                !("no").equalsIgnoreCase(bypassPlatformCheckStr) &&
+                !("n").equalsIgnoreCase(bypassPlatformCheckStr);
 
         if (!bypassPlatformCheck && !supportedJavaVersion(1, 8, "0")) {
             throw new RuntimeException("Unsupported JDK version, Please install Java SE 8.0 or later and relaunch " +
@@ -443,8 +443,8 @@ final class GatewayImpl implements Gateway {
                 try {
                     configurator.doConfigure(log4jConfigFile.toURI().toURL(), LogManager.getLoggerRepository());
                 } catch (MalformedURLException ex) {
-                    System.err.println("Error configuring LOG4J, unable to load file: "
-                            + log4jConfigFile.getAbsolutePath());
+                    LOGGER.error("Error configuring LOG4J, unable to load file: "
+                            + log4jConfigFile.getAbsolutePath(), ex);
                 }
             }
         }

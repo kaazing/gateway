@@ -50,6 +50,8 @@ public class DummyIoSessionEx extends IoSessionAdapterEx {
 
     /**
      * Creates a new instance.
+     * 
+     * @param processor
      */
     public <T extends IoSessionEx> DummyIoSessionEx(IoProcessorEx<T> processor) {
         this(CURRENT_THREAD, IMMEDIATE_EXECUTOR, processor);
@@ -57,6 +59,10 @@ public class DummyIoSessionEx extends IoSessionAdapterEx {
 
     /**
      * Creates a new instance.
+     * 
+     * @param ioThread
+     * @param ioExecutor
+     * @param processor
      */
     public <T extends IoSessionEx> DummyIoSessionEx(Thread ioThread, Executor ioExecutor, IoProcessorEx<T> processor) {
         super(ioThread, ioExecutor,

@@ -192,7 +192,7 @@ public final class HttpClientAccessPolicyXml extends HttpDynamicResource {
                                 buf.putString(HEADER_X_SEQUENCE_NO + ",", utf8Encoder);
 
                                 // original header:
-                                URI sourceOriginURI = ("*".equals(sourceOrigin)) ? NULL_ORIGIN : URI.create(URLEncoder
+                                URI sourceOriginURI = "*".equals(sourceOrigin) ? NULL_ORIGIN : URI.create(URLEncoder
                                         .encode(sourceOrigin, "UTF-8"));
                                 String originHeader = format("X-Origin-%s", sourceOriginURI.toASCIIString());
                                 buf.putString(originHeader, utf8Encoder);
@@ -279,7 +279,7 @@ public final class HttpClientAccessPolicyXml extends HttpDynamicResource {
                 f.await(10, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 if (LOGGER.isWarnEnabled()) {
-                    LOGGER.warn(String.format("Write future in %s never fired", HttpClientAccessPolicyXml.class));
+                    LOGGER.warn(String.format("Write future in %s never fired", HttpClientAccessPolicyXml.class), e);
                 }
             }
             httpSession.close(true);

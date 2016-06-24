@@ -19,13 +19,13 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.kaazing.gateway.resource.address.ResourceAddress.BIND_ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 import static org.kaazing.gateway.resource.address.URLUtils.appendURI;
 import static org.kaazing.gateway.resource.address.URLUtils.ensureTrailingSlash;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_CHALLENGE_SCHEME;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.CODEC_REQUIRED;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
-import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT_OPTION;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.MAX_MESSAGE_SIZE;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpMergeRequestFilter.DRAFT76_KEY3_BUFFER_KEY;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter.AUTH_SCHEME_APPLICATION_PREFIX;
@@ -264,7 +264,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
     @Override
     protected boolean canBind(String transportName) {
-        return transportName.equals("wsn") || transportName.equals("ws");
+        return ("wsn").equals(transportName) || ("ws").equals(transportName);
     }
 
     @Override
@@ -284,14 +284,14 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     initializer.initializeSession(session, future);
                 }
                 final WsnSession wsnSession = (WsnSession) session;
-                boolean redirectResponse = false;
+//                boolean redirectResponse = false;
                 if (wsnSession.isBalanceSupported()) {
                     // NOTE: this collection is either null, empty or length one.
                     //       the balancee URI is selected in the HttpBalancerService's
                     //       preHttpUpgradeSessionInitializer.  That's why the iterator.next() is assumed here.
 
                     Collection<String> balanceeURIs = wsnSession.getBalanceeURIs();
-                    String response = "" + '\uf0ff'; // Unique prefix to avoid collisions with responses from non Kaazing servers
+                    String response = Character.toString('\uf0ff'); // Unique prefix to avoid collisions with responses from non Kaazing servers
                     if (balanceeURIs == null) {
                         // No balancer participated in this session initialization
                         response += "N";
@@ -314,7 +314,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     }
                     WebSocketWireProtocol wsVersion = wsnSession.getVersion();
 
-                    WriteFuture writeFuture;
+//                    WriteFuture writeFuture;
 
                     Boolean codecRequired = wsnSession.getLocalAddress().getOption(CODEC_REQUIRED);
 
@@ -328,16 +328,16 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                             messageBuf.putString(response, Charset.forName("UTF-8").newEncoder());
                             messageBuf.flip();
                         } catch (CharacterCodingException e) {
-                            logger.error(e.toString());
+                            logger.error(e.toString(), e);
                         }
-                        WsBinaryMessage message = new WsBinaryMessage(messageBuf);
+//                        WsBinaryMessage message = new WsBinaryMessage(messageBuf);
 
                         if (codecRequired) {
-                            IoBufferAllocatorEx<?> parentAllocator = parent.getBufferAllocator();
-                            IoBufferEx b = WsFrameEncodingSupport.doEncode(parentAllocator, FLAG_NONE, message);
-                            writeFuture = parent.write(b); // Write on parent session to avoid another encoding by the WebSocket session
+//                            IoBufferAllocatorEx<?> parentAllocator = parent.getBufferAllocator();
+//                            IoBufferEx b = WsFrameEncodingSupport.doEncode(parentAllocator, FLAG_NONE, message);
+//                            writeFuture = parent.write(b); // Write on parent session to avoid another encoding by the WebSocket session
                         } else {
-                            writeFuture = parent.write(message);
+//                            writeFuture = parent.write(message);
                         }
                     } else {
                         IoBufferAllocatorEx<?> parentAllocator = parent.getBufferAllocator();
@@ -345,15 +345,19 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                         ByteBuffer parentNioBuf = parentAllocator.allocate(response.getBytes().length + 6);
                         IoBufferEx parentBuf = parentAllocator.wrap(parentNioBuf).setAutoExpander(parentAllocator);
 
-                        if ( codecRequired ) { parentBuf.put((byte) 0x00); }
+                        if ( codecRequired ) { 
+                        	parentBuf.put((byte) 0x00); 
+                        }
                         try {
                             parentBuf.putString(response, Charset.forName("UTF-8").newEncoder());
                         } catch (CharacterCodingException e) {
-                            logger.error(e.toString());
+                            logger.error(e.toString(), e);
                         }
-                        if ( codecRequired ) { parentBuf.put((byte) 0xff); }
+                        if ( codecRequired ) { 
+                        	parentBuf.put((byte) 0xff); 
+                        }
                         parentBuf.flip();
-                        writeFuture = parent.write(parentBuf); // Write on parent session to avoid encoding on ByteSocket connections
+//                        writeFuture = parent.write(parentBuf); // Write on parent session to avoid encoding on ByteSocket connections
                     }
 
                 }
@@ -502,7 +506,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             ResourceAddress transportAddress = (ResourceAddress) session.getAttribute(REMOTE_ADDRESS_KEY);
             assert transportAddress != null;
             ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
-            options.setOption(TRANSPORT, transportAddress);
+            options.setOption(TRANSPORT_OPTION, transportAddress);
             options.setOption(NEXT_PROTOCOL, localAddress.getOption(NEXT_PROTOCOL));
 
             // TODO: Verify this
@@ -588,7 +592,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
                 final boolean hasPostUpgradeChildWsnSession = wsnSession.getHandler() == ioBridgeHandler;
                 final ResourceAddress wsnSessionLocalAddress = wsnSession.getLocalAddress();
-                final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
+                final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT_OPTION);
                 boolean sendMessagesDirect = isLightweightWsnSession
                                              && hasPostUpgradeChildWsnSession; // post-upgrade
                 if ( sendMessagesDirect ) {
@@ -720,7 +724,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
             WebSocketWireProtocol wsVersion = (WebSocketWireProtocol) session.getAttribute(WEB_SOCKET_VERSION_KEY);
             Boolean codecRequired = localAddress.getOption(CODEC_REQUIRED);
-            Boolean lightWeightWsnSession = localAddress.getOption(LIGHTWEIGHT);
+//            Boolean lightWeightWsnSession = localAddress.getOption(LIGHTWEIGHT_OPTION);
             int wsMaxMessageSize = localAddress.getOption(MAX_MESSAGE_SIZE);
 
             boolean rfc = WebSocketWireProtocol.HYBI_13.equals(wsVersion) ||
@@ -857,16 +861,11 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             }
             int port = uri.getPort();
             if (wireProtocol == WebSocketWireProtocol.HIXIE_76) {
-                if (session.isSecure() && port == 443) {
-                    port = -1;
-                } else if (!session.isSecure() && port == 80) {
+                if ((session.isSecure() && port == 443) || (!session.isSecure() && port == 80)) {
                     port = -1;
                 }
             }
-            URI location = new URI(scheme, uri.getUserInfo(), uri.getHost(), port, uri.getPath(), query, uri
-                    .getFragment());
-
-            return location;
+            return new URI(scheme, uri.getUserInfo(), uri.getHost(), port, uri.getPath(), query, uri.getFragment());
         }
 
         protected Encoding getWebSocketEncoding(HttpAcceptSession session) {
@@ -901,7 +900,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                                                     String nextProtocol) {
 
             ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
-            options.setOption(TRANSPORT, session.getLocalAddress());
+            options.setOption(TRANSPORT_OPTION, session.getLocalAddress());
             options.setOption(NEXT_PROTOCOL, nextProtocol);
 
             URI resource = session.getLocalAddress().getResource();
@@ -1406,129 +1405,134 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
            private void doUpgrade75(final HttpAcceptSession session) throws URISyntaxException {
                switch (session.getMethod()) {
-               case GET:
-                   // suspend reads until after protocol switch complete
-                   session.suspendRead();
-
-                   // get key values from session
-                   String origin = session.getReadHeader(HEADER_ORIGIN);
-                   URI wsLocation = getWebSocketLocation(session, WebSocketWireProtocol.HIXIE_75);
-                   final Encoding encoding = getWebSocketEncoding(session);
-
-                   // build the HTML5 WebSocket handshake response
-                   session.setStatus(HttpStatus.INFO_SWITCHING_PROTOCOLS);
-                   session.setReason(REASON_WEB_SOCKET_HANDSHAKE);
-                   session.addWriteHeader(HEADER_UPGRADE, WEB_SOCKET);
-                   session.addWriteHeader(HEADER_CONNECTION, HEADER_UPGRADE);
-                   session.addWriteHeader(HEADER_WEBSOCKET_ORIGIN, origin);
-                   session.addWriteHeader(HEADER_WEBSOCKET_LOCATION, wsLocation.toASCIIString());
-
-
-                   String clientWebSocketProtocolHeaderName = null;
-
-                   List<String> clientRequestedWsProtocols = session.getReadHeaders(HEADER_SEC_WEBSOCKET_PROTOCOL);
-                   if ( clientRequestedWsProtocols != null ) { clientWebSocketProtocolHeaderName = HEADER_SEC_WEBSOCKET_PROTOCOL; }
-
-                   if ( clientRequestedWsProtocols == null ) {
-                       clientRequestedWsProtocols = session.getReadHeaders(HEADER_X_WEBSOCKET_PROTOCOL);
-                       if ( clientRequestedWsProtocols != null ) { clientWebSocketProtocolHeaderName = HEADER_X_WEBSOCKET_PROTOCOL; }
-                   }
-
-                   if ( clientRequestedWsProtocols == null ) {
-                       clientRequestedWsProtocols = session.getReadHeaders(HEADER_WEBSOCKET_PROTOCOL);
-                       if ( clientRequestedWsProtocols != null ) { clientWebSocketProtocolHeaderName = HEADER_WEBSOCKET_PROTOCOL; }
-
-                   }
-
-                   List<String> clientRequestedExtensions = session.getReadHeaders(HEADER_SEC_WEBSOCKET_EXTENSION);
-                   if ( clientRequestedExtensions == null ) {
-                           clientRequestedExtensions = session.getReadHeaders(HEADER_X_WEBSOCKET_EXTENSIONS);
-                   }
-                   if ( clientRequestedExtensions == null ) {
-                       clientRequestedExtensions = session.getReadHeaders(HEADER_WEBSOCKET_EXTENSIONS);
-                   }
-
-
-                   String wsProtocol;
-
-                   try {
-                       wsProtocol = negotiateWebSocketProtocol(session,
-                               clientWebSocketProtocolHeaderName,
-                               clientRequestedWsProtocols,
-                               asList(SUPPORTED_PROTOCOLS.remove(session)));
-
-                   } catch (WsHandshakeNegotiationException e) {
-                       return;
-                   }
-
-                   // If configured with "Application xxx" challenge scheme, close the connection
-                   if (!verifyApplicationChallengeSchemeSecurity(session)) {
-                       return;
-                   }
-
-                   // find (based on this http session) the local address for the WS session
-                   // we are about to upgrade to.
-                   ResourceAddress localAddress = getWsLocalAddress(session, WsnResourceAddressFactorySpi.SCHEME_NAME, wsProtocol);
-
-                   // fallback to null protocol as a workaround until we properly inject next protocol from service during bind
-                   // This is safe as we guard this logic via negotiateWebSocketProtocol function
-                   // If the client send any bogus protocol that is not in the list of supported protocols, we will fail fast before getting here
-                   if (localAddress == null) {
-                       wsProtocol = null;
-                       localAddress = getWsLocalAddress(session, WsnResourceAddressFactorySpi.SCHEME_NAME, null);
-                   }
-
-                   final ResourceAddress wsLocalAddress = localAddress;
-
-
-                   // negotiate extensions
-                   final List<WebSocketExtension> negotiated;
-                   try {
-                       negotiated = WsUtils.negotiateExtensionsAndSetResponseHeader(
-                               webSocketExtensionFactory, (WsResourceAddress) wsLocalAddress, clientRequestedExtensions,
-                               session, HEADER_X_WEBSOCKET_EXTENSIONS, extensionHelper);
-                   }
-                   catch(ProtocolException e) {
-                       handleExtensionNegotiationException(session, clientRequestedExtensions, e);
-                       return;
-                   }
-
-                   final String wsProtocol0 = wsProtocol;
-
-                   // Encoding.TEXT is default behavior
-                   switch (encoding) {
-                   case BASE64:
-                   case BINARY:
-                       session.addWriteHeader("X-Frame-Type", encoding.toString().toLowerCase());
-                       break;
-                   }
-
-                   // do upgrade
-                   UpgradeFuture upgrade = session.upgrade(ioBridgeHandler);
-                   upgrade.addListener(new IoFutureListener<UpgradeFuture>() {
-                       @Override
-                       public void operationComplete(UpgradeFuture future) {
-                           IoSession parent = future.getSession();
-                           parent.setAttribute("encoding", encoding);
-                           parent.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, wsProtocol0);
-                           ACTIVE_EXTENSIONS_KEY.set(parent, negotiated);
-                           parent.setAttribute(LOCAL_ADDRESS_KEY, session.getLocalAddress());
-                           parent.setAttribute(REMOTE_ADDRESS_KEY, session.getRemoteAddress());
-                           WEBSOCKET_LOCAL_ADDRESS.set(parent, wsLocalAddress);
-                           parent.setAttribute(WEB_SOCKET_VERSION_KEY, WebSocketWireProtocol.HIXIE_75);
-                           parent.setAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY, session
-                                   .getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
-                           parent.setAttribute(SUBJECT_TRANSFER_KEY, session.getSubject());
-                           parent.setAttribute(HTTP_REQUEST_URI_KEY, session.getRequestURL());
-                           parent.setAttribute(LOGIN_CONTEXT_TRANSFER_KEY, session.getLoginContext());
-                       }
-                   });
-                   session.close(false);
-                   break;
-               default:
-                   session.setStatus(HttpStatus.CLIENT_METHOD_NOT_ALLOWED);
-                   session.close(false);
-                   break;
+	               case GET:
+	                   // suspend reads until after protocol switch complete
+	                   session.suspendRead();
+	
+	                   // get key values from session
+	                   String origin = session.getReadHeader(HEADER_ORIGIN);
+	                   URI wsLocation = getWebSocketLocation(session, WebSocketWireProtocol.HIXIE_75);
+	                   final Encoding encoding = getWebSocketEncoding(session);
+	
+	                   // build the HTML5 WebSocket handshake response
+	                   session.setStatus(HttpStatus.INFO_SWITCHING_PROTOCOLS);
+	                   session.setReason(REASON_WEB_SOCKET_HANDSHAKE);
+	                   session.addWriteHeader(HEADER_UPGRADE, WEB_SOCKET);
+	                   session.addWriteHeader(HEADER_CONNECTION, HEADER_UPGRADE);
+	                   session.addWriteHeader(HEADER_WEBSOCKET_ORIGIN, origin);
+	                   session.addWriteHeader(HEADER_WEBSOCKET_LOCATION, wsLocation.toASCIIString());
+	
+	
+	                   String clientWebSocketProtocolHeaderName = null;
+	
+	                   List<String> clientRequestedWsProtocols = session.getReadHeaders(HEADER_SEC_WEBSOCKET_PROTOCOL);
+	                   if ( clientRequestedWsProtocols != null ) { 
+	                	   clientWebSocketProtocolHeaderName = HEADER_SEC_WEBSOCKET_PROTOCOL; 
+	                   }
+	
+	                   if ( clientRequestedWsProtocols == null ) {
+	                       clientRequestedWsProtocols = session.getReadHeaders(HEADER_X_WEBSOCKET_PROTOCOL);
+	                       if ( clientRequestedWsProtocols != null ) { 
+	                    	   clientWebSocketProtocolHeaderName = HEADER_X_WEBSOCKET_PROTOCOL; 
+	                       }
+	                   }
+	
+	                   if ( clientRequestedWsProtocols == null ) {
+	                       clientRequestedWsProtocols = session.getReadHeaders(HEADER_WEBSOCKET_PROTOCOL);
+	                       if ( clientRequestedWsProtocols != null ) { 
+	                    	   clientWebSocketProtocolHeaderName = HEADER_WEBSOCKET_PROTOCOL; 
+	                       }
+	                   }
+	
+	                   List<String> clientRequestedExtensions = session.getReadHeaders(HEADER_SEC_WEBSOCKET_EXTENSION);
+	                   if ( clientRequestedExtensions == null ) {
+	                           clientRequestedExtensions = session.getReadHeaders(HEADER_X_WEBSOCKET_EXTENSIONS);
+	                   }
+	                   if ( clientRequestedExtensions == null ) {
+	                       clientRequestedExtensions = session.getReadHeaders(HEADER_WEBSOCKET_EXTENSIONS);
+	                   }
+	
+	
+	                   String wsProtocol;
+	
+	                   try {
+	                       wsProtocol = negotiateWebSocketProtocol(session,
+	                               clientWebSocketProtocolHeaderName,
+	                               clientRequestedWsProtocols,
+	                               asList(SUPPORTED_PROTOCOLS.remove(session)));
+	
+	                   } catch (WsHandshakeNegotiationException e) {
+	                       return;
+	                   }
+	
+	                   // If configured with "Application xxx" challenge scheme, close the connection
+	                   if (!verifyApplicationChallengeSchemeSecurity(session)) {
+	                       return;
+	                   }
+	
+	                   // find (based on this http session) the local address for the WS session
+	                   // we are about to upgrade to.
+	                   ResourceAddress localAddress = getWsLocalAddress(session, WsnResourceAddressFactorySpi.SCHEME_NAME, wsProtocol);
+	
+	                   // fallback to null protocol as a workaround until we properly inject next protocol from service during bind
+	                   // This is safe as we guard this logic via negotiateWebSocketProtocol function
+	                   // If the client send any bogus protocol that is not in the list of supported protocols, we will fail fast before getting here
+	                   if (localAddress == null) {
+	                       wsProtocol = null;
+	                       localAddress = getWsLocalAddress(session, WsnResourceAddressFactorySpi.SCHEME_NAME, null);
+	                   }
+	
+	                   final ResourceAddress wsLocalAddress = localAddress;
+	
+	
+	                   // negotiate extensions
+	                   final List<WebSocketExtension> negotiated;
+	                   try {
+	                       negotiated = WsUtils.negotiateExtensionsAndSetResponseHeader(
+	                               webSocketExtensionFactory, (WsResourceAddress) wsLocalAddress, clientRequestedExtensions,
+	                               session, HEADER_X_WEBSOCKET_EXTENSIONS, extensionHelper);
+	                   }
+	                   catch(ProtocolException e) {
+	                       handleExtensionNegotiationException(session, clientRequestedExtensions, e);
+	                       return;
+	                   }
+	
+	                   final String wsProtocol0 = wsProtocol;
+	
+	                   // Encoding.TEXT is default behavior
+	                   switch (encoding) {
+		                   case BASE64:
+		                   case BINARY:
+		                       session.addWriteHeader("X-Frame-Type", encoding.toString().toLowerCase());
+		                       break;
+	                   }
+	
+	                   // do upgrade
+	                   UpgradeFuture upgrade = session.upgrade(ioBridgeHandler);
+	                   upgrade.addListener(new IoFutureListener<UpgradeFuture>() {
+	                       @Override
+	                       public void operationComplete(UpgradeFuture future) {
+	                           IoSession parent = future.getSession();
+	                           parent.setAttribute("encoding", encoding);
+	                           parent.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, wsProtocol0);
+	                           ACTIVE_EXTENSIONS_KEY.set(parent, negotiated);
+	                           parent.setAttribute(LOCAL_ADDRESS_KEY, session.getLocalAddress());
+	                           parent.setAttribute(REMOTE_ADDRESS_KEY, session.getRemoteAddress());
+	                           WEBSOCKET_LOCAL_ADDRESS.set(parent, wsLocalAddress);
+	                           parent.setAttribute(WEB_SOCKET_VERSION_KEY, WebSocketWireProtocol.HIXIE_75);
+	                           parent.setAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY, session
+	                                   .getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
+	                           parent.setAttribute(SUBJECT_TRANSFER_KEY, session.getSubject());
+	                           parent.setAttribute(HTTP_REQUEST_URI_KEY, session.getRequestURL());
+	                           parent.setAttribute(LOGIN_CONTEXT_TRANSFER_KEY, session.getLoginContext());
+	                       }
+	                   });
+	                   session.close(false);
+	                   break;
+	               default:
+	                   session.setStatus(HttpStatus.CLIENT_METHOD_NOT_ALLOWED);
+	                   session.close(false);
+	                   break;
                }
            }
        };

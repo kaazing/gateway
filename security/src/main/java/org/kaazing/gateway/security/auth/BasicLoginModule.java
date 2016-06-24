@@ -34,6 +34,9 @@ import org.kaazing.gateway.util.Encoding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * TODO Add class documentation
+ */
 public class BasicLoginModule extends BaseStateDrivenLoginModule {
 
     public static final Charset UTF8 = Charset.forName("UTF-8");
@@ -70,7 +73,7 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
                 return true;
             } catch (LoginException le) {
                 if (debug) {
-                    LOG.debug("[BasicLoginModule] " + "reading from shared state failed: " + le.getMessage());
+                    LOG.debug("[BasicLoginModule] " + "reading from shared state failed: " + le.getMessage(), le);
                 }
             }
         }
@@ -81,7 +84,7 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
         } catch (LoginException loginException) {
             cleanState();
             if (debug) {
-                LOG.debug("[BasicLoginModule] " + "regular authentication failed: " + loginException.getMessage());
+                LOG.debug("[BasicLoginModule] " + "regular authentication failed: " + loginException.getMessage(), loginException);
             }
         }
 
@@ -100,14 +103,14 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
             return false;
         } catch (UnsupportedCallbackException e) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("UnsupportedCallbackException handling authenticationTokenCallback.");
+                LOG.trace("UnsupportedCallbackException handling authenticationTokenCallback.", e);
             }
             return false;
         }
 
         return authenticationTokenCallback.getAuthenticationToken() != null &&
                authenticationTokenCallback.getAuthenticationToken().getScheme() != null &&
-                authenticationTokenCallback.getAuthenticationToken().getScheme().equalsIgnoreCase("Basic");
+                ("Basic").equalsIgnoreCase(authenticationTokenCallback.getAuthenticationToken().getScheme());
 
     }
 
@@ -142,7 +145,7 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
             } else {
                 throw new LoginException("Syntax error while decoding HTTP Basic Authentication token.");
             }
-        } catch (Throwable e) {
+        } catch (LoginException e) {
             if (debug) {
                 LOG.debug("Exception decoding HTTP Basic Authentication token", e);
             }
@@ -166,7 +169,7 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
             return null;
         } catch (UnsupportedCallbackException e) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("UnsupportedCallbackException handling authenticationTokenCallback.");
+                LOG.trace("UnsupportedCallbackException handling authenticationTokenCallback.", e);
             }
             return null;
         }

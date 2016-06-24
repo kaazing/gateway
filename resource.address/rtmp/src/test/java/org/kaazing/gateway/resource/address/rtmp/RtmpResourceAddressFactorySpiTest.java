@@ -20,7 +20,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 
 import java.net.URI;
@@ -74,7 +74,7 @@ public class RtmpResourceAddressFactorySpiTest {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI);
         assertNull(address.getOption(NEXT_PROTOCOL));
         assertNull(address.getOption(QUALIFIER));
-        assertNull(address.getOption(TRANSPORT));
+        assertNull(address.getOption(TRANSPORT_OPTION));
     }
 
     @Test
@@ -82,7 +82,7 @@ public class RtmpResourceAddressFactorySpiTest {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI, options);
         assertEquals("custom", address.getOption(NEXT_PROTOCOL));
         assertEquals("random", address.getOption(QUALIFIER));
-        assertNull(address.getOption(TRANSPORT));
+        assertNull(address.getOption(TRANSPORT_OPTION));
     }
 
     @Test

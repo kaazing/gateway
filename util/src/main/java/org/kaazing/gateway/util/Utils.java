@@ -107,6 +107,13 @@ public final class Utils {
             new long[]{1024 * 1024, 1024, 1000 * 1000, 1000, 1};
 
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param array
+     * @param separator
+     * @return
+     */
     public static String join(String[] array, String separator) {
         if (array == null) {
             throw new NullPointerException("array");
@@ -148,6 +155,12 @@ public final class Utils {
   private static final byte[] FROM_HEX =
           new byte[] {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
 
+  	/**
+   	* TODO Add method documentation
+   	* 
+   	* @param data
+   	* @return
+   	*/
     public static String toHex(byte[] data) {
         int len = data.length;
         byte[] out = new byte[len << 1];
@@ -182,6 +195,12 @@ public final class Utils {
         return 0x00;
     }
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param hex
+     * @return
+     */
     public static byte[] fromHex(String hex) {
 
         final int len = hex.length();
@@ -191,7 +210,7 @@ public final class Utils {
 
             final byte i1 = hexCharToByte(chars[i << 1]);
             final byte i2 = hexCharToByte(chars[(i << 1) + 1]);
-            out[i] = (byte) ((i1 << 4) + i2);
+            out[i] = (byte) ((i1 << 4) + (i2 & 0xff));
 
         }
         return out;
@@ -199,12 +218,25 @@ public final class Utils {
 
     public static int ENCODED_BOOLEAN_CAPACITY = 4;
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param b
+     * @param buf
+     */
     public static void encodeBoolean(boolean b, ByteBuffer buf) {
         buf.put(b ? TRUE_BYTES : FALSE_BYTES);
     }
 
     public static int ENCODED_INT_CAPACITY = INTEGER_MIN_VALUE_BYTES_LENGTH;
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param i
+     * @param buf
+     * @return
+     */
     public static void encodeInt(int i, ByteBuffer buf) {
         if (i == Integer.MIN_VALUE) {
             buf.put(INTEGER_MIN_VALUE_BYTES);
@@ -257,6 +289,13 @@ public final class Utils {
 
     public static int ENCODED_LONG_CAPACITY = LONG_MIN_VALUE_BYTES_LENGTH;
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param i
+     * @param buf
+     * @return
+     */
     public static void encodeLong(long i, ByteBuffer buf) {
         if (i == Long.MIN_VALUE) {
             buf.put(LONG_MIN_VALUE_BYTES);
@@ -320,6 +359,12 @@ public final class Utils {
         buf.position(position + size);
     }
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param headers
+     * @return
+     */
     public static String asString(Map<ByteBuffer, ByteBuffer> headers) {
         if (headers == null) {
             return null;
@@ -373,6 +418,9 @@ public final class Utils {
     /**
      * Gets the content of the ByteBuffer as a byte[] without mutating the buffer
      * (so thread safe) and minimizing GC (i.e. object creation)
+     * 
+     * @param buf
+     * @return
      */
     public static byte[] asByteArray(ByteBuffer buf) {
         byte[] result;
@@ -400,6 +448,12 @@ public final class Utils {
         return asString(buf);
     }
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param s
+     * @return
+     */
     public static ByteBuffer asByteBuffer(String s) {
         if (null == s) {
             return null;
@@ -411,6 +465,12 @@ public final class Utils {
         }
     }
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param s
+     * @return
+     */
     public static boolean isASCII(String s) {
         int size = s.length();
         char c;
@@ -423,6 +483,12 @@ public final class Utils {
         return true;
     }
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param bytes
+     * @return
+     */
     public static ByteBuffer asByteBuffer(byte[] bytes) {
         return (bytes != null) ? ByteBuffer.wrap(bytes) : null;
     }
@@ -430,6 +496,10 @@ public final class Utils {
     /**
      * Reads an int value from the buffer starting at the given index relative to the current
      * position() of the buffer, without mutating the buffer in any way (so it's thread safe).
+     * 
+     * @param buf
+     * @param index
+     * @return
      */
     public static int getInt(ByteBuffer buf, int index) {
         return buf.order() == BIG_ENDIAN ? getIntB(buf, index) : getIntL(buf, index);
@@ -438,6 +508,10 @@ public final class Utils {
     /**
      * Reads an long value from the buffer starting at the given index relative to the current
      * position() of the buffer, without mutating the buffer in any way (so it's thread safe).
+     * 
+     * @param buf
+     * @param index
+     * @return
      */
     public static long getLong(ByteBuffer buf, int index) {
         return buf.order() == BIG_ENDIAN ? getLongB(buf, index) : getLongL(buf, index);
@@ -446,6 +520,10 @@ public final class Utils {
     /**
      * Reads a short value from the buffer starting at the given index relative to the current
      * position() of the buffer, without mutating the buffer in any way (so it's thread safe).
+     * 
+     * @param buf
+     * @param index
+     * @return
      */
     public static short getShort(ByteBuffer buf, int index) {
         return buf.order() == BIG_ENDIAN ? getShortB(buf, index) : getShortL(buf, index);
@@ -453,6 +531,9 @@ public final class Utils {
 
     /**
      * Converts the first character of the string to uppercase. Does NOT deal with surrogate pairs.
+     * 
+     * @param in
+     * @return
      */
     public static String initCaps(String in) {
         return in.length() < 2 ? in.toUpperCase() : in.substring(0, 1).toUpperCase() + in.substring(1);
@@ -461,6 +542,9 @@ public final class Utils {
     /**
      * Writes the contents of source to target without mutating source (so safe for
      * multithreaded access to source) and without GC (unless source is a direct buffer).
+     * 
+     * @param source
+     * @param target
      */
     public static void putByteBuffer(ByteBuffer source, ByteBuffer target) {
         if (source.hasArray()) {
@@ -510,8 +594,7 @@ public final class Utils {
         String fieldName = fullyQualifiedFieldName.substring(lastDotPos + 1);
         Class<?> clazz = loadClass(className);
         Field field = clazz.getField(fieldName);
-        int mode = field.getInt(clazz);
-        return mode;
+        return field.getInt(clazz);
     }
 
     /**
@@ -528,10 +611,8 @@ public final class Utils {
             boolean valid = true;
             result = Boolean.parseBoolean(value);
             // parseBoolean allows any value, e.g. so a typo like "trye" would be silently interpreted as false
-            if (!result) {
-                if (!Boolean.FALSE.toString().equalsIgnoreCase(value)) {
-                    valid = false;
-                }
+            if (!result && !Boolean.FALSE.toString().equalsIgnoreCase(value)) {
+                valid = false;
             }
             if (!valid) {
                 String message = String.format("Invalid value \"%s\" for %s, must be \"%s\" or \"%s\"",
@@ -729,8 +810,7 @@ public final class Utils {
                 numberPart  = dataSizeValue.substring(0, length - 1);
             }
         }
-        final int result = Integer.parseInt(numberPart) * multiplier;
-        return result;
+        return Integer.parseInt(numberPart) * multiplier;
     }
 
     public static boolean sameOrEquals(Object this_, Object that) {
@@ -794,7 +874,7 @@ public final class Utils {
     static int stringSize(int x) {
         for (int i = 0;; i++) {
             if (x <= sizeTable[i]) {
-                return i + 1;
+            	return i + 1;
             }
         }
     }
@@ -832,56 +912,111 @@ public final class Utils {
 
     public static void log(Logger logger, LogLevel eventLevel, String message) {
         switch (eventLevel) {
-            case TRACE : logger.trace(message); return;
-            case DEBUG : logger.debug(message); return;
-            case INFO  : logger.info(message); return;
-            case WARN  : logger.warn(message); return;
-            case ERROR : logger.error(message); return;
-            default    : return;
+            case TRACE: 
+            	logger.trace(message);
+            	return;
+            case DEBUG: 
+            	logger.debug(message);
+            	return;
+            case INFO: 
+            	logger.info(message); 
+            	return;
+            case WARN: 
+            	logger.warn(message);
+            	return;
+            case ERROR: 
+            	logger.error(message);
+            	return;
+            default: 
+            	return;
         }
     }
 
     public static void log(Logger logger, LogLevel eventLevel, String message, Throwable cause) {
         switch (eventLevel) {
-            case TRACE : logger.trace(message, cause); return;
-            case DEBUG : logger.debug(message, cause); return;
-            case INFO  : logger.info(message, cause); return;
-            case WARN  : logger.warn(message, cause); return;
-            case ERROR : logger.error(message, cause); return;
-            default    : return;
+            case TRACE: 
+            	logger.trace(message, cause); 
+            	return;
+            case DEBUG: 
+            	logger.debug(message, cause); 
+            	return;
+            case INFO: 
+            	logger.info(message, cause); 
+            	return;
+            case WARN: 
+            	logger.warn(message, cause); 
+            	return;
+            case ERROR: 
+            	logger.error(message, cause); 
+            	return;
+            default: 
+            	return;
         }
     }
 
     public static void log(Logger logger, LogLevel eventLevel, String message, Object param) {
         switch (eventLevel) {
-            case TRACE : logger.trace(message, param); return;
-            case DEBUG : logger.debug(message, param); return;
-            case INFO  : logger.info(message, param); return;
-            case WARN  : logger.warn(message, param); return;
-            case ERROR : logger.error(message, param); return;
-            default    : return;
+            case TRACE: 
+            	logger.trace(message, param);
+            	return;
+            case DEBUG: 
+            	logger.debug(message, param);
+            	return;
+            case INFO: 
+            	logger.info(message, param);
+            	return;
+            case WARN: 
+            	logger.warn(message, param);
+            	return;
+            case ERROR: 
+            	logger.error(message, param);
+            	return;
+            default: 
+            	return;
         }
     }
 
     public static void log(Logger logger, LogLevel eventLevel, String message, Object param1, Object param2) {
         switch (eventLevel) {
-            case TRACE : logger.trace(message, param1, param2); return;
-            case DEBUG : logger.debug(message, param1, param2); return;
-            case INFO  : logger.info(message, param1, param2); return;
-            case WARN  : logger.warn(message, param1, param2); return;
-            case ERROR : logger.error(message, param1, param2); return;
-            default    : return;
+            case TRACE: 
+            	logger.trace(message, param1, param2);
+            	return;
+            case DEBUG: 
+            	logger.debug(message, param1, param2);
+            	return;
+            case INFO: 
+            	logger.info(message, param1, param2);
+            	return;
+            case WARN: 
+            	logger.warn(message, param1, param2);
+            	return;
+            case ERROR: 
+            	logger.error(message, param1, param2);
+            	return;
+            default: 
+            	return;
         }
     }
 
     public static void log(Logger logger, LogLevel eventLevel, String message, Object param1, Object param2, Object param3) {
         switch (eventLevel) {
-            case TRACE : logger.trace(message, param1, param2, param3); return;
-            case DEBUG : logger.debug(message, param1, param2, param3); return;
-            case INFO  : logger.info(message, param1, param2, param3); return;
-            case WARN  : logger.warn(message, param1, param2, param3); return;
-            case ERROR : logger.error(message, param1, param2, param3); return;
-            default    : return;
+            case TRACE: 
+            	logger.trace(message, param1, param2, param3);
+            	return;
+            case DEBUG:
+            	logger.debug(message, param1, param2, param3);
+            	return;
+            case INFO: 
+            	logger.info(message, param1, param2, param3);
+            	return;
+            case WARN: 
+            	logger.warn(message, param1, param2, param3);
+            	return;
+            case ERROR: 
+            	logger.error(message, param1, param2, param3);
+            	return;
+            default: 
+            	return;
         }
     }
 
@@ -961,7 +1096,7 @@ public final class Utils {
                 for (String protocol: strings) {
                     b.append(protocol).append(separator);
                 }
-                if (strings.size() > 0) {
+                if (!strings.isEmpty()) {
                     b.deleteCharAt(b.length() - 1);
                 }
             }

@@ -34,6 +34,7 @@ public interface AttributeStore{
      * Remove attribute by name.
      * 
      * @param name attribute name
+     * @return
      */
     Object removeAttribute(String name);
     

@@ -136,7 +136,7 @@ public class GatewayConfigParser {
             final String xml = baos.toString();
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(String.format("Translated gateway config XML:\n%s", xml));
+                LOGGER.debug(String.format("Translated gateway config XML:%n%s", xml));
             }
 
             // Write the translated DOM out to the given file
@@ -273,10 +273,8 @@ public class GatewayConfigParser {
                 // If parsing with previous namespace was also unsuccessful,
                 // process errors top down, failing fast, for user level errors
                try {
-                    if (xmlInjectedFuture.get()) {
-                        if (xmlTransformedFuture.get()) {
-                            throw e;
-                        }
+                    if (xmlInjectedFuture.get() && xmlTransformedFuture.get()) {
+                        throw e;
                     }
                 } catch (Exception n) {
                     xmlParseErrors.add("Invalid XML: " + getRootCause(n).getMessage());
@@ -356,7 +354,7 @@ public class GatewayConfigParser {
         }
 
         // Report all validation errors
-        if (errorList.size() > 0) {
+        if (!errorList.isEmpty()) {
             String validationError = "Validation errors in gateway configuration file";
             LOGGER.error(validationError);
             for (XmlError error : errorList) {
@@ -437,23 +435,6 @@ public class GatewayConfigParser {
     }
 
     /**
-     * Count the number of new lines
-     *
-     * @param ch
-     * @param start
-     * @param length
-     */
-    private static int countNewLines(char[] ch, int start, int length) {
-        int newLineCount = 0;
-        // quite reliable, since only Commodore 8-bit machines, TRS-80, Apple II family, Mac OS up to version 9 and OS-9
-        // use only '\r'
-        for (int i = start; i < length; i++) {
-            newLineCount = newLineCount +  ((ch[i] == '\n') ? 1 : 0);
-        }
-        return newLineCount;
-    }
-
-    /**
      * Inject resolved parameter values into XML stream
      */
     private static final class XMLParameterInjector implements Callable<Boolean> {
@@ -492,6 +473,23 @@ public class GatewayConfigParser {
         private void write(String s) {
             write(s.toCharArray(), 0, s.length());
         }
+        
+        /**
+         * Count the number of new lines
+         *
+         * @param ch
+         * @param start
+         * @param length
+         */
+        private static int countNewLines(char[] ch, int start, int length) {
+            int newLineCount = 0;
+            // quite reliable, since only Commodore 8-bit machines, TRS-80, Apple II family, Mac OS up to version 9 and OS-9
+            // use only '\r'
+            for (int i = start; i < length; i++) {
+                newLineCount = newLineCount +  ((ch[i] == '\n') ? 1 : 0);
+            }
+            return newLineCount;
+        }
 
         private void close() {
             try {
@@ -517,11 +515,11 @@ public class GatewayConfigParser {
                     private Locator2 locator;
 
                     private void realignElement() {
-                        String realignment = "";
+                        StringBuilder realignment = new StringBuilder();
                         for (int i = 0; i < locator.getLineNumber() - currentFlushedLine; i++) {
-                            realignment += System.getProperty("line.separator");
+                            realignment.append(System.getProperty("line.separator"));
                         }
-                        write(realignment);
+                        write(realignment.toString());
                     }
 
                     @Override
@@ -539,12 +537,12 @@ public class GatewayConfigParser {
                     public void startElement(String uri, String localName, String qName, Attributes attributes)
                             throws SAXException {
                         realignElement();
-                        String elementName = (localName == null || localName.equals("")) ? qName : localName;
+                        String elementName = (localName == null || ("").equals(localName)) ? qName : localName;
                         write("<" + elementName);
                         if (attributes != null) {
                             for (int i = 0; i < attributes.getLength(); i++) {
-                                String attributeName = (attributes.getLocalName(i) == null || attributes
-                                        .getLocalName(i).equals("")) ? attributes.getQName(i) : attributes
+                                String attributeName = (attributes.getLocalName(i) == null || ("").equals(attributes
+                                        .getLocalName(i))) ? attributes.getQName(i) : attributes
                                                                .getLocalName(i);
                                 write(" " + attributeName + "=\"");
                                 char[] attributeValue = attributes.getValue(i).toCharArray();
@@ -575,7 +573,7 @@ public class GatewayConfigParser {
                     @Override
                     public void endElement(String uri, String localName, String qName) throws SAXException {
                         realignElement();
-                        String elementName = (localName == null || localName.equals("")) ? qName : localName;
+                        String elementName = (localName == null || ("").equals(localName)) ? qName : localName;
                         write("</" + elementName + ">");
                     }
 
@@ -587,7 +585,7 @@ public class GatewayConfigParser {
             } finally {
                 close();
             }
-            return errors.size() == 0;
+            return errors.isEmpty();
         }
     }
 

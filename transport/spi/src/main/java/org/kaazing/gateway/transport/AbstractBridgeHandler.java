@@ -25,6 +25,9 @@ import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * TODO Add class documentation
+ */
 public abstract class AbstractBridgeHandler implements IoHandler {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractBridgeHandler.class);

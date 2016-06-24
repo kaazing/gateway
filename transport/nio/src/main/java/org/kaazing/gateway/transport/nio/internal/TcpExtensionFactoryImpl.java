@@ -28,6 +28,10 @@ import org.kaazing.gateway.transport.nio.TcpExtensionFactorySpi;
 
 public class TcpExtensionFactoryImpl implements TcpExtensionFactory {
     private final List<TcpExtensionFactorySpi> factories;
+    
+    private TcpExtensionFactoryImpl(List<TcpExtensionFactorySpi> factories) {
+        this.factories = factories;
+    }
 
     /* (non-Javadoc)
      * @see org.kaazing.gateway.transport.nio.internal.TcpExtensionFactory#bind(org.kaazing.gateway.resource.address.ResourceAddress)
@@ -58,10 +62,6 @@ public class TcpExtensionFactoryImpl implements TcpExtensionFactory {
             factories.add(service);
         }
         return new TcpExtensionFactoryImpl(unmodifiableList(factories));
-    }
-    
-    private TcpExtensionFactoryImpl(List<TcpExtensionFactorySpi> factories) {
-        this.factories = factories;
     }
 
 }

@@ -23,7 +23,9 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.service.amqp.amqp091.filter.AmqpFilter;
 
-
+/**
+ * TODO Add class documentation
+ */
 public class AmqpProtocolHeaderMessage extends AmqpMessage {
     public static final byte[] PROTOCOL_0_9_1_DEFAULT_HEADER = 
                                         new byte[] {65, 77, 81, 80, 0, 0, 9, 1};

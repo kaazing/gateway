@@ -34,6 +34,12 @@ public abstract class SseConsumeToEolDecodingState implements DecodingState {
 
     private boolean lastIsCR;
     private IoBufferEx buffer;
+    
+    private final IoBufferAllocatorEx<?> allocator;
+
+    public SseConsumeToEolDecodingState(IoBufferAllocatorEx<?> allocator) {
+        this.allocator = allocator;
+    }
 
     @Override
     public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out)
@@ -108,13 +114,6 @@ public abstract class SseConsumeToEolDecodingState implements DecodingState {
             }
             return this;
         }
-    }
-
-    
-    private final IoBufferAllocatorEx<?> allocator;
-
-    public SseConsumeToEolDecodingState(IoBufferAllocatorEx<?> allocator) {
-        this.allocator = allocator;
     }
 
     /**

@@ -45,9 +45,7 @@ public class AgronaMonitoringEntityFactory implements MonitoringEntityFactory {
         AtomicCounter counter = countersManager.newCounter(name);
         counters.add(counter);
 
-        LongMonitoringCounter longMonitoringCounter = new AgronaLongMonitoringCounter(counter);
-
-        return longMonitoringCounter;
+        return new AgronaLongMonitoringCounter(counter);
     }
 
     @Override

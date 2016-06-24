@@ -80,7 +80,7 @@ public class JmxManagementService implements ManagementService, NotificationList
     private JMXConnectorServer connectorServer;
     private MBeanServer mbeanServer;
     private Properties configuration;
-    private boolean systemStatsSupported = true;
+//    private boolean systemStatsSupported = true;
 
     private static Registry sRMIRegistry;
 
@@ -134,12 +134,12 @@ public class JmxManagementService implements ManagementService, NotificationList
     @Override
     public void init(ServiceContext serviceContext) throws Exception {
         try {
-            Sigar sigar = new Sigar();
-            Uptime uptime = sigar.getUptime();
+//            Sigar sigar = new Sigar();
+//            Uptime uptime = sigar.getUptime();
         } catch (Throwable t) {
-            logger.info("JMX management service: Unable to access system-level management statistics");
-            logger.info("   (CPU, NIC, System data). Management will continue without them.");
-            systemStatsSupported = false;
+            logger.info("JMX management service: Unable to access system-level management statistics", t);
+            logger.info("   (CPU, NIC, System data). Management will continue without them.", t);
+//            systemStatsSupported = false;
         }
 
         this.serviceContext = serviceContext;
@@ -204,9 +204,9 @@ public class JmxManagementService implements ManagementService, NotificationList
 
         JMXServiceURL serviceURL = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + uri.getHost() + ":" + port + "/jmxrmi");
 
-        MBeanServer mbeanServer = getMBeanServer();
+        MBeanServer someMbeanServer = getMBeanServer();
 
-        connectorServer = JMXConnectorServerFactory.newJMXConnectorServer(serviceURL, env, mbeanServer);
+        connectorServer = JMXConnectorServerFactory.newJMXConnectorServer(serviceURL, env, someMbeanServer);
 
         List<String> requiredRoles = asList(serviceContext.getRequireRoles());
         connectorServer.setMBeanServerForwarder(MBSFInvocationHandler.newProxyInstance(requiredRoles));
@@ -318,7 +318,7 @@ public class JmxManagementService implements ManagementService, NotificationList
                 loginContext.login();
                 return subject;
             } catch (LoginException e) {
-                throw new SecurityException("Invalid credentials");
+                throw new SecurityException("Invalid credentials", e);
             }
         }
     }
@@ -349,11 +349,11 @@ public class JmxManagementService implements ManagementService, NotificationList
 
             final String methodName = method.getName();
 
-            if (methodName.equals("getMBeanServer")) {
+            if (("getMBeanServer").equals(methodName)) {
                 return mbs;
             }
 
-            if (methodName.equals("setMBeanServer")) {
+            if (("setMBeanServer").equals(methodName)) {
                 if (args[0] == null) {
                     throw new IllegalArgumentException("Null MBeanServer");
                 }
@@ -376,7 +376,7 @@ public class JmxManagementService implements ManagementService, NotificationList
             }
 
             // Restrict access to "createMBean" and "unregisterMBean" to any user
-            if (methodName.equals("createMBean") || methodName.equals("unregisterMBean")) {
+            if (("createMBean").equals(methodName) || ("unregisterMBean").equals(methodName)) {
                 throw new SecurityException("Access denied");
             }
 

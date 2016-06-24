@@ -88,10 +88,10 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         super(new DefaultIoSessionConfigEx());
 
         // note: content length adjustment filter is added dynamically for httpxe/1.1, and not needed by http/1.1
-        Map<String, Set<HttpConnectFilter>> connectFiltersByProtocol = new HashMap<>();
-        connectFiltersByProtocol.put(PROTOCOL_HTTP_1_1, complementOf(of(CONTENT_LENGTH_ADJUSTMENT, PROTOCOL_HTTPXE)));
-        connectFiltersByProtocol.put(PROTOCOL_HTTPXE_1_1, complementOf(of(CONTENT_LENGTH_ADJUSTMENT)));
-        this.connectFiltersByProtocol = unmodifiableMap(connectFiltersByProtocol);
+        Map<String, Set<HttpConnectFilter>> connectFilterMap = new HashMap<>();
+        connectFilterMap.put(PROTOCOL_HTTP_1_1, complementOf(of(CONTENT_LENGTH_ADJUSTMENT, PROTOCOL_HTTPXE)));
+        connectFilterMap.put(PROTOCOL_HTTPXE_1_1, complementOf(of(CONTENT_LENGTH_ADJUSTMENT)));
+        this.connectFiltersByProtocol = unmodifiableMap(connectFilterMap);
         this.allConnectFilters = allOf(HttpConnectFilter.class);
         this.persistentConnectionsStore = new PersistentConnectionPool(logger);
     }
@@ -123,7 +123,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
     @Override
     protected boolean canConnect(String transportName) {
-        return transportName.equals("http");
+        return ("http").equals(transportName);
     }
 
     @Override
@@ -220,7 +220,8 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
         assert nextProtocol != null;
         Set<HttpConnectFilter> connectFilters = connectFiltersByProtocol.get(nextProtocol);
-        assert (connectFilters != null && !connectFilters.isEmpty());
+        boolean connectFiltersValid = connectFilters != null && !connectFilters.isEmpty();
+        assert connectFiltersValid;
 
         for (HttpConnectFilter connectFilter : connectFilters) {
             chain.addLast(connectFilter.filterName(), connectFilter.filter());

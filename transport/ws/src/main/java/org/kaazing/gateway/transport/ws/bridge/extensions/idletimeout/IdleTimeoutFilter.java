@@ -68,8 +68,7 @@ class IdleTimeoutFilter extends IoFilterAdapter<IoSessionEx>  {
     }
 
     protected WsMessage emptyPongMessage(IoSessionEx session) throws Exception {
-        WsPongMessage pong = new WsPongMessage();
-        return pong;
+    	return new WsPongMessage();
     }
 
     private void schedulePong(IoSessionEx session) {

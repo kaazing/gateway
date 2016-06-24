@@ -56,7 +56,7 @@ public class Message implements Cloneable {
     }
     
     public boolean hasCache() {
-        return (cacheRef != null);
+        return cacheRef != null;
     }
 
     // A more verbose (and expensive-to-generate) version of toString(),

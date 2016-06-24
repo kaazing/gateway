@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
+import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
 
@@ -104,7 +104,7 @@ public class NioSocketAcceptorBindingsTest {
             ++bindCount;
 
             for (int i = 0; i < NUMBER_DISTINCT_ADDRESSES; i++) {
-                for (ResourceAddress alternate = bindAddresses[i]; alternate != null; alternate = alternate.getOption(ALTERNATE)) {
+                for (ResourceAddress alternate = bindAddresses[i]; alternate != null; alternate = alternate.getOption(ALTERNATE_OPTION)) {
                     Binding tcpBinding = tcpBindings.getBinding(alternate);
                     assertEquals(bindCount, tcpBinding.referenceCount());
                 }
@@ -116,7 +116,7 @@ public class NioSocketAcceptorBindingsTest {
         do {
             
             for (int i = 0; i < NUMBER_DISTINCT_ADDRESSES; i++) {
-                for (ResourceAddress alternate = bindAddresses[i]; alternate != null; alternate = alternate.getOption(ALTERNATE)) {
+                for (ResourceAddress alternate = bindAddresses[i]; alternate != null; alternate = alternate.getOption(ALTERNATE_OPTION)) {
                     Binding tcpBinding = tcpBindings.getBinding(alternate);
                     assertEquals(bindCount, tcpBinding.referenceCount());
                 }
@@ -132,7 +132,7 @@ public class NioSocketAcceptorBindingsTest {
 
         // verify no bindings present
         for (int i = 0; i < NUMBER_DISTINCT_ADDRESSES; i++) {
-            for (ResourceAddress alternate = bindAddresses[i]; alternate != null; alternate = alternate.getOption(ALTERNATE)) {
+            for (ResourceAddress alternate = bindAddresses[i]; alternate != null; alternate = alternate.getOption(ALTERNATE_OPTION)) {
                 Binding tcpBinding = tcpBindings.getBinding(alternate);
                 assertNull(tcpBinding);
             }
@@ -159,7 +159,7 @@ public class NioSocketAcceptorBindingsTest {
             tcpAcceptor.bind(bindAddress, handler, initializer);
             assertFalse("Failed to bind any addresses.", tcpBindings.isEmpty());
             ++bindCount;
-            for (ResourceAddress alternate = bindAddress; alternate != null; alternate = alternate.getOption(ALTERNATE)) {
+            for (ResourceAddress alternate = bindAddress; alternate != null; alternate = alternate.getOption(ALTERNATE_OPTION)) {
                 Binding tcpBinding = tcpBindings.getBinding(alternate);
                 assertEquals(bindCount, tcpBinding.referenceCount());
             }
@@ -168,7 +168,7 @@ public class NioSocketAcceptorBindingsTest {
         // unbind 5 times
         UnbindFuture unbindFuture = DefaultUnbindFuture.succeededFuture();
         do {
-            for (ResourceAddress alternate = bindAddress; alternate != null; alternate = alternate.getOption(ALTERNATE)) {
+            for (ResourceAddress alternate = bindAddress; alternate != null; alternate = alternate.getOption(ALTERNATE_OPTION)) {
                 Binding tcpBinding = tcpBindings.getBinding(alternate);
                 assertEquals(bindCount, tcpBinding.referenceCount());
             }
@@ -178,7 +178,7 @@ public class NioSocketAcceptorBindingsTest {
         } while (bindCount > 0);
 
         // no bindings present
-        for (ResourceAddress alternate = bindAddress; alternate != null; alternate = alternate.getOption(ALTERNATE)) {
+        for (ResourceAddress alternate = bindAddress; alternate != null; alternate = alternate.getOption(ALTERNATE_OPTION)) {
             Binding tcpBinding = tcpBindings.getBinding(alternate);
             assertNull(tcpBinding);
         }
@@ -199,7 +199,7 @@ public class NioSocketAcceptorBindingsTest {
         // bind #1
         tcpAcceptor.bind(bindAddress, handler, initializer);
         assertFalse("Failed to bind any addresses.", tcpBindings.isEmpty());
-        for (ResourceAddress alternate = bindAddress; alternate != null; alternate = alternate.getOption(ALTERNATE)) {
+        for (ResourceAddress alternate = bindAddress; alternate != null; alternate = alternate.getOption(ALTERNATE_OPTION)) {
             Binding tcpBinding = tcpBindings.getBinding(alternate);
             assertEquals(1, tcpBinding.referenceCount());
         }
@@ -208,7 +208,7 @@ public class NioSocketAcceptorBindingsTest {
         UnbindFuture unbindFuture = DefaultUnbindFuture.succeededFuture();
         unbindFuture = DefaultUnbindFuture.combineFutures(unbindFuture, tcpAcceptor.unbind(bindAddress));
         unbindFuture.awaitUninterruptibly();
-        for (ResourceAddress alternate = bindAddress; alternate != null; alternate = alternate.getOption(ALTERNATE)) {
+        for (ResourceAddress alternate = bindAddress; alternate != null; alternate = alternate.getOption(ALTERNATE_OPTION)) {
             Binding tcpBinding = tcpBindings.getBinding(alternate);
             if (tcpBinding != null) {
                 assertEquals(0, tcpBinding.referenceCount());
@@ -260,7 +260,7 @@ public class NioSocketAcceptorBindingsTest {
             ++bindCount;
 
             for (int i = 0; i < NUMBER_DISTINCT_ADDRESSES; i++) {
-                for (ResourceAddress alternate = bindAddresses[i]; alternate != null; alternate = alternate.getOption(ALTERNATE)) {
+                for (ResourceAddress alternate = bindAddresses[i]; alternate != null; alternate = alternate.getOption(ALTERNATE_OPTION)) {
                     Binding tcpBinding = tcpBindings.getBinding(alternate);
                     assertEquals(bindCount, tcpBinding.referenceCount());
                 }
@@ -272,7 +272,7 @@ public class NioSocketAcceptorBindingsTest {
         do {
             
             for (int i = 0; i < NUMBER_DISTINCT_ADDRESSES; i++) {
-                for (ResourceAddress alternate = bindAddresses[i]; alternate != null; alternate = alternate.getOption(ALTERNATE)) {
+                for (ResourceAddress alternate = bindAddresses[i]; alternate != null; alternate = alternate.getOption(ALTERNATE_OPTION)) {
                     Binding tcpBinding = tcpBindings.getBinding(alternate);
                     assertEquals(bindCount, tcpBinding.referenceCount());
                 }
@@ -288,7 +288,7 @@ public class NioSocketAcceptorBindingsTest {
 
         // verify no bindings present
         for (int i = 0; i < NUMBER_DISTINCT_ADDRESSES; i++) {
-            for (ResourceAddress alternate = bindAddresses[i]; alternate != null; alternate = alternate.getOption(ALTERNATE)) {
+            for (ResourceAddress alternate = bindAddresses[i]; alternate != null; alternate = alternate.getOption(ALTERNATE_OPTION)) {
                 Binding tcpBinding = tcpBindings.getBinding(alternate);
                 assertNull(tcpBinding);
             }

@@ -32,7 +32,7 @@ public class DefaultLoginResult extends LoginResult {
 
 
     /* Constant for 5 minutes as seconds */
-    private static final long FIVE_MINUTES = TimeUnit.MINUTES.toSeconds(5);
+//    private static final long FIVE_MINUTES = TimeUnit.MINUTES.toSeconds(5);
     static final long[] NO_PERIODS_AVAILABLE = new long[]{};
 
     Type loginResultType;
@@ -57,7 +57,7 @@ public class DefaultLoginResult extends LoginResult {
     /**
      * Once calculated, this is a cache for revalidate period[0] and timeout[1] values
      */
-    private long[] calculatedPeriodTimeoutValues = NO_PERIODS_AVAILABLE;
+//    private long[] calculatedPeriodTimeoutValues = NO_PERIODS_AVAILABLE;
 
     public DefaultLoginResult() {
         super();
@@ -132,7 +132,7 @@ public class DefaultLoginResult extends LoginResult {
 
     public Object[] getLoginChallengeData() {
         if (loginChallengeData.isEmpty()) {
-            return null;
+            return new Object[0];
         }
 
         return loginChallengeData.toArray();

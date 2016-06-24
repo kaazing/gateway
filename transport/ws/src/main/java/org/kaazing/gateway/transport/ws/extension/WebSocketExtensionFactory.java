@@ -42,21 +42,21 @@ public final class WebSocketExtensionFactory {
 
     private WebSocketExtensionFactory(Map<String, WebSocketExtensionFactorySpi> factoriesRO) {
         this.factoriesRO = factoriesRO;
-        Map<Integer, Set<ExtensionHeader>>extensionHeadersByCategory = new TreeMap<>();
+        Map<Integer, Set<ExtensionHeader>>extensionHeadersMap = new TreeMap<>();
         for(WebSocketExtensionFactorySpi extension: factoriesRO.values()){
             // Order the values
             List<ExtensionOrderCategory> extensionOrderValues =
                     Arrays.asList(WebSocketExtensionFactorySpi.ExtensionOrderCategory.values());
             Integer key = extensionOrderValues.indexOf(extension.getOrderCategory());
-            Set<ExtensionHeader> value = extensionHeadersByCategory.get(key);
+            Set<ExtensionHeader> value = extensionHeadersMap.get(key);
             if(value == null){
                 value = new HashSet<>();
-                extensionHeadersByCategory.put(key, value);
+                extensionHeadersMap.put(key, value);
             }
             String extensionToken = extension.getExtensionName();
             value.add(new ExtensionHeaderBuilder(extensionToken).done());
         }
-        this.extensionHeadersByCategory = unmodifiableMap(extensionHeadersByCategory);
+        this.extensionHeadersByCategory = unmodifiableMap(extensionHeadersMap);
     }
 
     public Collection<WebSocketExtensionFactorySpi> availableExtensions() {
@@ -108,7 +108,7 @@ public final class WebSocketExtensionFactory {
             throw new NullPointerException("extensionTokens");
         }
 
-        if (extensionTokens.size() == 0) {
+        if (extensionTokens.isEmpty()) {
             return new ArrayList<>();
         }
 
@@ -137,6 +137,7 @@ public final class WebSocketExtensionFactory {
      * Creates a new instance of WebSocketExtensionFactory. It uses the specified {@link ClassLoader} to load
      * {@link WebSocketExtensionFactorySpi} objects that are registered using META-INF/services.
      *
+     * @param cl
      * @return WebSocketExtensionFactory
      */
     public static WebSocketExtensionFactory newInstance(ClassLoader cl) {

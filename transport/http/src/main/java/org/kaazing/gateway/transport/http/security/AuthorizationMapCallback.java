@@ -21,6 +21,9 @@ import javax.security.auth.callback.Callback;
 
 import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
 
+/**
+ * TODO Add class documentation
+ */
 public class AuthorizationMapCallback implements Callback, Serializable {
     private static final long serialVersionUID = 1104713124486655658L;
 

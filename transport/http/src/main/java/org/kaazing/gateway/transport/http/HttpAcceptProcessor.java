@@ -149,13 +149,11 @@ public class HttpAcceptProcessor extends BridgeAcceptProcessor<DefaultHttpSessio
                             long scheduledWriteBytes = session.getScheduledWriteBytes();
                             httpResponse.setHeader(HEADER_CONTENT_LENGTH, valueOf(scheduledWriteBytes));
                         }
-                        else if (!httpResponse.isContentLengthImplicit()) {
-                            // if content-length is not specified, then chunking is necessary
-                            // unless session indicates otherwise
-                            if ( session.isChunkingNecessary() ) {
-                                httpResponse.setHeader("Transfer-Encoding", "chunked");
-                                session.setChunked(true);
-                            }
+                        // if content-length is not specified, then chunking is necessary
+                        // unless session indicates otherwise
+                        else if (!httpResponse.isContentLengthImplicit() && session.isChunkingNecessary() ) {
+                            httpResponse.setHeader("Transfer-Encoding", "chunked");
+                            session.setChunked(true);
                         }
                     }
                 }

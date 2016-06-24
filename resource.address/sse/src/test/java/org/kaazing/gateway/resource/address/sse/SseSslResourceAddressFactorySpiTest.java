@@ -20,7 +20,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
 import static org.kaazing.gateway.resource.address.ResourceFactories.changeSchemeOnly;
@@ -94,14 +94,14 @@ public class SseSslResourceAddressFactorySpiTest {
         ResourceAddress address = addressFactorySpi.newResourceAddress(ADDRESS_URI);
         assertNull(address.getOption(NEXT_PROTOCOL));
         assertNull(address.getOption(QUALIFIER));
-        assertEquals(httpTransportAddress, address.getOption(TRANSPORT));
+        assertEquals(httpTransportAddress, address.getOption(TRANSPORT_OPTION));
         assertEquals(HTTPS_ADDRESS_URI, address.getOption(TRANSPORT_URI));
 
         // Test alternate address with Httpxe transport
-        address = address.getOption(ResourceAddress.ALTERNATE);
+        address = address.getOption(ResourceAddress.ALTERNATE_OPTION);
         assertNull(address.getOption(NEXT_PROTOCOL));
         assertNull(address.getOption(QUALIFIER));
-        assertEquals(httpxeTransportAddress, address.getOption(TRANSPORT));
+        assertEquals(httpxeTransportAddress, address.getOption(TRANSPORT_OPTION));
         assertEquals(HTTPXE_SSL_ADDRESS_URI, address.getOption(TRANSPORT_URI));
     }
 
@@ -110,14 +110,14 @@ public class SseSslResourceAddressFactorySpiTest {
         ResourceAddress address = addressFactorySpi.newResourceAddress(ADDRESS_URI, options);
         assertEquals("custom", address.getOption(NEXT_PROTOCOL));
         assertEquals("random", address.getOption(QUALIFIER));
-        assertEquals(optionsTransportAddress, address.getOption(TRANSPORT));
+        assertEquals(optionsTransportAddress, address.getOption(TRANSPORT_OPTION));
         assertEquals(OPTIONS_ADDRESS_URI, address.getOption(TRANSPORT_URI));
 
         // Test alternate address with Httpxe transport
-        address = address.getOption(ResourceAddress.ALTERNATE);
+        address = address.getOption(ResourceAddress.ALTERNATE_OPTION);
         assertEquals("custom", address.getOption(NEXT_PROTOCOL));
         assertEquals("random", address.getOption(QUALIFIER));
-        assertEquals(optionsTransportAddress, address.getOption(TRANSPORT));
+        assertEquals(optionsTransportAddress, address.getOption(TRANSPORT_OPTION));
         assertEquals(OPTIONS_ADDRESS_URI, address.getOption(TRANSPORT_URI));
     }
 

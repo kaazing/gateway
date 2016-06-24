@@ -18,6 +18,9 @@ package org.kaazing.gateway.management.monitoring.entity.impl;
 import org.kaazing.gateway.service.LongMonitoringCounter;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
+/**
+ * TODO Add class documentation
+ */
 public class DefaultMonitoringEntityFactoryStub implements MonitoringEntityFactory {
 
     private static final LongMonitoringCounter COUNTER_STUB = new DefaultLongMonitoringCounterStub();

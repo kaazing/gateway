@@ -55,7 +55,7 @@ public class HttpResponseMessage extends HttpStartMessage {
 	}
 
 	public String getBodyReason() {
-		return (bodyReason == null ? getReason() : bodyReason);
+		return bodyReason == null ? getReason() : bodyReason;
         }
 
     public boolean isContentExcluded() {
@@ -130,21 +130,22 @@ public class HttpResponseMessage extends HttpStartMessage {
     }
     
     protected boolean equals(HttpResponseMessage that) {
-        return (super.equals(that) &&
-                this.contentExcluded == that.contentExcluded &&
-                sameOrEquals(this.bodyReason, that.bodyReason) &&
-                sameOrEquals(this.reason, that.reason) &&
-                sameOrEquals(this.status, that.status));
+        return that != null && 
+        	   super.equals(that) &&
+               this.contentExcluded == that.contentExcluded &&
+               sameOrEquals(this.bodyReason, that.bodyReason) &&
+               sameOrEquals(this.reason, that.reason) &&
+               sameOrEquals(this.status, that.status);
     }
     
     @Override
     public String toString() {
-        return String.format("%s: %s %s %s %s %s", getKind(), getStatus(), getReason(), getVersion(), getContent(), (isComplete() ? "" : " [...]")); 
+        return String.format("%s: %s %s %s %s %s", getKind(), getStatus(), getReason(), getVersion(), getContent(), isComplete() ? "" : " [...]"); 
     }
 
     @Override
     public String toVerboseString() {
-        return String.format("%s: %s %s %s HEADERS: %s %s %s", getKind(), getStatus(), getReason(), getVersion(), getHeaders(), getContent(), (isComplete() ? "" : " [...]")); 
+        return String.format("%s: %s %s %s HEADERS: %s %s %s", getKind(), getStatus(), getReason(), getVersion(), getHeaders(), getContent(), isComplete() ? "" : " [...]"); 
     }
 
 	@Override

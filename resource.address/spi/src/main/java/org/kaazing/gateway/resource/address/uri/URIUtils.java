@@ -305,8 +305,7 @@ public final class URIUtils {
                 newAuthority = newAuthority.replace(matchedToken, MOCK_HOST);
             }
             URI modifiedURIAuthority = URLUtils.modifyURIAuthority(uriObj, newAuthority);
-            String uriWithModifiedAuthority = URIUtils.uriToString(modifiedURIAuthority).replace(MOCK_HOST, matchedToken);
-            return uriWithModifiedAuthority;
+            return URIUtils.uriToString(modifiedURIAuthority).replace(MOCK_HOST, matchedToken);
         }
         catch (URISyntaxException e) {
             try {
@@ -404,6 +403,11 @@ public final class URIUtils {
         private String query;
 
         private boolean absolute;
+        
+        public NetworkInterfaceURI(String uri) throws IllegalArgumentException {
+            parser = new Parser(uri);
+            parser.parse();
+        }
 
         public static String buildURIToString(String scheme, String authority, String path, String query, String fragment) {
             URI helperURI;
@@ -424,11 +428,6 @@ public final class URIUtils {
                 throw new IllegalArgumentException(e.getMessage(), e);
             }
             return helperURI.toString().replace(HOST_TEMPLATE, host);
-        }
-
-        public NetworkInterfaceURI(String uri) throws IllegalArgumentException {
-            parser = new Parser(uri);
-            parser.parse();
         }
 
         /**

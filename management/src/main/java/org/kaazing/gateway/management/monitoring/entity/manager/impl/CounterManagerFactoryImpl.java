@@ -19,6 +19,9 @@ import org.kaazing.gateway.management.monitoring.entity.manager.ServiceCounterMa
 import org.kaazing.gateway.management.monitoring.entity.manager.factory.CounterManagerFactory;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
+/**
+ * TODO Add class documentation
+ */
 public class CounterManagerFactoryImpl implements CounterManagerFactory {
 
     @Override

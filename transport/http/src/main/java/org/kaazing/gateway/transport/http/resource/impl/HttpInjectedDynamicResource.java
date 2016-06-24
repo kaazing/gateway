@@ -35,16 +35,27 @@ public final class HttpInjectedDynamicResource extends HttpDynamicResource {
     private final long startTime;
     private final String resourcePath;
     private final Map<String, String> writeHeaders;
+    
+    HttpInjectedDynamicResource(String resourcePath) {
+        this(resourcePath, EMPTY_WRITE_HEADERS);
+    }
+    
+    HttpInjectedDynamicResource(String resourcePath, Map<String, String> writeHeaders) {
+        this.resourcePath = resourcePath;
+        this.writeHeaders = writeHeaders;
+        this.startTime = System.currentTimeMillis();
+    }
 
     @Override
     public void writeFile(HttpAcceptSession httpSession) throws IOException {
 
         // flush write headers
         if (!writeHeaders.isEmpty()) {
-            for (String headerName : writeHeaders.keySet()) {
-                String headerValue = writeHeaders.get(headerName);
-                httpSession.addWriteHeader(headerName, headerValue);
-            }
+        	for (Map.Entry<String, String> entry : writeHeaders.entrySet()) {
+        		String headerName = entry.getKey();
+        		String headerValue = entry.getValue();
+        		httpSession.addWriteHeader(headerName, headerValue);
+        	}
         }
 
         ResourceAddress localAddress = httpSession.getLocalAddress();
@@ -66,17 +77,6 @@ public final class HttpInjectedDynamicResource extends HttpDynamicResource {
 
         HttpUtils.writeIfModified(httpSession, bridgeFile);
     }
-    
-    HttpInjectedDynamicResource(String resourcePath) {
-        this(resourcePath, EMPTY_WRITE_HEADERS);
-    }
-    
-    HttpInjectedDynamicResource(String resourcePath, Map<String, String> writeHeaders) {
-        this.resourcePath = resourcePath;
-        this.writeHeaders = writeHeaders;
-        this.startTime = System.currentTimeMillis();
-    }
-
 
     private File supplyAsFile(File tempFile, long startTime) throws IOException {
         if (resourcePath.endsWith(".js")) {
@@ -99,10 +99,7 @@ public final class HttpInjectedDynamicResource extends HttpDynamicResource {
         
         fileExtension = fileExtension.toLowerCase();
 
-        if ("html".equals(fileExtension)) {
-            contentType = "text/html";
-        }
-        else if ("htm".equals(fileExtension)) {
+        if ("html".equals(fileExtension) || "htm".equals(fileExtension) || "aspx".equals(fileExtension)) {
             contentType = "text/html";
         }
         else if ("jar".equals(fileExtension)) {
@@ -117,10 +114,7 @@ public final class HttpInjectedDynamicResource extends HttpDynamicResource {
         else if ("gif".equals(fileExtension)) {
             contentType = "image/gif";
         }
-        else if ("jpg".equals(fileExtension)) {
-            contentType = "image/jpeg";
-        }
-        else if ("jpeg".equals(fileExtension)) {
+        else if ("jpg".equals(fileExtension) || "jpeg".equals(fileExtension)) {
             contentType = "image/jpeg";
         }
         else if ("css".equals(fileExtension)) {
@@ -138,17 +132,11 @@ public final class HttpInjectedDynamicResource extends HttpDynamicResource {
         else if ("jnlp".equals(fileExtension)) {
             contentType = "application/x-java-jnlp-file";
         }
-        else if ("manifest".equals(fileExtension)) {
-            contentType = "text/cache-manifest";
-        }
-        else if ("appcache".equals(fileExtension)) {
+        else if ("manifest".equals(fileExtension) || "appcache".equals(fileExtension)) {
             contentType = "text/cache-manifest";
         }
         else if ("vtt".equals(fileExtension)) {
             contentType = "text/vtt";
-        }
-        else if ("aspx".equals(fileExtension)) {
-            contentType = "text/html";
         }
         else if ("apk".equals(fileExtension)) {
             contentType = "application/vnd.android.package-archive";

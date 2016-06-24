@@ -222,7 +222,7 @@ public abstract class ConfigParameter {
 
             } catch (Exception e) {
                 // NOOP try next supported cloud provider if it exists
-                LOGGER.debug(format("failed to get value due to exception with message: %s ", e.getMessage()));
+                LOGGER.debug(format("failed to get value due to exception with message: %s ", e.getMessage()), e);
             }
             // TODO: Add more as we support cloud platforms
             cachedCloudHost = value;

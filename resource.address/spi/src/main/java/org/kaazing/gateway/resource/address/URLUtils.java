@@ -125,7 +125,7 @@ public class URLUtils {
 
     public static URI ensureTrailingSlash(URI uri) {
         String newPath = uri.getPath();
-        if ( newPath == null || newPath.equals("")) {
+        if ( newPath == null || ("").equals(newPath)) {
             newPath = "/";
         }
         try {
@@ -143,7 +143,7 @@ public class URLUtils {
 
     public static String ensureTrailingSlash(String uri) {
         String newPath = URIUtils.getPath(uri);
-        if ( newPath == null || newPath.equals("")) {
+        if ( newPath == null || ("").equals(newPath)) {
             newPath = "/";
         }
         try {
@@ -198,8 +198,9 @@ public class URLUtils {
         String query = uri.getQuery();
         String fragment = uri.getFragment();
 
-        assert (path.endsWith(postfix));
-        path = (path.equals(postfix) ? SINGLE_SLASH : path.substring(0, path.length() - postfix.length()));
+        boolean endsWith = path.endsWith(postfix);
+        assert endsWith;
+        path = path.equals(postfix) ? SINGLE_SLASH : path.substring(0, path.length() - postfix.length());
 
         try {
             return new URI(scheme, authority, replaceMultipleSlashesWithSingleSlash(path), query, fragment);

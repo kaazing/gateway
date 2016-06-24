@@ -114,7 +114,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
         public void operationComplete(ResponseFuture future) {
             HttpConnectSession session = (HttpConnectSession) future.getSession();
             if (session.getStatus() != HttpStatus.SUCCESS_OK ||
-                !session.getReadHeader(HEADER_CONTENT_TYPE).equals("application/octet-stream")) {
+                !("application/octet-stream").equals(session.getReadHeader(HEADER_CONTENT_TYPE))) {
                 String message = session.getStatus() != HttpStatus.SUCCESS_OK ?
                         "Unexpected upstream response status " + session.getStatus() :
                         "Unexpected upstream response content type " + session.getReadHeader(HEADER_CONTENT_TYPE);
@@ -175,7 +175,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
     @Override
     protected boolean canConnect(String transportName) {
-        return transportName.equals("wse") || transportName.equals("ws");
+        return ("wse").equals(transportName) || ("ws").equals(transportName);
     }
 
     @Override
@@ -294,7 +294,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                     }
                 }
 
-                List<String> wsExtensions = connectAddressNext.getOption(WsResourceAddress.EXTENSIONS);
+                List<String> wsExtensions = connectAddressNext.getOption(WsResourceAddress.EXTENSIONS_OPTION);
                 if (wsExtensions!= null) {
                     for (String extension : wsExtensions) {
                         if (extension != null) {
@@ -397,7 +397,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
         @Override
         protected void doSessionClosed(HttpConnectSession createSession) throws Exception {
             final WsebSession wsebSession = WSE_SESSION_KEY.remove(createSession);
-            assert (wsebSession != null);
+            assert wsebSession != null;
 
             IoBufferEx buf = CREATE_RESPONSE_KEY.remove(createSession);
 

@@ -50,6 +50,7 @@ public class GatewayConfigTranslatorFactory {
      * Creates a new instance of GatewayConfigTranslatorFactory. It uses the specified {@link ClassLoader} to load
      * {@link GatewayConfigTranslatorFactorySpi} objects that are registered using META-INF/services.
      *
+     * @param cl
      * @return GatewayConfigTranslatorFactory
      */
     public static GatewayConfigTranslatorFactory newInstance(ClassLoader cl) {
@@ -65,7 +66,7 @@ public class GatewayConfigTranslatorFactory {
      * Given an incoming namespace, return the translator pipeline
      * to translate a document with that namespace up to the 'current' format.
      *
-     * @param ns
+     * @param namespace
      * @return
      * @throws Exception
      */

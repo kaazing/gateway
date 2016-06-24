@@ -16,7 +16,7 @@
 package org.kaazing.gateway.resource.address.udp;
 
 import static java.lang.String.format;
-import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
+import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER_OPTION;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.BIND_ADDRESS;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.INTERFACE;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.MAXIMUM_OUTBOUND_RATE;
@@ -130,8 +130,8 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
         }
         
         // ensure that DNS name is resolved in transport address
-        NameResolver resolver = options.getOption(RESOLVER);
-        assert (resolver != null);
+        NameResolver resolver = options.getOption(RESOLVER_OPTION);
+        assert resolver != null;
         List<UdpResourceAddress> udpAddresses = new LinkedList<>();
         try {
             String host = getHost(location);
@@ -151,7 +151,8 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
             else {
                 inetAddresses = resolver.getAllByName(host);
             }
-            assert (!inetAddresses.isEmpty());
+            boolean notEmpty = !inetAddresses.isEmpty();
+            assert notEmpty;
 
             // The returned collection appears to be unmodifiable, so first clone the list (ugh!)
             Collection<InetAddress> unsortedInetAddresses = new LinkedList<>(inetAddresses);
@@ -169,15 +170,13 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
             }
 
             boolean preferIPv4 = "true".equalsIgnoreCase(System.getProperty(JAVA_NET_PREFER_IPV4_STACK));
-            if (!preferIPv4) {
-                // Add all the remaning (IPv6) addresses.  Because InetAddress.getAllByName() is lame
-                // and returns duplicates when java.net.preferIPv4Stack is true, I have to add them
-                // one at a time iff not already in the list.
-                if (!unsortedInetAddresses.isEmpty()) {
-                    for (InetAddress addr : unsortedInetAddresses) {
-                        if (!sortedInetAddresses.contains(addr)) {
-                            sortedInetAddresses.add(addr);
-                        }
+            // Add all the remaning (IPv6) addresses.  Because InetAddress.getAllByName() is lame
+            // and returns duplicates when java.net.preferIPv4Stack is true, I have to add them
+            // one at a time iff not already in the list.
+            if (!preferIPv4 && !unsortedInetAddresses.isEmpty()) {
+                for (InetAddress addr : unsortedInetAddresses) {
+                    if (!sortedInetAddresses.contains(addr)) {
+                        sortedInetAddresses.add(addr);
                     }
                 }
             }

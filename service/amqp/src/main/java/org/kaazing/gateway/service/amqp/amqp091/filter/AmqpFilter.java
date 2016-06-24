@@ -78,6 +78,11 @@ public interface AmqpFilter<S extends IoSession> extends IoFilter<S, AmqpMessage
     void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpTuneOkMessage message) throws Exception;
 
 
+    /**
+     * TODO Add class documentation
+     * 
+     * @param <S> IoSession type
+     */
     @SuppressWarnings("unchecked")
     class Adapter<S extends IoSession> extends IoFilter.Adapter<S, AmqpMessage, AmqpFilter<S>> {
 

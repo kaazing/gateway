@@ -31,6 +31,8 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.snmp4j.smi.AbstractVariable;
 import org.snmp4j.smi.Null;
 import org.snmp4j.smi.OctetString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utilities useful at a couple levels of the management support. In particular, both the SessionManagementBean and the
@@ -52,11 +54,16 @@ public class Utils {
     public static final String ACCEPT_DIRECTION = "ACCEPT";
     public static final String CONNECT_DIRECTION = "CONNECT";
     public static final String UNKNOWN_DIRECTION = "<unknown>";
+    
+    private static final Logger log = LoggerFactory.getLogger(Utils.class);
 
     /**
      * Create a descriptive string for the type of connection that this session has been created on. This is generally just used
      * in the Command Center. The following is the same as the insides of ResourceAddress.getProtocol(), which is private. NOTE:
      * we're using BridgeSession.LOCAL_ADDRESS.get(session) to retrieve the address to send to management.
+     * 
+     * @param address
+     * @return
      */
     public static String getSessionTypeName(ResourceAddress address) {
         String externalURI = address.getExternalURI();
@@ -66,6 +73,9 @@ public class Utils {
     /**
      * Determine the session 'direction' (accept/connect/???). We need this to be determined just once, so that it hangs around
      * after the session is closed.
+     * 
+     * @param session
+     * @return
      */
     public static String getSessionDirection(IoSessionEx session) {
         IoServiceEx service = session.getService();
@@ -100,9 +110,11 @@ public class Utils {
     // means we expect that we are NOT.
     public static void assertIOThread(Thread t, boolean flag) {
         if (flag) {
-            assert t.equals(Thread.currentThread()) : "Management NOT on IO thread when expected";  // XXX testing
+        	boolean notOnThread = t.equals(Thread.currentThread());
+            assert notOnThread : "Management NOT on IO thread when expected";  // XXX testing
         } else {
-            assert !(t.equals(Thread.currentThread())) : "Management on IO thread when not expected";  // XXX testing
+        	boolean onThread = !(t.equals(Thread.currentThread()));
+            assert onThread : "Management on IO thread when not expected";  // XXX testing
         }
     }
 
@@ -121,7 +133,8 @@ public class Utils {
             try {
                 total += (Long) f.get();
             } catch (Exception ignore) {
-                System.out.println("### sumFutures got exception!");
+                log.debug("### sumFutures got exception!", ignore);
+                
             }
         }
 
@@ -180,7 +193,7 @@ public class Utils {
      * this OID is null") for transmission. This is so the client side can tell the difference between real nulls and empty
      * values.
      *
-     * @param s
+     * @param b
      * @return
      */
     public static AbstractVariable byteArrayToVariable(byte[] b) {
@@ -189,6 +202,9 @@ public class Utils {
 
     /**
      * For logging/debug, return the last part of the class name of an object
+     * 
+     * @param obj
+     * @return
      */
     public static String getClassName(Object obj) {
         String className = obj.getClass().getName();

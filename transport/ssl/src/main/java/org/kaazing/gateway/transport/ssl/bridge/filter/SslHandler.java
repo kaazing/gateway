@@ -150,7 +150,7 @@ class SslHandler {
         if (logger.isTraceEnabled()) {
             List<String> supportedCiphers = toCipherList(sslEngine.getSupportedCipherSuites());
             if (supportedCiphers != null) {
-                logger.trace(String.format("Supported SSL/TLS ciphersuites:\n  %s", toCipherString(supportedCiphers)));
+                logger.trace(String.format("Supported SSL/TLS ciphersuites:%n  %s", toCipherString(supportedCiphers)));
 
             } else {
                 logger.trace("Supported SSL/TLS ciphersuites: none");
@@ -158,7 +158,7 @@ class SslHandler {
 
             List<String> enabledCiphers = toCipherList(sslEngine.getEnabledCipherSuites());
             if (enabledCiphers != null) {
-                logger.trace(String.format("Default enabled SSL/TLS ciphersuites:\n  %s", toCipherString(enabledCiphers)));
+                logger.trace(String.format("Default enabled SSL/TLS ciphersuites:%n  %s", toCipherString(enabledCiphers)));
 
             } else {
                 logger.trace("Enabled SSL/TLS ciphersuites: none");
@@ -185,7 +185,7 @@ class SslHandler {
             configuredCiphers.retainAll(supportedCiphers);
 
             if (logger.isTraceEnabled()) {
-                logger.trace(String.format("SSL/TLS ciphersuites in use:\n  %s", toCipherString(configuredCiphers)));
+                logger.trace(String.format("SSL/TLS ciphersuites in use:%n  %s", toCipherString(configuredCiphers)));
             }
 
             String[] enabledCiphers = configuredCiphers.toArray(new String[configuredCiphers.size()]);
@@ -304,17 +304,29 @@ class SslHandler {
 
     /**
      * Check if there is any need to complete handshake.
+     * 
+     * @return
      */
     public boolean needToCompleteHandshake() {
         return handshakeStatus == SSLEngineResult.HandshakeStatus.NEED_WRAP && !isInboundDone();
     }
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param nextFilter
+     * @param writeRequest
+     */
     public void schedulePreHandshakeWriteRequest(NextFilter nextFilter,
                                                  WriteRequest writeRequest) {
         preHandshakeEventQueue.add(new IoFilterEvent(nextFilter,
                 IoEventType.WRITE, session, writeRequest));
     }
 
+    /**
+     * TODO Add method documentation
+     * 
+     */
     public void flushPreHandshakeEvents() throws SSLException {
         IoFilterEvent scheduledWrite;
 
@@ -324,14 +336,29 @@ class SslHandler {
         }
     }
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param nextFilter
+     * @param writeRequest
+     */
     public void scheduleFilterWrite(NextFilter nextFilter, WriteRequest writeRequest) {
         filterWriteEventQueue.add(new IoFilterEvent(nextFilter, IoEventType.WRITE, session, writeRequest));
     }
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param nextFilter
+     * @param message
+     */
     public void scheduleMessageReceived(NextFilter nextFilter, Object message) {
         messageReceivedEventQueue.add(new IoFilterEvent(nextFilter, IoEventType.MESSAGE_RECEIVED, session, message));
     }
 
+    /**
+     * TODO Add method documentation
+     */
     public void flushScheduledEvents() {
         // Fire events only when no lock is hold for this handler.
         if (Thread.holdsLock(this)) {
@@ -407,9 +434,9 @@ class SslHandler {
      * @return buffer with data
      */
     public IoBuffer fetchAppBuffer() {
-        IoBufferEx appBuffer = this.appBuffer.flip();
+        IoBufferEx appIOBuffer = this.appBuffer.flip();
         this.appBuffer = null;
-        return (IoBuffer) appBuffer;
+        return (IoBuffer) appIOBuffer;
     }
 
     /**
@@ -543,6 +570,8 @@ class SslHandler {
 
     /**
      * Perform any handshaking processing.
+     * 
+     * @param nextFilter
      */
     public void handshake(NextFilter nextFilter) throws SSLException {
         for (;;) {
@@ -596,7 +625,7 @@ class SslHandler {
                     SSLEngineResult result;
                     createOutNetBuffer(0);
                     
-                    for (;;) {
+                    while(true) {
                         result = sslEngine.wrap(emptyBuffer.buf(), outNetBuffer.buf());
                         if (result.getStatus() == SSLEngineResult.Status.BUFFER_OVERFLOW) {
                             outNetBuffer.capacity(outNetBuffer.capacity() << 1, allocator);
@@ -632,6 +661,12 @@ class SslHandler {
         }
     }
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param nextFilter
+     * @return
+     */
     public WriteFuture writeNetBuffer(NextFilter nextFilter)
             throws SSLException {
         // Check if any net data needed to be writen
@@ -664,11 +699,11 @@ class SslHandler {
                     throw newSsle;
                 }
 
-                IoBuffer outNetBuffer = fetchOutNetBuffer();
-                if (outNetBuffer != null && outNetBuffer.hasRemaining()) {
+                IoBuffer outBuffer = fetchOutNetBuffer();
+                if (outBuffer != null && outBuffer.hasRemaining()) {
                     writeFuture = new DefaultWriteFutureEx(session);
                     parent.filterWrite(nextFilter, session,
-                            new DefaultWriteRequestEx(outNetBuffer, writeFuture));
+                            new DefaultWriteRequestEx(outBuffer, writeFuture));
                 }
             }
         } finally {
@@ -796,9 +831,8 @@ class SslHandler {
     }
 
     private List<String> toCipherList(String[] names) {
-        if (names == null ||
-            names.length == 0) {
-            return null;
+        if (names == null || names.length == 0) {
+            return Collections.emptyList();
         }
 
         List<String> list = new ArrayList<>(names.length);
@@ -808,8 +842,7 @@ class SslHandler {
     }
 
     private String toCipherString(List<String> names) {
-        if (names == null ||
-            names.size() == 0) {
+        if (names == null || names.isEmpty()) {
             return null;
         }
 
@@ -818,8 +851,7 @@ class SslHandler {
             sb.append("  ").append(name).append("\n");
         }
 
-        String cipherString = sb.toString().trim();
-        return cipherString;
+        return sb.toString().trim();
     }
 
     private String[] removeSslProtocols(String[] protocols) {
@@ -827,7 +859,7 @@ class SslHandler {
         for(String protocol : protocols) {
             // JSSE doesn't enable SSLv2, but allows SSLv3/TLSv1 hellos encapsulated in SSLv2Hello format
             // Should we also disable SSLv2Hello ?
-            if (!(protocol.equals("SSLv3") || protocol.equals("SSLv2"))) {
+            if (!(("SSLv3").equals(protocol) || ("SSLv2").equals(protocol))) {
                 protocolList.add(protocol);
             }
         }
@@ -836,7 +868,7 @@ class SslHandler {
 
     private boolean isSslv3Enabled(String[] protocols) {
         for(String protocol : protocols) {
-            if (protocol.equals("SSLv3")) {
+            if (("SSLv3").equals(protocol)) {
                 return true;
             }
         }

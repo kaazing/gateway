@@ -21,6 +21,9 @@ import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.service.amqp.amqp091.filter.AmqpFilter;
 import org.kaazing.gateway.transport.bridge.Message;
 
+/**
+ * TODO Add class documentation
+ */
 public abstract class AmqpMessage extends Message {
     public enum MessageKind {
         PROTOCOL_HEADER,

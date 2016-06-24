@@ -48,11 +48,14 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+/**
+ * TODO Add class documentation
+ */
 public final class AwsUtils {
     private AwsUtils() {
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(AwsUtils.class);
+//    private static final Logger LOG = LoggerFactory.getLogger(AwsUtils.class);
 
     private static final String UTF8_CHARSET = "UTF-8";
     private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
@@ -240,6 +243,7 @@ public final class AwsUtils {
      * "Signature" parameters to the request.
      *
      * @param requestMethod     Only "GET at this point.
+     * @param protocol
      * @param endpoint          endpoint or the host
      * @param requestURI        following the endpoint up until the query params
      * @param params            Map of name-value pairs containing params such
@@ -281,11 +285,9 @@ public final class AwsUtils {
         String signature = createSignature(stringToSign,
                                            awsSecretKey,
                                            HMAC_SHA256_ALGORITHM);
-        String request = protocol + "://" + endpoint + requestURI
-                             + "?" + canonicalQS
-                             + "&Signature=" + signature;
-
-        return request;
+        return protocol + "://" + endpoint + requestURI
+                                + "?" + canonicalQS
+                                + "&Signature=" + signature;
     }
 
     /**
@@ -440,7 +442,7 @@ public final class AwsUtils {
             signature = rfc3986Conformance(new String(Codec.base64Encode(rawHmac)));
         } catch (Exception e) {
             throw new SignatureException("Failed to generate HMAC : " +
-                                                               e.getMessage());
+                                                               e.getMessage(), e);
         }
 
         return signature;
@@ -475,9 +477,7 @@ public final class AwsUtils {
             }
         }
 
-        String response = (strBuilder.length() > 0) ? strBuilder.toString() :
-                                                      null;
-        return response;
+        return (strBuilder.length() > 0) ? strBuilder.toString() : null;
     }
 
     private static String createV1Signature(String stringToSign, String awsSecretKey, String algorithm)
@@ -501,7 +501,7 @@ public final class AwsUtils {
             byte[] rawHmac = mac.doFinal(data);
             signature = Codec.base64Encode(rawHmac);
         } catch (Exception e) {
-            throw new SignatureException("Failed to generate HMAC : " + e.getMessage());
+            throw new SignatureException("Failed to generate HMAC : " + e.getMessage(), e);
         }
 
         return signature;
@@ -533,7 +533,8 @@ public final class AwsUtils {
     }
 
     private static String getV2CanonicalizedQueryString(Map<String, String> params) {
-        assert params != null && !params.isEmpty();
+        boolean validParams = params != null && !params.isEmpty();
+    	assert validParams;
 
         SortedMap<String, String> sortedMap = new TreeMap<>(params);
 

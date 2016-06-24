@@ -34,12 +34,12 @@ public final class SslResourceAddress extends ResourceAddress {
 
 	static final String TRANSPORT_NAME = "ssl";
 
-    public static final ResourceOption<String[]> CIPHERS = new SslCiphersOption();
+    public static final ResourceOption<String[]> CIPHERS_OPTION = new SslCiphersOption();
     public static final ResourceOption<Boolean> ENCRYPTION_ENABLED = new SslEncryptionOption();
     public static final ResourceOption<Boolean> WANT_CLIENT_AUTH = new SslWantClientAuthOption();
     public static final ResourceOption<Boolean> NEED_CLIENT_AUTH = new SslNeedClientAuthOption();
     public static final ResourceOption<KeySelector> KEY_SELECTOR = new SslKeySelectorOption();
-    public static final ResourceOption<String[]> PROTOCOLS = new SslProtocolsOption();
+    public static final ResourceOption<String[]> PROTOCOLS_OPTION = new SslProtocolsOption();
 
     private String[] ciphers;
     private String[] protocols;
@@ -58,7 +58,7 @@ public final class SslResourceAddress extends ResourceAddress {
         if (option instanceof SslResourceOption) {
             SslResourceOption sslOption = (SslResourceOption)option;
             switch (sslOption.kind) {
-                case CIPHERS:
+                case CIPHERS_OPTION:
                     return (V) ciphers;
                 case ENCRYPTION:
                     return (V) valueOf(encryption);
@@ -68,7 +68,7 @@ public final class SslResourceAddress extends ResourceAddress {
                     return (V) valueOf(needClientAuth);
                 case KEY_SELECTOR:
                     return (V) keySelector;
-                case PROTOCOLS:
+                case PROTOCOLS_OPTION:
                     return (V) protocols;
             }
         }
@@ -81,7 +81,7 @@ public final class SslResourceAddress extends ResourceAddress {
         if (option instanceof SslResourceOption) {
             SslResourceOption sslOption = (SslResourceOption)option;
             switch (sslOption.kind) {
-                case CIPHERS:
+                case CIPHERS_OPTION:
                     ciphers = (String[]) value;
                     return;
                 case ENCRYPTION:
@@ -96,7 +96,7 @@ public final class SslResourceAddress extends ResourceAddress {
                 case KEY_SELECTOR:
                     keySelector = (KeySelector) value;
                     return;
-                case PROTOCOLS:
+                case PROTOCOLS_OPTION:
                     protocols = (String[]) value;
                     return;
             }
@@ -107,8 +107,10 @@ public final class SslResourceAddress extends ResourceAddress {
 	
 	static class SslResourceOption<T> extends ResourceOption<T> {
 
-	    protected enum Kind { CIPHERS, ENCRYPTION, WANT_CLIENT_AUTH,
-                                    NEED_CLIENT_AUTH, KEY_SELECTOR, PROTOCOLS }
+	    protected enum Kind { 
+	    	CIPHERS_OPTION, ENCRYPTION, WANT_CLIENT_AUTH,
+            NEED_CLIENT_AUTH, KEY_SELECTOR, PROTOCOLS_OPTION 
+        }
 		
 		private static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
 
@@ -126,7 +128,7 @@ public final class SslResourceAddress extends ResourceAddress {
 	
     private static final class SslCiphersOption extends SslResourceOption<String[]> {
         private SslCiphersOption() {
-            super(Kind.CIPHERS, "ciphers", new String[] { "DEFAULT" });
+            super(Kind.CIPHERS_OPTION, "ciphers", new String[] { "DEFAULT" });
         }
     }
     
@@ -156,7 +158,7 @@ public final class SslResourceAddress extends ResourceAddress {
 
     private static final class SslProtocolsOption extends SslResourceOption<String[]> {
         private SslProtocolsOption() {
-            super(Kind.PROTOCOLS, "protocols");
+            super(Kind.PROTOCOLS_OPTION, "protocols");
         }
     }
 }

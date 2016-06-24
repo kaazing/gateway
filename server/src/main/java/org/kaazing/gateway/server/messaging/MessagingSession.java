@@ -45,6 +45,7 @@ public interface MessagingSession extends AttributeStore {
      *
      * @param destination
      * @param attributes
+     * @param hints
      * @param listener
      */
     void acquireSubscription(String destination, Map<String, Object> attributes, MessagingHints hints,
@@ -52,12 +53,14 @@ public interface MessagingSession extends AttributeStore {
 
     /**
      * @param destination
+     * @param hints
      * @param listener
      */
     void acquireSubscription(String destination, MessagingHints hints, MessagingSubscriptionListener listener);
 
     /**
      * @param subscriptionId
+     * @param hints
      * @param listener
      */
     void reacquireSubscription(String subscriptionId, MessagingHints hints, MessagingSubscriptionListener listener);
@@ -85,14 +88,14 @@ public interface MessagingSession extends AttributeStore {
     void releaseSubscription(MessagingSubscription subscription);
 
     /**
-     * @param destiantion
+     * @param destination
      * @param attributes
      * @param payload
      */
     void send(String destination, Map<String, Object> attributes, Object payload);
 
     /**
-     * @param destiantion
+     * @param destination
      * @param payload
      */
     void send(String destination, Object payload);

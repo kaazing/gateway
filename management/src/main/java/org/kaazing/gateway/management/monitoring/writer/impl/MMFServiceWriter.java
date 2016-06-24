@@ -37,8 +37,7 @@ public class MMFServiceWriter implements ServiceWriter {
     @Override
     public MonitoringEntityFactory writeCountersFactory() {
         createCountersManager();
-        MonitoringEntityFactory factory = new AgronaMonitoringEntityFactory(countersManager);
-        return factory;
+        return new AgronaMonitoringEntityFactory(countersManager);
     }
 
     /**

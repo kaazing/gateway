@@ -130,7 +130,7 @@ public class TimeoutLoginModule extends BaseStateDrivenLoginModule {
 
         } catch (UnsupportedCallbackException uce) {
             if (logger.isTraceEnabled()) {
-                logger.trace("[TimeoutLoginModule]: UnsupportedCallbackException handling loginResultCallback");
+                logger.trace("[TimeoutLoginModule]: UnsupportedCallbackException handling loginResultCallback", uce);
             }
 
             return null;

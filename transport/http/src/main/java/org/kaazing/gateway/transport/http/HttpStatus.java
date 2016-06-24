@@ -69,6 +69,16 @@ public enum HttpStatus {
     SERVER_GATEWAY_TIMEOUT(504, "Gateway Timeout"),
     SERVER_VERSION_NOT_SUPPORTED(505, "Version Not Supported"),
     SERVER_LOOP_DETECTED(508, "Loop detected");
+	
+	private final int code;
+    private final String reason;
+    private final String status;
+
+    HttpStatus(int code, String reason) {
+        this.code = code;
+        this.reason = reason;
+        this.status = String.valueOf(code);
+    }
 
     // status code string --> HttpStatus (for e.g. "200" -> SUCCESS_OK)
     private static final Map<String, HttpStatus> HTTP_STATUS_MAP = new HashMap<>();
@@ -84,16 +94,6 @@ public enum HttpStatus {
             return status;
         }
         throw new IllegalArgumentException("Unrecognized status code: " + code);
-    }
-
-    private final int code;
-    private final String reason;
-    private final String status;
-
-    HttpStatus(int code, String reason) {
-        this.code = code;
-        this.reason = reason;
-        this.status = String.valueOf(code);
     }
 
     public int code() {

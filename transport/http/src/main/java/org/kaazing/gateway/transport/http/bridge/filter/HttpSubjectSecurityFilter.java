@@ -91,7 +91,9 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
     public void doMessageReceived(NextFilter nextFilter, IoSession session, Object message) throws Exception {
         // GL.debug("http", getClass().getSimpleName() + " request received.");
 
-        if (! httpRequestMessageReceived(nextFilter, session, message)) return;
+        if (! httpRequestMessageReceived(nextFilter, session, message)) {
+        	return;
+        }
 
         HttpRequestMessage httpRequest = (HttpRequestMessage) message;
         final boolean loggerIsEnabled = logger != null && logger.isTraceEnabled();
@@ -224,7 +226,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
             for ( Principal p: subject.getPrincipals()) {
                 sb.append(p.getName()).append('/');
             }
-            if ( subject.getPrincipals().size()>0) {
+            if ( !subject.getPrincipals().isEmpty() ) {
                 sb.deleteCharAt(sb.length()-1);
             }
             sb.append(") ");
@@ -308,7 +310,9 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
     void securityMessageReceived(NextFilter nextFilter, IoSession session, Object message) throws Exception {
         final boolean loggerIsEnabled = logger != null && logger.isTraceEnabled();
 
-        if (! httpRequestMessageReceived(nextFilter, session, message)) return;
+        if (! httpRequestMessageReceived(nextFilter, session, message)) {
+        	return;
+        }
 
         HttpRequestMessage httpRequest = (HttpRequestMessage) message;
 
@@ -357,8 +361,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         String clientChallengeScheme = authToken.getScheme();
         String expectedChallengeScheme = getBaseAuthScheme(realmChallengeScheme);
 
-        if (clientChallengeScheme != null &&
-                clientChallengeScheme.equals(expectedChallengeScheme) == false) {
+        if (clientChallengeScheme != null && !clientChallengeScheme.equals(expectedChallengeScheme)) {
             if (loggerEnabled()) {
                 logger.trace(String.format("A websocket request used the '%s' challenge scheme when we expected the '%s' challenge scheme", clientChallengeScheme, expectedChallengeScheme));
             }
@@ -407,7 +410,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         public void run() {
             if (loggerEnabled()) {
                 logger.trace("Executing login task %d ms after scheduling for session %s",
-                        (System.currentTimeMillis() - createdTime) , session);
+                        System.currentTimeMillis() - createdTime , session);
             }
             boolean succeeded = login(nextFilter, session, httpRequest, authToken, additionalCallbacks);
             try {
@@ -422,7 +425,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
             }
             if (loggerEnabled()) {
                 logger.trace("Finished login task after %d ms for session %s",
-                        (System.currentTimeMillis() - createdTime), session);
+                        System.currentTimeMillis() - createdTime, session);
             }
         }
     }

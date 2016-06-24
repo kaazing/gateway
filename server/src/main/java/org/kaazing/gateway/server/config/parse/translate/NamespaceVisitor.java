@@ -45,7 +45,7 @@ public class NamespaceVisitor extends AbstractVisitor {
         current.setNamespace(Namespace.getNamespace("", ns.toURI()));
 
         List<?> kids = current.getChildren();
-        if (kids.size() > 0) {
+        if (!kids.isEmpty()) {
             Iterator<?> iter = kids.iterator();
             while (iter.hasNext()) {
                 Element kid = (Element) iter.next();

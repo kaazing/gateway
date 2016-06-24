@@ -19,6 +19,9 @@ import com.hazelcast.core.HazelcastInstance;
 import java.io.Serializable;
 import org.kaazing.gateway.service.messaging.buffer.MessageBufferFactory;
 
+/**
+ * TODO Add class documentation
+ */
 public class ClusterMemoryMessageBufferFactory implements MessageBufferFactory, Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -38,7 +38,7 @@ public final class HttpInjectedDynamicResourceFactorySpi extends HttpDynamicReso
     private final Map<String, HttpDynamicResource> resourcesByName;
     
     public HttpInjectedDynamicResourceFactorySpi() {
-        Map<String, HttpDynamicResource> resourcesByName = new HashMap<>();
+        Map<String, HttpDynamicResource> resourcesMap = new HashMap<>();
         ClassLoader classLoader = currentThread().getContextClassLoader();
         try {
             String resourcesPath = "META-INF/services/org/kaazing/gateway/server/resources";
@@ -56,10 +56,10 @@ public final class HttpInjectedDynamicResourceFactorySpi extends HttpDynamicReso
                         if (CROSS_ORIGIN_POSTMESSAGE_PARENT.equals(resourceName) || 
                                 CROSS_ORIGIN_POSTMESSAGE_CHILD.equals(resourceName)) {
                             Map<String, String> writeHeaders = Collections.singletonMap("Cache-control", "private, must-revalidate");
-                            resourcesByName.put(resourceName, new HttpInjectedDynamicResource(resourcePath, writeHeaders));
+                            resourcesMap.put(resourceName, new HttpInjectedDynamicResource(resourcePath, writeHeaders));
                         }
                         else {
-                            resourcesByName.put(resourceName, new HttpInjectedDynamicResource(resourcePath));
+                        	resourcesMap.put(resourceName, new HttpInjectedDynamicResource(resourcePath));
                         }
                     }
                 }
@@ -70,7 +70,7 @@ public final class HttpInjectedDynamicResourceFactorySpi extends HttpDynamicReso
         } catch (Exception e) {
             // TODO: log warning
         }
-        this.resourcesByName = unmodifiableMap(resourcesByName);
+        this.resourcesByName = unmodifiableMap(resourcesMap);
     }
 
     @Override

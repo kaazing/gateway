@@ -44,19 +44,19 @@ public class WsBufferAllocator extends AbstractIoBufferAllocatorEx<WsBuffer> {
     public ByteBuffer allocate(int capacity, int flags) {
         boolean offset = (flags & FLAG_ZERO_COPY) != FLAG_NONE;
         if (offset) {
-            int frameOffset = this.frameOffset; 
+            int offsetFrame = this.frameOffset; 
             if (capacity < 126) {
                 // no additional offset needed
             }
             else if (capacity < 65535) {
-                frameOffset += 2;
+            	offsetFrame += 2;
             }
             else {
-                frameOffset += 8;
+            	offsetFrame += 8;
             }
 
-            ByteBuffer buf = parent.allocate(frameOffset + capacity, flags);
-            buf.position(buf.position() + frameOffset);
+            ByteBuffer buf = parent.allocate(offsetFrame + capacity, flags);
+            buf.position(buf.position() + offsetFrame);
             buf.limit(buf.position() + capacity);
             return buf;
         }

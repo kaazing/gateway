@@ -258,8 +258,8 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             HttpConnectSession connectSession = (HttpConnectSession) session;
             connectSession.setVersion(acceptSession.getVersion());
             connectSession.setMethod(acceptSession.getMethod());
-            URI connectURI = computeConnectPath(connectSession.getRequestURI());
-            connectSession.setRequestURI(connectURI);
+            URI connect = computeConnectPath(connectSession.getRequestURI());
+            connectSession.setRequestURI(connect);
             processRequestHeaders(acceptSession, connectSession);
         }
 
@@ -268,6 +268,32 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             String requestUri = acceptSession.getRequestURI().toString();
             String connectPath = connectURI.getPath();
             return URI.create(connectPath + requestUri.substring(acceptPath.length()));
+        }
+        
+        /*
+         * Write all (except hop-by-hop) request headers from accept session to connect session. If the request is an
+         * upgrade one, let the Upgrade header go through as this service supports upgrade
+         */
+        private void processRequestHeaders(HttpAcceptSession acceptSession, HttpConnectSession connectSession) {
+            boolean upgrade = processHopByHopHeaders(acceptSession, connectSession);
+
+            // Add Connection: upgrade or Connection: close header
+            if (upgrade) {
+                connectSession.setWriteHeader(HEADER_CONNECTION, HEADER_UPGRADE);
+            } else {
+                ResourceAddress address = connectSession.getRemoteAddress();
+                // If keep-alive is disabled, add Connection: close header
+                if (!address.getOption(HttpResourceAddress.KEEP_ALIVE)) {
+                    connectSession.setWriteHeader(HEADER_CONNECTION, "close");
+                }
+            }
+
+            // Add Via: 1.1 kaazing + uuid header
+            connectSession.addWriteHeader(HEADER_VIA, viaHeader);
+
+            // Add forwarded headers
+            setupForwardedHeaders(acceptSession, connectSession);
+
         }
 
     }
@@ -281,12 +307,12 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
         @Override
         public void operationComplete(ConnectFuture future) {
-            String connectURI = getConnectURIs().iterator().next();
+            String connect = getConnectURIs().iterator().next();
             if (future.isConnected()) {
                 DefaultHttpSession connectSession = (DefaultHttpSession) future.getSession();
 
                 if (LOGGER.isTraceEnabled()) {
-                    LOGGER.trace("Connected to " + connectURI + " [" + acceptSession + "->" + connectSession + "]");
+                    LOGGER.trace("Connected to " + connect + " [" + acceptSession + "->" + connectSession + "]");
                 }
                 if (acceptSession == null || acceptSession.isClosing()) {
                     connectSession.close(true);
@@ -297,7 +323,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
                     flushQueuedMessages(acceptSession, attachedSessionManager);
                 }
             } else {
-                LOGGER.warn("Connection to " + connectURI + " failed [" + acceptSession + "->]");
+                LOGGER.warn("Connection to " + connect + " failed [" + acceptSession + "->]");
                 acceptSession.setStatus(HttpStatus.SERVER_GATEWAY_TIMEOUT);
                 acceptSession.close(true);
             }
@@ -441,32 +467,6 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         }
 
         return upgrade;
-    }
-
-    /*
-     * Write all (except hop-by-hop) request headers from accept session to connect session. If the request is an
-     * upgrade one, let the Upgrade header go through as this service supports upgrade
-     */
-    private void processRequestHeaders(HttpAcceptSession acceptSession, HttpConnectSession connectSession) {
-        boolean upgrade = processHopByHopHeaders(acceptSession, connectSession);
-
-        // Add Connection: upgrade or Connection: close header
-        if (upgrade) {
-            connectSession.setWriteHeader(HEADER_CONNECTION, HEADER_UPGRADE);
-        } else {
-            ResourceAddress address = connectSession.getRemoteAddress();
-            // If keep-alive is disabled, add Connection: close header
-            if (!address.getOption(HttpResourceAddress.KEEP_ALIVE)) {
-                connectSession.setWriteHeader(HEADER_CONNECTION, "close");
-            }
-        }
-
-        // Add Via: 1.1 kaazing + uuid header
-        connectSession.addWriteHeader(HEADER_VIA, viaHeader);
-
-        // Add forwarded headers
-        setupForwardedHeaders(acceptSession, connectSession);
-
     }
 
     /**

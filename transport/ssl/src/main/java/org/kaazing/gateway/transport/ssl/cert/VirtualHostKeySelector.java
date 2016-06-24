@@ -17,8 +17,8 @@ package org.kaazing.gateway.transport.ssl.cert;
 
 import static org.kaazing.gateway.resource.address.Comparators.compareResourceOriginPathAlternatesAndProtocolStack;
 import static org.kaazing.gateway.resource.address.Comparators.compareResourceOriginAndProtocolStack;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.CIPHERS;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.CIPHERS_OPTION;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS_OPTION;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.NEED_CLIENT_AUTH;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.WANT_CLIENT_AUTH;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
@@ -74,6 +74,10 @@ public class VirtualHostKeySelector
 
     // Certificate Common Names (CNs) for a given hostname
     private Map<String, String> aliasToCertCN = new HashMap<>();
+    
+    public VirtualHostKeySelector() {
+        super();
+    }
 
     @Override
     public ResourceAddress getAvailableCertAliasesKey(boolean clientMode) {
@@ -147,10 +151,6 @@ public class VirtualHostKeySelector
         }
 
         return serverNames;
-    }
-
-    public VirtualHostKeySelector() {
-        super();
     }
 
     @Override
@@ -232,7 +232,7 @@ public class VirtualHostKeySelector
 
         // JRF: this looks like we're breaking the transport abstraction by assuming that SSL is always over TCP
         ResourceAddress transport = resourceAddress.getTransport();
-        assert (transport != null);
+        assert transport != null;
         URI transportURI = transport.getResource();
         
         if (serverName == null) {
@@ -267,7 +267,7 @@ public class VirtualHostKeySelector
         Collection<String> transportAddressCertAliases = transportAddressToCertAliases.get(transport);
         if (transportAddressCertAliases == null) {
             // First case
-            transportAddressCertAliases = (new HashSet<>(hostnameCertAliases));
+            transportAddressCertAliases = new HashSet<>(hostnameCertAliases);
             transportAddressToCertAliases.put(transport, transportAddressCertAliases);
 
         } else {
@@ -339,8 +339,8 @@ public class VirtualHostKeySelector
                 throw new CertificateException(msg);
             }
 
-            String[] boundCiphers = boundAddress.getOption(CIPHERS);
-            String[] bindCiphers = resourceAddress.getOption(CIPHERS);
+            String[] boundCiphers = boundAddress.getOption(CIPHERS_OPTION);
+            String[] bindCiphers = resourceAddress.getOption(CIPHERS_OPTION);
 
             Arrays.sort(bindCiphers);
             Arrays.sort(boundCiphers);
@@ -350,16 +350,16 @@ public class VirtualHostKeySelector
 
 
                 //TODO: Add an SSL transport option to capture the original URI for the purposes of keeping this error message clear.
-                URI boundURI = ( boundAddress.getResource() );
-                URI bindURI = ( resourceAddress.getResource() );
+                URI boundURI = boundAddress.getResource();
+                URI bindURI = resourceAddress.getResource();
 
                 String msg = String.format("<ssl.ciphers>%s</ssl.ciphers> value for %s does not match <ssl.ciphers>%s</ssl.ciphers> also configured for %s on same transport %s", asList(bindCiphers), bindURI, asList(boundCiphers), boundURI, transportURI);
                 LOGGER.error(msg);
                 throw new CertificateException(msg);
             }
 
-            String[] boundProtocols = boundAddress.getOption(PROTOCOLS);
-            String[] bindProtocols = resourceAddress.getOption(PROTOCOLS);
+            String[] boundProtocols = boundAddress.getOption(PROTOCOLS_OPTION);
+            String[] bindProtocols = resourceAddress.getOption(PROTOCOLS_OPTION);
 
             if (bindProtocols != null) {
                 Arrays.sort(bindProtocols);
@@ -371,8 +371,8 @@ public class VirtualHostKeySelector
             if (!Arrays.equals(boundProtocols, bindProtocols)) {
                 // <ssl.protocols> values mismatch
 
-                URI boundURI = ( boundAddress.getResource() );
-                URI bindURI = ( resourceAddress.getResource() );
+                URI boundURI = boundAddress.getResource();
+                URI bindURI = resourceAddress.getResource();
 
                 String msg = String.format("<ssl.protocols>%s</ssl.protocols> value for %s does not match <ssl.protocols>%s</ssl.protocols> also configured for %s on same transport %s",
                         bindProtocols == null ? null : asList(bindProtocols), bindURI,

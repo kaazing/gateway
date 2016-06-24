@@ -32,7 +32,8 @@ public class HttpProxyServiceFactorySpi extends ServiceFactorySpi {
 
     @Override
     public Service newService(String serviceType) {
-        assert "http.proxy".equals(serviceType);
+    	boolean equalsProxy = "http.proxy".equals(serviceType);
+        assert equalsProxy;
         return new HttpProxyService();
     }
 }

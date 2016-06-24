@@ -39,6 +39,9 @@ import static org.kaazing.gateway.service.TransportOptionNames.SSL_WANT_CLIENT_A
 import static org.kaazing.gateway.service.TransportOptionNames.TCP_TRANSPORT;
 import static org.kaazing.gateway.service.TransportOptionNames.WS_PROTOCOL_VERSION;
 
+/**
+ * TODO Add class documentation
+ */
 public class DefaultConnectOptionsContext extends DefaultOptionsContext implements ConnectOptionsContext {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultConnectOptionsContext.class);
@@ -50,11 +53,11 @@ public class DefaultConnectOptionsContext extends DefaultOptionsContext implemen
     }
 
     public DefaultConnectOptionsContext(ServiceConnectOptionsType connectOptions, ServiceConnectOptionsType defaultOptions) {
-        Map<String, String> options = parseConnectOptionsType(connectOptions);
+        Map<String, String> optionMap = parseConnectOptionsType(connectOptions);
         parseConnectOptionsType(defaultOptions).entrySet()
                 .stream()
-                .forEach(e -> options.putIfAbsent(e.getKey(), e.getValue()));
-        this.options = Collections.unmodifiableMap(options);
+                .forEach(e -> optionMap.putIfAbsent(e.getKey(), e.getValue()));
+        this.options = Collections.unmodifiableMap(optionMap);
     }
 
     @Override

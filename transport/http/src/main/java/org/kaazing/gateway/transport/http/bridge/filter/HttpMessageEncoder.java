@@ -150,8 +150,8 @@ abstract class HttpMessageEncoder<T extends HttpStartMessage> extends ProtocolEn
 		if (!isGzipped && !isChunked) {
 			IoBufferEx content = httpContent.asBuffer();
 			if (content.hasRemaining()) {
-			    IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-	            IoBufferEx buf = allocator.wrap(content.buf(), content.flags());
+			    IoBufferAllocatorEx<?> bufferAllocator = session.getBufferAllocator();
+	            IoBufferEx buf = bufferAllocator.wrap(content.buf(), content.flags());
 	            out.write(buf);
 			}
 		}

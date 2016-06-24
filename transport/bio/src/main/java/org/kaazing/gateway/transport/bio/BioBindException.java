@@ -17,6 +17,9 @@ package org.kaazing.gateway.transport.bio;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
 
+/**
+ * TODO Add class documentation
+ */
 public class BioBindException extends RuntimeException {
 
     /**

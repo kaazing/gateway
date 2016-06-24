@@ -60,6 +60,9 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * TODO Add class documentation
+ */
 public class AmqpMessageEncoder extends ProtocolEncoderAdapter {
     private static final String CLASS_NAME = AmqpMessageEncoder.class.getName();
     private static final String SERVICE_AMQP_PROXY_LOGGER = "service.amqp.proxy";
@@ -110,7 +113,7 @@ public class AmqpMessageEncoder extends ProtocolEncoderAdapter {
     public void encode(IoSession             session, 
                        Object                message,
                        ProtocolEncoderOutput out) throws Exception {
-        assert (message != null) : "AMQP message is null";
+        assert message != null : "AMQP message is null";
         
         AmqpMessage amqpMessage = (AmqpMessage)message;
         IoBufferEx  buffer;
@@ -1031,6 +1034,7 @@ public class AmqpMessageEncoder extends ProtocolEncoderAdapter {
                 buffer.putInt((Integer)value);
                 break;
             case UNSIGNEDINT:
+            case LONG:
                 putUnsignedInt(buffer, (Integer)value);
                 break;
             case UNSIGNEDSHORT:
@@ -1042,9 +1046,6 @@ public class AmqpMessageEncoder extends ProtocolEncoderAdapter {
             case SHORT:
                 int channelmax = (Integer)value;
                 putUnsignedShort(buffer, (short)channelmax);
-                break;
-            case LONG:
-                putUnsignedInt(buffer, (Integer)value);
                 break;
             case LONGLONG:
                 int val = (Integer)value;

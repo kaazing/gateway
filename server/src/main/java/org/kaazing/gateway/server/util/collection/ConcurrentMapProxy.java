@@ -17,6 +17,12 @@ package org.kaazing.gateway.server.util.collection;
 
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * TODO Add class documentation
+ * 
+ * @param <K>
+ * @param <V>
+ */
 public abstract class ConcurrentMapProxy<K, V> extends MapProxy<K, V> implements ConcurrentMap<K, V> {
 
     @Override

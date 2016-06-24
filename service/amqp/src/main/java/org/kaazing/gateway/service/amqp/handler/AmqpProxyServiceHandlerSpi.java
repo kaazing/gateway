@@ -25,6 +25,9 @@ import org.kaazing.gateway.service.amqp.amqp091.codec.AmqpCodecFilter;
 import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
 import org.slf4j.Logger;
 
+/**
+ * TODO Add class documentation
+ */
 public class AmqpProxyServiceHandlerSpi extends ProxyServiceHandlerSpi {
     private static final String CLASS_NAME = AmqpProxyServiceHandlerSpi.class.getName();
 

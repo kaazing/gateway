@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assume.assumeTrue;
-import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
+import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
@@ -177,7 +177,7 @@ public class TcpResourceAddressFactorySpiTest {
         Set<URI> gotURI = new HashSet<>();
         while(resourceAddress != null) {
             gotURI.add(resourceAddress.getResource());
-            resourceAddress = resourceAddress.getOption(ALTERNATE);
+            resourceAddress = resourceAddress.getOption(ALTERNATE_OPTION);
         }
 
         assertEquals(expectedURI, gotURI);
@@ -201,15 +201,15 @@ public class TcpResourceAddressFactorySpiTest {
         assertNotNull(address);
         assertEquals(URI.create("tcp://127.0.0.1:2020"), address.getResource());
         assertEquals("pipe://internal", address.getOption(TRANSPORT_URI));
-        ResourceAddress alternate = address.getOption(ALTERNATE);
+        ResourceAddress alternate = address.getOption(ALTERNATE_OPTION);
         assertNotNull(alternate);
         assertEquals(URI.create("tcp://127.0.0.2:2020"), alternate.getResource());
         assertEquals("pipe://internal", alternate.getOption(TRANSPORT_URI));
-        alternate = alternate.getOption(ALTERNATE);
+        alternate = alternate.getOption(ALTERNATE_OPTION);
         assertNotNull(alternate);
         assertEquals(URI.create("tcp://127.0.0.3:2020"), alternate.getResource());
         assertEquals("pipe://internal", alternate.getOption(TRANSPORT_URI));
-        alternate = alternate.getOption(ALTERNATE);
+        alternate = alternate.getOption(ALTERNATE_OPTION);
         assertNull(alternate);
     }
     

@@ -17,6 +17,9 @@ package org.kaazing.gateway.server.config.parse;
 
 import org.kaazing.gateway.server.config.ResourceConfig;
 
+/**
+ * TODO Add class documentation
+ */
 public class DefaultResourceConfig implements ResourceConfig {
 
     private String name;

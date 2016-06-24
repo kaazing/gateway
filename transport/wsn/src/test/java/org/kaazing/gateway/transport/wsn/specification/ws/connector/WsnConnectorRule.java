@@ -16,7 +16,7 @@
 package org.kaazing.gateway.transport.wsn.specification.ws.connector;
 
 import static java.util.Arrays.asList;
-import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS;
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS_OPTION;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.SUPPORTED_PROTOCOLS;
 
 import java.util.Collections;
@@ -82,7 +82,7 @@ public class WsnConnectorRule implements TestRule {
         }
 
         if (extensions != null) {
-            connectOptions.put(EXTENSIONS.name(), asList(extensions));
+            connectOptions.put(EXTENSIONS_OPTION.name(), asList(extensions));
         }
 
         ResourceAddress connectAddress =

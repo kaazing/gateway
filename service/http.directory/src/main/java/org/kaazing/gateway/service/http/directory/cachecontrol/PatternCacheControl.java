@@ -91,7 +91,7 @@ public final class PatternCacheControl {
 
     /**
      * Checks if the directive with the given name exists in the map
-     * @param directive name
+     * @param name of directive
      * @return true if the directive exists, false otherwise
      */
     public boolean hasDirective(Directive name) {

@@ -39,6 +39,9 @@ import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 
+/**
+ * @deprecated
+ */
 @Deprecated // use org.kaazing.mina.filter.codec.ProtocolCodecFilter directly instead
 public class ProtocolCodecFilter extends org.kaazing.mina.filter.codec.ProtocolCodecFilter {
 

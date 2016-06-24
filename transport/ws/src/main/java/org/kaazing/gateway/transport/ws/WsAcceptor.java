@@ -16,7 +16,7 @@
 package org.kaazing.gateway.transport.ws;
 
 import static java.lang.String.format;
-import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
+import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.transport.ws.WsSystemProperty.WS_ENABLED_TRANSPORTS;
 import static org.kaazing.mina.core.future.DefaultUnbindFuture.combineFutures;
@@ -70,6 +70,10 @@ public class WsAcceptor implements BridgeAcceptor {
     private BridgeAcceptor wsebAcceptor;
     private BridgeAcceptor wsnAcceptor;
     private Properties configuration;
+    
+    public WsAcceptor(WebSocketExtensionFactory extensionFactory) {
+        this.extensionFactory = extensionFactory;
+    }
 
     @Resource(name = "configuration")
     public void setConfiguration(Properties configuration) {
@@ -84,10 +88,6 @@ public class WsAcceptor implements BridgeAcceptor {
     @Resource(name = "wsn.acceptor")
     public void setWsnAcceptor(BridgeAcceptor wsnAcceptor) {
         this.wsnAcceptor = wsnAcceptor;
-    }
-
-    public WsAcceptor(WebSocketExtensionFactory extensionFactory) {
-        this.extensionFactory = extensionFactory;
     }
 
     @Override
@@ -113,7 +113,7 @@ public class WsAcceptor implements BridgeAcceptor {
                     logger.warn(format(format, address.getExternalURI(), URIUtils.getScheme(address.getExternalURI())));
                 }
             }
-            address = address.getOption(ALTERNATE);
+            address = address.getOption(ALTERNATE_OPTION);
         } while (address != null);
 
     }
@@ -167,7 +167,7 @@ public class WsAcceptor implements BridgeAcceptor {
             } else {
                 future = combineFutures(future, bridgeAcceptor.unbind(address));
             }
-            address = address.getOption(ALTERNATE);
+            address = address.getOption(ALTERNATE_OPTION);
         } while (address != null);
 
         return future;

@@ -61,7 +61,7 @@ public class UpdateCheckService implements Service {
                     e);
         }
         final String productEdition = getGatewayProductEdition().replaceAll("\\s+", "");
-        versionServiceUrl = (productEdition.toLowerCase().contains("enterprise")) ? "https://version.kaazing.com"
+        versionServiceUrl = productEdition.toLowerCase().contains("enterprise") ? "https://version.kaazing.com"
                 : "https://version.kaazing.org";
     }
 

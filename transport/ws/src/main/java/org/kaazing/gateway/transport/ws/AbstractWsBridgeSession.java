@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
  * A shared capabilities superclass for all WebSocket bridge sessions.
  *
  * @param <S> AN IoSession type
+ * @param <B> AN IoSession type
  */
 public abstract class AbstractWsBridgeSession<S extends IoSessionEx, B extends IoBufferEx> extends AbstractBridgeSession<S, B> {
 
@@ -142,12 +143,12 @@ public abstract class AbstractWsBridgeSession<S extends IoSessionEx, B extends I
 	 */
     public void startupSessionTimeoutCommand() {
         if (initSessionTimeoutCommand.compareAndSet(false, true)) {
-            final Long sessionTimeout = getSessionTimeout();
-            if ( sessionTimeout != null && sessionTimeout > 0) {
+            final Long timeout = getSessionTimeout();
+            if ( timeout != null && timeout > 0) {
                 if ( scheduledEventslogger.isTraceEnabled() ) {
-                    scheduledEventslogger.trace( "Establishing a session timeout of " + sessionTimeout + " seconds for WebSocket session (" + getId() + ").");
+                    scheduledEventslogger.trace( "Establishing a session timeout of " + timeout + " seconds for WebSocket session (" + getId() + ").");
                 }
-                scheduleCommand(this.sessionTimeout, sessionTimeout);
+                scheduleCommand(this.sessionTimeout, timeout);
             }
         }
     }
@@ -173,9 +174,9 @@ public abstract class AbstractWsBridgeSession<S extends IoSessionEx, B extends I
         DefaultLoginResult loginResult;
         if ( loginContext != null && (loginResult = loginContext.getLoginResult()) != null
                 && loginResult.getType() == LoginResult.Type.SUCCESS) {
-            Long sessionTimeout = loginResult.getSessionTimeout();
-            if ( sessionTimeout != null && sessionTimeout > 0 ) {
-                return sessionTimeout;
+            Long timeout = loginResult.getSessionTimeout();
+            if ( timeout != null && timeout > 0 ) {
+                return timeout;
             }
         }
         return null;

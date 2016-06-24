@@ -31,14 +31,14 @@ public class SystemDataProviderFactory {
 
     public static SystemDataProvider createProvider() {
         try {
-            Sigar sigar = new Sigar();
-            Uptime uptime = sigar.getUptime();
+//            Sigar sigar = new Sigar();
+//            Uptime uptime = sigar.getUptime();
 
             return new SigarSystemDataProvider();
         } catch (Throwable t) {
             Logger logger = LoggerFactory.getLogger(SystemDataProviderFactory.class);
-            logger.info("Management services are unable to access system-level management statistics");
-            logger.info("   (CPU, NIC, System data). Management will continue without them.");
+            logger.info("Management services are unable to access system-level management statistics", t);
+            logger.info("   (CPU, NIC, System data). Management will continue without them.", t);
 
             return new NonSigarSystemDataProvider();
         }

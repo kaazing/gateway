@@ -74,7 +74,7 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
             return;
         }
 
-        if (!(HttpMethod.POST == session.getMethod())) {
+        if (HttpMethod.POST != session.getMethod()) {
             wsebSession.setCloseException(
                     new IOException("Unsupported upstream request method: " + session.getMethod()));
             HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
@@ -85,7 +85,7 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         }
 
         String contentLength = session.getReadHeader(HEADER_CONTENT_LENGTH);
-        if (contentLength != null && contentLength.equals("0")) {
+        if (contentLength != null && ("0").equals(contentLength)) {
             wsebSession.setCloseException(
                     new IOException("Invalid upstream request: content length must not be zero"));
             HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
@@ -103,7 +103,7 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         if (utf8 != null) {
             // Note: encoding filter needs to be closer to the network than the codec filter
             String contentType = session.getReadHeader(HttpHeaders.HEADER_CONTENT_TYPE);
-            if (CONTENT_TYPE_TEXT_PLAIN_CHARSET_UTF_8.matcher((contentType)).matches()) {
+            if (CONTENT_TYPE_TEXT_PLAIN_CHARSET_UTF_8.matcher(contentType).matches()) {
                 filterChain.addBefore(CODEC_FILTER, UTF8_FILTER, utf8);
             }
         }

@@ -131,7 +131,7 @@ public class MulticastAcceptorImpl extends AbstractIoAcceptorEx {
 	            }
 	            catch (IOException e) {
 	                String error = "Unable to bind to resource: " + localAddress + " cause: " + e.getMessage();
-	                logger.error(error);
+	                logger.error(error, e);
 	                throw new RuntimeException(error);
 	            }
 				boundAddresses.add(multicastAddress);
@@ -158,7 +158,7 @@ public class MulticastAcceptorImpl extends AbstractIoAcceptorEx {
 	            }
 	            catch (IOException e) {
 	                String error = "Unable to unbind from resource: " + localAddress + " cause: " + e.getMessage();
-	                logger.error(error);
+	                logger.error(error, e);
 	                throw new RuntimeException(error);
 	            }
 			}
@@ -228,16 +228,16 @@ public class MulticastAcceptorImpl extends AbstractIoAcceptorEx {
         }
 
         IoSessionEx session;
-        IoSessionRecycler sessionRecycler = getSessionRecycler();
-		synchronized (sessionRecycler) {
-            session = (IoSessionEx) sessionRecycler.recycle(localAddress, remoteAddress);
+        IoSessionRecycler ioSessionRecycler = getSessionRecycler();
+		synchronized (ioSessionRecycler) {
+            session = (IoSessionEx) ioSessionRecycler.recycle(localAddress, remoteAddress);
             if (session != null && !session.isClosing()) {
                 return session;
             }
 
             // If a new session needs to be created.
             MulticastSession newSession = new MulticastSession(this, processor, handle.socket, handle.localAddress, remoteAddress);
-            sessionRecycler.put(newSession);
+            ioSessionRecycler.put(newSession);
             session = newSession;
         }
 

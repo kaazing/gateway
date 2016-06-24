@@ -23,6 +23,9 @@ import org.kaazing.gateway.security.LoginContextFactory;
 import org.kaazing.gateway.security.RealmContext;
 import org.kaazing.gateway.security.auth.context.LoginContextFactories;
 
+/**
+ * TODO Add class documentation
+ */
 public class DefaultRealmContext implements RealmContext {
     private final String name;
     private final String description;

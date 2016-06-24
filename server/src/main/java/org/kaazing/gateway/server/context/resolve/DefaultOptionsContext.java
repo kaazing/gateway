@@ -86,10 +86,10 @@ class DefaultOptionsContext {
     // javax.net.ssl.SSLEngine.setEnabledProtocols() method wants a
     // String array.
     private static String[] resolveProtocols(String csv) {
-        if (csv != null && !csv.equals("")) {
+        if (csv != null && !("").equals(csv)) {
             return csv.split(",");
         } else {
-            return null;
+            return new String[0];
         }
     }
 
@@ -153,10 +153,10 @@ class DefaultOptionsContext {
         boolean[] clientAuth = { false, false };
 
         if (sslVerifyClientValue != null) {
-            if (sslVerifyClientValue.equalsIgnoreCase("required")) {
+            if (("required").equalsIgnoreCase(sslVerifyClientValue)) {
                 clientAuth[0] = false;
                 clientAuth[1] = true;
-            } else if (sslVerifyClientValue.equalsIgnoreCase("optional")) {
+            } else if (("optional").equalsIgnoreCase(sslVerifyClientValue)) {
                 clientAuth[0] = true;
                 clientAuth[1] = false;
             }
@@ -167,13 +167,13 @@ class DefaultOptionsContext {
     static boolean isSslEncryptionEnabled(String sslEncryptionEnabledValue) {
         boolean sslEncryptionEnabled = true;
         if (sslEncryptionEnabledValue != null) {
-            sslEncryptionEnabled = !sslEncryptionEnabledValue.equalsIgnoreCase("disabled");
+            sslEncryptionEnabled = !("disabled").equalsIgnoreCase(sslEncryptionEnabledValue);
         }
         return sslEncryptionEnabled;
     }
 
     static boolean isHttpServerHeaderEnabled(String serverHeaderEnabled) {
-        return serverHeaderEnabled == null || !serverHeaderEnabled.equalsIgnoreCase("disabled");
+        return serverHeaderEnabled == null || !("disabled").equalsIgnoreCase(serverHeaderEnabled);
     }
 
     static String[] getSslProtocols(String sslProtocolsValue) {
@@ -221,7 +221,7 @@ class DefaultOptionsContext {
     static boolean isHttpKeepaliveEnabled(String httpKeepaliveEnabledValue) {
         boolean httpKeepaliveEnabled = true;
         if (httpKeepaliveEnabledValue != null) {
-            httpKeepaliveEnabled = !httpKeepaliveEnabledValue.equalsIgnoreCase("disabled");
+            httpKeepaliveEnabled = !("disabled").equalsIgnoreCase(httpKeepaliveEnabledValue);
         }
 
         return httpKeepaliveEnabled;
@@ -245,22 +245,20 @@ class DefaultOptionsContext {
             Node node = childNodes.item(i);
             if (Node.ELEMENT_NODE == node.getNodeType()) {
                 NodeList content = node.getChildNodes();
-                String nodeValue = "";
+                StringBuilder nodeValue = new StringBuilder();
                 for (int j = 0; j < content.getLength(); j++) {
                     Node child = content.item(j);
-                    if (child != null) {
-                        if (child.getNodeType() == Node.TEXT_NODE) {
-                            // GatewayConfigParser skips white space so we don't need to trim. We concatenate in case
-                            // the parser coughs up text content as more than one Text node.
-                            String fragment = child.getNodeValue();
-                            if (fragment != null) {
-                                nodeValue = nodeValue + fragment;
-                            }
+                    if (child != null && child.getNodeType() == Node.TEXT_NODE) {
+                        // GatewayConfigParser skips white space so we don't need to trim. We concatenate in case
+                        // the parser coughs up text content as more than one Text node.
+                        String fragment = child.getNodeValue();
+                        if (fragment != null) {
+                            nodeValue.append(fragment);
                         }
-                        // Skip over other node types
+                    // Skip over other node types
                     }
                 }
-                optionsMap.put(node.getLocalName(), nodeValue);
+                optionsMap.put(node.getLocalName(), nodeValue.toString());
             }
         }
         return optionsMap;

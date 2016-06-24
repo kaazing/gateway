@@ -24,6 +24,9 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import org.kaazing.gateway.server.spi.security.AuthenticationToken;
 import org.kaazing.gateway.server.spi.security.AuthenticationTokenCallback;
 
+/**
+ * TODO Add class documentation
+ */
 public class AuthenticationTokenCallbackHandler implements CallbackHandler {
     private final AuthenticationToken authToken;
 

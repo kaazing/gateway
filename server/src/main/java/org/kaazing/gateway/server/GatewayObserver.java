@@ -147,8 +147,8 @@ public final class GatewayObserver implements GatewayObserverApi {
 
     @Override
     public void startingGateway(GatewayContext gatewayContext) {
-        for (GatewayObserverFactorySpi gatewayListenerSpi : gatewayListenerSpi) {
-            injectResources(gatewayListenerSpi, gatewayContext.getInjectables());
+        for (GatewayObserverFactorySpi gatewayListener : gatewayListenerSpi) {
+            injectResources(gatewayListener, gatewayContext.getInjectables());
         }
 
         for (GatewayObserverApi gatewayListener : gatewayListenerSpi) {

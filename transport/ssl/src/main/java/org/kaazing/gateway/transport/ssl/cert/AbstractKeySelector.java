@@ -18,10 +18,14 @@ package org.kaazing.gateway.transport.ssl.cert;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.TransportKeySelector;
 
+/**
+ * TODO Add class documentation
+ */
 public abstract class AbstractKeySelector implements TransportKeySelector {
 
     @Override
@@ -31,7 +35,7 @@ public abstract class AbstractKeySelector implements TransportKeySelector {
 
     @Override
     public Collection<String> getAvailableCertAliases(boolean clientMode) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

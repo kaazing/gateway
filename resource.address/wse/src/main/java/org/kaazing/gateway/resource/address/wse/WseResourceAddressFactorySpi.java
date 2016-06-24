@@ -62,7 +62,7 @@ public class WseResourceAddressFactorySpi extends WsResourceAddressFactorySpi {
 
     static String[] removeStringArrayElement(String[] option, String remove) {
         if (option == null) {
-            return null;
+            return new String[0];
         }
 
         int index = -1;

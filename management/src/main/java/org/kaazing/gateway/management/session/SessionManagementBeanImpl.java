@@ -158,7 +158,7 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
 
     @Override
     public String getSummaryData() {
-        long start = System.nanoTime();
+//        long start = System.nanoTime();
 
 //        String val = String.format("[%d,%f,%d,%f]",
 //                                   getReadBytes(),
@@ -180,14 +180,13 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
             // We should never be able to get here, as the summary data values are all legal
         }
 
-        String val = jsonArray.toString();
 
-        long stop = System.nanoTime();
+//        long stop = System.nanoTime();
 
 //        System.out.println("### Gathering summaries for SESSION ID " + getId() +
 //                           " took " + ((stop - start) / 1000) + " us for " + val.length() + " chars [" + val + "]");
 
-        return val;
+        return jsonArray.toString();
     }
 
     @Override
@@ -212,8 +211,7 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
 
     @Override
     public String getRemoteAddress() {
-        String remoteAddress = serviceManagementBean.getSessionRemoteAddress(this.session);
-        return remoteAddress;
+        return serviceManagementBean.getSessionRemoteAddress(this.session);
     }
 
     @Override
@@ -238,7 +236,7 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
         Set<String> userPrincipalClasses = serviceManagementBean.getUserPrincipalClasses();
 
         if (userPrincipalClasses != null && !userPrincipalClasses.isEmpty()) {
-            Map<String, String> userPrincipals = new HashMap<>();
+            Map<String, String> userPrincipalMap = new HashMap<>();
             Subject subject = session.getSubject();
             if (subject != null) {
                 Set<Principal> principals = subject.getPrincipals();
@@ -246,12 +244,12 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
                     String principalName = principal.getName();
                     String principalClass = principal.getClass().getName();
                     if (userPrincipalClasses.contains(principalClass)) {
-                        userPrincipals.put(principalName, principalClass);
+                    	userPrincipalMap.put(principalName, principalClass);
                     }
                 }
 
                 // The following MUST run ON the IO thread.
-                setUserPrincipals(userPrincipals);
+                setUserPrincipals(userPrincipalMap);
             }
         }
     }
@@ -402,14 +400,14 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
 
     @Override
     public long getLastRoundTripLatency() {
-        IoSessionEx session = getSession();
-        while (session != null) {
-            Long latency = LAST_ROUND_TRIP_LATENCY.get(session);
+        IoSessionEx ioSession = getSession();
+        while (ioSession != null) {
+            Long latency = LAST_ROUND_TRIP_LATENCY.get(ioSession);
             if (latency != null) {
                 return latency;
             }
-            if (session instanceof BridgeSession) {
-                session = ((BridgeSession) session).getParent();
+            if (ioSession instanceof BridgeSession) {
+            	ioSession = ((BridgeSession) ioSession).getParent();
             } else {
                 break;
             }
@@ -419,14 +417,14 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
 
     @Override
     public long getLastRoundTripLatencyTimestamp() {
-        IoSessionEx session = getSession();
-        while (session != null) {
-            Long latency = LAST_ROUND_TRIP_LATENCY_TIMESTAMP.get(session);
+        IoSessionEx ioSession = getSession();
+        while (ioSession != null) {
+            Long latency = LAST_ROUND_TRIP_LATENCY_TIMESTAMP.get(ioSession);
             if (latency != null) {
                 return latency;
             }
-            if (session instanceof BridgeSession) {
-                session = ((BridgeSession) session).getParent();
+            if (ioSession instanceof BridgeSession) {
+            	ioSession = ((BridgeSession) ioSession).getParent();
             } else {
                 break;
             }

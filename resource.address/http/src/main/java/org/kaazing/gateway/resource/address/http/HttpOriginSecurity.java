@@ -31,13 +31,13 @@ public class HttpOriginSecurity {
             throw new NullPointerException("acceptConstraints");
         }
 
-        HashMap<String, HttpOriginConstraint> constraints = new HashMap<>();
+        HashMap<String, HttpOriginConstraint> constraintMap = new HashMap<>();
             for (Map.Entry<String, ? extends CrossSiteConstraintContext> entry : acceptConstraints.entrySet()) {
                 String sourceOrigin = entry.getKey();
                 CrossSiteConstraintContext originConstraint = entry.getValue();
-                constraints.put(sourceOrigin, new HttpOriginConstraint(originConstraint));
+                constraintMap.put(sourceOrigin, new HttpOriginConstraint(originConstraint));
             }
-        this.constraints = unmodifiableMap(constraints);
+        this.constraints = unmodifiableMap(constraintMap);
     }
     
     public Collection<String> getSourceOrigins() {

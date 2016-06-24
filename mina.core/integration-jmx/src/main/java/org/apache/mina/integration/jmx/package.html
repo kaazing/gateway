@@ -20,12 +20,14 @@
 <head>
 </head>
 <body>
-JMX (Java Management eXtension) integration.
+	JMX (Java Management eXtension) integration.
 
-<h2>Monitoring Your MINA Services and Sessions</h3>
+	<h2>
+		Monitoring Your MINA Services and Sessions
+		</h3>
 
-<h3>Monitoring an IoService</h3>
-<pre>
+		<h3>Monitoring an IoService</h3>
+		<pre>
 acceptor = new SocketAcceptor();
        
 try
@@ -41,11 +43,11 @@ catch( JMException e )
 }
 </pre>
 
-<h3>Monitoring an IoSession</h3>
+		<h3>Monitoring an IoSession</h3>
 
-Each session is registered to MBean server individually.
+		Each session is registered to MBean server individually.
 
-<pre>
+		<pre>
 acceptor.addListener( new IoServiceListener()
 {
     public void serviceActivated( IoService service, SocketAddress serviceAddress, IoHandler handler, IoServiceConfig config )

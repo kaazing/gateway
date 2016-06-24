@@ -27,11 +27,16 @@ public class NamedPipeAddressFactory implements SocketAddressFactory<NamedPipeAd
 	@Override
 	public NamedPipeAddress createSocketAddress(ResourceAddress address) {
         URI location = address.getResource();
-		assert ("pipe".equals(location.getScheme()));
-		assert (location.getAuthority() != null);
-		assert (location.getPath() == null || location.getPath().isEmpty());
-		assert (location.getQuery() == null);
-		assert (location.getFragment() == null);
+        boolean pipeScheme = "pipe".equals(location.getScheme());
+		assert pipeScheme;
+		boolean authorityNotNull = location.getAuthority() != null;
+		assert authorityNotNull;
+		boolean validPath = location.getPath() == null || location.getPath().isEmpty();
+		assert validPath;
+		boolean validQuery = location.getQuery() == null;
+		assert validQuery;
+		boolean validFragment = location.getFragment() == null;
+		assert validFragment;
 		return new NamedPipeAddress(location.getAuthority());
 	}
 

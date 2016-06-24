@@ -33,6 +33,11 @@ import org.kaazing.mina.core.service.AbstractIoServiceEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionConfigEx;
 
+/**
+ * TODO Add class documentation
+ * 
+ * @param <T> AbstractBridgeSession type
+ */
 public abstract class AbstractBridgeService<T extends AbstractBridgeSession<?, ?>> extends AbstractIoServiceEx implements BridgeService {
 
     private IoProcessorEx<T> processor;
@@ -40,7 +45,9 @@ public abstract class AbstractBridgeService<T extends AbstractBridgeSession<?, ?
     protected AbstractBridgeService(IoSessionConfigEx sessionConfig) {
         super(sessionConfig, new Executor() {
             @Override
-            public void execute(Runnable command) {}
+            public void execute(Runnable command) {
+            	// FIXME: do we need this?
+            }
         });
 
         setSessionDataStructureFactory(new DefaultIoSessionDataStructureFactory());
@@ -79,10 +86,10 @@ public abstract class AbstractBridgeService<T extends AbstractBridgeSession<?, ?
     protected T newSession(IoSessionInitializer<? extends IoFuture> initializer, IoFuture future, Callable<T> sessionCreator) throws Exception {
         T session;
 
-        IoProcessorEx<T> processor = getProcessor();
-        synchronized (processor) {
+        IoProcessorEx<T> sessionProcessor = getProcessor();
+        synchronized (sessionProcessor) {
             session = sessionCreator.call();
-            processor.add(session);
+            sessionProcessor.add(session);
         }
 
         initSession(session, future, initializer);

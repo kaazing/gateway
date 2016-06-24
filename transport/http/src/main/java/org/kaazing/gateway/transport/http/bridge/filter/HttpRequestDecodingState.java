@@ -290,7 +290,7 @@ public class HttpRequestDecodingState extends DecodingStateMachine {
 			 * who may set query parameters but no path
 			 */
 			String path = requestURI.getPath();
-            if(path == null || path.equals("")){
+            if(path == null || ("").equals(path)){
 			    requestURI = new URI(requestURI.getScheme(), requestURI.getUserInfo(), requestURI.getHost(), requestURI.getPort(), "/".concat(path), requestURI.getQuery(), requestURI.getFragment());
 			}
 			HttpVersion httpVersion = (HttpVersion) childProducts.get(2);
@@ -430,7 +430,7 @@ public class HttpRequestDecodingState extends DecodingStateMachine {
         		}
 
         		if (version < 0) {
-        			if (!key.equalsIgnoreCase("$Version")) {
+        			if (!("$Version").equalsIgnoreCase(key)) {
         				// $Version is not specified. Use the default (0).
         				version = 0;
         			} else {
@@ -447,7 +447,7 @@ public class HttpRequestDecodingState extends DecodingStateMachine {
         			try {
         				switch (fieldIdx) {
         				case 1:
-        					if (key.equalsIgnoreCase("$Path")) {
+        					if (("$Path").equalsIgnoreCase(key)) {
         						currentCookie.setPath(value);
         						fieldIdx++;
         					} else {
@@ -455,7 +455,7 @@ public class HttpRequestDecodingState extends DecodingStateMachine {
         					}
         					break;
         				case 2:
-        					if (key.equalsIgnoreCase("$Domain")) {
+        					if (("$Domain").equalsIgnoreCase(key)) {
         						currentCookie.setDomain(value);
         						fieldIdx++;
         					} else {

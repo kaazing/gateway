@@ -30,7 +30,8 @@ public class HttpDirectoryServiceFactorySpi extends ServiceFactorySpi {
 
     @Override
     public Service newService(String serviceType) {
-        assert "directory".equals(serviceType);
+    	boolean equalsDirectory = "directory".equals(serviceType);
+        assert equalsDirectory;
         return new HttpDirectoryService();
     }
 }

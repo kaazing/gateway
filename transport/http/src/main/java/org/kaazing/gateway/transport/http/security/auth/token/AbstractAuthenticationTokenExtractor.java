@@ -26,6 +26,9 @@ import org.kaazing.gateway.transport.http.HttpCookie;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
 
+/**
+ * TODO Add class documentation
+ */
 public class AbstractAuthenticationTokenExtractor implements AuthenticationTokenExtractor {
 
     @Override
@@ -84,21 +87,21 @@ public class AbstractAuthenticationTokenExtractor implements AuthenticationToken
      protected void extractCookies(HttpRequestMessage httpRequest, String[] httpCookieNames, DefaultAuthenticationToken result) {
         for ( String cookieName: httpCookieNames ) {
             Set<HttpCookie> cookies =  httpRequest.getCookies();
-            if ( cookies != null ) {
-                for (HttpCookie cookie: cookies) {
-                    if ( cookieName != null && cookieName.equals(cookie.getName()) ) {
-                        String value = cookie.getValue();
-                        if ( value != null ) {
-                            if ( result.get(cookieName) != null ) {
-                                throw new IllegalStateException("Cannot authenticate with multiple http cookie values for cookie name \""+cookieName+"\"");
-                            }
-                            result.add(cookieName, value);
-                        }
-                    }
+            if ( cookies == null ) {
+            	continue;
+            }
+            for (HttpCookie cookie: cookies) {
+            	String value = cookie.getValue();
+            	if ( cookieName == null || !cookieName.equals(cookie.getName()) || value == null ) {
+            		continue;
+            	}
+                if ( result.get(cookieName) != null ) {
+                	throw new IllegalStateException("Cannot authenticate with multiple http cookie values for cookie name \""+cookieName+"\"");
                 }
+                result.add(cookieName, value);
             }
         }
-    }
+     }
 
     private void extractAuthorizationHeader(HttpRequestMessage httpRequest, DefaultAuthenticationToken result) {
         if (httpRequest.hasHeader(HttpSubjectSecurityFilter.AUTHORIZATION_HEADER) ) {

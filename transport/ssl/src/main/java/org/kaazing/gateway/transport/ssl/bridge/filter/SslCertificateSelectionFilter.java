@@ -18,6 +18,7 @@ package org.kaazing.gateway.transport.ssl.bridge.filter;
 import static org.kaazing.gateway.resource.address.Comparators.compareResourceOriginAndProtocolStack;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -92,13 +93,13 @@ public class SslCertificateSelectionFilter
     public static Collection<String> getAvailableClientCertAliases() {
         AvailableCertInfo clientInfo = availClientCertInfo.get();
         if (clientInfo == null) {
-            return null;
+            return Collections.emptyList();
         }
 
         ConcurrentMap<ResourceAddress, Collection<String>> certAliases = clientInfo.getCertAliases();
         if (certAliases == null ||
             certAliases.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
 
         return certAliases.get(clientInfo.getCertAliasesKey());
@@ -107,13 +108,13 @@ public class SslCertificateSelectionFilter
     public static Collection<String> getAvailableServerCertAliases() {
         AvailableCertInfo serverInfo = availServerCertInfo.get();
         if (serverInfo == null) {
-            return null;
+            return Collections.emptyList();
         }
 
         ConcurrentMap<ResourceAddress, Collection<String>> certAliases = serverInfo.getCertAliases();
         if (certAliases == null ||
             certAliases.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
 
         return certAliases.get(serverInfo.getCertAliasesKey());
@@ -156,7 +157,7 @@ public class SslCertificateSelectionFilter
                                          boolean client) {
         AvailableCertInfo certInfo;
 
-        certInfo = (client ? availClientCertInfo.get() : availServerCertInfo.get());
+        certInfo = client ? availClientCertInfo.get() : availServerCertInfo.get();
         certInfo.setSession(session);
     }
 

@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * information if we can find another (non-SIGAR) source for the data.
  */
 public class NonSigarSystemDataProvider implements SystemDataProvider {
-    private static final Logger logger = LoggerFactory.getLogger(NonSigarSystemDataProvider.class);
+//    private static final Logger logger = LoggerFactory.getLogger(NonSigarSystemDataProvider.class);
 
     public NonSigarSystemDataProvider() {
     }

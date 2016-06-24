@@ -15,7 +15,7 @@
  */
 package org.kaazing.gateway.transport.wsn.specification.ws.acceptor;
 
-import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT_OPTION;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.nio.ByteBuffer;
@@ -269,7 +269,7 @@ public class FragmentationIT {
 
                     final boolean hasPostUpgradeChildWsnSession = wsnSession.getHandler() == this;
                     final ResourceAddress wsnSessionLocalAddress = wsnSession.getLocalAddress();
-                    final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
+                    final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT_OPTION);
                     boolean sendMessagesDirect = isLightweightWsnSession
                                                  && hasPostUpgradeChildWsnSession; // post-upgrade
                     if ( sendMessagesDirect ) {

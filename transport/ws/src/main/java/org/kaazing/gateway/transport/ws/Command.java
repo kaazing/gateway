@@ -15,13 +15,16 @@
  */
 package org.kaazing.gateway.transport.ws;
 
+/**
+ * TODO Add class documentation
+ */
 public abstract class Command {
-
-	public abstract int value();
 
 	private static final Command NOOP = new SingleInstructionCommand(0x00);
     private static final Command RECONNECT = new SingleInstructionCommand(0x01);
     private static final Command CLOSE = new SingleInstructionCommand(0x02);
+	
+	public abstract int value();
 
 	public static Command noop() {
 		return NOOP;

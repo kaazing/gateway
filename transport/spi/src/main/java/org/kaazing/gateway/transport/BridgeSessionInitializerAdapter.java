@@ -21,6 +21,8 @@ import org.apache.mina.core.session.IoSession;
 
 /**
  * Adapter for BridgeSessionInitializers.
+ * 
+ * @param <T> IoFuture type
  */
 public class BridgeSessionInitializerAdapter<T extends IoFuture> implements BridgeSessionInitializer<T> {
     @Override

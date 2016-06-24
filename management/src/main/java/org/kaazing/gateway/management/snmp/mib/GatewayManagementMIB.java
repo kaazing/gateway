@@ -281,16 +281,13 @@ public class GatewayManagementMIB implements MOGroup, CounterListener, AgentCapa
 
         @Override
         public void setValue(int column, Variable newValue) {
-            switch (column) {
-                case MIBConstants.indexForceUpdateVersionCheck:
-                    if ((newValue instanceof Integer32) && (((Integer32) newValue).getValue() == 0)) {
-                        bean.forceUpdateVersionCheck();
-                    }
-                    break;
-                default:
-                    super.setValue(column, newValue);
-                    break;
-            }
+        	if (column == MIBConstants.indexForceUpdateVersionCheck) {
+        		if ((newValue instanceof Integer32) && (((Integer32) newValue).getValue() == 0)) {
+                    bean.forceUpdateVersionCheck();
+                }
+        	} else {
+        		super.setValue(column, newValue);
+        	}
         }
     }
 }

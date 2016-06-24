@@ -19,6 +19,9 @@ import static org.kaazing.mina.core.buffer.SimpleBufferAllocator.BUFFER_ALLOCATO
 
 import org.kaazing.mina.core.buffer.IoBufferEx;
 
+/**
+ * TODO Add class documentation
+ */
 public abstract class AbstractWsControlMessage extends WsMessage {
 
     private static final IoBufferEx EMPTY_BUFFER = BUFFER_ALLOCATOR.wrap(BUFFER_ALLOCATOR.allocate(0), IoBufferEx.FLAG_SHARED);

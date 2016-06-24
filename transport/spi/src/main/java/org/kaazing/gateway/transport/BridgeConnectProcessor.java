@@ -17,6 +17,11 @@ package org.kaazing.gateway.transport;
 
 import java.net.SocketAddress;
 
+/**
+ * TODO Add class documentation
+ * 
+ * @param <T> AbstractBridgeSession type
+ */
 public class BridgeConnectProcessor<T extends AbstractBridgeSession<?, ?>> extends AbstractBridgeProcessor<T> {
 
     public BridgeConnectProcessor() {

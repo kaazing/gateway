@@ -25,6 +25,9 @@ import org.kaazing.gateway.server.config.nov2015.AuthenticationType;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+/**
+ * TODO Add class documentation
+ */
 public class DefaultAuthenticationContext implements AuthenticationContext {
     private static final String AUTHORIZATION_MODE_CHALLENGE = "challenge";
 
@@ -53,7 +56,7 @@ public class DefaultAuthenticationContext implements AuthenticationContext {
         if (headers != null) {
             return headers.split(",");
         }
-        return null;
+        return new String[0];
     }
 
     @Override
@@ -62,7 +65,7 @@ public class DefaultAuthenticationContext implements AuthenticationContext {
         if (queryParams != null) {
             return queryParams.split(",");
         }
-        return null;
+        return new String[0];
     }
 
     @Override
@@ -71,7 +74,7 @@ public class DefaultAuthenticationContext implements AuthenticationContext {
         if (cookieNames != null) {
             return cookieNames.split(",");
         }
-        return null;
+        return new String[0];
     }
 
     @Override
@@ -101,19 +104,17 @@ public class DefaultAuthenticationContext implements AuthenticationContext {
             Node node = childNodes.item(i);
             if (Node.ELEMENT_NODE == node.getNodeType()) {
                 NodeList content = node.getChildNodes();
-                String nodeValue = "";
+                StringBuilder nodeValue = new StringBuilder();
                 for (int j = 0; j < content.getLength(); j++) {
                     Node child = content.item(j);
-                    if (child != null) {
-                        if (child.getNodeType() == Node.TEXT_NODE) {
-                            // GatewayConfigParser skips white space so we don't need to trim. We concatenate in case
-                            // the parser coughs up text content as more than one Text node.
-                            String fragment = child.getNodeValue();
-                            if (fragment != null) {
-                                nodeValue = nodeValue + fragment;
-                            }
+                    if (child != null && child.getNodeType() == Node.TEXT_NODE) {
+                        // GatewayConfigParser skips white space so we don't need to trim. We concatenate in case
+                        // the parser coughs up text content as more than one Text node.
+                        String fragment = child.getNodeValue();
+                        if (fragment != null) {
+                            nodeValue.append(fragment);
                         }
-                        // Skip over other node types
+                    // Skip over other node types
                     }
                 }
 
@@ -122,7 +123,7 @@ public class DefaultAuthenticationContext implements AuthenticationContext {
                 if (currentValue != null) {
                     currentValue = format("%s,%s", currentValue, nodeValue);
                 } else {
-                    currentValue = nodeValue;
+                    currentValue = nodeValue.toString();
                 }
                 optionsMap.put(node.getLocalName(), currentValue);
             }

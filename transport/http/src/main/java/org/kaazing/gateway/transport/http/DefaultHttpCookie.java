@@ -18,6 +18,9 @@ package org.kaazing.gateway.transport.http;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
 
+/**
+ * TODO Add class documentation
+ */
 public class DefaultHttpCookie implements MutableHttpCookie, Comparable<DefaultHttpCookie> {
 
     private final String name;
@@ -143,13 +146,28 @@ public class DefaultHttpCookie implements MutableHttpCookie, Comparable<DefaultH
 
         DefaultHttpCookie that = (DefaultHttpCookie) o;
 
-        if (maxAge != that.maxAge) return false;
-        if (secure != that.secure) return false;
-        if (version != that.version) return false;
-        if (comment != null ? !comment.equals(that.comment) : that.comment != null) return false;
-        if (domain != null ? !domain.equals(that.domain) : that.domain != null) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (path != null ? !path.equals(that.path) : that.path != null) return false;
+        if (maxAge != that.maxAge) {
+        	return false;
+        }
+        if (secure != that.secure) {
+        	return false;
+        }
+        if (version != that.version) {
+        	return false;
+        }
+        if (comment != null ? !comment.equals(that.comment) : that.comment != null) {
+        	return false;
+        }
+        if (domain != null ? !domain.equals(that.domain) : that.domain != null) {
+        	return false;
+        }
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+        	return false;
+        }
+        if (path != null ? !path.equals(that.path) : that.path != null) {
+        	return false;
+        }
+        
         return !(value != null ? !value.equals(that.value) : that.value != null);
 
     }
@@ -159,7 +177,7 @@ public class DefaultHttpCookie implements MutableHttpCookie, Comparable<DefaultH
         if ( that == this ) {
             return 0;
         }
-        if (that == null || !(that instanceof DefaultHttpCookie)) {
+        if (that == null) {
             return MIN_VALUE;
         }
         
@@ -171,7 +189,7 @@ public class DefaultHttpCookie implements MutableHttpCookie, Comparable<DefaultH
             comparison = (that.secure ? 1 : 0) - (this.secure ? 1 : 0);
         }
         if (comparison == 0) {
-            comparison = (that.version - this.version);
+            comparison = that.version - this.version;
         }
         if (comparison == 0) {
             comparison = (comment != null) ? comment.compareTo(that.comment) : (that.comment == null) ? 0 : MAX_VALUE;

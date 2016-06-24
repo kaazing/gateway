@@ -83,6 +83,19 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
     private NextAction nextAction = NextAction.PING;
 
     private long pingSentTime = 0;
+    
+    WsCheckAliveFilter(long inactivityTimeout, Logger logger) {
+        this(inactivityTimeout, null, logger);
+    }
+
+    WsCheckAliveFilter(long inactivityTimeout, IoSession wsSession, Logger logger) {
+        assert inactivityTimeout > 0;
+        // KG-7057: Assume maximum possible round-trip time is half the configured inactivity timeout, but don't let it be 0
+        this.maxExpectedRtt = Math.max(inactivityTimeout / 2, 1);
+        this.pingDelay = maxExpectedRtt;
+        this.logger = logger;
+        this.wsSession = wsSession;
+    }
 
     public static void validateSystemProperties(Properties configuration, Logger logger) {
         // Fail gateway startup if the obsolete system property from JMS Edition release 3.5.3 is used (KG-7125)
@@ -126,19 +139,6 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
         if (filter != null) {
             filter.init(filterChain);
         }
-    }
-
-    WsCheckAliveFilter(long inactivityTimeout, Logger logger) {
-        this(inactivityTimeout, null, logger);
-    }
-
-    WsCheckAliveFilter(long inactivityTimeout, IoSession wsSession, Logger logger) {
-        assert inactivityTimeout > 0;
-        // KG-7057: Assume maximum possible round-trip time is half the configured inactivity timeout, but don't let it be 0
-        this.maxExpectedRtt = Math.max(inactivityTimeout / 2, 1);
-        this.pingDelay = maxExpectedRtt;
-        this.logger = logger;
-        this.wsSession = wsSession;
     }
 
     @Override
@@ -203,7 +203,7 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
                 // Alter this once we eliminate WsCloseFilter
                 IoFilterChain filterChain;
                 if (session instanceof AbstractBridgeSession<?,?>
-                        && ((AbstractBridgeSession<?,?>) session).getLocalAddress().getOption(WsResourceAddress.LIGHTWEIGHT)) {
+                        && ((AbstractBridgeSession<?,?>) session).getLocalAddress().getOption(WsResourceAddress.LIGHTWEIGHT_OPTION)) {
                     // Extended handshake case, WsCloseFilter is on the parent session
                     filterChain = ((AbstractBridgeSession<?,?>) session).getParent().getFilterChain();
                 }
@@ -225,11 +225,9 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
     }
 
     private static long getInactivityTimeoutMillis(long inactivityTimeoutIn, Logger logger) {
-        if (inactivityTimeoutIn == DISABLE_INACTIVITY_TIMEOUT) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(String.format("WebSocket inactivity timeout is disabled (you can use accept-option or connect-option \"%s\" to enable it)",
-                        "ws.inactivity.timeout"));
-            }
+        if (inactivityTimeoutIn == DISABLE_INACTIVITY_TIMEOUT && logger.isDebugEnabled()) {
+            logger.debug(String.format("WebSocket inactivity timeout is disabled (you can use accept-option or connect-option \"%s\" to enable it)",
+                    "ws.inactivity.timeout"));
         }
         return inactivityTimeoutIn;
     }

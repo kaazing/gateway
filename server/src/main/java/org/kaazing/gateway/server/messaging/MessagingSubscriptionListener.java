@@ -32,19 +32,21 @@ public interface MessagingSubscriptionListener {
     void acquired(MessagingSubscription subscription, MessagingSession session);
 
     /**
-     * @param registration
+     * @param subscription
      * @param session
      */
     void reacquired(MessagingSubscription subscription, MessagingSession session);
 
     /**
      * @param forced
-     * @param registration
+     * @param subscription
      * @param session
      */
     void released(boolean forced, MessagingSubscription subscription, MessagingSession session);
 
     /**
+     * @param reason
+     * @param message
      * @param destination
      * @param session
      */

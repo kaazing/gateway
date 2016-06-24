@@ -26,6 +26,9 @@ import org.kaazing.gateway.service.amqp.amqp091.AmqpTable;
 import org.kaazing.gateway.service.amqp.amqp091.AmqpTable.AmqpTableEntry;
 import org.kaazing.gateway.service.amqp.amqp091.filter.AmqpFilter;
 
+/**
+ * TODO Add class documentation
+ */
 public class AmqpStartMessage extends AmqpConnectionMessage {
     private byte        versionMajor;
     private byte        versionMinor; 
@@ -126,7 +129,7 @@ public class AmqpStartMessage extends AmqpConnectionMessage {
     }
     
     public String toString() {
-        StringBuffer buffer = new StringBuffer("START: ");
+    	StringBuffer buffer = new StringBuffer("START: ");
         buffer.append("version-major = '").append(versionMajor).append("'")
               .append("   version-minor = '").append(versionMinor).append("'")
               .append("   server-props = '").append(serverProperties).append("'")

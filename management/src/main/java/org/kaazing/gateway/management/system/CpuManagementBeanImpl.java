@@ -23,10 +23,21 @@ package org.kaazing.gateway.management.system;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * TODO Add class documentation
+ */
 public class CpuManagementBeanImpl implements CpuManagementBean {
 
+	/**
+     * Constructor.
+     * @param id
+     */
+    public CpuManagementBeanImpl(int id) {
+        this.id = id;
+    }
+	
     public static double roundTo(double val, int places) {
-        long temp = (long) ((val * Math.pow(10, places)));
+        long temp = (long) (val * Math.pow(10, places));
         return (double) temp / Math.pow(10, places);
     }
 
@@ -42,13 +53,6 @@ public class CpuManagementBeanImpl implements CpuManagementBean {
     // note: update() will be called to set this before any request for data.
     // See SystemDataProvider.getCpuPercentages() for details.
     private Double[] cpuPercentages;
-
-    /**
-     * Constructor.
-     */
-    public CpuManagementBeanImpl(int id) {
-        this.id = id;
-    }
 
     @Override
     public int getId() {

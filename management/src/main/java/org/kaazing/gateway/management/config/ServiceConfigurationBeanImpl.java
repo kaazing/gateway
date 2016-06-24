@@ -108,8 +108,8 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                     Map<String, String> binds = context.getBinds();
                     if ((binds != null) && !binds.isEmpty()) {
                         jsonObj = new JSONObject();
-                        for (String key : binds.keySet()) {
-                            jsonObj.put(key, binds.get(key));
+                        for (Map.Entry<String, String> entry : binds.entrySet()) {
+                        	jsonObj.put(entry.getKey(), entry.getValue());
                         }
                         jsonOptions.put("binds", jsonObj);
                     }
@@ -251,7 +251,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                     String[] sslCiphersArray = (String[]) connectOptions.remove("ssl.ciphers");
                     if (sslCiphersArray != null) {
                         List<String> sslCiphers = Arrays.asList(sslCiphersArray);
-                        if (sslCiphers.size() > 0) {
+                        if (!sslCiphers.isEmpty()) {
                             jsonOptions.put("ssl.ciphers", sslCiphers);
                         }
                     }
@@ -259,7 +259,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                     String[] sslProtocolsArray = (String[]) connectOptions.remove("ssl.protocols");
                     if (sslProtocolsArray != null) {
                         List<String> sslProtocols = Arrays.asList(sslProtocolsArray);
-                        if (sslProtocols.size() > 0) {
+                        if (!sslProtocols.isEmpty()) {
                             jsonOptions.put("ssl.protocols", sslProtocols);
                         }
                     }

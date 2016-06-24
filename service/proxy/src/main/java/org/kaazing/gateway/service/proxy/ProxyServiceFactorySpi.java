@@ -30,7 +30,8 @@ public class ProxyServiceFactorySpi extends ServiceFactorySpi {
 
     @Override
     public Service newService(String serviceType) {
-        assert "proxy".equals(serviceType);
+    	boolean equalsProxy = "proxy".equals(serviceType);
+        assert equalsProxy;
         return new ProxyService();
     }
 }

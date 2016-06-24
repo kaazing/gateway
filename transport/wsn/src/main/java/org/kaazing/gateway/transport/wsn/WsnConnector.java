@@ -17,7 +17,7 @@ package org.kaazing.gateway.transport.wsn;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
+import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.transport.wsn.WsnSession.SESSION_KEY;
 
@@ -193,7 +193,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
 
     @Override
     protected boolean canConnect(String transportName) {
-        return transportName.equals("wsn") || transportName.equals("ws");
+        return ("wsn").equals(transportName) || ("ws").equals(transportName);
     }
 
     @Override
@@ -223,8 +223,8 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                         }
                     };
 
-                    ResourceAddress fallbackAddress = connectAddress.getOption(ALTERNATE);
-                    if ( fallbackAddress != null && fallbackAddress.getResource().getScheme().equals("wse")) {
+                    ResourceAddress fallbackAddress = connectAddress.getOption(ALTERNATE_OPTION);
+                    if ( fallbackAddress != null && ("wse").equals(fallbackAddress.getResource().getScheme())) {
                         BridgeConnector fallbackConnector  = bridgeServiceFactory.newBridgeConnector(fallbackAddress);
 
                         if ( fallbackConnector != null ) {
@@ -404,13 +404,13 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 session.write(pong);
                 break;
             case PONG:
-                // Manage the WebSocket control message here; do not
+                // TODO? Manage the WebSocket control message here; do not
                 // propagate control messages to application-space.
-
+            	
                 // ignore pongs to clients - not required.
                 break;
             case CLOSE:
-                // CLOSE frames should be handled by the WsCloseFilter.
+                // TODO? CLOSE frames should be handled by the WsCloseFilter.
                 // However, we need to make sure that we do not choke if we
                 // receive one.  (See KG-6745.)
                 break;
@@ -479,7 +479,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
         protected void doSessionClosed(HttpConnectSession httpSession) throws Exception {
             // if WebSocket handshake incomplete, fail the WsnSession connect future
             ConnectFuture wsnConnectFuture = WSN_CONNECT_FUTURE_KEY.get(httpSession);
-            assert (wsnConnectFuture != null);
+            assert wsnConnectFuture != null;
             if (!wsnConnectFuture.isDone() && httpSession.getParent().getReadBytes() < 10L) {
                 wsnConnectFuture.setException(new Exception("WSN connection failed"));
             }
@@ -532,7 +532,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 logger.info("WebSocket connection failed: No Upgrade: websocket response header");
                 wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: No Upgrade header"));
                 return;
-            } else if (!upgradeHeader.equalsIgnoreCase("websocket")) {
+            } else if (!("websocket").equalsIgnoreCase(upgradeHeader)) {
                 logger.info(format("WebSocket connection failed: Invalid Upgrade: %s response header", upgradeHeader));
                 wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: Invalid Upgrade header"));
                 return;
@@ -554,7 +554,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
             }
 
             final IoSessionInitializer<? extends IoFuture> wsnSessionInitializer = WSN_SESSION_INITIALIZER_KEY.remove(httpSession);
-            final ConnectFuture wsnConnectFuture = WSN_CONNECT_FUTURE_KEY.get(httpSession);
+            final ConnectFuture wsnSessionConnectFuture = WSN_CONNECT_FUTURE_KEY.get(httpSession);
             final ResourceAddress wsnConnectAddress = WSN_CONNECT_ADDRESS_KEY.remove(httpSession);
 
 
@@ -582,7 +582,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                                 }
                             };
 
-                            return newSession(wsnSessionInitializer, wsnConnectFuture, wsnSessionFactory);
+                            return newSession(wsnSessionInitializer, wsnSessionConnectFuture, wsnSessionFactory);
                         }
                     };
 

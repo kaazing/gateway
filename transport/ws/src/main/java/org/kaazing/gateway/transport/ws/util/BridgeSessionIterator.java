@@ -20,6 +20,9 @@ import java.util.Iterator;
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.transport.BridgeSession;
 
+/**
+ * TODO Add class documentation
+ */
 public class BridgeSessionIterator implements Iterator<IoSession> {
 
     private IoSession next;

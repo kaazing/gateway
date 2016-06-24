@@ -76,7 +76,9 @@ public class DispatchHttpChallengeFactory implements HttpChallengeFactory {
     public HttpChallengeFactory lookup(String authScheme) {
         HttpChallengeFactory result;
 
-        if (authScheme == null) return null;
+        if (authScheme == null) {
+        	return null;
+        }
 
         result = challengeFactoriesByAuthScheme.get(authScheme);
         if (result == null) {

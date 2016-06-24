@@ -31,6 +31,9 @@ import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
+/**
+ * TODO Add class documentation
+ */
 public class DefaultGatewayContext implements GatewayContext {
 
     // private static final Logger LOG = LoggerFactory.getLogger(Gateway.class);

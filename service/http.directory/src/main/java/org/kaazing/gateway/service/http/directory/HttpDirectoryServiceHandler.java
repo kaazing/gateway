@@ -366,7 +366,7 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
         private static File[] sortFiles(File[] unsortedFiles) {
             if ((unsortedFiles == null) || (unsortedFiles.length == 0)) {
-                return null;
+                return new File[0];
             }
 
             TreeMap<String, File> subDirMap = new TreeMap<>();
@@ -384,11 +384,11 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
             int count = 0;
             File[] sortedFiles = new File[unsortedFiles.length];
-            for (String key : subDirMap.keySet()) {
-                sortedFiles[count++] = subDirMap.get(key);
+            for (Map.Entry<String, File> entry : subDirMap.entrySet()) {
+            	sortedFiles[count++] = entry.getValue();
             }
-            for (String key : fileMap.keySet()) {
-                sortedFiles[count++] = fileMap.get(key);
+            for (Map.Entry<String, File> entry : fileMap.entrySet()) {
+            	sortedFiles[count++] = entry.getValue();
             }
 
             return sortedFiles;
@@ -428,7 +428,7 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
                 parentPath = parentPath.substring(0, parentPath.length()-1);
             }
 
-            int lastSlashIndex = parentPath.lastIndexOf("/");
+            int lastSlashIndex = parentPath.lastIndexOf('/');
             if (lastSlashIndex != -1) {
                 // add 1 to include the last slash which skips a redirect when following the link
                 return parentPath.substring(0, lastSlashIndex+1);

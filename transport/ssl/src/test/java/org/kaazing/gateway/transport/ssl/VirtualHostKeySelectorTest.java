@@ -20,9 +20,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
+import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -110,7 +110,7 @@ public class VirtualHostKeySelectorTest {
 
         String location = "ssl://localhost:9001";
         Map<String, Object> options = new HashMap<>();
-        options.put(TRANSPORT.name(), "test://transport");
+        options.put(TRANSPORT_OPTION.name(), "test://transport");
         ResourceAddress address = addressFactory.newResourceAddress(location, options);
 
         DummySession session = new DummySession();
@@ -162,7 +162,7 @@ public class VirtualHostKeySelectorTest {
         // request is received on TCP address that is not the first transport address
         DummySession session = new DummySession();
         ResourceAddress transportAddress = address.getTransport();
-        ResourceAddress alternateTcpAddress = transportAddress.getOption(ResourceAddress.ALTERNATE);
+        ResourceAddress alternateTcpAddress = transportAddress.getOption(ResourceAddress.ALTERNATE_OPTION);
         if (alternateTcpAddress != null) {
             transportAddress = alternateTcpAddress;
         }
@@ -192,7 +192,7 @@ public class VirtualHostKeySelectorTest {
 
         String location = "ssl://localhost:9001";
         Map<String, Object> options = new HashMap<>();
-        options.put(TRANSPORT.name(), "test://transport");
+        options.put(TRANSPORT_OPTION.name(), "test://transport");
         ResourceAddress address = addressFactory.newResourceAddress(location, options);
 
         DummySession session = new DummySession();
@@ -227,7 +227,7 @@ public class VirtualHostKeySelectorTest {
 
             String location = "ssl://www.kaazing.com:9001";
             Map<String, Object> options = new HashMap<>();
-            options.put(TRANSPORT.name(), "test://transport");
+            options.put(TRANSPORT_OPTION.name(), "test://transport");
             ResourceAddress address = addressFactory.newResourceAddress(location, options);
 
             DummySession session = new DummySession();
@@ -302,7 +302,7 @@ public class VirtualHostKeySelectorTest {
         ResourceAddress cursor = availAliasesKey;
         do {
             tcpURIList.add(cursor.getResource());
-            cursor = cursor.getOption(ALTERNATE);
+            cursor = cursor.getOption(ALTERNATE_OPTION);
         } while (cursor != null);
 
         assertTrue("Expected IP-addressified localhost with port 443", tcpURIList.contains(URI.create("tcp://127.0.0.1:443")));
@@ -357,7 +357,7 @@ public class VirtualHostKeySelectorTest {
 
         String location = "ssl://one.kaazing.test:443";
         Map<String, Object> options = new HashMap<>();
-        options.put(TRANSPORT.name(), "tcp://10.0.67.19:443");
+        options.put(TRANSPORT_OPTION.name(), "tcp://10.0.67.19:443");
         ResourceAddress address = addressFactory.newResourceAddress(location, options);
 
         DummySession session = new DummySession();
@@ -402,7 +402,7 @@ public class VirtualHostKeySelectorTest {
 
         String location = "ssl://two.kaazing.test:443";
         Map<String, Object> options = new HashMap<>();
-        options.put(TRANSPORT.name(), "tcp://10.0.66.10:443");
+        options.put(TRANSPORT_OPTION.name(), "tcp://10.0.66.10:443");
         ResourceAddress address = addressFactory.newResourceAddress(location, options);
 
         DummySession session = new DummySession();
@@ -446,7 +446,7 @@ public class VirtualHostKeySelectorTest {
 
         String location = "ssl://three.kaazing.test:443";
         Map<String, Object> options = new HashMap<>();
-        options.put(TRANSPORT.name(), "tcp://192.168.4.8:443");
+        options.put(TRANSPORT_OPTION.name(), "tcp://192.168.4.8:443");
         ResourceAddress address = addressFactory.newResourceAddress(location, options);
 
         DummySession session = new DummySession();

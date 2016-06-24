@@ -140,7 +140,8 @@ public abstract class HttpBaseSecurityFilter extends SuspendableIoFilterAdapter 
             return false;
         }
 
-        assert HttpMessage.Kind.REQUEST == ((HttpMessage) message).getKind();
+        boolean requestKind = HttpMessage.Kind.REQUEST == ((HttpMessage) message).getKind();
+        assert requestKind;
         return true;
     }
 

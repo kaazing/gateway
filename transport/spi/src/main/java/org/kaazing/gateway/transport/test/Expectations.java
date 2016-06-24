@@ -81,8 +81,7 @@ public class Expectations extends org.jmock.Expectations {
         return new BaseMatcher<List<String>>() {
             @Override
             public boolean matches(Object arg0) {
-                return (arg0 instanceof List<?>
-                && arg0.equals(Arrays.asList(contents)));
+                return arg0 instanceof List<?> && arg0.equals(Arrays.asList(contents));
             }
             @Override
             public void describeTo(Description arg0) {
@@ -147,7 +146,7 @@ public class Expectations extends org.jmock.Expectations {
             @Override
             public boolean matches(Object item) {
                 IoBuffer buf = (IoBuffer) item;
-                return (buf.remaining() == remaining);
+                return buf.remaining() == remaining;
             }
 
             @Override

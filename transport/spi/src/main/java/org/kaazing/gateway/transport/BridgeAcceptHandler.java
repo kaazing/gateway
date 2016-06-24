@@ -22,6 +22,9 @@ import org.apache.mina.core.session.IoSession;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
 
+/**
+ * TODO Add class documentation
+ */
 public class BridgeAcceptHandler extends AbstractBridgeHandler {
 
     public static final TypedAttributeKey<IoHandler> DELEGATE_KEY = new TypedAttributeKey<>(BridgeAcceptHandler.class, "delegate");

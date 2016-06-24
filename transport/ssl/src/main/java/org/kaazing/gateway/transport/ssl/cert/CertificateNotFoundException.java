@@ -15,7 +15,7 @@
  */
 package org.kaazing.gateway.transport.ssl.cert;
 
-/*
+/**
  * This exception is thrown when there are no certificates available 
  * for a specific host bound to a host:port. 
  */

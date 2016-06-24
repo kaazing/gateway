@@ -94,11 +94,11 @@ public class GatewayVersion implements Comparable<GatewayVersion> {
     public int compareTo(GatewayVersion o) {
         int result;
         if (this.major != o.major) {
-            result = (this.major > o.major ? 1 : -1);
+            result = this.major > o.major ? 1 : -1;
         } else if (this.minor != o.minor) {
-            result = (this.minor > o.minor ? 1 : -1);
+            result = this.minor > o.minor ? 1 : -1;
         } else if (this.patch != o.patch) {
-            result = (this.patch > o.patch ? 1 : -1);
+            result = this.patch > o.patch ? 1 : -1;
         } else {
             result = 0;
         }

@@ -30,6 +30,9 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.filter.codec.ProtocolCodecSessionEx;
 
+/**
+ * TODO Add class documentation
+ */
 public class BridgeCodecSession extends ProtocolCodecSessionEx implements BridgeSession {
 
     private static final MessageBufferAllocator MESSAGE_BUFFER_ALLOCATOR = new MessageBufferAllocator();

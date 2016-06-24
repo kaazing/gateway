@@ -28,7 +28,7 @@ public class MIBConstants {
     protected MIBConstants() {
     }
 
-    public static int KAAZING_ENTERPRISE_ID = 29197;
+    public static final int KAAZING_ENTERPRISE_ID = 29197;
 
     // OID hierarchy
     //     1.3.6.1.4.1 --- iso.identified_organization.dod.internet.private.enterprise

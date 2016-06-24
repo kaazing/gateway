@@ -23,6 +23,10 @@ import org.kaazing.gateway.transport.http.HttpCookie;
 public class HttpCookieComparator implements Comparator<HttpCookie> {
 
     public static final HttpCookieComparator INSTANCE = new HttpCookieComparator();
+    
+    private HttpCookieComparator() {
+    	// singleton
+    }
 
     @Override
 	public int compare(HttpCookie thisCookie, HttpCookie thatCookie) {
@@ -54,9 +58,5 @@ public class HttpCookieComparator implements Comparator<HttpCookie> {
     	}
     	
     	return s0.compareTo(s1);
-    }
-
-    private HttpCookieComparator() {
-    	// singleton
     }
 }

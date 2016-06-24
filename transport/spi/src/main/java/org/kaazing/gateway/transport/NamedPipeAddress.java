@@ -52,6 +52,9 @@ public class NamedPipeAddress extends SocketAddress {
             return false;
         }
         NamedPipeAddress that = (NamedPipeAddress)obj;
+        if (obj == null) {
+            return false;
+        }
         return pipeName.equals(that.pipeName);
     }
     @Override

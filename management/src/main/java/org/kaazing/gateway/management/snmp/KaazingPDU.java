@@ -143,9 +143,9 @@ public class KaazingPDU extends PDU {
      * @return the corresponding PDU type constant, or <code>Integer.MIN_VALUE</code> of the supplied type is unknown.
      */
     public static int getTypeFromString(String type) {
-        if (type.equals("GETSUBTREE")) {
+        if (("GETSUBTREE").equals(type)) {
             return KaazingPDU.GETSUBTREE;
-        } else if (type.equals("KAAZING_NOTIFICATION_SUBSCRIPTION")) {
+        } else if (("KAAZING_NOTIFICATION_SUBSCRIPTION").equals(type)) {
             return KaazingPDU.KAAZING_NOTIFICATION_SUBSCRIPTION;
         }
         return PDU.getTypeFromString(type);

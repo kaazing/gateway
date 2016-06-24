@@ -18,7 +18,11 @@ package org.kaazing.gateway.service.amqp.amqp091;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
 
+/**
+ * TODO Add class documentation
+ */
 public class AmqpTable {
     /**
      * AmqpTableEntry represents a single entry in the table containing
@@ -96,18 +100,20 @@ public class AmqpTable {
      * @return String/JSON representation of the table of entries
      */
     public String toString() {
-        String s = "{";
+    	StringBuilder s = new StringBuilder();
+    	s.append("{");
         int    i = 0;
         for (AmqpTableEntry entry : tableEntries) {
-            s = s + "\"" + i + "\":" + entry.toString() + ",";
+            s.append("\"" + i + "\":" + entry.toString() + ",");
             i++;
         }
         
         // i has been incremented earlier so no need to
         // increment it again.
-        s = s + "\"length\":" + i;
+        s.append(s + "\"length\":" + i);
+        s.append("}");
         
-        return s + "}";
+        return s.toString();
     }
 
     private void add(String key, Object value, AmqpType type) {
@@ -154,7 +160,7 @@ public class AmqpTable {
      */
     public List<AmqpTableEntry> getEntries(String key) {
         if ((key == null) || (tableEntries == null)) {
-            return null;
+            return Collections.emptyList();
         }
         
         List<AmqpTableEntry> entries = new ArrayList<>();

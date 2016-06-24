@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
 
 import java.net.URI;
@@ -217,9 +217,9 @@ public class HttpTransportTest {
         };
 
         Map<String, Object> bindOptions = new HashMap<>();
-        bindOptions.put(TRANSPORT.name(), "pipe://transport");
+        bindOptions.put(TRANSPORT_OPTION.name(), "pipe://transport");
         final Map<String, Object> connectOptions = new HashMap<>();
-        connectOptions.put(TRANSPORT.name(), "pipe://transport");
+        connectOptions.put(TRANSPORT_OPTION.name(), "pipe://transport");
 
         httpConnectorToAcceptor("http://localhost:8000/path",
                 acceptHandler, connectHandler,
@@ -325,7 +325,7 @@ public class HttpTransportTest {
     public void shouldBindAndUnbindLeavingEmptyBindingsMaps() throws Exception {
 
         Map<String, Object> acceptOptions = new HashMap<>();
-        acceptOptions.put(TRANSPORT.name(), "pipe://transport");
+        acceptOptions.put(TRANSPORT_OPTION.name(), "pipe://transport");
 
         final String connectURIString = "http://localhost:8000/path";
         final ResourceAddress bindAddress =

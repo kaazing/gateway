@@ -18,7 +18,7 @@ package org.kaazing.gateway.transport.sse;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.mina.core.session.IdleStatus.WRITER_IDLE;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 
 import java.io.IOException;
 import java.net.URI;
@@ -101,6 +101,10 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
 
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory resourceAddressFactory;
+    
+    public SseAcceptor() {
+        super(new DefaultSseSessionConfig());
+    }
 
     @Resource(name = "bridgeServiceFactory")
     public void setBridgeServiceFactory(BridgeServiceFactory bridgeServiceFactory) {
@@ -111,11 +115,6 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
     public void setResourceAddressFactory(ResourceAddressFactory factory) {
         this.resourceAddressFactory = factory;
     }
-
-    public SseAcceptor() {
-        super(new DefaultSseSessionConfig());
-    }
-
 
     @Resource(name = "schedulerProvider")
     public void setSchedulerProvider(SchedulerProvider provider) {
@@ -156,7 +155,7 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
 
     @Override
     protected boolean canBind(String transportName) {
-        return transportName.equals("sse");
+        return ("sse").equals(transportName);
     }
 
     @Override
@@ -282,7 +281,7 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
             ResourceAddress httpLocalAddress = httpSession.getLocalAddress();
             URI candidateURI = URLUtils.modifyURIScheme(httpLocalAddress.getResource(), "sse");
             ResourceOptions candidateOptions = ResourceOptions.FACTORY.newResourceOptions();
-            candidateOptions.setOption(TRANSPORT, httpLocalAddress);
+            candidateOptions.setOption(TRANSPORT_OPTION, httpLocalAddress);
             // note: nextProtocol is null since SSE specification does not required X-Next-Protocol on the wire
             ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(URIUtils.uriToString(candidateURI), candidateOptions);
 
@@ -302,7 +301,7 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
             ResourceAddress httpBindAddress = httpSession.getLocalAddress();
             ResourceAddress newHttpBindAddress = httpBindAddress.resolve(format("%s;s/%s", httpBindAddress.getResource().getPath(), sessionId));
             ResourceOptions sseRemoteOptions = ResourceOptions.FACTORY.newResourceOptions();
-            sseRemoteOptions.setOption(TRANSPORT, newHttpBindAddress);
+            sseRemoteOptions.setOption(TRANSPORT_OPTION, newHttpBindAddress);
             // note: nextProtocol is null since SSE specification does not required X-Next-Protocol on the wire
             String sseBindURI = sseBindAddress.getExternalURI();
             final ResourceAddress sseRemoteAddress = resourceAddressFactory.newResourceAddress(sseBindURI, sseRemoteOptions);
@@ -561,7 +560,7 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
         ResourceAddress localAddress = session.getLocalAddress();
         URI resource =  localAddress.getResource();
         String scheme = resource.getScheme();
-        return (scheme.equals("sse+ssl") || scheme.equals("wss")) ? resource : null;
+        return (("sse+ssl").equals(scheme) || ("wss").equals(scheme)) ? resource : null;
     }
 
     // TODO: solve cross site redirect properly, this involves changing the client code

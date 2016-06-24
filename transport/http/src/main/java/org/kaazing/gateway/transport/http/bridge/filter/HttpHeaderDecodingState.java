@@ -78,7 +78,7 @@ public abstract class HttpHeaderDecodingState extends DecodingStateMachine {
 
     }
 
-    private static final String HEADER_WEBSOCKET_KEY_PREFIX = "Sec-WebSocket-Key";
+//    private static final String HEADER_WEBSOCKET_KEY_PREFIX = "Sec-WebSocket-Key";
 
     private static final Charset US_ASCII = Charset.forName("US-ASCII");
     private static final Charset UTF_8 = Charset.forName("UTF-8");

@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FullManagementSessionStrategy extends CollectOnlyManagementSessionStrategy {
 
-    private static final Logger logger = LoggerFactory.getLogger(FullManagementSessionStrategy.class);
+//    private static final Logger logger = LoggerFactory.getLogger(FullManagementSessionStrategy.class);
 
     public FullManagementSessionStrategy() {
     }

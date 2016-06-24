@@ -30,15 +30,14 @@ import org.kaazing.gateway.security.auth.DefaultLoginResult;
 public class ResultAwareLoginContext extends LoginContext {
 
     private DefaultLoginResult loginResult;
+    
+    public ResultAwareLoginContext(String name, Subject subject, CallbackHandler callbackHandler,
+            Configuration config, DefaultLoginResult result) throws LoginException {
+		super(name, subject, callbackHandler, config);
+		this.loginResult = result;
+    }
 
     public DefaultLoginResult getLoginResult() {
         return loginResult;
-    }
-
-
-    public ResultAwareLoginContext(String name, Subject subject, CallbackHandler callbackHandler,
-                                   Configuration config, DefaultLoginResult result) throws LoginException {
-        super(name, subject, callbackHandler, config);
-        this.loginResult = result;
     }
 }

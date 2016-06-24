@@ -207,7 +207,7 @@ public class LoggingFilter extends IoFilterAdapter {
         Entry codecEntry = filterChain.getEntry(ProtocolCodecFilter.class);
         if (codecEntry != null) {
             Entry loggingEntry = filterChain.getEntry(this);
-            assert (loggingEntry != null);
+            assert loggingEntry != null;
             loggingEntry.remove();
             codecEntry.addAfter(loggingEntry.getName(), loggingEntry.getFilter());
         }
@@ -451,63 +451,106 @@ public class LoggingFilter extends IoFilterAdapter {
 
     private static boolean shouldLog(Logger logger, LogLevel level) {
         switch(level) {
-        case DEBUG:
-            return logger.isDebugEnabled();
-        case ERROR:
-            return logger.isErrorEnabled();
-        case INFO:
-            return logger.isInfoEnabled();
-        case NONE:
-            return false;
-        case TRACE:
-            return logger.isTraceEnabled();
-        case WARN:
-            return logger.isWarnEnabled();
-        }
-        return false;
+	        case DEBUG:
+	            return logger.isDebugEnabled();
+	        case ERROR:
+	            return logger.isErrorEnabled();
+	        case INFO:
+	            return logger.isInfoEnabled();
+	        case TRACE:
+	            return logger.isTraceEnabled();
+	        case WARN:
+	            return logger.isWarnEnabled();
+	        default:
+	        	return false;
+	    }
     }
 
     public static void log(Logger logger, LogLevel eventLevel, String message, Throwable cause) {
         switch (eventLevel) {
-            case TRACE : logger.trace(message, cause); return;
-            case DEBUG : logger.debug(message, cause); return;
-            case INFO  : logger.info(message, cause); return;
-            case WARN  : logger.warn(message, cause); return;
-            case ERROR : logger.error(message, cause); return;
-            default    : return;
+            case TRACE: 
+            	logger.trace(message, cause); 
+            	return;
+            case DEBUG: 
+            	logger.debug(message, cause); 
+            	return;
+            case INFO : 
+            	logger.info(message, cause); 
+            	return;
+            case WARN : 
+            	logger.warn(message, cause); 
+            	return;
+            case ERROR: 
+            	logger.error(message, cause); 
+            	return;
+            default: 
+            	return;
         }
     }
 
     public static void log(Logger logger, LogLevel eventLevel, String message, Object param) {
         switch (eventLevel) {
-            case TRACE : logger.trace(message, param); return;
-            case DEBUG : logger.debug(message, param); return;
-            case INFO  : logger.info(message, param); return;
-            case WARN  : logger.warn(message, param); return;
-            case ERROR : logger.error(message, param); return;
-            default    : return;
+            case TRACE: 
+            	logger.trace(message, param); 
+            	return;
+            case DEBUG: 
+            	logger.debug(message, param);
+            	return;
+            case INFO: 
+            	logger.info(message, param); 
+            	return;
+            case WARN : 
+            	logger.warn(message, param);
+            	return;
+            case ERROR: 
+            	logger.error(message, param);
+            	return;
+            default: 
+            	return;
         }
     }
 
     public static void log(Logger logger, LogLevel eventLevel, String message, Object param1, Object param2) {
         switch (eventLevel) {
-            case TRACE : logger.trace(message, param1, param2); return;
-            case DEBUG : logger.debug(message, param1, param2); return;
-            case INFO  : logger.info(message, param1, param2); return;
-            case WARN  : logger.warn(message, param1, param2); return;
-            case ERROR : logger.error(message, param1, param2); return;
-            default    : return;
+            case TRACE: 
+            	logger.trace(message, param1, param2);
+            	return;
+            case DEBUG:
+            	logger.debug(message, param1, param2);
+            	return;
+            case INFO: 
+            	logger.info(message, param1, param2);
+            	return;
+            case WARN: 
+            	logger.warn(message, param1, param2);
+            	return;
+            case ERROR: 
+            	logger.error(message, param1, param2);
+            	return;
+            default: 
+            	return;
         }
     }
 
     public static void log(Logger logger, LogLevel eventLevel, String message, Object param1, Object param2, Object param3) {
         switch (eventLevel) {
-            case TRACE : logger.trace(message, param1, param2, param3); return;
-            case DEBUG : logger.debug(message, param1, param2, param3); return;
-            case INFO  : logger.info(message, param1, param2, param3); return;
-            case WARN  : logger.warn(message, param1, param2, param3); return;
-            case ERROR : logger.error(message, param1, param2, param3); return;
-            default    : return;
+            case TRACE: 
+            	logger.trace(message, param1, param2, param3);
+            	return;
+            case DEBUG: 
+            	logger.debug(message, param1, param2, param3);
+            	return;
+            case INFO : 
+            	logger.info(message, param1, param2, param3);
+            	return;
+            case WARN :
+            	logger.warn(message, param1, param2, param3);
+            	return;
+            case ERROR:
+            	logger.error(message, param1, param2, param3);
+            	return;
+            default: 
+            	return;
         }
     }
 

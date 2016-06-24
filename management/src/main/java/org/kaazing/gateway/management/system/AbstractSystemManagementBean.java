@@ -159,12 +159,10 @@ public abstract class AbstractSystemManagementBean extends AbstractManagementBea
 
                     jsonObj.put("readTime", readTime);
 
-                    if (summaryDataList != null) {
-                        // There is only a single thread which can run at a time because this tasks will be rescheduled
-                        if (!summaryDataList.offer(jsonObj)) {
-                            summaryDataList.poll();
-                            summaryDataList.offer(jsonObj);
-                        }
+                 // There is only a single thread which can run at a time because this tasks will be rescheduled
+                    if (summaryDataList != null && !summaryDataList.offer(jsonObj)) {
+                        summaryDataList.poll();
+                        summaryDataList.offer(jsonObj);
                     }
 
                 } catch (SigarException ex) {
@@ -227,6 +225,9 @@ public abstract class AbstractSystemManagementBean extends AbstractManagementBea
     /**
      * The portion of 'gatherStats' that's specific to the particular stats (e.g., storing the relevant stats locally in the
      * object. The object is supposed to gather and store the summary data values as needed. We'll add the readTime.
+     * 
+     * @param jsonObj
+     * @param readTime
      */
     public abstract void doGatherStats(JSONObject jsonObj, long readTime) throws SigarException, JSONException;
 }

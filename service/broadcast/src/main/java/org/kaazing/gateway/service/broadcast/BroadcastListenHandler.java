@@ -28,6 +28,9 @@ import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.bridge.Message;
 import org.kaazing.gateway.transport.io.filter.IoMessageCodecFilter;
 
+/**
+ * TODO Add class documentation
+ */
 public class BroadcastListenHandler extends IoHandlerAdapter {
 
     private final Collection<IoSession> clients;

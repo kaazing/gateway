@@ -17,7 +17,7 @@ package org.kaazing.gateway.transport.http.bridge.filter;
 
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_HOST;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_NEXT_PROTOCOL;
@@ -149,7 +149,7 @@ public class HttpNextAddressFilter extends HttpFilterAdapter<IoSession> {
 
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
         options.setOption(NEXT_PROTOCOL, nextProtocol);
-        options.setOption(TRANSPORT, transport);
+        options.setOption(TRANSPORT_OPTION, transport);
 
         return addressFactory.newResourceAddress(URIUtils.uriToString(candidateURI), options);
     }

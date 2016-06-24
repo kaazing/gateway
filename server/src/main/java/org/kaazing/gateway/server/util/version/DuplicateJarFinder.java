@@ -82,13 +82,14 @@ public class DuplicateJarFinder {
     }
 
     private void checkForDuplicateJars(Map<String, List<String>> artifactsToVersion) throws DuplicateJarsException {
-        for (String artifact : artifactsToVersion.keySet()) {
-            List<String> versions = artifactsToVersion.get(artifact);
-            if (versions.size() > 1) {
+    	for (Map.Entry<String, List<String>> entry : artifactsToVersion.entrySet()) {
+    		String artifact = entry.getKey();
+    		List<String> versions = entry.getValue();
+    		if (versions.size() > 1) {
                 gatewayLogger.error(CONFLICTING_JARS_LOGGING_MESSAGE, artifact, versions);
                 throw new DuplicateJarsException();
             }
-        }
+    	}
     }
 
     /**

@@ -48,7 +48,7 @@ public class HttpPathMatchingFilter extends HttpFilterAdapter<IoSession> {
 
         ResourceAddress bindAddress = httpRequest.getLocalAddress();
         String nextProtocol = bindAddress.getOption(ResourceAddress.NEXT_PROTOCOL);
-        if (nextProtocol == null || !nextProtocol.equals("httpxe/1.1")) {
+        if (nextProtocol == null || !("httpxe/1.1").equals(nextProtocol)) {
             super.httpRequestReceived(nextFilter, session, httpRequest);
             return;
         }

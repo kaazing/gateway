@@ -31,6 +31,12 @@ public class WsFrameEncodingSupport {
 
     /**
 	 * Encode WebSocket message as a single frame, with the provided masking value applied.
+	 * 
+	 * @param allocator
+	 * @param flags
+	 * @param message
+	 * @param maskValue
+	 * @return
 	 */
     public static IoBufferEx doEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, int maskValue) {
         final boolean mask = true;
@@ -81,6 +87,11 @@ public class WsFrameEncodingSupport {
 
     /**
 	 * Encode WebSocket message as a single frame
+	 * 
+	 * @param allocator
+	 * @param flags
+	 * @param message
+	 * @return
 	 */
     public static IoBufferEx doEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
 
@@ -171,6 +182,10 @@ public class WsFrameEncodingSupport {
     	PONG(10);
 
     	private int code;
+    	
+    	Opcode(int code) {
+    		this.code = code;
+    	}
 
     	public int getCode() {
     		return this.code;
@@ -203,10 +218,6 @@ public class WsFrameEncodingSupport {
             default:
                 throw new IllegalArgumentException("Unrecognized WebSocket frame opcode: " + code);
     	    }
-    	}
-
-    	Opcode(int code) {
-    		this.code = code;
     	}
     }
 
