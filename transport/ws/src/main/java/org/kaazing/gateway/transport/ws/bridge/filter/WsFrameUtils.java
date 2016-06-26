@@ -58,7 +58,7 @@ public class WsFrameUtils {
     		dst.put(b);
     		break;
     	case 1:
-    		b = (byte) (src.get() ^ (mask >> 24));
+    		b = (byte) (src.get() ^ ((mask >> 24) & 0xff));
     		dst.put(b);
     		break;
     	case 0:

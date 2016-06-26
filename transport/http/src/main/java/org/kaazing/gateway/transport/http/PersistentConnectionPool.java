@@ -151,12 +151,10 @@ class PersistentConnectionPool {
     private void remove(HttpResourceAddress serverAddress, IoSession session) {
         ServerConnections serverConnections = connections.get();
         boolean removed = serverConnections.remove(serverAddress, session);
-        if (removed) {
-            if (logger.isDebugEnabled()) {
-                int cachedConnections = serverConnections.cachedConnections(serverAddress);
-                logger.debug(String.format("Removing cached persistent connection: server = %s session = %s pool = %d",
-                        serverAddress.getResource(), session, cachedConnections));
-            }
+        if (removed && logger.isDebugEnabled()) {
+            int cachedConnections = serverConnections.cachedConnections(serverAddress);
+            logger.debug(String.format("Removing cached persistent connection: server = %s session = %s pool = %d",
+                    serverAddress.getResource(), session, cachedConnections));
         }
     }
 

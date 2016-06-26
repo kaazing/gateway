@@ -75,7 +75,8 @@ public class JaasConfigParser {
     private enum HandlerState {
         DOCUMENT, JAAS_CONFIG,
         USER, USER_NAME, USER_PASSWORD, USER_ROLE_NAME,
-        ROLE, ROLE_NAME, ROLE_DESCRIPTION, ROLE_ROLE_NAME }
+        ROLE, ROLE_NAME, ROLE_DESCRIPTION, ROLE_ROLE_NAME 
+    }
 
     private static class JaasConfigHandler extends DefaultHandler {
 
@@ -215,8 +216,8 @@ public class JaasConfigParser {
             case ROLE_NAME:
             case ROLE_DESCRIPTION:
             case ROLE_ROLE_NAME:
-                String string = new StringBuilder().append(ch, start, length).toString();
-                string = ConfigParameter.resolveAndReplace(ch, start, length, Collections.emptyMap(),
+//                String string = new StringBuilder().append(ch, start, length).toString();
+                String string = ConfigParameter.resolveAndReplace(ch, start, length, Collections.emptyMap(),
                         EMPTY_PROPERTIES, errors);
                 StringBuilder sb = (StringBuilder) handlerStack.peek();
                 sb.append(string);
@@ -237,8 +238,8 @@ public class JaasConfigParser {
             }
             case USER: {
                 DefaultUserConfig userConfig = (DefaultUserConfig) handlerStack.pop();
-                DefaultJaasConfig authConfig = (DefaultJaasConfig) handlerStack.peek();
-                authConfig.getUsers().put(userConfig.getName(), userConfig);
+                DefaultJaasConfig jaasConfig = (DefaultJaasConfig) handlerStack.peek();
+                jaasConfig.getUsers().put(userConfig.getName(), userConfig);
                 handlerState = HandlerState.JAAS_CONFIG;
                 break;
             }
@@ -265,8 +266,8 @@ public class JaasConfigParser {
             }
             case ROLE: {
                 DefaultRoleConfig roleConfig = (DefaultRoleConfig) handlerStack.pop();
-                DefaultJaasConfig authConfig = (DefaultJaasConfig) handlerStack.peek();
-                authConfig.getRoles().put(roleConfig.getName(), roleConfig);
+                DefaultJaasConfig jaasConfig = (DefaultJaasConfig) handlerStack.peek();
+                jaasConfig.getRoles().put(roleConfig.getName(), roleConfig);
                 handlerState = HandlerState.JAAS_CONFIG;
                 break;
             }

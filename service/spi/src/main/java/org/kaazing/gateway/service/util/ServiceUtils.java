@@ -60,6 +60,11 @@ public class ServiceUtils {
     /**
      * Get a property which is a number of bytes expressed either as an integer (number of bytes) or an integer followed by K
      * (number of kilobytes) or an integer followed by M (for megabytes). Examples: 1048, 64k, 10M
+     * 
+     * @param properties
+     * @param propertyName
+     * @param defaultValue
+     * @return
      */
     public static int getOptionalDataSizeProperty(ServiceProperties properties, String propertyName, int defaultValue) {
         String value = getOptionalProperty(properties, propertyName, Integer.toString(defaultValue));

@@ -19,13 +19,13 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
-import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
+import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.BIND_ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.IDENTITY_RESOLVER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
-import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER_OPTION;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_URI;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getPort;
@@ -75,6 +75,10 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
     /**
      * Returns a {@link ResourceAddress} instance for the named scheme.
      *
+     * @param location
+     * @param optionsByName
+     * @param optionsFactory
+     * @return
      */
     public final T newResourceAddress(String location,
                                       Map<String, Object> optionsByName,
@@ -136,7 +140,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
 
             if (alternate != null) {
                 ResourceOptions newOptions = ResourceOptions.FACTORY.newResourceOptions(options);
-                newOptions.setOption(ALTERNATE, alternate);
+                newOptions.setOption(ALTERNATE_OPTION, alternate);
                 setOptions(address, location, newOptions, null);
             }
             else {
@@ -223,7 +227,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             T address = addresses.get(i);
             if (alternate != null) {
                 ResourceOptions newOptions = ResourceOptions.FACTORY.newResourceOptions(options);
-                newOptions.setOption(ALTERNATE, alternate);
+                newOptions.setOption(ALTERNATE_OPTION, alternate);
                 setOptions(address, location, newOptions, qualifier);
             }
             else {
@@ -262,11 +266,12 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
 
     private void setOptions(T address, String location, ResourceOptions options, Object qualifier) {
         // default the transport
-        ResourceAddress transport = options.getOption(TRANSPORT);
+        ResourceAddress transport = options.getOption(TRANSPORT_OPTION);
         String transportURI = options.getOption(TRANSPORT_URI);
+        ResourceOptions newOptions = options;
 
         if (transport == null && addressFactory != null) {
-            ResourceOptions newOptions = ResourceOptions.FACTORY.newResourceOptions(options);
+            newOptions = ResourceOptions.FACTORY.newResourceOptions(options);
             if (transportURI == null) {
                 ResourceFactory factory = getTransportFactory();
                 if (factory != null) {
@@ -283,11 +288,10 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
                 transport = addressFactory.newResourceAddress(transportURI, transportOptions);
             }
 
-            newOptions.setOption(TRANSPORT, transport);
-            options = newOptions;
+            newOptions.setOption(TRANSPORT_OPTION, transport);
         }
 
-        setOptions(address, options, qualifier);
+        setOptions(address, newOptions, qualifier);
     }
 
     protected void setOptions(T address, ResourceOptions options, Object qualifier) {
@@ -305,17 +309,17 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             address.setOption0(TRANSPORT_URI, options.getOption(TRANSPORT_URI));
         }
 
-        if (options.hasOption(TRANSPORT)) {
-            address.setOption0(TRANSPORT, options.getOption(TRANSPORT));
+        if (options.hasOption(TRANSPORT_OPTION)) {
+            address.setOption0(TRANSPORT_OPTION, options.getOption(TRANSPORT_OPTION));
         }
 
-        if (options.hasOption(ALTERNATE)) {
-            address.setOption0(ALTERNATE, options.getOption(ALTERNATE));
+        if (options.hasOption(ALTERNATE_OPTION)) {
+            address.setOption0(ALTERNATE_OPTION, options.getOption(ALTERNATE_OPTION));
         }
 
         // JRF: still relevant for address after name resolution?
-        if (options.hasOption(RESOLVER)) {
-            address.setOption0(RESOLVER, options.getOption(RESOLVER));
+        if (options.hasOption(RESOLVER_OPTION)) {
+            address.setOption0(RESOLVER_OPTION, options.getOption(RESOLVER_OPTION));
         }
 
         if (options.hasOption(BIND_ALTERNATE)) {
@@ -367,7 +371,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             options.setOption(QUALIFIER, qualifier);
         }
 
-        String transportURI = (String) optionsByName.remove(TRANSPORT.name());
+        String transportURI = (String) optionsByName.remove(TRANSPORT_OPTION.name());
         if (transportURI == null) {
             ResourceFactory factory = getTransportFactory();
             if (factory != null) {
@@ -378,14 +382,14 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             options.setOption(TRANSPORT_URI, transportURI);
         }
 
-        ResourceAddress alternate = (ResourceAddress) optionsByName.remove(ALTERNATE.name());
+        ResourceAddress alternate = (ResourceAddress) optionsByName.remove(ALTERNATE_OPTION.name());
         if (alternate != null) {
-            options.setOption(ALTERNATE, alternate);
+            options.setOption(ALTERNATE_OPTION, alternate);
         }
 
-        NameResolver resolver = (NameResolver) optionsByName.remove(RESOLVER.name());
+        NameResolver resolver = (NameResolver) optionsByName.remove(RESOLVER_OPTION.name());
         if (resolver != null) {
-            options.setOption(RESOLVER, resolver);
+            options.setOption(RESOLVER_OPTION, resolver);
         }
 
         Boolean bindAlternate = (Boolean) optionsByName.remove(BIND_ALTERNATE.name());
@@ -410,15 +414,16 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
         ResourceAddress transport = null;
         if (transportURI != null && addressFactory != null) {
             String protocolName = getProtocolName();
+            Map<String, Object> optionsMap = optionsByName;
             if (optionsByName == Collections.<String,Object>emptyMap()) {
-                optionsByName = new HashMap<>();
+                optionsMap = new HashMap<>();
             }
             URI locationURI = URI.create(location);
-            optionsByName.put(TRANSPORTED_URI.name(), locationURI);
-            transport = addressFactory.newResourceAddress(transportURI, optionsByName, protocolName);
+            optionsMap.put(TRANSPORTED_URI.name(), locationURI);
+            transport = addressFactory.newResourceAddress(transportURI, optionsMap, protocolName);
         }
         if (transport != null) {
-            options.setOption(TRANSPORT, transport);
+            options.setOption(TRANSPORT_OPTION, transport);
         }
     }
 
@@ -431,7 +436,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
                                                 Map<String, Object> optionsByName,
                                                 ResourceAddress alternateAddress) {
 
-        optionsByName.put(ALTERNATE.name(), alternateAddress);
+        optionsByName.put(ALTERNATE_OPTION.name(), alternateAddress);
         return (T) getResourceAddressFactory().newResourceAddress(location, optionsByName);
     }
 
@@ -447,7 +452,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
         clonedOptionsByName.put(QUALIFIER.name(), options.getOption(QUALIFIER));
         clonedOptionsByName.put(TRANSPORT_URI.name(), options.getOption(TRANSPORT_URI));
         clonedOptionsByName.put(BIND_ALTERNATE.name(), options.getOption(BIND_ALTERNATE));
-        clonedOptionsByName.put(RESOLVER.name(), options.getOption(RESOLVER));
+        clonedOptionsByName.put(RESOLVER_OPTION.name(), options.getOption(RESOLVER_OPTION));
 
         return clonedOptionsByName;
     }

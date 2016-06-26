@@ -52,7 +52,7 @@ public class SnmpManagementService implements ManagementService {
     private ServiceContext serviceContext;
     private DefaultSecurityContext securityContext;
     private Properties configuration;
-    private boolean systemStatsSupported = true;
+//    private boolean systemStatsSupported = true;
 
     @Override
     public void destroy() throws Exception {
@@ -87,12 +87,12 @@ public class SnmpManagementService implements ManagementService {
     @Override
     public void init(ServiceContext serviceContext) throws Exception {
         try {
-            Sigar sigar = new Sigar();
-            Uptime uptime = sigar.getUptime();
+//            Sigar sigar = new Sigar();
+//            Uptime uptime = sigar.getUptime();
         } catch (Throwable t) {
-            logger.info("SNMP management service: Unable to access system-level management statistics");
-            logger.info("  (CPU, NIC, System data). Management will continue without them.");
-            systemStatsSupported = false;
+            logger.info("SNMP management service: Unable to access system-level management statistics", t);
+            logger.info("  (CPU, NIC, System data). Management will continue without them.", t);
+//            systemStatsSupported = false;
         }
 
         this.serviceContext = serviceContext;

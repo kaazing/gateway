@@ -39,19 +39,14 @@ import org.kaazing.gateway.server.spi.security.LoginResult;
 import org.kaazing.gateway.server.spi.security.LoginResultCallback;
 import org.slf4j.Logger;
 
+/**
+ * TODO Add class documentation
+ */
 public class DefaultLoginContextFactory implements LoginContextFactory {
 
     protected static final Logger LOG = LoginContextFactories.getLogger();
     private static final String ERROR_MSG = "Failed to create a login context.";
-
-    protected boolean logEnabled() {
-        return  LOG.isTraceEnabled();
-    }
-
-    protected void log(String s, Object... objs) {
-        LOG.trace(String.format(s, objs));
-    }
-
+    
     protected final String name;
     protected final Configuration configuration;
 
@@ -60,6 +55,14 @@ public class DefaultLoginContextFactory implements LoginContextFactory {
                                       Configuration configuration) {
         this.name = name;
         this.configuration = configuration;
+    }
+
+    protected boolean logEnabled() {
+        return  LOG.isTraceEnabled();
+    }
+
+    protected void performLog(String s, Object... objs) {
+        LOG.trace(String.format(s, objs));
     }
 
     public String getName() {
@@ -118,27 +121,25 @@ public class DefaultLoginContextFactory implements LoginContextFactory {
                     callbackHandler.getAuthToken();
         }
 
-        if (authToken != null && !authToken.isEmpty()) {
-            if (authToken.getScheme() == null) {
-                String authorization = authToken.get();
-                int spaceIdx = authorization.indexOf(" ");
-                if (spaceIdx > 0) {
-                    // The first "word" in the string is the HTTP authentication
-                    // scheme.  We need to split that out so that we can look up
-                    // the correct LoginContext factory class, based on that scheme.
-                    //
-                    // After splitting out the scheme, we create a new
-                    // AuthenticationToken.  This time, we explicitly set the
-                    // scheme and the challenge response data separately, for
-                    // the benefit of the login modules which will consume this
-                    // new AuthenticationToken (KG-2309).
-                    String[] authorizationParts = new String[2];
-                    authorizationParts[0] = authorization.substring(0, spaceIdx);
-                    authorizationParts[1] = authorization.substring(spaceIdx + 1);
-                    final String authType = authorizationParts[0];
-                    authToken.setScheme(authType);
-                }
-            }
+        if (authToken != null && !authToken.isEmpty() && authToken.getScheme() == null) {
+            String authorization = authToken.get();
+            int spaceIdx = authorization.indexOf(' ');
+            if (spaceIdx > 0) {
+                // The first "word" in the string is the HTTP authentication
+                // scheme.  We need to split that out so that we can look up
+                // the correct LoginContext factory class, based on that scheme.
+                //
+                // After splitting out the scheme, we create a new
+                // AuthenticationToken.  This time, we explicitly set the
+                // scheme and the challenge response data separately, for
+                // the benefit of the login modules which will consume this
+                // new AuthenticationToken (KG-2309).
+                String[] authorizationParts = new String[2];
+                authorizationParts[0] = authorization.substring(0, spaceIdx);
+                authorizationParts[1] = authorization.substring(spaceIdx + 1);
+                final String authType = authorizationParts[0];
+                authToken.setScheme(authType);
+            }	
         }
     }
 

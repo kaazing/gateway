@@ -132,7 +132,7 @@ class PingPongFilter extends WsFilterAdapter {
                 }
                 // Must be emulated ping or pong
                 if (buf.remaining() == EMULATED_PAYLOAD_LENGTH) {
-                    if (!(buf.get(pos+CONTROL_BYTES.length+1) == 0x00)) {
+                    if (buf.get(pos+CONTROL_BYTES.length+1) != 0x00) {
                         protocolError(nextFilter, session);
                         return;
                     }
@@ -162,8 +162,7 @@ class PingPongFilter extends WsFilterAdapter {
         payload.put(content);
         payload.flip();
         payload.position(offset);
-        WsTextMessage result = new WsTextMessage(allocator.wrap(payload, IoBufferEx.FLAG_SHARED));
-        return result;
+        return new WsTextMessage(allocator.wrap(payload, IoBufferEx.FLAG_SHARED));
     }
 
     private void protocolError(NextFilter nextFilter, IoSession session) {

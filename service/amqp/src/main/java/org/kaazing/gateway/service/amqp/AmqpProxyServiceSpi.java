@@ -21,6 +21,9 @@ import java.util.Collections;
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceFactorySpi;
 
+/**
+ * TODO Add class documentation
+ */
 public class AmqpProxyServiceSpi extends ServiceFactorySpi {
 
     @Override
@@ -30,7 +33,8 @@ public class AmqpProxyServiceSpi extends ServiceFactorySpi {
 
     @Override
     public Service newService(String serviceType) {
-        assert "amqp.proxy".equals(serviceType);
+    	boolean equalsProxy = "amqp.proxy".equals(serviceType);
+        assert equalsProxy;
         return new AmqpProxyService();
     }
 

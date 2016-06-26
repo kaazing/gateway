@@ -54,6 +54,12 @@ public class IoSessionAdapterEx extends AbstractIoSessionEx {
 
     /**
      * Creates a new instance.
+     * 
+     * @param ioThread
+     * @param ioExecutor
+     * @param service
+     * @param processor
+     * @param factory
      */
     public <T extends IoSessionEx> IoSessionAdapterEx(Thread ioThread, Executor ioExecutor, IoServiceEx service, IoProcessorEx<T> processor,
             IoSessionDataStructureFactory factory) {
@@ -189,6 +195,8 @@ public class IoSessionAdapterEx extends AbstractIoSessionEx {
      * {@link IoSessionConfig#getThroughputCalculationInterval() calculation interval}.
      * If, however, <tt>force</tt> is specified as <tt>true</tt>, this method
      * updates the throughput properties immediately.
+     * 
+     * @param force
      */
     public void updateThroughput(boolean force) {
         super.updateThroughput(System.currentTimeMillis(), force);

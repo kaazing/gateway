@@ -25,15 +25,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
+import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.CODEC_REQUIRED;
-import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS;
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS_OPTION;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
-import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT_OPTION;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.MAX_MESSAGE_SIZE;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.REQUIRED_PROTOCOLS;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.SUPPORTED_PROTOCOLS;
@@ -99,10 +99,10 @@ public class WssResourceAddressFactorySpiTest {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI);
         assertNull(address.getOption(NEXT_PROTOCOL));
         assertNull(address.getOption(QUALIFIER));
-        assertNull(address.getOption(TRANSPORT));
+        assertNull(address.getOption(TRANSPORT_OPTION));
         assertTrue(address.getOption(CODEC_REQUIRED));
-        assertFalse(address.getOption(LIGHTWEIGHT));
-        assertEmpty(address.getOption(EXTENSIONS));
+        assertFalse(address.getOption(LIGHTWEIGHT_OPTION));
+        assertEmpty(address.getOption(EXTENSIONS_OPTION));
         assertEquals(0, address.getOption(MAX_MESSAGE_SIZE).intValue());
         assertEquals(0L, address.getOption(INACTIVITY_TIMEOUT).longValue());
         assertEmpty(address.getOption(SUPPORTED_PROTOCOLS));
@@ -114,10 +114,10 @@ public class WssResourceAddressFactorySpiTest {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI, options);
         assertEquals("custom", address.getOption(NEXT_PROTOCOL));
         assertEquals("random", address.getOption(QUALIFIER));
-        assertNull(address.getOption(TRANSPORT));
+        assertNull(address.getOption(TRANSPORT_OPTION));
         assertFalse(address.getOption(CODEC_REQUIRED));
-        assertTrue(address.getOption(LIGHTWEIGHT));
-        assertEquals(asList("x-kaazing-alpha", "x-kaazing-beta"), address.getOption(EXTENSIONS));
+        assertTrue(address.getOption(LIGHTWEIGHT_OPTION));
+        assertEquals(asList("x-kaazing-alpha", "x-kaazing-beta"), address.getOption(EXTENSIONS_OPTION));
         assertEquals(1024, address.getOption(MAX_MESSAGE_SIZE).intValue());
         assertEquals(SECONDS.toMillis(5), address.getOption(INACTIVITY_TIMEOUT).longValue());
         assertArrayEquals(new String[] { "amqp/0.91", "amqp/1.0" }, address.getOption(SUPPORTED_PROTOCOLS));
@@ -143,16 +143,16 @@ public class WssResourceAddressFactorySpiTest {
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         ResourceAddress address = addressFactory.newResourceAddress(addressURI);
 
-        ResourceAddress wse = address.getOption(ALTERNATE);
+        ResourceAddress wse = address.getOption(ALTERNATE_OPTION);
         assertEquals("wse+ssl", URIUtils.getScheme(wse.getExternalURI()));
 
-        ResourceAddress wsx = wse.getOption(ALTERNATE);
+        ResourceAddress wsx = wse.getOption(ALTERNATE_OPTION);
         assertEquals("wsx+ssl", URIUtils.getScheme(wsx.getExternalURI()));
 
-        ResourceAddress wsdraft = wsx.getOption(ALTERNATE);
+        ResourceAddress wsdraft = wsx.getOption(ALTERNATE_OPTION);
         assertEquals("ws-draft+ssl", URIUtils.getScheme(wsdraft.getExternalURI()));
 
-        ResourceAddress wsxdraft = wsdraft.getOption(ALTERNATE);
+        ResourceAddress wsxdraft = wsdraft.getOption(ALTERNATE_OPTION);
         assertEquals("wsx-draft+ssl", URIUtils.getScheme(wsxdraft.getExternalURI()));
 
     }

@@ -16,10 +16,10 @@
 package org.kaazing.gateway.resource.address;
 
 import static org.junit.Assert.assertEquals;
-import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
+import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
 
@@ -48,7 +48,7 @@ public class ResolveResourceAddressTest {
     private ResourceAddress createTestAddress() {
         String addressURI = "test://opaque/path";
         Map<String, Object> options = new HashMap<>();
-        options.put(TRANSPORT.name(), "test://transport/path");
+        options.put(TRANSPORT_OPTION.name(), "test://transport/path");
         return addressFactory.newResourceAddress(addressURI, options);
     }
 
@@ -140,8 +140,8 @@ public class ResolveResourceAddressTest {
                                          oldPath, newPath,
                                          continueToVerify);
 
-        verifyResolvedAddress(source.getOption(ALTERNATE),
-                              dest.getOption(ALTERNATE),
+        verifyResolvedAddress(source.getOption(ALTERNATE_OPTION),
+                              dest.getOption(ALTERNATE_OPTION),
                               oldPath,
                               newPath,
                               continueToVerify);

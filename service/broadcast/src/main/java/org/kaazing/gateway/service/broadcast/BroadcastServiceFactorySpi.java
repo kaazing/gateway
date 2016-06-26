@@ -22,6 +22,9 @@ import java.util.Collection;
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceFactorySpi;
 
+/**
+ * TODO Add class documentation
+ */
 public final class BroadcastServiceFactorySpi extends ServiceFactorySpi {
     
     @Override
@@ -31,7 +34,8 @@ public final class BroadcastServiceFactorySpi extends ServiceFactorySpi {
 
     @Override
     public Service newService(String serviceType) {
-        assert "broadcast".equals(serviceType);
+    	boolean equalsBroadcast = "broadcast".equals(serviceType);
+        assert equalsBroadcast;
         return new BroadcastService();
     }
 }

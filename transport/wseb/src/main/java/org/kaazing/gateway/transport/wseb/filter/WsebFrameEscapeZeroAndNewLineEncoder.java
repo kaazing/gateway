@@ -31,7 +31,7 @@ import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 
 public class WsebFrameEscapeZeroAndNewLineEncoder extends WsebFrameEncoder {
 
-    static protected final int cacheSize = 1024;  //cache size when read direct ByteBuffer
+	protected static final int cacheSize = 1024;  //cache size when read direct ByteBuffer
     static final byte BINARY_TYPE_BYTE = (byte) 0x80;
     static final byte SPECIFIED_LENGTH_TEXT_TYPE_BYTE = (byte) 0x81;
 
@@ -294,7 +294,8 @@ public class WsebFrameEscapeZeroAndNewLineEncoder extends WsebFrameEncoder {
     @Override
     protected IoBufferEx doPingEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
         WsPingMessage ping = (WsPingMessage)message;
-        assert ping.getBytes().remaining() == 0 : "PING with payload not supported";
+        boolean zeroRemaining = ping.getBytes().remaining() == 0;
+        assert zeroRemaining : "PING with payload not supported";
         ByteBuffer text = allocator.allocate(EMPTY_PING_BYTES.length, flags);
         int offset = text.position();
         text.put(EMPTY_PING_BYTES);
@@ -304,8 +305,9 @@ public class WsebFrameEscapeZeroAndNewLineEncoder extends WsebFrameEncoder {
     }
     @Override
     protected IoBufferEx doPongEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
-        WsPongMessage ping = (WsPongMessage)message;
-        assert ping.getBytes().remaining() == 0 : "PONG with payload not supported";
+        WsPongMessage pong = (WsPongMessage)message;
+        boolean zeroRemaining = pong.getBytes().remaining() == 0;
+        assert zeroRemaining : "PONG with payload not supported";
         ByteBuffer text = allocator.allocate(EMPTY_PONG_BYTES.length, flags);
         int offset = text.position();
         text.put(EMPTY_PONG_BYTES);

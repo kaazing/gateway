@@ -23,6 +23,9 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 
 import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
 
+/**
+ * TODO Add class documentation
+ */
 public class AuthorizationMapCallbackHandler implements CallbackHandler {
     private final HttpSubjectSecurityFilter.AuthorizationMap map;
 

@@ -41,8 +41,8 @@ public class WsResourceAddress extends ResourceAddress {
     private static final String[] REQUIRED_PROTOCOLS_DEFAULT = new String[0];
 
     public static final ResourceOption<Boolean> CODEC_REQUIRED = new WsCodecRequiredOption();
-    public static final ResourceOption<Boolean> LIGHTWEIGHT = new WsLightweightOption();
-    public static final ResourceOption<List<String>> EXTENSIONS = new WsExtensionsOption();
+    public static final ResourceOption<Boolean> LIGHTWEIGHT_OPTION = new WsLightweightOption();
+    public static final ResourceOption<List<String>> EXTENSIONS_OPTION = new WsExtensionsOption();
     public static final ResourceOption<Integer> MAX_MESSAGE_SIZE = new WsMaxMessageSizeOption();
     public static final ResourceOption<Long> INACTIVITY_TIMEOUT = new WsInactivityTimeoutOption();
     public static final ResourceOption<String[]> SUPPORTED_PROTOCOLS = new WsSupportedProtocolsOption();
@@ -50,7 +50,7 @@ public class WsResourceAddress extends ResourceAddress {
 
     private Boolean codecRequired;
     private Boolean lightweight;
-    private List<String> extensions = EXTENSIONS.defaultValue();
+    private List<String> extensions = EXTENSIONS_OPTION.defaultValue();
     private int maxMessageSize = MAX_MESSAGE_SIZE.defaultValue();
     private long inactivityTimeout = INACTIVITY_TIMEOUT.defaultValue();
     private String[] supportedProtocols;
@@ -68,9 +68,9 @@ public class WsResourceAddress extends ResourceAddress {
             switch (wsOption.kind) {
                 case CODEC_REQUIRED:
                     return (V) codecRequired;
-                case LIGHTWEIGHT:
+                case LIGHTWEIGHT_OPTION:
                     return (V) lightweight;
-                case EXTENSIONS:
+                case EXTENSIONS_OPTION:
                     return (V) extensions;
                 case MAX_MESSAGE_SIZE:
                     return (V) valueOf(maxMessageSize);
@@ -95,10 +95,10 @@ public class WsResourceAddress extends ResourceAddress {
                 case CODEC_REQUIRED:
                     codecRequired = (Boolean) value;
                     return;
-                case LIGHTWEIGHT:
+                case LIGHTWEIGHT_OPTION:
                     lightweight = (Boolean) value;
                     return;
-                case EXTENSIONS:
+                case EXTENSIONS_OPTION:
                     extensions = (List<String>) value;
                     return;
                 case MAX_MESSAGE_SIZE:
@@ -121,7 +121,7 @@ public class WsResourceAddress extends ResourceAddress {
 
     static class WsResourceOption<T> extends ResourceOption<T> {
 
-        protected enum Kind { CODEC_REQUIRED, LIGHTWEIGHT, EXTENSIONS, MAX_MESSAGE_SIZE,
+        protected enum Kind { CODEC_REQUIRED, LIGHTWEIGHT_OPTION, EXTENSIONS_OPTION, MAX_MESSAGE_SIZE,
                                      INACTIVITY_TIMEOUT, SUPPORTED_PROTOCOLS,
                                      REQUIRED_PROTOCOLS }
         
@@ -147,13 +147,13 @@ public class WsResourceAddress extends ResourceAddress {
     
     private static final class WsLightweightOption extends WsResourceOption<Boolean> {
         private WsLightweightOption() {
-            super(Kind.LIGHTWEIGHT, "lightweight", Boolean.FALSE);
+            super(Kind.LIGHTWEIGHT_OPTION, "lightweight", Boolean.FALSE);
         }
     }
     
     private static final class WsExtensionsOption extends WsResourceOption<List<String>> {
         private WsExtensionsOption() {
-            super(Kind.EXTENSIONS, "extensions", EXTENSIONS_DEFAULT);
+            super(Kind.EXTENSIONS_OPTION, "extensions", EXTENSIONS_DEFAULT);
         }
     }
     

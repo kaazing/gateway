@@ -103,7 +103,7 @@ public abstract class SuspendableIoFilterAdapter extends IoFilterAdapter {
     // on I/O thread.
     protected void resumeIncoming(IoSession session) throws Exception {
         Runnable resumeTask = new ResumeRunnable(session);
-        assert (session instanceof IoSessionEx);
+        assert session instanceof IoSessionEx;
         ((IoSessionEx)session).getIoExecutor().execute(resumeTask);
     }
 

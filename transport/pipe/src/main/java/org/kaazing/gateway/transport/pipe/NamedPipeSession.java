@@ -100,8 +100,8 @@ public class NamedPipeSession extends AbstractIoSessionEx {
 
     @Override
     public NamedPipeAddress getRemoteAddress() {
-        NamedPipeSession remoteSession = this.remoteSession.get();
-        return (remoteSession != null) ? remoteSession.getLocalAddress() : null;
+        NamedPipeSession remotePipeSession = this.remoteSession.get();
+        return (remotePipeSession != null) ? remotePipeSession.getLocalAddress() : null;
     }
 
     @Override
@@ -158,10 +158,10 @@ public class NamedPipeSession extends AbstractIoSessionEx {
     private final AtomicInteger flushCount = new AtomicInteger();
     
     boolean beginFlush() {
-        return (flushCount.getAndIncrement() == 0);
+        return flushCount.getAndIncrement() == 0;
     }
 
     boolean endFlush() {
-        return (flushCount.decrementAndGet() == 0);
+        return flushCount.decrementAndGet() == 0;
     }
 }

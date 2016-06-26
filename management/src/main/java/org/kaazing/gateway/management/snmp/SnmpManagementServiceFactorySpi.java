@@ -35,7 +35,8 @@ public class SnmpManagementServiceFactorySpi extends ServiceFactorySpi {
 
     @Override
     public Service newService(String serviceType) {
-        assert "management.snmp".equals(serviceType);
+    	boolean serviceTypeManagement = "management.snmp".equals(serviceType);
+        assert serviceTypeManagement;
         return new SnmpManagementService();
     }
 

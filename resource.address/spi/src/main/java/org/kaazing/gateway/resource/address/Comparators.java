@@ -16,7 +16,7 @@
 package org.kaazing.gateway.resource.address;
 
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_URI;
 
 import java.net.URI;
@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * TODO Add class documentation
+ */
 public final class Comparators {
 
     private static final Comparator<String> STRING_COMPARATOR = compareComparable(String.class);
@@ -120,8 +123,8 @@ public final class Comparators {
             URI location1 = addr1.getResource();
             URI location2 = addr2.getResource();
             
-            assert (location1 != null);
-            assert (location2 != null);
+            assert location1 != null;
+            assert location2 != null;
 
             String scheme1 = location1.getScheme();
             String scheme2 = location2.getScheme();
@@ -152,10 +155,10 @@ public final class Comparators {
             URI location1 = addr1.getResource();
             URI location2 = addr2.getResource();
             
-            assert (location1 != null);
-            assert (location2 != null);
+            assert location1 != null;
+            assert location2 != null;
 
-            return (location1.compareTo(location2));
+            return location1.compareTo(location2);
         }
         
     }
@@ -173,8 +176,8 @@ public final class Comparators {
                 return compareProtocol;
             }
 
-            ResourceAddress transport1 = addr1.getOption(TRANSPORT);
-            ResourceAddress transport2 = addr2.getOption(TRANSPORT);
+            ResourceAddress transport1 = addr1.getOption(TRANSPORT_OPTION);
+            ResourceAddress transport2 = addr2.getOption(TRANSPORT_OPTION);
             
             int compareTransport = PROTOCOL_STACK_COMPARATOR.compare(transport1, transport2);
             if (compareTransport != 0) {
@@ -184,16 +187,6 @@ public final class Comparators {
             return 0;
         }
         
-    }
-
-    private static ResourceAddress getFloorTransport(ResourceAddress address) {
-        assert address != null;
-
-        ResourceAddress transport;
-        while((transport = address.getTransport()) != null) {
-            address = transport;
-        }
-        return address;
     }
 
     private static final class ResourceOriginAndProtocolStackComparator implements Comparator<ResourceAddress> {
@@ -214,6 +207,16 @@ public final class Comparators {
             ResourceAddress floor1 = getFloorTransport(addr1);
             ResourceAddress floor2 = getFloorTransport(addr2);
             return ORIGIN_PATH_ALTERNATES_AND_PROTOCOL_STACK_COMPARATOR.compare(floor1, floor2);
+        }
+        
+        private static ResourceAddress getFloorTransport(ResourceAddress address) {
+            assert address != null;
+
+            ResourceAddress transport;
+            while((transport = address.getTransport()) != null) {
+                address = transport;
+            }
+            return address;
         }
     }
 
@@ -256,7 +259,7 @@ public final class Comparators {
             ResourceAddress cursor = addr;
             do {
                 topLevelAddresses.add(cursor);
-                cursor = cursor.getOption(ResourceAddress.ALTERNATE);
+                cursor = cursor.getOption(ResourceAddress.ALTERNATE_OPTION);
             } while (cursor != null);
 
             //recurse
@@ -265,7 +268,7 @@ public final class Comparators {
                 if ( transport != null ) {
                     for (ResourceAddress transportAddress: asResourceAddressList(transport)) {
                         ResourceOptions newResultOptions = ResourceOptions.FACTORY.newResourceOptions(resourceAddress);
-                        newResultOptions.setOption(TRANSPORT, transportAddress);
+                        newResultOptions.setOption(TRANSPORT_OPTION, transportAddress);
                         ResourceAddress newResult = addressFactory.newResourceAddress(resourceAddress.getExternalURI(), newResultOptions);
                         result.add(newResult);
                     }
@@ -299,8 +302,8 @@ public final class Comparators {
                 return compareProtocol;
             }
 
-            ResourceAddress transport1 = addr1.getOption(TRANSPORT);
-            ResourceAddress transport2 = addr2.getOption(TRANSPORT);
+            ResourceAddress transport1 = addr1.getOption(TRANSPORT_OPTION);
+            ResourceAddress transport2 = addr2.getOption(TRANSPORT_OPTION);
 
             int compareTransport = ORIGIN_PATH_AND_PROTOCOL_STACK_COMPARATOR.compare(transport1, transport2);
             if (compareTransport != 0) {
@@ -325,8 +328,8 @@ public final class Comparators {
                 return compareLocation;
             }
 
-            ResourceAddress transport1 = addr1.getOption(TRANSPORT);
-            ResourceAddress transport2 = addr2.getOption(TRANSPORT);
+            ResourceAddress transport1 = addr1.getOption(TRANSPORT_OPTION);
+            ResourceAddress transport2 = addr2.getOption(TRANSPORT_OPTION);
             
             int compareTransport = PROTOCOL_STACK_COMPARATOR.compare(transport1, transport2);
             if (compareTransport != 0) {
@@ -358,8 +361,8 @@ public final class Comparators {
                 return compareTransportedURI;
             }
 
-            ResourceAddress transport1 = addr1.getOption(TRANSPORT);
-            ResourceAddress transport2 = addr2.getOption(TRANSPORT);
+            ResourceAddress transport1 = addr1.getOption(TRANSPORT_OPTION);
+            ResourceAddress transport2 = addr2.getOption(TRANSPORT_OPTION);
 
             int compareTransport = PROTOCOL_STACK_COMPARATOR.compare(transport1, transport2);
             if (compareTransport != 0) {

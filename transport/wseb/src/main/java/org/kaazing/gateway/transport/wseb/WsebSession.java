@@ -515,9 +515,9 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
     protected void suspendRead1() {
         super.suspendRead2();
 
-        IoSession readSession = this.readSession.get();
-        if (readSession != null) {
-            readSession.suspendRead();
+        IoSession ioReadSession = this.readSession.get();
+        if (ioReadSession != null) {
+        	ioReadSession.suspendRead();
         }
     }
 
@@ -526,9 +526,9 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         // call super first to trigger processor.consume()
         super.resumeRead2();
 
-        IoSession readSession = this.readSession.get();
-        if (readSession != null) {
-            readSession.resumeRead();
+        IoSession ioReadSession = this.readSession.get();
+        if (ioReadSession != null) {
+        	ioReadSession.resumeRead();
         }
     }
 
@@ -575,14 +575,14 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
         @Override
         public void run() {
-            WsebSession session = this.session;
-            if (session != null) {
+            WsebSession wsebSession = this.session;
+            if (wsebSession != null) {
                 // technically if this is being called then we have passed the timeout and no reconnect
                 // has happened because it would have canceled this task, but doing a check just in case of a race condition
-                if (!session.isClosing()) {
-                    IoSession parent = session.getParent();
+                if (!wsebSession.isClosing()) {
+                    IoSession parent = wsebSession.getParent();
                     if (parent == null) {
-                        session.close(true);
+                    	wsebSession.close(true);
                     }
                 }
             }
@@ -799,11 +799,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
                 @Override
                 public void operationComplete(WriteFuture future) {
-                    if (!future.isWritten()) {
+                    if (!future.isWritten() || session.isCloseReceived()) {
                         // can't do close handshake
-                        session.getTransportSession().close(true);
-                    }
-                    else if (session.isCloseReceived()) {
                         session.getTransportSession().close(true);
                     }
                     else {

@@ -115,13 +115,13 @@ public class BroadcastService implements Service {
 
         Collection<String> connectURIs = serviceContext.getConnects();
         ServiceProperties properties = serviceContext.getProperties();
-        String reconnectDelay = properties.get("reconnect.delay");
-        if ((connectURIs == null || connectURIs.isEmpty())) {
+        String delay = properties.get("reconnect.delay");
+        if (connectURIs == null || connectURIs.isEmpty()) {
             throw new IllegalArgumentException("Missing required connect");
         }
 
         this.connectURI = connectURIs.iterator().next();
-        this.reconnectDelay = (reconnectDelay != null) ? Integer.parseInt(reconnectDelay) : 3000;
+        this.reconnectDelay = (delay != null) ? Integer.parseInt(delay) : 3000;
     }
 
     @Override
@@ -148,10 +148,8 @@ public class BroadcastService implements Service {
         // defer until stop to allow connect to succeed and re-enable the service
         serviceContext.unbindConnectsIfNecessary(serviceContext.getConnects());
         
-        if (serviceContext != null) {
-            for (IoSession session : serviceContext.getActiveSessions()) {
-                session.close(true);
-            }
+        for (IoSession session : serviceContext.getActiveSessions()) {
+            session.close(true);
         }
 
         connectTask.stop();

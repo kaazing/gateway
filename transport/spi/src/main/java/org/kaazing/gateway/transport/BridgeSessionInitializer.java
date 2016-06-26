@@ -24,6 +24,7 @@ import org.apache.mina.core.session.IoSessionInitializer;
  * 
  * @param <T>
  *            the future
+ * @deprecated
  */
 @Deprecated // incompatible with repeated protocol layering, and only used by balancer, which will move to an IoFilter<HttpSession> instead
 public interface BridgeSessionInitializer<T extends IoFuture> extends IoSessionInitializer<T> {

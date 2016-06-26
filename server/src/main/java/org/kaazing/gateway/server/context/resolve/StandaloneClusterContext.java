@@ -19,6 +19,7 @@ import com.hazelcast.core.IdGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -112,12 +113,12 @@ public class StandaloneClusterContext implements ClusterContext {
 
     @Override
     public List<MemberId> getAccepts() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
     public List<MemberId> getConnects() {
-        return null;
+    	return Collections.emptyList();
     }
 
     @Override

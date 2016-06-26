@@ -62,6 +62,7 @@ public final class ResolutionUtils {
    /**
     * Method resolving host to InetAddresses
     * @param host
+    * @param allowIPv6
     * @return
     */
    public static Collection<InetAddress> getAllByName(String host, boolean allowIPv6) {
@@ -133,7 +134,7 @@ public final class ResolutionUtils {
 
         while (networkInterfaces.hasMoreElements()) {
             NetworkInterface networkInterface = networkInterfaces.nextElement();
-            if (deviceName.toLowerCase().equals(networkInterface.getDisplayName().toLowerCase())) {
+            if (deviceName.equalsIgnoreCase(networkInterface.getDisplayName())) {
                 Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
                 while (inetAddresses.hasMoreElements()) {
                     InetAddress inetAddress = inetAddresses.nextElement();

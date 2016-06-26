@@ -51,7 +51,7 @@ public class MemberId implements Serializable {
     public boolean equals(Object otherObject) {
         if (otherObject instanceof MemberId) {
             MemberId other = (MemberId)otherObject;
-            return (this.id == other.id || this.id.equals(other.id));
+            return this.id == other.id || this.id.equals(other.id);
         }
         return false;
     }

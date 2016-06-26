@@ -17,11 +17,11 @@ package org.kaazing.gateway.resource.address.ssl;
 
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceFactories.keepAuthorityOnly;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.CIPHERS;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.CIPHERS_OPTION;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.ENCRYPTION_ENABLED;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.KEY_SELECTOR;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.NEED_CLIENT_AUTH;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS_OPTION;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.TRANSPORT_NAME;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.WANT_CLIENT_AUTH;
 
@@ -65,11 +65,11 @@ public class SslResourceAddressFactorySpi extends ResourceAddressFactorySpi<SslR
     @Override
     protected void parseNamedOptions0(String location, ResourceOptions options,
                                       Map<String, Object> optionsByName) {
-        Object ciphers = optionsByName.remove(CIPHERS.name());
+        Object ciphers = optionsByName.remove(CIPHERS_OPTION.name());
         if (ciphers instanceof String) {
-            options.setOption(CIPHERS, SslCipherSuites.resolveCSV((String) ciphers));
+            options.setOption(CIPHERS_OPTION, SslCipherSuites.resolveCSV((String) ciphers));
         } else if (ciphers instanceof String[]) {
-            options.setOption(CIPHERS, (String[]) ciphers);
+            options.setOption(CIPHERS_OPTION, (String[]) ciphers);
         } else {
             assert ciphers == null;
         }
@@ -94,9 +94,9 @@ public class SslResourceAddressFactorySpi extends ResourceAddressFactorySpi<SslR
             options.setOption(KEY_SELECTOR, keySelector);
         }
 
-        String[] protocols = (String[]) optionsByName.remove(PROTOCOLS.name());
+        String[] protocols = (String[]) optionsByName.remove(PROTOCOLS_OPTION.name());
         if ( protocols != null ) {
-            options.setOption(PROTOCOLS, protocols);
+            options.setOption(PROTOCOLS_OPTION, protocols);
         }
 
     }
@@ -127,12 +127,12 @@ public class SslResourceAddressFactorySpi extends ResourceAddressFactorySpi<SslR
 
         super.setOptions(address, options, qualifier);
         
-        address.setOption0(CIPHERS, options.getOption(CIPHERS));
+        address.setOption0(CIPHERS_OPTION, options.getOption(CIPHERS_OPTION));
         address.setOption0(ENCRYPTION_ENABLED, options.getOption(ENCRYPTION_ENABLED));
         address.setOption0(WANT_CLIENT_AUTH, options.getOption(WANT_CLIENT_AUTH));
         address.setOption0(NEED_CLIENT_AUTH, options.getOption(NEED_CLIENT_AUTH));
         address.setOption0(KEY_SELECTOR, options.getOption(KEY_SELECTOR));
-        address.setOption0(PROTOCOLS, options.getOption(PROTOCOLS));
+        address.setOption0(PROTOCOLS_OPTION, options.getOption(PROTOCOLS_OPTION));
     }
 
 }

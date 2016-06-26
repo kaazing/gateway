@@ -43,18 +43,16 @@ public class WsSessionTimeoutCommand extends WsScheduledCommand implements Runna
 
     @Override
     public void run() {
-        final IoSession session = this.session;
-        if (session != null) {
-            if (!session.isClosing()) {
-                log("Session timing out.");
-                CloseFuture closeFuture = session.close(true);
-                closeFuture.addListener(new IoFutureListener<IoFuture>() {
-                    @Override
-                    public void operationComplete(IoFuture future) {
-                        log("Session timed out.");
-                    }
-                });
-            }
+        final IoSession runSession = this.session;
+        if (runSession != null && !runSession.isClosing()) {
+            log("Session timing out.");
+            CloseFuture closeFuture = runSession.close(true);
+            closeFuture.addListener(new IoFutureListener<IoFuture>() {
+                @Override
+                public void operationComplete(IoFuture future) {
+                    log("Session timed out.");
+                }
+            });
         }
     }
 
@@ -71,9 +69,9 @@ public class WsSessionTimeoutCommand extends WsScheduledCommand implements Runna
     public void log(String value) {
         if (log.isTraceEnabled()) {
             if (session == null) {
-                log.trace(String.format("[ws #%s] " + value, sessionId + "/closing"));
+                log.trace(String.format("[ws #%s/closing] %s", sessionId, value));
             } else {
-                log.trace(String.format("[ws #%s] " + value, sessionId));
+                log.trace(String.format("[ws #%s] %s", sessionId, value));
             }
         }
     }

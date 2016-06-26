@@ -196,8 +196,9 @@ public class DefaultAuthenticationToken extends AuthenticationToken {
             }
         }
 
-        for (String name: namedComponents.keySet()) {
-            sb.append(' ').append("{'").append(name).append("'->'" + namedComponents.get(name) + "'}");
+        for (Map.Entry<String, String> entry : namedComponents.entrySet()) {
+        	String name = entry.getKey();
+        	sb.append(' ').append("{'").append(name).append("'->'" + entry.getValue() + "'}");
         }
 
         sb.append(" ]");

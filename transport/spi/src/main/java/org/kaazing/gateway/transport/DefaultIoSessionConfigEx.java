@@ -18,6 +18,9 @@ package org.kaazing.gateway.transport;
 import org.kaazing.mina.core.session.AbstractIoSessionConfigEx;
 import org.kaazing.mina.core.session.IoSessionConfigEx;
 
+/**
+ * TODO Add class documentation
+ */
 public class DefaultIoSessionConfigEx extends AbstractIoSessionConfigEx {
 	@Override
 	protected void doSetAll(IoSessionConfigEx config) {

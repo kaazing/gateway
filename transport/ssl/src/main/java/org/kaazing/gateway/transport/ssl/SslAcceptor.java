@@ -17,12 +17,12 @@ package org.kaazing.gateway.transport.ssl;
 
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.CIPHERS;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.CIPHERS_OPTION;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.ENCRYPTION_ENABLED;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.KEY_SELECTOR;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.NEED_CLIENT_AUTH;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS_OPTION;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.WANT_CLIENT_AUTH;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.BridgeSession.NEXT_PROTOCOL_KEY;
@@ -105,6 +105,9 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
     private ResourceAddressFactory resourceAddressFactory;
     private BridgeServiceFactory bridgeServiceFactory;
     private VirtualHostKeySelector vhostKeySelector;
+    
+    private IoHandler secureBridgeHandler = new BridgeHandler(true);
+    private BridgeHandler unsecureBridgeHandler = new BridgeHandler(false);
 
     // TODO: SslBindings like HttpBindings
     
@@ -227,22 +230,22 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
             boolean wantClientAuth = sslAddress.getOption(WANT_CLIENT_AUTH);
             boolean needClientAuth = sslAddress.getOption(NEED_CLIENT_AUTH);
 
-            List<String> unresolvedCipherNames = toCipherList(sslAddress.getOption(CIPHERS));
+            List<String> unresolvedCipherNames = toCipherList(sslAddress.getOption(CIPHERS_OPTION));
             List<String> resolvedCipherNames = SslCipherSuites.resolve(unresolvedCipherNames);
             String[] enabledCipherSuites = resolvedCipherNames.toArray(new String[resolvedCipherNames.size()]);
 
             if (logger.isTraceEnabled()) {
-                logger.trace(String.format("Configured SSL/TLS ciphersuites:\n  %s", toCipherString(toCipherList(enabledCipherSuites))));
+                logger.trace(String.format("Configured SSL/TLS ciphersuites:%n  %s", toCipherString(toCipherList(enabledCipherSuites))));
             }
 
             sslFilter.setWantClientAuth(wantClientAuth);
             sslFilter.setNeedClientAuth(needClientAuth);
             sslFilter.setEnabledCipherSuites(enabledCipherSuites);
             // Enable the configured SSL protocols like TLSv1 etc
-            sslFilter.setEnabledProtocols(sslAddress.getOption(PROTOCOLS));
+            sslFilter.setEnabledProtocols(sslAddress.getOption(PROTOCOLS_OPTION));
 
-            IoSessionEx sessionEx = (IoSessionEx) session;
-            IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
+//            IoSessionEx sessionEx = (IoSessionEx) session;
+//            IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
 
             // Filter are armed and ready, now add them to the filter chain.
             filterChain.addFirst(CERTIFICATE_SELECTION_FILTER, certificateSelection);
@@ -276,7 +279,7 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
     private List<String> toCipherList(String[] names) {
         if (names == null ||
             names.length == 0) {
-            return null;
+            return Collections.emptyList();
         }
 
         List<String> list = new ArrayList<>(names.length);
@@ -287,7 +290,7 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
 
     private String toCipherString(List<String> names) {
         if (names == null ||
-            names.size() == 0) {
+            names.isEmpty()) {
             return null;
         }
 
@@ -296,8 +299,7 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
             sb.append("  ").append(name).append("\n");
         }
 
-        String cipherString = sb.toString().trim();
-        return cipherString;
+        return sb.toString().trim();
     }
 
     @Override
@@ -311,7 +313,7 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
 
     @Override
     protected boolean canBind(String transportName) {
-        return transportName.equals("ssl");
+        return ("ssl").equals(transportName);
     }
 
     @Override
@@ -344,7 +346,7 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
         //   use ThreadLocal to set server name (drives certificate selection)
         
         ResourceAddress transport = address.getTransport();
-        assert (transport != null);
+        assert transport != null;
 
         IoHandler bridgeHandler = sslEncryptionEnabled ? secureBridgeHandler : unsecureBridgeHandler;
 
@@ -391,7 +393,7 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
     @Override
     protected UnbindFuture unbindInternal(ResourceAddress address, IoHandler handler, BridgeSessionInitializer<? extends IoFuture> initializer) {
         ResourceAddress transport = address.getTransport();
-        assert (transport != null);
+        assert transport != null;
         ResourceAddress transportAddress = address.getTransport();
 
         boolean sslEncryptionEnabled = address.getOption(ENCRYPTION_ENABLED);
@@ -416,10 +418,9 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
         return acceptor.unbind(transportAddress);
     }
 
-    private IoHandler secureBridgeHandler = new BridgeHandler(true);
-
-    private BridgeHandler unsecureBridgeHandler = new BridgeHandler(false);
-
+    /**
+     * @deprecated
+     */
     @Deprecated // HOWTO get the requested server name / port from the SSL handshake (even without SNI)?
     public static final TypedAttributeKey<ResourceAddress> SSL_RESOURCE_ADDRESS = new TypedAttributeKey<>(SslFilter.class, "sslResourceAddress");
 
@@ -470,7 +471,7 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
 
                 // create session
                 IoSession sslSession = SESSION_KEY.get(session);
-                assert (sslSession == null);
+                assert sslSession == null;
 
                 SslSession newSslSession = createSslSession(session);
                 SESSION_KEY.set(session, newSslSession);
@@ -484,7 +485,7 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
             }
             else {
                 IoSession sslSession = SESSION_KEY.get(session);
-                assert (sslSession != null);
+                assert sslSession != null;
                 IoFilterChain filterChain = sslSession.getFilterChain();
                 filterChain.fireMessageReceived(message);
             }
@@ -511,13 +512,13 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
                 private ResourceAddress getSslSessionLocalAddress(IoSession session) {
                     // note: bound address is unified in SSL options during bind to avoid conflicts like different cipher suites
                     ResourceAddress boundAddress = SslAcceptor.SSL_RESOURCE_ADDRESS.remove(session);
-                    assert (boundAddress != null);
+                    assert boundAddress != null;
 
                     // construct the candidate address with observed transport and next protocol
                     String candidateURI = boundAddress.getExternalURI();
                     ResourceOptions candidateOptions = ResourceOptions.FACTORY.newResourceOptions(boundAddress);
                     candidateOptions.setOption(NEXT_PROTOCOL, NEXT_PROTOCOL_KEY.get(session));
-                    candidateOptions.setOption(TRANSPORT, LOCAL_ADDRESS.get(session));
+                    candidateOptions.setOption(TRANSPORT_OPTION, LOCAL_ADDRESS.get(session));
                     ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(candidateURI, candidateOptions);
 
                     // lookup the binding for this candidate address

@@ -26,7 +26,10 @@ import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 
 public abstract class HttpChallengeFactoryAdapter implements HttpChallengeFactory {
 
-    // TODO: remove "Application " prefix from the wire protocol, already handled at correct transport layer
+    /**
+     * @deprecated
+     * TODO: remove "Application " prefix from the wire protocol, already handled at correct transport layer
+     */
     @Deprecated
     protected boolean isApplication(String authScheme) {
         return authScheme != null &&
@@ -72,5 +75,6 @@ public abstract class HttpChallengeFactoryAdapter implements HttpChallengeFactor
         }
 
         return builder.toString();
-    }}
+    }    
+}
 

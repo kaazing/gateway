@@ -52,10 +52,7 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
         createMonitoringFile();
 
         // create gateway monitoring entity factory
-        MonitoringEntityFactory gwCountersFactory =
-                monitorFileWriter.getGatewayMonitoringEntityFactory();
-
-        return gwCountersFactory;
+        return monitorFileWriter.getGatewayMonitoringEntityFactory();
     }
 
     @Override

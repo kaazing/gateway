@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * which can then send it out.
  */
 public abstract class AbstractManagementBean implements ManagementBean {
-    private static final Logger logger = LoggerFactory.getLogger(AbstractManagementBean.class);
+//    private static final Logger logger = LoggerFactory.getLogger(AbstractManagementBean.class);
 
     protected final List<SummaryDataListener> summaryDataListeners;
 
@@ -150,8 +150,7 @@ public abstract class AbstractManagementBean implements ManagementBean {
     }
 
     private boolean clearDirty() {
-        boolean val = dirty.compareAndSet(true, false);
-        return val;
+        return dirty.compareAndSet(true, false);
     }
 
     /**

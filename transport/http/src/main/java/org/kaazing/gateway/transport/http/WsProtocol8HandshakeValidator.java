@@ -24,10 +24,14 @@ public class WsProtocol8HandshakeValidator extends WsHandshakeValidator {
     @Override
     protected boolean doValidate(HttpRequestMessage request, final boolean isPostMethodAllowed) {
         boolean ok = super.doValidate(request, isPostMethodAllowed);
-        if ( !ok ) return false;
+        if ( !ok ) {
+        	return false;
+        }
 
         ok = requireHeader(request, SEC_WEB_SOCKET_VERSION, getExpectedWebSocketVersion());
-        if ( !ok ) return false;
+        if ( !ok ) {
+        	return false;
+        }
 
         ok = requireHeader(request, SEC_WEB_SOCKET_KEY);
         return ok && validateWebSocketKey(request.getHeader(SEC_WEB_SOCKET_KEY));

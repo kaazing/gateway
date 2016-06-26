@@ -131,7 +131,8 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
                     break;
                 }
 
-                assert (!writer.isWriteSuspended());
+                boolean writerNotSuspended = !writer.isWriteSuspended();
+                assert writerNotSuspended;
                 writer.write(WsCommandMessage.RECONNECT);
                 finishWrite(session, writer);
                 break;
@@ -179,7 +180,7 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
                     // the last write future
                     // so it can check the written bytes and compare to client
                     // buffer
-                    if (reconnecting.get() == false) {
+                    if (!reconnecting.get()) {
                         lastWrite.addListener(new CheckBuffer(session, reconnecting));
                     }
                 }
@@ -310,7 +311,7 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
         @Override
         public void operationComplete(WriteFuture future) {
             HttpConnectSession parent = (HttpConnectSession)future.getSession();
-            if (parent.isClosing() || reconnecting.get() == true) {
+            if (parent.isClosing() || reconnecting.get()) {
                 return;
             }
             // Note: for now we always have a client buffer low water mark of 0

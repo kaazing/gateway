@@ -15,7 +15,7 @@
  */
 package org.kaazing.gateway.transport.ssl.cert;
 
-/*
+/**
  * This exception the superclass of possible certificate exceptions
  * thrown while initializing or binding to (virtual) host:port. 
  */

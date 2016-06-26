@@ -17,6 +17,9 @@ package org.kaazing.gateway.util.aws;
 
 import java.nio.ByteBuffer;
 
+/**
+ * TODO Add class documentation
+ */
 public class Codec {
     protected Codec() {
     }

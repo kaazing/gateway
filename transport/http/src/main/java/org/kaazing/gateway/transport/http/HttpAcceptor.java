@@ -22,7 +22,7 @@ import static java.util.EnumSet.complementOf;
 import static java.util.EnumSet.of;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.BALANCE_ORIGINS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.GATEWAY_ORIGIN_SECURITY;
@@ -119,24 +119,13 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory addressFactory;
 
-    private IoFilter httpNextAddress;
+    private IoFilter httpNextAddressFilter;
 
     private SchedulerProvider schedulerProvider;
 
     private Properties configuration;
 
     private boolean httpxeSpecCompliant;
-
-    @Resource(name = "schedulerProvider")
-    public void setSchedulerProvider(SchedulerProvider provider) {
-        this.schedulerProvider = provider;
-    }
-
-    @Resource(name = "configuration")
-    public void setConfiguration(Properties configuration) {
-        this.configuration = configuration;
-        httpxeSpecCompliant = HTTPXE_SPECIFICATION.getBooleanProperty(configuration);
-    }
 
     public HttpAcceptor() {
         super(new DefaultIoSessionConfigEx());
@@ -145,13 +134,13 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         // note: empty packet filter is added dynamically for httpx/1.1, and not needed by httpxe/1.1 nor http/1.1
         // note: serialize request filter only needed for http , not httpxe nor httpx
 
-        Map<String, Set<HttpAcceptFilter>> acceptFiltersByProtocol = new HashMap<>();
-        acceptFiltersByProtocol.put(PROTOCOL_HTTP_1_1, complementOf(of(CONTENT_LENGTH_ADJUSTMENT,
+        Map<String, Set<HttpAcceptFilter>> acceptFiltersByProtocolMap = new HashMap<>();
+        acceptFiltersByProtocolMap.put(PROTOCOL_HTTP_1_1, complementOf(of(CONTENT_LENGTH_ADJUSTMENT,
                                                                        PROTOCOL_HTTPXE,
                                                                        ELEVATE_EMULATED_REQUEST,
                                                                        CONDITIONAL_WRAPPED_RESPONSE)));
 
-        acceptFiltersByProtocol.put(PROTOCOL_HTTPXE_1_1, complementOf(of(CONTENT_LENGTH_ADJUSTMENT,
+        acceptFiltersByProtocolMap.put(PROTOCOL_HTTPXE_1_1, complementOf(of(CONTENT_LENGTH_ADJUSTMENT,
                                                                          // wsx-filter-only
                                                                          MERGE_REQUEST,
                                                                          // do not serialize again
@@ -161,14 +150,25 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                                                                          ELEVATE_EMULATED_REQUEST,
                                                                          CONDITIONAL_WRAPPED_RESPONSE)));
 
-        acceptFiltersByProtocol.put("x-kaazing-handshake", complementOf(of(CONTENT_LENGTH_ADJUSTMENT,
+        acceptFiltersByProtocolMap.put("x-kaazing-handshake", complementOf(of(CONTENT_LENGTH_ADJUSTMENT,
                                                                            PROTOCOL_HTTPXE,
                                                                            HOST_HEADER,
                                                                            ELEVATE_EMULATED_REQUEST,
                                                                            CONDITIONAL_WRAPPED_RESPONSE)));
 
-        this.acceptFiltersByProtocol = unmodifiableMap(acceptFiltersByProtocol);
+        this.acceptFiltersByProtocol = unmodifiableMap(acceptFiltersByProtocolMap);
         this.allAcceptFilters = allOf(HttpAcceptFilter.class);
+    }
+    
+    @Resource(name = "schedulerProvider")
+    public void setSchedulerProvider(SchedulerProvider provider) {
+        this.schedulerProvider = provider;
+    }
+
+    @Resource(name = "configuration")
+    public void setConfiguration(Properties configuration) {
+        this.configuration = configuration;
+        httpxeSpecCompliant = HTTPXE_SPECIFICATION.getBooleanProperty(configuration);
     }
 
     @Override
@@ -205,7 +205,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 String resourcesURI = URIUtils.resolve(location, "/;resource");
                 ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
                 options.setOption(TRANSPORT_URI, bindAddress.getOption(TRANSPORT_URI));
-                options.setOption(TRANSPORT, bindAddress.getOption(TRANSPORT));
+                options.setOption(TRANSPORT_OPTION, bindAddress.getOption(TRANSPORT_OPTION));
                 options.setOption(TEMP_DIRECTORY, bindAddress.getOption(TEMP_DIRECTORY));
                 options.setOption(NEXT_PROTOCOL, bindAddress.getOption(NEXT_PROTOCOL));
                 options.setOption(ORIGIN_SECURITY, bindAddress.getOption(ORIGIN_SECURITY));
@@ -234,7 +234,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         HttpNextAddressFilter httpNextAddress = new HttpNextAddressFilter();
         httpNextAddress.setResourceAddressFactory(addressFactory);
         httpNextAddress.setBindings(bindings);
-        this.httpNextAddress = httpNextAddress;
+        this.httpNextAddressFilter = httpNextAddress;
 
         // TODO: verify injections and throw exception if not in a valid start state
     }
@@ -251,7 +251,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
     @Override
     protected boolean canBind(String transportName) {
-        return transportName.equals("http");
+        return ("http").equals(transportName);
     }
 
     @Override
@@ -421,12 +421,12 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 if (localAddress == null && logger.isDebugEnabled()) {
                     logger.debug(String.format("Failed to find a binding local address for request URI %s", requestURI));
                 }
-                assert (localAddress != null);
+                assert localAddress != null;
 
 
                 ResourceAddress transportAddress = BridgeSession.REMOTE_ADDRESS.get(session);
                 ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
-                options.setOption(TRANSPORT, transportAddress);
+                options.setOption(TRANSPORT_OPTION, transportAddress);
                 options.setOption(NEXT_PROTOCOL, localAddress.getOption(NEXT_PROTOCOL));
 
                 final ResourceAddress remoteAddress = addressFactory.newResourceAddress(httpRequest.getExternalURI(), options);
@@ -549,12 +549,13 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         }
 
         Set<HttpAcceptFilter> acceptFilters = acceptFiltersByProtocol.get(nextProtocol);
-        assert (acceptFilters != null && !acceptFilters.isEmpty());
+        boolean validFilters = acceptFilters != null && !acceptFilters.isEmpty();
+        assert validFilters;
 
         for (HttpAcceptFilter acceptFilter : acceptFilters) {
             switch (acceptFilter) {
             case NEXT_ADDRESS:
-                chain.addLast(acceptFilter.filterName(), httpNextAddress);
+                chain.addLast(acceptFilter.filterName(), httpNextAddressFilter);
                 break;
             case ELEVATE_EMULATED_REQUEST:
                 // a session-specific filter added when necessary by the protocol compatibility filter

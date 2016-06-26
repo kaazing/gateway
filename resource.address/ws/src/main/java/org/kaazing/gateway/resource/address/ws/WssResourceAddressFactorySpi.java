@@ -62,20 +62,20 @@ public class WssResourceAddressFactorySpi extends WsResourceAddressFactorySpi {
         Map<String, ResourceAddressFactorySpi<?>> alternateAddressFactories =
                 addressFactory.getAlternateAddressFactories(getSchemeName());
         alternateAddressFactories = new HashMap<>(alternateAddressFactories);
-        List<ResourceFactory> alternateResourceFactories = new ArrayList<>();
+        List<ResourceFactory> alternateResourceFactoryList = new ArrayList<>();
         // Create an ordered list of resource factories for the available alternate address factories
         for(String scheme : WSS_ALTERNATE_SCHEMES) {
             if (alternateAddressFactories.get(scheme) != null) {
-                alternateResourceFactories.add(changeSchemeOnly(scheme));
+            	alternateResourceFactoryList.add(changeSchemeOnly(scheme));
                 alternateAddressFactories.remove(scheme);
             }
         }
 
         // Remaining ones don't have any order
         for(String scheme : alternateAddressFactories.keySet()) {
-            alternateResourceFactories.add(changeSchemeOnly(scheme));
+        	alternateResourceFactoryList.add(changeSchemeOnly(scheme));
         }
-        this.alternateResourceFactories = Collections.unmodifiableList(alternateResourceFactories);
+        this.alternateResourceFactories = Collections.unmodifiableList(alternateResourceFactoryList);
     }
 
     @Override

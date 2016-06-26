@@ -24,6 +24,9 @@ import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 
+/**
+ * TODO Add class documentation
+ */
 public abstract class CachingMessageEncoder {
 
     public abstract <T extends Message> IoBufferEx encode(MessageEncoder<T> encoder, T message, IoBufferAllocatorEx<?> allocator, int flags);
@@ -41,10 +44,8 @@ public abstract class CachingMessageEncoder {
         if (cachedBuffer == null) {
             // when cachedBuffer is null, perform encode, then cache the result
             // with standard atomic race condition awareness (put-if-absent)            
-            if ((flags & FLAG_ZERO_COPY) != 0) {
-                if (!cache.isEmpty()) {
-                    flags &= ~FLAG_ZERO_COPY;
-                }
+            if ((flags & FLAG_ZERO_COPY) != 0 && !cache.isEmpty()) {
+                flags &= ~FLAG_ZERO_COPY;
             }
 
             IoBufferEx newCachedBuffer = encoder.encode(allocator, message, flags);

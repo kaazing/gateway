@@ -21,7 +21,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.kaazing.gateway.resource.address.ResourceAddress.BIND_ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
 
 import java.net.URI;
@@ -40,7 +40,7 @@ public class ResourceAddressFactoryTest {
     public void setup() throws Exception {
         addressURI = "test://opaque";
         options = new HashMap<>();
-        options.put(TRANSPORT.name(), "test://transport");
+        options.put(TRANSPORT_OPTION.name(), "test://transport");
     }
 
     @Test (expected = IllegalArgumentException.class)

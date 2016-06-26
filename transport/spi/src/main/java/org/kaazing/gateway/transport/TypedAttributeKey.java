@@ -36,6 +36,9 @@ public class TypedAttributeKey<T> implements Serializable {
 
     /**
      * Creates a new instance of TypedAttributeKey.
+     * 
+     * @param source
+     * @param name
      */
     public TypedAttributeKey(Class<?> source, String name) {
         this(source, name, null);
@@ -43,6 +46,9 @@ public class TypedAttributeKey<T> implements Serializable {
 
     /**
      * Creates a new instance of TypedAttributeKeywith a default value.
+     * @param source
+     * @param name
+     * @param defaultValue
      */
     public TypedAttributeKey(Class<?> source, String name, T defaultValue) {
         this.name = source.getName() + '.' + name + '@' + Integer.toHexString(this.hashCode());

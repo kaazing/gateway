@@ -22,7 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_TIMEOUT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_NAME;
@@ -82,7 +82,7 @@ public class HttpxResourceAddressFactorySpiTest {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI);
         assertNull(address.getOption(NEXT_PROTOCOL));
         assertNull(address.getOption(QUALIFIER));
-        assertNull(address.getOption(TRANSPORT));
+        assertNull(address.getOption(TRANSPORT_OPTION));
         assertEquals(address.getOption(KEEP_ALIVE_TIMEOUT).intValue(), 30);
         assertNull(address.getOption(REALM_NAME));
         assertEmpty(address.getOption(REQUIRED_ROLES));
@@ -93,7 +93,7 @@ public class HttpxResourceAddressFactorySpiTest {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI, options);
         assertEquals("custom", address.getOption(NEXT_PROTOCOL));
         assertEquals("random", address.getOption(QUALIFIER));
-        assertNull(address.getOption(TRANSPORT));
+        assertNull(address.getOption(TRANSPORT_OPTION));
         assertEquals(5000L, address.getOption(KEEP_ALIVE_TIMEOUT).longValue());
         assertEquals("demo", address.getOption(REALM_NAME));
         assertArrayEquals(new String[] { "admin" }, address.getOption(REQUIRED_ROLES));

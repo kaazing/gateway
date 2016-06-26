@@ -19,6 +19,9 @@ import java.util.List;
 import javax.management.ObjectName;
 import org.kaazing.gateway.management.config.ClusterConfigurationBean;
 
+/**
+ * TODO Add class documentation
+ */
 public class ClusterConfigurationMXBeanImpl implements ClusterConfigurationMXBean {
 
     private final ObjectName name;

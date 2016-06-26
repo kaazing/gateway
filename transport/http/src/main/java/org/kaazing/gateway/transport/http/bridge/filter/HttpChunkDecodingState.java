@@ -105,7 +105,7 @@ public abstract class HttpChunkDecodingState extends DecodingStateMachine {
 
 	    @Override
 	    protected boolean canSkip(byte b) {
-	      return (b != '\r');
+	      return b != '\r';
 	    }
 
 	    @Override

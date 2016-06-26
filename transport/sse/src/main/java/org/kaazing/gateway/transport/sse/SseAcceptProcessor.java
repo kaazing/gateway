@@ -191,9 +191,9 @@ public class SseAcceptProcessor extends BridgeAcceptProcessor<SseSession> {
                     // the last write future
                     // so it can check the written bytes and compare to client
                     // buffer
-                    if (reconnecting.get() == false) {
+                    if (!reconnecting.get()) {
                         // Check whether we require block padding
-                        boolean checkBlockPadding = (parent.getAttribute(SseAcceptor.CLIENT_BLOCK_PADDING_KEY) != null);
+                        boolean checkBlockPadding = parent.getAttribute(SseAcceptor.CLIENT_BLOCK_PADDING_KEY) != null;
                         if (!checkBlockPadding) {
                         	lastWrite.addListener(new CheckBuffer(session, reconnecting));
                         }
@@ -251,7 +251,7 @@ public class SseAcceptProcessor extends BridgeAcceptProcessor<SseSession> {
         // TODO: Verify if counting bytes is really necessary
         // check to see if we need to add a padding message to the end of sent messages
         long writtenBytes = session.getWrittenBytes();
-        Long bytesWrittenOnLastFlush = ((Long)session.getAttribute(SseAcceptor.BYTES_WRITTEN_ON_LAST_FLUSH_KEY));
+        Long bytesWrittenOnLastFlush = (Long)session.getAttribute(SseAcceptor.BYTES_WRITTEN_ON_LAST_FLUSH_KEY);
         if (bytesWrittenOnLastFlush == null || writtenBytes != bytesWrittenOnLastFlush) {
             // Block Padding is required
             session.write(SseEncoder.BLOCK_PADDING_MESSAGE);
@@ -286,7 +286,7 @@ public class SseAcceptProcessor extends BridgeAcceptProcessor<SseSession> {
         @Override
         public void operationComplete(WriteFuture future) {
             HttpAcceptSession parent = (HttpAcceptSession)future.getSession();
-            if (parent.isClosing() || reconnecting.get() == true) {
+            if (parent.isClosing() || reconnecting.get()) {
                 return;
             }
             // check to see if we have written out at least enough bytes to be

@@ -18,6 +18,7 @@ package org.kaazing.gateway.util.scheduler;
 import static org.kaazing.gateway.util.InternalSystemProperty.BACKGROUND_TASK_THREADS;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
@@ -101,7 +102,7 @@ public class SchedulerProvider {
                 return super.shutdownNow();
             }
 
-            return null;
+            return Collections.emptyList();
         }
 
         void shutdownImmediate() {

@@ -16,8 +16,8 @@
 package org.kaazing.gateway.resource.address.tcp;
 
 import static java.lang.String.format;
-import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER_OPTION;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.BIND_ADDRESS;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.MAXIMUM_OUTBOUND_RATE;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.TRANSPORT_NAME;
@@ -114,6 +114,7 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             String location,  ResourceOptions options) {
 
         InetSocketAddress bindSocketAddress = options.getOption(BIND_ADDRESS);
+        String newLocation = location;
         if (bindSocketAddress != null) {
             // apply bind option in preference to network context
             String newHost = getHostStringWithoutNameLookup(bindSocketAddress);
@@ -121,20 +122,20 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             InetAddress bindAddress = bindSocketAddress.getAddress();
             String authorityFormat = (bindAddress instanceof Inet6Address) ? FORMAT_IPV6_AUTHORITY : FORMAT_IPV4_AUTHORITY;
             String newAuthority = format(authorityFormat, newHost, newPort);
-            location = modifyURIAuthority(location, newAuthority);
+            newLocation = modifyURIAuthority(newLocation, newAuthority);
         }
 
         // if tcp has a transport, do not resolve the authority.
-        if ( options.getOption(TRANSPORT) != null ) {
-            return Collections.singletonList(super.newResourceAddress0(original, location, options));
+        if ( options.getOption(TRANSPORT_OPTION) != null ) {
+            return Collections.singletonList(super.newResourceAddress0(original, newLocation, options));
         }
 
         // ensure that DNS name is resolved in transport address
-        NameResolver resolver = options.getOption(RESOLVER);
-        assert (resolver != null);
+        NameResolver resolver = options.getOption(RESOLVER_OPTION);
+        assert resolver != null;
         List<TcpResourceAddress> tcpAddresses = new LinkedList<>();
         try {
-            String host = getHost(location);
+            String host = getHost(newLocation);
             Matcher matcher = PATTERN_IPV6_HOST.matcher(host);
             if (matcher.matches()) {
                 host = matcher.group(1);
@@ -151,7 +152,8 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             else {
                 inetAddresses = resolver.getAllByName(host);
             }
-            assert (!inetAddresses.isEmpty());
+            boolean notEmpty = !inetAddresses.isEmpty();
+            assert notEmpty;
 
             // The returned collection appears to be unmodifiable, so first clone the list (ugh!)
             Collection<InetAddress> unsortedInetAddresses = new LinkedList<>(inetAddresses);
@@ -169,15 +171,13 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             }
 
             boolean preferIPv4 = "true".equalsIgnoreCase(System.getProperty(JAVA_NET_PREFER_IPV4_STACK));
-            if (!preferIPv4) {
+            if (!preferIPv4 && !unsortedInetAddresses.isEmpty()) {
                 // Add all the remaning (IPv6) addresses.  Because InetAddress.getAllByName() is lame
                 // and returns duplicates when java.net.preferIPv4Stack is true, I have to add them
                 // one at a time iff not already in the list.
-                if (!unsortedInetAddresses.isEmpty()) {
-                    for (InetAddress addr : unsortedInetAddresses) {
-                        if (!sortedInetAddresses.contains(addr)) {
-                            sortedInetAddresses.add(addr);
-                        }
+                for (InetAddress addr : unsortedInetAddresses) {
+                    if (!sortedInetAddresses.contains(addr)) {
+                        sortedInetAddresses.add(addr);
                     }
                 }
             }
@@ -186,20 +186,20 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             for (InetAddress inetAddress : sortedInetAddresses) {
                 String ipAddress = inetAddress.getHostAddress();
                 String addressFormat = (inetAddress instanceof Inet6Address) ? FORMAT_IPV6_AUTHORITY : FORMAT_IPV4_AUTHORITY;
-                String newAuthority = format(addressFormat, ipAddress, getPort(location));
-                location = modifyURIAuthority(location, newAuthority);
-                TcpResourceAddress tcpAddress = super.newResourceAddress0(original, location, options);
+                String newAuthority = format(addressFormat, ipAddress, getPort(newLocation));
+                newLocation = modifyURIAuthority(newLocation, newAuthority);
+                TcpResourceAddress tcpAddress = super.newResourceAddress0(original, newLocation, options);
 
 
                 tcpAddresses.add(tcpAddress);
             }
         }
         catch (UnknownHostException e) {
-            throw new IllegalArgumentException(format("Unable to resolve DNS name: %s", getHost(location)), e);
+            throw new IllegalArgumentException(format("Unable to resolve DNS name: %s", getHost(newLocation)), e);
         }
 
         if (tcpAddresses.isEmpty()) {
-            throwPreferedIPv4StackIPv6AddressError(location, tcpAddresses);
+            throwPreferedIPv4StackIPv6AddressError(newLocation, tcpAddresses);
         }
 
         return tcpAddresses;

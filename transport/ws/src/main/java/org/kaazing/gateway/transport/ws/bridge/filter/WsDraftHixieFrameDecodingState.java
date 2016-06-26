@@ -52,7 +52,7 @@ public class WsDraftHixieFrameDecodingState extends DecodingStateMachine {
         	case CLOSE_TYPE_BYTE:
         		return READ_CLOSE_FRAME_LENGTH;
         	default:
-        		throw new ProtocolDecoderException("Unexpected frame type: " + Integer.toHexString((frameType & 0xff)));
+        		throw new ProtocolDecoderException("Unexpected frame type: " + Integer.toHexString(frameType & 0xff));
         	}
         }
 

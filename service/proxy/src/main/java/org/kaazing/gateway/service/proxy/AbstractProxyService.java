@@ -31,6 +31,8 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
 /**
  * Gateway service of type "proxy".
+ * 
+ * @param <HandlerType> AbstractProxyHandler type
  */
 public abstract class AbstractProxyService<HandlerType extends AbstractProxyHandler> implements Service {
     private static final String PROPERTY_MAXIMUM_PENDING_BYTES = "maximum.pending.bytes";
@@ -82,10 +84,8 @@ public abstract class AbstractProxyService<HandlerType extends AbstractProxyHand
         // defer until stop to allow connect to succeed and re-enable the service
         serviceContext.unbindConnectsIfNecessary(serviceContext.getConnects());
 
-        if (serviceContext != null) {
-            for (IoSession session : serviceContext.getActiveSessions()) {
-                session.close(true);
-            }
+        for (IoSession session : serviceContext.getActiveSessions()) {
+            session.close(true);
         }
     }
 

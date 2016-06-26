@@ -22,6 +22,8 @@ import org.kaazing.gateway.service.ServiceContext;
 
 /**
  * The interface that defines service-session initializers.
+ * 
+ * @param <T> ConnectFuture type
  */
 public interface KaazingSessionInitializer<T extends ConnectFuture> extends IoSessionInitializer<ConnectFuture> {
 
@@ -29,7 +31,8 @@ public interface KaazingSessionInitializer<T extends ConnectFuture> extends IoSe
      * Initialize the session initializer.
      *
      * @param parentInitializer
-     * @param address
+     * @param serviceContext
+     * @param sessionType
      */
     void initialize(KaazingSessionInitializer<T> parentInitializer, ServiceContext serviceContext, int sessionType);
 }

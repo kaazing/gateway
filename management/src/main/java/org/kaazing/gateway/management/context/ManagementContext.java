@@ -111,8 +111,8 @@ public interface ManagementContext {
      * We need this (though not the service or gateway ones) because we call it from one of the filter strategies, while the
      * others are only called w/in DefaultManagementContext.
      *
-     * @param address
-     * @param serviceContext
+     * @param serviceManagementBean
+     * @param session
      * @return the new SessionManagementBean
      */
     SessionManagementBean addSessionManagementBean(ServiceManagementBean serviceManagementBean, IoSessionEx session);

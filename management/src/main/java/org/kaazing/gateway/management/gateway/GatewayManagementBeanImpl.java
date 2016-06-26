@@ -214,8 +214,7 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
         // member variable of this bean is set from outside, and is not set unless we have a
         // real cluster config.
         ClusterContext context = gatewayContext.getCluster();
-        String instanceKey = context.getInstanceKey(context.getLocalMember());
-        return instanceKey;
+        return context.getInstanceKey(context.getLocalMember());
     }
 
     @Override
@@ -249,9 +248,10 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
                 if (balancerURIMap != null) {
                     JSONObject uriMap = new JSONObject();
 
-                    for (String balancerURI : balancerURIMap.keySet()) {
-                        List<String> balanceeURIs = balancerURIMap.get(balancerURI);
-                        JSONArray jsonArray = new JSONArray();
+                    for (Map.Entry<String, List<String>> entry : balancerURIMap.entrySet()) {
+                    	String balancerURI = entry.getKey();
+                    	List<String> balanceeURIs = entry.getValue();
+                    	JSONArray jsonArray = new JSONArray();
                         for (String balanceeURI : balanceeURIs) {
                             jsonArray.put(balanceeURI);
                         }
@@ -265,7 +265,7 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
             }
         } catch (JSONException ex) {
             // We know the values are valid, we should not be able to get to here.
-            throw new RuntimeException("Error inserting balancer URIs for cluster members into JSON object");
+            throw new RuntimeException("Error inserting balancer URIs for cluster members into JSON object", ex);
         }
 
         return jsonObj.toString();
@@ -303,7 +303,7 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
             }
         } catch (JSONException ex) {
             // We know the values are valid, we should not be able to get to here.
-            throw new RuntimeException("Error inserting acceptURIs for management services into JSON array");
+            throw new RuntimeException("Error inserting acceptURIs for management services into JSON array", ex);
         }
 
         return jsonObj.toString();
@@ -324,10 +324,10 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
         JSONObject jsonObj = new JSONObject();
 
         try {
-            for (String uri : balancers.keySet()) {
-
-                Collection<String> balancees = balancers.get(uri);
-                if (balancees != null && balancees.size() > 0) {
+        	for (Map.Entry<String, Collection<String>> entry : balancers.entrySet()) {
+        		String uri = entry.getKey();
+        		Collection<String> balancees = entry.getValue();
+        		if (balancees != null && !balancees.isEmpty()) {
                     JSONArray jsonArray = new JSONArray();
 
                     for (String balanceeURI : balancees) {
@@ -338,10 +338,10 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
                 } else {
                     jsonObj.put(uri, JSONObject.NULL);
                 }
-            }
+        	}
         } catch (JSONException ex) {
             // We know the values are valid, we should not be able to get to here.
-            throw new RuntimeException("Error inserting balanceeURIs for balancerURIs into JSON array");
+            throw new RuntimeException("Error inserting balanceeURIs for balancerURIs into JSON array", ex);
         }
 
         return jsonObj.toString();

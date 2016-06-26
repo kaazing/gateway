@@ -37,6 +37,10 @@ public class SslKeyManager
     private static final Logger LOGGER = LoggerFactory.getLogger(SslKeyManager.class);
     
     X509KeyManager keyManager;
+    
+    public SslKeyManager(X509KeyManager keyManager) {
+        this.keyManager = keyManager;
+    }
 
     private void handleException(String task, Exception e) {
         if (LOGGER.isDebugEnabled()) {
@@ -49,10 +53,6 @@ public class SslKeyManager
         if (e instanceof RuntimeException) {
             throw (RuntimeException) e;
         }
-    }
-    
-    public SslKeyManager(X509KeyManager keyManager) {
-        this.keyManager = keyManager;
     }
 
     @Override

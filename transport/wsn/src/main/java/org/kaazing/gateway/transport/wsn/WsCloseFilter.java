@@ -160,7 +160,7 @@ public class WsCloseFilter
                 logger.trace(format("received CLOSE frame from peer: %s", wsClose));
             }
 
-            if (sentCloseFrame.get() == false) {
+            if (!sentCloseFrame.get()) {
                 // Echo the CLOSE frame back, and close the session.
                 WsCloseMessage wsCloseResponse = new WsCloseMessage(wsClose.getStatus(), wsClose.getReason());
                 WriteFutureEx writeFuture = new DefaultWriteFutureEx(session);
@@ -178,8 +178,7 @@ public class WsCloseFilter
                                     logger.trace("received and sent CLOSE frames, closing session");
                             }
 
-                            if (closeFuture != null &&
-                                closeFuture.isDone() == false) {
+                            if (closeFuture != null && !closeFuture.isDone()) {
                                 closeFuture.cancel(true);
                             }
 
@@ -199,8 +198,7 @@ public class WsCloseFilter
                     logger.trace("received and sent CLOSE frames, closing session");
                 }
 
-                if (closeFuture != null &&
-                    closeFuture.isDone() == false) {
+                if (closeFuture != null && !closeFuture.isDone()) {
                     closeFuture.cancel(true);
                 }
 
@@ -234,7 +232,7 @@ public class WsCloseFilter
         }
 
         if (sentCloseFrame.compareAndSet(false, true)) {
-            if (receivedCloseFrame.get() == false) {
+            if (!receivedCloseFrame.get()) {
                 // Start the scheduled task, to limit the amount of time that
                 // we wait for the peer's CLOSE.  If we don't receive the CLOSE
                 // in time, we terminate the session anyway.
@@ -295,7 +293,7 @@ public class WsCloseFilter
         throws Exception {
 
         // If we've timed out, propagate the close.
-        if (timedOut.get() == true) {
+        if (timedOut.get()) {
             nextFilter.filterClose(session);
             return;
         }
@@ -309,7 +307,7 @@ public class WsCloseFilter
         }
 
         // If we haven't sent a CLOSE frame already, send one.
-        if (sentCloseFrame.get() == false) {
+        if (!sentCloseFrame.get()) {
             // Note: do NOT use nextFilter.filterWrite() here; we explicitly
             // want our own doFilterWriteWsClose() method to be called.
 
@@ -335,13 +333,12 @@ public class WsCloseFilter
 
             // If we have already received the peer's CLOSE, then close
             // this session once we've written out our CLOSE.
-            if (receivedCloseFrame.get() == true) {
+            if (receivedCloseFrame.get()) {
                 writeFuture.addListener(new IoFutureListener<WriteFuture>() {
                     @Override
                     public void operationComplete(WriteFuture future) {
                         if (future.isWritten()) {
-                            if (closeFuture != null &&
-                                closeFuture.isDone() == false) {
+                            if (closeFuture != null && !closeFuture.isDone()) {
                                 closeFuture.cancel(true);
                             }
 
@@ -364,9 +361,8 @@ public class WsCloseFilter
         } else {
           // If we have received the peer's CLOSE, then we can actually
           // close this session.
-          if (receivedCloseFrame.get() == true) {
-              if (closeFuture != null &&
-                  closeFuture.isDone() == false) {
+          if (receivedCloseFrame.get()) {
+              if (closeFuture != null && !closeFuture.isDone()) {
                 closeFuture.cancel(true);
               }
 
@@ -383,7 +379,7 @@ public class WsCloseFilter
 
         // Make sure to cancel and clear any pending close tasks
         if (closeFuture != null) {
-            if (closeFuture.isDone() == false) {
+            if (!closeFuture.isDone()) {
                 closeFuture.cancel(true);
             }
 

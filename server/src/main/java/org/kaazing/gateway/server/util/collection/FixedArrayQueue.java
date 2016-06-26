@@ -24,6 +24,8 @@ import java.util.Queue;
  * This is a fixed size array-based queue. It's a non-concurrent version of OneToOneConcurrentArrayQueue from the Nov-2013 lock
  * free training course, altered to enforce the initially specified capacity (see offer) and use long head and tail instead of
  * AtomicLong.
+ * 
+ * @param <E>
  */
 public class FixedArrayQueue<E> implements Queue<E> {
     private final int limit;
@@ -136,7 +138,7 @@ public class FixedArrayQueue<E> implements Queue<E> {
             return false;
         }
 
-        for (long i = head, limit = tail; i < limit; i++) {
+        for (long i = head, max = tail; i < max; i++) {
             final E e = buffer[(int) i & mask];
             if (o.equals(e)) {
                 return true;

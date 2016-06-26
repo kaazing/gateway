@@ -39,6 +39,10 @@ public class SseDecodingState extends DecodingStateMachine {
     private static final CharsetDecoder UTF_8_DECODER = UTF_8.newDecoder();
     private static final byte LINEFEED_BYTE = "\n".getBytes(UTF_8)[0];
 
+    SseDecodingState(IoBufferAllocatorEx<?> allocator) {
+        super(allocator);
+    }
+    
     private enum Type {
         UNKNOWN, EVENT, DATA, ID, RETRY, COMMENT
     }
@@ -199,10 +203,6 @@ public class SseDecodingState extends DecodingStateMachine {
             return AFTER_READ_FIELD_VALUE;
         }
     };
-
-    SseDecodingState(IoBufferAllocatorEx<?> allocator) {
-        super(allocator);
-    }
 
     @Override
     protected DecodingState init() throws Exception {

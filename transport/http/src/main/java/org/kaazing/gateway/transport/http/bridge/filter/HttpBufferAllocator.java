@@ -42,7 +42,8 @@ public final class HttpBufferAllocator extends AbstractIoBufferAllocatorEx<HttpB
             ByteBuffer buf = parent.allocate(frameOffset + capacity + framePadding, flags);
             buf.position(buf.position() + frameOffset);
             buf.limit(buf.position() + capacity);
-            assert (buf.remaining() == capacity);
+            boolean capacityLeft = buf.remaining() == capacity;
+            assert capacityLeft;
             return buf;
         }
         else {

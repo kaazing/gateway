@@ -66,8 +66,10 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
         Collection<String> acceptURIs = serviceContext.getAccepts();
         Collection<String> connectURIs = serviceContext.getConnects();
 
-        assert acceptURIs.size() == 1;
-        assert connectURIs.size() == 1;
+        boolean acceptSize = acceptURIs.size() == 1;
+        assert acceptSize;
+        boolean connectSize = connectURIs.size() == 1;
+        assert connectSize;
 
         String acceptURI = acceptURIs.iterator().next();
         String connectURI = connectURIs.iterator().next();

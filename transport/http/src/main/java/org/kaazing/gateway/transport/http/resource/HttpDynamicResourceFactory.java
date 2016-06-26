@@ -26,6 +26,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public abstract class HttpDynamicResourceFactory {
+	
+	private HttpDynamicResourceFactory() {
+        // utility only, no instances
+    }
 
     public static HttpDynamicResourceFactory newHttpDynamicResourceFactory() {
         return newHttpDynamicResourceFactory(currentThread().getContextClassLoader());
@@ -54,10 +58,6 @@ public abstract class HttpDynamicResourceFactory {
     
     public abstract HttpDynamicResource newHttpDynamicResource(String resourceName);
 
-    private HttpDynamicResourceFactory() {
-        // utility only, no instances
-    }
-
     private static ServiceLoader<HttpDynamicResourceFactorySpi> loadHttpDynamicResourceFactorySpi(ClassLoader classLoader) {
         Class<HttpDynamicResourceFactorySpi> service = HttpDynamicResourceFactorySpi.class;
         return (classLoader != null) ? ServiceLoader.load(service, classLoader) : ServiceLoader.load(service);
@@ -66,6 +66,10 @@ public abstract class HttpDynamicResourceFactory {
     private static final class HttpDynamicResourceFactoryImpl extends HttpDynamicResourceFactory {
         
         private final Map<String, HttpDynamicResourceFactorySpi> dynamicResourceFactories;
+        
+        private HttpDynamicResourceFactoryImpl(Map<String, HttpDynamicResourceFactorySpi> dynamicResourceFactories) {
+            this.dynamicResourceFactories = unmodifiableMap(dynamicResourceFactories);
+        }
         
         @Override
         public Collection<String> getResourceNames() {
@@ -76,10 +80,6 @@ public abstract class HttpDynamicResourceFactory {
         public HttpDynamicResource newHttpDynamicResource(String resourceName) {
             HttpDynamicResourceFactorySpi dynamicResourceFactory = findDynamicResourceFactorySpi(resourceName);
             return dynamicResourceFactory.newDynamicResource(resourceName);
-        }
-        
-        private HttpDynamicResourceFactoryImpl(Map<String, HttpDynamicResourceFactorySpi> dynamicResourceFactories) {
-            this.dynamicResourceFactories = unmodifiableMap(dynamicResourceFactories);
         }
 
         private HttpDynamicResourceFactorySpi findDynamicResourceFactorySpi(String resourceName) {

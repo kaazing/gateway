@@ -16,9 +16,9 @@
 package org.kaazing.gateway.transport.bio;
 
 import static java.lang.String.format;
-import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
+import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.BridgeSession.NEXT_PROTOCOL_KEY;
 import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
@@ -59,6 +59,11 @@ import org.kaazing.mina.core.future.UnbindFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * TODO Add class documentation
+ * 
+ * @param <T> SocketAddress type
+ */
 public abstract class AbstractBioAcceptor<T extends SocketAddress> implements BridgeAcceptor {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBioAcceptor.class);
@@ -135,7 +140,7 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
                 ResourceOptions candidateOptions = ResourceOptions.FACTORY.newResourceOptions(boundAddress);
                 String nextProtocol = NEXT_PROTOCOL_KEY.get(session);
                 candidateOptions.setOption(NEXT_PROTOCOL, nextProtocol);
-                candidateOptions.setOption(TRANSPORT, LOCAL_ADDRESS.get(session));
+                candidateOptions.setOption(TRANSPORT_OPTION, LOCAL_ADDRESS.get(session));
                 ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(candidateURI, candidateOptions);
 
                 Binding binding = bindings.getBinding(candidateAddress);
@@ -242,6 +247,8 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
     @Override
     public void bind(ResourceAddress address, IoHandler handler, BridgeSessionInitializer<? extends IoFuture> initializer) {
 
+    	ResourceAddress bindAddress = address;
+    	
         if (!started.get()) {
             synchronized (started) {
                 if (!started.get()) {
@@ -253,24 +260,24 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
 
         ResourceAddress failedAddress = null;
 
-        while (address != null) {
+        while (bindAddress != null) {
 
-            URI resource =  address.getResource();
+            URI resource =  bindAddress.getResource();
             T socketAddress = socketAddressFactory.createSocketAddress(address);
             
-            ResourceAddress transport = address.getTransport();
+            ResourceAddress transport = bindAddress.getTransport();
             if (transport != null) {
-                BridgeAcceptor acceptor = bridgeServiceFactory.newBridgeAcceptor(transport);
-                acceptor.bind(transport, handler, initializer);
+                BridgeAcceptor bridge = bridgeServiceFactory.newBridgeAcceptor(transport);
+                bridge.bind(transport, handler, initializer);
             }
             else {
-                NextProtocolBinding nextBinding = bindings.getProtocolBinding(address);
-                boolean needsAcceptorBind = (nextBinding == null);
+                NextProtocolBinding nextBinding = bindings.getProtocolBinding(bindAddress);
+                boolean needsAcceptorBind = nextBinding == null;
 
-                Binding newBinding = new Binding(address, handler, initializer);
+                Binding newBinding = new Binding(bindAddress, handler, initializer);
                 Binding binding = bindings.addBinding(newBinding);
                 if (binding != null) {
-                    failedAddress = address;
+                    failedAddress = bindAddress;
                 }
 
                 if (needsAcceptorBind) {
@@ -281,17 +288,17 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
                     catch (IOException e) {
                         String error = "Unable to bind to resource: " + resource
                                 + " cause: " + e.getMessage();
-                        LOG.error(error);
+                        LOG.error(error, e);
                         throw new RuntimeException(error);
                     }
                 }
             }
             
-            address = address.getOption(ALTERNATE);
+            bindAddress = bindAddress.getOption(ALTERNATE_OPTION);
         }
         
         if (failedAddress != null) {
-            throw new BioBindException("Address already bound to different handlers, error in the configuration: "+failedAddress+" address: "+address,
+            throw new BioBindException("Address already bound to different handlers, error in the configuration: "+failedAddress+" address: "+bindAddress,
                     Collections.singletonList(failedAddress));
         }
     }
@@ -299,9 +306,10 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
     @Override
     public UnbindFuture unbind(ResourceAddress address) {
         UnbindFuture unbindFuture = DefaultUnbindFuture.succeededFuture();
+        ResourceAddress unbindAddress = address;
 
-        while (address != null) {
-            ResourceAddress transport = address.getTransport();
+        while (unbindAddress != null) {
+            ResourceAddress transport = unbindAddress.getTransport();
             if (transport != null) {
                 BridgeAcceptor bridgeAcceptor = bridgeServiceFactory.newBridgeAcceptor(transport);
                 UnbindFuture newUnbindFuture = bridgeAcceptor.unbind(transport);
@@ -311,9 +319,9 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
                     // note: [Tcp,Udp]ResourceAddressFactorySpi resolves bind option (then network context) already
         
                     // ref count this binding so we don't unbind until every acceptor is unbound
-                    Binding binding = bindings.getBinding(address);
+                    Binding binding = bindings.getBinding(unbindAddress);
                     if (binding != null) {
-                        boolean removed = bindings.removeBinding(address, binding);
+                        boolean removed = bindings.removeBinding(unbindAddress, binding);
                         if (removed) {
                             ResourceAddress bindAddress = binding.bindAddress();
                             T socketAddress = socketAddressFactory.createSocketAddress(bindAddress);
@@ -324,11 +332,11 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
         //                debugBindings(address);
         //            }
                 } catch (RuntimeException e) {
-                    LOG.error("Error while unbinding "+address, e);
+                    LOG.error("Error while unbinding "+unbindAddress, e);
                 }
             }
             
-            address = address.getOption(ALTERNATE);
+            unbindAddress = unbindAddress.getOption(ALTERNATE_OPTION);
         }
         return unbindFuture; // acceptor.unbind is synchronous since acceptor is not a BridgeAcceptor
     }

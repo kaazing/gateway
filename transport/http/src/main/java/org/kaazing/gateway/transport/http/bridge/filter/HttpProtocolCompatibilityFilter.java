@@ -192,10 +192,9 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
             }
         }
 
-        if (deferOriginSecurityToHttpxe(session, httpRequest)) {
-            if (session.getFilterChain().contains(HttpAcceptFilter.ORIGIN_SECURITY.filterName())) {
-                session.getFilterChain().remove(HttpAcceptFilter.ORIGIN_SECURITY.filterName());
-            }
+        if (deferOriginSecurityToHttpxe(session, httpRequest) && 
+        	session.getFilterChain().contains(HttpAcceptFilter.ORIGIN_SECURITY.filterName())) {
+           	session.getFilterChain().remove(HttpAcceptFilter.ORIGIN_SECURITY.filterName());
         }
 
         if (HttpConditionalWrappedResponseFilter.conditionallyWrappedResponsesRequired(session)) {
@@ -321,12 +320,10 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                 }
             }
 
-            if (isApiPath(path)) {
-                if (httpRequest.getHeader(HttpHeaders.HEADER_X_ORIGIN) != null) {
-                    // Remove operation filter at http layer so that request will flow to httpxe layer
-                    session.getFilterChain().remove(HttpAcceptFilter.OPERATION.filter());
-                    httpRequest.setHeader(HEADER_X_NEXT_PROTOCOL, PROTOCOL_HTTPXE_1_1);
-                }
+            if (isApiPath(path) && httpRequest.getHeader(HttpHeaders.HEADER_X_ORIGIN) != null) {
+                // Remove operation filter at http layer so that request will flow to httpxe layer
+                session.getFilterChain().remove(HttpAcceptFilter.OPERATION.filter());
+                httpRequest.setHeader(HEADER_X_NEXT_PROTOCOL, PROTOCOL_HTTPXE_1_1);	
             }
         }
 
@@ -713,20 +710,22 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                 // take care to add headers (not trample them) from the
                 // httpResponse to this session to flatten this session
                 if (remainingHttpxeLevelHeaders != null) {
-                    for (String headerName: remainingHttpxeLevelHeaders.keySet()) {
-                        List<String> values = remainingHttpxeLevelHeaders.get(headerName);
-                        if ( values != null ) {
+                	for (Map.Entry<String, List<String>> entry : remainingHttpxeLevelHeaders.entrySet()) {
+                		String headerName = entry.getKey();
+                		List<String> values = entry.getValue();
+                		if ( values != null ) {
                             for ( String value: values) {
                                 httpSession.addWriteHeader(headerName,value);
                             }
                         }
-                    }
+                	}
 
                     // remove duplicate vlaues if they exist
                     Map<String, List<String>> writeHeaders = httpSession.getWriteHeaders();
-                    for (String headerName: writeHeaders.keySet()) {
-                        List<String> possiblyDuplicateStrings = writeHeaders.get(headerName);
-                        if ( possiblyDuplicateStrings != null ) {
+                    for (Map.Entry<String, List<String>> entry : writeHeaders.entrySet()) {
+                    	String headerName = entry.getKey();
+                    	List<String> possiblyDuplicateStrings = entry.getValue();
+                    	if ( possiblyDuplicateStrings != null ) {
                             List<String> values = new ArrayList<>(new HashSet<>(possiblyDuplicateStrings));
                             writeHeaders.put(headerName, values);
                         }
@@ -758,12 +757,10 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                 IoBufferAllocatorEx<?> allocator = httpSession.getBufferAllocator();
 
                 IoBufferEx oldBuffer = httpResponse.getCache().putIfAbsent("httpxe/1.1", allocator.wrap(allocator.allocate(0)));
-                if (oldBuffer != null) {
-                    if (logger.isDebugEnabled()) {
-                        String msgFormat = "Unexpected existing buffer associated with old websocket "
-                        +"emulated create response: '%s'";
-                        logger.warn(format(msgFormat, oldBuffer));
-                    }
+                if (oldBuffer != null && logger.isDebugEnabled()) {
+                    String msgFormat = "Unexpected existing buffer associated with old websocket "
+                    +"emulated create response: '%s'";
+                    logger.warn(format(msgFormat, oldBuffer));
                 }
             }
             super.filterWriteHttpResponse(nextFilter, session, writeRequest, httpResponse);
@@ -785,8 +782,8 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
 
         // detect old connectors
         boolean hasNextProtocolDefined =
-                (null != httpSession.getReadHeader("X-Next-Protocol") ||
-                 null != httpSession.getParameter(".knp"));
+                 null != httpSession.getReadHeader("X-Next-Protocol") ||
+                 null != httpSession.getParameter(".knp");
 
         return hasOld3xClientVersionParam || hasOld3xBalancerRequestParameter || !hasNextProtocolDefined;
     }
@@ -795,8 +792,8 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
         boolean hasOld3xClientVersionParam = "10.05".equals(httpRequest.getParameter(".kv"));
         boolean hasOld3xBalancerRequestParameter = httpRequest.getParameter(".kl") != null;
         boolean hasNextProtocolDefined =
-                (null != httpRequest.getHeader("X-Next-Protocol") ||
-                        null != httpRequest.getParameter(".knp"));
+                null != httpRequest.getHeader("X-Next-Protocol") ||
+                        null != httpRequest.getParameter(".knp");
 
         return hasOld3xClientVersionParam || hasOld3xBalancerRequestParameter || !hasNextProtocolDefined;
     }

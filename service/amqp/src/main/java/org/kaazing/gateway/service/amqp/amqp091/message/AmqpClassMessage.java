@@ -17,6 +17,9 @@ package org.kaazing.gateway.service.amqp.amqp091.message;
 
 import org.kaazing.gateway.service.amqp.amqp091.AmqpFrame;
 
+/**
+ * TODO Add class documentation
+ */
 public abstract class AmqpClassMessage extends AmqpMessage {
     public static final short FRAME_END = 206; // 0xce
 

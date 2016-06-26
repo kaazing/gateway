@@ -113,17 +113,17 @@ public class HttpRequestMessage extends HttpStartMessage {
 	}
 
 	public void clearParameters() {
-		Map<String, List<String>> parameters = getParameters(false);
-		if (parameters != null) {
-			parameters.clear();
+		Map<String, List<String>> parametersMap = getParameters(false);
+		if (parametersMap != null) {
+			parametersMap.clear();
 			queryUpdate = QueryUpdate.ENCODE;
 		}
 	}
 
 	public String removeParameter(String parameterName) {
-		Map<String, List<String>> parameters = getParameters(false);
-		if (parameters != null) {
-			List<String> parameterValues = parameters.remove(parameterName);
+		Map<String, List<String>> parametersMap = getParameters(false);
+		if (parametersMap != null) {
+			List<String> parameterValues = parametersMap.remove(parameterName);
 			if (parameterValues != null && !parameterValues.isEmpty()) {
 				queryUpdate = QueryUpdate.ENCODE;
 				return parameterValues.get(0);
@@ -145,23 +145,23 @@ public class HttpRequestMessage extends HttpStartMessage {
 	}
 
 	public void setParameters(Map<String, List<String>> newParameters) {
-		Map<String, List<String>> parameters = getParameters(true);
-		parameters.clear();
-		parameters.putAll(newParameters);
+		Map<String, List<String>> parametersMap = getParameters(true);
+		parametersMap.clear();
+		parametersMap.putAll(newParameters);
 	}
 
 	public Map<String, List<String>> getParameters() {
-		Map<String, List<String>> parameters = getParameters(false);
-		return (parameters != null && !parameters.isEmpty()) ? Collections.unmodifiableMap(parameters) : EMPTY_PARAMETERS;
+		Map<String, List<String>> parametersMap = getParameters(false);
+		return (parametersMap != null && !parametersMap.isEmpty()) ? Collections.unmodifiableMap(parametersMap) : EMPTY_PARAMETERS;
 	}
 
 	public void setRequestURI(URI requestURI) {
 		this.requestURI = requestURI;
 
 		// clear existing parameters
-		Map<String, List<String>> parameters = getParameters(false);
-		if (parameters != null) {
-			parameters.clear();
+		Map<String, List<String>> parametersMap = getParameters(false);
+		if (parametersMap != null) {
+			parametersMap.clear();
 		}
 
 		// schedule query decode if necessary
@@ -175,15 +175,15 @@ public class HttpRequestMessage extends HttpStartMessage {
 		if (queryUpdate == QueryUpdate.ENCODE) {
 			queryUpdate = null;
 
-			Map<String, List<String>> parameters = getParameters(false);
-			if (parameters != null && !parameters.isEmpty()) {
+			Map<String, List<String>> parametersMap = getParameters(false);
+			if (parametersMap != null && !parametersMap.isEmpty()) {
 				StringBuilder sb = new StringBuilder();
 				if (requestURI != null) {
 					sb.append(requestURI.getPath());
 				}
 				sb.append('?');
 				int baseSize = sb.length();
-				for (Map.Entry<String, List<String>> entry : parameters.entrySet()) {
+				for (Map.Entry<String, List<String>> entry : parametersMap.entrySet()) {
 					String parameterName = entry.getKey();
 					List<String> parameterValues = entry.getValue();
 					if (parameterValues != null) {
@@ -230,12 +230,12 @@ public class HttpRequestMessage extends HttpStartMessage {
 
     @Override
     public String toString() {
-        return String.format("%s: %s %s %s %s %s", getKind(), getVersion(), getMethod(), getRequestURI(), getContent(), (isComplete() ? "" : " [...]"));
+        return String.format("%s: %s %s %s %s %s", getKind(), getVersion(), getMethod(), getRequestURI(), getContent(), isComplete() ? "" : " [...]");
     }
 
     @Override
     public String toVerboseString() {
-        return String.format("%s: %s %s %s HEADERS: %s %s %s", getKind(), getVersion(), getMethod(), getRequestURI(), getHeaders(), getContent(), (isComplete() ? "" : " [...]"));
+        return String.format("%s: %s %s %s HEADERS: %s %s %s", getKind(), getVersion(), getMethod(), getRequestURI(), getHeaders(), getContent(), isComplete() ? "" : " [...]");
     }
 
     @Override
@@ -273,6 +273,10 @@ public class HttpRequestMessage extends HttpStartMessage {
 
     protected boolean equals(HttpRequestMessage that) {
 
+    	if (that == null) {
+    		return false;
+    	}
+    	
         // canonicalize requestURI and query parameters
         if (this.queryUpdate != null) {
             this.getRequestURI();
@@ -284,11 +288,11 @@ public class HttpRequestMessage extends HttpStartMessage {
             that.getParameters();
         }
 
-        return (super.equals(that) &&
-                this.secure == that.secure &&
-                sameOrEquals(this.method, that.method) &&
-                sameOrEquals(this.requestURI, that.requestURI) &&
-                sameOrEquals(this.parameters, that.parameters));
+        return super.equals(that) &&
+               this.secure == that.secure &&
+               sameOrEquals(this.method, that.method) &&
+               sameOrEquals(this.requestURI, that.requestURI) &&
+               sameOrEquals(this.parameters, that.parameters);
     }
 
 	@Override
@@ -339,14 +343,14 @@ public class HttpRequestMessage extends HttpStartMessage {
 	}
 
 	private List<String> getParameterValues(String parameterName, boolean createIfNull) {
-		Map<String, List<String>> parameters = getParameters(createIfNull);
-		if (parameters == null) {
-			return null;
+		Map<String, List<String>> parametersMap = getParameters(createIfNull);
+		if (parametersMap == null) {
+			return Collections.emptyList();
 		}
-		List<String> parameterValues = parameters.get(parameterName);
+		List<String> parameterValues = parametersMap.get(parameterName);
 		if (parameterValues == null && createIfNull) {
 			parameterValues = new ArrayList<>();
-			parameters.put(parameterName, parameterValues);
+			parametersMap.put(parameterName, parameterValues);
 		}
 		return parameterValues;
 	}

@@ -48,6 +48,9 @@ import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * TODO Add class documentation
+ */
 public class DefaultAcceptOptionsContext extends DefaultOptionsContext implements AcceptOptionsContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultAcceptOptionsContext.class);
 
@@ -73,23 +76,23 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
     }
 
     public DefaultAcceptOptionsContext(ServiceAcceptOptionsType acceptOptions, ServiceAcceptOptionsType defaultOptions) {
-        Map<String, String> options = parseAcceptOptionsType(acceptOptions);
+        Map<String, String> optionMap = parseAcceptOptionsType(acceptOptions);
         parseAcceptOptionsType(defaultOptions).entrySet()
                 .stream()
-                .forEach(e -> options.putIfAbsent(e.getKey(), e.getValue()));
+                .forEach(e -> optionMap.putIfAbsent(e.getKey(), e.getValue()));
 
         this.binds = new HashMap<>();
 
         // process the binds specially to be referenced by scheme rather than
         // the <protocol>.bind key in the options map
-        addBind("ws", options.remove("ws.bind"));
-        addBind("wss", options.remove("wss.bind"));
-        addBind("http", options.remove("http.bind"));
-        addBind("https", options.remove("https.bind"));
-        addBind("ssl", options.remove("ssl.bind"));
-        addBind("tcp", options.remove("tcp.bind"));
+        addBind("ws", optionMap.remove("ws.bind"));
+        addBind("wss", optionMap.remove("wss.bind"));
+        addBind("http", optionMap.remove("http.bind"));
+        addBind("https", optionMap.remove("https.bind"));
+        addBind("ssl", optionMap.remove("ssl.bind"));
+        addBind("tcp", optionMap.remove("tcp.bind"));
 
-        this.options = Collections.unmodifiableMap(options);
+        this.options = Collections.unmodifiableMap(optionMap);
     }
 
     @Override

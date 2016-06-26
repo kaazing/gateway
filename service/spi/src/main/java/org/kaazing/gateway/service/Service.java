@@ -28,6 +28,7 @@ public interface Service {
     /**
      * Initializes the service.
      * 
+     * @param serviceContext
      * @throws Exception
      */
     void init(ServiceContext serviceContext) throws Exception;

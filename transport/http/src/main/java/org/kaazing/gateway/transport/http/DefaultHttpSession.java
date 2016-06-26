@@ -64,6 +64,9 @@ import org.kaazing.mina.core.service.IoServiceEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 
 // TODO: change to just support cookie list and internal differential for write
+/**
+ * TODO Add class documentation
+ */
 public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession, HttpBuffer> implements HttpAcceptSession, HttpConnectSession {
 
     private static final String DEFAULT_CACHE_KEY = "http";
@@ -188,6 +191,44 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         servicePath = null;
         pathInfo = null;
     }
+    
+ // TODO: need to change http session direction after read is complete
+    public DefaultHttpSession(IoServiceEx service,
+                              IoProcessorEx<DefaultHttpSession> processor,
+                              ResourceAddress address,
+                              ResourceAddress remoteAddress,
+                              IoSessionEx parent,
+                              IoBufferAllocatorEx<HttpBuffer> allocator,
+                              HttpRequestMessage request,
+                              URI serviceURI,
+                              Properties configuration) {
+        this(service, processor, address, remoteAddress, parent, allocator, Direction.READ, configuration);
+
+        // Never elevate the X-Next-Protocol header from HTTP request to the session.
+        // It will already be captured in this session's local address anyhow. (address.getOption(NEXT_PROTOCOL))
+        HttpUtils.excludeHeaders(request, new String[]{HttpHeaders.HEADER_X_NEXT_PROTOCOL});
+
+        readHeaders = request.getModifiableHeaders();
+        readCookies = request.getCookies();
+        version = request.getVersion();
+        method = request.getMethod();
+        requestURI = request.getRequestURI();
+        parameters = request.getParameters();
+
+        String host = request.getHeader("Host");
+        requestURL = URI.create((secure ? "https" : "http") + "://" + host + requestURI);
+
+        servicePath = URI.create(serviceURI.getPath());
+
+        URI relative = servicePath.relativize(requestURI);
+        String relativePath = relative.getPath();
+        if (relativePath != null && !relativePath.isEmpty()) {
+            pathInfo = relativePath.startsWith("/")? relative : URI.create("/" + relative);
+        }
+        else {
+            pathInfo = relative;
+        }
+    }
 
     @Override
     public void setSubject(Subject subject) {
@@ -244,44 +285,6 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     }
     //--
 
-    // TODO: need to change http session direction after read is complete
-    public DefaultHttpSession(IoServiceEx service,
-                              IoProcessorEx<DefaultHttpSession> processor,
-                              ResourceAddress address,
-                              ResourceAddress remoteAddress,
-                              IoSessionEx parent,
-                              IoBufferAllocatorEx<HttpBuffer> allocator,
-                              HttpRequestMessage request,
-                              URI serviceURI,
-                              Properties configuration) {
-        this(service, processor, address, remoteAddress, parent, allocator, Direction.READ, configuration);
-
-        // Never elevate the X-Next-Protocol header from HTTP request to the session.
-        // It will already be captured in this session's local address anyhow. (address.getOption(NEXT_PROTOCOL))
-        HttpUtils.excludeHeaders(request, new String[]{HttpHeaders.HEADER_X_NEXT_PROTOCOL});
-
-        readHeaders = request.getModifiableHeaders();
-        readCookies = request.getCookies();
-        version = request.getVersion();
-        method = request.getMethod();
-        requestURI = request.getRequestURI();
-        parameters = request.getParameters();
-
-        String host = request.getHeader("Host");
-        requestURL = URI.create((secure ? "https" : "http") + "://" + host + requestURI);
-
-        servicePath = URI.create(serviceURI.getPath());
-
-        URI relative = servicePath.relativize(requestURI);
-        String relativePath = relative.getPath();
-        if (relativePath != null && !relativePath.isEmpty()) {
-            pathInfo = relativePath.startsWith("/")? relative : URI.create("/" + relative);
-        }
-        else {
-            pathInfo = relative;
-        }
-    }
-
     @Override
     public HttpVersion getVersion() {
         return version;
@@ -300,7 +303,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     @Override
     public String getReadHeader(String name) {
         List<String> header = readHeaders.get(name);
-        if (header != null && header.size() > 0) {
+        if (header != null && !header.isEmpty()) {
             return header.get(0);
         }
         return null;
@@ -309,10 +312,10 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     @Override
     public List<String> getReadHeaders(String name) {
         List<String> header = readHeaders.get(name);
-        if (header != null && header.size() > 0) {
+        if (header != null && !header.isEmpty()) {
             return Collections.unmodifiableList(header);
         }
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -328,7 +331,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 	@Override
     public String getWriteHeader(String name) {
         List<String> header = writeHeaders.get(name);
-        if (header != null && header.size() > 0) {
+        if (header != null && !header.isEmpty()) {
             return header.get(0);
         }
         return null;
@@ -337,10 +340,10 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     @Override
     public List<String> getWriteHeaders(String name) {
         List<String> header = writeHeaders.get(name);
-        if (header != null && header.size() > 0) {
+        if (header != null && !header.isEmpty()) {
             return header;
         }
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -436,7 +439,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     @Override
     public String getParameter(String name) {
         List<String> parameter = parameters.get(name);
-        if (parameter != null && parameter.size() > 0) {
+        if (parameter != null && !parameter.isEmpty()) {
             return parameter.get(0);
         }
         return null;
@@ -445,10 +448,10 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     @Override
     public List<String> getParameterValues(String name) {
         List<String> parameter = parameters.get(name);
-        if (parameter != null && parameter.size() > 0) {
+        if (parameter != null && !parameter.isEmpty()) {
             return Collections.unmodifiableList(parameter);
         }
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

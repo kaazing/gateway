@@ -31,7 +31,8 @@ public class UpdateCheckServiceManagementBean extends DefaultServiceManagementBe
 
         final ManagementUpdateCheck updateCheckListener = gatewayManagementBean.getUpdateCheck();
         if (updateCheckListener != null) {
-            assert (serviceContext.getServiceType().equals("update.check"));
+        	boolean serviceType = ("update.check").equals(serviceContext.getServiceType());
+            assert serviceType;
             Map<String, Object> serviceSpecificObjects = serviceContext.getServiceSpecificObjects();
             serviceSpecificObjects.put(MANAGEMENT_UPDATE_CHECK_LISTENER, updateCheckListener);
         }

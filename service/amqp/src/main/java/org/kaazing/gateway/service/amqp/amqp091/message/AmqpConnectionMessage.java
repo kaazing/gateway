@@ -17,6 +17,9 @@ package org.kaazing.gateway.service.amqp.amqp091.message;
 
 import org.kaazing.gateway.service.amqp.amqp091.AmqpFrame;
 
+/**
+ * TODO Add class documentation
+ */
 public abstract class AmqpConnectionMessage extends AmqpClassMessage {
     /*
     public static final int CONNECTION_START     = 10;

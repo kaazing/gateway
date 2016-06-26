@@ -116,11 +116,7 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
                 LOGGER.debug("\"" + status + " " + httpResponse.getReason() + " " + version + "\"");
             }
 
-            if (status == HttpStatus.REDIRECT_NOT_MODIFIED) {
-                httpResponse.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), true));
-                out.write(httpResponse);
-                return null;
-            } else if (httpSession != null && httpSession.getMethod() == HttpMethod.HEAD) {
+            if (status == HttpStatus.REDIRECT_NOT_MODIFIED || (httpSession != null && httpSession.getMethod() == HttpMethod.HEAD)) {
                 httpResponse.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), true));
                 out.write(httpResponse);
                 return null;

@@ -26,17 +26,17 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
+import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.BIND_ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.CODEC_REQUIRED;
-import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS;
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS_OPTION;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
-import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT_OPTION;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.MAX_MESSAGE_SIZE;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.REQUIRED_PROTOCOLS;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.SUPPORTED_PROTOCOLS;
@@ -109,10 +109,10 @@ public class WsResourceAddressFactorySpiTest {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI);
         assertNull(address.getOption(NEXT_PROTOCOL));
         assertNull(address.getOption(QUALIFIER));
-        assertNull(address.getOption(TRANSPORT)); // we defined a transportFactory now.
+        assertNull(address.getOption(TRANSPORT_OPTION)); // we defined a transportFactory now.
         assertTrue(address.getOption(CODEC_REQUIRED));
-        assertFalse(address.getOption(LIGHTWEIGHT));
-        assertEmpty(address.getOption(EXTENSIONS));
+        assertFalse(address.getOption(LIGHTWEIGHT_OPTION));
+        assertEmpty(address.getOption(EXTENSIONS_OPTION));
         assertEquals(0, address.getOption(MAX_MESSAGE_SIZE).intValue());
         assertEquals(0L, address.getOption(INACTIVITY_TIMEOUT).longValue());
         assertEmpty(address.getOption(SUPPORTED_PROTOCOLS));
@@ -124,10 +124,10 @@ public class WsResourceAddressFactorySpiTest {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI, options);
         assertEquals("custom", address.getOption(NEXT_PROTOCOL));
         assertEquals("random", address.getOption(QUALIFIER));
-        assertNull(address.getOption(TRANSPORT)); // we defined a transportFactory now.
+        assertNull(address.getOption(TRANSPORT_OPTION)); // we defined a transportFactory now.
         assertFalse(address.getOption(CODEC_REQUIRED));
-        assertTrue(address.getOption(LIGHTWEIGHT));
-        assertEquals(asList("x-kaazing-alpha", "x-kaazing-beta"), address.getOption(EXTENSIONS));
+        assertTrue(address.getOption(LIGHTWEIGHT_OPTION));
+        assertEquals(asList("x-kaazing-alpha", "x-kaazing-beta"), address.getOption(EXTENSIONS_OPTION));
         assertEquals(1024, address.getOption(MAX_MESSAGE_SIZE).intValue());
         assertEquals(SECONDS.toMillis(5), address.getOption(INACTIVITY_TIMEOUT).longValue());
         assertArrayEquals(new String[] { "amqp/0.91", "amqp/1.0" }, address.getOption(SUPPORTED_PROTOCOLS));
@@ -166,16 +166,16 @@ public class WsResourceAddressFactorySpiTest {
         ResourceAddressFactory addressFactory = newResourceAddressFactory();
         ResourceAddress address = addressFactory.newResourceAddress(addressURI);
 
-        ResourceAddress wse = address.getOption(ALTERNATE);
+        ResourceAddress wse = address.getOption(ALTERNATE_OPTION);
         assertEquals("wse", URIUtils.getScheme(wse.getExternalURI()));
 
-        ResourceAddress wsx = wse.getOption(ALTERNATE);
+        ResourceAddress wsx = wse.getOption(ALTERNATE_OPTION);
         assertEquals("wsx", URIUtils.getScheme(wsx.getExternalURI()));
 
-        ResourceAddress wsdraft = wsx.getOption(ALTERNATE);
+        ResourceAddress wsdraft = wsx.getOption(ALTERNATE_OPTION);
         assertEquals("ws-draft", URIUtils.getScheme(wsdraft.getExternalURI()));
 
-        ResourceAddress wsxdraft = wsdraft.getOption(ALTERNATE);
+        ResourceAddress wsxdraft = wsdraft.getOption(ALTERNATE_OPTION);
         assertEquals("wsx-draft", URIUtils.getScheme(wsxdraft.getExternalURI()));
 
     }
@@ -184,7 +184,7 @@ public class WsResourceAddressFactorySpiTest {
     public void shouldCreateAddressWithCorrectAlternateAddresses() throws Exception {
         ResourceAddressFactory addressFactory = newResourceAddressFactory();
         ResourceAddress address = addressFactory.newResourceAddress(addressURI);
-        assertNotNull(address.getOption(ALTERNATE));
+        assertNotNull(address.getOption(ALTERNATE_OPTION));
         assertFalse(address.getOption(BIND_ALTERNATE));
 
         ResourceAddress cursor = address;
@@ -203,7 +203,7 @@ public class WsResourceAddressFactorySpiTest {
                 case 5: verifyExpectedAddress(cursor, "ws://localhost:2020/", 5, "ws/draft-7x"); break;
 
             }
-            cursor = cursor.getOption(ALTERNATE);
+            cursor = cursor.getOption(ALTERNATE_OPTION);
         }
 
         assertEquals(5, alternateCount);

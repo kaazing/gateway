@@ -51,11 +51,11 @@ public class SseSslResourceAddressFactorySpi extends SseResourceAddressFactorySp
                                       Map<String, Object> optionsByName) {
 
         // Creating alternate SseResourceAddres with httpxe+ssl tranport
-        location = SseHttpxeSslResourceAddressFactorySpi.SSE_HTTPXE_RESOURCE_FACTORY.createURI(location);
+        String newLocation = SseHttpxeSslResourceAddressFactorySpi.SSE_HTTPXE_RESOURCE_FACTORY.createURI(location);
         // copying optionsByName to so that the alternate address has its own to work with
         optionsByName = new HashMap<>(optionsByName);
-        ResourceAddress alternateAddress = getResourceAddressFactory().newResourceAddress(location, optionsByName);
-        options.setOption(ResourceAddress.ALTERNATE, alternateAddress);
+        ResourceAddress alternateAddress = getResourceAddressFactory().newResourceAddress(newLocation, optionsByName);
+        options.setOption(ResourceAddress.ALTERNATE_OPTION, alternateAddress);
     }
 
 }

@@ -19,6 +19,9 @@ import org.apache.mina.core.future.DefaultIoFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
 
+/**
+ * TODO Add class documentation
+ */
 public class DefaultCommitFuture extends DefaultIoFuture implements CommitFuture {
 
     public DefaultCommitFuture(IoSession session) {

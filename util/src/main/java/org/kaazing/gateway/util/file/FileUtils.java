@@ -29,6 +29,9 @@ public class FileUtils {
      * Given a File object, return the extension (portion after the final '.'), if any.
      * If no extension, returns null.  If the file parameter is null, returns null.
      * Does not check if the file actually exists or not.
+     * 
+     * @param file
+     * @return
      */
     public static String getFileExtension(File file) {
         if (file == null) {

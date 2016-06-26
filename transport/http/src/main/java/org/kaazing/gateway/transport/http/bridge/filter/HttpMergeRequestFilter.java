@@ -291,8 +291,9 @@ public class HttpMergeRequestFilter extends HttpFilterAdapter<IoSessionEx> {
         StringBuilder b = new StringBuilder();
         b.append(httpRequest.getRequestURI()).append('\n');
         final Map<String,List<String>> headers = httpRequest.getHeaders();
-        for ( String h: headers.keySet()) {
-            b.append(h).append(':').append(' ').append(headers.get(h)).append('\n');
+        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+        	String h = entry.getKey();
+        	b.append(h).append(':').append(' ').append(entry.getValue()).append('\n');
         }
         return b.toString();
     }

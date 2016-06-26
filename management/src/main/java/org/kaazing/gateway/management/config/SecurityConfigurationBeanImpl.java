@@ -110,12 +110,12 @@ public class SecurityConfigurationBeanImpl implements SecurityConfigurationBean 
                 }
                 Certificate cert = store.getCertificate(alias);
                 String type = null;
-                PublicKey publicKey = null;
-                if (cert != null) {
-                    type = cert.getType();
-                    publicKey = cert.getPublicKey();
-
-                }
+//                PublicKey publicKey = null;
+//                if (cert != null) {
+//                    type = cert.getType();
+//                    publicKey = cert.getPublicKey();
+//
+//                }
 
                 jsonObj = new JSONObject();
                 jsonObj.put("alias", alias);
@@ -183,7 +183,7 @@ public class SecurityConfigurationBeanImpl implements SecurityConfigurationBean 
      */
     private JSONArray getAlternativeNames(Collection<List<?>> alternativeNames) {
 
-        if (alternativeNames == null || alternativeNames.size() == 0) {
+        if (alternativeNames == null || alternativeNames.isEmpty()) {
             return null;
         }
 

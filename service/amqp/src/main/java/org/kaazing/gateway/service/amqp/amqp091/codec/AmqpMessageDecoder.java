@@ -56,6 +56,9 @@ import org.kaazing.mina.filter.codec.CumulativeProtocolDecoderEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * TODO Add class documentation
+ */
 public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
     private static final String CLASS_NAME = AmqpMessageDecoder.class.getName();
     private static final String SERVICE_AMQP_PROXY_LOGGER = "service.amqp.proxy";
@@ -259,7 +262,7 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
         
         switch (classKind) {
             case CONNECTION:
-                assert(frameKind == AmqpFrame.METHOD);
+                assert frameKind == AmqpFrame.METHOD;
                 message = decodeConnection(session, in);
                 message.setChannelId(channelId);
                 break;
@@ -689,18 +692,15 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
     }
     
     public static int getUnsignedShort(IoBufferEx buffer) {
-        int val = (buffer.getShort() & 0xffff);
-        return val;
+     	return buffer.getShort() & 0xffff;
     }
     
     private static long getUnsignedInt(IoBufferEx buffer) {
-        long val = buffer.getInt() & 0xffffffffL;
-        return val;
+        return buffer.getInt() & 0xffffffffL;
     }
 
     private static long getUnsignedInt(ByteBuffer buffer) {
-        long val = buffer.getInt() & 0xffffffffL;
-        return val;
+        return buffer.getInt() & 0xffffffffL;
     }
 
     // Gets an AMQP unsigned long.
@@ -770,8 +770,7 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
         {
             builder.append((char)(buffer.getUnsigned()));
         }
-        String s = builder.toString();
-        return s;
+        return builder.toString();
     }
 
     // Returns an AMQP long-string which is a string prefixed by a unsigned 
@@ -784,8 +783,7 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
         {
             builder.append((char)(buffer.get() & 0xff));
         }
-        String s = builder.toString();
-        return s;
+        return builder.toString();
     }
 
     // Returns an AMQP short-string which is a string prefixed by a unsigned
@@ -798,8 +796,7 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
         {
             builder.append((char)(buffer.getUnsigned()));
         }
-        String s = builder.toString();
-        return s;
+        return builder.toString();
     }
 
     // Returns an AMQP short-string which is a string prefixed by a unsigned
@@ -813,8 +810,7 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
         {
             builder.append((char)(buffer.get() & 0xff));
         }
-        String s = builder.toString();
-        return s;
+        return builder.toString();
     }
 
     private static AmqpType getType(IoBufferEx buffer) {
@@ -889,21 +885,15 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
                 value = buffer.getInt();
                 break;
             case UNSIGNEDINT:
-                value = getUnsignedInt(buffer);
-                break;
-            case UNSIGNEDSHORT:
-                value = getUnsignedShort(buffer);
-                break;
-            case UNSIGNED:                
-                value = buffer.getUnsigned();
-                break;
-            case SHORT:
-                value = getUnsignedShort(buffer);
-                break;
             case LONG:
                 value = getUnsignedInt(buffer);
                 break;
-            case OCTET:                
+            case UNSIGNEDSHORT:
+            case SHORT:
+                value = getUnsignedShort(buffer);
+                break;
+            case UNSIGNED:
+            case OCTET:
                 value = buffer.getUnsigned();
                 break;
             case LONGLONG:

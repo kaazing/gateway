@@ -92,7 +92,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
     protected boolean alreadyLoggedIn(IoSession session, ResourceAddress address) {
 
         Collection<String> requiredRoles = asList(address.getOption(HttpResourceAddress.REQUIRED_ROLES));
-        if  (requiredRoles == null || requiredRoles.size() == 0) {
+        if  (requiredRoles == null || requiredRoles.isEmpty()) {
             return true;
         }
         Subject subject = ((IoSessionEx)session).getSubject();
@@ -181,13 +181,11 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         } catch (LoginException le) {
             // Depending on the login modules configured, this could be
             // a very normal condition.
-            if (loggerEnabled()) {
-
-                // Ignore the common "all modules ignored case", it just gums
-                // up the logs whilst adding no value.
-                if (!le.getMessage().contains("all modules ignored")) {
-                    log("Login failed: " + le.getMessage(), le);
-                }
+        	
+        	// Ignore the common "all modules ignored case", it just gums
+            // up the logs whilst adding no value.
+            if (loggerEnabled() && !le.getMessage().contains("all modules ignored")) {
+                log("Login failed: " + le.getMessage(), le);
             }
 
             if (loginContext == null) {
@@ -291,8 +289,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         // - not all required roles (if any) are present
         //
         // Issue a challenge since authentication is required.
-        if (authTokenIsMissing(authToken) &&
-            rolesAreSufficient == false) {
+        if (authTokenIsMissing(authToken) && !rolesAreSufficient) {
             return loginMissingToken(nextFilter, session, httpRequest, authToken, additionalCallbacks);
         }
 

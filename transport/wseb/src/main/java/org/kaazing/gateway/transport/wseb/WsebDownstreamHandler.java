@@ -227,7 +227,7 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         }
 
         // set the content type header
-        String contentType = this.contentType;
+        String contentTypeHeader = this.contentType;
 
         // look for content type override
         String contentTypeOverride = session.getParameter(".kc");
@@ -235,11 +235,11 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
             if (contentTypeOverride.indexOf(';') == -1) {
                 contentTypeOverride += ";charset=UTF-8";
             }
-            contentType = contentTypeOverride;
+            contentTypeHeader = contentTypeOverride;
         }
 
         session.setWriteHeader("X-Content-Type-Options", "nosniff");
-        session.setWriteHeader(HEADER_CONTENT_TYPE, contentType);
+        session.setWriteHeader(HEADER_CONTENT_TYPE, contentTypeHeader);
         session.setWriteHeader("X-Idle-Timeout", String.valueOf(wsebSession.getClientIdleTimeout()));
 
         // look for mime detection padding override

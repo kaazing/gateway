@@ -30,6 +30,11 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionConfigEx;
 
+/**
+ * TODO Add class documentation
+ * 
+ * @param <S>
+ */
 public abstract class AbstractBridgeConnector<S extends AbstractBridgeSession<?, ?>> extends AbstractBridgeService<S> implements BridgeConnector {
 
     protected final Logger logger;

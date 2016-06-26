@@ -22,6 +22,11 @@ import org.kaazing.gateway.transport.BridgeSession;
 
 public class SslUtils {
 
+	/**
+	 * @deprecated
+	 * @param session
+	 * @return
+	 */
     @Deprecated // this is only needed to determine external scheme, use ResourceAddress.getExternalURI() instead
 	public static boolean isSecure(IoSession session) {
         ResourceAddress address = BridgeSession.LOCAL_ADDRESS.get(session);

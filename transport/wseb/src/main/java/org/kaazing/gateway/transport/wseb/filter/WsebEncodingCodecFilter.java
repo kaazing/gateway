@@ -68,9 +68,8 @@ public class WsebEncodingCodecFilter extends ProtocolCodecFilter {
 
             switch (escapeType) {
             case ESCAPE_ZERO_AND_NEWLINES:
-                return new WsebFrameEscapeZeroAndNewLineEncoder(allocator);
             case ESCAPE_ZERO:
-                return new WsebFrameEscapeZeroAndNewLineEncoder(allocator);  // TODO: change to escape zero only later
+                return new WsebFrameEscapeZeroAndNewLineEncoder(allocator);
             default:
                 return new WsebFrameEncoder(allocator);
             }

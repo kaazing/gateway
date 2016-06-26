@@ -80,7 +80,7 @@ public class MulticastConnectorImpl extends AbstractIoConnectorEx {
 		}
 		
 		try {
-			assert (localAddress == null);
+			assert localAddress == null;
 
 			MulticastAddress remoteMulticastAddress = (MulticastAddress)remoteAddress;
 			Handle newHandle = new Handle(remoteMulticastAddress);

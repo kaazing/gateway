@@ -179,7 +179,7 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
 
         @Override
         protected boolean isTerminator(byte b) {
-            return (Character.isWhitespace(b));
+            return Character.isWhitespace(b);
         }
     };
 

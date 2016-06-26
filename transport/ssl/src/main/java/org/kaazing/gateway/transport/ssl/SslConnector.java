@@ -15,8 +15,8 @@
  */
 package org.kaazing.gateway.transport.ssl;
 
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.CIPHERS;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.CIPHERS_OPTION;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS_OPTION;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.ENCRYPTION_ENABLED;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.KEY_SELECTOR;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.NEED_CLIENT_AUTH;
@@ -170,19 +170,19 @@ public class SslConnector extends AbstractBridgeConnector<SslSession> {
                 boolean wantClientAuth = address.getOption(WANT_CLIENT_AUTH);
                 boolean needClientAuth = address.getOption(NEED_CLIENT_AUTH);
 
-                List<String> unresolvedCipherNames = toCipherList(address.getOption(CIPHERS));
+                List<String> unresolvedCipherNames = toCipherList(address.getOption(CIPHERS_OPTION));
                 List<String> resolvedCipherNames = SslCipherSuites.resolve(unresolvedCipherNames);
                 String[] enabledCipherSuites = resolvedCipherNames.toArray(new String[resolvedCipherNames.size()]);
 
                 if (logger.isTraceEnabled()) {
-                    logger.trace(String.format("Configured SSL/TLS ciphersuites:\n  %s", toCipherString(toCipherList(enabledCipherSuites))));
+                    logger.trace(String.format("Configured SSL/TLS ciphersuites:%n  %s", toCipherString(toCipherList(enabledCipherSuites))));
                 }
 
                 sslFilter.setWantClientAuth(wantClientAuth);
                 sslFilter.setNeedClientAuth(needClientAuth);
                 sslFilter.setEnabledCipherSuites(enabledCipherSuites);
                 // Enable the configured SSL protocols like TLSv1 etc
-                sslFilter.setEnabledProtocols(address.getOption(PROTOCOLS));
+                sslFilter.setEnabledProtocols(address.getOption(PROTOCOLS_OPTION));
 
                 filterChain.addFirst(CERTIFICATE_SELECTION_FILTER, certificateSelection);
                 filterChain.addAfter(CERTIFICATE_SELECTION_FILTER, CODEC_FILTER, sslFilter);
@@ -202,7 +202,7 @@ public class SslConnector extends AbstractBridgeConnector<SslSession> {
     private List<String> toCipherList(String[] names) {
         if (names == null ||
             names.length == 0) {
-            return null;
+            return Collections.emptyList();
         }
 
         List<String> list = new ArrayList<>(names.length);
@@ -212,8 +212,7 @@ public class SslConnector extends AbstractBridgeConnector<SslSession> {
     }
 
     private String toCipherString(List<String> names) {
-        if (names == null ||
-            names.size() == 0) {
+        if (names == null || names.isEmpty()) {
             return null;
         }
 
@@ -222,8 +221,7 @@ public class SslConnector extends AbstractBridgeConnector<SslSession> {
             sb.append("  ").append(name).append("\n");
         }
 
-        String cipherString = sb.toString().trim();
-        return cipherString;
+        return sb.toString().trim();
     }
 
     @Override
@@ -234,7 +232,7 @@ public class SslConnector extends AbstractBridgeConnector<SslSession> {
 
     @Override
     protected boolean canConnect(String transportName) {
-        return transportName.equals("ssl");
+        return ("ssl").equals(transportName);
     }
 
     @Override

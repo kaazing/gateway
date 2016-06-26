@@ -18,7 +18,7 @@ package org.kaazing.gateway.server.context.resolve;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.kaazing.gateway.resource.address.ResourceAddress.CONNECT_REQUIRES_INIT;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_USER_PRINCIPAL_CLASSES;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.buildURIAsString;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getAuthority;
@@ -210,7 +210,7 @@ public class DefaultServiceContext implements ServiceContext {
                 true,
                 false,
                 1,
-                TransportFactory.newTransportFactory(Collections.EMPTY_MAP),
+                TransportFactory.newTransportFactory(Collections.emptyMap()),
                 ResourceAddressFactory.newResourceAddressFactory()
         );
     }
@@ -416,8 +416,7 @@ public class DefaultServiceContext implements ServiceContext {
 
     @Override
     public String getContentType(String fileExtension) {
-        String contentType = fileExtension == null ? null : mimeMappings.get(fileExtension.toLowerCase());
-        return contentType;
+        return fileExtension == null ? null : mimeMappings.get(fileExtension.toLowerCase());
     }
 
     @Override
@@ -493,7 +492,7 @@ public class DefaultServiceContext implements ServiceContext {
             assert transport != null;
             transport.getConnector(connectAddress).connectInit(connectAddress);
         } else {
-            ResourceAddress connectTransport = connectAddress.getOption(TRANSPORT);
+            ResourceAddress connectTransport = connectAddress.getOption(TRANSPORT_OPTION);
             if (connectTransport != null) {
                 bindConnectIfNecessary(connectTransport);
             }
@@ -508,7 +507,7 @@ public class DefaultServiceContext implements ServiceContext {
             assert transport != null;
             transport.getConnector(connectAddress).connectDestroy(connectAddress);
         } else {
-            ResourceAddress connectTransport = connectAddress.getOption(TRANSPORT);
+            ResourceAddress connectTransport = connectAddress.getOption(TRANSPORT_OPTION);
             if (connectTransport != null) {
                 unbindConnectIfNecessary(connectTransport);
             }
@@ -550,7 +549,7 @@ public class DefaultServiceContext implements ServiceContext {
         // After the service has been physically bound, update the cluster state to reflect this service as a possible
         // balance target.
         //
-        if (balances != null && balances.size() > 0) {
+        if (balances != null && !balances.isEmpty()) {
             if (!accepts.containsAll(bindURIs)) {
                 // if this bind() call is for URIs that aren't the service accept URIs (typically just the broadcast service's
                 // accept property) then don't update balancer state.  Only service accept URIs are balance targets.
@@ -641,14 +640,15 @@ public class DefaultServiceContext implements ServiceContext {
     private void injectServiceOptions(String transportURI, Map<String, Object> options) {
 
         Map<String, ? extends CrossSiteConstraintContext> acceptConstraints = acceptConstraintsByURI.get(transportURI);
+        String tURI = transportURI;
         if (acceptConstraints == null && "balancer".equals(serviceType)) {
-            if (getPath(transportURI) != null && getPath(transportURI).endsWith("/;e")) {
-                transportURI = resolve(transportURI, getPath(transportURI).
-                                substring(0, getPath(transportURI).length() - "/;e".length()));
+            if (getPath(tURI) != null && getPath(tURI).endsWith("/;e")) {
+                tURI = resolve(tURI, getPath(tURI).
+                                substring(0, getPath(tURI).length() - "/;e".length()));
             }
-            acceptConstraints = acceptConstraintsByURI.get(modifyURIScheme(transportURI, "ws"));
-            if (acceptConstraints == null && transportFactory.getProtocol(getScheme(transportURI)).isSecure()) {
-                acceptConstraints = acceptConstraintsByURI.get(modifyURIScheme(transportURI, "wss"));
+            acceptConstraints = acceptConstraintsByURI.get(modifyURIScheme(tURI, "ws"));
+            if (acceptConstraints == null && transportFactory.getProtocol(getScheme(tURI)).isSecure()) {
+                acceptConstraints = acceptConstraintsByURI.get(modifyURIScheme(tURI, "wss"));
             }
         }
         if (acceptConstraints != null) {
@@ -778,7 +778,8 @@ public class DefaultServiceContext implements ServiceContext {
      */
    private Collection<Class<? extends Principal>> getUserPrincipalClasses(String[] userPrincipalClasses) {
        Collection<Class<? extends Principal>> userPrincipals = new ArrayList<>();
-       for (String item : serviceRealmContext.getUserPrincipalClasses()) {
+//       for (String item : serviceRealmContext.getUserPrincipalClasses()) {
+       for (String item : userPrincipalClasses) {
            try {
                userPrincipals.add(Class.forName(item).asSubclass(Principal.class));
            } catch (ClassNotFoundException e) {
@@ -786,10 +787,10 @@ public class DefaultServiceContext implements ServiceContext {
                      format("%s%s%s", "Class ", item,
                             " could not be loaded. Please check the gateway configuration xml and confirm that"
                             + " user-principal-class value(s) are spelled correctly for realm "
-                            + serviceRealmContext.getName() + "."), new ClassNotFoundException(e.getMessage()));
+                            + serviceRealmContext.getName() + "."), new ClassNotFoundException(e.getMessage(), e));
            }
        }
-   return userPrincipals;
+       return userPrincipals;
     }
 
     private Collection<String> toHttpBalanceOriginURIs(Collection<String> balances) {
@@ -813,7 +814,7 @@ public class DefaultServiceContext implements ServiceContext {
                     }
                 } catch (URISyntaxException e) {
                     if (logger.isDebugEnabled()) {
-                        logger.warn(String.format("Cannot translate balanc uri '%s' into a http balance origin.", uri));
+                        logger.warn(String.format("Cannot translate balanc uri '%s' into a http balance origin.", uri), e);
                     }
                 }
             }
@@ -901,7 +902,7 @@ public class DefaultServiceContext implements ServiceContext {
         // before the cluster state has been updated, resulting in this cluster member being incorrectly
         // picked as the balancee.
         //
-        if (balances != null && balances.size() > 0) {
+        if (balances != null && !balances.isEmpty()) {
             CollectionsFactory factory = clusterContext.getCollectionsFactory();
             if (factory != null) {
                 Map<MemberId, Map<String, List<String>>> memberIdBalancerUriMap = factory

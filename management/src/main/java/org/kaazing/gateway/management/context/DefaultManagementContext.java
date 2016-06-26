@@ -96,6 +96,9 @@ import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.session.IoSessionEx;
 
+/**
+ * TODO Add class documentation
+ */
 public class DefaultManagementContext implements ManagementContext, DependencyContext {
     public static final int DEFAULT_SUMMARY_DATA_NOTIFICATION_INTERVAL = 5000; // 5 seconds by default
     public static final int DEFAULT_SYSTEM_SUMMARY_DATA_NOTIFICATION_INTERVAL = 2000; // 5 seconds by default

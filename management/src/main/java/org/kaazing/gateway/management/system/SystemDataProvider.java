@@ -18,24 +18,74 @@ package org.kaazing.gateway.management.system;
 
 public interface SystemDataProvider {
 
+	/**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     int getNumberOfCpus();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     double getCombinedCpuPercentage();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     long getTotalFreeMemory();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     long getTotalUsedMemory();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     long getTotalMemory();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     long getTotalFreeSwap();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     long getTotalUsedSwap();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     long getTotalSwap();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     String[] getNetInterfaceNames();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     double getUptimeSeconds();
 
     /**
@@ -45,6 +95,7 @@ public interface SystemDataProvider {
      * All the values are total bytes, values 0-100.
      *
      * @param netInterfaceName
+     * @return
      */
     Long[] getNetInterfaceStats(String netInterfaceName);
 
@@ -54,6 +105,8 @@ public interface SystemDataProvider {
      * stolen 6 - sys 7 - user 8 - wait
      * <p/>
      * All the values are percentages, values 0-100.
+     * 
+     * @return
      */
     Double[][] getCpuPercentages();
 }

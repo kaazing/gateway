@@ -35,59 +35,68 @@ public interface CpuManagementBean {
     int SUMMARY_DATA_USER_INDEX = 7;
     int SUMMARY_DATA_WAIT_INDEX = 8;
 
+    /**
+     * @return
+     */
     int getId();
 
     /**
-     * Return the combined CPU percentage, as a value 0-100 (so 5% would be 5, not 0.05).
+     * @return the combined CPU percentage, as a value 0-100 (so 5% would be 5, not 0.05).
      */
     double getCombined();
 
     /**
-     * Return the idle CPU percentage, as a value 0-100 (so 5% would be 5, not 0.05).
+     * @return the idle CPU percentage, as a value 0-100 (so 5% would be 5, not 0.05).
      */
     double getIdle();
 
     /**
-     * Return the IRQ CPU percentage, as a value 0-100 (so 5% would be 5, not 0.05).
+     * @return the IRQ CPU percentage, as a value 0-100 (so 5% would be 5, not 0.05).
      */
     double getIrq();
 
     /**
-     * Return the 'nice' CPU percentage, as a value 0-100 (so 5% would be 5, not 0.05).
+     * @return the 'nice' CPU percentage, as a value 0-100 (so 5% would be 5, not 0.05).
      */
     double getNice();
 
     /**
-     * Return the soft IRQ CPU percentage, as a value 0-100 (so 5% would be 5, not 0.05).
+     * @return the soft IRQ CPU percentage, as a value 0-100 (so 5% would be 5, not 0.05).
      */
     double getSoftIrq();
 
     /**
-     * Return the ' CPU percentage, as a value 0-100 (so 5% would be 5, not 0.05).
+     * @return the ' CPU percentage, as a value 0-100 (so 5% would be 5, not 0.05).
      */
     double getStolen();
 
     /**
-     * Return the combined CPU percentage, as a value 0-100 (so 5% would be 5, not 0.05).
+     * @return the combined CPU percentage, as a value 0-100 (so 5% would be 5, not 0.05).
      */
     double getSys();
 
     /**
-     * Return the combined CPU percentage, as a value 0-100 (so 5% would be 5, not 0.05).
+     * @return the combined CPU percentage, as a value 0-100 (so 5% would be 5, not 0.05).
      */
     double getUser();
 
     /**
-     * Return the combined CPU percentage, as a value 0-100 (so 5% would be 5, not 0.05).
+     * @return the combined CPU percentage, as a value 0-100 (so 5% would be 5, not 0.05).
      */
     double getWait();
 
     /**
-     * Retrieve the summary data as a JSON string (used by JMX and the individual SNMP entry row).
+     * @return Retrieve the summary data as a JSON string (used by JMX and the individual SNMP entry row).
      */
     String getSummaryData();
 
+    /**
+     * @return
+     */
     Number[] getSummaryDataValues();
 
+    /**
+     * @param cpuPercentages
+     */
     void update(Double[] cpuPercentages);
 }

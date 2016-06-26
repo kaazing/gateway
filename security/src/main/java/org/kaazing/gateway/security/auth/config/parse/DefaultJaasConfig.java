@@ -22,7 +22,9 @@ import org.kaazing.gateway.security.auth.config.JaasConfig;
 import org.kaazing.gateway.security.auth.config.RoleConfig;
 import org.kaazing.gateway.security.auth.config.UserConfig;
 
-
+/**
+ * TODO Add class documentation
+ */
 public class DefaultJaasConfig implements JaasConfig {
 
     private Map<String, UserConfig> users;

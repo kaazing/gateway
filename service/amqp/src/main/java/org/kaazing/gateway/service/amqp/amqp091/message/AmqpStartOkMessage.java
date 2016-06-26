@@ -26,7 +26,9 @@ import org.kaazing.gateway.service.amqp.amqp091.AmqpTable;
 import org.kaazing.gateway.service.amqp.amqp091.AmqpTable.AmqpTableEntry;
 import org.kaazing.gateway.service.amqp.amqp091.filter.AmqpFilter;
 
-
+/**
+ * TODO Add class documentation
+ */
 public class AmqpStartOkMessage extends AmqpConnectionMessage {
     private AmqpTable    clientProperties;
     private String       securityMechanism;
@@ -133,7 +135,7 @@ public class AmqpStartOkMessage extends AmqpConnectionMessage {
     }
     
     public String toString() {
-        StringBuffer buffer = new StringBuffer("START_OK: ");
+    	StringBuffer buffer = new StringBuffer("START_OK: ");
         buffer.append("client-props = '").append(clientProperties).append("'")
               .append("   mechanism = '").append(securityMechanism).append("'")
               .append("   username = '").append(username).append("'")

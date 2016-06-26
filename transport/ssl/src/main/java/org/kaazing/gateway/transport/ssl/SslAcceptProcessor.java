@@ -22,7 +22,7 @@ import org.kaazing.gateway.transport.BridgeAcceptProcessor;
 
 public class SslAcceptProcessor extends BridgeAcceptProcessor<SslSession> {
 
-    private final Logger logger = LoggerFactory.getLogger("transport.ssl");
+//    private final Logger logger = LoggerFactory.getLogger("transport.ssl");
 
     @Override
     protected void removeInternal(SslSession session) {

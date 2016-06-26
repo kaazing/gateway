@@ -123,7 +123,7 @@ public class HttpContentMessage extends HttpMessage {
 		}
 		
 		HttpContentMessage that = (HttpContentMessage)o;
-		return (that.data.equals(this.data) && that.contentInfos.equals(this.contentInfos) && that.encodings.equals(this.encodings));
+		return that.data.equals(this.data) && that.contentInfos.equals(this.contentInfos) && that.encodings.equals(this.encodings);
 	}
 
 	@Override
@@ -141,7 +141,7 @@ public class HttpContentMessage extends HttpMessage {
 	@Override
 	public String toString() {
 		return String.format("%s: %s %s%s%s", getKind(), data,
-				(isChunked() ? "[CHUNKED]" : ""), (isGzipped() ? "[GZIPPED]" : ""), (isComplete() ? "" : "[...]")); 
+				isChunked() ? "[CHUNKED]" : "", isGzipped() ? "[GZIPPED]" : "", isComplete() ? "" : "[...]"); 
 	}
 	
     private static Set<HttpContentInfo> asContentInfos(boolean complete) {

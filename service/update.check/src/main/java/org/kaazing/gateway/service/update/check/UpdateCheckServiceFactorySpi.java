@@ -31,7 +31,8 @@ public final class UpdateCheckServiceFactorySpi extends ServiceFactorySpi {
 
     @Override
     public Service newService(String serviceType) {
-        assert "update.check".equals(serviceType);
+    	boolean equalsUpdateCheck = "update.check".equals(serviceType);
+        assert equalsUpdateCheck;
         return new UpdateCheckService();
     }
 }

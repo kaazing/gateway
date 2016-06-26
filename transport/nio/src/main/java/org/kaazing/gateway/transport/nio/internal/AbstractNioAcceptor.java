@@ -17,9 +17,9 @@ package org.kaazing.gateway.transport.nio.internal;
 
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
-import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
+import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_URI;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.BridgeSession.NEXT_PROTOCOL_KEY;
@@ -84,6 +84,9 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * TODO Add class documentation
+ */
 public abstract class AbstractNioAcceptor implements BridgeAcceptor {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractNioAcceptor.class);
@@ -200,7 +203,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             ResourceOptions candidateOptions = ResourceOptions.FACTORY.newResourceOptions(boundAddress);
             String nextProtocol = NEXT_PROTOCOL_KEY.get(session);
             candidateOptions.setOption(NEXT_PROTOCOL, nextProtocol);
-            candidateOptions.setOption(TRANSPORT, LOCAL_ADDRESS.get(session));
+            candidateOptions.setOption(TRANSPORT_OPTION, LOCAL_ADDRESS.get(session));
             ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(candidateURI, candidateOptions);
 
             Binding binding = bindings.getBinding(candidateAddress);
@@ -310,9 +313,9 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
 
                 ResourceAddress transportAddress = currentAddress.getTransport();
 
-                BridgeAcceptor acceptor = bridgeServiceFactory.newBridgeAcceptor(transportAddress);
+                BridgeAcceptor bridgeAcceptor = bridgeServiceFactory.newBridgeAcceptor(transportAddress);
 
-                acceptor.bind(transportAddress, tcpBridgeHandler, null);
+                bridgeAcceptor.bind(transportAddress, tcpBridgeHandler, null);
             }
             else {
                 // note: [Tcp,Udp]ResourceAddressFactorySpi resolves bind option (then network context) already
@@ -361,7 +364,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             }
 
             // bind alternates as well
-            currentAddress = currentAddress.getOption(ALTERNATE);
+            currentAddress = currentAddress.getOption(ALTERNATE_OPTION);
         }
 
         if (failedAddress != null) {
@@ -447,7 +450,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
                 }
             }
 
-            address = address.getOption(ALTERNATE);
+            address = address.getOption(ALTERNATE_OPTION);
         }
     }
 
@@ -636,7 +639,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
                     ResourceOptions candidateOptions = ResourceOptions.FACTORY.newResourceOptions();
 
                     candidateOptions.setOption(NEXT_PROTOCOL, NEXT_PROTOCOL_KEY.get(session));
-                    candidateOptions.setOption(TRANSPORT, candidateTransportAddress);
+                    candidateOptions.setOption(TRANSPORT_OPTION, candidateTransportAddress);
                     return resourceAddressFactory.newResourceAddress(URIUtils.uriToString(candidateURI), candidateOptions);
                 }
 

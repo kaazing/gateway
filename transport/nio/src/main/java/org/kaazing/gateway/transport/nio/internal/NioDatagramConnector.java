@@ -38,6 +38,9 @@ public class NioDatagramConnector extends AbstractNioConnector {
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory resourceAddressFactory;
 
+    public NioDatagramConnector(Properties configuration) {
+        super(configuration, LoggerFactory.getLogger(LOGGER_NAME));
+    }
 
     @Resource(name = "bridgeServiceFactory")
     public void setBridgeServiceFactory(BridgeServiceFactory bridgeServiceFactory) {
@@ -57,10 +60,6 @@ public class NioDatagramConnector extends AbstractNioConnector {
     @Override
     protected BridgeServiceFactory initBridgeServiceFactory() {
         return bridgeServiceFactory;
-    }
-
-	public NioDatagramConnector(Properties configuration) {
-        super(configuration, LoggerFactory.getLogger(LOGGER_NAME));
     }
 
     @Override

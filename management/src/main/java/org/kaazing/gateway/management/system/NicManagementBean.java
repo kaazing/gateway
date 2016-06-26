@@ -35,59 +35,95 @@ public interface NicManagementBean {
     int SUMMARY_DATA_TXDROPPED_INDEX = 6;
     int SUMMARY_DATA_TXERRORS_INDEX = 7;
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     int getId();
 
     /**
      * Return the NIC's interface name.
+     * 
+     * @return
      */
     String getName();
 
     /**
      * Return the total number of bytes read since the system started
+     * 
+     * @return
      */
     long getRxBytes();
 
     /**
      * Return the computed read rate since the last update of management data.
+     * 
+     * @return
      */
     double getRxBytesPerSecond();
 
     /**
      * Return the total number of read dropped packets(?).
+     * 
+     * @return
      */
     long getRxDropped();
 
     /**
      * Return the total number of transmit errors.
+     * 
+     * @return
      */
     long getRxErrors();
 
     /**
      * Return the total number of bytes transmitted since the system started
+     * 
+     * @return
      */
     long getTxBytes();
 
     /**
      * Return the computed transmit rate since the last update of management data.
+     * 
+     * @return
      */
     double getTxBytesPerSecond();
 
     /**
      * Return the total number of transmit dropped packets(?).
+     * 
+     * @return
      */
     long getTxDropped();
 
     /**
      * Return the total number of transmit errors.
+     * 
+     * @return
      */
     long getTxErrors();
 
     /**
      * Retrieve the summary data as a JSON string (used by JMX and the individual SNMP row).
+     * 
+     * @return
      */
     String getSummaryData();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     Object[] getSummaryDataValues();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param netInterfaceStats
+     * @param updateTimeMillis
+     */
     void update(Long[] netInterfaceStats, long updateTimeMillis);
 }

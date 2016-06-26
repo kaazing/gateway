@@ -39,7 +39,9 @@ public class HttpSessionCleanupFilter extends HttpBaseSecurityFilter {
     public void doMessageReceived(NextFilter nextFilter, IoSession session, Object message) throws Exception {
         // GL.debug("http", getClass().getSimpleName() + " request received.");
 
-        if (! httpRequestMessageReceived(nextFilter, session, message)) return;
+        if (! httpRequestMessageReceived(nextFilter, session, message)) {
+        	return;
+        }
 
         cleanup(session);
 

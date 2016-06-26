@@ -30,7 +30,8 @@ public class EchoServiceFactorySpi extends ServiceFactorySpi {
 
     @Override
     public Service newService(String serviceType) {
-        assert "echo".equals(serviceType);
+    	boolean equalsEcho = "echo".equals(serviceType);
+        assert equalsEcho;
         return new EchoService();
     }
 }

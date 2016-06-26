@@ -30,6 +30,9 @@ import com.hazelcast.core.ITopic;
 import com.hazelcast.core.MessageListener;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
+/**
+ * TODO Add class documentation
+ */
 public class ClusterMessaging {
 
     private final String localTopicName;
@@ -68,14 +71,12 @@ public class ClusterMessaging {
     // TODO: add a map here so we don't pay the cost of topic name creation and lookup
     private <T> ITopic<T> getTopic(MemberId member) {
         String topicName = getTopicName(member);
-        ITopic<T> topic = cluster.getTopic(topicName);
-        return topic;
+        return cluster.getTopic(topicName);
     }
 
     private static String getLocalTopicName(ClusterContext clusterContext) {
         MemberId localMember = clusterContext.getLocalMember();
-        String topicName = getTopicName(localMember);
-        return topicName;
+        return getTopicName(localMember);
     }
 
     private void init() {
@@ -97,6 +98,7 @@ public class ClusterMessaging {
                         receiveMessage(msg);
                     }
                     catch (Exception e) {
+                    	//?
                     }
                 }
             }
@@ -170,6 +172,9 @@ public class ClusterMessaging {
         // TODO: this would cleanup resources like removing the topic listener
     }
 
+    /**
+     * TODO Add class documentation
+     */
     public static class Message implements Serializable {
         private static final long serialVersionUID = 1L;
         private final int id;
@@ -192,6 +197,9 @@ public class ClusterMessaging {
         }
     }
 
+    /**
+     * TODO Add class documentation
+     */
     public static class Request extends Message {
         private static final long serialVersionUID = 1L;
         private String replyTo;
@@ -209,6 +217,9 @@ public class ClusterMessaging {
         }
     }
 
+    /**
+     * TODO Add class documentation
+     */
     public static class Response extends Message {
         private static final long serialVersionUID = 1L;
         private int responseTo;
@@ -223,6 +234,9 @@ public class ClusterMessaging {
         }
     }
 
+    /**
+     * TODO Add class documentation
+     */
     public static class ErrorResponse extends Response {
         private static final long serialVersionUID = 1L;
 

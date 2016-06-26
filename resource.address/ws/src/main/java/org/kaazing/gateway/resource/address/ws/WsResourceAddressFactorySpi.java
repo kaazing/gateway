@@ -16,13 +16,13 @@
 package org.kaazing.gateway.resource.address.ws;
 
 import static java.lang.String.format;
-import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
+import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.BIND_ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceFactories.changeSchemeOnly;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.CODEC_REQUIRED;
-import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS;
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS_OPTION;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
-import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT_OPTION;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.MAX_MESSAGE_SIZE;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.REQUIRED_PROTOCOLS;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.SUPPORTED_PROTOCOLS;
@@ -92,14 +92,14 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
             options.setOption(CODEC_REQUIRED, codecRequired);
         }
 
-        Boolean lightweight = (Boolean) optionsByName.remove(LIGHTWEIGHT.name());
+        Boolean lightweight = (Boolean) optionsByName.remove(LIGHTWEIGHT_OPTION.name());
         if (lightweight != null) {
-            options.setOption(LIGHTWEIGHT, lightweight);
+            options.setOption(LIGHTWEIGHT_OPTION, lightweight);
         }
         
-        List<String> extensions = (List<String>) optionsByName.remove(EXTENSIONS.name());
+        List<String> extensions = (List<String>) optionsByName.remove(EXTENSIONS_OPTION.name());
         if (extensions != null) {
-            options.setOption(EXTENSIONS, extensions);
+            options.setOption(EXTENSIONS_OPTION, extensions);
         }
         
         Integer maxMessageSize = (Integer) optionsByName.remove(MAX_MESSAGE_SIZE.name());
@@ -130,20 +130,20 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
         Map<String, ResourceAddressFactorySpi<?>> alternateAddressFactories =
                 addressFactory.getAlternateAddressFactories(getSchemeName());
         alternateAddressFactories = new HashMap<>(alternateAddressFactories);
-        List<ResourceFactory> alternateResourceFactories = new ArrayList<>();
+        List<ResourceFactory> alternateResourceFactoryList = new ArrayList<>();
         // Create an ordered list of resource factories for the available alternate address factories
         for(String scheme : WS_ALTERNATE_SCHEMES) {
             if (alternateAddressFactories.get(scheme) != null) {
-                alternateResourceFactories.add(changeSchemeOnly(scheme));
+            	alternateResourceFactoryList.add(changeSchemeOnly(scheme));
                 alternateAddressFactories.remove(scheme);
             }
         }
 
         // Remaining ones don't have any order
         for(String scheme : alternateAddressFactories.keySet()) {
-            alternateResourceFactories.add(changeSchemeOnly(scheme));
+        	alternateResourceFactoryList.add(changeSchemeOnly(scheme));
         }
-        this.alternateResourceFactories = Collections.unmodifiableList(alternateResourceFactories);
+        this.alternateResourceFactories = Collections.unmodifiableList(alternateResourceFactoryList);
     }
 
     protected List<ResourceFactory> getAlternateResourceFactories() {
@@ -172,7 +172,7 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
             }
 
             // save the alternate chain into this address.
-            options.setOption(ALTERNATE, alternateAddress);
+            options.setOption(ALTERNATE_OPTION, alternateAddress);
         }
     }
 
@@ -209,12 +209,12 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
         // Mid-level websocket sessions are lightweight in the sense they
         // pass up decoded message payload and pass down encoded message payload.
         if ( "x-kaazing-handshake".equals(address.getOption(ResourceAddress.NEXT_PROTOCOL)) ) {
-            options.setOption(WsResourceAddress.LIGHTWEIGHT, Boolean.TRUE);
+            options.setOption(WsResourceAddress.LIGHTWEIGHT_OPTION, Boolean.TRUE);
         }
 
         address.setOption0(CODEC_REQUIRED, options.getOption(CODEC_REQUIRED));
-        address.setOption0(LIGHTWEIGHT, options.getOption(LIGHTWEIGHT));
-        address.setOption0(EXTENSIONS, options.getOption(EXTENSIONS));
+        address.setOption0(LIGHTWEIGHT_OPTION, options.getOption(LIGHTWEIGHT_OPTION));
+        address.setOption0(EXTENSIONS_OPTION, options.getOption(EXTENSIONS_OPTION));
         address.setOption0(MAX_MESSAGE_SIZE, options.getOption(MAX_MESSAGE_SIZE));
         address.setOption0(INACTIVITY_TIMEOUT, options.getOption(INACTIVITY_TIMEOUT));
         address.setOption0(SUPPORTED_PROTOCOLS, options.getOption(SUPPORTED_PROTOCOLS));

@@ -52,6 +52,7 @@ public class WsHandshakeValidator {
      * Facade method to validate an HttpMessageRequest.
      *
      * @param request the request to validate
+     * @param isPostMethodAllowed
      * @return true iff the appropriate handshake for websocket protocol is contained
      *         within the provided request.
      */
@@ -112,10 +113,14 @@ public class WsHandshakeValidator {
         }
 
         boolean ok = requireHeader(request, "Connection", "Upgrade");
-        if ( !ok ) { return false; }
+        if ( !ok ) { 
+        	return false; 
+        }
 
         ok = requireHeader(request, "Upgrade", "WebSocket");
-        if ( !ok ) { return false; }
+        if ( !ok ) { 
+        	return false; 
+        }
 
         ok = requireHeader(request, "Host");
 

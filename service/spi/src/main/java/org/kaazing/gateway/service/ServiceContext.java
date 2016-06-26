@@ -35,30 +35,95 @@ public interface ServiceContext {
 
     String SESSION_FILTER_NAME = "sessiontracker";
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     RealmContext getServiceRealm();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     String getAuthorizationMode();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     String getSessionTimeout();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     String getServiceType();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     String getServiceName();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     String getServiceDescription();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     Collection<String> getAccepts();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     Collection<String> getBalances();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     Collection<String> getConnects();
     
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     Map<String, String> getMimeMappings();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     ServiceProperties getProperties();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     Service getService();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     String[] getRequireRoles();
     
     /**
@@ -66,19 +131,49 @@ public interface ServiceContext {
      * <mime-mappings> defined in gateway-config for this service and
      * in <service-defaults>.  If the parameter is null or no MIME-type 
      * is configured for the given value, returns null.
+     * 
+     * @param fileExtension
+     * @return
      */
     String getContentType(String fileExtension);
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     Map<String, ? extends Map<String, ? extends CrossSiteConstraintContext>> getCrossSiteConstraints();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     File getWebDirectory();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     File getTempDirectory();
 
+    /**
+     * TODO Add method documentation
+     */
     void init() throws Exception;
 
+    /**
+     * TODO Add method documentation
+     */
     void start() throws Exception;
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param acceptURIs
+     * @param handler
+     */
     void bind(Collection<String> acceptURIs, IoHandler handler);
 
     void bind(Collection<String> acceptURIs, IoHandler handler,
@@ -88,75 +183,201 @@ public interface ServiceContext {
     
     void bind(Collection<String> acceptURIs, IoHandler handler, BridgeSessionInitializer<ConnectFuture> bridgeSessionInitializer);
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param connectURIs
+     */
     void bindConnectsIfNecessary(Collection<String> connectURIs);
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param acceptURIs
+     * @param handler
+     */
     void unbind(Collection<String> acceptURIs, IoHandler handler);
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param connectURIs
+     */
     void unbindConnectsIfNecessary(Collection<String> connectURIs);
 
+    /**
+     * TODO Add method documentation
+     */
     void stop() throws Exception;
 
+    /**
+     * TODO Add method documentation
+     */
     void destroy() throws Exception;
     
+    /**
+     * TODO Add method documentation
+     * 
+     * @param connectURI
+     * @param connectHandler
+     * @param ioSessionInitializer
+     * @return
+     */
     ConnectFuture connect(String connectURI, IoHandler connectHandler,
                           IoSessionInitializer<ConnectFuture> ioSessionInitializer);
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param address
+     * @param connectHandler
+     * @param connectSessionInitializer
+     * @return
+     */
     ConnectFuture connect(ResourceAddress address, IoHandler connectHandler,
                           IoSessionInitializer<ConnectFuture> connectSessionInitializer);
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     Collection<IoSessionEx> getActiveSessions();
     
+    /**
+     * TODO Add method documentation
+     * 
+     * @param sessionId
+     * @return
+     */
     IoSessionEx getActiveSession(Long sessionId);
     
+    /**
+     * TODO Add method documentation
+     * 
+     * @param session
+     */
     void addActiveSession(IoSessionEx session);
     
+    /**
+     * TODO Add method documentation
+     * 
+     * @param session
+     */
     void removeActiveSession(IoSessionEx session);
 
 //    public ClusterContext getClusterContext();
 
     AcceptOptionsContext getAcceptOptionsContext();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     ConnectOptionsContext getConnectOptionsContext();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     Logger getLogger();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     SchedulerProvider getSchedulerProvider();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param encrypted
+     * @return
+     */
     String decrypt(String encrypted) throws Exception;
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param plaintext
+     * @return
+     */
     String encrypt(String plaintext) throws Exception;
 
     /**
      * For help with the Console, indicate whether the service supports accepts
      * and accept options.
+     * 
+     * @return
      */
     boolean supportsAccepts();
 
     /**
      * For help with the Console, indicate whether the service supports connects
      * and connect options.
+     * 
+     * @return
      */
     boolean supportsConnects();
 
     /**
      * For help with the Console, indicate whether the service supports connects
      * and connect options.
+     * 
+     * @return
      */
     boolean supportsMimeMappings();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     int getProcessorCount();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param authorityToSetOfAcceptConstraintsByURI
+     */
     void setListsOfAcceptConstraintsByURI(List<Map<String, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI);
 
-    // Used by the update.check.service, could be used by other services
+    /**
+     * Used by the update.check.service, could be used by other services
+     * 
+     * @return
+     */
     Map<String, Object> getServiceSpecificObjects();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     IoSessionInitializer<ConnectFuture> getSessionInitializor();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param ioSessionInitializer
+     */
     void setSessionInitializor(IoSessionInitializer<ConnectFuture> ioSessionInitializer);
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     MonitoringEntityFactory getMonitoringFactory();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @param monitoringFactory
+     */
     void setMonitoringFactory(MonitoringEntityFactory monitoringFactory);
     
 }

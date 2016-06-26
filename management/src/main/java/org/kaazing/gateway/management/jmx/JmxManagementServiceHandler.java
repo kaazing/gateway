@@ -171,7 +171,7 @@ class JmxManagementServiceHandler implements ManagementServiceHandler {
         try {
             ServiceManagementBean serviceManagementBean = sessionManagementBean.getServiceManagementBean();
             GatewayManagementBean gatewayManagementBean = serviceManagementBean.getGatewayManagementBean();
-            ResourceAddress address = BridgeSession.LOCAL_ADDRESS.get(sessionManagementBean.getSession());
+//            ResourceAddress address = BridgeSession.LOCAL_ADDRESS.get(sessionManagementBean.getSession());
 
             ObjectName name =
                     new ObjectName(String.format(SESSION_MBEAN_FORMAT_STR,

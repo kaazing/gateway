@@ -58,29 +58,27 @@ public class HttpProtocolCodecFilter extends ProtocolCodecFilter {
             String nextProtocol = BridgeSession.LOCAL_ADDRESS.get(session).getOption(ResourceAddress.NEXT_PROTOCOL);
             if (message.hasCache()) {
                 IoBufferEx cachedProtocolBuffer = message.getCache().get(nextProtocol);
-                if (cachedProtocolBuffer != null) {
-                    if(cachedProtocolBuffer.capacity()==0) {
-                        // We must commit this http session if the child is committing but not closing, to ensure
-                        // the http headers get written immediately (before data is sent or the session is closed)
-                        HttpSession child = HttpAcceptor.SESSION_KEY.get(session);
-                        if (session instanceof HttpAcceptSession && child != null && child.isCommitting()
-                                && !child.isClosing()) {
-                            ((HttpAcceptSession)session).commit().addListener(
-                                    new IoFutureListener<IoFuture>() {
-                                        @Override
-                                        public void operationComplete(IoFuture future) {
-                                            writeRequest.getFuture().setWritten();
-                                            nextFilter.messageSent(session, writeRequest);
-                                        }
-                                    });
-                        }
-                        else {
-                            writeRequest.getFuture().setWritten();
-                            nextFilter.messageSent(session, writeRequest);
-                        }
-                        return;
+                if (cachedProtocolBuffer != null && cachedProtocolBuffer.capacity()==0) {
+                    // We must commit this http session if the child is committing but not closing, to ensure
+                    // the http headers get written immediately (before data is sent or the session is closed)
+                    HttpSession child = HttpAcceptor.SESSION_KEY.get(session);
+                    if (session instanceof HttpAcceptSession && child != null && child.isCommitting()
+                            && !child.isClosing()) {
+                        ((HttpAcceptSession)session).commit().addListener(
+                                new IoFutureListener<IoFuture>() {
+                                    @Override
+                                    public void operationComplete(IoFuture future) {
+                                        writeRequest.getFuture().setWritten();
+                                        nextFilter.messageSent(session, writeRequest);
+                                    }
+                                });
                     }
-                 }
+                    else {
+                        writeRequest.getFuture().setWritten();
+                        nextFilter.messageSent(session, writeRequest);
+                    }
+                    return;
+            	}
             }
         }
         super.filterWrite(nextFilter,session,writeRequest);

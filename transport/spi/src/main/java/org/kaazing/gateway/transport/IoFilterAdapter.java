@@ -46,6 +46,11 @@ import org.apache.mina.core.write.WriteRequest;
  * Copyright (c) 2007-2010 Kaazing Corporation. All Rights Reserved.
  */
 
+/**
+ * TODO Add class documentation
+ * 
+ * @param <T> IoSession type
+ */
 public class IoFilterAdapter<T extends IoSession> implements IoFilter {
 
     // -- not generic --

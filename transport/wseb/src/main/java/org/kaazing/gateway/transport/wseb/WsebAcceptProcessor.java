@@ -188,7 +188,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
                     // buffer
                     if (!session.isReconnecting()) {
                         // Check whether we require block padding
-                        boolean checkBlockPadding = (writer.getAttribute(WsebAcceptor.CLIENT_BLOCK_PADDING_KEY) != null);
+                        boolean checkBlockPadding = writer.getAttribute(WsebAcceptor.CLIENT_BLOCK_PADDING_KEY) != null;
                         if (checkBlockPadding) {
                             checkBufferPadding(writer, session);
                         }

@@ -26,6 +26,7 @@ public class NegotiateLoginModuleCallbackRegistrar {
      * @param gss           GSS data used for Krb5
      */
     public void register(DispatchCallbackHandler handler, String authToken, byte[] gss) {
+    	//FIXME: implement?
     }
 
     /**
@@ -34,5 +35,6 @@ public class NegotiateLoginModuleCallbackRegistrar {
      * @param handler       Callbackhandler
      */
     public void unregister(DispatchCallbackHandler handler) {
+    	//FIXME: implement?
     }
 }

@@ -20,6 +20,9 @@ import java.util.HashMap;
 import java.util.Map;
 import org.kaazing.gateway.service.messaging.MessagingMessage;
 
+/**
+ * TODO Add class documentation
+ */
 public class DefaultMessagingMessage implements MessagingMessage, Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -31,11 +34,11 @@ public class DefaultMessagingMessage implements MessagingMessage, Serializable {
     public DefaultMessagingMessage(MessagingMessage toCopy) {
         this.id = toCopy.getId();
         this.payload = toCopy.getPayload();
-        Map<String, Object> attributes = new HashMap<>();
+        Map<String, Object> attributeMap = new HashMap<>();
         for (Map.Entry<String, Object> entry : toCopy.attributes()) {
-            attributes.put(entry.getKey(), entry.getValue());
+        	attributeMap.put(entry.getKey(), entry.getValue());
         }
-        this.attributes = attributes;
+        this.attributes = attributeMap;
     }
 
     public DefaultMessagingMessage() {

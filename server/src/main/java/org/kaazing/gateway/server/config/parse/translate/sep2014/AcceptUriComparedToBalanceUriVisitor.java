@@ -124,8 +124,9 @@ public class AcceptUriComparedToBalanceUriVisitor extends AbstractVisitor {
         // case
         // means "ws"
         // compares with "ws" and "wss" compares with "wss", etc.)
-        for (String balanceScheme : processedBalanceElements.keySet()) {
-            List<ParameterizedURI> balanceURIs = processedBalanceElements.get(balanceScheme);
+        for (Map.Entry<String, List<ParameterizedURI>> entry : processedBalanceElements.entrySet()) {
+        	String balanceScheme = entry.getKey();
+        	List<ParameterizedURI> balanceURIs = entry.getValue();
             List<ParameterizedURI> acceptURIs = processedAcceptElements.get(balanceScheme);
             if (acceptURIs == null) {
                 throw new RuntimeException(format("No accept URIs match balance scheme %s for balance URI %s",
@@ -162,9 +163,10 @@ public class AcceptUriComparedToBalanceUriVisitor extends AbstractVisitor {
         // second is
         // for
         // each accept scheme present on the service there are matching balance tags.
-        for (String acceptScheme : processedAcceptElements.keySet()) {
-            List<ParameterizedURI> acceptURIs = processedAcceptElements.get(acceptScheme);
-            List<ParameterizedURI> balanceURIs = processedBalanceElements.get(acceptScheme);
+        for (Map.Entry<String, List<ParameterizedURI>> entry : processedAcceptElements.entrySet()) {
+        	String acceptScheme = entry.getKey();
+        	List<ParameterizedURI> acceptURIs = entry.getValue();
+        	List<ParameterizedURI> balanceURIs = processedBalanceElements.get(acceptScheme);
             if (balanceURIs == null) {
                 throw new RuntimeException(format("No balance URIs match accept scheme %s for accept URI %s",
                         acceptScheme, acceptURIs.iterator().next().getOriginalURI()));

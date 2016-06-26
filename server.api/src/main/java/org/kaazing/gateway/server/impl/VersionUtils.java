@@ -50,7 +50,7 @@ public final class VersionUtils {
             return null;
         }
 
-        int dotPos = v.indexOf(".");
+        int dotPos = v.indexOf('.');
         return dotPos < 0 ? v : v.substring(0, dotPos);
     }
 
@@ -61,13 +61,13 @@ public final class VersionUtils {
             return null;
         }
 
-        int dotPos = v.indexOf(".");
+        int dotPos = v.indexOf('.');
 
         if (dotPos < 0) {
             return v + ".0";
         }
 
-        dotPos = v.indexOf(".", dotPos + 1);  // 2nd dot
+        dotPos = v.indexOf('.', dotPos + 1);  // 2nd dot
 
         return dotPos < 0 ? v : v.substring(0, dotPos);
     }
@@ -86,19 +86,19 @@ public final class VersionUtils {
             return null;
         }
 
-        int dotPos = v.indexOf(".");
+        int dotPos = v.indexOf('.');
 
         if (dotPos < 0) {
             return v + ".0.0";
         }
 
-        dotPos = v.indexOf(".", dotPos + 1);  // 2nd dot
+        dotPos = v.indexOf('.', dotPos + 1);  // 2nd dot
 
         if (dotPos < 0) {
             return v + ".0";
         }
 
-        dotPos = v.indexOf(".", dotPos + 1);  // 3rd dot
+        dotPos = v.indexOf('.', dotPos + 1);  // 3rd dot
 
         return dotPos < 0 ? v : v.substring(0, dotPos);
     }
@@ -110,19 +110,19 @@ public final class VersionUtils {
             return null;
         }
 
-        int dotPos = v.indexOf(".");
+        int dotPos = v.indexOf('.');
 
         if (dotPos < 0) {
             return v + ".0.0.0";
         }
 
-        dotPos = v.indexOf(".", dotPos + 1);  // 2nd dot
+        dotPos = v.indexOf('.', dotPos + 1);  // 2nd dot
 
         if (dotPos < 0) {
             return v + ".0.0";
         }
 
-        dotPos = v.indexOf(".", dotPos + 1);  // 3rd dot
+        dotPos = v.indexOf('.', dotPos + 1);  // 3rd dot
 
         if (dotPos < 0) {
             return v + ".0";
@@ -187,6 +187,7 @@ public final class VersionUtils {
                             }
                         }
                     }
+                    jar.close();
                 }
                 catch (IOException e) {
                     // ignore

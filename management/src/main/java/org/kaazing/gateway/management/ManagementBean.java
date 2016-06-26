@@ -26,6 +26,8 @@ public interface ManagementBean {
 
     /**
      * Return a stringified version of the summary data. The precise form of the data is implementation-dependent.
+     * 
+     * @return
      */
     String getSummaryData();
 
@@ -45,6 +47,8 @@ public interface ManagementBean {
 
     /**
      * Add an object that will be called with the stringified summary data whenever the summary interval expires.
+     * 
+     * @param listener
      */
     void addSummaryDataListener(SummaryDataListener listener);
 
@@ -73,6 +77,8 @@ public interface ManagementBean {
     /**
      * Return the ManagementContext that's driving management of this bean (this is primarily an optimization so all levels of
      * management beans have fast access to the management context when possible).
+     * 
+     * @return
      */
     ManagementContext getManagementContext();
 

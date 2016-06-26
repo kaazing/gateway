@@ -240,13 +240,13 @@ public final class Utf8Util {
             }
             else if (ch < 0x0800) {
                 dest.put(destOffset++, (byte) (0xc0 | (ch >> 6)));
-                dest.put(destOffset++, (byte) (0x80 | ((ch >> 0) & 0x3f)));
+                dest.put(destOffset++, (byte) (0x80 | (ch & 0x3f)));
             }
             else if (((ch >= 0x0800) && (ch <= 0xD7FF)) ||
                      ((ch >= 0xE000) && (ch <= 0xFFFF))) {
                 dest.put(destOffset++, (byte) (0xe0 | (ch >> 12)));
                 dest.put(destOffset++, (byte) (0x80 | ((ch >> 6) & 0x3F)));
-                dest.put(destOffset++, (byte) (0x80 | ((ch >> 0) & 0x3F)));
+                dest.put(destOffset++, (byte) (0x80 | (ch & 0x3F)));
             }
             else if ((ch >= Character.MIN_SURROGATE) && (ch <= Character.MAX_SURROGATE)) {  // Surrogate pair
                 if (i == srcBuf.length) {
@@ -266,7 +266,7 @@ public final class Utf8Util {
                 dest.put(destOffset++, (byte) (0xf0 | (codePoint >> 18)));
                 dest.put(destOffset++, (byte) (0x80 | ((codePoint >> 12) & 0x3F)));
                 dest.put(destOffset++, (byte) (0x80 | ((codePoint >> 6) & 0x3F)));
-                dest.put(destOffset++, (byte) (0x80 | ((codePoint >> 0) & 0x3F)));
+                dest.put(destOffset++, (byte) (0x80 | (codePoint & 0x3F)));
             }
             else {
                 throw new IllegalStateException(format(MSG_INVALID_CODEPOINT, ch));

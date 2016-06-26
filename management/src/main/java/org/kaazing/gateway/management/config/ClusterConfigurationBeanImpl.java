@@ -22,6 +22,9 @@ import org.kaazing.gateway.service.cluster.ClusterConnectOptionsContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
 import org.kaazing.gateway.service.cluster.MemberId;
 
+/**
+ * TODO Add class documentation
+ */
 public class ClusterConfigurationBeanImpl implements ClusterConfigurationBean {
 
     private final GatewayManagementBean gatewayBean;

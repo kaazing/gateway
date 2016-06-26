@@ -42,18 +42,24 @@ public interface ManagementServiceHandler {
 
     /**
      * Return the ServiceContext for the service this handler is processing.
+     * 
+     * @return
      */
     ServiceContext getServiceContext();
 
     /**
      * Routine called when a new GatewayManagementBean has been added to the ManagementContext.  The service can wrap it in
      * whatever fashion is appropriate for the particular protocol (e.g. an OID for SNMP, an MBean for JMX.)
+     * 
+     * @param gatewayManagementBean
      */
     void addGatewayManagementBean(GatewayManagementBean gatewayManagementBean);
 
     /**
      * Routine called when a new ServiceManagementBean has been created and the service is supposed to 'wrap' it in whatever
      * fashion is appropriate for the particular protocol. (e.g. an OID for SNMP, an MBean for JMX.)
+     * 
+     * @param serviceManagementBean
      */
     void addServiceManagementBean(ServiceManagementBean serviceManagementBean);
 

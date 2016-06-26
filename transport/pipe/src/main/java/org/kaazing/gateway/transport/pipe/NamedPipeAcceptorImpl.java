@@ -17,7 +17,7 @@ package org.kaazing.gateway.transport.pipe;
 
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.util.Arrays;
+//import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -104,7 +104,7 @@ public class NamedPipeAcceptorImpl extends AbstractIoAcceptorEx implements Named
                 throw new IOException("Named pipe local address cannot be ephemeral");
             }
             else {
-                boolean canBindSuccessfully = (bindings.get(localPipeAddress) == null);
+                boolean canBindSuccessfully = bindings.get(localPipeAddress) == null;
 
                 if (!canBindSuccessfully) {
                     throw new IOException(String.format("Named pipe address \"%s\" already bound", localPipeAddress));
@@ -117,7 +117,7 @@ public class NamedPipeAcceptorImpl extends AbstractIoAcceptorEx implements Named
         for (SocketAddress newLocalAddress: newLocalAddresses) {
             NamedPipeAddress newLocalPipeAddress = (NamedPipeAddress)newLocalAddress;
 
-            boolean boundSuccessfully = (bindings.putIfAbsent(newLocalPipeAddress, getHandler()) == null);
+            boolean boundSuccessfully = bindings.putIfAbsent(newLocalPipeAddress, getHandler()) == null;
 
             if (!boundSuccessfully) {
                 bindings.keySet().removeAll(newLocalAddresses);

@@ -29,7 +29,8 @@ public class JmxManagementServiceFactorySpi extends ServiceFactorySpi {
 
     @Override
     public Service newService(String serviceType) {
-        assert "management.jmx".equals(serviceType);
+    	boolean serviceTypeManagement = "management.jmx".equals(serviceType);
+        assert serviceTypeManagement;
         return new JmxManagementService();
     }
 

@@ -47,6 +47,10 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
     private boolean tryFirstToken;
 
     private final NegotiateLoginModuleCallbackRegistrar callbackRegistrar;
+    
+    public NegotiateLoginModule() {
+        this.callbackRegistrar = newCallbackRegistrar();
+    }
 
     private static NegotiateLoginModuleCallbackRegistrar newCallbackRegistrar() {
         ServiceLoader<NegotiateLoginModuleCallbackRegistrar> loader = ServiceLoader.load(
@@ -59,10 +63,6 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
         }
         // Otherwise, return null.
         return null;
-    }
-
-    public NegotiateLoginModule() {
-        this.callbackRegistrar = newCallbackRegistrar();
     }
 
     @Override
@@ -86,7 +86,7 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
                 return true;
             } catch (Exception le) {
                 if (debug) {
-                    LOG.debug("[NegotiateLoginModule] " + "reading from shared state failed: " + le.getMessage());
+                    LOG.debug("[NegotiateLoginModule] " + "reading from shared state failed: " + le.getMessage(), le);
                 }
             }
         }
@@ -96,7 +96,7 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
             return true;
         } catch (Exception loginException) {
             if (debug) {
-                LOG.debug("[NegotiateLoginModule] " + "regular authentication failed: " + loginException.getMessage());
+                LOG.debug("[NegotiateLoginModule] " + "regular authentication failed: " + loginException.getMessage(), loginException);
             }
         }
 
@@ -105,7 +105,6 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
 
     private void attemptAuthenticate(boolean useSharedState) throws LoginException {
 
-        String credentials;
         try {
             String negotiateAuthToken = getNegotiateAuthToken(useSharedState);
             if (negotiateAuthToken == null) {
@@ -122,7 +121,7 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
 
                 this.callbackRegistrar.register((DispatchCallbackHandler) handler, negotiateAuthToken, gss);
             }
-        } catch (Throwable e) {
+        } catch (LoginException e) {
             if (debug) {
                 LOG.debug("Exception decoding HTTP Basic Authentication token", e);
             }
@@ -141,14 +140,14 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
             return false;
         } catch (UnsupportedCallbackException e) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("UnsupportedCallbackException handling authenticationTokenCallback.");
+                LOG.trace("UnsupportedCallbackException handling authenticationTokenCallback.", e);
             }
             return false;
         }
 
         return authenticationTokenCallback.getAuthenticationToken() != null &&
                authenticationTokenCallback.getAuthenticationToken().getScheme() != null &&
-                authenticationTokenCallback.getAuthenticationToken().getScheme().equalsIgnoreCase("Negotiate");
+                ("Negotiate").equalsIgnoreCase(authenticationTokenCallback.getAuthenticationToken().getScheme());
 
     }
 
@@ -167,7 +166,7 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
             return null;
         } catch (UnsupportedCallbackException e) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("UnsupportedCallbackException handling authenticationTokenCallback.");
+                LOG.trace("UnsupportedCallbackException handling authenticationTokenCallback.", e);
             }
             return null;
         }

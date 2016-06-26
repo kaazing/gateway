@@ -26,9 +26,7 @@ public abstract class WsMessage extends Message {
     }
 
     private final boolean fin;
-
-    public abstract Kind getKind();
-
+    
     private IoBufferEx buf;
 
     public WsMessage() {
@@ -38,6 +36,8 @@ public abstract class WsMessage extends Message {
     public WsMessage(boolean fin) {
         this.fin = fin;
     }
+    
+    public abstract Kind getKind();
 
     public IoBufferEx getBytes() {
         return buf;
@@ -63,9 +63,9 @@ public abstract class WsMessage extends Message {
         }
 
         WsMessage that = (WsMessage) obj;
-        return (that.getKind() == this.getKind() && that.fin == this.fin &&
+        return that.getKind() == this.getKind() && that.fin == this.fin &&
                 Utils.sameOrEquals(this.buf == null ? null : this.buf.buf(),
-                        that.buf == null ? null : that.buf.buf())); // IoBufferEx has no equals method
+                        		   that.buf == null ? null : that.buf.buf()); // IoBufferEx has no equals method
     }
 
     @Override

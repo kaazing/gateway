@@ -23,13 +23,13 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.CIPHERS;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.CIPHERS_OPTION;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.ENCRYPTION_ENABLED;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.KEY_SELECTOR;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.NEED_CLIENT_AUTH;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS_OPTION;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.WANT_CLIENT_AUTH;
 
 import java.util.HashMap;
@@ -79,13 +79,13 @@ public class SslResourceAddressFactorySpiTest {
         assertNotNull(address);
         assertNull(address.getOption(NEXT_PROTOCOL));
         assertNull(address.getOption(QUALIFIER));
-        assertNull(address.getOption(TRANSPORT));
-        assertArrayEquals(new String[] { "DEFAULT" }, address.getOption(CIPHERS));
+        assertNull(address.getOption(TRANSPORT_OPTION));
+        assertArrayEquals(new String[] { "DEFAULT" }, address.getOption(CIPHERS_OPTION));
         assertTrue(address.getOption(ENCRYPTION_ENABLED));
         assertFalse(address.getOption(WANT_CLIENT_AUTH));
         assertFalse(address.getOption(NEED_CLIENT_AUTH));
         assertNull(address.getOption(KEY_SELECTOR));
-        assertNull(address.getOption(PROTOCOLS));
+        assertNull(address.getOption(PROTOCOLS_OPTION));
     }
 
     @Test
@@ -105,6 +105,6 @@ public class SslResourceAddressFactorySpiTest {
         assertNotNull(address.getOption(TRANSPORT_URI));
         assertEquals("tcp://localhost:2121", address.getOption(TRANSPORT_URI));
         assertFalse(address.getOption(ENCRYPTION_ENABLED));
-        assertArrayEquals(new String[] { "SSLv3" }, address.getOption(PROTOCOLS));
+        assertArrayEquals(new String[] { "SSLv3" }, address.getOption(PROTOCOLS_OPTION));
     }
 }

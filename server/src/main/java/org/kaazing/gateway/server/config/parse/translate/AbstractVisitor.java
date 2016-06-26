@@ -23,8 +23,14 @@ import java.util.ListIterator;
 import org.jdom.Document;
 import org.jdom.Element;
 
+/**
+ * TODO Add class documentation
+ */
 public abstract class AbstractVisitor
         implements GatewayConfigTranslator {
+	
+	public AbstractVisitor() {
+    }
 
     protected void copyText(final Element dst,
                             final Element src) {
@@ -52,9 +58,6 @@ public abstract class AbstractVisitor
         }
 
         return elts.listIterator();
-    }
-
-    public AbstractVisitor() {
     }
 
     // Implemented by subclasses

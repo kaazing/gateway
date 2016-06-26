@@ -24,6 +24,11 @@ import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 
+/**
+ * TODO Add class documentation
+ * 
+ * @param <T> AbstractBridgeSession type
+ */
 public abstract class AbstractWsAcceptProcessor<T extends AbstractBridgeSession<?, ?>> extends BridgeAcceptProcessor<T> {
 
     protected AbstractWsAcceptProcessor() {

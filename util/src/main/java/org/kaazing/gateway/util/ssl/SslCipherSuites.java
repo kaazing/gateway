@@ -1552,7 +1552,7 @@ public final class SslCipherSuites {
             return ciphers;
         }
 
-        if (token.equals("FIPS")) {
+        if (("FIPS").equals(token)) {
             return CIPHER_FIPS;
         }
 
@@ -1607,7 +1607,7 @@ public final class SslCipherSuites {
                 // Handle "control" ciphers (i.e. '@STRENGTH')
                 token = token.substring(1);
 
-                if (token.equals("STRENGTH")) {
+                if (("STRENGTH").equals(token)) {
                     Collections.sort(resolvedCiphers);
                     continue;
                 }
@@ -1719,12 +1719,6 @@ public final class SslCipherSuites {
 
                     break;
                 case "kECDH":
-                    iter.remove();
-                    iter.add(CipherKeyExchange.ECDH_RSA.tokenName);
-                    iter.add(CipherKeyExchange.ECDH_ECDSA.tokenName);
-                    iter.add(CipherKeyExchange.ECDHE.tokenName);
-
-                    break;
                 case "ECDH":
                     iter.remove();
                     iter.add(CipherKeyExchange.ECDH_RSA.tokenName);
@@ -1743,6 +1737,7 @@ public final class SslCipherSuites {
 
                     break;
                 case "NULL":
+                case "COMPLEMENTOFALL":
                     iter.remove();
                     iter.add(CipherEncryption.NULL.tokenName);
 
@@ -1833,11 +1828,6 @@ public final class SslCipherSuites {
                     iter.add("!" + CipherEncryption.NULL.tokenName);
 
                     break;
-                case "COMPLEMENTOFALL":
-                    iter.remove();
-                    iter.add(CipherEncryption.NULL.tokenName);
-
-                    break;
                 case "ALL":
                     iter.remove();
 
@@ -1905,8 +1895,7 @@ public final class SslCipherSuites {
     public static String[] resolveCSV(String csv) {
         List<String> resolved;
 
-        if (csv != null &&
-                ! csv.equals("")) {
+        if (csv != null && !("").equals(csv)) {
             String[] elts = csv.split(",");
             List<String> tokens = new ArrayList<>(elts.length);
             for (String elt : elts) {

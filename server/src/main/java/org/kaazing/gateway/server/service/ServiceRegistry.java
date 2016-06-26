@@ -81,8 +81,7 @@ public class ServiceRegistry {
     public ServiceRegistration lookup(URI serviceURI) {
         ServiceAuthority serviceAuthority = entries.get(serviceURI.getAuthority());
         if (serviceAuthority != null) {
-            ServiceRegistration serviceRegistration = serviceAuthority.lookup(serviceURI);
-            return serviceRegistration;
+            return serviceAuthority.lookup(serviceURI);
         }
         return null;
     }

@@ -26,6 +26,9 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * TODO Add class documentation
+ */
 public class AmqpCodecFactory implements ProtocolCodecFactory {
     private static final String CLASS_NAME = AmqpCodecFactory.class.getName();
 

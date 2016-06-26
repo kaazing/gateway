@@ -32,7 +32,11 @@ import org.kaazing.gateway.service.amqp.amqp091.message.AmqpStartOkMessage;
 import org.kaazing.gateway.service.amqp.amqp091.message.AmqpTuneMessage;
 import org.kaazing.gateway.service.amqp.amqp091.message.AmqpTuneOkMessage;
 
-
+/**
+ * TODO Add class documentation
+ * 
+ * @param <S> IoSession type
+ */
 public class AmqpFilterAdapter<S extends IoSession> extends
         IoFilterAdapter<S, AmqpMessage> implements AmqpFilter<S> {
 

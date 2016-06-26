@@ -125,8 +125,7 @@ public class Gateway {
         Properties properties = new Properties();
         properties.putAll(configuration.getProperties());
         gatewayObserver.initingGateway(properties, resolver.getInjectables());
-        GatewayContext context = resolver.resolve(gatewayConfigDocument, properties);
-        return context;
+        return resolver.resolve(gatewayConfigDocument, properties);
     }
 
     @SuppressWarnings("deprecation")
@@ -136,9 +135,9 @@ public class Gateway {
         if (securityConfiguration.getTrustStore() != null) {
             SecurityStoreType trustStore = security.addNewTruststore();
             trustStore.setFile(securityConfiguration.getTrustStoreFile());
-            if (securityConfiguration.getTrustStore().getType().equalsIgnoreCase("JCECKS")) {
+            if (("JCECKS").equalsIgnoreCase(securityConfiguration.getTrustStore().getType())) {
                 trustStore.setType(Type.JCEKS);
-            } else if (securityConfiguration.getTrustStore().getType().equalsIgnoreCase("JKS")) {
+            } else if (("JKS").equalsIgnoreCase(securityConfiguration.getTrustStore().getType())) {
                 trustStore.setType(Type.JKS);
             }
             trustStore.setPasswordFile(securityConfiguration.getTrustStorePasswordFile());
@@ -148,7 +147,7 @@ public class Gateway {
         if (securityConfiguration.getKeyStore() != null) {
             SecurityStoreType keyStore = security.addNewKeystore();
             keyStore.setFile(securityConfiguration.getKeyStoreFile());
-            if (securityConfiguration.getKeyStore().getType().equalsIgnoreCase("JKS")) {
+            if (("JKS").equalsIgnoreCase(securityConfiguration.getKeyStore().getType())) {
                 keyStore.setType(Type.JKS);
             } else {
                 keyStore.setType(Type.JCEKS);
@@ -199,12 +198,14 @@ public class Gateway {
                     continue;
                 }
                 String[] nameParts = entry.getKey().split("-");
-                String methodName = "set" + initCaps(nameParts[0]);
+                StringBuilder methodName = new StringBuilder();
+                methodName.append("set");
+                methodName.append(initCaps(nameParts[0]));
                 for (int i = 1; i < nameParts.length; i++) {
-                    methodName += initCaps(nameParts[i]);
+                    methodName.append(initCaps(nameParts[i]));
                 }
                 try {
-                    Method setter = authenticationType.getClass().getMethod(methodName, String.class);
+                    Method setter = authenticationType.getClass().getMethod(methodName.toString(), String.class);
                     if (setter != null) {
                         setter.invoke(authenticationType, entry.getValue());
                     }

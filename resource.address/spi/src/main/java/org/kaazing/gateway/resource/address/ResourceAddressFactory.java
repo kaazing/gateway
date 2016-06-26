@@ -18,7 +18,7 @@ package org.kaazing.gateway.resource.address;
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_OPTION;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.uriToString;
 
@@ -37,6 +37,12 @@ public class ResourceAddressFactory {
     // "ws" -> { "wse" -> wse factory...}
     private final Map<String, Map<String, ResourceAddressFactorySpi<?>>> alternateAddressFactories;
 
+    private ResourceAddressFactory(Map<String, ResourceAddressFactorySpi<?>> addressFactories,
+            Map<String, Map<String, ResourceAddressFactorySpi<?>>> alternateAddressFactories) {
+		this.addressFactories = addressFactories;
+		this.alternateAddressFactories = alternateAddressFactories;
+	}
+    
     public static ResourceAddressFactory newResourceAddressFactory() {
         return newResourceAddressFactory(currentThread().getContextClassLoader());
     }
@@ -101,13 +107,6 @@ public class ResourceAddressFactory {
         return (classLoader != null) ? ServiceLoader.load(service, classLoader) : ServiceLoader.load(service);
     }
 
-
-    private ResourceAddressFactory(Map<String, ResourceAddressFactorySpi<?>> addressFactories,
-                                   Map<String, Map<String, ResourceAddressFactorySpi<?>>> alternateAddressFactories) {
-        this.addressFactories = addressFactories;
-        this.alternateAddressFactories = alternateAddressFactories;
-    }
-
     public ResourceAddress newResourceAddress(String location) {
         Map<String, Object> EMPTY_OPTIONS = Collections.emptyMap();
         return newResourceAddress(location, EMPTY_OPTIONS);
@@ -129,6 +128,7 @@ public class ResourceAddressFactory {
      * Creates a new resource address for the given location and options
      *
      * @param options cannot be null, otherwise NullPointerException is thrown
+     * @param location
      * @return resource address
      */
     public ResourceAddress newResourceAddress(String location, ResourceOptions options) {
@@ -139,6 +139,8 @@ public class ResourceAddressFactory {
      * Creates a new resource address for the given location and options
      *
      * @param options cannot be null, otherwise NullPointerException is thrown
+     * @param location
+     * @param qualifier
      * @return resource address
      */
     public ResourceAddress newResourceAddress(String location,
@@ -185,7 +187,7 @@ public class ResourceAddressFactory {
     public ResourceAddress newResourceAddress(ResourceAddress uriAddress,
                                               ResourceAddress transportAddress) {
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
-        options.setOption(TRANSPORT, transportAddress);
+        options.setOption(TRANSPORT_OPTION, transportAddress);
         options.setOption(NEXT_PROTOCOL, uriAddress.getOption(NEXT_PROTOCOL));
         return newResourceAddress(uriToString(uriAddress.getResource()), options);
     }

@@ -76,7 +76,7 @@ public class RealmConfigurationBeanImpl implements RealmConfigurationBean {
                 // success enum values do a 'toString' that includes the type
                 // before the value. Send over only actual value.
                 String successVal = flag.toString();
-                successVal = successVal.substring(successVal.indexOf(" ") + 1);
+                successVal = successVal.substring(successVal.indexOf(' ') + 1);
                 jsonObj.put("success", successVal.toLowerCase());
                 if ((options != null) && !options.isEmpty()) {
                     jsonObj.put("options", options);

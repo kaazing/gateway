@@ -478,7 +478,7 @@ public interface ServiceManagementBean extends ManagementBean {
         @Override
         public String getSummaryData() {
 
-            long start = System.nanoTime();
+//            long start = System.nanoTime();
 
             JSONArray jsonArray = null;
 
@@ -516,7 +516,7 @@ public interface ServiceManagementBean extends ManagementBean {
                 // We should never be able to get here, as the summary data values are all legal
             }
 
-            long stop = System.nanoTime();
+//            long stop = System.nanoTime();
 
             String val = jsonArray.toString();
 
@@ -1175,8 +1175,8 @@ public interface ServiceManagementBean extends ManagementBean {
             }
 
             private void put(long id, SessionManagementBean bean) {
-                int index = (int) (id % arraySize);
-                SessionMapEntry entry = data[index];
+                int dataIndex = (int) (id % arraySize);
+                SessionMapEntry entry = data[dataIndex];
                 if (entry != null) {
                     SessionMapEntry prevEntry = null;
                     while (entry != null) {
@@ -1191,7 +1191,7 @@ public interface ServiceManagementBean extends ManagementBean {
                     // The end of the chain was reached, add the new entry to the end of the chain
                     prevEntry.next = new SessionMapEntry(id, bean);
                 } else {
-                    data[index] = new SessionMapEntry(id, bean);
+                    data[dataIndex] = new SessionMapEntry(id, bean);
                 }
 
                 mapSize++;
@@ -1211,15 +1211,15 @@ public interface ServiceManagementBean extends ManagementBean {
                 for (SessionMapEntry anOldData : oldData) {
                     SessionMapEntry entry = anOldData;
                     while (entry != null) {
-                        int index = (int) (entry.id % arraySize);
-                        SessionMapEntry newEntry = data[index];
+                        int dataIndex = (int) (entry.id % arraySize);
+                        SessionMapEntry newEntry = data[dataIndex];
                         if (newEntry != null) {
                             while (newEntry.next != null) {
                                 newEntry = newEntry.next;
                             }
                             newEntry.next = entry;
                         } else {
-                            data[index] = entry;
+                            data[dataIndex] = entry;
                         }
 
                         SessionMapEntry prevEntry = entry;
@@ -1231,8 +1231,8 @@ public interface ServiceManagementBean extends ManagementBean {
             }
 
             private SessionMapEntry get(long id) {
-                int index = (int) (id % arraySize);
-                SessionMapEntry entry = data[index];
+                int dataIndex = (int) (id % arraySize);
+                SessionMapEntry entry = data[dataIndex];
                 while (entry != null) {
                     if (entry.id == id) {
                         return entry;
@@ -1244,11 +1244,11 @@ public interface ServiceManagementBean extends ManagementBean {
             }
 
             private SessionMapEntry remove(long id) {
-                int index = (int) (id % arraySize);
-                SessionMapEntry entry = data[index];
+                int dataIndex = (int) (id % arraySize);
+                SessionMapEntry entry = data[dataIndex];
                 if (entry != null) {
                     if (entry.id == id) {
-                        data[index] = entry.next;
+                        data[dataIndex] = entry.next;
                         entry.next = null;
                     } else {
                         SessionMapEntry prevEntry = entry;
@@ -1304,8 +1304,8 @@ public interface ServiceManagementBean extends ManagementBean {
             }
 
             private void put(long id, long byteCount) {
-                int index = (int) (id % arraySize);
-                ByteCountMapEntry entry = data[index];
+                int dataIndex = (int) (id % arraySize);
+                ByteCountMapEntry entry = data[dataIndex];
                 if (entry != null) {
                     ByteCountMapEntry prevEntry = null;
                     while (entry != null) {
@@ -1320,7 +1320,7 @@ public interface ServiceManagementBean extends ManagementBean {
                     // The end of the chain was reached, add the new entry to the end of the chain
                     prevEntry.next = new ByteCountMapEntry(id, byteCount);
                 } else {
-                    data[index] = new ByteCountMapEntry(id, byteCount);
+                    data[dataIndex] = new ByteCountMapEntry(id, byteCount);
                 }
 
                 mapSize++;
@@ -1340,15 +1340,15 @@ public interface ServiceManagementBean extends ManagementBean {
                 for (ByteCountMapEntry anOldData : oldData) {
                     ByteCountMapEntry entry = anOldData;
                     while (entry != null) {
-                        int index = (int) (entry.id % arraySize);
-                        ByteCountMapEntry newEntry = data[index];
+                        int dataIndex = (int) (entry.id % arraySize);
+                        ByteCountMapEntry newEntry = data[dataIndex];
                         if (newEntry != null) {
                             while (newEntry.next != null) {
                                 newEntry = newEntry.next;
                             }
                             newEntry.next = entry;
                         } else {
-                            data[index] = entry;
+                            data[dataIndex] = entry;
                         }
 
                         ByteCountMapEntry prevEntry = entry;
@@ -1360,8 +1360,8 @@ public interface ServiceManagementBean extends ManagementBean {
             }
 
             private ByteCountMapEntry get(long id) {
-                int index = (int) (id % arraySize);
-                ByteCountMapEntry entry = data[index];
+                int dataIndex = (int) (id % arraySize);
+                ByteCountMapEntry entry = data[dataIndex];
                 while (entry != null) {
                     if (entry.id == id) {
                         return entry;
@@ -1373,11 +1373,11 @@ public interface ServiceManagementBean extends ManagementBean {
             }
 
             private ByteCountMapEntry remove(long id) {
-                int index = (int) (id % arraySize);
-                ByteCountMapEntry entry = data[index];
+                int dataIndex = (int) (id % arraySize);
+                ByteCountMapEntry entry = data[dataIndex];
                 if (entry != null) {
                     if (entry.id == id) {
-                        data[index] = entry.next;
+                        data[dataIndex] = entry.next;
                         entry.next = null;
                     } else {
                         ByteCountMapEntry prevEntry = entry;

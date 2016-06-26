@@ -19,6 +19,9 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.statemachine.DecodingState;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 
+/**
+ * TODO Add class documentation
+ */
 public abstract class ConsumeToTerminatorDecodingState
         extends org.kaazing.mina.filter.codec.statemachine.ConsumeToTerminatorDecodingState {
 

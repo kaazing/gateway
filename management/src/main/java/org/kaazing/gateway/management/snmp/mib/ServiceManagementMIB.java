@@ -476,13 +476,15 @@ public class ServiceManagementMIB implements MOGroup, CounterListener, AgentCapa
 
             StringBuffer sb = new StringBuffer();
             sb.append("{ ");
-            for (Long sessionId : loggedInSessionMap.keySet()) {
-                sb.append(sessionId.toString());
+            for (Map.Entry<Long, Map<String, String>> entry : loggedInSessionMap.entrySet()) {
+            	Long sessionId = entry.getKey();
+            	Map<String, String> principalMap = entry.getValue();
+            	sb.append(sessionId.toString());
                 sb.append(" : [ ");
-                Map<String, String> principalMap = loggedInSessionMap.get(sessionId);
-                for (String principalName : principalMap.keySet()) {
-                    String principalClass = principalMap.get(principalName);
-                    sb.append(principalName + " : " + principalClass + ", ");
+                for (Map.Entry<String, String> principalEntry : principalMap.entrySet()) {
+                	String principalName = principalEntry.getKey();
+                	String principalClass = principalEntry.getValue();
+                	sb.append(principalName + " : " + principalClass + ", ");
                 }
 
                 // delete trailing space, then trailing comma

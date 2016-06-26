@@ -89,8 +89,8 @@ public class FileLoginModule implements LoginModule {
             throw new RuntimeException("Missing required option \"" + FILE_KEY + "\" to locate JAAS configuration file");
         }
 
-        JaasConfig jaasConfig = SHARED_STATE.get(jaasFilename);
-        if (jaasConfig == null) {
+        JaasConfig config = SHARED_STATE.get(jaasFilename);
+        if (config == null) {
             File jaasFile = new File(jaasFilename);
             if (!jaasFile.isAbsolute()) {
                 String configDir = (String) options.get("GATEWAY_CONFIG_DIRECTORY");
@@ -101,8 +101,8 @@ public class FileLoginModule implements LoginModule {
 
             if (jaasFile.exists() && jaasFile.isFile()) {
                 try {
-                    jaasConfig = new JaasConfigParser().parse(jaasFile.toURI().toURL());
-                    SHARED_STATE.put(jaasFilename, jaasConfig);
+                	config = new JaasConfigParser().parse(jaasFile.toURI().toURL());
+                    SHARED_STATE.put(jaasFilename, config);
                 }
                 catch (Exception e) {
                     throw new RuntimeException(e);
@@ -117,15 +117,13 @@ public class FileLoginModule implements LoginModule {
         this.state = State.INITIALIZE_COMPLETE;
         this.subject = subject;
         this.handler = callback;
-        this.jaasConfig = jaasConfig;
+        this.jaasConfig = config;
     }
 
     @Override
     public boolean login() throws LoginException {
         switch (state) {
             case INITIALIZE_COMPLETE:
-                return login0();
-
             case LOGIN_COMPLETE:
                 return login0();
 
@@ -207,7 +205,7 @@ public class FileLoginModule implements LoginModule {
             } catch (LoginException le) {
                 cleanState();
                 if (debug) {
-                    LOG.debug("[FileLoginModule] " + "login failed: " + le.getMessage());
+                    LOG.debug("[FileLoginModule] " + "login failed: " + le.getMessage(), le);
                 }
             }
         }
@@ -314,7 +312,7 @@ public class FileLoginModule implements LoginModule {
 
         } catch (UnsupportedCallbackException e) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("[FileLoginModule] - UnsupportedCallbackException handling name, password callbacks.");
+                LOG.trace("[FileLoginModule] - UnsupportedCallbackException handling name, password callbacks.", e);
             }
             return;
         }

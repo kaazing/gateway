@@ -29,7 +29,7 @@ public interface GatewayConfigTranslatorFactorySpi {
      * Given an incoming namespace, return the translator pipeline
      * to translate a document with that namespace up to the 'current' format.
      *
-     * @param namespace  A namespace like "http://xmlns.kaazing.org/2014/09/gateway"
+     * @param ns  A namespace like "http://xmlns.kaazing.org/2014/09/gateway"
      * @return A translator to handle the namespace, or
      */
     GatewayConfigTranslator getTranslator(GatewayConfigNamespace ns);

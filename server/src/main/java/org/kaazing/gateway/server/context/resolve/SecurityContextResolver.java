@@ -125,8 +125,9 @@ public class SecurityContextResolver implements ContextResolver<SecurityType, De
                             "gateway configuration file",
                     e.getLocalizedMessage(), location));
             throw e;
+        } finally {
+        	in.close();
         }
-        in.close();
 
         return keyStore;
     }

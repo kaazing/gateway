@@ -59,6 +59,9 @@ import org.kaazing.mina.core.session.IoSessionConfigEx.ChangeListener;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 
+/**
+ * TODO Add class documentation
+ */
 public abstract class AbstractNioConnector implements BridgeConnector {
 
     private AtomicReference<IoConnectorEx> connector = new AtomicReference<>();
@@ -85,8 +88,8 @@ public abstract class AbstractNioConnector implements BridgeConnector {
         if (logger.isTraceEnabled()) {
             logger.trace("AbstractNioConnector.init()");
         }
-        IoConnectorEx connector = initConnector();
-        connector.setHandler(new BridgeConnectHandler() {
+        IoConnectorEx ioConnector = initConnector();
+        ioConnector.setHandler(new BridgeConnectHandler() {
             @Override
             public void sessionCreated(IoSession session) throws Exception {
                 LoggingFilter.addIfNeeded(logger, session, getTransportName());
@@ -95,7 +98,7 @@ public abstract class AbstractNioConnector implements BridgeConnector {
             }
         });
 
-        this.connector.set(connector);
+        this.connector.set(ioConnector);
         bridgeServiceFactory = initBridgeServiceFactory();
         addressFactory = initResourceAddressFactory();
     }
@@ -110,9 +113,9 @@ public abstract class AbstractNioConnector implements BridgeConnector {
 
     @Override
     public void dispose() {
-        IoConnector connector = this.connector.getAndSet(null);
-    	if (connector != null) {
-    		connector.dispose();
+        IoConnector ioConnector = this.connector.getAndSet(null);
+    	if (ioConnector != null) {
+    		ioConnector.dispose();
     	}
     }
 
@@ -161,14 +164,14 @@ public abstract class AbstractNioConnector implements BridgeConnector {
                 }
             };
 
-            final BridgeConnector connector = bridgeServiceFactory.newBridgeConnector(transport);
+            final BridgeConnector ioConnector = bridgeServiceFactory.newBridgeConnector(transport);
 
             IoSessionInitializer<ConnectFuture> parentInitializer = createParentInitializer(address,
                                                                                             handler,
                                                                                             (IoSessionInitializer)initializer,
                                                                                             bridgeConnectFuture);
 
-            connector.connect(transport, tcpBridgeHandler, parentInitializer).addListener(parentConnectListener);
+            ioConnector.connect(transport, tcpBridgeHandler, parentInitializer).addListener(parentConnectListener);
 
             return bridgeConnectFuture;
         }
@@ -181,14 +184,14 @@ public abstract class AbstractNioConnector implements BridgeConnector {
         }
 
         // KG-1452: Avoid deadlock between dispose and connectInternal
-        IoConnector connector = this.connector.get();
-        if (connector == null) {
+        IoConnector ioConnector = this.connector.get();
+        if (ioConnector == null) {
             return DefaultConnectFuture.newFailedFuture(new IllegalStateException("Connector is being shut down"));
         }
 
         final String nextProtocol = address.getOption(ResourceAddress.NEXT_PROTOCOL);
 
-        future = connector.connect(inetAddress, new IoSessionInitializer<T>() {
+        future = ioConnector.connect(inetAddress, new IoSessionInitializer<T>() {
             @Override
             public void initializeSession(IoSession session, T future) {
 
@@ -320,9 +323,9 @@ public abstract class AbstractNioConnector implements BridgeConnector {
         }
 
         protected void doFireSessionDestroyed(IoSessionAdapterEx session) {
-            final IoConnectorEx connector = AbstractNioConnector.this.connector.get();
-            if (connector != null) {
-                connector.getListeners().fireSessionDestroyed(session);
+            final IoConnectorEx ioConnector = AbstractNioConnector.this.connector.get();
+            if (ioConnector != null) {
+            	ioConnector.getListeners().fireSessionDestroyed(session);
             }
         }
 
@@ -388,17 +391,17 @@ public abstract class AbstractNioConnector implements BridgeConnector {
                                 addressFactory.newResourceAddress(connectAddress, transportAddress);
 
 
-                        final IoConnectorEx connector = AbstractNioConnector.this.connector.get();
+                        final IoConnectorEx ioConnector = AbstractNioConnector.this.connector.get();
                         IoSessionAdapterEx tcpBridgeSession = new IoSessionAdapterEx(parentEx.getIoThread(),
                                                                                      parentEx.getIoExecutor(),
-                                                                                     connector,
+                                                                                     ioConnector,
                                                                                  processor,
-                                                                                 connector.getSessionDataStructureFactory());
+                                                                                 ioConnector.getSessionDataStructureFactory());
 
                         tcpBridgeSession.setLocalAddress(localAddress);
                         tcpBridgeSession.setRemoteAddress(connectAddress);
                         tcpBridgeSession.setAttribute(PARENT_KEY, parent);
-                        tcpBridgeSession.setTransportMetadata(connector.getTransportMetadata());
+                        tcpBridgeSession.setTransportMetadata(ioConnector.getTransportMetadata());
                         
                         // Propagate changes to idle time to the parent session
                         tcpBridgeSession.getConfig().setChangeListener(new ChangeListener() {
@@ -414,9 +417,9 @@ public abstract class AbstractNioConnector implements BridgeConnector {
 
                         bridgeSessionInitializer.initializeSession(tcpBridgeSession, bridgeConnectFuture);
 
-                        connector.getFilterChainBuilder().buildFilterChain(tcpBridgeSession.getFilterChain());
+                        ioConnector.getFilterChainBuilder().buildFilterChain(tcpBridgeSession.getFilterChain());
 
-                        connector.getListeners().fireSessionCreated(tcpBridgeSession);
+                        ioConnector.getListeners().fireSessionCreated(tcpBridgeSession);
 
 
                         return tcpBridgeSession;
@@ -491,7 +494,8 @@ public abstract class AbstractNioConnector implements BridgeConnector {
             IoSessionAdapterEx tcpBridgeSession = sessionFactory.call();
 
             // already added in session creator, in case of synchronous pipe write from sessionOpened
-            assert (session.getAttribute(TCP_SESSION_KEY) == tcpBridgeSession);
+            boolean bridgeSession = session.getAttribute(TCP_SESSION_KEY) == tcpBridgeSession;
+            assert bridgeSession;
 
         }
 

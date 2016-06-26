@@ -35,8 +35,7 @@ public class MMFGatewayWriter implements GatewayWriter {
     @Override
     public MonitoringEntityFactory writeCountersFactory() {
         createCountersManager();
-        MonitoringEntityFactory factory = new AgronaMonitoringEntityFactory(countersManager);
-        return factory;
+        return new AgronaMonitoringEntityFactory(countersManager);
     }
 
     /**

@@ -79,6 +79,15 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private final TcpExtensionFactory extensionFactory;
+    
+    public NioSocketAcceptor(Properties configuration, TcpExtensionFactory extensionFactory) {
+        super(configuration, LoggerFactory.getLogger(LOGGER_NAME));
+        this.extensionFactory = extensionFactory;
+    }
+
+    NioSocketAcceptor(Properties configuration) {
+        this(configuration, TcpExtensionFactory.newInstance());
+    }
 
     static {
         // We must set the select timeout property before Netty class SelectorUtil gets loaded
@@ -123,22 +132,13 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
 
     private final AtomicReference<DistributedNioWorkerPool> currentWorkerPool = new AtomicReference<>();
 
-    public NioSocketAcceptor(Properties configuration, TcpExtensionFactory extensionFactory) {
-        super(configuration, LoggerFactory.getLogger(LOGGER_NAME));
-        this.extensionFactory = extensionFactory;
-    }
-
-    NioSocketAcceptor(Properties configuration) {
-        this(configuration, TcpExtensionFactory.newInstance());
-    }
-
     @Override
     public void bind(final ResourceAddress address,
                      IoHandler handler,
                      BridgeSessionInitializer<? extends IoFuture> initializer) throws NioBindException {
         Collection<TcpExtension> extensions = extensionFactory.bind(address);
         BridgeSessionInitializer<? extends IoFuture> newInitializer = initializer;
-        if (extensions.size() > 0) {
+        if (!extensions.isEmpty()) {
             newInitializer = new ExtensionsSessionInitializer(extensions, initializer);
         }
         super.bind(address, handler, newInitializer);
@@ -348,8 +348,8 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
 			if (workerCount <= 0) {
 				throw new IllegalArgumentException("workerCount (" + workerCount + ") must be a positive integer");
 			}
-			DistributedNioWorker[] workers = new DistributedNioWorker[workerCount];
-			for (int i=0; i < workers.length; i++) {
+			DistributedNioWorker[] workerList = new DistributedNioWorker[workerCount];
+			for (int i=0; i < workerList.length; i++) {
 				// we cannot allow shutdown on idle, otherwise worker may end up running on a different thread
 				DistributedNioWorker worker = new DistributedNioWorker(workerExecutor);
 				// we must set the current worker in the right thread local before any in-bound connections
@@ -357,14 +357,14 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
 				worker.executeInIoThread(future, /*alwaysAsync*/ true);
 				try {
 					NioWorker workerFromTask = future.get();
-					assert (workerFromTask == worker);
+					assert workerFromTask == worker;
 				}
 				catch (Exception e) {
 					e.printStackTrace();
 				}
-				workers[i] = worker;
+				workerList[i] = worker;
 			}
-			this.workers = workers;
+			this.workers = workerList;
 			this.workerExecutor = workerExecutor;
 		}
 

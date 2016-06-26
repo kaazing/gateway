@@ -166,6 +166,7 @@ public class HttpUtils {
 
 				// Note: callers are responsible for adding the Content-Type header,
 				// per KG-866.  See HttpCrossSiteBridgeFilter for an example.
+				in.close();
 			}
 		}
 		else {
@@ -205,6 +206,7 @@ public class HttpUtils {
 
                 // Note: callers are responsible for adding the Content-Type header,
                 // per KG-866.  See HttpCrossSiteBridgeFilter for an example.
+                in.close();
             }
         }
         else {
@@ -314,8 +316,7 @@ public class HttpUtils {
 		builder.append(Long.toHexString(buf.getLong()));
 		builder.append(Long.toHexString(buf.getLong()));
 		builder.append('"');
-		String headerValue = builder.toString();
-		return headerValue;
+		return builder.toString();
 	}
 
 	public static void supplyScriptAsHtml(File xdBridgeFile, long startTime, String resourcePath) throws IOException {
@@ -374,8 +375,9 @@ public class HttpUtils {
 		}
 		String responseMode = session.getReadHeader(PROXY_BUFFERING_HEADER);
 		if (responseMode != null) {
-			assert responseMode.equals("on") || responseMode.equals("off");
-			return responseMode.equals("off");
+			boolean modeOnOff = ("on").equals(responseMode) || ("off").equals(responseMode);
+			assert modeOnOff;
+			return ("off").equals(responseMode);
 		}
 		return true;
 	}
@@ -404,8 +406,7 @@ public class HttpUtils {
         String authority = HttpUtils.getHostAndPort(hostHeader, secure);
         // Use getRawPath to get the un-decoded path; getPath returns the post-decode value.
         // This is required to handle special characters like spaces in the URI (KG-831).
-        URI uri = URI.create("//" + authority + requestURI.getRawPath());
-        return uri;
+        return URI.create("//" + authority + requestURI.getRawPath());
     }
 
     /*
@@ -418,7 +419,7 @@ public class HttpUtils {
         if (connectionValues == null) {
             return false;
         }
-        return connectionValues.stream().anyMatch(v -> v.equalsIgnoreCase("close"));
+        return connectionValues.stream().anyMatch(v -> ("close").equalsIgnoreCase(v));
     }
 
     public static URI getTransportURI(HttpRequestMessage request, IoSession session) {
@@ -532,7 +533,7 @@ public class HttpUtils {
         String urlEncodedToken = null;
         String[] pathComponents = getPathComponents(uri);
         if ( pathComponents != null && pathComponents.length >= 3) {
-            if ( pathComponents[pathComponents.length-3].equals(";e") &&
+            if ( (";e").equals(pathComponents[pathComponents.length-3]) &&
                  pathComponents[pathComponents.length-2].startsWith("u") ||
                  pathComponents[pathComponents.length-2].startsWith("d") ) {
                  urlEncodedToken = pathComponents[pathComponents.length-1];
@@ -553,22 +554,20 @@ public class HttpUtils {
             return false;
         }
 
-        boolean allowedHeadersEmpty = (allowedHeaders == null || allowedHeaders.length==0);
+        boolean allowedHeadersEmpty = allowedHeaders == null || allowedHeaders.length==0;
 
         for ( String header: headers.keySet()) {
 
             boolean headerIsForbidden = isForbiddenHeader(header);
             boolean headerIsAllowed = false;
 
-            if ( headerIsForbidden ) {
-                if ( !allowedHeadersEmpty ) {
-                    // Is the header an exception?  If so, it is not fobidden
-                    for ( String allowedHeader: allowedHeaders ) {
-                         if (allowedHeader.equalsIgnoreCase(header)) {
-                             headerIsAllowed = true;
-                             break;
-                         }
-                    }
+            if ( headerIsForbidden && !allowedHeadersEmpty ) {
+                // Is the header an exception?  If so, it is not fobidden
+                for ( String allowedHeader: allowedHeaders ) {
+                     if (allowedHeader.equalsIgnoreCase(header)) {
+                         headerIsAllowed = true;
+                         break;
+                     }
                 }
             }
 
@@ -729,11 +728,12 @@ public class HttpUtils {
             fromHeaders.remove(ignoreHeader);
         }
 
-        for (String fromHeader: fromHeaders.keySet()) {
-            if ( !toHeaders.containsKey(fromHeader) ) {
-                toHeaders.put(fromHeader, fromHeaders.get(fromHeader));
+        for (Map.Entry<String, List<String>> entry : fromHeaders.entrySet()) {
+        	String fromHeader = entry.getKey();
+        	List<String> fromValues = entry.getValue();
+        	if ( !toHeaders.containsKey(fromHeader) ) {
+                toHeaders.put(fromHeader, fromValues);
             } else {
-                List<String> fromValues = fromHeaders.get(fromHeader);
                 List<String> toValues = toHeaders.get(fromHeader);
                 if ( fromValues == null || toValues == null ) {
                     throw new IllegalArgumentException("Illegal null header values from header: "+fromHeader);
@@ -773,7 +773,7 @@ public class HttpUtils {
         // Remove the value to remove
         for (String header: headerNames) {
             List<String> values = requestHeaders.get(header);
-            if ( values == null || values.size() == 0) {
+            if ( values == null || values.isEmpty()) {
                 continue;
             }
             //
@@ -808,14 +808,19 @@ public class HttpUtils {
         fromParameters = new HashMap<>(fromParameters);
         final Map<String, List<String>> toParameters = new HashMap<>(to.getParameters());
 
-        for (String fromParameter: fromParameters.keySet()) {
-            if ( !toParameters.containsKey(fromParameter) ) {
-                toParameters.put(fromParameter, fromParameters.get(fromParameter));
+        for (Map.Entry<String, List<String>> entry : fromParameters.entrySet()) {
+        	String fromParameter = entry.getKey();
+        	List<String> fromValues = entry.getValue();
+        	if ( !toParameters.containsKey(fromParameter) ) {
+                toParameters.put(fromParameter, fromValues);
             } else {
-                List<String> fromValues = fromParameters.get(fromParameter);
                 List<String> toValues = toParameters.get(fromParameter);
-                if ( fromValues == null ) { fromValues = new ArrayList<>();}
-                if ( toValues == null ) { toValues = new ArrayList<>();}
+                if ( fromValues == null ) { 
+                	fromValues = new ArrayList<>();
+                }
+                if ( toValues == null ) { 
+                	toValues = new ArrayList<>();
+                }
                 Set<String> result = new LinkedHashSet<>(fromValues);
                 result.addAll(toValues);
                 toParameters.put(fromParameter, new ArrayList<>(result));
@@ -884,7 +889,7 @@ public class HttpUtils {
         }
 
         final String scheme = uri.getScheme();
-        return ("tcp".equalsIgnoreCase(scheme) || "ssl".equalsIgnoreCase(scheme));
+        return "tcp".equalsIgnoreCase(scheme) || "ssl".equalsIgnoreCase(scheme);
     }
 
     public static boolean hasStreamingScheme(String uri) {
@@ -893,7 +898,7 @@ public class HttpUtils {
         }
 
         final String scheme = URIUtils.getScheme(uri);
-        return ("tcp".equalsIgnoreCase(scheme) || "ssl".equalsIgnoreCase(scheme));
+        return "tcp".equalsIgnoreCase(scheme) || "ssl".equalsIgnoreCase(scheme);
     }
 
 }

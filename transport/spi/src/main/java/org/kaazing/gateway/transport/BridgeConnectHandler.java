@@ -19,6 +19,9 @@ import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 
+/**
+ * TODO Add class documentation
+ */
 public class BridgeConnectHandler extends AbstractBridgeHandler {
 
     public static final AttributeKey DELEGATE_KEY = new AttributeKey(BridgeConnectHandler.class, "delegate");

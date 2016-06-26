@@ -391,10 +391,8 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
                                     break;
                                 case 't':
                                 case 'T':
-                                    if (HEADER_CONTENT_LENGTH.equalsIgnoreCase(headerName)) {
-                                        break outer;
-                                    }
-                                    else if ("Content-Encoding".equalsIgnoreCase(headerName)) {
+                                    if (HEADER_CONTENT_LENGTH.equalsIgnoreCase(headerName) || 
+                                    	"Content-Encoding".equalsIgnoreCase(headerName)) {
                                         break outer;
                                     }
                                     else if ("Content-Type".equalsIgnoreCase(headerName)) {
@@ -547,7 +545,7 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
                         if (innerContentType.startsWith(CONTENT_TYPE_PREFIX_TEXT)) {
                             int charsetAt = innerContentType.indexOf(';');
                             if (charsetAt == -1) {
-                                if (CONTENT_TYPE_TEXT_PLAIN.equals(contentType) == false) {
+                                if (!CONTENT_TYPE_TEXT_PLAIN.equals(contentType)) {
                                     throw new ProtocolDecoderException("Inconsistent HTTP content-type");
                                 }
                             }
@@ -556,12 +554,12 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
                                 if (!ASCII_COMPATIBLE.contains(charset.toLowerCase())) {
                                     throw new ProtocolEncoderException("HTTP enveloping not compatible with charset: " + charset);
                                 }
-                                if (format("%s;%s", CONTENT_TYPE_TEXT_PLAIN, charset).equals(contentType) == false) {
+                                if (!format("%s;%s", CONTENT_TYPE_TEXT_PLAIN, charset).equals(contentType)) {
                                     throw new ProtocolDecoderException("Inconsistent HTTP content-type");
                                 }
                             }
                         }
-                        else if (innerContentType.equals(contentType) == false) {
+                        else if (!innerContentType.equals(contentType)) {
                             throw new ProtocolDecoderException("Inconsistent HTTP content-type");
                         }
                     }

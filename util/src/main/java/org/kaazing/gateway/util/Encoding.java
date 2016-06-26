@@ -287,6 +287,8 @@ public enum Encoding {
     /**
      * WARNING: this method will throw a runtime exception if there is incomplete data at the end of buf
      * (e.g. first byte of a two byte UTF8 character or escaped byte). For that use decode(IoBuffer, DecodingState).
+     * @param buf
+     * @return
      * @throws UnsupportedOperationException - if the last byte is part of an incomplete sequence
      */
     public ByteBuffer decode(ByteBuffer buf) {

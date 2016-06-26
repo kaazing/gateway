@@ -30,7 +30,8 @@ public class HttpBalancerServiceFactorySpi extends ServiceFactorySpi {
 
     @Override
     public Service newService(String serviceType) {
-        assert "balancer".equals(serviceType);
+    	boolean equalsBalancer = "balancer".equals(serviceType);
+        assert equalsBalancer;
         return new HttpBalancerService();
     }
 }

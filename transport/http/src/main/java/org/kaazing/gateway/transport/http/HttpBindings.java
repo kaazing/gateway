@@ -135,6 +135,11 @@ public class HttpBindings extends Bindings<HttpBinding> {
     }
 
     public static class HttpBinding extends org.kaazing.gateway.transport.Bindings.Binding {
+    	
+    	HttpBinding(ResourceAddress bindAddress) {
+            super(bindAddress);
+            bindingsByPath = new ConcurrentSkipListMap<>(PATH_ASCENDING);
+        }
 
         private static final Comparator<String> PATH_ASCENDING = new Comparator<String>() {
 
@@ -155,7 +160,7 @@ public class HttpBindings extends Bindings<HttpBinding> {
                 }
 
                 if (comparison == 0) {
-                    return (segments1.length - segments2.length);
+                    return segments1.length - segments2.length;
                 }
                 
                 return comparison;
@@ -208,13 +213,9 @@ public class HttpBindings extends Bindings<HttpBinding> {
         }
         
         protected final boolean equals(HttpBinding that) {
-            return super.equals(that) &&
+            return super.equals(that) && 
+            		that != null && 
                     this.bindingsByPath.equals(that.bindingsByPath);
-        }
-
-        HttpBinding(ResourceAddress bindAddress) {
-            super(bindAddress);
-            bindingsByPath = new ConcurrentSkipListMap<>(PATH_ASCENDING);
         }
         
         boolean isEmpty() {
@@ -244,10 +245,8 @@ public class HttpBindings extends Bindings<HttpBinding> {
         }
 
         boolean remove(String path, Binding binding)  {
-            if ( binding == (bindingsByPath.get(path))) {
-                if (binding != null && binding.decrementReferenceCount() == 0 ) {
-                    return bindingsByPath.remove(path, binding);
-                }
+            if ( binding == (bindingsByPath.get(path)) && binding != null && binding.decrementReferenceCount() == 0 ) {
+            	return bindingsByPath.remove(path, binding);
             }
             return false;
         }

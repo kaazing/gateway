@@ -21,10 +21,13 @@ import java.security.KeyStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * TODO Add class documentation
+ */
 public class DefaultKeySelector
     extends AbstractKeySelector {
 
-    private static final Logger logger = LoggerFactory.getLogger(DefaultKeySelector.class);
+//    private static final Logger logger = LoggerFactory.getLogger(DefaultKeySelector.class);
 
     public DefaultKeySelector() {
         super();

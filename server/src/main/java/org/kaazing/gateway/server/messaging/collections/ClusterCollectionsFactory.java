@@ -26,6 +26,9 @@ import com.hazelcast.core.ITopic;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 import org.kaazing.gateway.util.AtomicCounter;
 
+/**
+ * TODO Add class documentation
+ */
 public class ClusterCollectionsFactory implements CollectionsFactory {
 
 

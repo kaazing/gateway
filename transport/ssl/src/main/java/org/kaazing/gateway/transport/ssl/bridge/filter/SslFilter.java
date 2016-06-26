@@ -169,6 +169,9 @@ public class SslFilter extends IoFilterAdapter {
     /**
      * Creates a new SSL filter using the specified {@link SSLContext}.
      * The handshake will start immediately.
+     * 
+     * @param sslContext
+     * @param logger
      */
     public SslFilter(SSLContext sslContext, Logger logger) {
         this(sslContext, START_HANDSHAKE, logger);
@@ -178,6 +181,10 @@ public class SslFilter extends IoFilterAdapter {
      * Creates a new SSL filter using the specified {@link SSLContext}.
      * If the <code>autostart</code> flag is set to <code>true</code>, the
      * handshake will start immediately.
+     * 
+     * @param sslContext
+     * @param autoStart
+     * @param logger
      */
     public SslFilter(SSLContext sslContext, boolean autoStart, Logger logger) {
         if (sslContext == null) {
@@ -192,6 +199,7 @@ public class SslFilter extends IoFilterAdapter {
     /**
      * Returns the underlying {@link SSLSession} for the specified session.
      *
+     * @param session
      * @return <tt>null</tt> if no {@link SSLSession} is initialized yet.
      */
     public SSLSession getSslSession(IoSession session) {
@@ -203,6 +211,7 @@ public class SslFilter extends IoFilterAdapter {
      * Please note that SSL session is automatically started by default, and therefore
      * you don't need to call this method unless you've used TLS closure.
      *
+     * @param session
      * @return <tt>true</tt> if the SSL session has been started, <tt>false</tt> if already started.
      * @throws SSLException if failed to start the SSL session
      */
@@ -231,6 +240,9 @@ public class SslFilter extends IoFilterAdapter {
      * encrypted/decrypted over SSL/TLS currently.  This method will start
      * to retun <tt>false</tt> after TLS <tt>close_notify</tt> message
      * is sent and any messages written after then is not goinf to get encrypted.
+     * 
+     * @param session
+     * @return
      */
     public boolean isSslStarted(IoSession session) {
         SslHandler handler = (SslHandler) session.getAttribute(SSL_HANDLER);
@@ -249,6 +261,7 @@ public class SslFilter extends IoFilterAdapter {
      * initiate TLS closure.
      *
      * @param session the {@link IoSession} to initiate TLS closure
+     * @return
      * @throws SSLException if failed to initiate TLS closure
      * @throws IllegalArgumentException if this filter is not managing the specified session
      */

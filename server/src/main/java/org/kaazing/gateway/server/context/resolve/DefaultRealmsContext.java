@@ -19,6 +19,9 @@ import java.util.Collection;
 import java.util.Map;
 import org.kaazing.gateway.security.RealmContext;
 
+/**
+ * TODO Add class documentation
+ */
 public class DefaultRealmsContext implements RealmsContext {
     private Map<String, ? extends RealmContext> realmsByNameMap;
 

@@ -134,7 +134,7 @@ public class HttpBalancerService implements Service {
 
             @Override
             public BridgeSessionInitializer<ConnectFuture> getParentInitializer(Protocol protocol) {
-                return (HttpProtocol.HTTP.equals(protocol) ? preUpgradeHttpSessionInitializer : null);
+                return HttpProtocol.HTTP.equals(protocol) ? preUpgradeHttpSessionInitializer : null;
             }
         };
 

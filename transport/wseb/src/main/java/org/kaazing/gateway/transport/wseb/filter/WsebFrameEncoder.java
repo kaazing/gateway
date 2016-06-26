@@ -66,21 +66,16 @@ public class WsebFrameEncoder extends AbstractWsFrameEncoder {
     @Override
     protected IoBufferEx doEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
         switch (message.getKind()) {
-            case BINARY: {
+            case BINARY:
                 return doBinaryEncode(allocator, flags, message);
-            }
-            case TEXT: {
+            case TEXT:
                 return doTextEncode(allocator, flags, message);
-            }
-            case COMMAND: {
+            case COMMAND:
                 return doCommandEncode(allocator, flags, message);
-            }
-            case PING: {
+            case PING:
                 return doPingEncode(allocator, flags, message);
-            }
-            case PONG: {
+            case PONG:
                 return doPongEncode(allocator, flags, message);
-            }
             default:
                 throw new IllegalStateException("Unrecognized frame type: " + message.getKind());
         }
@@ -112,7 +107,8 @@ public class WsebFrameEncoder extends AbstractWsFrameEncoder {
 
     protected IoBufferEx doPingEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
         WsPingMessage ping = (WsPingMessage)message;
-        assert ping.getBytes().remaining() == 0 : "PING with payload not supported";
+        boolean zeroRemaining = ping.getBytes().remaining() == 0;
+        assert zeroRemaining : "PING with payload not supported";
         ByteBuffer text = allocator.allocate(EMPTY_PING_BYTES.length, flags);
         int offset = text.position();
         text.put(EMPTY_PING_BYTES);
@@ -122,8 +118,9 @@ public class WsebFrameEncoder extends AbstractWsFrameEncoder {
     }
 
     protected IoBufferEx doPongEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
-        WsPongMessage ping = (WsPongMessage)message;
-        assert ping.getBytes().remaining() == 0 : "PONG with payload not supported";
+        WsPongMessage pong = (WsPongMessage)message;
+        boolean zeroRemaining = pong.getBytes().remaining() == 0;
+        assert zeroRemaining : "PONG with payload not supported";
         ByteBuffer text = allocator.allocate(EMPTY_PONG_BYTES.length, flags);
         int offset = text.position();
         text.put(EMPTY_PONG_BYTES);

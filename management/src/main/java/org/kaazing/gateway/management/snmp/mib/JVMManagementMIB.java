@@ -163,10 +163,10 @@ public class JVMManagementMIB implements MOGroup {
     private static final int JVM_CLASSES_LOADED_OPER = 1;
     private static final int JVM_CLASSES_TOTAL_LOADED_OPER = 2;
     private static final int JVM_CLASSES_UNLOADED_OPER = 3;
-    private static final int JVM_CLASSES_VERBOSE_LEVEL_OPER = 4;
+//    private static final int JVM_CLASSES_VERBOSE_LEVEL_OPER = 4;
     private static final int JVM_MEMORY_PENDING_FINAL_COUNT_OPER = 5;
-    private static final int JVM_MEMORY_GC_VERBOSE_LEVEL_OPER = 6;
-    private static final int JVM_MEMORY_GC_CALL_OPER = 7;
+//    private static final int JVM_MEMORY_GC_VERBOSE_LEVEL_OPER = 6;
+//    private static final int JVM_MEMORY_GC_CALL_OPER = 7;
     private static final int JVM_MEMORY_HEAP_SIZE_INIT_OPER = 8;
     private static final int JVM_MEMORY_HEAP_USED_OPER = 9;
     private static final int JVM_MEMORY_HEAP_COMMITTED_OPER = 10;
@@ -446,17 +446,17 @@ public class JVMManagementMIB implements MOGroup {
 
         @Override
         public Variable getValue() {
-            ClassLoadingMXBean bean = ManagementFactory.getClassLoadingMXBean();
+            ClassLoadingMXBean loadingBean = ManagementFactory.getClassLoadingMXBean();
             long classLoadingLong;
             switch (operation) {
                 case JVM_CLASSES_LOADED_OPER:
-                    classLoadingLong = (long) bean.getLoadedClassCount();
+                    classLoadingLong = (long) loadingBean.getLoadedClassCount();
                     break;
                 case JVM_CLASSES_TOTAL_LOADED_OPER:
-                    classLoadingLong = bean.getTotalLoadedClassCount();
+                    classLoadingLong = loadingBean.getTotalLoadedClassCount();
                     break;
                 case JVM_CLASSES_UNLOADED_OPER:
-                    classLoadingLong = bean.getUnloadedClassCount();
+                    classLoadingLong = loadingBean.getUnloadedClassCount();
                     break;
                 default:
                     throw new RuntimeException(
@@ -545,8 +545,8 @@ public class JVMManagementMIB implements MOGroup {
                 if (value instanceof Integer32) {
                     int gcCallValue = ((Integer32) value).getValue();
                     if (gcCallValue == 3) { // FIXME:  use a constant
-                        MemoryMXBean bean = ManagementFactory.getMemoryMXBean();
-                        bean.gc();
+                        MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
+                        memoryBean.gc();
                         return SnmpConstants.SNMP_ERROR_SUCCESS;
                     } else {
                         return SnmpConstants.SNMP_ERROR_BAD_VALUE;
@@ -569,26 +569,26 @@ public class JVMManagementMIB implements MOGroup {
 
         @Override
         public Variable getValue() {
-            MemoryMXBean bean = ManagementFactory.getMemoryMXBean();
+            MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
             switch (operation) {
                 case 1:
-                    return new Gauge32(bean.getObjectPendingFinalizationCount());
+                    return new Gauge32(memoryBean.getObjectPendingFinalizationCount());
                 case JVM_MEMORY_HEAP_SIZE_INIT_OPER:
-                    return new Counter64(bean.getHeapMemoryUsage().getInit());
+                    return new Counter64(memoryBean.getHeapMemoryUsage().getInit());
                 case JVM_MEMORY_HEAP_USED_OPER:
-                    return new Counter64(bean.getHeapMemoryUsage().getUsed());
+                    return new Counter64(memoryBean.getHeapMemoryUsage().getUsed());
                 case JVM_MEMORY_HEAP_COMMITTED_OPER:
-                    return new Counter64(bean.getHeapMemoryUsage().getCommitted());
+                    return new Counter64(memoryBean.getHeapMemoryUsage().getCommitted());
                 case JVM_MEMORY_HEAP_MAX_SIZE_OPER:
-                    return new Counter64(bean.getHeapMemoryUsage().getMax());
+                    return new Counter64(memoryBean.getHeapMemoryUsage().getMax());
                 case JVM_MEMORY_NONHEAP_SIZE_INIT_OPER:
-                    return new Counter64(bean.getNonHeapMemoryUsage().getInit());
+                    return new Counter64(memoryBean.getNonHeapMemoryUsage().getInit());
                 case JVM_MEMORY_NONHEAP_USED_OPER:
-                    return new Counter64(bean.getNonHeapMemoryUsage().getUsed());
+                    return new Counter64(memoryBean.getNonHeapMemoryUsage().getUsed());
                 case JVM_MEMORY_NONHEAP_COMMITTED_OPER:
-                    return new Counter64(bean.getNonHeapMemoryUsage().getCommitted());
+                    return new Counter64(memoryBean.getNonHeapMemoryUsage().getCommitted());
                 case JVM_MEMORY_NONHEAP_MAX_SIZE_OPER:
-                    return new Counter64(bean.getNonHeapMemoryUsage().getMax());
+                    return new Counter64(memoryBean.getNonHeapMemoryUsage().getMax());
                 default:
                     throw new RuntimeException(
                             "JMVMemoryScalar incorrectly configured with unsupported operation: " + operation);
@@ -606,15 +606,15 @@ public class JVMManagementMIB implements MOGroup {
 
         @Override
         public Variable getValue() {
-            ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+            ThreadMXBean threadBean = ManagementFactory.getThreadMXBean();
             // FIXME:  used constants for the operation
             switch (operation) {
                 case 1:
-                    return new Integer32(bean.getThreadCount());
+                    return new Integer32(threadBean.getThreadCount());
                 case 2:
-                    return new Integer32(bean.getPeakThreadCount());
+                    return new Integer32(threadBean.getPeakThreadCount());
                 case 3:
-                    return new Counter64(bean.getTotalStartedThreadCount());
+                    return new Counter64(threadBean.getTotalStartedThreadCount());
                 default:
                     throw new RuntimeException(
                             "JMVThreadingScalar incorrectly configured with unsupported operation: " + operation);
@@ -645,8 +645,7 @@ public class JVMManagementMIB implements MOGroup {
                     throw new RuntimeException("SystemString incorrectly configured with unsupported operation: " + operation);
             }
 
-            OctetString val = (OctetString) Utils.stringToVariable(value);
-            return val;
+          	return (OctetString) Utils.stringToVariable(value);
         }
     }
 

@@ -35,19 +35,25 @@ import org.apache.mina.core.service.IoHandler;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.Bindings.Binding;
 
+/**
+ * TODO Add class documentation
+ * 
+ * @param <B> Binding type
+ */
 public abstract class Bindings<B extends Binding> {
 
-    private final ConcurrentNavigableMap<ResourceAddress, B> bindings;
+    private final ConcurrentNavigableMap<ResourceAddress, B> bindingMap;
 
     protected Bindings(Comparator<ResourceAddress> comparator) {
-        bindings = new ConcurrentSkipListMap<>(comparator);
+        bindingMap = new ConcurrentSkipListMap<>(comparator);
     }
 
     public boolean isEmpty() {
-        return bindings.isEmpty();
+        return bindingMap.isEmpty();
     }
 
     /**
+     * @param newBinding
      * @return the existing (old) binding  when the newBinding clashes with the existing binding,
      *         null if the newBinding has been recorded successfully.
      */
@@ -56,6 +62,8 @@ public abstract class Bindings<B extends Binding> {
     public abstract Binding getBinding(ResourceAddress address);
 
     /**
+     * @param address
+     * @param binding
      * @return true when the last binding has been removed (reference count 0)
      */
     public abstract boolean removeBinding(ResourceAddress address, Binding binding);
@@ -86,12 +94,12 @@ public abstract class Bindings<B extends Binding> {
     }
     
     protected Set<Map.Entry<ResourceAddress, B>> entrySet() {
-        return bindings.entrySet();
+        return bindingMap.entrySet();
     }
     
     protected final B addBinding0(B newBinding) {
         ResourceAddress bindAddress = newBinding.bindAddress();
-        B oldBinding = bindings.get(bindAddress);
+        B oldBinding = bindingMap.get(bindAddress);
         if (oldBinding != null) {
             IoHandler newHandler = newBinding.handler();
             IoHandler oldHandler = oldBinding.handler();
@@ -103,7 +111,7 @@ public abstract class Bindings<B extends Binding> {
         }
 
         // bind address to handler
-        B binding = bindings.putIfAbsent(bindAddress, newBinding);
+        B binding = bindingMap.putIfAbsent(bindAddress, newBinding);
         if (binding != null) {
             if (equivalent(newBinding, binding)) {
                 binding.incrementReferenceCount();
@@ -121,19 +129,22 @@ public abstract class Bindings<B extends Binding> {
 
     // note: needed for usage of NextProtocolBindings
     public final B getBinding0(ResourceAddress address) {
-        return bindings.get(address);
+        return bindingMap.get(address);
     }
 
     protected final boolean removeBinding0(ResourceAddress address, B binding) {
         B binding0 = getBinding0(address);
         if ( binding0 != null && binding.equals(binding0)) {  // we are going to remove, so decrement is OK
             if ( binding.decrementReferenceCount() == 0) {
-                return bindings.remove(address, binding);
+                return bindingMap.remove(address, binding);
             }
         }
         return false;
     }
 
+    /**
+     * TODO Add class documentation
+     */
     public static class Default extends Bindings<Binding> {
 
         private static final Comparator<ResourceAddress> BINDINGS_COMPARATOR =
@@ -160,7 +171,9 @@ public abstract class Bindings<B extends Binding> {
         
     }
 
-    // create binding object that contains initializer and handler
+    /**
+     * create binding object that contains initializer and handler
+     */
     public static class Binding {
         private final ResourceAddress bindAddress;
         private final IoHandler handler;
@@ -248,7 +261,7 @@ public abstract class Bindings<B extends Binding> {
         @Override
         public String toString() {
             String nextProtocol = bindAddress.getOption(NEXT_PROTOCOL);
-            nextProtocol = (nextProtocol == null ? "" : " "+nextProtocol);
+            nextProtocol = nextProtocol == null ? "" : " "+nextProtocol;
             return format("([%s%s],0x%x,0x%x,#%d)",
                     bindAddress.getResource(),
                     nextProtocol,
@@ -258,10 +271,13 @@ public abstract class Bindings<B extends Binding> {
         }
         
         protected final boolean equals(Binding that) {
-            return this == that ||
-                    (this.bindAddress.equals(that.bindAddress) &&
-                     this.handler == that.handler &&
-                     this.initializer == that.initializer);
+        	if (that != null) {
+	            return this == that ||
+	                    (this.bindAddress.equals(that.bindAddress) &&
+	                     this.handler == that.handler &&
+	                     this.initializer == that.initializer);
+        	}
+        	return false;
         }
     }
 }

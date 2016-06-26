@@ -38,8 +38,8 @@ enum SslVersion {
     }
 
     public static SslVersion decode(int version) {
-        int majorVersion = ((version >> 8) & 0xff);
-        int minorVersion = ((version >> 0) & 0xff);
+        int majorVersion = (version >> 8) & 0xff;
+        int minorVersion = version & 0xff;
 
         switch (majorVersion) {
             case 3:

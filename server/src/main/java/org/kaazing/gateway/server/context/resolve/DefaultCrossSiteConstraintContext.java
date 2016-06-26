@@ -17,6 +17,9 @@ package org.kaazing.gateway.server.context.resolve;
 
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 
+/**
+ * TODO Add class documentation
+ */
 public class DefaultCrossSiteConstraintContext implements CrossSiteConstraintContext {
 
     private final String allowOrigin;

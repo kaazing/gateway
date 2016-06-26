@@ -25,6 +25,9 @@ import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 
+/**
+ * TODO Add class documentation
+ */
 public abstract class AbstractProxyAcceptHandler extends AbstractProxyHandler {
 
     private AbstractProxyHandler connectHandler;

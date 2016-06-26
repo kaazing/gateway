@@ -22,6 +22,9 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
+/**
+ * TODO Add class documentation
+ */
 public abstract class BaseStateDrivenLoginModule implements LoginModule {
 
     protected enum State { INITIALIZE_REQUIRED, INITIALIZE_COMPLETE, LOGIN_COMPLETE, COMMIT_COMPLETE }
@@ -49,7 +52,6 @@ public abstract class BaseStateDrivenLoginModule implements LoginModule {
     public boolean login() throws LoginException {
         switch (state) {
             case INITIALIZE_COMPLETE:
-                return login0();
             case LOGIN_COMPLETE:
                 return login0();
             case COMMIT_COMPLETE:

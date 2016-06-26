@@ -60,7 +60,7 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
         byte opcodeByte = in.get();
         validateRSV(opcodeByte);
 
-        int i = (opcodeByte & 0x0f);
+        int i = opcodeByte & 0x0f;
         Opcode opcode;
 
         try {
@@ -246,7 +246,7 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
             buf.put(b);
             break;
         case 1:
-            b = (byte) (buf.get(buf.position()) ^ (mask >> 24));
+            b = (byte) (buf.get(buf.position()) ^ ((mask >> 24) & 0xff));
             buf.put(b);
             break;
         case 0:

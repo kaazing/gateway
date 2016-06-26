@@ -18,40 +18,104 @@ package org.kaazing.gateway.management.config;
 import org.kaazing.gateway.management.gateway.GatewayManagementBean;
 
 public interface ServiceConfigurationBean {
-    GatewayManagementBean getGatewayManagementBean();
+	/**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
+	GatewayManagementBean getGatewayManagementBean();
 
+	/**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     int getId();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     String getType();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     String getServiceName();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     String getServiceDescription();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     String getAccepts();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     String getAcceptOptions();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     String getBalances();
 
     /**
      * Return the current connects as a string. If connects are legal in the service but none has as yet been defined, return "".
      * If the service does not even support having connects (e.g. Stomp JMS allows 0 connects), return null.
+     * 
+     * @return
      */
     String getConnects();
 
     /**
      * Return the current connect options as a string. If connects are legal in the service but none has as yet been defined,
      * return "". If the service does not even support having connects (e.g. Stomp JMS allows 0 connects), return null.
+     * 
+     * @return
      */
     String getConnectOptions();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     String getCrossSiteConstraints();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     String getProperties();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     String getRequiredRoles();
 
+    /**
+     * TODO Add method documentation
+     * 
+     * @return
+     */
     String getServiceRealm();
 
     /**

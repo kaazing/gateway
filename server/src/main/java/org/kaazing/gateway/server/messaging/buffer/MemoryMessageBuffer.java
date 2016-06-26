@@ -94,8 +94,7 @@ public class MemoryMessageBuffer implements MessageBuffer {
             if (id >= nextId || id < (nextId - capacity)) {
                 return null;
             }
-            MessageBufferEntry message = messages[id % capacity];
-            return message;
+            return messages[id % capacity];
         } finally {
             readLock.unlock();
         }

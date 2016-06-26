@@ -33,7 +33,7 @@ public class DefaultTransportContext implements TransportContext<ResourceAddress
     private final BridgeAcceptor acceptor;
     private final BridgeConnector connector;
     private final Transport transport;
-    private static final Logger LOGGER = Launcher.getGatewayStartupLogger();
+//    private static final Logger LOGGER = Launcher.getGatewayStartupLogger();
 
     public DefaultTransportContext(String name, Transport transport) {
         this.name = name;

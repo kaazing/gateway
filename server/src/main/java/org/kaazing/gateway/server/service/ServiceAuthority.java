@@ -81,7 +81,7 @@ public class ServiceAuthority {
             }
 
             // no match, find prefix match instead
-            int lastSlashAt = servicePath.lastIndexOf("/");
+            int lastSlashAt = servicePath.lastIndexOf('/');
             if (lastSlashAt != -1) {
                 return lookup0(servicePath.substring(0, lastSlashAt), false);
             }
