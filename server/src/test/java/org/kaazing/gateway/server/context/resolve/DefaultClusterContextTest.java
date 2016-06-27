@@ -42,7 +42,6 @@ import org.kaazing.gateway.service.cluster.ClusterContext;
 import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
-import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
 public class DefaultClusterContextTest {
 
@@ -385,6 +384,7 @@ public class DefaultClusterContextTest {
 
     private void addToClusterState(CollectionsFactory factory, MemberId memberId, int nodeId) {
         Map<String, Set<String>> sharedBalancerMap = factory.getMap(BALANCER_MAP_NAME);
+        System.out.println(sharedBalancerMap.hashCode());
         Map<MemberId, Map<String, List<String>>> memberIdBalancerMap = factory.getMap(MEMBERID_BALANCER_MAP_NAME);
         String balanceURI = "ws://www.example.com:8080/path";
         String targetURI = format("ws://node%d.example.com:8080/path", nodeId);
@@ -394,7 +394,7 @@ public class DefaultClusterContextTest {
         }
         currentTargets.add(targetURI);
         sharedBalancerMap.put(balanceURI, currentTargets);
-
+        System.out.println("sharedBalancerMap.size(): " + sharedBalancerMap.size());
         List<String> myTargets = new ArrayList<>();
         myTargets.add(targetURI);
         Map<String, List<String>> myBalanceTargets = new HashMap<>();
@@ -460,6 +460,7 @@ public class DefaultClusterContextTest {
 
     private boolean validateSharedBalancer(CollectionsFactory factory, Set<String> balanceTargets) {
         Map<String, Set<String>> sharedBalancerMap = factory.getMap(BALANCER_MAP_NAME);
+        System.out.println(sharedBalancerMap.size());
 
         Set<String> currentBalanceTargets = sharedBalancerMap.get("ws://www.example.com:8080/path");
         return (currentBalanceTargets != null) && currentBalanceTargets.containsAll(balanceTargets);

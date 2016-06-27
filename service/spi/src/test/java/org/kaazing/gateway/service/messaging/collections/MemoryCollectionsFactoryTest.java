@@ -23,12 +23,13 @@ import java.util.Set;
 import junit.framework.Assert;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.SqlPredicate;
-
+@Ignore
 public class MemoryCollectionsFactoryTest {
     private static final String MAP_NAME = "TestMap";
 

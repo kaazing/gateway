@@ -57,7 +57,6 @@ import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.config.TcpIpConfig;
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.EntryEvent;
-import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -172,9 +171,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         mapConfig.setBackupCount(3);
 
         MapConfig sharedBalancerMapConfig = hazelCastConfig.getMapConfig(BALANCER_MAP_NAME);
-        sharedBalancerMapConfig.setBackupCount(Integer.MAX_VALUE);
         MapConfig memberBalancerMapConfig = hazelCastConfig.getMapConfig(MEMBERID_BALANCER_MAP_NAME);
-        memberBalancerMapConfig.setBackupCount(Integer.MAX_VALUE);
 
         // disable port auto increment
         hazelCastConfig.getNetworkConfig().setPortAutoIncrement(false);
@@ -187,12 +184,14 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         java.util.logging.Logger logger = java.util.logging.Logger.getLogger("com.hazelcast");
         logger.setLevel(Level.OFF);
 
+        NetworkConfig networkConfig = new NetworkConfig();
+        hazelCastConfig.setNetworkConfig(networkConfig);
         // initialize hazelcast
         if (clusterPort != -1) {
             hazelCastConfig.getNetworkConfig().setPort(clusterPort);
         }
 
-        NetworkConfig networkConfig = new NetworkConfig();
+        
 
         for (MemberId localInterface : localInterfaces) {
             String protocol = localInterface.getProtocol();
@@ -276,7 +275,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             if (unicastAddresses.size() > 0) {
                 tcpIpConfig.setEnabled(!usingMulticast);
                 for (InetSocketAddress unicastAddress : unicastAddresses) {
-                    tcpIpConfig.addMember(unicastAddress.getHostName());//TODO not sure this is correct
+                    tcpIpConfig.addMember(unicastAddress.getHostName());
+                  //TODO not sure this is correct
                 }
             }
 
@@ -884,8 +884,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         GL.debug(GL.CLUSTER_LOGGER_NAME, "Firing balancerEntryAdded for: {}", balancerURI);
         for (BalancerMapListener listener : balancerMapListeners) {
             try {
-            } catch (Throwable e) {
                 listener.balancerEntryAdded(balancerURI, entryEvent.getValue());
+            } catch (Throwable e) {
                 GL.error(GL.CLUSTER_LOGGER_NAME, "Error in balancerEntryAdded event {}", e);
             }
         }

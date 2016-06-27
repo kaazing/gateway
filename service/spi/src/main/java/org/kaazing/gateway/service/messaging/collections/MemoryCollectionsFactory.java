@@ -144,7 +144,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             return value;
         }
 
-
         @Override
         public int hashCode() {
             int hashCode = key.hashCode();
@@ -219,7 +218,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @SuppressWarnings("unchecked")
-		@Override
+        @Override
         public boolean remove(Object key, Object value) {
             boolean wasRemoved = map.remove(key, value);
             return wasRemoved;
