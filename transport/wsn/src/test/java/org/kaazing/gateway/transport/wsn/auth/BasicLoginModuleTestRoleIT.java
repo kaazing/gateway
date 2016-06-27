@@ -26,7 +26,7 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-public class BasicLoginModuleTestITRole {
+public class BasicLoginModuleTestRoleIT {
 
     private K3poRule robot = new K3poRule();
 
@@ -49,7 +49,6 @@ public class BasicLoginModuleTestITRole {
                         .loginModule()
                             .type("class:org.kaazing.gateway.transport.wsn.auth.TestBasicLoginModule")
                             .success("requisite")
-                          .option("roles", "USER")
                         .done()
                     .done()
                 .done()

@@ -511,8 +511,7 @@ public class GatewayContextResolver {
                 connectProperty = connectProperty.trim();
                 properties.remove("connect");
                 connectURIs.add(resolveURI(getCanonicalURI(connectProperty, true)));
-            }         
-            
+            } 
             Collection<String> requireRolesCollection = new LinkedList<>();
             for (AuthorizationConstraintType authConstraint : serviceConfig.getAuthorizationConstraintArray()) {
                 Collections.addAll(requireRolesCollection, authConstraint.getRequireRoleArray());
@@ -522,7 +521,7 @@ public class GatewayContextResolver {
             if (serviceConfig.isSetRealmName()) {
                 realmContext = realmsContext.getRealmContext(name);
                 if (realmContext != null) {
-                    if (requireRolesCollection.size() == 0) {
+                    if (requireRolesCollection.isEmpty()) {
                         Collections.addAll(requireRolesCollection, "*");
                     }
                 }
