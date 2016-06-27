@@ -39,7 +39,7 @@ public class CopyOnWriteMap<K, V> implements Map<K, V>, Cloneable {
      *
      */
     public CopyOnWriteMap() {
-        internalMap = new HashMap<K, V>();
+        internalMap = new HashMap<>();
     }
 
     /**
@@ -49,7 +49,7 @@ public class CopyOnWriteMap<K, V> implements Map<K, V>, Cloneable {
      *  The initial size of the Map.
      */
     public CopyOnWriteMap(int initialCapacity) {
-        internalMap = new HashMap<K, V>(initialCapacity);
+        internalMap = new HashMap<>(initialCapacity);
     }
 
     /**
@@ -62,7 +62,7 @@ public class CopyOnWriteMap<K, V> implements Map<K, V>, Cloneable {
      *  this class.
      */
     public CopyOnWriteMap(Map<K, V> data) {
-        internalMap = new HashMap<K, V>(data);
+        internalMap = new HashMap<>(data);
     }
 
     /**
@@ -72,7 +72,7 @@ public class CopyOnWriteMap<K, V> implements Map<K, V>, Cloneable {
      */
     public V put(K key, V value) {
         synchronized (this) {
-            Map<K, V> newMap = new HashMap<K, V>(internalMap);
+            Map<K, V> newMap = new HashMap<>(internalMap);
             V val = newMap.put(key, value);
             internalMap = newMap;
             return val;
@@ -87,7 +87,7 @@ public class CopyOnWriteMap<K, V> implements Map<K, V>, Cloneable {
      */
     public V remove(Object key) {
         synchronized (this) {
-            Map<K, V> newMap = new HashMap<K, V>(internalMap);
+            Map<K, V> newMap = new HashMap<>(internalMap);
             V val = newMap.remove(key);
             internalMap = newMap;
             return val;
@@ -102,7 +102,7 @@ public class CopyOnWriteMap<K, V> implements Map<K, V>, Cloneable {
      */
     public void putAll(Map<? extends K, ? extends V> newData) {
         synchronized (this) {
-            Map<K, V> newMap = new HashMap<K, V>(internalMap);
+            Map<K, V> newMap = new HashMap<>(internalMap);
             newMap.putAll(newData);
             internalMap = newMap;
         }
@@ -115,7 +115,7 @@ public class CopyOnWriteMap<K, V> implements Map<K, V>, Cloneable {
      */
     public void clear() {
         synchronized (this) {
-            internalMap = new HashMap<K, V>();
+            internalMap = new HashMap<>();
         }
     }
 

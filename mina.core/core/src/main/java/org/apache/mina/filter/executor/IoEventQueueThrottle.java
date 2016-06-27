@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 public class IoEventQueueThrottle implements IoEventQueueHandler {
     /** A logger for this class */
-    private final static Logger LOGGER = LoggerFactory.getLogger(IoEventQueueThrottle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IoEventQueueThrottle.class);
 
     /** The event size estimator instance */
     private final IoEventSizeEstimator eventSizeEstimator;

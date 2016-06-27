@@ -285,6 +285,6 @@ public class ClosingIT {
 
     private void assertNoExceptionsOccurred() {
         // Check no exceptions occurred
-        MemoryAppender.assertMessagesLogged(EMPTY_STRING_SET, Arrays.asList(new String[]{"EXCEPTION"}), null, false);
+        MemoryAppender.assertMessagesLogged(EMPTY_STRING_SET, Collections.singletonList("EXCEPTION"), null, false);
     }
 }

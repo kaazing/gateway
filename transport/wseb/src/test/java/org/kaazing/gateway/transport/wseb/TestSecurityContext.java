@@ -63,22 +63,27 @@ public class TestSecurityContext implements SecurityContext {
         }
     }
 
+    @Override
     public String getKeyStoreFile() {
         return keyStoreFile;
     }
 
+    @Override
     public KeyStore getKeyStore() {
         return keyStore;
     }
 
+    @Override
     public KeyStore getTrustStore() {
         return trustStore;
     }
 
+    @Override
     public char[] getKeyStorePassword() {
         return keyStorePassword;
     }
 
+    @Override
     public char[] getTrustStorePassword() {
         return trustStorePassword;
     }

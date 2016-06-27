@@ -38,7 +38,7 @@ public class AbstractIoProcessorTest {
             oneOf(session).getIoThread(); will(returnValue(currentThread()));
         } });
 
-        AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
+        AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<>();
         processor.add(session);
         context.assertIsSatisfied();
         assertEquals("add0", ((TestIoProcessor<?>) processor).called);
@@ -54,7 +54,7 @@ public class AbstractIoProcessorTest {
             oneOf(session).getIoThread(); will(returnValue(TEST_THREAD));
         } });
 
-        AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
+        AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<>();
         processor.add(session);
         context.assertIsSatisfied();
         assertNull(((TestIoProcessor<?>) processor).called);
@@ -70,7 +70,7 @@ public class AbstractIoProcessorTest {
             oneOf(session).getIoThread(); will(returnValue(currentThread()));
         } });
 
-        AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
+        AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<>();
         processor.flush(session);
         context.assertIsSatisfied();
         assertEquals("flush0", ((TestIoProcessor<?>) processor).called);
@@ -86,7 +86,7 @@ public class AbstractIoProcessorTest {
             oneOf(session).getIoThread(); will(returnValue(TEST_THREAD));
         } });
 
-        AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
+        AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<>();
         processor.flush(session);
         context.assertIsSatisfied();
         assertNull(((TestIoProcessor<?>) processor).called);
@@ -102,7 +102,7 @@ public class AbstractIoProcessorTest {
             oneOf(session).getIoThread(); will(returnValue(currentThread()));
         } });
 
-        AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
+        AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<>();
         processor.remove(session);
         context.assertIsSatisfied();
         assertEquals("remove0", ((TestIoProcessor<?>) processor).called);
@@ -118,7 +118,7 @@ public class AbstractIoProcessorTest {
             oneOf(session).getIoThread(); will(returnValue(TEST_THREAD));
         } });
 
-        AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
+        AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<>();
         processor.remove(session);
         context.assertIsSatisfied();
         assertNull(((TestIoProcessor<?>) processor).called);
@@ -134,7 +134,7 @@ public class AbstractIoProcessorTest {
             oneOf(session).getIoThread(); will(returnValue(currentThread()));
         } });
 
-        AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
+        AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<>();
         processor.updateTrafficControl(session);
         context.assertIsSatisfied();
         assertEquals("updateTrafficControl0", ((TestIoProcessor<?>) processor).called);
@@ -150,7 +150,7 @@ public class AbstractIoProcessorTest {
             oneOf(session).getIoThread(); will(returnValue(TEST_THREAD));
         } });
 
-        AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
+        AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<>();
         processor.updateTrafficControl(session);
         context.assertIsSatisfied();
         assertNull(((TestIoProcessor<?>) processor).called);

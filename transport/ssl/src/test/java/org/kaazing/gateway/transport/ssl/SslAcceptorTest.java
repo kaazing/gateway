@@ -60,7 +60,7 @@ public class SslAcceptorTest {
     }
 
     private ResourceAddressFactory resourceAddressFactory = ResourceAddressFactory.newResourceAddressFactory();
-    TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object>emptyMap());
+    TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.emptyMap());
     private BridgeServiceFactory bridgeServiceFactory = new BridgeServiceFactory(transportFactory);
     private SslAcceptor sslAcceptor;
     private NioSocketAcceptor tcpAcceptor;

@@ -101,22 +101,22 @@ public class ServiceDefaultsConfigurationBeanImpl implements ServiceDefaultsConf
 
                 String pipeTransport = (String) acceptOptions.remove("pipe.transport");
                 if (pipeTransport != null) {
-                    jsonOptions.put("pipe.transport", pipeTransport.toString());
+                    jsonOptions.put("pipe.transport", pipeTransport);
                 }
 
                 String tcpTransport = (String) acceptOptions.remove("tcp.transport");
                 if (tcpTransport != null) {
-                    jsonOptions.put("tcp.transport", tcpTransport.toString());
+                    jsonOptions.put("tcp.transport", tcpTransport);
                 }
 
                 String sslTransport = (String) acceptOptions.remove("ssl.transport");
                 if (sslTransport != null) {
-                    jsonOptions.put("ssl.transport", sslTransport.toString());
+                    jsonOptions.put("ssl.transport", sslTransport);
                 }
 
                 String httpTransport = (String) acceptOptions.remove("http.transport");
                 if (httpTransport != null) {
-                    jsonOptions.put("http.transport", httpTransport.toString());
+                    jsonOptions.put("http.transport", httpTransport);
                 }
 
                 long tcpMaxOutboundRate = (Long) acceptOptions.remove("tcp.maximumOutboundRate");
@@ -178,22 +178,22 @@ public class ServiceDefaultsConfigurationBeanImpl implements ServiceDefaultsConf
 
                 String pipeTransport = (String) connectOptions.remove("pipe.transport");
                 if (pipeTransport != null) {
-                    jsonOptions.put("pipe.transport", pipeTransport.toString());
+                    jsonOptions.put("pipe.transport", pipeTransport);
                 }
 
                 String tcpTransport = (String) connectOptions.remove("tcp.transport");
                 if (tcpTransport != null) {
-                    jsonOptions.put("tcp.transport", tcpTransport.toString());
+                    jsonOptions.put("tcp.transport", tcpTransport);
                 }
 
                 String sslTransport = (String) connectOptions.remove("ssl.transport");
                 if (sslTransport != null) {
-                    jsonOptions.put("ssl.transport", sslTransport.toString());
+                    jsonOptions.put("ssl.transport", sslTransport);
                 }
 
                 String httpTransport = (String) connectOptions.remove("http.transport");
                 if (httpTransport != null) {
-                    jsonOptions.put("http.transport", httpTransport.toString());
+                    jsonOptions.put("http.transport", httpTransport);
                 }
 
                 for (Entry<String, Object> entry : connectOptions.entrySet()) {

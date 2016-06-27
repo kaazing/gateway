@@ -29,7 +29,7 @@ public class GatewayConfigTranslatorPipeline implements GatewayConfigTranslator 
     private List<GatewayConfigTranslator> translators;
 
     public GatewayConfigTranslatorPipeline() {
-        translators = new ArrayList<GatewayConfigTranslator>(1);
+        translators = new ArrayList<>(1);
     }
 
     public GatewayConfigTranslatorPipeline addTranslator(GatewayConfigTranslator translator) {
@@ -45,6 +45,7 @@ public class GatewayConfigTranslatorPipeline implements GatewayConfigTranslator 
         return this.translators;
     }
 
+    @Override
     public void translate(Document dom) throws Exception {
 
         for (GatewayConfigTranslator translator : translators) {

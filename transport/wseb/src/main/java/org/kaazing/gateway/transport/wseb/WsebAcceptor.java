@@ -179,7 +179,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     private WebSocketExtensionFactory webSocketExtensionFactory;
 
     private final List<IoSessionIdleTracker> sessionInactivityTrackers
-        = Collections.synchronizedList(new ArrayList<IoSessionIdleTracker>());
+        = Collections.synchronizedList(new ArrayList<>());
     private final ThreadLocal<IoSessionIdleTracker> currentSessionIdleTracker
         = new VicariousThreadLocal<IoSessionIdleTracker>() {
             @Override

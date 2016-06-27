@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Socks4LogicHandler extends AbstractSocksLogicHandler {
 
-    private final static Logger logger = LoggerFactory
+    private static final Logger logger = LoggerFactory
             .getLogger(Socks4LogicHandler.class);
 
     /**

@@ -257,7 +257,7 @@ public class FragmentationIT {
      */
     private IoHandlerAdapter<IoSessionEx> textFragmentIoHandlerAdapter(WsBuffer.Kind kind) {
         IoHandlerAdapter<IoSessionEx> acceptHandler = new IoHandlerAdapter<IoSessionEx>() {
-            List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+            List<ByteBuffer> bufferList = new ArrayList<>();
 
             @Override
             protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {

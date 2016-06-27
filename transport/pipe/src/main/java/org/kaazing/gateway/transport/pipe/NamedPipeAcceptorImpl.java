@@ -18,6 +18,7 @@ package org.kaazing.gateway.transport.pipe;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,6 +55,7 @@ public class NamedPipeAcceptorImpl extends AbstractIoAcceptorEx implements Named
         this.bindings = new ConcurrentHashMap<>();
     }
     
+    @Override
     public TransportMetadata getTransportMetadata() {
         return NamedPipeSession.METADATA;
     }
@@ -130,7 +132,7 @@ public class NamedPipeAcceptorImpl extends AbstractIoAcceptorEx implements Named
     protected BindFuture bindAsyncInternal(SocketAddress localAddress) {
 	    DefaultBindFuture future = new DefaultBindFuture();
         try {
-            bindInternal(Arrays.asList(localAddress));
+            bindInternal(Collections.singletonList(localAddress));
             future.setBound();
         }
         catch (IOException e) {
@@ -150,7 +152,7 @@ public class NamedPipeAcceptorImpl extends AbstractIoAcceptorEx implements Named
     protected UnbindFuture unbindAsyncInternal(SocketAddress localAddress) {
         DefaultUnbindFuture future = new DefaultUnbindFuture();
         try {
-            unbind0(Arrays.asList(localAddress));
+            unbind0(Collections.singletonList(localAddress));
             future.setUnbound();
         }
         catch (Exception e) {

@@ -33,10 +33,12 @@ public class DefaultJaasConfig implements JaasConfig {
         roles = new HashMap<>();
     }
 
+    @Override
     public Map<String, RoleConfig> getRoles() {
         return roles;
     }
 
+    @Override
     public Map<String, UserConfig> getUsers() {
         return users;
     }

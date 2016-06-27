@@ -140,7 +140,7 @@ public class AvailablePortFinder {
                     + fromPort + " ~ " + toPort);
         }
 
-        Set<Integer> result = new TreeSet<Integer>();
+        Set<Integer> result = new TreeSet<>();
 
         for (int i = fromPort; i <= toPort; i++) {
             ServerSocket s = null;

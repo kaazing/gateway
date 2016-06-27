@@ -128,6 +128,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         securityMessageReceived(nextFilter, session, httpRequest);
     }
 
+    @Override
     protected void writeSessionCookie(IoSession session, HttpRequestMessage httpRequest, DefaultLoginResult loginResult) {
         // secure requests always have cookie accessible, even
         // on first access

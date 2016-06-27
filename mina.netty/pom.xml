@@ -2,10 +2,10 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-      <parent>
+    <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.1.0</version>
+        <version>5.1.1</version>
     </parent>
     <artifactId>mina.netty</artifactId>
     <packaging>jar</packaging>
@@ -23,7 +23,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty</artifactId>
-            <version>3.6.3.Final</version>
+            <version>3.10.5.Final</version>
         </dependency>
         <!-- temporary patch until 2.0.2+ available with sync fixes
              todo: remove exclusions below -->
@@ -179,60 +179,6 @@
                                 </requireMavenVersion>
                             </rules>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
-                <extensions>false</extensions>
-                <inherited>false</inherited>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <!-- ensure that only methods available in java 1.6 can
-                     be used even when compiling with java 1.7+ -->
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <version>1.8</version>
-                <configuration>
-                    <signature>
-                        <groupId>org.codehaus.mojo.signature</groupId>
-                        <artifactId>java16</artifactId>
-                        <version>1.0</version>
-                    </signature>
-                    <ignores>
-                        <ignore>sun.misc.Unsafe</ignore>
-                        <ignore>sun.misc.Cleaner</ignore>
-
-                        <ignore>java.util.zip.Deflater</ignore>
-
-                        <!-- Used for NIO UDP multicast -->
-                        <ignore>java.nio.channels.DatagramChannel</ignore>
-                        <ignore>java.nio.channels.MembershipKey</ignore>
-                        <ignore>java.net.StandardProtocolFamily</ignore>
-
-                        <!-- Used for NIO. 2 -->
-                        <ignore>java.nio.channels.AsynchronousChannel</ignore>
-                        <ignore>java.nio.channels.AsynchronousSocketChannel</ignore>
-                        <ignore>java.nio.channels.AsynchronousServerSocketChannel</ignore>
-                        <ignore>java.nio.channels.AsynchronousChannelGroup</ignore>
-                        <ignore>java.nio.channels.NetworkChannel</ignore>
-                        <ignore>java.nio.channels.InterruptedByTimeoutException</ignore>
-                        <ignore>java.net.StandardSocketOptions</ignore>
-                        <ignore>java.net.SocketOption</ignore>
-                    </ignores>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>

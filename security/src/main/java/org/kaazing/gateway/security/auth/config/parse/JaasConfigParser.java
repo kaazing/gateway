@@ -216,7 +216,7 @@ public class JaasConfigParser {
             case ROLE_DESCRIPTION:
             case ROLE_ROLE_NAME:
                 String string = new StringBuilder().append(ch, start, length).toString();
-                string = ConfigParameter.resolveAndReplace(ch, start, length, Collections.<String, String>emptyMap(),
+                string = ConfigParameter.resolveAndReplace(ch, start, length, Collections.emptyMap(),
                         EMPTY_PROPERTIES, errors);
                 StringBuilder sb = (StringBuilder) handlerStack.peek();
                 sb.append(string);

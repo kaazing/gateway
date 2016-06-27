@@ -44,7 +44,7 @@ public class GatewayCreatorImpl implements GatewayCreator {
         if ((gatewayHome == null) || "".equals(gatewayHome)) {
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
             URL classUrl = loader.getResource("org/kaazing/gateway/server/Gateway.class");
-            String urlStr = null;
+            String urlStr;
             try {
                 urlStr = URLDecoder.decode(classUrl.toString(), "UTF-8");
             } catch (UnsupportedEncodingException ex) {

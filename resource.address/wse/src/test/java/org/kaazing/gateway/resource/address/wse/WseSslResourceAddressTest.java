@@ -36,14 +36,13 @@ public class WseSslResourceAddressTest {
 
     private ResourceAddressFactory addressFactory;
     private String addressURI;
-    private Map<String, Object> options;
-    
+
     @Before
     public void before() {
         addressFactory = ResourceAddressFactory.newResourceAddressFactory();
 
         addressURI = "wse+ssl://localhost:2020/";
-        options = new HashMap<>();
+        Map<String, Object> options = new HashMap<>();
         options.put("ws.nextProtocol", "custom");
         options.put("ws.qualifier", "random");
         options.put("ws.codecRequired", FALSE);

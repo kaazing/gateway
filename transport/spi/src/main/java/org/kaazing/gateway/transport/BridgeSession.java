@@ -99,7 +99,9 @@ public interface BridgeSession extends IoSessionEx {
 
     //boolean resumeFlush();
 
+    @Override
     ResourceAddress getLocalAddress();
 
+    @Override
     ResourceAddress getRemoteAddress();
 }

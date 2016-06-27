@@ -29,11 +29,11 @@ public final class Assert {
     }
 
     public static <T extends Map<?, ?>> void assertEmpty(T map) {
-        assertThat(map, new IsMapEmpty<T>());
+        assertThat(map, new IsMapEmpty<>());
     }
 
     public static <T extends Collection<?>> void assertEmpty(T collection) {
-        assertThat(collection, new IsCollectionEmpty<T>());
+        assertThat(collection, new IsCollectionEmpty<>());
     }
 
     public static void assertEmpty(Object array) {

@@ -27,6 +27,7 @@ public final class SslProvider
         super("SslTransport", 1.0, "Provider for SSL Transport Certificate Management");
 
         AccessController.doPrivileged(new java.security.PrivilegedAction<Object>() {
+            @Override
             public Object run() {
                 put("KeyManagerFactory.SslTransport", "org.kaazing.gateway.transport.ssl.SslKeyManagerFactorySpi");
                 return null;

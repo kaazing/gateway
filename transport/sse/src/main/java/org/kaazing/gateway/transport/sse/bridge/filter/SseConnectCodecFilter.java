@@ -32,14 +32,17 @@ public class SseConnectCodecFilter extends ProtocolCodecFilter {
 
 	private static class SseConnectCodecFactory implements ProtocolCodecFactory {
 	    
-	    public ProtocolEncoder getEncoder(IoSession session) {
+	    @Override
+		public ProtocolEncoder getEncoder(IoSession session) {
 	        return new ProtocolEncoderAdapter() {
-	            public void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception {
+	            @Override
+				public void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception {
 	            }
 	          };
 	    }
 	    
-	    public ProtocolDecoder getDecoder(IoSession session) {
+	    @Override
+		public ProtocolDecoder getDecoder(IoSession session) {
 	        IoSessionEx sessionEx = (IoSessionEx) session;
 	        IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
 	        return new SseDecoder(allocator);

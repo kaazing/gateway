@@ -306,7 +306,7 @@ public class NicManagementMIB implements MOGroup, CounterListener, AgentCapabili
                 return new Null();
             }
 
-            long counterValue = 0;
+            long counterValue;
             if (scalarValue instanceof Double) {
                 counterValue = (long) ((Double) scalarValue * 1000);
             } else if (scalarValue instanceof Float) {
@@ -336,7 +336,7 @@ public class NicManagementMIB implements MOGroup, CounterListener, AgentCapabili
 
         @Override
         public Variable getValue() {
-            String value = "";
+            String value;
 
             switch (operation) {
                 case NET_INTERFACE_NAMES_OPER:

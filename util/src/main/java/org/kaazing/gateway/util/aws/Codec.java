@@ -34,8 +34,8 @@ public class Codec {
     public static byte[] encodeHex(byte[] data) {
         int len = data.length;
         byte[] out = new byte[len << 1];
-        byte cur = 0;
-        int idx = 0;
+        byte cur;
+        int idx;
         for (int i = 0; i < len; i++) {
             cur = data[i];
             idx = i << 1;

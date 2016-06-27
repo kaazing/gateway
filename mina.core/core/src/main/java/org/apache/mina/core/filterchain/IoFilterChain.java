@@ -216,70 +216,70 @@ public interface IoFilterChain {
      * call this method at all.  Please use this method only when you implement a new transport
      * or fire a virtual event.
      */
-    public void fireSessionCreated();
+    void fireSessionCreated();
 
     /**
      * Fires a {@link IoHandler#sessionOpened(IoSession)} event.  Most users don't need to call
      * this method at all.  Please use this method only when you implement a new transport or
      * fire a virtual event.
      */
-    public void fireSessionOpened();
+    void fireSessionOpened();
 
     /**
      * Fires a {@link IoHandler#sessionClosed(IoSession)} event.  Most users don't need to call
      * this method at all.  Please use this method only when you implement a new transport or
      * fire a virtual event.
      */
-    public void fireSessionClosed();
+    void fireSessionClosed();
 
     /**
      * Fires a {@link IoHandler#sessionIdle(IoSession, IdleStatus)} event.  Most users don't
      * need to call this method at all.  Please use this method only when you implement a new
      * transport or fire a virtual event.
      */
-    public void fireSessionIdle(IdleStatus status);
+    void fireSessionIdle(IdleStatus status);
 
     /**
      * Fires a {@link #fireMessageReceived(Object)} event.  Most users don't need to
      * call this method at all.  Please use this method only when you implement a new transport
      * or fire a virtual event.
      */
-    public void fireMessageReceived(Object message);
+    void fireMessageReceived(Object message);
 
     /**
      * Fires a {@link IoHandler#sessionOpened(IoSession)} event.  Most users don't need to call
      * this method at all.  Please use this method only when you implement a new transport or
      * fire a virtual event.
      */
-    public void fireMessageSent(WriteRequest request);
+    void fireMessageSent(WriteRequest request);
 
     /**
      * Fires a {@link IoHandler#exceptionCaught(IoSession, Throwable)} event.  Most users don't
      * need to call this method at all.  Please use this method only when you implement a new
      * transport or fire a virtual event.
      */
-    public void fireExceptionCaught(Throwable cause);
+    void fireExceptionCaught(Throwable cause);
 
     /**
      * Fires a {@link IoSession#write(Object)} event.  Most users don't need to call this
      * method at all.  Please use this method only when you implement a new transport or fire a
      * virtual event.
      */
-    public void fireFilterWrite(WriteRequest writeRequest);
+    void fireFilterWrite(WriteRequest writeRequest);
 
     /**
      * Fires a {@link IoSession#close()} event.  Most users don't need to call this method at
      * all.  Please use this method only when you implement a new transport or fire a virtual
      * event.
      */
-    public void fireFilterClose();
+    void fireFilterClose();
 
     /**
      * Represents a name-filter pair that an {@link IoFilterChain} contains.
      *
      * @author <a href="http://mina.apache.org">Apache MINA Project</a>
      */
-    public interface Entry {
+    interface Entry {
         /**
          * Returns the name of the filter.
          */

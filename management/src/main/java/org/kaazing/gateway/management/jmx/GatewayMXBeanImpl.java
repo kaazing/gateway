@@ -36,6 +36,7 @@ public class GatewayMXBeanImpl implements GatewayMXBean {
         this.gatewayManagementBean = gatewayManagementBean;
     }
 
+    @Override
     public ObjectName getObjectName() {
         return objectName;
     }

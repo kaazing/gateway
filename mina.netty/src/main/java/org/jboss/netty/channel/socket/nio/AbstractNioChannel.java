@@ -192,7 +192,7 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
     }
 
     void setRawInterestOpsNow(int interestOps) {
-        setInterestOpsNow(interestOps);
+        this.setInternalInterestOps(interestOps);
     }
 
     @Override
@@ -242,7 +242,7 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
 
         public WriteRequestQueue() {
             // note: we are always writing from the I/O worker thread
-            queue = new ArrayDeque<MessageEvent>(16);
+            queue = new ArrayDeque<>(16);
         }
 
         @Override

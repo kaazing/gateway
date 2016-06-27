@@ -117,7 +117,7 @@ public class CollectionEditor extends AbstractPropertyEditor {
     }
     
     protected Collection<Object> newCollection() {
-        return new ArrayList<Object>();
+        return new ArrayList<>();
     }
     
     protected Object defaultElement() {

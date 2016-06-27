@@ -68,7 +68,7 @@ public interface IoAbsoluteReader
     /**
      * Gets enough bytes to fill the <code>IoBuffer</code> from the given index.
      */
-    public void get( int index, IoBuffer bb );
+    void get(int index, IoBuffer bb);
 
 
     /**

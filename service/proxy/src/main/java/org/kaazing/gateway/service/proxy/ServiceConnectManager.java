@@ -122,7 +122,7 @@ public final class ServiceConnectManager {
             if (logger.isWarnEnabled()) {
                 logger.warn(String.format(
                         "Configured prepared.connection.count %d for %s service has been increased to number of IO threads %d for extra efficiency",
-                        preparedConnectionCount, serviceCtx.getServiceType(), this.preparedConnectionCount, workerCount));
+                        preparedConnectionCount, serviceCtx.getServiceType(), workerCount));
             }
         }
         if (logger.isDebugEnabled()) {
@@ -443,7 +443,7 @@ public final class ServiceConnectManager {
                 // was canceled and the task reference will be null, in which case we don't bother scheduling.
                 if (heartbeatTask.compareAndSet(currentHeartbeatTask, null)) {
                     if (logger.isTraceEnabled()) {
-                        logger.trace(format("ServiceHeartBeat.run adding listener to connect future to reschedule task"));
+                        logger.trace("ServiceHeartBeat.run adding listener to connect future to reschedule task");
                     }
                     connectFuture.addListener(new IoFutureListener<ConnectFuture>() {
                         @Override
@@ -468,7 +468,7 @@ public final class ServiceConnectManager {
                     });
                 }
                 if (logger.isTraceEnabled()) {
-                    logger.trace(format("ServiceHeartBeat.run finished executing heartbeat"));
+                    logger.trace("ServiceHeartBeat.run finished executing heartbeat");
                 }
 
             }

@@ -91,7 +91,7 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
         final HttpConnectSession writer = (HttpConnectSession)session.getWriter();
 
         // store last write so we can observe it
-        WriteFuture lastWrite = null;
+        WriteFuture lastWrite;
 
         // TODO: thread safety
     	// multiple threads can trigger a reconnect on the same WsfSession
@@ -352,5 +352,5 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
                                 wsebSession.getAndClearCloseException()).fillInStackTrace());
             }
         }
-    };
+    }
 }

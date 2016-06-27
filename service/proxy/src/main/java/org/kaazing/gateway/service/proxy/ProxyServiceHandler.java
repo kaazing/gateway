@@ -35,7 +35,7 @@ public class ProxyServiceHandler extends AbstractProxyAcceptHandler {
 
     public ProxyServiceHandler() {
         super();
-        extensions = new ArrayList<ProxyServiceExtensionSpi>();
+        extensions = new ArrayList<>();
     }
 
     // package private method for registering proxy service extensions so that
@@ -126,6 +126,7 @@ public class ProxyServiceHandler extends AbstractProxyAcceptHandler {
             this.acceptSession = acceptSession;
         }
 
+        @Override
         public void operationComplete(ConnectFuture future) {
             if (future.isConnected()) {
                 IoSession connectedSession = future.getSession();

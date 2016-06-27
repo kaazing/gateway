@@ -90,6 +90,11 @@ abstract class AbstractNioSelector implements NioSelector {
     protected volatile Thread thread;
 
     /**
+     * Count down to 0 when the I/O thread starts and {@link #thread} is set to non-null.
+     */
+    final CountDownLatch startupLatch = new CountDownLatch(1);
+
+    /**
      * The NIO {@link Selector}.
      */
     protected volatile Selector selector;
@@ -102,7 +107,7 @@ abstract class AbstractNioSelector implements NioSelector {
      */
     protected final AtomicBoolean wakenUp = new AtomicBoolean();
 
-    private final Queue<Runnable> taskQueue = new ConcurrentLinkedQueue<Runnable>();
+    private final Queue<Runnable> taskQueue = new ConcurrentLinkedQueue<>();
 
     private volatile int cancelledKeys; // should use AtomicInteger but we just need approximation
 
@@ -216,6 +221,7 @@ abstract class AbstractNioSelector implements NioSelector {
     @Override
     public void run() {
         thread = Thread.currentThread();
+        startupLatch.countDown();
 
         int selectReturnsImmediately = 0;
         Selector selector = this.selector;
@@ -350,7 +356,7 @@ abstract class AbstractNioSelector implements NioSelector {
             } catch (Throwable t) {
                 logger.warn(
                         "Unexpected exception in the selector loop.", t);
-                PERF_LOGGER.warn(format("Unexpected exception in selector loop", t));
+                PERF_LOGGER.warn(format("Unexpected exception %s in selector loop", t));
                 t.printStackTrace();
                 // Prevent possible consecutive immediate failures that lead to
                 // excessive CPU consumption.

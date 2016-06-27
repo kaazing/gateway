@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.1.0</version>
+        <version>5.1.1</version>
     </parent>
 
     <artifactId>gateway.management</artifactId>
@@ -70,11 +70,6 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.service.http.balancer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kaazing</groupId>
-            <artifactId>gateway.server</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -213,9 +208,6 @@
                         </projectDescription>
                     </projectHints>
                 </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

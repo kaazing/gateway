@@ -214,7 +214,7 @@ public final class AwsUtils {
         StringBuffer queryString = new StringBuffer();
         for (Map.Entry<String, String> entry : params.entrySet()) {
             String value = entry.getValue();
-            String encValue = null;
+            String encValue;
 
             try {
                 encValue = URLEncoder.encode(value, UTF8_CHARSET);
@@ -304,7 +304,7 @@ public final class AwsUtils {
             throw new IllegalArgumentException("Null parameter passed in");
         }
 
-        URL               urlObj = null;
+        URL               urlObj;
         InputStream       inStream = null;
         String            response = null;
         HttpURLConnection connection = null;
@@ -425,7 +425,7 @@ public final class AwsUtils {
         assert awsSecretKey != null;
         assert algorithm != null;
 
-        String signature = null;
+        String signature;
 
         try {
             byte[] secretyKeyBytes = awsSecretKey.getBytes(UTF8_CHARSET);
@@ -482,7 +482,7 @@ public final class AwsUtils {
 
     private static String createV1Signature(String stringToSign, String awsSecretKey, String algorithm)
             throws SignatureException {
-        String signature = null;
+        String signature;
 
         if ((stringToSign == null) ||
             (awsSecretKey == null) ||
@@ -560,7 +560,7 @@ public final class AwsUtils {
     private static String rfc3986Conformance(String s) {
         assert s != null;
 
-        String out = null;
+        String out;
 
         if (s == null) {
             return null;

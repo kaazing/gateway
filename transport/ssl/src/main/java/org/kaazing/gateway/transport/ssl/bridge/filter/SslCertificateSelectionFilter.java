@@ -122,7 +122,7 @@ public class SslCertificateSelectionFilter
     public static void setAvailableCertAliases(ResourceAddress key,
                                                Collection<String> aliases,
                                                boolean clientMode) {
-        AvailableCertInfo certInfo = null;
+        AvailableCertInfo certInfo;
 
         if (clientMode) {
             certInfo = availClientCertInfo.get();
@@ -140,7 +140,7 @@ public class SslCertificateSelectionFilter
     }
 
     public static IoSession getCurrentSession(boolean client) {
-        AvailableCertInfo certInfo = null;
+        AvailableCertInfo certInfo;
 
         if (client) {
             certInfo = availClientCertInfo.get();
@@ -154,7 +154,7 @@ public class SslCertificateSelectionFilter
 
     public static void setCurrentSession(final IoSession session,
                                          boolean client) {
-        AvailableCertInfo certInfo = null;
+        AvailableCertInfo certInfo;
 
         certInfo = (client ? availClientCertInfo.get() : availServerCertInfo.get());
         certInfo.setSession(session);

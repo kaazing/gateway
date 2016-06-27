@@ -104,6 +104,7 @@ class NioDatagramSessionEx extends NioSessionEx {
         return 0;
     }
 
+    @Override
     public IoServiceEx getService() {
         return service;
     }
@@ -113,10 +114,12 @@ class NioDatagramSessionEx extends NioSessionEx {
         return processor;
     }
 
+    @Override
     public DatagramSessionConfigEx getConfig() {
         return config;
     }
 
+    @Override
     public IoFilterChain getFilterChain() {
         return filterChain;
     }
@@ -136,18 +139,22 @@ class NioDatagramSessionEx extends NioSessionEx {
         this.key = key;
     }
 
+    @Override
     public IoHandler getHandler() {
         return handler;
     }
 
+    @Override
     public TransportMetadata getTransportMetadata() {
         return METADATA;
     }
 
+    @Override
     public InetSocketAddress getRemoteAddress() {
         return remoteAddress;
     }
 
+    @Override
     public InetSocketAddress getLocalAddress() {
         return localAddress;
     }

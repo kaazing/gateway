@@ -214,7 +214,6 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
         if ( path != null ) {
             int index = path.lastIndexOf(";s/");
             if ( index != -1 ) {
-                index += 3;
                 return true;
             }
         }

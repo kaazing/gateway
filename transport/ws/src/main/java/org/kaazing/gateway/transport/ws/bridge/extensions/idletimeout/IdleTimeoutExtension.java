@@ -44,6 +44,6 @@ public final class IdleTimeoutExtension extends WebSocketExtension  {
     @Override
     public IoFilter getFilter() {
         return new IdleTimeoutFilter(idleTimeoutMillis);
-    };
+    }
 
 }

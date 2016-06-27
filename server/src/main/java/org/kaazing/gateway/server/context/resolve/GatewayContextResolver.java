@@ -37,7 +37,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -203,9 +202,6 @@ public class GatewayContextResolver {
 
         this.transportContextsBySchemeName = new HashMap<>();
         this.transportContextsByName = new HashMap<>();
-
-        // Initialize the SslCipherSuites (pertains to KG-7059)
-        SslCipherSuites.init();
     }
 
     public GatewayContext resolve(GatewayConfigDocument gatewayConfigDoc)
@@ -473,9 +469,9 @@ public class GatewayContextResolver {
             String[] balanceStrings = serviceConfig.getBalanceArray();
             String[] connectStrings = serviceConfig.getConnectArray();
             String serviceType = serviceConfig.getType();
-            Service serviceInstance = null;
+            Service serviceInstance;
 
-            Class<? extends Service> serviceClass = null;
+            Class<? extends Service> serviceClass;
             if (serviceType.startsWith(SERVICE_TYPE_CLASS_PREFIX)) {
                 String className = serviceType.substring(SERVICE_TYPE_CLASS_PREFIX.length());
                 try {
@@ -1037,7 +1033,7 @@ public class GatewayContextResolver {
             }
 
             //Login Module Inject Rule 4: Inject Timeout Module at Front of Chain
-            if (authType.isSetSessionTimeout()) {
+            if (authType.isSetSessionTimeout() && authType.getSessionTimeout() != null) {
                 Map<String, String> options = new HashMap<>();
                 if (authType.isSetSessionTimeout()) {
                     options.put("session-timeout", resolveTimeIntervalValue(authType.getSessionTimeout()));

@@ -43,17 +43,17 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractHttpLogicHandler extends
         AbstractProxyLogicHandler {
-    private final static Logger LOGGER = LoggerFactory
+    private static final Logger LOGGER = LoggerFactory
             .getLogger(AbstractHttpLogicHandler.class);
 
-    private final static String DECODER = AbstractHttpLogicHandler.class
+    private static final String DECODER = AbstractHttpLogicHandler.class
             .getName()
             + ".Decoder";
 
-    private final static byte[] HTTP_DELIMITER = new byte[] { '\r', '\n', '\r',
+    private static final byte[] HTTP_DELIMITER = new byte[] { '\r', '\n', '\r',
             '\n' };
 
-    private final static byte[] CRLF_DELIMITER = new byte[] { '\r', '\n' };
+    private static final byte[] CRLF_DELIMITER = new byte[] { '\r', '\n' };
 
     // Parsing vars
 
@@ -406,7 +406,7 @@ public abstract class AbstractHttpLogicHandler extends
                     + "). Response: " + response);
         }
 
-        Map<String, List<String>> headers = new HashMap<String, List<String>>();
+        Map<String, List<String>> headers = new HashMap<>();
 
         for (int i = 1; i < responseLines.length; i++) {
             String[] args = responseLines[i].split(":\\s?", 2);

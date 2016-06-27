@@ -58,18 +58,15 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsebTransportTest {
-    @Rule
-    public TestRule testExecutionTrace = new MethodExecutionTrace("log4j-trace.properties");
+	private static final int NETWORK_OPERATION_WAIT_SECS = 10; // was 3, increasing for loaded environments
+
+	@Rule
+    public final TestRule testExecutionTrace = new MethodExecutionTrace("log4j-trace.properties");
 
     @Rule
-    public TestRule timeout = new DisableOnDebug(new Timeout(20, SECONDS));
-
-    private static int NETWORK_OPERATION_WAIT_SECS = 10; // was 3, increasing for loaded environments
-
-    private SchedulerProvider schedulerProvider;
+    public final TestRule timeout = new DisableOnDebug(new Timeout(20, SECONDS));
 
 	private ResourceAddressFactory addressFactory;
-	private BridgeServiceFactory serviceFactory;
 
 	private NioSocketConnector tcpConnector;
 	private HttpConnector httpConnector;
@@ -81,12 +78,12 @@ public class WsebTransportTest {
 
 	@Before
 	public void init() {
-		schedulerProvider = new SchedulerProvider();
+		SchedulerProvider schedulerProvider = new SchedulerProvider();
 
 		addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         Map<String, ?> config = Collections.emptyMap();
         TransportFactory transportFactory = TransportFactory.newTransportFactory(config);
-        serviceFactory = new BridgeServiceFactory(transportFactory);
+		BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
 
         tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
 
@@ -260,7 +257,7 @@ public class WsebTransportTest {
 //                "sessionClosed did not fire on the acceptor");
 	}
 
-    static void waitForLatch(CountDownLatch l,
+    private static void waitForLatch(CountDownLatch l,
                                     final int delay,
                                     final TimeUnit unit,
                                     final String failureMessage)

@@ -264,6 +264,7 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
     @Override
     public void doSessionCreatedListeners() {
         runManagementTask(new Runnable() {
+            @Override
             public void run() {
                 try {
                     // The particular management listeners change on strategy, so get them here.
@@ -292,6 +293,7 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
     @Override
     public void doSessionClosedListeners() {
         runManagementTask(new Runnable() {
+            @Override
             public void run() {
                 try {
                     // The particular management listeners change on strategy, so get them here.
@@ -320,6 +322,7 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
     @Override
     public void doMessageReceivedListeners(final Object message) {
         runManagementTask(new Runnable() {
+            @Override
             public void run() {
                 try {
                     List<SessionManagementListener> sessionListeners = getManagementListeners();
@@ -352,6 +355,7 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
         final Object originalMessage = originalRequest != null ? originalRequest.getMessage() : null;
 
         runManagementTask(new Runnable() {
+            @Override
             public void run() {
                 try {
                     List<SessionManagementListener> sessionListeners = getManagementListeners();
@@ -380,6 +384,7 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
     @Override
     public void doExceptionCaughtListeners(final Throwable cause) {
         runManagementTask(new Runnable() {
+            @Override
             public void run() {
                 try {
                     List<SessionManagementListener> sessionListeners = getManagementListeners();

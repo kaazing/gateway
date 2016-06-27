@@ -226,9 +226,9 @@ public class Gateway {
                 if (loginModuleConfig.getSuccess() != null) {
                     loginModule.setSuccess(SuccessType.Enum.forString(loginModuleConfig.getSuccess()));
                 }
-                Node domNode = null;
-                Document ownerDocument = null;
-                LoginModuleOptionsType newOptions = null;
+                Node domNode;
+                Document ownerDocument;
+                LoginModuleOptionsType newOptions;
                 Map<String, String> options = loginModuleConfig.getOptions();
 
                 if (!options.isEmpty()) {

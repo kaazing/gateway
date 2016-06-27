@@ -44,20 +44,6 @@ public interface AcceptOptionsContext {
      */
     Map<String, String> getBinds();
 
-    /**
-     * Set the map of options on the AcceptOptionsContext.  The options are String key/value pairs.
-     * @param options the map of String key/value pairs to set on the AcceptOptionsContext
-     */
-    void setOptions(Map<String, String> options);
-
-    /**
-     * Set the map of default options on the AcceptOptionsContext.  The options are String key/value pairs.
-     * If the given default option does not exist in the option map it is added.  Any options already set
-     * are left untouched.
-     * @param defaultOptions the map of String key/value pairs to set as the default options on the AcceptOptionsContext
-     */
-    void setDefaultOptions(Map<String, String> defaultOptions);
-
     class Wrapper implements AcceptOptionsContext {
 
         private final AcceptOptionsContext delegate;
@@ -86,14 +72,6 @@ public interface AcceptOptionsContext {
             return delegate.asOptionsMap();
         }
 
-        @Override
-        public void setOptions(Map<String, String> options) {
-            delegate.setOptions(options);
-        }
-
-        @Override
-        public void setDefaultOptions(Map<String, String> options) {
-            delegate.setDefaultOptions(options);
-        }
     }
+
 }

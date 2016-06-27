@@ -181,7 +181,7 @@ public class TransportFactory {
      * transport. This can be used to inject resources into other objects which require acceptors or connectors to be injected.
      */
     public Map<String, Object> injectResources(Map<String, Object> resources) {
-        Map<String, Object> allResources = new HashMap<String, Object>(resources);
+        Map<String, Object> allResources = new HashMap<>(resources);
         for (Entry<String, Transport> entry : transportsByName.entrySet()) {
             allResources.put(entry.getKey() + ".acceptor", entry.getValue().getAcceptor());
             allResources.put(entry.getKey() + ".connector", entry.getValue().getConnector());

@@ -49,7 +49,7 @@ public class IdleTimeoutExtensionWSNAcceptorIT {
     @Test
     @Specification("standard.pong.frames.sent.by.server.no.client.timeout/request")
     public void standardPongFramesSentByServerNoClientTimeout() throws Exception {
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put("ws.inactivityTimeout", 2000L);
         ResourceAddress address = addressFactory.newResourceAddress(
                 "ws://localhost:8001/echo", options);
@@ -70,7 +70,7 @@ public class IdleTimeoutExtensionWSNAcceptorIT {
     @Test
     @Specification("extension.pong.frames.sent.by.server.no.client.timeout/request")
     public void extensionPongFramesSentByServerNoClientTimeout() throws Exception {
-    	Map<String, Object> options = new HashMap<String, Object>();
+    	Map<String, Object> options = new HashMap<>();
         options.put("ws.inactivityTimeout", 2000L);
         ResourceAddress address = addressFactory.newResourceAddress(
                 "ws://localhost:8001/echo", options);

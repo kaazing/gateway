@@ -153,7 +153,7 @@ class SslHandler {
                 logger.trace(String.format("Supported SSL/TLS ciphersuites:\n  %s", toCipherString(supportedCiphers)));
 
             } else {
-                logger.trace(String.format("Supported SSL/TLS ciphersuites: none"));
+                logger.trace("Supported SSL/TLS ciphersuites: none");
             }
 
             List<String> enabledCiphers = toCipherList(sslEngine.getEnabledCipherSuites());
@@ -161,7 +161,7 @@ class SslHandler {
                 logger.trace(String.format("Default enabled SSL/TLS ciphersuites:\n  %s", toCipherString(enabledCiphers)));
 
             } else {
-                logger.trace(String.format("Enabled SSL/TLS ciphersuites: none"));
+                logger.trace("Enabled SSL/TLS ciphersuites: none");
             }
 
             if (sslEngine.getWantClientAuth() ||
@@ -200,7 +200,7 @@ class SslHandler {
         } else {
             boolean sslv3Enabled = isSslv3Enabled(protocols);
             if (sslv3Enabled && logger.isWarnEnabled()) {
-                logger.warn(String.format("SSLv3 protocol is enabled. SSLv3 known to have vulnerabilities"));
+                logger.warn("SSLv3 protocol is enabled. SSLv3 known to have vulnerabilities");
             }
         }
         if (logger.isTraceEnabled()) {

@@ -123,9 +123,9 @@ public class NioSocketWriteIT {
                     finally {
                         destroy();
                     }
-                    rcvBufferSize = rcvBufferSize == 0 ? rcvBufferSize = 1024 : rcvBufferSize * 2;
+                    rcvBufferSize = rcvBufferSize == 0 ? 1024 : rcvBufferSize * 2;
                 } while (rcvBufferSize <= MAXRCVBUF);
-                sendBufferSize = sendBufferSize == 0 ? sendBufferSize = 1024 : sendBufferSize * 2;
+                sendBufferSize = sendBufferSize == 0 ? 1024 : sendBufferSize * 2;
             } while (sendBufferSize <= MAXSENDBUF);
 
         }
@@ -241,7 +241,7 @@ public class NioSocketWriteIT {
     }
 
     private static class EchoRepeatHandler extends IoHandlerAdapter {
-        final AtomicReference<Throwable> exception = new AtomicReference<Throwable>();
+        final AtomicReference<Throwable> exception = new AtomicReference<>();
         volatile int counter;
         volatile int incompleteWrites;
         volatile int numSent;

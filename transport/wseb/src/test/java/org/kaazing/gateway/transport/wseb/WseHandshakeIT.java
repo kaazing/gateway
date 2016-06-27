@@ -31,7 +31,7 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class WseHandshakeIT {
 
-    private static String ECHO_SERVICE_ACCEPT = "wse://localhost:8001/echo";
+    private static final String ECHO_SERVICE_ACCEPT = "wse://localhost:8001/echo";
 
     private final K3poRule robot = new K3poRule();
 
@@ -53,7 +53,7 @@ public class WseHandshakeIT {
     };
 
     @Rule
-    public TestRule chain = createRuleChain(gateway, robot);
+    public final TestRule chain = createRuleChain(gateway, robot);
 
     @Specification("wse.handshake.send.receive.3_5")
     @Test

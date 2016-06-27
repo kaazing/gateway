@@ -46,13 +46,13 @@ public class MD4 extends MessageDigestSpi {
      * The initial values of the four registers. RFC gives the values 
      * in LE so we converted it as JAVA uses BE endianness.
      */
-    private final static int A = 0x67452301;
+    private static final int A = 0x67452301;
 
-    private final static int B = 0xefcdab89;
+    private static final int B = 0xefcdab89;
 
-    private final static int C = 0x98badcfe;
+    private static final int C = 0x98badcfe;
 
-    private final static int D = 0x10325476;
+    private static final int D = 0x10325476;
 
     /**
      * The four registers initialized with the above IVs.

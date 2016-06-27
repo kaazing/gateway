@@ -157,6 +157,7 @@ public class DefaultLoginContextFactory implements LoginContextFactory {
         final DefaultLoginResult loginResult = new DefaultLoginResult();
 
         CallbackHandler handler = new CallbackHandler() {
+            @Override
             public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
 
                 for (Callback callback : callbacks) {

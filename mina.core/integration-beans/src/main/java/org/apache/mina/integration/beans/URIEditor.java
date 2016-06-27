@@ -29,7 +29,7 @@ public class URIEditor extends AbstractPropertyEditor {
 
     @Override
     protected String toText(Object value) {
-        return ((URI) value).toString();
+        return value.toString();
     }
 
     @Override

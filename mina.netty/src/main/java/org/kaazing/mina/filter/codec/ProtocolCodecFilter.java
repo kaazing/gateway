@@ -104,10 +104,12 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
 
         // Create the inner Factory based on the two parameters
         this.factory = new ProtocolCodecFactory() {
+            @Override
             public ProtocolEncoder getEncoder(IoSession session) {
                 return encoder;
             }
 
+            @Override
             public ProtocolDecoder getDecoder(IoSession session) {
                 return decoder;
             }
@@ -156,10 +158,12 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
         // Create the inner factory based on the two parameters. We instantiate
         // the encoder and decoder locally.
         this.factory = new ProtocolCodecFactory() {
+            @Override
             public ProtocolEncoder getEncoder(IoSession session) throws Exception {
                 return encoderClass.newInstance();
             }
 
+            @Override
             public ProtocolDecoder getDecoder(IoSession session) throws Exception {
                 return decoderClass.newInstance();
             }
@@ -368,6 +372,7 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
             // Do nothing
         }
 
+        @Override
         public void flush(NextFilter nextFilter, IoSession session) {
             IoSessionEx sessionEx = (IoSessionEx) session;
             if (!sessionEx.isIoRegistered()) {

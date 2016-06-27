@@ -142,6 +142,7 @@ public final class HttpResponseEncoder extends HttpMessageEncoder<HttpResponseMe
         }
     }
 
+  @Override
   protected void encodeCookies(IoSessionEx session, HttpResponseMessage httpResponse, IoBufferEx buf)
             throws CharacterCodingException {
         for (HttpCookie cookie : httpResponse.getCookies()) {

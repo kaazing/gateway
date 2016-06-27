@@ -39,6 +39,7 @@ public class WsebFrameCodecFilter extends ProtocolCodecFilter {
             this.pingEnabled = pingEnabled;
         }
 
+        @Override
         public ProtocolEncoder getEncoder(IoSession session) {
             IoSessionEx sessionEx = (IoSessionEx) session;
             IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
@@ -51,6 +52,7 @@ public class WsebFrameCodecFilter extends ProtocolCodecFilter {
             return new WsebFrameEncoder(allocator);
         }
 
+        @Override
         public ProtocolDecoder getDecoder(IoSession session) {
             IoSessionEx sessionEx = (IoSessionEx) session;
             IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();

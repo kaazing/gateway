@@ -29,6 +29,7 @@ public abstract class SseEolDecodingState implements DecodingState {
     /**
      * {@inheritDoc}
      */
+    @Override
     public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out)
             throws Exception {
         while (in.hasRemaining()) {
@@ -62,6 +63,7 @@ public abstract class SseEolDecodingState implements DecodingState {
     /**
      * {@inheritDoc}
      */
+    @Override
     public DecodingState finishDecode(ProtocolDecoderOutput out)
             throws Exception {
         return finishDecode(SseEolStyle.NONE, out);

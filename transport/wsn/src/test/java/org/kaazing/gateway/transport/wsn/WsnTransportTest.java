@@ -58,18 +58,14 @@ import org.kaazing.mina.core.buffer.SimpleBufferAllocator;
 import org.kaazing.mina.core.session.IoSessionEx;
 
 public class WsnTransportTest {
+    private static final int NETWORK_OPERATION_WAIT_SECS = 10; // was 3, increasing for loaded environments
+
     @Rule
     public TestRule cain = createRuleChain(30, SECONDS);
 
+    private ResourceAddressFactory addressFactory;
 
-    private static int NETWORK_OPERATION_WAIT_SECS = 10; // was 3, increasing for loaded environments
-
-    private SchedulerProvider schedulerProvider;
-
-	private ResourceAddressFactory addressFactory;
-	private BridgeServiceFactory serviceFactory;
-
-	private NioSocketConnector tcpConnector;
+    private NioSocketConnector tcpConnector;
 	private HttpConnector httpConnector;
 	private WsnConnector  wsnConnector;
 
@@ -87,11 +83,11 @@ public class WsnTransportTest {
 //		service = new DummyService();
 //		serviceContext = new DefaultServiceContext(service.getType(), service);
 
-		schedulerProvider = new SchedulerProvider();
+        SchedulerProvider schedulerProvider = new SchedulerProvider();
 
 		addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-        TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object> emptyMap());
-		serviceFactory = new BridgeServiceFactory(transportFactory);
+        TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.emptyMap());
+        BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
 
 		tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
 

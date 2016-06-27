@@ -70,7 +70,7 @@ public class MultimapTest {
 
         public Order(int id, String s) {
             this.id = id;
-            set = new TreeSet<String>();
+            set = new TreeSet<>();
             set.add(s);
         }
 

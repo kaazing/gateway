@@ -36,6 +36,7 @@ public final class HttpInjectedDynamicResource extends HttpDynamicResource {
     private final String resourcePath;
     private final Map<String, String> writeHeaders;
 
+    @Override
     public void writeFile(HttpAcceptSession httpSession) throws IOException {
 
         // flush write headers

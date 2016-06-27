@@ -351,7 +351,7 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
         Queue<ReadFuture> readyReadFutures =
             (Queue<ReadFuture>) getAttribute(READY_READ_FUTURES_KEY);
         if (readyReadFutures == null) {
-            readyReadFutures = new CircularQueue<ReadFuture>();
+            readyReadFutures = new CircularQueue<>();
 
             Queue<ReadFuture> oldReadyReadFutures =
                 (Queue<ReadFuture>) setAttributeIfAbsent(
@@ -371,7 +371,7 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
         Queue<ReadFuture> waitingReadyReadFutures =
             (Queue<ReadFuture>) getAttribute(WAITING_READ_FUTURES_KEY);
         if (waitingReadyReadFutures == null) {
-            waitingReadyReadFutures = new CircularQueue<ReadFuture>();
+            waitingReadyReadFutures = new CircularQueue<>();
 
             Queue<ReadFuture> oldWaitingReadyReadFutures =
                 (Queue<ReadFuture>) setAttributeIfAbsent(
@@ -1244,7 +1244,7 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
      * @param currentTime the current time (i.e. {@link System#currentTimeMillis()})
      */
     public static void notifyIdleness(Iterator<? extends IoSession> sessions, long currentTime) {
-        IoSession s = null;
+        IoSession s;
         while (sessions.hasNext()) {
             s = sessions.next();
             notifyIdleSession(s, currentTime);

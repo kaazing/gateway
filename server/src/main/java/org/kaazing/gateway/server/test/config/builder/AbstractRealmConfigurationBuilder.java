@@ -99,7 +99,7 @@ public abstract class AbstractRealmConfigurationBuilder<R> extends AbstractConfi
 
     public AbstractRealmConfigurationBuilder<R> userPrincipalClass(String userPrincipalClass) {
         configuration.getSuppressibleConfiguration().addUserPrincipalClass(
-                new Suppressible<String>(userPrincipalClass, getCurrentSuppressions()));
+                new Suppressible<>(userPrincipalClass, getCurrentSuppressions()));
         return this;
     }
 

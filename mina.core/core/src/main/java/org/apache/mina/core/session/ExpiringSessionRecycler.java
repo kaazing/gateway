@@ -44,7 +44,7 @@ public class ExpiringSessionRecycler implements IoSessionRecycler {
     }
 
     public ExpiringSessionRecycler(int timeToLive, int expirationInterval) {
-        sessionMap = new ExpiringMap<Object, IoSession>(timeToLive,
+        sessionMap = new ExpiringMap<>(timeToLive,
                 expirationInterval);
         mapExpirer = sessionMap.getExpirer();
         sessionMap.addExpirationListener(new DefaultExpirationListener());
@@ -96,7 +96,7 @@ public class ExpiringSessionRecycler implements IoSessionRecycler {
 
     private Object generateKey(SocketAddress localAddress,
             SocketAddress remoteAddress) {
-        List<SocketAddress> key = new ArrayList<SocketAddress>(2);
+        List<SocketAddress> key = new ArrayList<>(2);
         key.add(remoteAddress);
         key.add(localAddress);
         return key;

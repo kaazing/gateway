@@ -61,7 +61,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractPollingIoProcessor<T extends AbstractIoSession>
         implements IoProcessor<T> {
     /** A logger for this class */
-    private final static Logger LOG = LoggerFactory.getLogger(IoProcessor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IoProcessor.class);
     
     /**
      * The maximum loop count for a write operation until
@@ -75,23 +75,23 @@ public abstract class AbstractPollingIoProcessor<T extends AbstractIoSession>
     private static final long SELECT_TIMEOUT = 10L;
 
     /** A map containing the last Thread ID for each class */
-    private static final Map<Class<?>, AtomicInteger> threadIds = new HashMap<Class<?>, AtomicInteger>();
+    private static final Map<Class<?>, AtomicInteger> threadIds = new HashMap<>();
 
     private final String threadName;
 
     private final Executor executor;
 
     /** A Session queue containing the newly created sessions */
-    private final Queue<T> newSessions = new ConcurrentLinkedQueue<T>();
+    private final Queue<T> newSessions = new ConcurrentLinkedQueue<>();
 
     /** A queue used to store the sessions to be removed */
-    private final Queue<T> removingSessions = new ConcurrentLinkedQueue<T>();
+    private final Queue<T> removingSessions = new ConcurrentLinkedQueue<>();
 
     /** A queue used to store the sessions to be flushed */
-    private final Queue<T> flushingSessions = new ConcurrentLinkedQueue<T>();
+    private final Queue<T> flushingSessions = new ConcurrentLinkedQueue<>();
 
     /** A queue used to store the sessions which have a trafficControl to be updated */
-    private final Queue<T> trafficControllingSessions = new ConcurrentLinkedQueue<T>();
+    private final Queue<T> trafficControllingSessions = new ConcurrentLinkedQueue<>();
 
     /** The processor thread : it handles the incoming messages */
     private final AtomicReference<Processor> processorRef = new AtomicReference<Processor>();
@@ -549,7 +549,7 @@ public abstract class AbstractPollingIoProcessor<T extends AbstractIoSession>
         WriteRequestQueue writeRequestQueue = session.getWriteRequestQueue();
         WriteRequest req;
 
-        List<WriteRequest> failedRequests = new ArrayList<WriteRequest>();
+        List<WriteRequest> failedRequests = new ArrayList<>();
 
         if ((req = writeRequestQueue.poll(session)) != null) {
             Object m = req.getMessage();

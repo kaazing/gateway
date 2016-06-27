@@ -213,7 +213,7 @@ public final class URIUtils {
      */
     public static String buildURIAsString(String scheme, String authority, String path,
             String query, String fragment) throws URISyntaxException {
-        URI helperURI = null;
+        URI helperURI;
         try {
             helperURI = new URI(scheme, authority, path, query, fragment);
         } catch (URISyntaxException e) {
@@ -236,7 +236,7 @@ public final class URIUtils {
      */
     public static String buildURIAsString(String scheme, String userInfo,
             String host, int port, String path, String query, String fragment) throws URISyntaxException {
-        URI helperURI = null;
+        URI helperURI;
         try {
             helperURI = new URI(scheme, userInfo, host, port, path, query, fragment);
         } catch (URISyntaxException e) {
@@ -406,7 +406,7 @@ public final class URIUtils {
         private boolean absolute;
 
         public static String buildURIToString(String scheme, String authority, String path, String query, String fragment) {
-            URI helperURI = null;
+            URI helperURI;
             try {
                 helperURI = new URI(scheme, HOST_TEMPLATE, path, query, fragment);
             } catch (URISyntaxException e) {
@@ -417,7 +417,7 @@ public final class URIUtils {
 
         public static String buildURIToString(String scheme, String userInfo, String host, int port, String path, String query,
                 String fragment) {
-            URI helperURI = null;
+            URI helperURI;
             try {
                 helperURI = new URI(scheme, userInfo, HOST_TEMPLATE, port, path, query, fragment);
             } catch (URISyntaxException e) {

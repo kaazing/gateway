@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultIoFilterChainBuilder implements IoFilterChainBuilder {
     
-    private final static Logger LOGGER = 
+    private static final Logger LOGGER =
         LoggerFactory.getLogger(DefaultIoFilterChainBuilder.class);
     private final List<Entry> entries;
 
@@ -65,7 +65,7 @@ public class DefaultIoFilterChainBuilder implements IoFilterChainBuilder {
      * Creates a new instance with an empty filter list.
      */
     public DefaultIoFilterChainBuilder() {
-        entries = new CopyOnWriteArrayList<Entry>();
+        entries = new CopyOnWriteArrayList<>();
     }
 
     /**
@@ -75,7 +75,7 @@ public class DefaultIoFilterChainBuilder implements IoFilterChainBuilder {
         if (filterChain == null) {
             throw new NullPointerException("filterChain");
         }
-        entries = new CopyOnWriteArrayList<Entry>(filterChain.entries);
+        entries = new CopyOnWriteArrayList<>(filterChain.entries);
     }
 
     /**
@@ -145,7 +145,7 @@ public class DefaultIoFilterChainBuilder implements IoFilterChainBuilder {
      * @see IoFilterChain#getAll()
      */
     public List<Entry> getAll() {
-        return new ArrayList<Entry>(entries);
+        return new ArrayList<>(entries);
     }
 
     /**
@@ -412,7 +412,7 @@ public class DefaultIoFilterChainBuilder implements IoFilterChainBuilder {
         }
         
         Random rand = new Random();
-        List<String> expectedNames = new ArrayList<String>();
+        List<String> expectedNames = new ArrayList<>();
         IoFilter dummyFilter = new IoFilterAdapter();
         for (int i = 0; i < 65536; i ++) {
             String filterName;

@@ -447,7 +447,7 @@ public class JVMManagementMIB implements MOGroup {
         @Override
         public Variable getValue() {
             ClassLoadingMXBean bean = ManagementFactory.getClassLoadingMXBean();
-            long classLoadingLong = 0;
+            long classLoadingLong;
             switch (operation) {
                 case JVM_CLASSES_LOADED_OPER:
                     classLoadingLong = (long) bean.getLoadedClassCount();
@@ -504,10 +504,12 @@ public class JVMManagementMIB implements MOGroup {
             this.bean = ManagementFactory.getClassLoadingMXBean();
         }
 
+        @Override
         boolean isVerbose() {
             return bean.isVerbose();
         }
 
+        @Override
         void setVerbose(boolean verbose) {
             bean.setVerbose(verbose);
         }
@@ -521,10 +523,12 @@ public class JVMManagementMIB implements MOGroup {
             this.bean = ManagementFactory.getMemoryMXBean();
         }
 
+        @Override
         boolean isVerbose() {
             return bean.isVerbose();
         }
 
+        @Override
         void setVerbose(boolean verbose) {
             bean.setVerbose(verbose);
         }
@@ -628,7 +632,7 @@ public class JVMManagementMIB implements MOGroup {
 
         @Override
         public Variable getValue() {
-            String value = "";
+            String value;
 
             switch (operation) {
                 case SUMMARY_DATA_FIELDS_OPER:

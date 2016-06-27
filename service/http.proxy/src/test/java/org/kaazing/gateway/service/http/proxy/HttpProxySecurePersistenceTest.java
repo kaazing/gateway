@@ -35,6 +35,7 @@ import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 
 public class HttpProxySecurePersistenceTest {
     private final KeyStore keyStore = TlsTestUtil.keyStore();
@@ -53,6 +54,7 @@ public class HttpProxySecurePersistenceTest {
         // @formatter:off
         GatewayConfiguration configuration =
                 new GatewayConfigurationBuilder()
+                    .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
                     .service()
                         .accept("https://localhost:8110")
                         .connect("https://localhost:8080")

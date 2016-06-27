@@ -85,7 +85,7 @@ public class WsCloseTransportTest {
     private static final Integer ADAPTER_LATCH_UNEXPECTED_TIMEOUT = 2;
 
     private final ResourceAddressFactory resourceAddressFactory = ResourceAddressFactory.newResourceAddressFactory();
-    TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object> emptyMap());
+    TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.emptyMap());
     private final BridgeServiceFactory bridgeServiceFactory = new BridgeServiceFactory(transportFactory);
 //    private final ServiceRegistry serviceRegistry = new ServiceRegistry();
     private WsnAcceptor wsnAcceptor;
@@ -465,7 +465,7 @@ public class WsCloseTransportTest {
 
         IoSession clientSession = future.getSession();
 
-        UnbindFuture unbindFuture = null;
+        UnbindFuture unbindFuture;
         try {
             waitForLatch(clientSessionOpened, SESSION_LATCH_TIMEOUT,
                 TimeUnit.SECONDS,

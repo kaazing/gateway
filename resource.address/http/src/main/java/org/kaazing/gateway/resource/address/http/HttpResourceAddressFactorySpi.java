@@ -49,6 +49,7 @@ import java.net.URI;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,13 +78,13 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
 
     static {
         // go backwards so we can set alternate addresses correctly
-        List<ResourceFactory> insecureAlternateResourceFactories = Arrays.asList(
+        List<ResourceFactory> insecureAlternateResourceFactories = Collections.singletonList(
                 changeSchemeOnly("httpxe")
         );
 
-        List<ResourceFactory> secureAlternateResourceFactories = Arrays.asList(
+        List<ResourceFactory> secureAlternateResourceFactories = Collections.singletonList(
                 changeSchemeOnly("httpxe+ssl")
-                                                                              );
+        );
 
         RESOURCE_FACTORIES_BY_KEY.put("wse/1.0",
                                       insecureAlternateResourceFactories);
@@ -248,6 +249,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         }
     }
 
+    @Override
     protected void setAlternateOption(final String location,
                                       ResourceOptions options,
                                       Map<String, Object> optionsByName) {

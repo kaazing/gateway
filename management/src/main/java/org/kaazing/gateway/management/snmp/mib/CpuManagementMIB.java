@@ -308,7 +308,7 @@ public class CpuManagementMIB implements MOGroup, CounterListener, AgentCapabili
                 return new Null();
             }
 
-            long counterValue = 0;
+            long counterValue;
             if (scalarValue instanceof Double) {
                 counterValue = (long) ((Double) scalarValue * 1000);
             } else if (scalarValue instanceof Float) {
@@ -337,7 +337,7 @@ public class CpuManagementMIB implements MOGroup, CounterListener, AgentCapabili
 
         @Override
         public Variable getValue() {
-            String value = "";
+            String value;
 
             switch (operation) {
                 case SUMMARY_DATA_FIELDS_OPER:
@@ -365,7 +365,7 @@ public class CpuManagementMIB implements MOGroup, CounterListener, AgentCapabili
 
         @Override
         public Variable getValue() {
-            int value = -1;
+            int value;
 
             switch (operation) {
                 case NUM_CPUS_OPER:

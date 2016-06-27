@@ -40,34 +40,34 @@ import org.slf4j.LoggerFactory;
  */
 public class Socks5LogicHandler extends AbstractSocksLogicHandler {
 
-    private final static Logger LOGGER = LoggerFactory
+    private static final Logger LOGGER = LoggerFactory
             .getLogger(Socks5LogicHandler.class);
 
     /**
      * The selected authentication method attribute key.
      */
-    private final static String SELECTED_AUTH_METHOD = Socks5LogicHandler.class
+    private static final String SELECTED_AUTH_METHOD = Socks5LogicHandler.class
             .getName()
             + ".SelectedAuthMethod";
 
     /**
      * The current step in the handshake attribute key.
      */
-    private final static String HANDSHAKE_STEP = Socks5LogicHandler.class
+    private static final String HANDSHAKE_STEP = Socks5LogicHandler.class
             .getName()
             + ".HandshakeStep";
 
     /**
      * The Java GSS-API context attribute key.
      */
-    private final static String GSS_CONTEXT = Socks5LogicHandler.class
+    private static final String GSS_CONTEXT = Socks5LogicHandler.class
             .getName()
             + ".GSSContext";
 
     /**
      * Last GSS token received attribute key.
      */
-    private final static String GSS_TOKEN = Socks5LogicHandler.class.getName()
+    private static final String GSS_TOKEN = Socks5LogicHandler.class.getName()
             + ".GSSToken";
 
     /**

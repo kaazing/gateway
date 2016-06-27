@@ -233,15 +233,18 @@ class ConnectionPool {
             connectFutures = new ConcurrentSkipListMap<>();
         }
 
+        @Override
         ConnectFuture pollFirstEntry() {
             Entry<Long, ConnectFuture> entry = connectFutures.pollFirstEntry();
             return entry == null ? null : entry.getValue();
         }
 
+        @Override
         ConnectFuture remove(Object key) {
             return connectFutures.remove(key);
         }
 
+        @Override
         Object add(ConnectFuture future) {
             Long key = nextFutureId.getAndIncrement();
             connectFutures.put(key,  future);

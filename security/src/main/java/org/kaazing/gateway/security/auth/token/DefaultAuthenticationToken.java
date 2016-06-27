@@ -98,6 +98,7 @@ public class DefaultAuthenticationToken extends AuthenticationToken {
      * Return the first component within this token.
      * @return the first component within this token, or <code>null</code> if no such component exists.
      */
+    @Override
     public String get() {
         if (size() == 0) {
             return null;
@@ -112,6 +113,7 @@ public class DefaultAuthenticationToken extends AuthenticationToken {
      * @return the component at the specified index from this {@code DefaultAuthenticationToken} object.
      * @throws IndexOutOfBoundsException when the specified index is larger than the number of added components.
      */
+    @Override
     public String get(int index) {
         if (index >= 0 && index < components.size()) {
             return components.get(index);
@@ -134,6 +136,7 @@ public class DefaultAuthenticationToken extends AuthenticationToken {
      * @return the named component from this {@code DefaultAuthenticationToken} object,
      * or <code>null</code> if no such named component exists.
      */
+    @Override
     public String get(String name) {
         return namedComponents.get(name);
     }
@@ -145,6 +148,7 @@ public class DefaultAuthenticationToken extends AuthenticationToken {
      * @return the HTTP authentication scheme, or <code>null</code> if no scheme
      * was used.
      */
+    @Override
     public String getScheme() {
         return scheme;
     }
@@ -153,6 +157,7 @@ public class DefaultAuthenticationToken extends AuthenticationToken {
      * Return the number of components comprising this {@code DefaultAuthenticationToken}.
      * @return the number of components comprising this {@code DefaultAuthenticationToken}.
      */
+    @Override
     public int size() {
         return components.size() + namedComponents.size();
     }

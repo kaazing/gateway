@@ -47,7 +47,7 @@ public final class GatewayObserver implements GatewayObserverApi {
     }
 
     private static GatewayObserver newInstance(ServiceLoader<GatewayObserverFactorySpi> gatewayListenerSpis) {
-        Set<GatewayObserverFactorySpi> gatewayListenerSpiList = synchronizedSet(new HashSet<GatewayObserverFactorySpi>());
+        Set<GatewayObserverFactorySpi> gatewayListenerSpiList = synchronizedSet(new HashSet<>());
         for (GatewayObserverFactorySpi gatewayListenerSpi : gatewayListenerSpis) {
             gatewayListenerSpiList.add(gatewayListenerSpi);
         }

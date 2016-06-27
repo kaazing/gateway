@@ -17,6 +17,7 @@ package org.kaazing.gateway.service.update.check;
 
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductEdition;
 import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductTitle;
 import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductVersionPatch;
 import static org.kaazing.gateway.service.update.check.GatewayVersion.parseGatewayVersion;
@@ -59,11 +60,9 @@ public class UpdateCheckService implements Service {
             throw new RuntimeException("Could not locate a product version associated with the jars on the classpath",
                     e);
         }
-        versionServiceUrl = (productName.toLowerCase().contains("enterprise")) ? "https://version.kaazing.com"
+        final String productEdition = getGatewayProductEdition().replaceAll("\\s+", "");
+        versionServiceUrl = (productEdition.toLowerCase().contains("enterprise")) ? "https://version.kaazing.com"
                 : "https://version.kaazing.org";
-        // useful for local testing
-        // versionServiceUrl = (productName.toLowerCase().contains("community")) ? "http://version.kaazing.org"
-        // : "http://version.kaazing.com";
     }
 
     @Resource(name = "schedulerProvider")
@@ -115,7 +114,7 @@ public class UpdateCheckService implements Service {
 
     /**
      * Forces a check for an update and registers the listener if it is not already registerd
-     * @param managementUpdateCheckListener
+     * @param updateCheckListener
      */
     public void checkForUpdate(UpdateCheckListener updateCheckListener) {
         listeners.add(updateCheckListener);

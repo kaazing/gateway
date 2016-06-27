@@ -55,7 +55,6 @@ public class WsnBindingsTest {
     private SchedulerProvider schedulerProvider;
 
     private ResourceAddressFactory addressFactory;
-    private BridgeServiceFactory serviceFactory;
 
     private NioSocketConnector tcpConnector;
     private HttpConnector httpConnector;
@@ -65,7 +64,6 @@ public class WsnBindingsTest {
     private SslAcceptor sslAcceptor;
     private HttpAcceptor httpAcceptor;
     private WsnAcceptor wsnAcceptor;
-    private WsAcceptor wsAcceptor;
 
     private KeyStore keyStore;
     private String keyStoreFile;
@@ -169,7 +167,7 @@ public class WsnBindingsTest {
 
         addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.EMPTY_MAP);
-        serviceFactory = new BridgeServiceFactory(transportFactory);
+        BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
 
         tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
         tcpAcceptor.setResourceAddressFactory(addressFactory);
@@ -198,7 +196,7 @@ public class WsnBindingsTest {
         wsnAcceptor.setResourceAddressFactory(addressFactory);
         wsnAcceptor.setSchedulerProvider(schedulerProvider);
 
-        wsAcceptor = (WsAcceptor)transportFactory.getTransport("ws").getAcceptor();
+        WsAcceptor wsAcceptor = (WsAcceptor) transportFactory.getTransport("ws").getAcceptor();
         wsAcceptor.setWsnAcceptor(wsnAcceptor);
 
         wsnConnector = (WsnConnector)transportFactory.getTransport("wsn").getConnector();

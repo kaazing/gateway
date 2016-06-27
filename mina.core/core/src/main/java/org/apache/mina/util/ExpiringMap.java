@@ -80,8 +80,8 @@ public class ExpiringMap<K, V> implements Map<K, V> {
      *  The time between checks to see if a value should be removed (seconds)
      */
     public ExpiringMap(int timeToLive, int expirationInterval) {
-        this(new ConcurrentHashMap<K, ExpiringObject>(),
-                new CopyOnWriteArrayList<ExpirationListener<V>>(), timeToLive,
+        this(new ConcurrentHashMap<>(),
+                new CopyOnWriteArrayList<>(), timeToLive,
                 expirationInterval);
     }
 

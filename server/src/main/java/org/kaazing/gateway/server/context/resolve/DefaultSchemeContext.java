@@ -22,15 +22,14 @@ public class DefaultSchemeContext implements SchemeContext {
 
     private final String name;
     private final int defaultPort;
-    private final ResourceAddressFactory resourceAddressFactory;
 
 
     public DefaultSchemeContext(String name, int defaultPort, ResourceAddressFactory resourceAddressFactory) {
         this.name = name;
         this.defaultPort = defaultPort;
-        this.resourceAddressFactory = resourceAddressFactory;
     }
 
+    @Override
     public String getName() {
         return name;
     }

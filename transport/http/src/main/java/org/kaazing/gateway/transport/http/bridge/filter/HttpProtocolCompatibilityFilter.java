@@ -137,7 +137,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
         CREATE_ENCODINGS = unmodifiableMap(createEncodings);
     }
 
-    private final static Logger logger = LoggerFactory.getLogger("transport.http");
+    private static final Logger logger = LoggerFactory.getLogger("transport.http");
 
     @Override
     public void sessionOpened(NextFilter nextFilter, final IoSession session) throws Exception {
@@ -358,7 +358,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                         emulatedOrigin = emulatedOrigins.get(0);
                     }
 
-                    List<String> validatedOrigins = null;
+                    List<String> validatedOrigins;
                     if (emulatedOrigin != null) {
                         String validatedOriginsHeader = "X-Origin-" + URLEncoder.encode(emulatedOrigin, "UTF-8");
                         validatedOrigins = httpRequest.removeHeader(validatedOriginsHeader);
@@ -582,7 +582,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
             // for now, make sure the outer content type is valid httpxe value
             DefaultHttpSession httpSession = session;
             Map<String,List<String>> sessionHeaders = new HashMap<>(httpSession.getReadHeaders());
-            sessionHeaders.put(HEADER_CONTENT_TYPE, asList(CONTENT_TYPE_APPLICATION_X_MESSAGE_HTTP));
+            sessionHeaders.put(HEADER_CONTENT_TYPE, Collections.singletonList(CONTENT_TYPE_APPLICATION_X_MESSAGE_HTTP));
             httpSession.setReadHeaders(sessionHeaders);
 
             return req;
@@ -802,11 +802,11 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
     }
 
     public static class WrappedHttpTextEventStreamFilter extends HttpFilterAdapter<IoSessionEx> {
-        private final static Charset UTF_8 = Charset.forName("UTF-8");
-        private final static CharsetEncoder UTF_8_ENCODER = UTF_8.newEncoder();
-        private final static CharSequence WRAPPED_HTTP = "HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\n\r\n";
-        private final static String FILTER_NAME = "WrappedHttpTextEventStreamFilter";
-        private final static int TO_ALLOCATE = WRAPPED_HTTP.length();
+        private static final Charset UTF_8 = Charset.forName("UTF-8");
+        private static final CharsetEncoder UTF_8_ENCODER = UTF_8.newEncoder();
+        private static final CharSequence WRAPPED_HTTP = "HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\n\r\n";
+        private static final String FILTER_NAME = "WrappedHttpTextEventStreamFilter";
+        private static final int TO_ALLOCATE = WRAPPED_HTTP.length();
 
         @Override
         protected void filterWriteHttpResponse(NextFilter nextFilter, IoSessionEx session, WriteRequest writeRequest,

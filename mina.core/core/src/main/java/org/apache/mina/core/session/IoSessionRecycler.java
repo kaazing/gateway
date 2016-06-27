@@ -32,7 +32,7 @@ public interface IoSessionRecycler {
      * make all session lifecycle events to be fired for every I/O for all connectionless
      * sessions.
      */
-    static IoSessionRecycler NOOP = new IoSessionRecycler() {
+    IoSessionRecycler NOOP = new IoSessionRecycler() {
         public void put(IoSession session) {
             // Do nothing
         }

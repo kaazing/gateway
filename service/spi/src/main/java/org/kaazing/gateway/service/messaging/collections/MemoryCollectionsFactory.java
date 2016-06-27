@@ -66,7 +66,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         // TODO: avoid memory leak
         maps = new ConcurrentHashMap<>();
         lists = new ConcurrentHashMap<>();
-        locks = Collections.synchronizedMap(new WeakHashMap<Object, ILockImpl>());
+        locks = Collections.synchronizedMap(new WeakHashMap<>());
         atomicCounters = new ConcurrentHashMap<>();
     }
 

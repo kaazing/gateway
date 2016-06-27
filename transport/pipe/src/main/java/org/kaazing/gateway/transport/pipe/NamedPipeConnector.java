@@ -69,7 +69,8 @@ public class NamedPipeConnector extends AbstractBioConnector<NamedPipeAddress> {
 	protected IoConnector initConnector() {
 		NamedPipeConnectorImpl connector = new NamedPipeConnectorImpl();
 		connector.setNamedPipeAcceptor(new Ref<NamedPipeAcceptorImpl>() {
-			public NamedPipeAcceptorImpl get() {
+			@Override
+            public NamedPipeAcceptorImpl get() {
 				return (acceptor != null) ? acceptor.getAcceptor() : null;
 			}
 		});

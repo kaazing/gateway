@@ -46,7 +46,7 @@ public class GatewayCommandLineProcessor {
     }
 
     private void launchGateway(String[] args, Properties properties) {
-        CommandLine cmd = null;
+        CommandLine cmd;
         Options options = createOptions();
 
         try {
@@ -86,6 +86,7 @@ public class GatewayCommandLineProcessor {
         gateway.setProperties(properties);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
             public void run() {
                 try {
                     gateway.destroy();

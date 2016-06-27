@@ -82,7 +82,7 @@ public class Expectations extends org.jmock.Expectations {
             @Override
             public boolean matches(Object arg0) {
                 return (arg0 instanceof List<?>
-                && ((List<?>) arg0).equals(Arrays.asList(contents)));
+                && arg0.equals(Arrays.asList(contents)));
             }
             @Override
             public void describeTo(Description arg0) {

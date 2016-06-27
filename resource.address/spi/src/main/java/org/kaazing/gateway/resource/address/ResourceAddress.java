@@ -29,6 +29,7 @@ import java.net.SocketException;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -109,7 +110,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
             String transportAsProtocolFormat = format("%s[%s].", getResource().getScheme(), transportProtocolName);
             prefixes = asList(myTransportName, transportAsProtocolFormat);
         } else {
-            prefixes = asList(myTransportName);
+            prefixes = Collections.singletonList(myTransportName);
         }
 
         // strip off current transport prefix for option names

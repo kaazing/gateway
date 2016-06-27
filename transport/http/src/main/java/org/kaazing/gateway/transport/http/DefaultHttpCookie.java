@@ -52,62 +52,77 @@ public class DefaultHttpCookie implements MutableHttpCookie, Comparable<DefaultH
         this.name = name;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setComment(String comment) {
         this.comment = comment;
     }
 
+    @Override
     public String getComment() {
         return comment;
     }
 
+    @Override
     public void setDomain(String domain) {
         this.domain = domain;
     }
 
+    @Override
     public String getDomain() {
         return domain;
     }
 
+    @Override
     public void setMaxAge(long maxAge) {
         this.maxAge = maxAge;
     }
 
+    @Override
     public long getMaxAge() {
         return maxAge;
     }
 
+    @Override
     public void setPath(String path) {
         this.path = path;
     }
 
+    @Override
     public String getPath() {
         return path;
     }
 
+    @Override
     public void setSecure(boolean secure) {
         this.secure = secure;
     }
 
+    @Override
     public boolean isSecure() {
         return secure;
     }
 
+    @Override
     public void setValue(String value) {
         this.value = value;
     }
 
+    @Override
     public String getValue() {
         return value;
     }
 
+    @Override
     public void setVersion(int version) {
         this.version = version;
     }
 
+    @Override
     public int getVersion() {
         return version;
     }

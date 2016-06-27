@@ -66,7 +66,7 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
     // feature is disabled by default. If in future we want to enable by default, a suitable default would be "30sec".
     public static final long DEFAULT_WS_INACTIVITY_TIMEOUT_MILLIS = DISABLE_INACTIVITY_TIMEOUT;
 
-    private static String OBSOLETE_INACTIVITY_TIMEOUT_PROPERTY = "org.kaazing.gateway.transport.ws.INACTIVITY_TIMEOUT";
+    private static final String OBSOLETE_INACTIVITY_TIMEOUT_PROPERTY = "org.kaazing.gateway.transport.ws.INACTIVITY_TIMEOUT";
 
     private final Logger logger;
 

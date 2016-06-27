@@ -193,13 +193,13 @@ public class DefaultServiceContext implements ServiceContext {
                 service,
                 null,
                 null,
-                Collections.<String>emptySet(),
-                Collections.<String>emptySet(),
-                Collections.<String>emptySet(),
+                Collections.emptySet(),
+                Collections.emptySet(),
+                Collections.emptySet(),
                 new DefaultServiceProperties(),
                 EMPTY_REQUIRE_ROLES,
-                Collections.<String, String>emptyMap(),
-                Collections.<String, Map<String, CrossSiteConstraintContext>>emptyMap(),
+                Collections.emptyMap(),
+                Collections.emptyMap(),
                 null,
                 new DefaultAcceptOptionsContext(),
                 new DefaultConnectOptionsContext(),
@@ -364,14 +364,17 @@ public class DefaultServiceContext implements ServiceContext {
         return connectOptionsContext;
     }
 
+    @Override
     public String getServiceType() {
         return serviceType;
     }
 
+    @Override
     public String getServiceName() {
         return serviceName;
     }
 
+    @Override
     public String getServiceDescription() {
         return serviceDescription;
     }
@@ -579,13 +582,13 @@ public class DefaultServiceContext implements ServiceContext {
                         memberBalanceUriMap.put(balanceURI, acceptUris);
 
                         // get and add to the list here instead of overwriting it
-                        TreeSet<String> balanceUris = null;
-                        TreeSet<String> newBalanceUris = null;
+                        TreeSet<String> balanceUris;
+                        TreeSet<String> newBalanceUris;
                         do {
                             GL.debug(GL.CLUSTER_LOGGER_NAME, "In Bind: While loop for balanceURI: " + balanceURI);
                             balanceUris = sharedBalanceUriMap.get(balanceURI);
                             if (balanceUris == null) {
-                                newBalanceUris = new TreeSet<String>();
+                                newBalanceUris = new TreeSet<>();
                                 newBalanceUris.addAll(accepts);
                                 balanceUris = sharedBalanceUriMap.putIfAbsent(balanceURI, newBalanceUris);
                                 if (balanceUris == null) {
@@ -593,7 +596,7 @@ public class DefaultServiceContext implements ServiceContext {
                                     break;
                                 }
                             }
-                            newBalanceUris = new TreeSet<String>(balanceUris);
+                            newBalanceUris = new TreeSet<>(balanceUris);
                             newBalanceUris.addAll(accepts);
                             if (newBalanceUris.equals(balanceUris)) {
                                 break;
@@ -774,7 +777,7 @@ public class DefaultServiceContext implements ServiceContext {
      * @return
      */
    private Collection<Class<? extends Principal>> getUserPrincipalClasses(String[] userPrincipalClasses) {
-       Collection<Class<? extends Principal>> userPrincipals = new ArrayList<Class<? extends Principal>>();
+       Collection<Class<? extends Principal>> userPrincipals = new ArrayList<>();
        for (String item : serviceRealmContext.getUserPrincipalClasses()) {
            try {
                userPrincipals.add(Class.forName(item).asSubclass(Principal.class));
@@ -925,16 +928,16 @@ public class DefaultServiceContext implements ServiceContext {
                         memberBalanceUriMap.remove(balanceURI);
 
                         // get and add to the list here instead of overwriting it
-                        TreeSet<String> balanceUris = null;
+                        TreeSet<String> balanceUris;
                         TreeSet<String> newBalanceUris = null;
                         do {
                             GL.debug(GL.CLUSTER_LOGGER_NAME,
-                                    "In unbind while loop for balanaceURI: " + balanceURI.toString());
+                                    "In unbind while loop for balanaceURI: " + balanceURI);
                             boolean didRemove = false;
                             balanceUris = sharedBalanceUriMap.get(balanceURI);
                             if (balanceUris != null) {
                                 GL.debug(GL.CLUSTER_LOGGER_NAME, "In unbind: balanceUris.size() :" + balanceUris.size());
-                                newBalanceUris = new TreeSet<String>(balanceUris);
+                                newBalanceUris = new TreeSet<>(balanceUris);
                                 for (String acceptUri : accepts) {
                                     didRemove = didRemove || newBalanceUris.remove(acceptUri);
                                 }

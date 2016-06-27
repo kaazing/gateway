@@ -37,9 +37,9 @@ import org.slf4j.LoggerFactory;
  * @org.apache.xbean.XBean
  */
 public class BlacklistFilter extends IoFilterAdapter {
-    private final List<Subnet> blacklist = new CopyOnWriteArrayList<Subnet>();
+    private final List<Subnet> blacklist = new CopyOnWriteArrayList<>();
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(BlacklistFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BlacklistFilter.class);
     /**
      * Sets the addresses to be blacklisted.
      *

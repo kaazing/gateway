@@ -37,6 +37,16 @@ if "%GATEWAY_OPTS%" == "" (
     set GATEWAY_OPTS=-Xmx512m
 )
 
+rem You can opt into using early access features by setting the value 
+rem of the GATEWAY_FEATURES environment variable to a comma separated 
+rem list of features to enable before calling this script.
+rem The script itself should not be changed.
+set FEATURE_OPTS= 
+if not "%GATEWAY_FEATURES%" == "" (
+   echo Enabling early access features: %GATEWAY_FEATURES%
+   set FEATURE_OPTS=-Dfeature.%GATEWAY_FEATURES:,= -Dfeature.%
+)
+
 rem Create the classpath.
 
 rem Add a directory for management support
@@ -49,4 +59,4 @@ if "%GATEWAY_IDENTIFIER%" NEQ "" (
 )
 
 rem Startup the gateway
-java %GATEWAY_OPTS% %GW_ID% -Djava.library.path="%JAVA_LIBRARY_PATH%" -XX:+HeapDumpOnOutOfMemoryError -cp "%GW_HOME%\lib\*" org.kaazing.gateway.server.WindowsMain %*
+java %FEATURE_OPTS% %GATEWAY_OPTS% %GW_ID% -Djava.library.path="%JAVA_LIBRARY_PATH%" -XX:+HeapDumpOnOutOfMemoryError -cp "%GW_HOME%\lib\*" org.kaazing.gateway.server.WindowsMain %*

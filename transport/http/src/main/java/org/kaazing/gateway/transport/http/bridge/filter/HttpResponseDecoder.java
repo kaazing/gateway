@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.http.bridge.filter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.statemachine.DecodingState;
 import org.kaazing.gateway.transport.http.HttpConnector;
-import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.session.IoSessionEx;

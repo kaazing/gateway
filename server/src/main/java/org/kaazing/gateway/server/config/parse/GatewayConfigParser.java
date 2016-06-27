@@ -194,7 +194,7 @@ public class GatewayConfigParser {
         parseOptions.setLoadStripWhitespace();
         parseOptions.setLoadStripComments();
 
-        File translatedConfigFile = null;
+        File translatedConfigFile;
         try {
             translatedConfigFile = getTranslatedConfigFile(configFile);
         } catch (Exception e) {
@@ -419,7 +419,7 @@ public class GatewayConfigParser {
      * @return
      */
     private static InputStream bufferToTraceLog(InputStream input, String message, Logger log) {
-        InputStream output = input;
+        InputStream output;
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             int read;
@@ -508,6 +508,7 @@ public class GatewayConfigParser {
          *
          * @return <code>true</code> if processed without errors, <code>false</code> otherwise
          */
+        @Override
         public Boolean call() throws Exception {
             try {
                 SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
@@ -581,7 +582,7 @@ public class GatewayConfigParser {
                 };
                 parser.getXMLReader().setProperty("http://xml.org/sax/properties/lexical-handler", handler);
                 parser.getXMLReader().setProperty("http://apache.org/xml/properties/input-buffer-size",
-                        new Integer(souceInput.available()));
+                        souceInput.available());
                 parser.parse(souceInput, handler);
             } finally {
                 close();
@@ -616,6 +617,7 @@ public class GatewayConfigParser {
          *
          * @return <code>true</code> if processed without errors, <code>false</code> otherwise
          */
+        @Override
         public Boolean call() throws Exception {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             URL resource = classLoader.getResource(stylesheet);

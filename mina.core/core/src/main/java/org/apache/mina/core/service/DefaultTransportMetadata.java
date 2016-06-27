@@ -87,7 +87,7 @@ public class DefaultTransportMetadata implements TransportMetadata {
         this.sessionConfigType = sessionConfigType;
 
         Set<Class<?>> newEnvelopeTypes =
-            new IdentityHashSet<Class<?>>();
+                new IdentityHashSet<>();
         Collections.addAll(newEnvelopeTypes, envelopeTypes);
         this.envelopeTypes = Collections.unmodifiableSet(newEnvelopeTypes);
     }

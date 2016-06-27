@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.filter.codec.ProtocolCodecException;
@@ -151,9 +152,9 @@ public class HttpRequestDecoderTest {
         assertEquals("/;e/ct", httpRequest.getRequestURI().toASCIIString());
         assertNull(httpRequest.getContent());
         assertTrue(httpRequest.getCookies().isEmpty());
-        assertEquals(Arrays.asList("example.com"), httpRequest.getHeaderValues("Host"));
-        assertEquals(Arrays.asList("http://localhost:8000"), httpRequest.getHeaderValues("Origin"));
-        assertEquals(Arrays.asList("http://my.host.com"), httpRequest.getHeaderValues("Referer"));
+        assertEquals(Collections.singletonList("example.com"), httpRequest.getHeaderValues("Host"));
+        assertEquals(Collections.singletonList("http://localhost:8000"), httpRequest.getHeaderValues("Origin"));
+        assertEquals(Collections.singletonList("http://my.host.com"), httpRequest.getHeaderValues("Referer"));
 
         assertTrue(session.getDecoderOutputQueue().isEmpty());
         decoder.finishDecode(session, session.getDecoderOutput());
@@ -181,9 +182,9 @@ public class HttpRequestDecoderTest {
         assertEquals("/sse?.a=1&.a=1b&.b+=2", httpRequest.getRequestURI().toASCIIString());
         assertNull(httpRequest.getContent());
         assertEquals(Arrays.asList("1", "1b"), httpRequest.getParameterValues(".a"));
-        assertEquals(Arrays.asList("2"), httpRequest.getParameterValues(".b "));
-        assertEquals(Arrays.asList("sse.server.net"), httpRequest.getHeaderValues("Host"));
-        assertEquals(Arrays.asList("text/event-stream"), httpRequest.getHeaderValues("Content-Type"));
+        assertEquals(Collections.singletonList("2"), httpRequest.getParameterValues(".b "));
+        assertEquals(Collections.singletonList("sse.server.net"), httpRequest.getHeaderValues("Host"));
+        assertEquals(Collections.singletonList("text/event-stream"), httpRequest.getHeaderValues("Content-Type"));
 
         assertTrue(session.getDecoderOutputQueue().isEmpty());
         decoder.finishDecode(session, session.getDecoderOutput());

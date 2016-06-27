@@ -58,7 +58,7 @@ public class VicariousThreadLocal<T> extends ThreadLocal<T> {
     /**
      * Maps a unique WeakReference onto each Thread.
      */
-    private static final ThreadLocal<WeakReference<Thread>> weakThread = new ThreadLocal<WeakReference<Thread>>();
+    private static final ThreadLocal<WeakReference<Thread>> weakThread = new ThreadLocal<>();
 
     /**
      * Returns a unique object representing the current thread. Although we use a weak-reference to the thread, we could
@@ -67,7 +67,7 @@ public class VicariousThreadLocal<T> extends ThreadLocal<T> {
     static WeakReference<Thread> currentThreadRef() {
         WeakReference<Thread> ref = weakThread.get();
         if (ref == null) {
-            ref = new WeakReference<Thread>(Thread.currentThread());
+            ref = new WeakReference<>(Thread.currentThread());
             weakThread.set(ref);
         }
         return ref;
@@ -81,7 +81,7 @@ public class VicariousThreadLocal<T> extends ThreadLocal<T> {
     /**
      * Actual ThreadLocal implementation object.
      */
-    private final ThreadLocal<WeakReference<Holder>> local = new ThreadLocal<WeakReference<Holder>>();
+    private final ThreadLocal<WeakReference<Holder>> local = new ThreadLocal<>();
 
     /**
      * Maintains a strong reference to value for each thread, so long as the Thread has not been collected. Note, alive
@@ -99,13 +99,13 @@ public class VicariousThreadLocal<T> extends ThreadLocal<T> {
     /**
      * Queue of Holders belonging to exited threads.
      */
-    private final ReferenceQueue<Object> queue = new ReferenceQueue<Object>();
+    private final ReferenceQueue<Object> queue = new ReferenceQueue<>();
 
     /**
      * Creates a new {@code VicariousThreadLocal}.
      */
     public static <T> VicariousThreadLocal<T> newThreadLocal() {
-        return new VicariousThreadLocal<T>();
+        return new VicariousThreadLocal<>();
     }
 
     /**
@@ -176,7 +176,7 @@ public class VicariousThreadLocal<T> extends ThreadLocal<T> {
     private Holder createHolder() {
         poll();
         Holder holder = new Holder(queue);
-        WeakReference<Holder> ref = new WeakReference<Holder>(holder);
+        WeakReference<Holder> ref = new WeakReference<>(holder);
 
         Holder old;
         do {

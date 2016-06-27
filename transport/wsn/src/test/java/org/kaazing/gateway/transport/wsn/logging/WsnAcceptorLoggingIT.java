@@ -20,6 +20,7 @@ import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Rule;
@@ -88,17 +89,17 @@ public class WsnAcceptorLoggingIT {
         })
     public void shouldLogProtocolException() throws Exception {
         k3po.finish();
-        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "tcp#.*OPENED",
-            "tcp#.*WRITE",
-            "tcp#.*RECEIVED",
-            "tcp#.*CLOSED",
-            "http#.*OPENED",
-            "http#.*CLOSED",
-            "wsn#.*OPENED",
-            "tcp#.*EXCEPTION.*Protocol.*Exception",
-            "wsn#.*EXCEPTION.*IOException.*caused by.*Protocol.*Exception",
-            "wsn#.*CLOSED"
+        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
+                "tcp#.*OPENED",
+                "tcp#.*WRITE",
+                "tcp#.*RECEIVED",
+                "tcp#.*CLOSED",
+                "http#.*OPENED",
+                "http#.*CLOSED",
+                "wsn#.*OPENED",
+                "tcp#.*EXCEPTION.*Protocol.*Exception",
+                "wsn#.*EXCEPTION.*IOException.*caused by.*Protocol.*Exception",
+                "wsn#.*CLOSED"
         }));
         forbiddenPatterns = null;
     }
@@ -109,18 +110,18 @@ public class WsnAcceptorLoggingIT {
         })
     public void shouldLogOpenWriteReceivedAndAbruptClose() throws Exception {
         k3po.finish();
-        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "tcp#.* [^/]*:\\d*] OPENED", // example: [tcp#34 192.168.4.126:49966] OPENED: (...
-            "tcp#.* [^/]*:\\d*] WRITE",
-            "tcp#.* [^/]*:\\d*] RECEIVED",
-            "tcp#.* [^/]*:\\d*] CLOSED",
-            "http#.* [^/]*:\\d*] OPENED",
-            "http#.* [^/]*:\\d*] CLOSED",
-            "wsn#.* [^/]*:\\d*] OPENED",
-            "wsn#.* [^/]*:\\d*] WRITE",
-            "wsn#.* [^/]*:\\d*] RECEIVED",
-            "wsn#.* [^/]*:\\d*] EXCEPTION.*IOException",
-            "wsn#.* [^/]*:\\d*] CLOSED"
+        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
+                "tcp#.* [^/]*:\\d*] OPENED", // example: [tcp#34 192.168.4.126:49966] OPENED: (...
+                "tcp#.* [^/]*:\\d*] WRITE",
+                "tcp#.* [^/]*:\\d*] RECEIVED",
+                "tcp#.* [^/]*:\\d*] CLOSED",
+                "http#.* [^/]*:\\d*] OPENED",
+                "http#.* [^/]*:\\d*] CLOSED",
+                "wsn#.* [^/]*:\\d*] OPENED",
+                "wsn#.* [^/]*:\\d*] WRITE",
+                "wsn#.* [^/]*:\\d*] RECEIVED",
+                "wsn#.* [^/]*:\\d*] EXCEPTION.*IOException",
+                "wsn#.* [^/]*:\\d*] CLOSED"
         }));
         forbiddenPatterns = null;
     }
@@ -131,17 +132,17 @@ public class WsnAcceptorLoggingIT {
         })
     public void shouldLogOpenAndCleanClose() throws Exception {
         k3po.finish();
-        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "tcp#.* [^/]*:\\d*] OPENED",
-            "tcp#.* [^/]*:\\d*] WRITE",
-            "tcp#.* [^/]*:\\d*] RECEIVED",
-            "tcp#.* [^/]*:\\d*] CLOSED",
-            "http#.* [^/]*:\\d*] OPENED",
-            "http#.* [^/]*:\\d*] CLOSED",
-            "wsn#.* [^/]*:\\d*] OPENED",
-            "wsn#.* [^/]*:\\d*] CLOSED"
+        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
+                "tcp#.* [^/]*:\\d*] OPENED",
+                "tcp#.* [^/]*:\\d*] WRITE",
+                "tcp#.* [^/]*:\\d*] RECEIVED",
+                "tcp#.* [^/]*:\\d*] CLOSED",
+                "http#.* [^/]*:\\d*] OPENED",
+                "http#.* [^/]*:\\d*] CLOSED",
+                "wsn#.* [^/]*:\\d*] OPENED",
+                "wsn#.* [^/]*:\\d*] CLOSED"
         }));
-        forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
+        forbiddenPatterns = Collections.singletonList("#.*EXCEPTION");
     }
 
 }

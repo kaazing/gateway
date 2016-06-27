@@ -140,6 +140,7 @@ public class OpeningHandshakeIT {
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
 
+
         k3po.finish();
     }
 
@@ -161,6 +162,8 @@ public class OpeningHandshakeIT {
         ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
+
+        Thread.sleep(100);
 
         k3po.finish();
     }

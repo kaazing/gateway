@@ -60,7 +60,7 @@ public class LazyInitializedCacheMap<K, V> implements Map<K, V> {
      * {@link ConcurrentHashMap}.
      */
     public LazyInitializedCacheMap() {
-        this.cache = new ConcurrentHashMap<K, LazyInitializer<V>>();
+        this.cache = new ConcurrentHashMap<>();
     }
     
     /**

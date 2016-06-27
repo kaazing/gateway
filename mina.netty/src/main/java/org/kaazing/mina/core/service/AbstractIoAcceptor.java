@@ -53,11 +53,11 @@ public abstract class AbstractIoAcceptor
         extends AbstractIoService implements IoAcceptor {
 
     private final List<SocketAddress> defaultLocalAddresses =
-        new ArrayList<SocketAddress>();
+            new ArrayList<>();
     private final List<SocketAddress> unmodifiableDefaultLocalAddresses =
         Collections.unmodifiableList(defaultLocalAddresses);
     final Set<SocketAddress> boundAddresses =
-        new HashSet<SocketAddress>();
+            new HashSet<>();
 
     private boolean disconnectOnUnbind = true;
 
@@ -105,7 +105,7 @@ public abstract class AbstractIoAcceptor
      */
     @Override
     public final Set<SocketAddress> getLocalAddresses() {
-        Set<SocketAddress> localAddresses = new HashSet<SocketAddress>();
+        Set<SocketAddress> localAddresses = new HashSet<>();
         synchronized (bindLock) {
             localAddresses.addAll(boundAddresses);
         }
@@ -167,7 +167,7 @@ public abstract class AbstractIoAcceptor
             }
 
             Collection<SocketAddress> newLocalAddresses =
-                new ArrayList<SocketAddress>();
+                    new ArrayList<>();
             for (SocketAddress a: localAddresses) {
                 checkAddressType(a);
                 newLocalAddresses.add(a);
@@ -193,7 +193,7 @@ public abstract class AbstractIoAcceptor
         }
 
         Collection<SocketAddress> newLocalAddresses =
-            new ArrayList<SocketAddress>(otherLocalAddresses.length + 1);
+                new ArrayList<>(otherLocalAddresses.length + 1);
 
         newLocalAddresses.add(firstLocalAddress);
         Collections.addAll(newLocalAddresses, otherLocalAddresses);
@@ -234,7 +234,7 @@ public abstract class AbstractIoAcceptor
             throw new NullPointerException("localAddress");
         }
 
-        List<SocketAddress> localAddresses = new ArrayList<SocketAddress>(1);
+        List<SocketAddress> localAddresses = new ArrayList<>(1);
         localAddresses.add(localAddress);
         bind(localAddresses);
     }
@@ -250,7 +250,7 @@ public abstract class AbstractIoAcceptor
             return;
         }
 
-        List<SocketAddress> localAddresses = new ArrayList<SocketAddress>(2);
+        List<SocketAddress> localAddresses = new ArrayList<>(2);
         localAddresses.add(firstLocalAddress);
 
         if (otherLocalAddresses != null) {
@@ -273,7 +273,7 @@ public abstract class AbstractIoAcceptor
             throw new NullPointerException("localAddresses");
         }
 
-        List<SocketAddress> localAddressesCopy = new ArrayList<SocketAddress>();
+        List<SocketAddress> localAddressesCopy = new ArrayList<>();
 
         for (SocketAddress a: localAddresses) {
             checkAddressType(a);
@@ -296,9 +296,7 @@ public abstract class AbstractIoAcceptor
 
             try {
                 boundAddresses.addAll(bindInternal(localAddressesCopy));
-            } catch (IOException e) {
-                throw e;
-            } catch (RuntimeException e) {
+            } catch (IOException | RuntimeException e) {
                 throw e;
             } catch (Throwable e) {
                 throw new RuntimeIoException(
@@ -328,7 +326,7 @@ public abstract class AbstractIoAcceptor
             throw new NullPointerException("localAddress");
         }
 
-        List<SocketAddress> localAddresses = new ArrayList<SocketAddress>(1);
+        List<SocketAddress> localAddresses = new ArrayList<>(1);
         localAddresses.add(localAddress);
         unbind(localAddresses);
     }
@@ -346,7 +344,7 @@ public abstract class AbstractIoAcceptor
             throw new NullPointerException("otherLocalAddresses");
         }
 
-        List<SocketAddress> localAddresses = new ArrayList<SocketAddress>();
+        List<SocketAddress> localAddresses = new ArrayList<>();
         localAddresses.add(firstLocalAddress);
         Collections.addAll(localAddresses, otherLocalAddresses);
         unbind(localAddresses);
@@ -367,7 +365,7 @@ public abstract class AbstractIoAcceptor
                 return;
             }
 
-            List<SocketAddress> localAddressesCopy = new ArrayList<SocketAddress>();
+            List<SocketAddress> localAddressesCopy = new ArrayList<>();
             int specifiedAddressCount = 0;
             for (SocketAddress a: localAddresses) {
                 specifiedAddressCount ++;
@@ -437,7 +435,7 @@ public abstract class AbstractIoAcceptor
         private final List<SocketAddress> localAddresses;
 
         public AcceptorOperationFuture(List<? extends SocketAddress> localAddresses) {
-            this.localAddresses = new ArrayList<SocketAddress>(localAddresses);
+            this.localAddresses = new ArrayList<>(localAddresses);
         }
 
         public final List<SocketAddress> getLocalAddresses() {

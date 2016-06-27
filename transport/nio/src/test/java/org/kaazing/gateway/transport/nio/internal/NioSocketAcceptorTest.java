@@ -211,7 +211,7 @@ public class NioSocketAcceptorTest {
         context.checking(new Expectations() {
             {
                 oneOf(extensionFactory).bind(bindAddress);
-                will(returnValue(Arrays.asList(new TcpExtension[]{extension1, extension2})));
+                will(returnValue(Arrays.asList(extension1, extension2)));
             }
         });
 

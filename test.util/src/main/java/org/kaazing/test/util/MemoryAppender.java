@@ -74,10 +74,10 @@ public class MemoryAppender extends ConsoleAppender {
                                             Collection<String> unexpectedPatterns,
                                             String filterPattern,
                                             boolean verbose) {
-        Set<String> encounteredPatterns = new TreeSet<String>();
-        List<String> encounteredUnexpectedMessages = new ArrayList<String>();
-        List<String> expectedPatterns = new ArrayList<String>(expectedPatternsRO);
-        Collection<String> unexpected = unexpectedPatterns == null ? Collections.<String>emptyList() : unexpectedPatterns;
+        Set<String> encounteredPatterns = new TreeSet<>();
+        List<String> encounteredUnexpectedMessages = new ArrayList<>();
+        List<String> expectedPatterns = new ArrayList<>(expectedPatternsRO);
+        Collection<String> unexpected = unexpectedPatterns == null ? Collections.emptyList() : unexpectedPatterns;
 
         for (LoggingEvent event : MemoryAppender.getEvents()) {
             String message = event.getMessage().toString();
@@ -162,10 +162,12 @@ public class MemoryAppender extends ConsoleAppender {
         }
     }
 
+    @Override
     public void close() {
         debug("MemoryAppender instance " + this + " closed");
     }
 
+    @Override
     public boolean requiresLayout() {
         return true;
     }

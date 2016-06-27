@@ -400,7 +400,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
             // TODO: if content is complete then suspendRead on iosession
             // TODO: in processor when complete resume iosession read (parent)
 
-            DefaultHttpSession httpSession = null;
+            DefaultHttpSession httpSession;
 
             HttpMessage httpMessage = (HttpMessage) message;
             switch (httpMessage.getKind()) {

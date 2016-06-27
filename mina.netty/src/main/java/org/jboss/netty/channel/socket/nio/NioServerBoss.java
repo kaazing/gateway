@@ -66,7 +66,7 @@ import org.jboss.netty.util.ThreadRenamingRunnable;
 public final class NioServerBoss extends AbstractNioSelector
         implements Boss {
 
-    private final Set<ChannelFuture> channelUnregisteredFutures = newSetFromMap(new ConcurrentHashMap<ChannelFuture, Boolean>());
+    private final Set<ChannelFuture> channelUnregisteredFutures = newSetFromMap(new ConcurrentHashMap<>());
 
     NioServerBoss(Executor bossExecutor) {
         super(bossExecutor);

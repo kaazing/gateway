@@ -49,7 +49,7 @@ import org.kaazing.mina.filter.codec.ProtocolCodecSessionEx;
 public class AmqpMessageEncodeDecodeTest {
     @Test
     public void testClose() throws Exception {
-        IoBuffer               buffer = null;
+        IoBuffer               buffer;
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
         ProtocolEncoder        encoder = new AmqpMessageEncoder(allocator);
@@ -100,7 +100,7 @@ public class AmqpMessageEncodeDecodeTest {
 
     @Test
     public void testCloseOk() throws Exception {
-        IoBuffer               buffer = null;
+        IoBuffer               buffer;
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
         ProtocolEncoder        encoder = new AmqpMessageEncoder(allocator);
@@ -144,8 +144,8 @@ public class AmqpMessageEncodeDecodeTest {
 
     @Test
     public void testOpen() throws Exception {
-        IoBuffer               buffer = null;
-        IoBuffer               protocolHeaderBuffer = null;
+        IoBuffer               buffer;
+        IoBuffer               protocolHeaderBuffer;
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
         ProtocolEncoder        encoder = new AmqpMessageEncoder(allocator);
@@ -200,7 +200,7 @@ public class AmqpMessageEncodeDecodeTest {
 
     @Test
     public void testOpenOk() throws Exception {
-        IoBuffer               buffer = null;
+        IoBuffer               buffer;
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
         ProtocolEncoder        encoder = new AmqpMessageEncoder(allocator);
@@ -247,7 +247,7 @@ public class AmqpMessageEncodeDecodeTest {
 
     @Test
     public void testTune() throws Exception {
-        IoBuffer               buffer = null;
+        IoBuffer               buffer;
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
         ProtocolEncoder        encoder = new AmqpMessageEncoder(allocator);
@@ -303,7 +303,7 @@ public class AmqpMessageEncodeDecodeTest {
 
     @Test
     public void testTuneOk() throws Exception {
-        IoBuffer               buffer = null;
+        IoBuffer               buffer;
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
         ProtocolEncoder        encoder = new AmqpMessageEncoder(allocator);
@@ -359,7 +359,7 @@ public class AmqpMessageEncodeDecodeTest {
 
     @Test
     public void testStart() throws Exception {
-        IoBuffer               buffer = null;
+        IoBuffer               buffer;
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
         ProtocolEncoder        encoder = new AmqpMessageEncoder(allocator);
@@ -428,7 +428,7 @@ public class AmqpMessageEncodeDecodeTest {
 
     @Test
     public void testStartOk() throws Exception {
-        IoBuffer               buffer = null;
+        IoBuffer               buffer;
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
         ProtocolEncoder        encoder = new AmqpMessageEncoder(allocator);

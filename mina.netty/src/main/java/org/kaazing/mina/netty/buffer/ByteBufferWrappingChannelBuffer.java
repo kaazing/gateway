@@ -73,6 +73,7 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
         return buffer.remaining();
     }
 
+    @Override
     public ChannelBufferFactory factory() {
         if (buffer.isDirect()) {
             return DirectChannelBufferFactory.getInstance(order());
@@ -81,52 +82,64 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
         }
     }
 
+    @Override
     public boolean isDirect() {
         return buffer.isDirect();
     }
 
+    @Override
     public ByteOrder order() {
         return order;
     }
 
+    @Override
     public int capacity() {
         return capacity;
     }
 
+    @Override
     public boolean hasArray() {
         return buffer.hasArray();
     }
 
+    @Override
     public byte[] array() {
         return buffer.array();
     }
 
+    @Override
     public int arrayOffset() {
         return buffer.arrayOffset();
     }
 
+    @Override
     public byte getByte(int index) {
         return buffer.get(index);
     }
 
+    @Override
     public short getShort(int index) {
         return buffer.getShort(index);
     }
 
+    @Override
     public int getUnsignedMedium(int index) {
         return  (getByte(index)     & 0xff) << 16 |
                 (getByte(index + 1) & 0xff) <<  8 |
                 getByte(index + 2) & 0xff;
     }
 
+    @Override
     public int getInt(int index) {
         return buffer.getInt(index);
     }
 
+    @Override
     public long getLong(int index) {
         return buffer.getLong(index);
     }
 
+    @Override
     public void getBytes(int index, ChannelBuffer dst, int dstIndex, int length) {
         if (dst instanceof ByteBufferWrappingChannelBuffer) {
             ByteBufferWrappingChannelBuffer bbdst = (ByteBufferWrappingChannelBuffer) dst;
@@ -149,6 +162,7 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
         }
     }
 
+    @Override
     public void getBytes(int index, byte[] dst, int dstIndex, int length) {
         // note: single-threaded, no need to duplicate
         ByteBuffer data = buffer;
@@ -169,6 +183,7 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
         data.limit(limit).position(position);
     }
 
+    @Override
     public void getBytes(int index, ByteBuffer dst) {
         // note: single-threaded, no need to duplicate
         ByteBuffer data = buffer;
@@ -190,28 +205,34 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
         data.limit(limit).position(position);
     }
 
+    @Override
     public void setByte(int index, int value) {
         buffer.put(index, (byte) value);
     }
 
+    @Override
     public void setShort(int index, int value) {
         buffer.putShort(index, (short) value);
     }
 
+    @Override
     public void setMedium(int index, int   value) {
         setByte(index,     (byte) (value >>> 16));
         setByte(index + 1, (byte) (value >>>  8));
         setByte(index + 2, (byte) value);
     }
 
+    @Override
     public void setInt(int index, int   value) {
         buffer.putInt(index, value);
     }
 
+    @Override
     public void setLong(int index, long  value) {
         buffer.putLong(index, value);
     }
 
+    @Override
     public void setBytes(int index, ChannelBuffer src, int srcIndex, int length) {
         if (src instanceof ByteBufferWrappingChannelBuffer) {
             ByteBufferWrappingChannelBuffer bbsrc = (ByteBufferWrappingChannelBuffer) src;
@@ -226,12 +247,14 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
         }
     }
 
+    @Override
     public void setBytes(int index, byte[] src, int srcIndex, int length) {
         ByteBuffer data = buffer.duplicate();
         data.limit(index + length).position(index);
         data.put(src, srcIndex, length);
     }
 
+    @Override
     public void setBytes(int index, ByteBuffer src) {
         if (index == 0) {
             wrap(src);
@@ -248,6 +271,7 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
         }
     }
 
+    @Override
     public void getBytes(int index, OutputStream out, int length) throws IOException {
         if (length == 0) {
             return;
@@ -265,6 +289,7 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
         }
     }
 
+    @Override
     public int getBytes(int index, GatheringByteChannel out, int length) throws IOException {
         if (length == 0) {
             return 0;
@@ -273,6 +298,7 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
         return out.write((ByteBuffer) buffer.duplicate().position(index).limit(index + length));
     }
 
+    @Override
     public int setBytes(int index, InputStream in, int length)
             throws IOException {
 
@@ -314,6 +340,7 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
         return readBytes;
     }
 
+    @Override
     public int setBytes(int index, ScatteringByteChannel in, int length)
             throws IOException {
 
@@ -343,6 +370,7 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
         return readBytes;
     }
 
+    @Override
     public ByteBuffer toByteBuffer(int index, int length) {
         if (index == 0 && length == capacity()) {
             // no need to duplicate
@@ -360,6 +388,7 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
         }
     }
 
+    @Override
     public ChannelBuffer slice(int index, int length) {
         if (index == 0 && length == capacity()) {
             ChannelBuffer slice = duplicate();
@@ -375,10 +404,12 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
         }
     }
 
+    @Override
     public ChannelBuffer duplicate() {
         return new ByteBufferWrappingChannelBuffer().wrap(this);
     }
 
+    @Override
     public ChannelBuffer copy(int index, int length) {
         ByteBuffer src;
         try {

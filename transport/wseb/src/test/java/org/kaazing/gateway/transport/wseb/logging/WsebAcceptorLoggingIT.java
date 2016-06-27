@@ -95,19 +95,19 @@ public class WsebAcceptorLoggingIT {
     public void shouldLogProtocolException() throws Exception {
         k3po.finish();
 
-        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "\\[tcp#.*OPENED",
-            "\\[tcp#.*WRITE",
-            "\\[tcp#.*RECEIVED",
-            "\\[tcp#.*CLOSED",
-            "\\[http#.*OPENED",
-            "\\[http#.*WRITE",
-            "\\[http#.*RECEIVED",
-            "\\[http#.*EXCEPTION.*Protocol.*Exception",
-            "\\[http#.*CLOSED",
-            "\\[wseb#.*OPENED",
-            "\\[wseb#.*IOException.*caused by.*Protocol.*Exception",
-            "\\[wseb#.*CLOSED"
+        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
+                "\\[tcp#.*OPENED",
+                "\\[tcp#.*WRITE",
+                "\\[tcp#.*RECEIVED",
+                "\\[tcp#.*CLOSED",
+                "\\[http#.*OPENED",
+                "\\[http#.*WRITE",
+                "\\[http#.*RECEIVED",
+                "\\[http#.*EXCEPTION.*Protocol.*Exception",
+                "\\[http#.*CLOSED",
+                "\\[wseb#.*OPENED",
+                "\\[wseb#.*IOException.*caused by.*Protocol.*Exception",
+                "\\[wseb#.*CLOSED"
         }));
 
         forbiddenPatterns = Collections.emptyList();
@@ -120,26 +120,26 @@ public class WsebAcceptorLoggingIT {
     public void shouldLogOpenWriteReceivedAndAbruptClose() throws Exception {
         k3po.finish();
 
-        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-             "\\[tcp#.* [^/]*:\\d*] OPENED",
-             "\\[tcp#.* [^/]*:\\d*] WRITE",
-             "\\[tcp#.* [^/]*:\\d*] RECEIVED",
-             "\\[tcp#.* [^/]*:\\d*] CLOSED",
-             "\\[http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] OPENED",
-             "\\[http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] WRITE",
-             "\\[http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] RECEIVED",
-             "\\[http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] EXCEPTION",
-             "\\[http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] CLOSED",
-             "\\[http#.* [^/]*:\\d*] OPENED",
-             "\\[http#.* [^/]*:\\d*] WRITE",
-             "\\[http#.* [^/]*:\\d*] RECEIVED",
-             "\\[http#.* [^/]*:\\d*] EXCEPTION",
-             "\\[http#.* [^/]*:\\d*] CLOSED",
-             "\\[wseb#.* [^/]*:\\d*] OPENED",
-             "\\[wseb#.* [^/]*:\\d*] WRITE",
-             "\\[wseb#.* [^/]*:\\d*] RECEIVED",
-             "\\[wseb#.* [^/]*:\\d*] EXCEPTION",
-             "\\[wseb#.* [^/]*:\\d*] CLOSED"
+        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
+                "\\[tcp#.* [^/]*:\\d*] OPENED",
+                "\\[tcp#.* [^/]*:\\d*] WRITE",
+                "\\[tcp#.* [^/]*:\\d*] RECEIVED",
+                "\\[tcp#.* [^/]*:\\d*] CLOSED",
+                "\\[http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] OPENED",
+                "\\[http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] WRITE",
+                "\\[http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] RECEIVED",
+                "\\[http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] EXCEPTION",
+                "\\[http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] CLOSED",
+                "\\[http#.* [^/]*:\\d*] OPENED",
+                "\\[http#.* [^/]*:\\d*] WRITE",
+                "\\[http#.* [^/]*:\\d*] RECEIVED",
+                "\\[http#.* [^/]*:\\d*] EXCEPTION",
+                "\\[http#.* [^/]*:\\d*] CLOSED",
+                "\\[wseb#.* [^/]*:\\d*] OPENED",
+                "\\[wseb#.* [^/]*:\\d*] WRITE",
+                "\\[wseb#.* [^/]*:\\d*] RECEIVED",
+                "\\[wseb#.* [^/]*:\\d*] EXCEPTION",
+                "\\[wseb#.* [^/]*:\\d*] CLOSED"
         }));
 
         forbiddenPatterns = Collections.emptyList();
@@ -152,20 +152,20 @@ public class WsebAcceptorLoggingIT {
     public void shouldLogOpenAndCleanClientClose() throws Exception {
         k3po.finish();
 
-        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-             "\\[tcp#.* [^/]*:\\d*] OPENED",
-             "\\[tcp#.* [^/]*:\\d*] WRITE",
-             "\\[tcp#.* [^/]*:\\d*] RECEIVED",
-             "\\[tcp#.* [^/]*:\\d*] CLOSED",
-             "\\[http#.* [^/]*:\\d*] OPENED",
-             "\\[http#.* [^/]*:\\d*] WRITE",
-             "\\[http#.* [^/]*:\\d*] RECEIVED",
-             "\\[http#.* [^/]*:\\d*] CLOSED",
-             "\\[wseb#.* [^/]*:\\d*] OPENED",
-             "\\[wseb#.* [^/]*:\\d*] CLOSED"
+        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
+                "\\[tcp#.* [^/]*:\\d*] OPENED",
+                "\\[tcp#.* [^/]*:\\d*] WRITE",
+                "\\[tcp#.* [^/]*:\\d*] RECEIVED",
+                "\\[tcp#.* [^/]*:\\d*] CLOSED",
+                "\\[http#.* [^/]*:\\d*] OPENED",
+                "\\[http#.* [^/]*:\\d*] WRITE",
+                "\\[http#.* [^/]*:\\d*] RECEIVED",
+                "\\[http#.* [^/]*:\\d*] CLOSED",
+                "\\[wseb#.* [^/]*:\\d*] OPENED",
+                "\\[wseb#.* [^/]*:\\d*] CLOSED"
         }));
 
-        forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
+        forbiddenPatterns = Collections.singletonList("#.*EXCEPTION");
     }
 
 }

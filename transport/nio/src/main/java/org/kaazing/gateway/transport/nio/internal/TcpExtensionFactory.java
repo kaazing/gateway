@@ -27,9 +27,9 @@ import org.kaazing.gateway.transport.nio.TcpExtensionFactorySpi;
 
 public interface TcpExtensionFactory {
 
-    public abstract List<TcpExtension> bind(ResourceAddress address);
+    List<TcpExtension> bind(ResourceAddress address);
 
-    public abstract Collection<TcpExtensionFactorySpi> availableExtensions();
+    Collection<TcpExtensionFactorySpi> availableExtensions();
 
     /**
      * Creates a new instance of WebSocketExtensionFactory. It uses the specified {@link ClassLoader} to load
@@ -37,7 +37,7 @@ public interface TcpExtensionFactory {
      *
      * @return WebSocketExtensionFactory
      */
-    public static TcpExtensionFactory newInstance(ClassLoader cl) {
+    static TcpExtensionFactory newInstance(ClassLoader cl) {
         ServiceLoader<TcpExtensionFactorySpi> services = load(TcpExtensionFactorySpi.class, cl);
         return TcpExtensionFactoryImpl.newInstance(services);
     }
@@ -48,7 +48,7 @@ public interface TcpExtensionFactory {
      *
      * @return WebSocketExtensionFactory
      */
-    public static TcpExtensionFactory newInstance() {
+    static TcpExtensionFactory newInstance() {
         ServiceLoader<TcpExtensionFactorySpi> services = load(TcpExtensionFactorySpi.class);
         return TcpExtensionFactoryImpl.newInstance(services);
     }

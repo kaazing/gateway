@@ -84,7 +84,7 @@ public class NicListManagementBeanImpl extends AbstractSystemManagementBean impl
         JSONArray nicData = new JSONArray();
 
         for (int i = 0; i < netInterfaceNames.length; i++) {
-            String nicName = null;
+            String nicName;
 
             nicName = netInterfaceNames[i];
 

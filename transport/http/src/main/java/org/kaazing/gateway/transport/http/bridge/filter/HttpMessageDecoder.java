@@ -26,8 +26,9 @@ public abstract class HttpMessageDecoder extends ProtocolDecoderAdapter {
 	
 	private static final AttributeKey DECODING_STATE = new AttributeKey(HttpMessageDecoder.class, "decodingState");
 	
+	@Override
 	public void decode(IoSession session, IoBuffer in,
-			ProtocolDecoderOutput out) throws Exception {
+					   ProtocolDecoderOutput out) throws Exception {
 
 		DecodingState decodingState = getDecodingState(session);
 		if (decodingState.decode(in, out) == null) {

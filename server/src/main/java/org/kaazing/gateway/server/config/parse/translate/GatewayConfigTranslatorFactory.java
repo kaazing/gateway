@@ -70,7 +70,7 @@ public class GatewayConfigTranslatorFactory {
      * @throws Exception
      */
     public GatewayConfigTranslator getTranslator(GatewayConfigNamespace namespace) throws Exception {
-        GatewayConfigTranslator result = null;
+        GatewayConfigTranslator result;
         for (GatewayConfigTranslatorFactorySpi factory : services) {
             result = factory.getTranslator(namespace);
             if (result != null) {
