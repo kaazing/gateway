@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -115,7 +115,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
     public static final String SECURITY_LOGGER_NAME = format("%s.security", LOGGER_NAME);
     public static final String MERGE_REQUEST_LOGGER_NAME = format("%s.mergeRequest", LOGGER_NAME);
     public static final AttributeKey SERVICE_REGISTRATION_KEY = new AttributeKey(HttpAcceptor.class, "serviceRegistration");
-	
+
     static final TypedAttributeKey<DefaultHttpSession> SESSION_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "session");
 
     private static final String FAULT_LOGGING_FILTER = HttpProtocol.NAME + "#fault";
@@ -128,7 +128,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory addressFactory;
-    
+
     private IoFilter httpNextAddress;
 
     private SchedulerProvider schedulerProvider;
@@ -140,7 +140,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
     public HttpAcceptor() {
         super(new DefaultIoSessionConfigEx());
-        
+
         // note: content length adjustment filter is added dynamically for httpxe/1.1, and not needed by http/1.1
         // note: empty packet filter is added dynamically for httpx/1.1, and not needed by httpxe/1.1 nor http/1.1
         // note: serialize request filter only needed for http , not httpxe nor httpx
@@ -168,14 +168,13 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                                                                            CONDITIONAL_WRAPPED_RESPONSE)));
 
         this.acceptFiltersByProtocol = unmodifiableMap(acceptFiltersByProtocol);
-        
         this.allAcceptFilters = allOf(HttpAcceptFilter.class);
     }
 
     @Override
     protected Bindings<HttpBinding> initBindings() {
         return new HttpBindings() {
-            
+
             @Override
             protected HttpBinding bindAdditionalAddressesIfNecessary(HttpBinding newHttpBinding) {
                 HttpBinding httpBinding = addBinding0(newHttpBinding);
@@ -235,7 +234,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         httpNextAddress.setResourceAddressFactory(addressFactory);
         httpNextAddress.setBindings(bindings);
         this.httpNextAddress = httpNextAddress;
-        
+
         // TODO: verify injections and throw exception if not in a valid start state
     }
 
@@ -258,7 +257,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
     protected <T extends IoFuture>
     void bindInternal(final ResourceAddress address, IoHandler handler,
                       final BridgeSessionInitializer<T> initializer) {
-        
+
         if (logger.isTraceEnabled()) {
             logger.trace(format("binding: '%s' %s", address.getExternalURI(), address.getOption(NEXT_PROTOCOL)));
         }
@@ -267,7 +266,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         // Bind the transport of the address.
         //
         final ResourceAddress transportAddress = address.getTransport();
-        
+
         final URI transportURI = transportAddress.getResource();
 
         final Protocol transportProtocol = bridgeServiceFactory.getTransportFactory().getProtocol(transportURI.getScheme());
@@ -295,14 +294,14 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
     private final IoHandler httpResourcesHandler = new IoHandlerAdapter<HttpAcceptSession>() {
 
         private final HttpDynamicResourceFactory dynamicResourceFactory = newHttpDynamicResourceFactory();
-        
+
         @Override
         protected void doSessionOpened(HttpAcceptSession session) throws Exception {
-            
+
             URI pathInfo = session.getPathInfo();
             String path = pathInfo.getPath();  // includes leading '/' after "/;resource"
             String resourceName = (path != null && path.length() > 0) ? path.substring(1) : "";
-            
+
             Collection<String> resourceNames = dynamicResourceFactory.getResourceNames();
             if (!resourceNames.contains(resourceName)) {
                 session.setStatus(CLIENT_NOT_FOUND);
@@ -316,7 +315,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         }
     };
 
-    
+
     private final IoHandler bridgeHandler = new IoHandlerAdapter<IoSessionEx>() {
 
         @Override
@@ -348,19 +347,18 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
             DefaultHttpSession httpSession = SESSION_KEY.remove(session);
             if (httpSession != null && !httpSession.isClosing()) {
-                httpSession.reset(new Exception("Early termination of IO session").fillInStackTrace());
+                httpSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
             }
         }
 
         @Override
         protected void doExceptionCaught(final IoSessionEx session, Throwable cause) throws Exception {
-            // Note: we must removeAttribute here to avoid recursion of exceptionCaught
-            DefaultHttpSession httpSession = SESSION_KEY.remove(session);
+            DefaultHttpSession httpSession = SESSION_KEY.get(session);
             if (httpSession != null && !httpSession.isClosing()) {
                 // see AbstractPollingIoProcessor.read(T session)
                 // if the cause is an IOException, then the session is scheduled for removal
                 // but the session is not yet marked as closing
-                if (!session.isClosing() && !(cause instanceof IOException)) {
+                if (!session.isClosing() && !(cause instanceof IOException) && !httpSession.getCommitFuture().isCommitted()) {
                     HttpResponseMessage httpResponse = new HttpResponseMessage();
                     httpResponse.setVersion(HttpVersion.HTTP_1_1);
                     httpResponse.setStatus(HttpStatus.SERVER_INTERNAL_ERROR);
@@ -373,7 +371,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                     LoggingUtils.log(logger, message, cause);
                 }
 
-                httpSession.reset(cause);
+                // Note: we must trigger doSessionClosed here to avoid recursion of exceptionCaught
+                session.close(true);
             }
             else {
                 if (logger.isDebugEnabled()) {
@@ -381,8 +380,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                     String message = format("Error on HTTP connection, closing connection: %s", cause);
                     LoggingUtils.log(logger, message, cause);
                 }
-                if(cause instanceof HttpProtocolDecoderException)
-                {
+
+                if (!session.isClosing() && cause instanceof HttpProtocolDecoderException) {
                     HttpResponseMessage httpResponse = new HttpResponseMessage();
                     httpResponse.setVersion(HttpVersion.HTTP_1_1);
                     httpResponse.setStatus(((HttpProtocolDecoderException)cause).getHttpStatus());
@@ -434,13 +433,13 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 final Subject subject = httpRequest.getSubject();
 
                 // percolate login context
-                final ResultAwareLoginContext loginContext = HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY.remove(session);
+                final ResultAwareLoginContext loginContext = httpRequest.getLoginContext();
                 // create new http session and store it in this io session
                 httpSession = newSession(new IoSessionInitializer<IoFuture>() {
                     @Override
                     public void initializeSession(IoSession httpSession, IoFuture future) {
                         ((DefaultHttpSession)httpSession).setSubject(subject);
-                        httpSession.setAttribute(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY, loginContext);
+                        ((DefaultHttpSession)httpSession).setLoginContext(loginContext);
                     }
                 }, new Callable<DefaultHttpSession>() {
                     @Override

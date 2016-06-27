@@ -39,9 +39,11 @@ import javax.annotation.Resource;
 
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.BridgeAcceptor;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
+import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.mina.core.future.DefaultUnbindFuture;
 import org.kaazing.mina.core.future.UnbindFuture;
@@ -49,7 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A dispatching bind/unbind acceptor that explodes the "ws" scheme into "wsn", "wseb" and "wsr" schemes
+ * A dispatching bind/unbind acceptor that explodes the "ws" scheme into "wsn", "wseb" schemes
  * and binds a configurable subset of them (all are bound by default, overridable
  * using the system property {@link WsSystemProperty#WS_ENABLED_TRANSPORTS}.
  */
@@ -57,10 +59,12 @@ public class WsAcceptor implements BridgeAcceptor {
 
     public static final String CLOSE_FILTER = "wsn#close";
 
-    private static final String WSR_PROTOCOL_NAME = "wsr/1.0";
     private static final String WSE_PROTOCOL_NAME = "wse/1.0";
     private static final String WS_DRAFT_PROTOCOL_NAME = "ws/draft-7x";
     private static final String WS_NATIVE_PROTOCOL_NAME = "ws/rfc6455";
+
+    // handler for /;api endpoint requests
+    public static final IoHandler API_PATH_HANDLER = new IoHandlerAdapter<IoSession>() {};
 
     private static Logger logger = LoggerFactory.getLogger(WsAcceptor.class);
 
@@ -70,7 +74,6 @@ public class WsAcceptor implements BridgeAcceptor {
 
     private BridgeAcceptor wsebAcceptor;
     private BridgeAcceptor wsnAcceptor;
-    private BridgeAcceptor wsrAcceptor;
     private Properties configuration;
 
     @Resource(name = "configuration")
@@ -86,11 +89,6 @@ public class WsAcceptor implements BridgeAcceptor {
     @Resource(name = "wsn.acceptor")
     public void setWsnAcceptor(BridgeAcceptor wsnAcceptor) {
         this.wsnAcceptor = wsnAcceptor;
-    }
-
-    @Resource(name = "wsr.acceptor")
-    public void setWsrAcceptor(BridgeAcceptor wsrAcceptor) {
-        this.wsrAcceptor = wsrAcceptor;
     }
 
     public WsAcceptor(WebSocketExtensionFactory extensionFactory) {
@@ -151,9 +149,6 @@ public class WsAcceptor implements BridgeAcceptor {
         wsBridgeAcceptorMap = new HashMap<>();
         Set<EnabledWsTransport> enabledTransports  = resolveEnabledTransports();
 
-        if ( enabledTransports.contains(EnabledWsTransport.wsr)) {
-            wsBridgeAcceptorMap.put(WSR_PROTOCOL_NAME, wsrAcceptor);
-        }
         if ( enabledTransports.contains(EnabledWsTransport.wseb)) {
             wsBridgeAcceptorMap.put(WSE_PROTOCOL_NAME, wsebAcceptor);
         }
@@ -206,8 +201,7 @@ public class WsAcceptor implements BridgeAcceptor {
      */
     enum EnabledWsTransport {
         wsn,
-        wseb,
-        wsr
+        wseb
     }
 
 

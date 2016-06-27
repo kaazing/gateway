@@ -21,57 +21,21 @@
 
 package org.kaazing.gateway.transport.ssl;
 
-import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.CIPHERS;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.ENCRYPTION_ENABLED;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.KEY_SELECTOR;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.NEED_CLIENT_AUTH;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.WANT_CLIENT_AUTH;
-import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
-import static org.kaazing.gateway.transport.BridgeSession.NEXT_PROTOCOL_KEY;
-import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
-import static java.lang.String.format;
-
-import java.net.URI;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.concurrent.Callable;
-
-import javax.annotation.Resource;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-
-import org.kaazing.gateway.security.KeySelector;
-import org.kaazing.gateway.transport.TransportKeySelector;
-import org.kaazing.gateway.transport.ssl.cert.VirtualHostKeySelector;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.TransportMetadata;
-import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SslContextFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.ssl.SslResourceAddress;
+import org.kaazing.gateway.security.KeySelector;
 import org.kaazing.gateway.security.SecurityContext;
-import org.kaazing.gateway.transport.dispatch.ProtocolDispatcher;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
 import org.kaazing.gateway.transport.Bindings;
 import org.kaazing.gateway.transport.Bindings.Binding;
@@ -81,29 +45,62 @@ import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.gateway.transport.BridgeSessionInitializerAdapter;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
+import org.kaazing.gateway.transport.ExceptionLoggingFilter;
+import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.NextProtocolBindings;
 import org.kaazing.gateway.transport.NextProtocolBindings.NextProtocolBinding;
 import org.kaazing.gateway.transport.NextProtocolFilter;
-import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.transport.NioBindException;
+import org.kaazing.gateway.transport.ObjectLoggingFilter;
+import org.kaazing.gateway.transport.TransportKeySelector;
+import org.kaazing.gateway.transport.TypedAttributeKey;
+import org.kaazing.gateway.transport.dispatch.ProtocolDispatcher;
 import org.kaazing.gateway.transport.ssl.bridge.filter.SslCertificateSelectionFilter;
 import org.kaazing.gateway.transport.ssl.bridge.filter.SslCipherSelectionFilter;
 import org.kaazing.gateway.transport.ssl.bridge.filter.SslClientHelloDecoder;
 import org.kaazing.gateway.transport.ssl.bridge.filter.SslClientHelloEncoder;
 import org.kaazing.gateway.transport.ssl.bridge.filter.SslFilter;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
-import org.kaazing.gateway.transport.TypedAttributeKey;
+import org.kaazing.gateway.transport.ssl.cert.VirtualHostKeySelector;
 import org.kaazing.gateway.util.ssl.SslCipherSuites;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.future.UnbindFuture;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Resource;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import java.io.IOException;
+import java.net.URI;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.concurrent.Callable;
+
+import static java.lang.String.format;
+import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.CIPHERS;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.ENCRYPTION_ENABLED;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.KEY_SELECTOR;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.NEED_CLIENT_AUTH;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.WANT_CLIENT_AUTH;
+import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
+import static org.kaazing.gateway.transport.BridgeSession.NEXT_PROTOCOL_KEY;
+import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
 
 public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocolBinding> {
 
-    private static final AttributeKey SESSION_KEY = new AttributeKey(SslAcceptor.class, "session");
+    private static final TypedAttributeKey<SslSession> SESSION_KEY = new TypedAttributeKey<>(SslAcceptor.class, "session");
 
     private static final String CODEC_FILTER = SslProtocol.NAME + "#codec";
     private static final String CERTIFICATE_SELECTION_FILTER = SslProtocol.NAME + "#certificate_selection";
@@ -466,8 +463,8 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
         @Override
         public void messageReceived(NextFilter nextFilter, IoSession session, Object message) throws Exception {
             // create SslSession
-            IoSession sslSession = unsecureBridgeHandler.createSslSession((IoSessionEx) session);
-            session.setAttribute(SslAcceptor.SESSION_KEY, sslSession);
+            SslSession sslSession = unsecureBridgeHandler.createSslSession((IoSessionEx) session);
+            SESSION_KEY.set(session, sslSession);
             session.getFilterChain().remove(this);
             super.messageReceived(nextFilter, session, message);
         }
@@ -484,24 +481,17 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
 
         @Override
         protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
-            // Note: We must use removeAttribute here to avoid recursion of exceptionCaught.
-            SslSession sslSession = (SslSession) session.removeAttribute(SESSION_KEY);
-            if (sslSession != null && !sslSession.isClosing()) {
-                sslSession.reset(cause);
-            }
-            else {
-                if (logger.isDebugEnabled()) {
-                    String message = format("Error on SSL connection, closing connection: %s", cause);
-                    if (logger.isTraceEnabled()) {
-                        // note: still debug level, but with extra detail about the exception
-                        logger.debug(message, cause);
-                    }
-                    else {
-                        logger.debug(message);
-                    }
+            if (logger.isDebugEnabled()) {
+                String message = format("Error on SSL connection, closing connection: %s", cause);
+                if (logger.isTraceEnabled()) {
+                    // note: still debug level, but with extra detail about the exception
+                    logger.debug(message, cause);
                 }
-                session.close(true);
+                else {
+                    logger.debug(message);
+                }
             }
+            session.close(true);
         }
 
         @Override
@@ -511,29 +501,29 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
                 removeFilter(filterChain, certificateSelection);
 
                 // create session
-                IoSession sslSession = (IoSession) session.getAttribute(SESSION_KEY);
+                IoSession sslSession = SESSION_KEY.get(session);
                 assert (sslSession == null);
 
-                IoSession newSslSession = createSslSession(session);
-                session.setAttribute(SESSION_KEY, newSslSession);
+                SslSession newSslSession = createSslSession(session);
+                SESSION_KEY.set(session, newSslSession);
             }
             else if (message == SslFilter.SESSION_UNSECURED) {
-                SslSession sslSession = (SslSession) session.removeAttribute(SESSION_KEY);
+                SslSession sslSession = SESSION_KEY.remove(session);
                 
                 if (sslSession != null && !sslSession.isClosing()) {
                     sslSession.getProcessor().remove(sslSession);
                 }
             }
             else {
-                IoSession sslSession = (IoSession) session.getAttribute(SESSION_KEY);
+                IoSession sslSession = SESSION_KEY.get(session);
                 assert (sslSession != null);
                 IoFilterChain filterChain = sslSession.getFilterChain();
                 filterChain.fireMessageReceived(message);
             }
         }
 
-        private IoSession createSslSession(final IoSessionEx session) throws Exception {
-            IoSession sslSession = newSession(null, new Callable<SslSession>() {
+        private SslSession createSslSession(final IoSessionEx session) throws Exception {
+            SslSession sslSession = newSession(null, new Callable<SslSession>() {
                 @Override
                 public SslSession call() {
                     //
@@ -577,20 +567,20 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
 
         @Override
         protected void doSessionClosed(IoSessionEx session) throws Exception {
-            SslSession sslSession = (SslSession) session.removeAttribute(SESSION_KEY);
+            SslSession sslSession = SESSION_KEY.remove(session);
             if (sslSession != null) {
-                if (!sslSession.isClosing()) {
-                    // behave similarly to connection reset by peer at NIO layer
-                    sslSession.reset(new Exception("Early termination of IO session").fillInStackTrace());
-                } else {
+                if (sslSession.isClosing()) {
                     sslSession.getProcessor().remove(sslSession);
+                } else {
+                    // behave similarly to connection reset by peer at NIO layer
+                    sslSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
                 }
             }
         }
 
         @Override
         protected void doSessionIdle(IoSessionEx session, IdleStatus status) throws Exception {
-            SslSession sslSession = (SslSession) session.getAttribute(SESSION_KEY);
+            SslSession sslSession = SESSION_KEY.get(session);
             if (sslSession != null) {
                 IoFilterChain filterChain = sslSession.getFilterChain();
                 filterChain.fireSessionIdle(status);

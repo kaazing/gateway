@@ -106,9 +106,9 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
 
         result.put(HTTP_KEEP_ALIVE_TIMEOUT_KEY, getHttpKeepaliveTimeout());
         result.put(HTTP_KEEP_ALIVE, isHttpKeepaliveEnabled());
-        Integer keepaliveConnections = getHttpKeepaliveMaxConnections();
+        Integer keepaliveConnections = getHttpKeepaliveConnections();
         if (keepaliveConnections != null) {
-            result.put("http.keepalive.max.connections", keepaliveConnections);
+            result.put("http.keepalive.connections", keepaliveConnections);
         }
 
         // for now just put in the rest of the options as strings
@@ -212,15 +212,15 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
         return httpKeepaliveTimeout;
     }
 
-    private Integer getHttpKeepaliveMaxConnections() {
+    private Integer getHttpKeepaliveConnections() {
         Integer maxConnections = null;
-        String connectionsValue = options.get("http.keepalive.max.connections");
+        String connectionsValue = options.get("http.keepalive.connections");
         if (connectionsValue != null) {
             int val = Integer.parseInt(connectionsValue);
             if (val > 0) {
                 maxConnections = val;
             } else {
-                String msg = String.format("http.keepalive.max.connections = %s must be > 0", connectionsValue);
+                String msg = String.format("http.keepalive.connections = %s must be > 0", connectionsValue);
                 throw new IllegalArgumentException(msg);
             }
         }

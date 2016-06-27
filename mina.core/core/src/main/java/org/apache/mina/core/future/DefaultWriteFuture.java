@@ -60,7 +60,7 @@ public class DefaultWriteFuture extends DefaultIoFuture implements WriteFuture {
         if (isDone()) {
             Object v = getValue();
             if (v instanceof Boolean) {
-                return ((Boolean) v).booleanValue();
+                return (Boolean) v;
             }
         }
         return false;

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,7 +21,7 @@
 
 package org.kaazing.gateway.transport.wsn.autobahn.pingsandpongs;
 
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
@@ -52,71 +52,71 @@ public class PingsAndPongsIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
-    
+    public TestRule chain = createRuleChain(gateway, robot);
+
     @Specification("sendPingWithoutPayload")
-    @Test(timeout = 1500)
+    @Test
     public void sendPingWithoutPayload() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendPingWithSmallTextPayload")
-    @Test(timeout = 1500)
+    @Test
     public void sendPingWithSmallTextPayload() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendPingWithSmallBinaryPayload")
-    @Test(timeout = 1500)
+    @Test
     public void sendPingWithSmallBinaryPayload() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendPingWithBinaryPayloadOf125Octets")
-    @Test(timeout = 1500)
+    @Test
     public void sendPingWithBinaryPayloadOf125Octets() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendPingWithBinaryPayloadOf125OctetsInOctetWiseChops")
-    @Test(timeout = 1500)
+    @Test
     public void sendPingWithBinaryPayloadOf125OctetsInOctetWiseChops() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendUnsolicitedPongWithoutPayload")
-    @Test(timeout = 1500)
+    @Test
     public void sendUnsolicitedPongWithoutPayload() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendUnsolicitedPongWithPayload")
-    @Test(timeout = 1500)
+    @Test
     public void sendUnsolicitedPongWithPayload() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendUnsolicitedPongWithPayloadThenPingWithPayload")
-    @Test(timeout = 1500)
+    @Test
     public void sendUnsolicitedPongWithPayloadThenPingWithPayload() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendTenPingsWithPayload")
-    @Test(timeout = 1500)
+    @Test
     public void sendTenPingsWithPayload() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendTenPingsWithPayloadInOctetWiseChops")
-    @Test(timeout = 1500)
+    @Test
     public void sendTenPingsWithPayloadInOctetWiseChops() throws Exception {
         robot.finish();
     }
-    
+
     @Ignore("KG-12367")
     @Specification("sendPingWithBinaryPayloadOf126Octets")
-    @Test(timeout = 1500)
+    @Test
     public void sendPingWithBinaryPayloadOf126Octets() throws Exception {
         robot.finish();
     }

@@ -32,7 +32,7 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 
 import java.net.URI;
 
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 public class HttpProxyChunkingIT {
 
@@ -56,16 +56,16 @@ public class HttpProxyChunkingIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    public TestRule chain = createRuleChain(gateway, robot);
 
     @Specification("completeChunkedEncoding")
-    @Test(timeout = 8000)
+    @Test
     public void completeChunkedEncoding() throws Exception {
         robot.finish();
     }
 
     @Specification("http.proxy.gzip.chunked.encoding")
-    @Test(timeout = 8000)
+    @Test
     public void gzipChunkedEncoding() throws Exception {
         robot.finish();
     }

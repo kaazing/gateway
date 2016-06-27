@@ -32,7 +32,7 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 
 import java.net.URI;
 
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 public class HttpProxyRedirectIT {
 
@@ -56,10 +56,10 @@ public class HttpProxyRedirectIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    public TestRule chain = createRuleChain(gateway, robot);
 
     @Specification("http.proxy.redirect")
-    @Test(timeout = 8000)
+    @Test
     public void httpProxyRedirect() throws Exception {
         robot.finish();
     }

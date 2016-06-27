@@ -22,8 +22,11 @@
 package org.kaazing.gateway.security.auth;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.ServiceLoader;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -32,6 +35,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 
 import org.kaazing.gateway.server.spi.security.AuthenticationTokenCallback;
+import org.kaazing.gateway.util.Encoding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +51,25 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
 
     private boolean debug;
     private boolean tryFirstToken;
+
+    private final NegotiateLoginModuleCallbackRegistrar callbackRegistrar;
+
+    private static NegotiateLoginModuleCallbackRegistrar newCallbackRegistrar() {
+        ServiceLoader<NegotiateLoginModuleCallbackRegistrar> loader = ServiceLoader.load(
+            NegotiateLoginModuleCallbackRegistrar.class);
+        Iterator<NegotiateLoginModuleCallbackRegistrar> iterator = loader.iterator();
+        if (iterator.hasNext()) {
+            // If this is in the context of Enterprise Gateway, then load the Enterprise-specific
+            // registrar that can register additional Callbacks.
+            return iterator.next();
+        }
+        // Otherwise, return null.
+        return null;
+    }
+
+    public NegotiateLoginModule() {
+        this.callbackRegistrar = newCallbackRegistrar();
+    }
 
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler,
@@ -86,7 +109,6 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
         return false;
     }
 
-
     private void attemptAuthenticate(boolean useSharedState) throws LoginException {
 
         String credentials;
@@ -98,7 +120,14 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
             if (negotiateAuthToken.startsWith("Negotiate ")) {
                 negotiateAuthToken = negotiateAuthToken.substring("Negotiate ".length());
             }
+            if (this.callbackRegistrar != null) {
+                ByteBuffer gssBuf = Encoding.BASE64.decode(ByteBuffer.wrap(negotiateAuthToken.getBytes(UTF8)));
+                byte[] gss = new byte[gssBuf.remaining()];
+                gssBuf.get(gss);
+                ((Map) sharedState).put(KAAZING_GSS_TOKEN_KEY, gss);
 
+                this.callbackRegistrar.register((DispatchCallbackHandler) handler, negotiateAuthToken, gss);
+            }
         } catch (Throwable e) {
             if (debug) {
                 LOG.debug("Exception decoding HTTP Basic Authentication token", e);
@@ -151,6 +180,13 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
         return authenticationTokenCallback.getAuthenticationToken().get();
     }
 
+    private void cleanState() {
+        if (this.callbackRegistrar != null) {
+            sharedState.remove(KAAZING_GSS_TOKEN_KEY);
+            this.callbackRegistrar.unregister((DispatchCallbackHandler) handler);
+        }
+    }
+
     @Override
     protected boolean doCommit() throws LoginException {
         return true;
@@ -158,9 +194,8 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
 
     @Override
     protected boolean doLogout() throws LoginException {
+        cleanState();
         return true;
     }
-
-
 
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,7 +21,7 @@
 
 package org.kaazing.gateway.transport.wsn.autobahn.reservedbits;
 
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
@@ -52,49 +52,49 @@ public class ReservedBitsIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
-    
+    public TestRule chain = createRuleChain(gateway, robot);
+
     @Specification("sendCloseWithRSVEquals7")
-    @Test(timeout = 1500)
+    @Test
     public void sendCloseWithRSVEquals() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendSmallTextMessageWithRSVEquals1")
-    @Test(timeout = 1500)
+    @Test
     public void sendSmallTextMessageWithRSVEquals1() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendSmallTextMessageThenSmallTextMessageWithRSVEquals2ThenSendPing")
-    @Test(timeout = 1500)
+    @Test
     public void sendSmallTextMessageThenSmallTextMessageWithRSVEquals2ThenSendPing() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendSmallTextMessageThenSmallTextMessageWithRSVEquals3ThenSendPingInFrameWiseChops")
-    @Test(timeout = 1500)
+    @Test
     public void sendSmallTextMessageThenSmallTextMessageWithRSVEquals3ThenSendPingInFrameWiseChops() throws Exception {
         robot.finish();
     }
 
     @Ignore("KG-12368")
     @Specification("sendSmallTextMessageThenSmallTextMessageWithRSVEquals4ThenSendPingInOctetWiseChops")
-    @Test(timeout = 1500)
+    @Test
     public void sendSmallTextMessageThenSmallTextMessageWithRSVEquals3ThenSendPingInOctetWiseChops() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendSmallBinaryMessageWithRSVEquals5")
-    @Test(timeout = 1500)
+    @Test
     public void sendSmallBinaryMessageWithRSVEquals5() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendPingWithRSVEquals6")
-    @Test(timeout = 1500)
+    @Test
     public void sendPingWithRSVEquals6() throws Exception {
         robot.finish();
     }
-    
+
 }

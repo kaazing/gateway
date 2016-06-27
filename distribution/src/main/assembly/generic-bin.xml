@@ -42,7 +42,6 @@
         <include>org.kaazing:gateway.resource.address.ssl</include>
         <include>org.kaazing:gateway.resource.address.tcp</include>
         <include>org.kaazing:gateway.resource.address.wsn</include>
-        <include>org.kaazing:gateway.resource.address.wsr</include>
         <include>org.kaazing:gateway.resource.address.httpxe</include>
         <include>org.kaazing:gateway.resource.address.wsdraft</include>
         <include>org.kaazing:gateway.resource.address.wsxdraft</include>
@@ -66,7 +65,7 @@
         <include>org.kaazing:gateway.transport.ws</include>
         <include>org.kaazing:gateway.transport.wsn</include>
         <include>org.kaazing:gateway.transport.wseb</include>
-        <include>org.kaazing:gateway.transport.wsr</include>
+
 
         <!-- service jars -->
         <include>org.kaazing:gateway.service</include>

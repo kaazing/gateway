@@ -26,8 +26,9 @@ To Configure the HTTP Challenge Scheme
     | `Basic`                 | Browser                     | Username and password                                                          | `BasicChallengeHandler`, `ChallengeHandler`                                                                        |
     | `Application Basic`     | Client                      | Username and password                                                          | `BasicChallengeHandler`, `ChallengeHandler`, `LoginHandler`                                                         |
     | `Negotiate`             | Browser                     | A Negotiated scheme per RFC 4559\*                                             | `NegotiateHandler`, `NegotiableHandler`, `LoginHandler`                                                             |
-    | `Application Negotiate` | Client                      | A Negotiated scheme per RFC 4559\*                                             | `NegotiateHandler`, `NegotiableHandler`, `LoginHandler`                                                             |
     | `Application Token`     | Client                      | A custom token or HTTP cookies, usually expected by a custom login module.\*\* | A custom-written challenge handler and/or login handler that can generate the expected token or cookie value.\*\* |
+
+    **Note:** Previous versions of Kaazing Gateway allowed the `Application Negotiate` scheme (per RFC 4559). `Application Negotiate` is now **deprecated** in Kaazing Gateway. Please use `Negotiate` instead.
 
     \* The HTTP Negotiate scheme is based on using Object Identifiers (OIDs) per RFC 4559 to identify kinds of tokens. If you use or register your own OID, then you can use that OID with the `NegotiateHandler` and `NegotiableHandler` challenge handlers.
 
@@ -66,13 +67,13 @@ To Configure the HTTP Challenge Scheme
 
 4.  Save `gateway-config.xml`.
 
-The Gateway matches the <span class="brush: js; highlight: [6]; toolbar: false;">*gateway.hostname*</span> for this domain to look up the authentication scheme. The Gateway uses the cookie name defined by `http-cookie` element as the authentication token to log in. The cookie value become accessible in the login module that reads the cookies using the `AuthenticationToken` class.
+The Gateway matches the *gateway.hostname* for this domain to look up the authentication scheme. The Gateway uses the cookie name defined by `http-cookie` element as the authentication token to log in. The cookie value become accessible in the login module that reads the cookies using the `AuthenticationToken` class.
 
 Notes
 -----
 
 -   Use the `Basic` and `Application Basic` schemes to provide a quick and easy-to-implement method, requiring only a username and password for authentication. However, these are the least secure schemes and are subject to several threats, not least of which is the fact that the username/password can easily be sniffed in transit by an attacker.
--   Use the `Negotiate` or `Application Negotiate` schemes when using Kerberos Network Authentication. For more information, see [Configuring Kerberos V5 Network Authentication](o_kerberos.md).
+-   Use the `Negotiate` scheme when using Kerberos Network Authentication. For more information, see [Configuring Kerberos V5 Network Authentication](o_kerberos.md).
 -   Use the `Application Token` scheme when you need a custom token to be presented to your custom login module. See [Create a Custom Login Module](p_auth_configure_custom_login_module.md) for configuration information. `Application Token` provides strong authentication because you can implement your own custom scheme that is cryptographically protected to challenge the client. When you configure custom authentication with the `Application Token` element, you must also:
     -   Configure a custom login module in the Gateway that defines how to encode/decode the token challenge data, and code the matching challenge handler on the client. See [Create a Custom Login Module](p_auth_configure_custom_login_module.md) for more information.
     -   Create a custom challenge handler on the client to support the custom login module. See [Configure a Challenge Handler on the Client](p_auth_configure_challenge_handler.md) for more information.

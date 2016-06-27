@@ -28,20 +28,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.filter.ElementFilter;
-import org.kaazing.gateway.server.config.parse.translate.AbstractVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.kaazing.gateway.server.config.parse.translate.AbstractVisitor;
+
 import static java.lang.String.format;
 
 /**
- * Compares the accept URIs to the balance URIs on a service to ensure they differ by hostname only. In order to ease the
- * transition from 4.0 to 4.1, the balanceURIs must be something that can later be promoted to the accept URIs and the hostnames
- * in the accept URIs will be moved to the http.hostname.aliases accept-option.  Since only the hostname is substituted as an
- * alternate for the accept URI when doing balancing in 4.1, this visitor ensures the 4.0 is in a good starting point for the
- * rest of the 4.x code line.
+ * Compares the accept URIs to the balance URIs on a service to ensure they differ by hostname only. In order to ease
+ * the transition from 4.0 to 4.1, the balanceURIs must be something that can later be promoted to the accept URIs and
+ * the hostnames in the accept URIs will be moved to the http.hostname.aliases accept-option. Since only the hostname is
+ * substituted as an alternate for the accept URI when doing balancing in 4.1, this visitor ensures the 4.0 is in a good
+ * starting point for the rest of the 4.x code line.
  */
 public class AcceptUriComparedToBalanceUriVisitor extends AbstractVisitor {
 
@@ -70,7 +73,7 @@ public class AcceptUriComparedToBalanceUriVisitor extends AbstractVisitor {
         }
 
         // pre-process the balance elements into a map from String(scheme)->List<ParameterizedURI>
-        Map<String, List<ParameterizedURI>> processedBalanceElements = new HashMap<>();
+        Map<String, List<ParameterizedURI>> processedBalanceElements = new HashMap<String, List<ParameterizedURI>>();
         for (Element balanceElement : balanceElements) {
             String balanceURIString = balanceElement.getValue();
 
@@ -81,24 +84,24 @@ public class AcceptUriComparedToBalanceUriVisitor extends AbstractVisitor {
                 String balancePort = balanceMatcher.group(6);
                 String balancePath = balanceMatcher.group(7);
 
-                ParameterizedURI pURI =
-                        new ParameterizedURI(balanceURIString, balanceScheme, balanceHost, balancePort, balancePath);
+                ParameterizedURI pURI = new ParameterizedURI(balanceURIString, balanceScheme, balanceHost, balancePort,
+                        balancePath);
                 List<ParameterizedURI> pURIsForScheme = processedBalanceElements.get(balanceScheme);
                 if (pURIsForScheme == null) {
-                    pURIsForScheme = new LinkedList<>();
+                    pURIsForScheme = new LinkedList<ParameterizedURI>();
                     processedBalanceElements.put(balanceScheme, pURIsForScheme);
                 }
 
                 pURIsForScheme.add(pURI);
             } else {
-                // invalid URI?  throw an exception so the configuration can be cleaned up
+                // invalid URI? throw an exception so the configuration can be cleaned up
                 throw new RuntimeException(format("Unable to parse balance URI: %s", balanceURIString));
             }
         }
 
         // pre-process the accept elements in a map from String(scheme)->List<ParameterizedURI>
         List<Element> acceptElements = element.getChildren(ACCEPT_URI_ELEMENT, element.getNamespace());
-        Map<String, List<ParameterizedURI>> processedAcceptElements = new HashMap<>();
+        Map<String, List<ParameterizedURI>> processedAcceptElements = new HashMap<String, List<ParameterizedURI>>();
         for (Element acceptElement : acceptElements) {
             String acceptURIString = acceptElement.getValue();
             Matcher acceptMatcher = uriPattern.matcher(acceptURIString);
@@ -108,21 +111,23 @@ public class AcceptUriComparedToBalanceUriVisitor extends AbstractVisitor {
                 String acceptPort = acceptMatcher.group(6);
                 String acceptPath = acceptMatcher.group(7);
 
-                ParameterizedURI pURI = new ParameterizedURI(acceptURIString, acceptScheme, acceptHost, acceptPort, acceptPath);
+                ParameterizedURI pURI = new ParameterizedURI(acceptURIString, acceptScheme, acceptHost, acceptPort,
+                        acceptPath);
                 List<ParameterizedURI> pURIsForScheme = processedAcceptElements.get(acceptScheme);
                 if (pURIsForScheme == null) {
-                    pURIsForScheme = new LinkedList<>();
+                    pURIsForScheme = new LinkedList<ParameterizedURI>();
                     processedAcceptElements.put(acceptScheme, pURIsForScheme);
                 }
 
                 pURIsForScheme.add(pURI);
             } else {
-                // invalid URI?  throw an exception so the configuration can be cleaned up
+                // invalid URI? throw an exception so the configuration can be cleaned up
                 throw new RuntimeException(format("Unable to parse accept URI: %s", acceptURIString));
             }
         }
 
-        // validate that each acceptURI matches the appropriate balance URIs in all but hostname (appropriate in this case
+        // validate that each acceptURI matches the appropriate balance URIs in all but hostname (appropriate in this
+        // case
         // means "ws"
         // compares with "ws" and "wss" compares with "wss", etc.)
         for (String balanceScheme : processedBalanceElements.keySet()) {
@@ -144,19 +149,23 @@ public class AcceptUriComparedToBalanceUriVisitor extends AbstractVisitor {
                             logger.debug(msg);
                         }
                     } else {
-                        throw new RuntimeException(format("Accept URI: %s does not match balance URI %s in all but hostname.  " +
-                                        "Unable to launch Gateway.",
-                                acceptURI.getOriginalURI(), balanceURI.getOriginalURI()));
+                        throw new RuntimeException(format(
+                                "Accept URI: %s does not match balance URI %s in all but hostname.  "
+                                        + "Unable to launch Gateway.", acceptURI.getOriginalURI(),
+                                balanceURI.getOriginalURI()));
                     }
                 }
             }
         }
 
-        // validate that each balanceURI matches the appropriate acceptURIs in all but hostname (appropriate in this case means
+        // validate that each balanceURI matches the appropriate acceptURIs in all but hostname (appropriate in this
+        // case means
         // "ws"
-        // compares with "ws" and "wss" compares with "wss", etc.).  This is the second pass through as a two-way match is
+        // compares with "ws" and "wss" compares with "wss", etc.). This is the second pass through as a two-way match
+        // is
         // required.
-        // The first is to check that for each balance scheme present on the service there are matching accepts.  The second is
+        // The first is to check that for each balance scheme present on the service there are matching accepts. The
+        // second is
         // for
         // each accept scheme present on the service there are matching balance tags.
         for (String acceptScheme : processedAcceptElements.keySet()) {
@@ -167,8 +176,9 @@ public class AcceptUriComparedToBalanceUriVisitor extends AbstractVisitor {
                         acceptScheme, acceptURIs.iterator().next().getOriginalURI()));
             }
 
-            // No need to iterate over all accept URIs, that work was done in the loop above.  This loop is just to validate
-            // that all accept URI schemes have balance URIs.  If they do, then the match was validated above.
+            // No need to iterate over all accept URIs, that work was done in the loop above. This loop is just to
+            // validate
+            // that all accept URI schemes have balance URIs. If they do, then the match was validated above.
         }
     }
 

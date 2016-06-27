@@ -1,0 +1,137 @@
+/**
+ * Copyright (c) 2007-2014, Kaazing Corporation. All rights reserved.
+ */
+
+package org.kaazing.gateway.transport.wsn.specification.ws.connector;
+
+import static java.util.Arrays.asList;
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS;
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.SUPPORTED_PROTOCOLS;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import org.apache.mina.core.future.ConnectFuture;
+import org.apache.mina.core.service.IoHandler;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
+import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.transport.BridgeServiceFactory;
+import org.kaazing.gateway.transport.TransportFactory;
+import org.kaazing.gateway.transport.http.HttpConnector;
+import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
+import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
+import org.kaazing.gateway.transport.wsn.WsnConnector;
+import org.kaazing.gateway.util.scheduler.SchedulerProvider;
+
+
+/**
+ * Declaring an instance of this class as a @Rule causes the gateway to be
+ * started in process before each test method and stopped after it. The rule
+ * can be chained with a K3poRule for use with robot (this causes Robot to be
+ * started before the gateway and stopped after it).
+ */
+public class WsnConnectorRule implements TestRule {
+
+    private ResourceAddressFactory addressFactory;
+    private WsnConnector wsnConnector;
+
+    @Override
+    public Statement apply(Statement base, Description description) {
+        return new ConnectorStatement(base);
+    }
+
+    public WsnConnectorRule() {
+
+    }
+
+    public ConnectFuture connect(String connect, Long wsInactivityTimeout, IoHandler connectHandler)
+            throws InterruptedException {
+        Map<String, Object> connectOptions = new HashMap<>();
+        if (wsInactivityTimeout != null) {
+            connectOptions.put("inactivityTimeout", wsInactivityTimeout);
+        }
+
+        ResourceAddress connectAddress =
+                addressFactory.newResourceAddress(URI.create(connect), connectOptions);
+
+        return wsnConnector.connect(connectAddress, connectHandler, null);
+    }
+
+    public ConnectFuture connect(String connect, String[] protocols, String[] extensions, IoHandler connectHandler)
+            throws InterruptedException {
+        Map<String, Object> connectOptions = new HashMap<>();
+
+        if (protocols != null) {
+            connectOptions.put(SUPPORTED_PROTOCOLS.name(), protocols);
+        }
+
+        if (extensions != null) {
+            connectOptions.put(EXTENSIONS.name(), asList(extensions));
+        }
+
+        ResourceAddress connectAddress =
+                addressFactory.newResourceAddress(URI.create(connect), connectOptions);
+        return wsnConnector.connect(connectAddress, connectHandler, null);
+    }
+
+    private final class ConnectorStatement extends Statement {
+
+        private final Statement base;
+
+        private NioSocketConnector tcpConnector;
+        private NioSocketAcceptor tcpAcceptor;
+        private HttpConnector httpConnector;
+        private SchedulerProvider schedulerProvider;
+
+        public ConnectorStatement(Statement base) {
+            this.base = base;
+        }
+
+        @Override
+        public void evaluate() throws Throwable {
+            try {
+                // Connector setup
+                schedulerProvider = new SchedulerProvider();
+
+                addressFactory = ResourceAddressFactory.newResourceAddressFactory();
+                TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object> emptyMap());
+                BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
+
+                tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
+                tcpAcceptor.setResourceAddressFactory(addressFactory);
+                tcpAcceptor.setBridgeServiceFactory(serviceFactory);
+                tcpAcceptor.setSchedulerProvider(schedulerProvider);
+
+                tcpConnector = (NioSocketConnector)transportFactory.getTransport("tcp").getConnector();
+                tcpConnector.setResourceAddressFactory(addressFactory);
+                tcpConnector.setBridgeServiceFactory(serviceFactory);
+                tcpConnector.setTcpAcceptor(tcpAcceptor);
+
+                httpConnector = (HttpConnector)transportFactory.getTransport("http").getConnector();
+                httpConnector.setBridgeServiceFactory(serviceFactory);
+                httpConnector.setResourceAddressFactory(addressFactory);
+
+                wsnConnector = (WsnConnector)transportFactory.getTransport("wsn").getConnector();
+                wsnConnector.setConfiguration(new Properties());
+                wsnConnector.setBridgeServiceFactory(serviceFactory);
+                wsnConnector.setSchedulerProvider(schedulerProvider);
+                wsnConnector.setResourceAddressFactory(addressFactory);
+
+                base.evaluate();
+            } finally {
+                tcpConnector.dispose();
+                tcpAcceptor.dispose();
+                httpConnector.dispose();
+                wsnConnector.dispose();
+                schedulerProvider.shutdownNow();
+            }
+        }
+
+    }
+}

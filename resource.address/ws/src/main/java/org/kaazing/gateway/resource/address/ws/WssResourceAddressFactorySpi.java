@@ -42,7 +42,7 @@ public class WssResourceAddressFactorySpi extends WsResourceAddressFactorySpi {
 
     // go backwards so we can set alternate addresses correctly
     private static final List<String> WSS_ALTERNATE_SCHEMES =
-        Arrays.asList("wsr+ssl", "wsx-draft+ssl", "ws-draft+ssl", "wsx+ssl", "wse+ssl");
+        Arrays.asList("wsx-draft+ssl", "ws-draft+ssl", "wsx+ssl", "wse+ssl");
 
     private List<ResourceFactory> alternateResourceFactories;
 

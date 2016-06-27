@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>community</artifactId>
-        <version>2.13</version>
+        <version>2.15</version>
     </parent>
 
     <artifactId>gateway</artifactId>
@@ -32,7 +32,7 @@
         <jdom.version>1.1</jdom.version>
         <jmock.version>2.6.0</jmock.version>
         <slf4j.log4j.version>1.7.5</slf4j.log4j.version>
-        <agrona.version>0.3.1</agrona.version>
+        <agrona.version>0.4.2</agrona.version>
         <enforcer.skip>true</enforcer.skip>
     </properties>
 
@@ -57,7 +57,6 @@
         <module>resource.address/wsdraft</module>
         <module>resource.address/wse</module>
         <module>resource.address/wsn</module>
-        <module>resource.address/wsr</module>
         <module>resource.address/wsx</module>
         <module>resource.address/wsxdraft</module>
         <module>security</module>
@@ -84,7 +83,6 @@
         <module>transport/ws</module>
         <module>transport/wseb</module>
         <module>transport/wsn</module>
-        <module>transport/wsr</module>
         <module>util</module>
         <module>mina.core</module>
         <module>mina.netty</module>
@@ -283,6 +281,21 @@
                             </goals>
                         </execution>
                     </executions>
+                </plugin>
+
+                <!-- Adds properties to manifest which are used for finding duplicate jars on classpath -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <configuration>
+                        <archive>
+                            <manifestEntries>
+                                <Implementation-Title>${project.name}</Implementation-Title>
+                                <Implementation-Version>${project.version}</Implementation-Version>
+                                <Artifact-Name>${groupId}:${artifactId}</Artifact-Name>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
                 </plugin>
 
                 <!-- Ignore/Execute plugin execution by m2e in Eclipse -->

@@ -22,39 +22,22 @@
 package org.kaazing.gateway.transport.wsn;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
-import org.apache.log4j.PropertyConfigurator;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsnInactivityTimeoutIT {
 
-    private TestRule trace = new MethodExecutionTrace();
-    //4s should suffice (twice the expected 2 second timeout), but leave a margin just in case:
-    private TestRule timeout = new DisableOnDebug(new Timeout(8, SECONDS));
     private final K3poRule robot = new K3poRule();
-
-    private static final boolean ENABLE_DIAGNOSTICS = false;
-    @BeforeClass
-    public static void init()
-            throws Exception {
-        if (ENABLE_DIAGNOSTICS) {
-            PropertyConfigurator.configure("src/test/resources/log4j-diagnostic.properties");
-        }
-    }
 
     public GatewayRule gateway = new GatewayRule() {
         {
@@ -83,10 +66,11 @@ public class WsnInactivityTimeoutIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(trace).around(robot).around(gateway).around(timeout);
+    //4s should suffice (twice the expected 2 second timeout), but leave a margin just in case:
+    public TestRule chain = createRuleChain(gateway, robot, 8, SECONDS);
 
     @Specification("shouldInactivityTimeout")
-    @Test(timeout = 8 * 1000) //2s should suffice (twice the expected 2 second timeout), but leave a margin just in case
+    @Test
     public void shouldInactivityTimeout() throws Exception {
         robot.finish();
     }

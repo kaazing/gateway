@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,7 +21,7 @@
 
 package org.kaazing.gateway.service.http.directory;
 
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
 import java.net.URI;
@@ -96,35 +96,35 @@ public class HttpDirectoryServiceIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    public TestRule chain = createRuleChain(gateway, robot);
 
     @Specification("get.index.check.status.code.200")
-    @Test(timeout = 8000)
+    @Test
     public void testGetIndexAndStatusCode200() throws Exception {
         robot.finish();
     }
 
     @Specification("no.server.header")
-    @Test(timeout = 8000)
+    @Test
     public void testNoServerHeader() throws Exception {
         robot.finish();
     }
 
     @Specification("get.nonexistent.page.check.status.code.404")
-    @Test(timeout = 8000)
+    @Test
     public void testGetNonexistantPageCheckStatusCode404() throws Exception {
         robot.finish();
     }
 
     @Specification("get.nonexistent.page.check.http.keepalive.timeout")
-    @Test(timeout = 8000)
+    @Test
     // keepalive timeout is set at 3 secs so this should suffice to see the server disconnect
     public void testGetNonexistantPageCheckConnectionTimesOut() throws Exception {
         robot.finish();
     }
 
     @Specification("tcp.connect.and.close.to.directory.service")
-    @Test(timeout = 8000)
+    @Test
     public void testTcpConnectAndClose() throws Exception {
         robot.finish();
     }
@@ -134,130 +134,130 @@ public class HttpDirectoryServiceIT {
      */
     @Ignore
     @Specification("tcp.connect.and.wait.for.close.to.directory.service")
-    @Test(timeout = 35000)
+    @Test
     public void testTcpConnectAndWaitForClose() throws Exception {
         robot.finish();
     }
 
     @Specification("get.index.check.whole.response")
-    @Test(timeout = 8000)
+    @Test
     public void testGetIndexCheckWholeResponse() throws Exception {
         robot.finish();
     }
 
     @Specification("post.large.data")
-    @Test(timeout = 25000)
+    @Test
     public void testPostLargeData() throws Exception {
         robot.finish();
     }
 
     @Specification("get.forbidden.file.exists")
-    @Test(timeout = 5000)
+    @Test
     public void testGetForbiddenFileExists() throws Exception {
         robot.finish();
     }
 
     // /////////////////// HOST HEADER ///////////////////////
     @Specification("host/host.empty.header.with.absolute.uri")
-    @Test(timeout = 5000)
+    @Test
     public void testEmptyHostHeaderWithAbsoluteUri() throws Exception {
         robot.finish();
     }
 
     @Specification("host/host.empty.header.with.relative.uri")
-    @Test(timeout = 5000)
+    @Test
     public void testEmptyHostHeaderWithRelativeUri() throws Exception {
         robot.finish();
     }
 
     @Specification("host/host.header.invalid")
-    @Test(timeout = 5000)
+    @Test
     public void testInvalidHostHeader() throws Exception {
         robot.finish();
     }
 
     @Specification("host/host.header.not.present")
-    @Test(timeout = 5000)
+    @Test
     public void testAbsentHostHeader() throws Exception {
         robot.finish();
     }
 
     @Specification("host/host.header.port.not.set")
-    @Test(timeout = 5000)
+    @Test
     public void testAbsentPortInHostHeader() throws Exception {
         robot.finish();
     }
 
     @Specification("host/host.valid.header.with.absolute.uri")
-    @Test(timeout = 5000)
+    @Test
     public void testValidHostHeaderWithAbsoluteUri() throws Exception {
         robot.finish();
     }
 
     @Specification("host/host.no.header.with.absolute.uri")
-    @Test(timeout = 5000)
+    @Test
     public void testNoHostHeaderWithAbsoluteUri() throws Exception {
         robot.finish();
     }
 
     // ///////////////////// METHOD //////////////////////
     @Specification("method/method.connect")
-    @Test(timeout = 5000)
+    @Test
     public void testConnectMethod() throws Exception {
         robot.finish();
     }
 
     @Specification("method/method.delete")
-    @Test(timeout = 5000)
+    @Test
     public void testDeleteMethod() throws Exception {
         robot.finish();
     }
 
     @Specification("method/method.head")
-    @Test(timeout = 5000)
+    @Test
     public void testHeadMethod() throws Exception {
         robot.finish();
     }
 
     @Specification("method/method.options")
-    @Test(timeout = 5000)
+    @Test
     public void testOptionsMethod() throws Exception {
         robot.finish();
     }
 
     @Specification("method/method.bogus")
-    @Test(timeout = 5000)
+    @Test
     public void testBogusMethod() throws Exception {
         robot.finish();
     }
 
     @Specification("method/method.post")
-    @Test(timeout = 5000)
+    @Test
     public void testPostMethod() throws Exception {
         robot.finish();
     }
 
     // //////////////// URI ////////////////////////
     @Specification("uri.hex.encoded")
-    @Test(timeout = 5000)
+    @Test
     public void testHexEncodedUri() throws Exception {
         robot.finish();
     }
 
     @Specification("uri.too.long")
-    @Test(timeout = 5000)
+    @Test
     public void testUriTooLong() throws Exception {
         robot.finish();
     }
 
     @Specification("invalid.uri.with.space")
-    @Test(timeout = 5000)
+    @Test
     public void testInvalidUri() throws Exception {
         robot.finish();
     }
 
     @Specification("uri.with.params")
-    @Test(timeout = 5000)
+    @Test
     public void testUriWithParams() throws Exception {
         robot.finish();
     }
@@ -265,92 +265,92 @@ public class HttpDirectoryServiceIT {
     // ////////////////// CROSS-ORIGIN ACCESS ////////////////////
 
     @Specification("origin/same.origin.constraint.not.set")
-    @Test(timeout = 5000)
+    @Test
     public void testSameOriginConstraintNotSet() throws Exception {
         robot.finish();
     }
 
     @Specification("origin/different.origin.constraint.not.set")
-    @Test(timeout = 5000)
+    @Test
     public void testDifferentOriginConstraintNotSet() throws Exception {
         robot.finish();
     }
 
     @Specification("origin/missing.origin.header.constraint.not.set")
-    @Test(timeout = 5000)
+    @Test
     public void testMissingOriginHeaderConstraintNotSet() throws Exception {
         robot.finish();
     }
 
     @Specification("origin/wrong.host.constraint.set")
-    @Test(timeout = 5000)
+    @Test
     public void testWrongHostConstraintSet() throws Exception {
         robot.finish();
     }
 
     @Specification("origin/wrong.port.constraint.set")
-    @Test(timeout = 5000)
+    @Test
     public void testWrongPortConstraintSet() throws Exception {
         robot.finish();
     }
 
     @Specification("origin/missing.origin.header.constraint.set")
-    @Test(timeout = 5000)
+    @Test
     public void testMissingOriginHeaderConstraintSet() throws Exception {
         robot.finish();
     }
 
     @Specification("origin/empty.origin.header.constraint.set")
-    @Test(timeout = 5000)
+    @Test
     public void testEmptyOriginHeaderConstraintSet() throws Exception {
         robot.finish();
     }
 
     @Specification("origin/empty.origin.header.constraint.not.set")
-    @Test(timeout = 5000)
+    @Test
     public void testEmptyOriginHeaderConstraintNotSet() throws Exception {
         robot.finish();
     }
 
     @Specification("origin/different.origin.constraint.asterisk")
-    @Test(timeout = 5000)
+    @Test
     public void testDifferentOriginConstraintAsterisk() throws Exception {
         robot.finish();
     }
 
     @Specification("origin/empty.origin.header.constraint.asterisk")
-    @Test(timeout = 5000)
+    @Test
     public void testEmptyOriginHeaderConstraintAsterisk() throws Exception {
         robot.finish();
     }
 
     @Specification("origin/missing.origin.header.constraint.asterisk")
-    @Test(timeout = 5000)
+    @Test
     public void testMissingOriginHeaderConstraintAsterisk() throws Exception {
         robot.finish();
     }
 
 
     @Specification("origin/not.allowed.method")
-    @Test(timeout = 5000)
+    @Test
     public void testNotAllowedMethodConstraintSet() throws Exception {
         robot.finish();
     }
 
     @Specification("origin/not.allowed.header")
-    @Test(timeout = 5000)
+    @Test
     public void testNotAllowedHeaderConstraintSet() throws Exception {
         robot.finish();
     }
 
     @Specification("origin/allowed.method")
-    @Test(timeout = 5000)
+    @Test
     public void testAllowedMethodConstraintSet() throws Exception {
         robot.finish();
     }
 
     @Specification("origin/allowed.header")
-    @Test(timeout = 5000)
+    @Test
     public void testAllowedHeaderConstraintSet() throws Exception {
         robot.finish();
     }

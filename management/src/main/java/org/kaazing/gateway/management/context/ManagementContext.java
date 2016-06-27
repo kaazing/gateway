@@ -30,7 +30,6 @@ import org.kaazing.gateway.management.filter.ManagementFilter;
 import org.kaazing.gateway.management.filter.ManagementFilterStrategy;
 import org.kaazing.gateway.management.gateway.GatewayManagementListener;
 import org.kaazing.gateway.management.gateway.ManagementGatewayStrategy;
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 import org.kaazing.gateway.management.service.ManagementServiceStrategy;
 import org.kaazing.gateway.management.service.ServiceManagementBean;
 import org.kaazing.gateway.management.service.ServiceManagementListener;
@@ -170,9 +169,6 @@ public interface ManagementContext {
 
     ManagementFilter getManagementFilter(ServiceContext serviceContext);
 
-    MonitoringEntityFactory getMonitoringEntityFactory();
-
     void createGatewayManagementBean();
 
-    void close();
 }

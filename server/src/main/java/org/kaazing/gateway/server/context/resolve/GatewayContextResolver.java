@@ -926,13 +926,11 @@ public class GatewayContextResolver {
 
                 AuthenticationContext authenticationContext = null;
                 if (authType != null) {
-                    authenticationContext = new DefaultAuthenticationContext(
-                            authType.getHttpChallengeScheme().toString(),
-                            authType.getHttpHeaderArray(),
-                            authType.getHttpQueryParameterArray(),
-                            authType.getHttpCookieArray(),
-                            resolveAuthorizationMode(authType.getAuthorizationMode()),
-                            authType.getSessionTimeout());
+                    if (AuthenticationType.HttpChallengeScheme.APPLICATION_NEGOTIATE.equals(authType.getHttpChallengeScheme())) {
+                        LOGGER.warn("Setting http-challenge-scheme to \"Application Negotiate\" is deprecated. Use \"Negotiate\""
+                                + "instead. See \"http-challenge-scheme\" in the documentation for more information.");
+                    }
+                    authenticationContext = new DefaultAuthenticationContext(authType);
                 }
 
                 LoginModuleType[] loginModulesArray =

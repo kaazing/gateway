@@ -258,7 +258,7 @@ public class SseAcceptProcessor extends BridgeAcceptProcessor<SseSession> {
         // check to see if we need to add a padding message to the end of sent messages
         long writtenBytes = session.getWrittenBytes();
         Long bytesWrittenOnLastFlush = ((Long)session.getAttribute(SseAcceptor.BYTES_WRITTEN_ON_LAST_FLUSH_KEY));
-        if (bytesWrittenOnLastFlush == null || writtenBytes != bytesWrittenOnLastFlush.longValue()) {
+        if (bytesWrittenOnLastFlush == null || writtenBytes != bytesWrittenOnLastFlush) {
             // Block Padding is required
             session.write(SseEncoder.BLOCK_PADDING_MESSAGE);
             session.setAttribute(SseAcceptor.BYTES_WRITTEN_ON_LAST_FLUSH_KEY, writtenBytes + 4096);

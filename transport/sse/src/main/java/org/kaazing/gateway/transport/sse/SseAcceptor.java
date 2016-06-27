@@ -26,6 +26,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.mina.core.session.IdleStatus.WRITER_IDLE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
@@ -271,24 +272,29 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
 
         @Override
         protected void doExceptionCaught(HttpAcceptSession session, Throwable cause) throws Exception {
-            SseSession sseSession = SSE_SESSION_KEY.get(session);
-            if (sseSession != null && !sseSession.isClosing()) {
-                // behave similarly to connection reset by peer at NIO layer
-                sseSession.reset(new Exception("Early termination of IO session").fillInStackTrace());
-            }
-            else {
-                if (logger.isDebugEnabled()) {
-                    String message = format("Error on SSE connection, closing connection: %s", cause);
-                    if (logger.isTraceEnabled()) {
-                        // note: still debug level, but with extra detail about the exception
-                        logger.debug(message, cause);
-                    }
-                    else {
-                        logger.debug(message);
-                    }
+            if (logger.isDebugEnabled()) {
+                String message = format("Error on SSE connection, closing connection: %s", cause);
+                if (logger.isTraceEnabled()) {
+                    // note: still debug level, but with extra detail about the exception
+                    logger.debug(message, cause);
                 }
-                session.close(true);
+                else {
+                    logger.debug(message);
+                }
             }
+            session.close(true);
+        }
+
+
+        @Override
+        protected void doSessionClosed(HttpAcceptSession session) throws Exception {
+            SseSession sseSession = SSE_SESSION_KEY.remove(session);
+            if (sseSession != null && !sseSession.isClosing()) {
+                sseSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
+            }
+
+            IoFilterChain filterChain = session.getFilterChain();
+            removeBridgeFilters(filterChain);
         }
 
 
@@ -665,7 +671,7 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
                 IoSession parent = sseSession.getParent();
                 if (parent == null || parent.isClosing()) {
                     // behave similarly to connection reset by peer at NIO layer
-                    sseSession.reset(new Exception("Early termination of IO session").fillInStackTrace());
+                    sseSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
                 }
             }
         }

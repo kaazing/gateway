@@ -21,6 +21,8 @@
 
 package org.kaazing.gateway.transport.ws.extension;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
 
 import org.junit.Assert;
@@ -170,5 +172,20 @@ public class ExtensionHeaderBuilderTest {
 
         Assert.assertTrue(String.format("Expected exts %s to %s to be equal", ext1, ext2), ext1.equals(ext2));
     }
+    
+    @Test
+    public void toStringShouldProduceHeaderWithWithNameEqValueParameter() throws Exception {
+        String in = "x-kaazing-foo; param1=value1";
+        ExtensionHeaderBuilder ext1 = new ExtensionHeaderBuilder(in);
+        assertEquals(in, ext1.toString());
+    }
+    
+    @Test
+    public void toStringShouldProduceHeaderWithNameOnlyParameter() throws Exception {
+        String in = "x-kaazing-foo; param1";
+        ExtensionHeaderBuilder ext1 = new ExtensionHeaderBuilder(in);
+        assertEquals(in, ext1.toString());
+    }
+    
 }
 

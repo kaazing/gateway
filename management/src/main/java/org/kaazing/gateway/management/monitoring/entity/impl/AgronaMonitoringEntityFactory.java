@@ -21,15 +21,12 @@
 
 package org.kaazing.gateway.management.monitoring.entity.impl;
 
-import java.io.File;
-import java.nio.MappedByteBuffer;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.kaazing.gateway.management.monitoring.entity.LongMonitoringCounter;
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
+import org.kaazing.gateway.service.LongMonitoringCounter;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 
-import uk.co.real_logic.agrona.IoUtil;
 import uk.co.real_logic.agrona.concurrent.AtomicCounter;
 import uk.co.real_logic.agrona.concurrent.CountersManager;
 
@@ -41,15 +38,10 @@ public class AgronaMonitoringEntityFactory implements MonitoringEntityFactory {
     private CountersManager countersManager;
 
     // These are needed for the cleanup work that needs to be done in the close method.
-    private File monitoringDirectory;
-    private MappedByteBuffer mappedMonitorDirectory;
     private List<AtomicCounter> counters = new CopyOnWriteArrayList<AtomicCounter>();
 
-    public AgronaMonitoringEntityFactory(CountersManager countersManager,
-            MappedByteBuffer mappedMonitorFile, File monitoringDirectory) {
+    public AgronaMonitoringEntityFactory(CountersManager countersManager) {
         this.countersManager = countersManager;
-        this.mappedMonitorDirectory = mappedMonitorFile;
-        this.monitoringDirectory = monitoringDirectory;
     }
 
     @Override
@@ -71,10 +63,6 @@ public class AgronaMonitoringEntityFactory implements MonitoringEntityFactory {
         for (AtomicCounter atomicCounter : counters) {
             atomicCounter.close();
         }
-
-        IoUtil.unmap(mappedMonitorDirectory);
-
-        IoUtil.delete(monitoringDirectory, false);
     }
 
 }

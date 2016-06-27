@@ -30,6 +30,7 @@ import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.WANT_C
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static java.lang.String.format;
 
+import java.io.IOException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -390,7 +391,7 @@ public class SslConnector extends AbstractBridgeConnector<SslSession> {
         	if (sslSession != null) {
         	    if (!sslSession.isClosing()) {
         	        // behave similarly to connection reset by peer at NIO layer
-        	        sslSession.reset(new Exception("Early termination of IO session").fillInStackTrace());
+        	        sslSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
         	    }
         	}
         	else {
@@ -425,29 +426,23 @@ public class SslConnector extends AbstractBridgeConnector<SslSession> {
 
         @Override
         protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
-
-            SslSession sslSession = SSL_SESSION_KEY.get(session);
-            if (sslSession != null && !sslSession.isClosing()) {
-                sslSession.reset(cause);
-            } else {
-                // exception may be triggered by SSL handshake
-                ConnectFuture sslConnectFuture = SSL_CONNECT_FUTURE_KEY.remove(session);
-                if (sslConnectFuture != null) {
-                    sslConnectFuture.setException(cause);
+            if (logger.isDebugEnabled()) {
+                String message = format("Error on SSL connection attempt: %s", cause);
+                if (logger.isTraceEnabled()) {
+                    // note: still debug level, but with extra detail about the exception
+                    logger.debug(message, cause);
                 }
                 else {
-                    if (logger.isDebugEnabled()) {
-                        String message = format("Error on SSL connection attempt: %s", cause);
-                        if (logger.isTraceEnabled()) {
-                            // note: still debug level, but with extra detail about the exception
-                            logger.debug(message, cause);
-                        }
-                        else {
-                            logger.debug(message);
-                        }
-                    }
+                    logger.debug(message);
                 }
-                session.close(true);
+            }
+
+            session.close(true);
+
+            // exception may be triggered by SSL handshake
+            ConnectFuture sslConnectFuture = SSL_CONNECT_FUTURE_KEY.remove(session);
+            if (sslConnectFuture != null) {
+                sslConnectFuture.setException(cause);
             }
         }
 

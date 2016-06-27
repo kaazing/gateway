@@ -26,6 +26,15 @@ import org.apache.mina.core.filterchain.IoFilter;
  */
 public abstract class WebSocketExtension {
 
+    private final ExtensionHelper extensionHelper;
+
+    public WebSocketExtension(ExtensionHelper extensionHelper) {
+        if (extensionHelper == null) {
+            throw new NullPointerException(String.format("extensionHelper is null"));
+        }
+        this.extensionHelper = extensionHelper;
+    }
+
     /**
      * This method is called when the extension is successfully negotiated.
      * @returns The extension header (token and optional parameters) that should be included in the WebSocket handshake
@@ -39,11 +48,18 @@ public abstract class WebSocketExtension {
      * in the order that the extensions were specified in the HTTP request, so the first extension is closest to the network
      * (i.e. gets to see and possibly modify frames read from the client before other extensions, and  gets the final say for
      * Frames being written to the client).
-     * @param extension    Details of the negotiated extension and parameters
      * @return A filter which is to be added to the filter chain, or null if none is to be added
      */
     public IoFilter getFilter() {
         return null;
     };
+
+    /**
+     * This method allows extensions access to session methods which can be used within extension filters.
+     * @return The extension helper which may be used within extension filters.
+     */
+    public ExtensionHelper getExtensionHelper() {
+        return extensionHelper;
+    }
 
 }

@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 
 public class HttpOperationFilter extends HttpFilterAdapter<IoSessionEx> {
 
-    private static final String EXTENSION_API_PATH_PREFIX = "/;api/";
+    private static final String EXTENSION_API_PATH_PREFIX = HttpProtocolCompatibilityFilter.API_PATH + "/";
     private static final Charset UTF_8 = Charset.forName("UTF-8");
     private static final byte[] EQUAL_BYTES = "=".getBytes(UTF_8);
     private static final byte[] CRLF_BYTES = "\r\n".getBytes(UTF_8);
@@ -89,7 +89,7 @@ public class HttpOperationFilter extends HttpFilterAdapter<IoSessionEx> {
                 super.httpRequestReceived(nextFilter, session, httpRequest);
             }
             else {
-                // unrecognized operation found
+                // unrecognized operation found or httpe-1.0
                 if (logger.isDebugEnabled()) {
                     logger.debug(String.format("Rejected unrecognized operation \"%s\" for URI \"%s\" on session %s",
                             operationName, requestURI, session));
@@ -142,6 +142,10 @@ public class HttpOperationFilter extends HttpFilterAdapter<IoSessionEx> {
 
     }
 
+    /**
+     * Reads all the cookies in the request body and sets them as Set-Cookie headers in the HTTP response
+     *
+     */
     static class HttpSetCookiesOperation extends HttpOperation {
 
         private static final TypedAttributeKey<IoBufferEx> BUFFER_KEY = new TypedAttributeKey<>(HttpSetCookiesOperation.class, "buffer");
@@ -213,6 +217,9 @@ public class HttpOperationFilter extends HttpFilterAdapter<IoSessionEx> {
 
     }
 
+    /**
+     * Returns in the response body all cookies set in Cookie headers in the HttpRequest (by the web browser).
+     */
     static class HttpGetCookiesOperation extends HttpOperation {
 
         @Override

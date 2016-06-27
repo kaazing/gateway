@@ -23,6 +23,8 @@ Each of the security objectives is broken down into step-by-step instructions in
 
     Also, see [Configure Authentication and Authorization](o_auth_configure.md).
 
+- **IP filtering** The Gateway provides the ability to filter remote host connections according to the IP addresses or a range of IP addresses. For more information, see [IP Filtering with Kaazing Gateway](security/p_geolocation_security.md).
+
 -   **Leveraging** **Cross Origin Resource Sharing (CORS) and Cross Origin Access:** The HTML5 standard introduces Cross Origin Resource Sharing (CORS) that makes it possible to safely share and move data across domains. Prior to CORS, web browsers abided by the same-origin policy that restricted user access to documents within the same origin. With CORS, you can build web applications to access documents and services in different domains. This provides a great deal of flexibility when designing your architecture and partitioning up your services, rather than restricting everything to a single origin. In addition, you can expose public or semipublic cross origin WebSocket services. The Gateway uses the web origin security model to control access to services. It also emulates origin security for browsers and platforms that do not natively support it. You must explicitly enable cross origin access by setting the `allow-origin` element in the Gateway configuration (for example, in the `gateway-config.xml` file).
 
     See the descriptions of the `allow-origin` and `cross-site-constraint` elements in the [Service Reference](../admin-reference/r_configure_gateway_service.md#cross-site-constraint) documentation.

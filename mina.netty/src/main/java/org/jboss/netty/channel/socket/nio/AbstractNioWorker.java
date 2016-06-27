@@ -57,7 +57,9 @@ import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.WritableByteChannel;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -220,6 +222,8 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
         final WritableByteChannel ch = channel.channel;
         final Queue<MessageEvent> writeBuffer = channel.writeBufferQueue;
         final int writeSpinCount = channel.getConfig().getWriteSpinCount();
+        List<Throwable> causes = null;
+
         synchronized (channel.writeLock) {
             channel.inWriteNowLoop = true;
             for (;;) {
@@ -269,7 +273,7 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
                         addOpWrite = true;
                         channel.writeSuspended = true;
 
-                        if (localWrittenBytes > 0) {
+                        if (writtenBytes > 0) {
                             // Notify progress listeners if necessary.
                             future.setProgress(
                                     localWrittenBytes,
@@ -294,13 +298,24 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
                         future.setFailure(t);
                     }
                     if (iothread) {
-                        fireExceptionCaught(channel, t);
+                        // An exception was thrown from within a write in the iothread. We store a reference to it
+                        // in a list for now and notify the handlers in the chain after the writeLock was released
+                        // to prevent possible deadlock.
+                        // See #1310
+                        if (causes == null) {
+                            causes = new ArrayList<Throwable>(1);
+                        }
+                        causes.add(t);
                     } else {
                         fireExceptionCaughtLater(channel, t);
                     }
                     if (t instanceof IOException) {
+                        // close must be handled from outside the write lock to fix a possible deadlock
+                        // which can happen when MemoryAwareThreadPoolExecutor is used and the limit is exceed
+                        // and a close is triggered while the lock is hold. This is because the close(..)
+                        // may try to submit a task to handle it via the ExecutorHandler which then deadlocks.
+                        // See #1310
                         open = false;
-                        close(channel, succeededFuture(channel));
                     }
                 }
             }
@@ -319,6 +334,16 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
                     clearOpWrite(channel);
                 }
             }
+        }
+        if (causes != null) {
+            for (Throwable cause: causes) {
+                // notify about cause now as it was triggered in the write loop
+                fireExceptionCaught(channel, cause);
+            }
+        }
+        if (!open) {
+            // close the channel now
+            close(channel, succeededFuture(channel));
         }
         if (iothread) {
             if (writtenBytes > 0) {
@@ -519,6 +544,7 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
             }
 
             if (channel.getRawInterestOps() != newInterestOps) {
+                changed = true;
                 key.interestOps(newInterestOps);
                 if (Thread.currentThread() != thread &&
                     wakenUp.compareAndSet(false, true)) {

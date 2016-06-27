@@ -45,6 +45,7 @@ public abstract class WebSocketExtensionFactorySpi implements Comparable<WebSock
     /**
      * This method is called when the extension is requested by the client during the WebSocket handshake.
      * @param requestedExtension  Extension token and parameters from the WebSocket handshake request
+     * @param extensionHelper TODO
      * @param address    WebSocket resource address on which the handshake is taking place
      * @return         - WebSocketExtensionSpi instance representing the active, negotiated extension,
      *                   or null if the extension request from the client is rejected but the websocket
@@ -54,8 +55,8 @@ public abstract class WebSocketExtensionFactorySpi implements Comparable<WebSock
      *                   (protocol violation). Throwing this exception will result in failing the WebSocket
      *                   connection.
      */
-    public abstract WebSocketExtension negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
-            throws ProtocolException;
+    public abstract WebSocketExtension negotiate(ExtensionHeader requestedExtension, ExtensionHelper extensionHelper,
+        WsResourceAddress address) throws ProtocolException;
 
 
     /**

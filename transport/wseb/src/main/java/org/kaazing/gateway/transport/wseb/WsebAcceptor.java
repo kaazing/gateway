@@ -29,6 +29,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.URLUtils.appendURI;
 import static org.kaazing.gateway.resource.address.URLUtils.ensureTrailingSlash;
+import static org.kaazing.gateway.resource.address.URLUtils.modifyURIPath;
 import static org.kaazing.gateway.resource.address.URLUtils.modifyURIScheme;
 import static org.kaazing.gateway.resource.address.URLUtils.truncateURI;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
@@ -52,7 +53,6 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.Resource;
 
-import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.IoFuture;
@@ -88,13 +88,15 @@ import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptor;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
+import org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolCompatibilityFilter;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsProtocol;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.transport.ws.util.WsHandshakeNegotiationException;
@@ -297,6 +299,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                 }
             };
 
+            bindApiPath(address);
+
             BridgeAcceptor transportAcceptor = bridgeServiceFactory.newBridgeAcceptor(transportAddress);
             transportAcceptor.bind(transportAddress, createHandler, wrapperHttpInitializer);
 
@@ -304,6 +308,48 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             throw new RuntimeException("Unable to bind address " + address + ": " + e.getMessage(),e );
         }
 
+    }
+
+    private void bindApiPath(ResourceAddress address) {
+        ResourceAddress apiHttpAddress = createApiHttpAddress(address.getTransport());
+        bridgeServiceFactory.newBridgeAcceptor(apiHttpAddress).bind(apiHttpAddress, WsAcceptor.API_PATH_HANDLER, null);
+
+        ResourceAddress apiHttpxeAddress = address.getTransport().getOption(ALTERNATE);
+        if (apiHttpxeAddress != null) {
+            apiHttpxeAddress = createApiHttpxeAddress(apiHttpxeAddress);
+            bridgeServiceFactory.newBridgeAcceptor(apiHttpxeAddress).bind(apiHttpxeAddress, WsAcceptor.API_PATH_HANDLER, null);
+        }
+    }
+
+    private void unbindApiPath(ResourceAddress address) {
+        ResourceAddress apiHttpAddress = createApiHttpAddress(address.getTransport());
+        bridgeServiceFactory.newBridgeAcceptor(apiHttpAddress).unbind(apiHttpAddress);
+
+        ResourceAddress apiHttpxeAddress = address.getTransport().getOption(ALTERNATE);
+        if (apiHttpxeAddress != null) {
+            apiHttpxeAddress = createApiHttpxeAddress(apiHttpxeAddress);
+            bridgeServiceFactory.newBridgeAcceptor(apiHttpxeAddress).unbind(apiHttpxeAddress);
+        }
+    }
+
+    private ResourceAddress createApiHttpAddress(ResourceAddress httpTransport) {
+        String path = appendURI(ensureTrailingSlash(httpTransport.getExternalURI()), HttpProtocolCompatibilityFilter.API_PATH).getPath();
+
+        URI httpLocation = modifyURIPath(httpTransport.getExternalURI(), path);
+        ResourceOptions httpOptions = ResourceOptions.FACTORY.newResourceOptions(httpTransport);
+        httpOptions.setOption(NEXT_PROTOCOL, null);       // terminal endpoint, so next protocol null
+        httpOptions.setOption(ALTERNATE, null);
+        return resourceAddressFactory.newResourceAddress(httpLocation, httpOptions);
+    }
+
+    private ResourceAddress createApiHttpxeAddress(ResourceAddress httpxeTransport) {
+        String path = appendURI(ensureTrailingSlash(httpxeTransport.getExternalURI()), HttpProtocolCompatibilityFilter.API_PATH).getPath();
+
+        httpxeTransport = httpxeTransport.resolve(path);
+        URI httpxeLocation = modifyURIPath(httpxeTransport.getExternalURI(), path);
+        ResourceOptions httpxeOptions = ResourceOptions.FACTORY.newResourceOptions(httpxeTransport);
+        httpxeOptions.setOption(NEXT_PROTOCOL, null);       // terminal endpoint, so next protocol null
+        return resourceAddressFactory.newResourceAddress(httpxeLocation, httpxeOptions);
     }
 
     private void bindCookiesHandler(ResourceAddress address) {
@@ -336,6 +382,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     protected UnbindFuture unbindInternal(ResourceAddress address, IoHandler handler,
             BridgeSessionInitializer<? extends IoFuture> initializer) {
 
+        unbindApiPath(address);
+
         final ResourceAddress transportAddress = address.getTransport();
         URI transportURI = transportAddress.getExternalURI();
         BridgeAcceptor acceptor = bridgeServiceFactory.newBridgeAcceptor(transportAddress);
@@ -358,6 +406,19 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         return appendURI(ensureTrailingSlash(httpUri),suffixWithLeadingSlash).getPath();
     }
 
+    private static final ExtensionHelper extensionHelper = new ExtensionHelper() {
+
+        @Override
+        public void setLoginContext(IoSession session, ResultAwareLoginContext loginContext) {
+            ((WsebSession.TransportSession)session).getWsebSession().setLoginContext(loginContext);
+        }
+
+        @Override
+        public void closeWebSocketConnection(IoSession session) {
+            ((WsebSession.TransportSession)session).getWsebSession().close(false);
+        }
+
+    };
 
     final class WsebCreateHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
@@ -418,7 +479,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                 }
             }
             else {
-                super.doMessageReceived(session,message);
+                super.doMessageReceived(session, message);
             }
         }
 
@@ -490,9 +551,14 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                 wseLocalAddress = getWseLocalAddress(session, wsProtocol);
             }
 
-            final ResourceAddress localAddress = wseLocalAddress;
+            if (wseLocalAddress == null) {
+                logger.info("Sending HTTP status 404 as no local address is found");
+                session.setStatus(HttpStatus.CLIENT_NOT_FOUND);
+                session.close(false);
+                return;
+            }
 
-            assert localAddress != null;
+            final ResourceAddress localAddress = wseLocalAddress;
 
             final String wsProtocol0 = wsProtocol;
             List<String> clientRequestedExtensions =  session.getReadHeaders(WsUtils.HEADER_X_WEBSOCKET_EXTENSIONS);
@@ -502,7 +568,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             try {
                 negotiated = WsUtils.negotiateExtensionsAndSetResponseHeader(
                         webSocketExtensionFactory, (WsResourceAddress) wseLocalAddress, clientRequestedExtensions,
-                        session, WsUtils.HEADER_X_WEBSOCKET_EXTENSIONS);
+                        session, WsUtils.HEADER_X_WEBSOCKET_EXTENSIONS, extensionHelper);
             }
             catch(ProtocolException e) {
                 WsUtils.handleExtensionNegotiationException(session, clientRequestedExtensions, e, logger);
@@ -579,25 +645,20 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                             .getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
                     wsSession.setAttribute(HTTP_REQUEST_URI_KEY, session.getRequestURL());
                     WsebSession wsebSession = (WsebSession)wsSession;
-                    wsebSession.setSubject(session.getSubject());
                     wsSession.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, wsProtocol0);
-                    HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY.set(wsSession,
-                            HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY.get(session));
-
+                    wsebSession.setLoginContext(session.getLoginContext());
                     IoSessionEx extensionsSession = wsebSession.getTransportSession();
-                    // TODO: add extension filters when we adopt the new webSocket extension SPI
                     IoFilterChain extensionsFilterChain = extensionsSession.getFilterChain();
-                    WsUtils.addExtensionFilters(negotiated, extensionsFilterChain, false);
+                    WsUtils.addExtensionFilters(negotiated, extensionHelper, extensionsFilterChain, false);
                     extensionsFilterChain.fireSessionCreated();
                     extensionsFilterChain.fireSessionOpened();
                 }
             }, new Callable<WsebSession>() {
                 @Override
                 public WsebSession call() {
-                    ResultAwareLoginContext loginContext = (ResultAwareLoginContext) session.getAttribute(
-                            HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY);
+                    ResultAwareLoginContext loginContext = session.getLoginContext();
                     WsebSession newWsebSession = new WsebSession(session.getIoLayer(), session.getIoThread(), session.getIoExecutor(), WsebAcceptor.this, getProcessor(),
-                            localAddress, remoteAddress, allocator, loginContext.getLoginResult(), clientIdleTimeout, inactivityTimeout,
+                            localAddress, remoteAddress, allocator, loginContext, clientIdleTimeout, inactivityTimeout,
                             validateSequenceNo, sequenceNo, negotiated);
                     IoHandler handler = getHandler(newWsebSession.getLocalAddress());
                     newWsebSession.setHandler(handler);
@@ -823,23 +884,29 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         @Override
         protected void doExceptionCaught(HttpAcceptSession session, Throwable cause) throws Exception {
             // HTTP exception occurred, usually due to underlying connection failure during HTTP response
-            WsebSession wseSession = SESSION_KEY.get(session);
-            if (wseSession != null && !wseSession.isClosing()) {
-                wseSession.reset(cause);
-            }
-            else {
-                if (logger.isDebugEnabled()) {
-                    String message = format("Exception while handling HttpSession to create WsebSession: %s", cause);
-                    if (logger.isTraceEnabled()) {
-                        // note: still debug level, but with extra detail about the exception
-                        logger.debug(message, cause);
-                    }
-                    else {
-                        logger.debug(message);
-                    }
+
+            if (logger.isDebugEnabled()) {
+                String message = format("Exception while handling HttpSession to create WsebSession: %s", cause);
+                if (logger.isTraceEnabled()) {
+                    // note: still debug level, but with extra detail about the exception
+                    logger.debug(message, cause);
                 }
-                session.close(true);
+                else {
+                    logger.debug(message);
+                }
             }
+            session.close(true);
+        }
+
+        @Override
+        protected void doSessionClosed(HttpAcceptSession session) throws Exception {
+            WsebSession wsebSession = SESSION_KEY.remove(session);
+            if (wsebSession != null && !wsebSession.isClosing()) {
+                wsebSession.reset(new Exception("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
+            }
+
+            IoFilterChain filterChain = session.getFilterChain();
+            removeBridgeFilters(filterChain);
         }
 
         protected ResourceAddress getWseLocalAddress(HttpAcceptSession session,

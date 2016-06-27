@@ -25,8 +25,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 public class RealmConfiguration implements Configuration<SuppressibleRealmConfiguration> {
@@ -37,6 +40,7 @@ public class RealmConfiguration implements Configuration<SuppressibleRealmConfig
     private Suppressible<String> _httpChallengeScheme;
     private Suppressible<String> _authorizationMode;
     private Suppressible<String> _sessionTimeout;
+    private Map<String, Suppressible<String>> _extendedProperties = new HashMap<>();
     private final List<Suppressible<String>> httpHeaders = new ArrayList<>();
     private final List<Suppressible<String>> httpQueryParameters = new ArrayList<>();
     private final List<Suppressible<String>> httpCookies = new ArrayList<>();
@@ -164,6 +168,18 @@ public class RealmConfiguration implements Configuration<SuppressibleRealmConfig
         getHttpCookies().add(httpCookie);
     }
 
+    public Map<String, String> getExtendedProperties() {
+        Map<String, String> result = new HashMap<String, String>();
+        for (Entry<String, Suppressible<String>> entry : _extendedProperties.entrySet()) {
+            result.put(entry.getKey(), entry.getValue().value());
+        }
+        return result;
+    }
+
+    public void setExtendedProperty(String name, String value) {
+        _extendedProperties.put(name, new Suppressible<>(value));
+    }
+
     private class SuppressibleRealmConfigurationImpl extends SuppressibleRealmConfiguration {
         private Set<Suppression> _suppressions;
 
@@ -256,6 +272,16 @@ public class RealmConfiguration implements Configuration<SuppressibleRealmConfig
         @Override
         public void addHttpCookie(Suppressible<String> httpCookie) {
             httpCookies.add(httpCookie);
+        }
+
+        @Override
+        public Map<String, Suppressible<String>> getExtendedProperties() {
+            return _extendedProperties;
+        }
+
+        @Override
+        public void setExtendedProperty(String name, Suppressible<String> value) {
+            _extendedProperties.put(name, value);
         }
     }
 }

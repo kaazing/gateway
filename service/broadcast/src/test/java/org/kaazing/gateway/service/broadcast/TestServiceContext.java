@@ -49,6 +49,7 @@ import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.security.RealmContext;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.ConnectOptionsContext;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
@@ -488,12 +489,24 @@ public class TestServiceContext implements ServiceContext {
 
     @Override
     public IoSessionInitializer<ConnectFuture> getSessionInitializor() {
-        // TODO Not used in tests
+        // Not used in tests
         return null;
     }
 
     @Override
     public void setSessionInitializor(IoSessionInitializer<ConnectFuture> ioSessionInitializer) {
-        // TODO Not used in tests
+        // Not used in tests
+    }
+
+    @Override
+    public MonitoringEntityFactory getMonitoringFactory() {
+        // Not used in tests
+        return null;
+    }
+
+    @Override
+    public void setMonitoringFactory(MonitoringEntityFactory monitoringFactory) {
+        // Not used in tests
+        
     }
 }

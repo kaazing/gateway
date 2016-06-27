@@ -21,16 +21,13 @@
 
 package org.kaazing.gateway.transport.wsn.handshake;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -40,8 +37,6 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 public class WsHandshakeIT {
 
     private K3poRule robot = new K3poRule();
-
-    private TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
 
     private GatewayRule gateway = new GatewayRule() {
         {
@@ -73,7 +68,7 @@ public class WsHandshakeIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway).around(timeout);
+    public TestRule chain = createRuleChain(gateway, robot);
 
     @Specification("websocket.handshake")
     @Test

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,7 +21,7 @@
 
 package org.kaazing.gateway.service.http.directory;
 
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,7 +44,7 @@ public class HttpDirectoryServiceAuthorizationIT {
     private static String BASIC_AUTH_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8008/auth";
     private static String APP_BASIC_AUTH_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8009/auth";
     private static String TOKEN_AUTH_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8010/auth";
-    
+
     private final K3poRule robot = new K3poRule();
 
     private final GatewayRule gateway = new GatewayRule() {
@@ -107,9 +107,9 @@ public class HttpDirectoryServiceAuthorizationIT {
                             .realm()
                                 .name("token")
                                 .description("Kaazing WebSocket Gateway Demo")
-                                .httpChallengeScheme("Application Token")   
+                                .httpChallengeScheme("Application Token")
                                 .authorizationMode("challenge")
-                                .loginModule()                          
+                                .loginModule()
                                     .type("class:org.kaazing.gateway.service.http.directory.TokenLoginModule")
                                     .success("requisite")
                                     .option("roles", "AUTHORIZED, ADMINISTRATOR")
@@ -145,59 +145,59 @@ public class HttpDirectoryServiceAuthorizationIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    public TestRule chain = createRuleChain(gateway, robot);
 
     // //////////////////////// AUTHORIZATION //////////////////
     @Specification("auth/app.basic.authorized.access.with.valid.credentials")
-    @Test(timeout = 500000)
+    @Test
     public void testAppBasicAuthorizedWithValidCredentials() throws Exception {
         robot.finish();
     }
 
     @Specification("auth/app.basic.authorized.access.with.invalid.credentials")
-    @Test(timeout = 5000)
+    @Test
     public void testAppBasicAuthorizedWithInvalidCredentials() throws Exception {
         robot.finish();
     }
 
     @Specification("auth/app.basic.authorized.directory.access.no.credentials")
-    @Test(timeout = 5000)
+    @Test
     public void testAppBasicAuthorizedWithoutCredentials() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("auth/basic.authorized.access.with.valid.credentials")
-    @Test(timeout = 5000)
+    @Test
     public void testBasicAuthorizedWithValidCredentials() throws Exception {
         robot.finish();
     }
 
     @Specification("auth/basic.authorized.access.with.invalid.credentials")
-    @Test(timeout = 5000)
+    @Test
     public void testBasicAuthorizedWithInvalidCredentials() throws Exception {
         robot.finish();
     }
 
     @Specification("auth/basic.authorized.directory.access.no.credentials")
-    @Test(timeout = 5000)
+    @Test
     public void testBasicAuthorizedWithoutCredentials() throws Exception {
         robot.finish();
     }
 
     @Specification("auth/token.authorized.access.with.valid.credentials")
-    @Test(timeout = 5000)
+    @Test
     public void testTokenAuthorizedWithValidCredentials() throws Exception {
         robot.finish();
     }
 
     @Specification("auth/token.authorized.access.with.invalid.credentials")
-    @Test(timeout = 5000)
+    @Test
     public void testTokenAuthorizedWithInValidCredentials() throws Exception {
         robot.finish();
     }
 
     @Specification("auth/token.authorized.directory.access.no.credentials")
-    @Test(timeout = 5000)
+    @Test
     public void testTokenAuthorizedWithoutCredentials() throws Exception {
         robot.finish();
     }

@@ -92,12 +92,6 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.kaazing</groupId>
-            <artifactId>gateway.resource.address.wsr</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
 </project>

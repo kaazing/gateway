@@ -23,70 +23,71 @@ package org.kaazing.gateway.management.monitoring.entity.impl;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Properties;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.kaazing.gateway.management.monitoring.configuration.impl.AgronaMonitoringEntityFactoryBuilder;
-import org.kaazing.gateway.management.monitoring.entity.LongMonitoringCounter;
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
+import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManager;
+import org.kaazing.gateway.management.monitoring.configuration.impl.MMFMonitoringDataManager;
+import org.kaazing.gateway.service.LongMonitoringCounter;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 /**
  * Unit test for AgronaLongMonitoringCounter
  */
 public class AgronaLongMonitoringCounterTest {
 
-    private MonitoringEntityFactory factory;
+    private MonitoringEntityFactory monitoringEntityFactory;
     private LongMonitoringCounter counter;
+    private MonitoringDataManager monitoringDataManager;
 
     @Before
     public void before() {
-        AgronaMonitoringEntityFactoryBuilder builder = new AgronaMonitoringEntityFactoryBuilder(new Properties());
-        factory = builder.build();
-        counter = factory.makeLongMonitoringCounter("counter");
+        monitoringDataManager = new MMFMonitoringDataManager("test");
+        monitoringEntityFactory = monitoringDataManager.initialize();
+        counter = monitoringEntityFactory.makeLongMonitoringCounter("counter");
     }
 
     @After
     public void after() {
-        factory.close();
+        monitoringEntityFactory.close();
+        monitoringDataManager.close();
     }
 
     @Test
-    public void testReset() {
+    public void reset() {
         counter.reset();
         assertEquals(counter.getValue(), 0);
     }
 
     @Test
-    public void testSet() {
+    public void set() {
         counter.setValue(1);
         assertEquals(counter.getValue(), 1);
     }
 
     @Test
-    public void testIncrement() {
+    public void increment() {
         counter.reset();
         counter.increment();
         assertEquals(counter.getValue(), 1);
     }
 
     @Test
-    public void testIncrementByValue() {
+    public void incrementByValue() {
         counter.reset();
         counter.incrementByValue(2);
         assertEquals(counter.getValue(), 2);
     }
 
     @Test
-    public void testDecrement() {
+    public void decrement() {
         counter.reset();
         counter.decrement();
         assertEquals(counter.getValue(), -1);
     }
 
     @Test
-    public void testDecrementByValue() {
+    public void decrementByValue() {
         counter.reset();
         counter.decrementByValue(2);
         assertEquals(counter.getValue(), -2);

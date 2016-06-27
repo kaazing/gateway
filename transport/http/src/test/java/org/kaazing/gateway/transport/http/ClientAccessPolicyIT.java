@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,7 +21,7 @@
 
 package org.kaazing.gateway.transport.http;
 
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
@@ -43,7 +43,7 @@ public class ClientAccessPolicyIT {
             // @formatter:off
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
-            
+
                         // allow *
                         .service()
                             .accept(URI.create("http://localhost:8001/echo"))
@@ -52,7 +52,7 @@ public class ClientAccessPolicyIT {
                                 .allowOrigin("*")
                             .done()
                         .done()
-                        
+
                         // allow specific origin
                         .service()
                             .accept(URI.create("http://localhost:8002/echo"))
@@ -61,7 +61,7 @@ public class ClientAccessPolicyIT {
                                 .allowOrigin("http://localhost:8000")
                             .done()
                         .done()
-                        
+
                         // overlapping services on specific origin
                         .service()
                             .accept(URI.create("http://localhost:8003/echo2"))
@@ -77,7 +77,7 @@ public class ClientAccessPolicyIT {
                                 .allowOrigin("*")
                             .done()
                         .done()
-                        
+
                         // multiple origins allowed
                         .service()
                             .accept(URI.create("http://localhost:8004/echo"))
@@ -92,15 +92,15 @@ public class ClientAccessPolicyIT {
                                 .allowOrigin("http://localhost:8002")
                             .done()
                         .done()
-                        
+
                         // no cross-site-constraint
                         .service()
                             .accept(URI.create("http://localhost:8005/echo"))
                             .type("echo")
                         .done()
-                        
 
-// TODO: create robot test for multiple accepts 
+
+// TODO: create robot test for multiple accepts
 //                        .service()
 //                             .accept(URI.create("ws://localhost:8007/echo"))
 //                             .accept(URI.create("ws://localhost:8007/echo2"))
@@ -110,8 +110,8 @@ public class ClientAccessPolicyIT {
 //                                .allowOrigin("http://localhost:8000")
 //                            .done()
 //                        .done()
-                            
-                        
+
+
                     .done();
             // @formatter:on
             init(configuration);
@@ -119,41 +119,41 @@ public class ClientAccessPolicyIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    public TestRule chain = createRuleChain(gateway, robot);
 
     @Specification("client.access.policy.resource.path.starred.constraints")
-    @Test(timeout = 3000)
+    @Test
     public void clientAccessPolicyStarredAllowOriginTest() throws Exception {
         robot.finish();
     }
 
     @Specification("client.access.policy.resource.path.specific.origin.constraints")
-    @Test(timeout = 3000)
+    @Test
     public void clientAccessPolicySpecificAllowOriginTest() throws Exception {
         robot.finish();
     }
 
     @Specification("client.access.policy.resource.path.overlapping.constraints")
-    @Test(timeout = 3000)
+    @Test
     public void clientAccessPolicyOverlappingAllowOriginTest() throws Exception {
         robot.finish();
     }
 
     //@Ignore("Test is not deterministic because the policies can appear in any order, but keeping it in case we make it deterministic, or get robot feature to improve")
     @Specification("client.access.policy.multiple.constraints")
-    @Test(timeout = 3000)
+    @Test
     public void clientAccessPolicyOverMultipleOriginTest() throws Exception {
         robot.finish();
     }
 
     @Specification("client.access.policy.no.constraints")
-    @Test(timeout = 3000)
+    @Test
     public void clientAccessPolicyNoConstraintTest() throws Exception {
     	robot.finish();
     }
-    
+
     @Specification("client.access.policy.test.cache")
-    @Test(timeout = 10000)
+    @Test
     public void clientAccessPolicyTestCache() throws Exception {
         robot.finish();
     }

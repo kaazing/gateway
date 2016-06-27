@@ -57,7 +57,7 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
 
     // go backwards so we can set alternate addresses correctly
     private static final List<String> WS_ALTERNATE_SCHEMES =
-            Arrays.asList("wsr", "wsx-draft", "ws-draft", "wsx", "wse");
+            Arrays.asList("wsx-draft", "ws-draft", "wsx", "wse");
 
     private List<ResourceFactory> alternateResourceFactories;
 

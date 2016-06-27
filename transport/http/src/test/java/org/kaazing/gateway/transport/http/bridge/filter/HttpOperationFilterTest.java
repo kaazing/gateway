@@ -154,7 +154,7 @@ public class HttpOperationFilterTest {
         message.setHeader("Content-Type", "text/plain");
         message.setHeader("Host", "foo");
         message.setRequestURI(URI.create("http://foo/path/;api/set-cookies"));
-        ByteBuffer buf = Utils.asByteBuffer("KSESSIONID=value");
+        ByteBuffer buf = Utils.asByteBuffer("KSSOID=value");
         message.setContent(new HttpContentMessage(allocator.wrap(buf), true));
         message.setLocalAddress(address);
 
@@ -164,7 +164,7 @@ public class HttpOperationFilterTest {
         final HttpResponseMessage response = new HttpResponseMessage();
         response.setVersion(HttpVersion.HTTP_1_1);
         response.setStatus(HttpStatus.SUCCESS_OK);
-        response.setHeader("Set-Cookie", "KSESSIONID=value; Domain=.cookie.domain");
+        response.setHeader("Set-Cookie", "KSSOID=value; Domain=.cookie.domain");
 
         context.checking(new Expectations() {
             {

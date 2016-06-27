@@ -17,8 +17,8 @@
 package org.kaazing.gateway.transport.tcp;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.rules.RuleChain.outerRule;
 import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 import java.nio.ByteBuffer;
@@ -37,15 +37,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
-import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -59,56 +56,53 @@ public class TcpConnectorIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/tcp/rfc793");
 
-    private final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
-
     private NioSocketConnector connector;
-    private SchedulerProvider schedulerProvider;
-    
+
     @Rule
-    public final TestRule chain = outerRule(k3po).around(timeout);
+    public TestRule chain = createRuleChain(k3po, 10, SECONDS);
 
     @Before
     public void before() throws Exception {
         NioSocketAcceptor acceptor = new NioSocketAcceptor(new Properties());
-        
+
         connector = new NioSocketConnector(new Properties());
         connector.setResourceAddressFactory(newResourceAddressFactory());
         connector.setTcpAcceptor(acceptor);
     }
 
-    private void connectTo8080(IoHandlerAdapter handler) throws InterruptedException {
+    private void connectTo8080(IoHandlerAdapter<IoSessionEx> handler) throws InterruptedException {
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
 
         Map<String, Object> acceptOptions = new HashMap<>();
-        
+
         final String connectURIString = "tcp://127.0.0.1:8080";
         final ResourceAddress bindAddress =
                 addressFactory.newResourceAddress(
                         URI.create(connectURIString),
                         acceptOptions);
-        
+
         CountDownLatch latch = new CountDownLatch(1);
         ConnectFuture x = connector.connect(bindAddress, handler, null);
-        x.addListener(new IoFutureListener(){
+        x.addListener(new IoFutureListener<IoFuture>(){
 
             @Override
             public void operationComplete(IoFuture arg0) {
                 latch.countDown();
             }
-            
+
         });
         boolean didConnect = latch.await(1, SECONDS);
         Assert.assertTrue("Fail to connect", didConnect);
     }
-    
+
     private void writeStringMessageToSession(String message, IoSession session) {
         ByteBuffer data = ByteBuffer.allocate(message.length());
         data.put(message.getBytes());
-        
+
         data.flip();
 
         IoBufferAllocatorEx<?> allocator = ((IoSessionEx) session).getBufferAllocator();
-        
+
         session.write(allocator.wrap(data.duplicate(), IoBufferEx.FLAG_SHARED));
     }
 
@@ -120,13 +114,13 @@ public class TcpConnectorIT {
             connector.dispose();
         }
     }
-    
+
     @Test
     @Specification({
         "establish.connection/tcp.server"
         })
     public void establishConnection() throws Exception {
-        connectTo8080(new IoHandlerAdapter());
+        connectTo8080(new IoHandlerAdapter<IoSessionEx>());
         k3po.finish();
     }
 
@@ -135,8 +129,8 @@ public class TcpConnectorIT {
         "server.sent.data/tcp.server"
         })
     public void serverSentData() throws Exception {
-        connectTo8080(new IoHandlerAdapter());
-        
+        connectTo8080(new IoHandlerAdapter<IoSessionEx>());
+
         k3po.finish();
     }
 
@@ -145,21 +139,21 @@ public class TcpConnectorIT {
         "client.sent.data/tcp.server"
         })
     public void clientSentData() throws Exception {
-        connectTo8080(new IoHandlerAdapter(){
+        connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
             @Override
-            protected void doSessionOpened(IoSession session) throws Exception {
+            protected void doSessionOpened(IoSessionEx session) throws Exception {
                 ByteBuffer data = ByteBuffer.allocate(20);
                 String str = "client data";
                 data.put(str.getBytes());
-                
+
                 data.flip();
 
-                IoBufferAllocatorEx<?> allocator = ((IoSessionEx) session).getBufferAllocator();
-                
+                IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+
                 session.write(allocator.wrap(data.duplicate(), IoBufferEx.FLAG_SHARED));
             }
         });
-        
+
         k3po.finish();
     }
 
@@ -168,28 +162,28 @@ public class TcpConnectorIT {
         "bidirectional.data/tcp.server"
         })
     public void bidirectionalData() throws Exception {
-        connectTo8080(new IoHandlerAdapter(){
+        connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
             private int counter = 1;
             private DataMatcher dataMatch = new DataMatcher("server data " + counter);
 
             @Override
-            protected void doSessionOpened(IoSession session) throws Exception {
+            protected void doSessionOpened(IoSessionEx session) throws Exception {
                 writeStringMessageToSession("client data " + counter, session);
             }
-            
+
             @Override
-            protected void doMessageReceived(IoSession session, Object message) throws Exception {
+            protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
                 String decoded = new String(((IoBuffer) message).array());
 
                 if (dataMatch.addFragment(decoded) && counter < 2) {
-                    counter++;                    
+                    counter++;
                     writeStringMessageToSession("client data " + counter, session);
                     dataMatch = new DataMatcher("server data " + counter);
                 }
             }
         });
-        
-        
+
+
         k3po.finish();
     }
 
@@ -198,8 +192,8 @@ public class TcpConnectorIT {
         "server.close/tcp.server"
         })
     public void serverClose() throws Exception {
-        connectTo8080(new IoHandlerAdapter());
-        
+        connectTo8080(new IoHandlerAdapter<IoSessionEx>());
+
         k3po.finish();
     }
 
@@ -208,10 +202,10 @@ public class TcpConnectorIT {
         "client.close/tcp.server"
         })
     public void clientClose() throws Exception {
-        connectTo8080(new IoHandlerAdapter(){
+        connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
             @Override
-            protected void doSessionOpened(IoSession session) throws Exception {
-                session.close();
+            protected void doSessionOpened(IoSessionEx session) throws Exception {
+                session.close(true);
             }
         });
         k3po.finish();
@@ -222,15 +216,15 @@ public class TcpConnectorIT {
         "concurrent.connections/tcp.server"
         })
     public void concurrentConnections() throws Exception {
-        IoHandlerAdapter adapter = new IoHandlerAdapter(){
+        IoHandlerAdapter<IoSessionEx> adapter = new IoHandlerAdapter<IoSessionEx>(){
             @Override
-            protected void doSessionOpened(IoSession session) throws Exception {
+            protected void doSessionOpened(IoSessionEx session) throws Exception {
                 session.setAttribute("dataMatch", new DataMatcher("Hello"));
                 writeStringMessageToSession("Hello", session);
             }
-            
+
             @Override
-            protected void doMessageReceived(IoSession session, Object message) throws Exception {
+            protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
                 String decoded = new String(((IoBuffer) message).array());
                 DataMatcher dataMatch = (DataMatcher) session.getAttribute("dataMatch");
 
@@ -238,19 +232,19 @@ public class TcpConnectorIT {
                     if (dataMatch.target.equals("Hello")) {
                         dataMatch = new DataMatcher("Goodbye");
                         writeStringMessageToSession("Goodbye", session);
-                        
+
                     } else {
-                        session.close();
+                        session.close(true);
                     }
                     session.setAttribute("dataMatch", dataMatch);
                 }
-                
+
             }
         };
         connectTo8080(adapter);
         connectTo8080(adapter);
         connectTo8080(adapter);
-        
+
         k3po.finish();
 
     }

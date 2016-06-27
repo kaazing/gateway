@@ -23,6 +23,7 @@ package org.kaazing.gateway.transport.sse;
 
 import static java.lang.String.format;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
@@ -256,7 +257,7 @@ public class SseConnector extends AbstractBridgeConnector<SseSession> {
             }
         }
         else {
-            sseSession.reset(new Exception("Early termination of IO session").fillInStackTrace());
+            sseSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
         }
     }
 
@@ -305,7 +306,7 @@ public class SseConnector extends AbstractBridgeConnector<SseSession> {
 
         @Override
         protected void doSessionClosed(HttpSession session) throws Exception {
-            final SseSession sseSession = SSE_SESSION_KEY.get(session);
+            final SseSession sseSession = SSE_SESSION_KEY.remove(session);
             assert (sseSession != null);
 
             // TODO: move redirect handling to HttpConnector (optionally)
@@ -339,29 +340,22 @@ public class SseConnector extends AbstractBridgeConnector<SseSession> {
 
         @Override
         protected void doExceptionCaught(HttpSession session, Throwable cause) throws Exception {
-            SseSession sseSession = SSE_SESSION_KEY.get(session);
-            if (sseSession != null && !sseSession.isClosing()) {
-                // behave similarly to connection reset by peer at NIO layer
-                sseSession.reset(cause);
-            }
-            else {
-                ConnectFuture sseConnectFuture = SSE_CONNECT_FUTURE_KEY.remove(session);
-                if (sseConnectFuture != null) {
-                    sseConnectFuture.setException(cause);
+            if (logger.isDebugEnabled()) {
+                String message = format("Error on SSE connection attempt: %s", cause);
+                if (logger.isTraceEnabled()) {
+                    // note: still debug level, but with extra detail about the exception
+                    logger.debug(message, cause);
                 }
                 else {
-                    if (logger.isDebugEnabled()) {
-                        String message = format("Error on WebSocket connection attempt: %s", cause);
-                        if (logger.isTraceEnabled()) {
-                            // note: still debug level, but with extra detail about the exception
-                            logger.debug(message, cause);
-                        }
-                        else {
-                            logger.debug(message);
-                        }
-                    }
+                    logger.debug(message);
                 }
-                session.close(true);
+            }
+
+            session.close(true);
+
+            ConnectFuture sseConnectFuture = SSE_CONNECT_FUTURE_KEY.remove(session);
+            if (sseConnectFuture != null) {
+                sseConnectFuture.setException(cause);
             }
         }
 

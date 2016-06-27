@@ -129,12 +129,9 @@ public class HttpOriginSecurityFilter extends HttpFilterAdapter<IoSessionEx> {
 
         String allowOrigin = (crossSiteConstraint != null) ? crossSiteConstraint.getAllowOrigin() : null;
         // KG-7235 IE9 downstream uses XDR, this requests allowOrigin header in response.  Thus for IE9 (and other versions of IE), we need to make sure to set the response header.
-        HttpRequestProfile requestProfile = HttpRequestProfile.valueOf(httpRequest);
         // KG-9263 IE8+ XDR requires explicit access control response headers (even for same origin requests)
         boolean explicitAccessControl = PARAM_VALUE_ACCESS_CONTROL_EXPLICIT.equals(httpRequest.getParameter(PARAM_ACCESS_CONTROL));
-        if (allowOrigin != null ||
-            explicitAccessControl ||
-            requestProfile.equals(HttpRequestProfile.EMULATED_WEB_SOCKET_DOWNSTREAM)) {
+        if (allowOrigin != null || explicitAccessControl) {
             // allow-credentials cannot be combined with allow-origin "*", so we need to be explicit
             // also, some browsers are particular about the Origin matching precisely (regarding default HTTP ports)
             // so when we get a match, then make sure we use the Origin header in the response Access-Control-Allow-Origin

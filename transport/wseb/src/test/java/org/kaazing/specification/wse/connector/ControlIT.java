@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,14 +22,12 @@
 package org.kaazing.specification.wse.connector;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.wseb.test.WsebConnectorRule;
 import org.kaazing.k3po.junit.annotation.Specification;
@@ -41,10 +39,9 @@ public class ControlIT {
     private final K3poRule robot = new K3poRule()
     .setScriptRoot("org/kaazing/specification/wse/control");
     private final WsebConnectorRule connector = new WsebConnectorRule();
-    private TestRule timeout = new DisableOnDebug(new Timeout(4, SECONDS));
 
     @Rule
-    public TestRule chain = outerRule(connector).around(robot).around(timeout);
+    public TestRule chain = createRuleChain(robot, 10, SECONDS);
 
     @Specification("server.send.ping/response")
     @Test
@@ -52,7 +49,7 @@ public class ControlIT {
     // TODO: when this test is enabled, remove WsebConnectorIT.shouldReplyPongToPing
     public void serverSendPing() throws Exception {
         connector.connect("wse://localhost:8080/path?query", null, new IoHandlerAdapter<IoSessionEx>() {
-            
+
         });
         robot.finish();
     }

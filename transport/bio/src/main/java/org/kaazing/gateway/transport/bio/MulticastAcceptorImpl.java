@@ -218,9 +218,7 @@ public class MulticastAcceptorImpl extends AbstractIoAcceptorEx {
 
             try {
                 return newSessionWithoutLock(remoteAddress, localAddress);
-            } catch (RuntimeException e) {
-                throw e;
-            } catch (Error e) {
+            } catch (RuntimeException | Error e) {
                 throw e;
             } catch (Exception e) {
                 throw new RuntimeIoException("Failed to create a session.", e);

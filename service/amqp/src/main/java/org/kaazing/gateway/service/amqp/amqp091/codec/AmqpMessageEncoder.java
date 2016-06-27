@@ -901,7 +901,7 @@ public class AmqpMessageEncoder extends ProtocolEncoderAdapter {
             throw new IllegalStateException(s);
         }
 
-        byte b = (byte) ((((Boolean) value).booleanValue()) ? 1 : 0);
+        byte b = (byte) (((Boolean) value) ? 1 : 0);
         
         putUnsigned(buffer, 't');
         putUnsigned(buffer, b);

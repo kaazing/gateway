@@ -41,6 +41,11 @@
             <groupId>org.jmock</groupId>
             <artifactId>jmock</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>k3po.junit</artifactId>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -32,7 +32,7 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 
 import java.net.URI;
 
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 public class HttpProxyRequestIT {
 
@@ -56,28 +56,28 @@ public class HttpProxyRequestIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    public TestRule chain = createRuleChain(gateway, robot);
 
     @Specification( "http.proxy.query.string")
-    @Test(timeout = 5000)
+    @Test
     public void queryString() throws Exception {
         robot.finish();
     }
 
     @Specification( "http.proxy.post.method")
-    @Test(timeout = 5000)
+    @Test
     public void postMethod() throws Exception {
         robot.finish();
     }
 
     @Specification( "http.proxy.status.500")
-    @Test(timeout = 5000)
+    @Test
     public void status500() throws Exception {
         robot.finish();
     }
 
     @Specification( "http.proxy.get.method.status.401")
-    @Test(timeout = 5000)
+    @Test
     public void getMethodStatus401() throws Exception {
         robot.finish();
     }

@@ -37,7 +37,7 @@ public class DefaultCloseFuture extends DefaultIoFuture implements CloseFuture {
 
     public boolean isClosed() {
         if (isDone()) {
-            return ((Boolean) getValue()).booleanValue();
+            return (Boolean) getValue();
         } else {
             return false;
         }

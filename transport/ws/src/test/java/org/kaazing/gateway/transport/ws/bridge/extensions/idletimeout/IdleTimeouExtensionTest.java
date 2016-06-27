@@ -25,29 +25,47 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.mina.core.filterchain.IoFilter;
+import org.apache.mina.core.session.IoSession;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Rule;
 import org.junit.Test;
+import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
 
-/**
-* NOTE: this class is a "classic" unit test for the WsCloseFilter. Overall testing of websocket close
-* handling for the wsn transport layer is in test class WsCloseTransportTest.
-*/
 public class IdleTimeouExtensionTest {
     private static final String extensionName = "x-kaazing-idle-timeout";
+    private static final ExtensionHelper extensionHelper = new ExtensionHelper() {
+
+        @Override
+        public void setLoginContext(IoSession session, ResultAwareLoginContext loginContext) {
+            throw new RuntimeException("Not expected to be called");
+        }
+
+        @Override
+        public void closeWebSocketConnection(IoSession session) {
+            throw new RuntimeException("Not expected to be called");
+        }
+    };
 
     ExtensionHeader requested = new ExtensionHeaderBuilder(extensionName).done();
+    
+    @Rule
+    public JUnitRuleMockery context = new  JUnitRuleMockery();
+
 
     @Test
     public void shouldAddTimeoutParameter() throws Exception {
-        IdleTimeoutExtension extension = new IdleTimeoutExtension(requested, 1234L);
+        IdleTimeoutExtension extension = new IdleTimeoutExtension(requested, extensionHelper, 1234L);
         assertEquals(extensionName, extension.getExtensionHeader().getExtensionToken());
         assertEquals(Long.toString(1234L), extension.getExtensionHeader().getParameters().get(0).getValue());
     }
 
     @Test
     public void shouldCreateIdleTimeoutFilter() {
-        IdleTimeoutExtension extension = new IdleTimeoutExtension(requested, 1234L);
+        final ExtensionHelper extensionHelper = context.mock(ExtensionHelper.class);
+        IdleTimeoutExtension extension = new IdleTimeoutExtension(requested, extensionHelper, 1234L);
         IoFilter filter = extension.getFilter();
         assertTrue(filter instanceof IdleTimeoutFilter);
     }

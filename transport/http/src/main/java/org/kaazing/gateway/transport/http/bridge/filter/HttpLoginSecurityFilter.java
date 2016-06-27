@@ -21,13 +21,20 @@
 
 package org.kaazing.gateway.transport.http.bridge.filter;
 
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
-import static java.util.Arrays.asList;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_FORWARDED;
 
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.AppConfigurationEntry;
@@ -40,12 +47,13 @@ import org.kaazing.gateway.security.LoginContextFactory;
 import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 import org.kaazing.gateway.security.auth.AuthenticationTokenCallbackHandler;
 import org.kaazing.gateway.security.auth.DefaultLoginResult;
+import org.kaazing.gateway.security.auth.InetAddressCallbackHandler;
 import org.kaazing.gateway.security.auth.YesLoginModule;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.server.spi.security.AuthenticationToken;
 import org.kaazing.gateway.server.spi.security.AuthenticationTokenCallback;
+import org.kaazing.gateway.server.spi.security.InetAddressCallback;
 import org.kaazing.gateway.server.spi.security.LoginResult;
-import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
@@ -59,18 +67,14 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
     protected static final String AUTH_SCHEME_APPLICATION_PREFIX = "Application ";
 
     /**
-     * Session key used for communicating the login context to higher level sessions.
-     */
-    public static final TypedAttributeKey<ResultAwareLoginContext> LOGIN_CONTEXT_KEY =
-            new TypedAttributeKey<>(HttpLoginSecurityFilter.class, "loginContext");
-
-
-    /**
      * Used to model the result of a login when login is not required but is successful
      * (for example accessing a non-protected service)
      */
     private static final DefaultLoginResult LOGIN_RESULT_OK = new DefaultLoginResult();
 
+    private static final Pattern PATTERN_HEADER_FORWARDED = Pattern.compile(".*for\\s*=\\s*(.*?)(?:\\s*;.*)?$");
+    private static final String FORWARDED_URI = "scheme://%s";
+    private static final String HEADER_FORWARDED_UNKNOWN_VALUE = "unknown";
 
     public HttpLoginSecurityFilter() {
         super();
@@ -102,10 +106,6 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
             return authorizedRoles.containsAll(requiredRoles);
         }
         return false;
-    }
-
-    public static void cleanup(IoSession session) {
-        LOGIN_CONTEXT_KEY.remove(session);
     }
 
     /**
@@ -168,8 +168,9 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
 
             LoginContextFactory loginContextFactory = address.getOption(HttpResourceAddress.LOGIN_CONTEXT_FACTORY);
+            TypedCallbackHandlerMap callbackHandlerMap = new TypedCallbackHandlerMap();
 
-            final TypedCallbackHandlerMap callbackHandlerMap = makeAuthenticationTokenCallback(authToken);
+            registerCallbacks(session, httpRequest, authToken, callbackHandlerMap);
             callbackHandlerMap.putAll(additionalCallbacks);
 
             loginContext = (ResultAwareLoginContext) loginContextFactory.createLoginContext(callbackHandlerMap);
@@ -182,7 +183,6 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
             }
 
             loginContext.login();
-
         } catch (LoginException le) {
             // Depending on the login modules configured, this could be
             // a very normal condition.
@@ -203,7 +203,6 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                 writeResponse(HttpStatus.CLIENT_FORBIDDEN, nextFilter, session, httpRequest);
                 return false;
             }
-
         } catch (Exception e) {
             if (loggerEnabled()) {
                 log("Login failed.", e);
@@ -251,7 +250,6 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                 authenticationTokenCallbackHandler);
         return map;
     }
-
 
     protected String getBaseAuthScheme(String authScheme) {
         if (authScheme != null && authScheme.startsWith(AUTH_SCHEME_APPLICATION_PREFIX)) {
@@ -325,7 +323,10 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
             final LoginContextFactory loginContextFactory = address.getOption(HttpResourceAddress.LOGIN_CONTEXT_FACTORY);
 
             try {
-                final TypedCallbackHandlerMap callbackHandlerMap = makeAuthenticationTokenCallback(authToken);
+                TypedCallbackHandlerMap callbackHandlerMap = new TypedCallbackHandlerMap();
+
+                registerCallbacks(session, httpRequest, authToken, callbackHandlerMap);
+
                 callbackHandlerMap.putAll(additionalCallbacks);
                 loginContext = (ResultAwareLoginContext) loginContextFactory.createLoginContext(callbackHandlerMap);
                 if (loginContext == null) {
@@ -382,7 +383,6 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                     }
                     return false;
                 }
-
             } catch (Exception e) {
                 loginOK = false;
 
@@ -406,12 +406,12 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
             writeSessionCookie(session, httpRequest, loginResult);
         }
 
-        if (loginOK ) {
+        if (loginOK) {
             // store information into the session
             try {
 
                 // remember login context
-                LOGIN_CONTEXT_KEY.set(session, loginContext);
+                httpRequest.setLoginContext(loginContext);
 
                 // remember subject
                 httpRequest.setSubject((loginContext == null || loginContext == LOGIN_CONTEXT_OK) ? subject : loginContext.getSubject());
@@ -421,9 +421,6 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                 }
                 loginOK = false;
             }
-        } else {
-            // forget login context
-            LOGIN_CONTEXT_KEY.remove(session);
         }
 
         if ( loginOK && loggerEnabled() ) {
@@ -448,11 +445,75 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
      * This allows the rest of the pipeline to issue the login context is always set.
      * @param session
      */
-    protected void setUnprotectedLoginContext(final IoSession session) {
-        LOGIN_CONTEXT_KEY.set(session, LOGIN_CONTEXT_OK);
+    protected void setUnprotectedLoginContext(final HttpRequestMessage request) {
+        request.setLoginContext(LOGIN_CONTEXT_OK);
     }
 
+    private void registerCallbacks(
+            IoSession session,
+            HttpRequestMessage httpRequest,
+            AuthenticationToken authToken,
+            TypedCallbackHandlerMap callbackHandlerMap) {
+        if (callbackHandlerMap == null) {
+            throw new NullPointerException("Null callbackHandlerMap passed in");
+        }
 
+        AuthenticationTokenCallbackHandler authenticationTokenCallbackHandler
+                                                 = new AuthenticationTokenCallbackHandler(authToken);
+        callbackHandlerMap.put(AuthenticationTokenCallback.class, authenticationTokenCallbackHandler);
+
+        String forwarded = httpRequest.getHeader(HEADER_FORWARDED);
+        Matcher matcher = PATTERN_HEADER_FORWARDED.matcher(forwarded.toLowerCase());
+        if (!matcher.matches()) {
+            throw new IllegalStateException(format("Invalid format: '%s'", forwarded));
+        }
+
+        // RFC 7239(http://tools.ietf.org/html/rfc7239) allows 'Forwarded' header to include IPv4 and IPv6
+        // addresses along with port number like this:
+        //    Forwarded: for=192.0.2.43:47011
+        //    Forwarded: for="[2001:db8:cafe::17]:47011"
+        //
+        // Get the IP address without the port number and the quotes(for IPv6).
+        String ipAddress = matcher.group(1);
+        if (ipAddress.charAt(0) == '"') {
+            int length = ipAddress.length();
+            assert length > 2;
+
+            if (ipAddress.charAt(length -1) != '"') {
+                throw new IllegalStateException(format("Invalid format: '%s'", forwarded));
+            }
+
+            // Quoted string represents an IPv6 address. Remove the quotes to create an InetAddress.
+            ipAddress = ipAddress.substring(1, length - 2);
+        }
+
+        // RFC 7239(http://tools.ietf.org/html/rfc7239) allows 'Forwarded' header to include an 'unknown'
+        // value like this:
+        //     Forwarded: for=unknown
+        //
+        // In for=unknown, Gateway does not register the InetAddressCallback. If a LoginModule uses
+        // InetAddressCallback to retrieve the remote InetAddress, then it will detect it's absence and
+        // throw an exception that will result in a 403 response.
+        if (!ipAddress.equals(HEADER_FORWARDED_UNKNOWN_VALUE)) {
+            URI uri = URI.create(format(FORWARDED_URI, ipAddress));
+            String remoteIpAddress = uri.getHost();
+            InetAddress remoteAddr = null;
+
+            try {
+                remoteAddr = InetAddress.getByName(remoteIpAddress);
+            }
+            catch (UnknownHostException e) {
+                if (logger.isTraceEnabled()) {
+                    logger.trace(e.getMessage());
+                }
+
+                throw new IllegalStateException(e);
+            }
+
+            InetAddressCallbackHandler inetAddressCallbackHandler = new InetAddressCallbackHandler(remoteAddr);
+            callbackHandlerMap.put(InetAddressCallback.class, inetAddressCallbackHandler);
+        }
+    }
 
     protected void writeSessionCookie(IoSession session, HttpRequestMessage httpRequest, DefaultLoginResult loginResult) {
     }
@@ -472,18 +533,4 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
     private void log(String msg, Throwable t) {
         logger.trace(msg, t);
     }
-
-    // Aggressive removal of TCP session attributes as and when session closes.
-    @Override
-    public void filterClose(NextFilter nextFilter, IoSession session) throws Exception {
-        LOGIN_CONTEXT_KEY.remove(session);
-        super.filterClose(nextFilter, session);
-    }
-
-    @Override
-    public void doSessionClosed(NextFilter nextFilter, IoSession session) throws Exception {
-        LOGIN_CONTEXT_KEY.remove(session);
-        super.doSessionClosed(nextFilter, session);
-    }
-
 }

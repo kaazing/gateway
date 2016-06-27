@@ -22,7 +22,7 @@
 package org.kaazing.gateway.server.context.resolve;
 
 import com.hazelcast.core.IdGenerator;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import org.kaazing.gateway.service.cluster.ClusterContext;
 

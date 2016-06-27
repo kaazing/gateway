@@ -30,67 +30,69 @@ public class GatewayImplTest {
 
     @Test
     public void shouldAllowGreaterJavaMajorVersion() {
-        assertTrue(GatewayImpl.supportedJavaVersion("2.6.0_11", "vendor", 1, 7, "0_21"));
+        assertTrue(GatewayImpl.supportedJavaVersion("2.6.0_11", "vendor", 1, 8, "0"));
     }
 
     @Test
     public void shouldAllowGreaterJavaMinorVersion() {
-        assertTrue(GatewayImpl.supportedJavaVersion("1.8.0_19", "vendor", 1, 7, "0_21"));
+        assertTrue(GatewayImpl.supportedJavaVersion("1.9.0_19", "vendor", 1, 8, "0"));
     }
 
     @Test
     public void shouldAllowGreaterJavaPointVersion() {
-        assertTrue(GatewayImpl.supportedJavaVersion("1.7.1_20", "vendor", 1, 7, "0_21"));
+        assertTrue(GatewayImpl.supportedJavaVersion("1.8.1_20", "vendor", 1, 8, "0"));
     }
 
     @Test
     public void shouldAllowGreaterJavaBuildVersion() {
-        assertTrue(GatewayImpl.supportedJavaVersion("1.7.1_22", "vendor", 1, 7, "1_21"));
+        assertTrue(GatewayImpl.supportedJavaVersion("1.8.0_5", "vendor", 1, 8, "0"));
     }
 
     @Test
     public void shouldAllowEqualJavaVersion() {
-        assertTrue(GatewayImpl.supportedJavaVersion("1.7.0_21", "vendor", 1, 7, "0_21"));
+        assertTrue(GatewayImpl.supportedJavaVersion("1.8.0", "vendor", 1, 8, "0"));
     }
 
     @Test
     public void shouldDisallowSmallerJavaMajorVersion() {
-        assertFalse(GatewayImpl.supportedJavaVersion("0.8.1_31", "vendor", 1, 7, "0_21"));
+        assertFalse(GatewayImpl.supportedJavaVersion("0.8.1_31", "vendor", 1, 8, "0"));
     }
 
     @Test
     public void shouldDisallowSmallerJavaMinorVersion() {
-        assertFalse(GatewayImpl.supportedJavaVersion("1.7.1_21", "vendor", 1, 8, "0_21"));
+        assertFalse(GatewayImpl.supportedJavaVersion("1.7.1_21", "vendor", 1, 8, "0"));
     }
 
     @Test
+    // leave this test as is: No java point version requirement
     public void shouldDisallowSmallerJavaPointVersion() {
         assertFalse(GatewayImpl.supportedJavaVersion("1.7.0_21", "vendor", 1, 7, "1_21"));
     }
 
     @Test
+    // leave this test as is: No java build version requirement
     public void shouldDisallowSmallerJavaBuildVersion() {
         assertFalse(GatewayImpl.supportedJavaVersion("1.7.0_20", "vendor", 1, 7, "0_21"));
     }
 
     @Test
     public void shouldAllowGreaterJavaAzulMajorVersion() {
-        assertTrue(GatewayImpl.supportedJavaVersion("2.7.0-zing_5.10.1.0", "Azul", 1, 7, "0_21"));
+        assertTrue(GatewayImpl.supportedJavaVersion("2.7.0-zing_5.10.1.0", "Azul", 1, 8, "0"));
     }
 
     @Test
     public void shouldAllowGreaterJavaAzulMinorVersion() {
-        assertTrue(GatewayImpl.supportedJavaVersion("1.8.0-zing_5.10.1.0", "Azul", 1, 7, "0_21"));
+        assertTrue(GatewayImpl.supportedJavaVersion("1.9.0-zing_5.10.1.0", "Azul", 1, 8, "0"));
     }
 
     @Test
     public void shouldAllowEqualJavaAzulMajorAndMinorVersion() {
-        assertTrue(GatewayImpl.supportedJavaVersion("1.7.0-zing_5.10.1.0", "Azul", 1, 7, "0_21"));
+        assertTrue(GatewayImpl.supportedJavaVersion("1.8.0-zing_5.10.1.0", "Azul", 1, 8, "0"));
     }
 
     @Test
     public void shouldDisallowSmallerJavaAzulMajorVersion() {
-        assertFalse(GatewayImpl.supportedJavaVersion("0.8.1-zing_14.9.1.0", "Azul", 1, 7, "0_21"));
+        assertFalse(GatewayImpl.supportedJavaVersion("0.8.1-zing_14.9.1.0", "Azul", 1, 8, "0"));
     }
 
     @Test

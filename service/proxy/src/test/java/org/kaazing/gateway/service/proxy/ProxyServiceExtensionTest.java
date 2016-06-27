@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -20,6 +20,7 @@
  */
 package org.kaazing.gateway.service.proxy;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -30,22 +31,17 @@ import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.mina.core.session.IoSession;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.gateway.service.ServiceProperties;
-import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.test.util.ITUtil;
 
 public class ProxyServiceExtensionTest {
 
-    private static CountDownLatch latch;
-
-    @Rule
-    public GatewayRule gateway = new GatewayRule() {
+    private GatewayRule gateway = new GatewayRule() {
         {
             // @formatter:off
             GatewayConfiguration configuration =
@@ -61,10 +57,8 @@ public class ProxyServiceExtensionTest {
         }
     };
 
-    @Before
-    public void init() {
-        latch = new CountDownLatch(3);
-    }
+    @Rule
+    public RuleChain chain = ITUtil.createRuleChain(gateway, 20, SECONDS);
 
     @Test
     public void shouldInvokeExtension() throws Exception {
@@ -90,25 +84,11 @@ public class ProxyServiceExtensionTest {
 
         // connect to the service to ensure the extension is executed
         try (Socket clientSocket = new Socket("localhost", 8888)) {
-            boolean success = latch.await(5, TimeUnit.SECONDS);
+            boolean success = TestExtension.latch.await(5, TimeUnit.SECONDS);
             assertTrue("Failed to execute all phases of proxy service extension", success);
         } catch (Exception ex) {
             fail("Unexpected exception in client connecting to server: " + ex);
         }
     }
 
-    public static class TestExtension implements ProxyServiceExtensionSpi {
-        @Override
-        public void initAcceptSession(IoSession session, ServiceProperties properties) {
-            latch.countDown();
-        }
-        @Override
-        public void initConnectSession(IoSession session, ServiceProperties properties) {
-            latch.countDown();
-        }
-        @Override
-        public void proxiedConnectionEstablished(IoSessionEx acceptSession, IoSessionEx connectSession) {
-            latch.countDown();
-        }
-    }
 }

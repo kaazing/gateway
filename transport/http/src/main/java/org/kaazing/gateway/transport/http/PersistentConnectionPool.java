@@ -246,7 +246,7 @@ class PersistentConnectionPool {
          *         false otherwise
          */
         private boolean add(HttpResourceAddress serverAddress, IoSession session) {
-            int maxConnections = serverAddress.getOption(HttpResourceAddress.KEEP_ALIVE_MAX_CONNECTIONS);
+            int maxConnections = serverAddress.getOption(HttpResourceAddress.KEEP_ALIVE_CONNECTIONS);
             IoSession[] connections = addressToConnections.get(serverAddress);
             if (connections == null) {
                 connections = new IoSession[maxConnections];

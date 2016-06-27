@@ -21,9 +21,8 @@
 
 package org.kaazing.gateway.transport.wseb.extensions.test;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.rules.RuleChain.outerRule;
 import static org.kaazing.gateway.util.Utils.asByteArray;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.ProtocolException;
 import java.net.URI;
@@ -34,9 +33,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
@@ -44,17 +41,15 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.gateway.transport.ws.WsFilterAdapter;
 import org.kaazing.gateway.transport.ws.WsTextMessage;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.session.IoSessionEx;
-import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsebExtensionWithFilterIT {
 
-    private TestRule trace = new MethodExecutionTrace();
-    private TestRule timeout = new DisableOnDebug(new Timeout(4, SECONDS));
     private final K3poRule robot = new K3poRule();
 
     private GatewayRule gateway = new GatewayRule() {
@@ -73,7 +68,7 @@ public class WsebExtensionWithFilterIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(trace).around(robot).around(gateway).around(timeout);
+    public TestRule chain = createRuleChain(gateway, robot);
 
     @Specification("should.transform.messages")
     @Test
@@ -89,15 +84,16 @@ public class WsebExtensionWithFilterIT {
         }
 
         @Override
-        public WebSocketExtension negotiate(ExtensionHeader header, WsResourceAddress address) throws ProtocolException {
-            return new Extension(header);
+        public WebSocketExtension negotiate(ExtensionHeader header, ExtensionHelper extensionHelper, WsResourceAddress address) throws ProtocolException {
+            return new Extension(header, extensionHelper);
         }
     }
 
     public static class Extension extends WebSocketExtension  {
         private final ExtensionHeader extension;
 
-        public Extension(ExtensionHeader extension) {
+        public Extension(ExtensionHeader extension, ExtensionHelper extensionHelper) {
+            super(extensionHelper);
             this.extension = extension;
         }
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,7 +21,8 @@
 
 package org.kaazing.gateway.transport.wsn.auth;
 
-import static org.junit.rules.RuleChain.outerRule;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.FileInputStream;
 import java.net.URI;
@@ -45,51 +46,51 @@ public class MismatchedAuthSchemeSendsExtended400AuthTestIT {
 	public GatewayRule gateway = new GatewayRule() {
 		{
 			try {
-				KeyStore keyStore = KeyStore.getInstance("JCEKS");				
+				KeyStore keyStore = KeyStore.getInstance("JCEKS");
 				FileInputStream in = new FileInputStream(
 						"target/truststore/keystore.db");
 				keyStore.load(in, password);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
-             
+
 			GatewayConfiguration configuration = new GatewayConfigurationBuilder()
 					.service()
 			            .accept(URI.create("ws://localhost:8001/echoAuth"))
 			            .type("echo")
-			            .realmName("demo")  
+			            .realmName("demo")
 			            .authorization()
 			                .requireRole("AUTHORIZED")
 			            .done()
 			        .done()
-			        .security()		           
+			        .security()
 			            .keyStore(keyStore)
 			             .realm()
 			                 .name("demo")
 			          		 .httpChallengeScheme("Application Token")
-			          		 .loginModule()			          		
+			          		 .loginModule()
 			          		 .type("class:org.kaazing.gateway.security.auth.YesLoginModule")
 			          		     .success("requisite")
 			          			 .option("roles", "AUTHORIZED, ADMINISTRATOR")
 			          		  .done()
 			            .done()
-			         .done()			            
-			        .done(); 
+			         .done()
+			        .done();
 			init(configuration);
 		}
 	};
 
 	@Rule
-	public TestRule chain = outerRule(robot).around(gateway);
+	public TestRule chain = createRuleChain(gateway, robot, 1500, MILLISECONDS);
 
 	@Specification("shouldFailDueToMismatchedAuthSchemes")
-	@Test(timeout = 1500)
+	@Test
 	public void shouldFailDueToMismatchedAuthSchemes() throws Exception {
 		robot.finish();
 	}
 
 	@Specification("shouldNotFailDueToMatchingAuthScheme")
-	@Test(timeout = 1500)
+	@Test
 	public void shouldNotFailDueToMatchingAuthScheme() throws Exception {
 		robot.finish();
 	}

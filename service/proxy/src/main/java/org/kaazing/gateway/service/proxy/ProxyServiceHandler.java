@@ -131,15 +131,16 @@ public class ProxyServiceHandler extends AbstractProxyAcceptHandler {
                 if (acceptSession == null || acceptSession.isClosing()) {
                     connectedSession.close(true);
                 } else {
-                    AttachedSessionManager attachedSessionManager = attachSessions(acceptSession, connectedSession);
-                    flushQueuedMessages(acceptSession, attachedSessionManager);
-
-                    // notify extensions that the proxied connection is ready
+                    // notify extensions that the proxied connection is ready BEFORE attaching the sessions
+                    // to allow extensions to intervene before any traffic is forwarded between the connections
                     IoSessionEx acceptSessionEx = (IoSessionEx)acceptSession;
                     IoSessionEx connectedSessionEx = (IoSessionEx)connectedSession;
                     for (ProxyServiceExtensionSpi extension : extensions) {
                         extension.proxiedConnectionEstablished(acceptSessionEx, connectedSessionEx);
                     }
+
+                    AttachedSessionManager attachedSessionManager = attachSessions(acceptSession, connectedSession);
+                    flushQueuedMessages(acceptSession, attachedSessionManager);
                 }
             } else {
                 logger.warn("Connection to " + getConnectURIs().iterator().next() + " failed ["+acceptSession+"->]");

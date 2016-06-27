@@ -91,7 +91,6 @@ public class WsAcceptorTest {
     private HttpAcceptor httpAcceptor;
     private WsebAcceptorMock wsebAcceptor = new WsebAcceptorMock();
     private WsnAcceptorMock wsnAcceptor = new WsnAcceptorMock();
-    private WsrAcceptorMock wsrAcceptor = new WsrAcceptorMock();
     private WsAcceptor wsAcceptor;
     private SchedulerProvider schedulerProvider = new SchedulerProvider();
 
@@ -117,7 +116,6 @@ public class WsAcceptorTest {
 
         wsAcceptor.setWsnAcceptor(wsnAcceptor);
         wsAcceptor.setWsebAcceptor(wsebAcceptor);
-        wsAcceptor.setWsrAcceptor(wsrAcceptor);
 
         wsAcceptor.setConfiguration(new Properties());
 
@@ -175,13 +173,6 @@ public class WsAcceptorTest {
         performMockWsAcceptorBind("wseb");
     }
 
-    @Test
-    public void testShouldBindWsrOnly() throws Exception {
-        Mockery context = new Mockery();
-        context.setThreadingPolicy(new Synchroniser());
-        context.setImposteriser(ClassImposteriser.INSTANCE);
-        performMockWsAcceptorBind("wsr");
-    }
 
     @Test
      public void testShouldBindWsnWsebOnly() throws Exception {
@@ -191,21 +182,6 @@ public class WsAcceptorTest {
         performMockWsAcceptorBind("wsn,wseb");
     }
 
-    @Test
-    public void testShouldBindWsnWsrOnly() throws Exception {
-        Mockery context = new Mockery();
-        context.setThreadingPolicy(new Synchroniser());
-        context.setImposteriser(ClassImposteriser.INSTANCE);
-        performMockWsAcceptorBind("wsn,wsr");
-    }
-
-    @Test
-    public void testShouldBindWsebWsrOnly() throws Exception {
-        Mockery context = new Mockery();
-        context.setThreadingPolicy(new Synchroniser());
-        context.setImposteriser(ClassImposteriser.INSTANCE);
-        performMockWsAcceptorBind("wseb,wsr");
-    }
 
     private void performMockWsAcceptorBind(String enabledTransportString) {
 
@@ -222,8 +198,6 @@ public class WsAcceptorTest {
         final WsnAcceptorMock wsnAcceptor = new WsnAcceptorMock();
 
         final WsebAcceptorMock wsebAcceptor = new WsebAcceptorMock();
-
-        final WsrAcceptorMock wsrAcceptor = new WsrAcceptorMock();
 
         // Set up an address to bind on
 
@@ -243,7 +217,6 @@ public class WsAcceptorTest {
         // Set up the mock bridge service factory with the ws* acceptors
         wsAcceptor.setWsnAcceptor(wsnAcceptor);
         wsAcceptor.setWsebAcceptor(wsebAcceptor);
-        wsAcceptor.setWsrAcceptor(wsrAcceptor);
 
         // Bind the WS address and ensure the appropriate
 
@@ -259,11 +232,6 @@ public class WsAcceptorTest {
             assertTrue("Missing expected call to wsebAcceptor.bind().", wsebAcceptor.bindWasCalled());
         } else {
             assertTrue("Unexpected call to wsebAcceptor.bind().", wsebAcceptor.bindWasNotCalled());
-        }
-        if ( ts.contains(WsAcceptor.EnabledWsTransport.wsr )) {
-            assertTrue("Missing expected call to wsrAcceptor.bind().", wsrAcceptor.bindWasCalled());
-        } else {
-            assertTrue("Unexpected call to wsrAcceptor.bind().", wsrAcceptor.bindWasNotCalled());
         }
     }
 

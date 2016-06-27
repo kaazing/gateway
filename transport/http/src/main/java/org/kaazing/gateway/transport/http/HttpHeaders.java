@@ -37,8 +37,8 @@ public interface HttpHeaders {
     String HEADER_X_ORIGIN = "X-Origin";
     String HEADER_X_CREATE_ENCODING = "X-Create-Encoding";
     String HEADER_X_ACCEPT_COMMANDS = "X-Accept-Commands";
+    String HEADER_FORWARDED = "Forwarded";
     String HEADER_CACHE_CONTROL = "Cache-Control";
-
 
     String HEADER_UPGRADE = "Upgrade";
     String HEADER_VIA= "Via";

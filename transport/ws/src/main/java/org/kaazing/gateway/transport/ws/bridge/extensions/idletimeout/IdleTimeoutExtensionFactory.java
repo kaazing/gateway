@@ -25,6 +25,7 @@ import java.net.ProtocolException;
 
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi;
 
@@ -36,10 +37,10 @@ public final class IdleTimeoutExtensionFactory extends WebSocketExtensionFactory
     }
 
     @Override
-    public WebSocketExtension negotiate(ExtensionHeader header, WsResourceAddress address) throws ProtocolException {
+    public WebSocketExtension negotiate(ExtensionHeader header, ExtensionHelper extensionHelper, WsResourceAddress address) throws ProtocolException {
         long inactivityTimeout = address.getOption(WsResourceAddress.INACTIVITY_TIMEOUT);
         return inactivityTimeout > 0 ?
-            new IdleTimeoutExtension(header, address.getOption(WsResourceAddress.INACTIVITY_TIMEOUT)) :
+            new IdleTimeoutExtension(header, extensionHelper, address.getOption(WsResourceAddress.INACTIVITY_TIMEOUT)) :
                 null;
     }
 

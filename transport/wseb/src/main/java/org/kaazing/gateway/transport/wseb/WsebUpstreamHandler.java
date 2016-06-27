@@ -32,6 +32,7 @@ import org.apache.mina.core.session.IdleStatus;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
+import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.ws.Command;
 import org.kaazing.gateway.transport.ws.WsCloseMessage;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
@@ -153,28 +154,27 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
     @Override
     protected void doExceptionCaught(HttpAcceptSession session, Throwable cause) throws Exception {
-        WsebSession wseSession = getSession(session);
-        if (wseSession != null && !wseSession.isClosing()) {
-            wseSession.reset(cause);
-        }
-        else {
-            if (logger.isDebugEnabled()) {
-                String message = format("Exception while handling HTTP upstream for WsebSession: %s", cause);
-                if (logger.isTraceEnabled()) {
-                    // note: still debug level, but with extra detail about the exception
-                    logger.debug(message, cause);
-                }
-                else {
-                    logger.debug(message);
-                }
+        if (logger.isDebugEnabled()) {
+            String message = format("Exception while handling HTTP upstream for WsebSession: %s", getSession(session));
+            if (logger.isTraceEnabled()) {
+                // note: still debug level, but with extra detail about the exception
+                logger.debug(message, cause);
+            } else {
+                logger.debug(message);
             }
-            session.close(true);
         }
+        session.setStatus(HttpStatus.SERVER_INTERNAL_ERROR);
+        session.close(true);
     }
 
     @Override
     protected void doSessionClosed(HttpAcceptSession session) throws Exception {
         // session is long lived so we do not want to close it when the http session is closed
+
+        WsebSession wsebSession = getSession(session);
+        if (wsebSession != null && session.getStatus() != HttpStatus.SUCCESS_OK) {
+            wsebSession.reset(new Exception("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
+        }
     }
 
     @Override

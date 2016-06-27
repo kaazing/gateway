@@ -44,11 +44,13 @@ import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
 import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
 import org.slf4j.Logger;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class WsUtils {
@@ -110,10 +112,14 @@ public class WsUtils {
      * @param extensions  Extensions whose filters are to be added, starting with the farthest from the network
      * @param filterChain
      * @param hasCodec
+     * @Param helper
      */
-    public static void addExtensionFilters(List<WebSocketExtension> extensions, IoFilterChain filterChain, boolean hasCodec) {
+    public static void addExtensionFilters(List<WebSocketExtension> extensions,
+                                           ExtensionHelper helper,
+                                           IoFilterChain filterChain,
+                                           boolean hasCodec) {
         if (hasCodec) {
-            addExtensionFiltersAfterCodec(extensions, filterChain);
+            addExtensionFiltersAfterCodec(extensions, helper, filterChain);
         }
         else {
             // No codec, add at start of filter chain
@@ -126,7 +132,9 @@ public class WsUtils {
         }
     }
 
-    private static void addExtensionFiltersAfterCodec(List<WebSocketExtension> extensions, IoFilterChain filterChain) {
+    private static void addExtensionFiltersAfterCodec(List<WebSocketExtension> extensions,
+                                                      ExtensionHelper helper,
+                                                      IoFilterChain filterChain) {
         for (Entry entry : filterChain.getAll()) {
             if (ProtocolCodecFilter.class.isAssignableFrom(entry.getFilter().getClass())) {
                 // We must add the extensions starting with the closest to the network, that is, in reverse order
@@ -324,9 +332,9 @@ public class WsUtils {
                                                         WsResourceAddress address,
                                                         List<String> requestedExtensions,
                                                         HttpAcceptSession session,
-                                                        String extendionsHeaderName)
+                                                        String extendionsHeaderName, ExtensionHelper extensionHelper)
         throws ProtocolException {
-            List<WebSocketExtension> negotiated = factory.negotiateWebSocketExtensions(address, requestedExtensions);
+            List<WebSocketExtension> negotiated = factory.negotiateWebSocketExtensions(address, requestedExtensions, extensionHelper);
             for (WebSocketExtension extension : negotiated) {
                 session.addWriteHeader(extendionsHeaderName, extension.getExtensionHeader().toString());
             }
@@ -359,8 +367,9 @@ public class WsUtils {
 
     public static void removeExtensionFilters(List<WebSocketExtension> extensions, IoFilterChain filterChain) {
         for (WebSocketExtension extension: extensions) {
-            if ((extension.getFilter()) != null) {
-                filterChain.remove(extension.getExtensionHeader().getExtensionToken());
+            Entry entry = filterChain.getEntry(extension.getExtensionHeader().getExtensionToken());
+            if (entry != null) {
+                entry.remove();
             }
         }
     }

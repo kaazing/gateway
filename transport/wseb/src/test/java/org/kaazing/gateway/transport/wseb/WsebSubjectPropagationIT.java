@@ -4,18 +4,17 @@
 
 package org.kaazing.gateway.transport.wseb;
 
-import static org.kaazing.gateway.util.Utils.asByteBuffer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.gateway.util.Utils.asByteBuffer;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.IOException;
 import java.net.URI;
 import java.security.Principal;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -26,20 +25,16 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.apache.log4j.PropertyConfigurator;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
-import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.service.ServiceContext;
-import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.gateway.service.Service;
+import org.kaazing.gateway.service.ServiceContext;
+import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferEx;
@@ -51,18 +46,6 @@ import org.kaazing.mina.core.session.IoSessionEx;
 public class WsebSubjectPropagationIT {
 
     private K3poRule robot = new K3poRule();
-
-    private static final boolean ENABLE_DIAGNOSTICS = false;
-    @BeforeClass
-    public static void init()
-            throws Exception {
-        if (ENABLE_DIAGNOSTICS) {
-            PropertyConfigurator.configure("src/test/resources/log4j-diagnostic.properties");
-        }
-    }
-
-    @Rule
-    public TestRule timeout = new DisableOnDebug(new Timeout(10, TimeUnit.SECONDS));
 
     public GatewayRule gateway = new GatewayRule() {
         {
@@ -120,7 +103,7 @@ public class WsebSubjectPropagationIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    public TestRule chain = createRuleChain(gateway, robot);
 
     @Specification("shouldPropagateSubjectBasic")
     @Test
@@ -183,9 +166,7 @@ public class WsebSubjectPropagationIT {
 
             try {
                 callbackHandler.handle(new Callback[] { nameCB, passwordCB });
-            } catch (IOException e) {
-                throw new LoginException(e.toString());
-            } catch (UnsupportedCallbackException e) {
+            } catch (IOException | UnsupportedCallbackException e) {
                 throw new LoginException(e.toString());
             }
 

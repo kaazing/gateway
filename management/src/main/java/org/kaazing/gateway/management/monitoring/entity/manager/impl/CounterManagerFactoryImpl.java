@@ -21,16 +21,16 @@
 
 package org.kaazing.gateway.management.monitoring.entity.manager.impl;
 
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 import org.kaazing.gateway.management.monitoring.entity.manager.ServiceCounterManager;
 import org.kaazing.gateway.management.monitoring.entity.manager.factory.CounterManagerFactory;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 public class CounterManagerFactoryImpl implements CounterManagerFactory {
 
     @Override
     public ServiceCounterManager makeServiceCounterManager(MonitoringEntityFactory monitoringEntityFactory,
             String serviceName, String gatewayId) {
-        return new ServiceCounterManagerImpl(monitoringEntityFactory, serviceName, gatewayId);
+        return new ServiceCounterManagerImpl(monitoringEntityFactory);
     }
 
 }

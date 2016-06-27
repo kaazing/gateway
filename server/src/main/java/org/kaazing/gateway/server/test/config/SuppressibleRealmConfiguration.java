@@ -22,6 +22,7 @@
 package org.kaazing.gateway.server.test.config;
 
 import java.util.List;
+import java.util.Map;
 
 public abstract class SuppressibleRealmConfiguration implements SuppressibleConfiguration {
 
@@ -57,4 +58,7 @@ public abstract class SuppressibleRealmConfiguration implements SuppressibleConf
 
     public abstract void addHttpCookie(Suppressible<String> httpCookie);
 
+    public abstract Map<String, Suppressible<String>> getExtendedProperties();
+
+    public abstract void setExtendedProperty(String name, Suppressible<String> value);
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,17 +21,14 @@
 
 package org.kaazing.gateway.transport.wseb;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
 import java.net.URI;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -41,7 +38,6 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 public class WsebInactivityTimeoutIT {
 
     private final K3poRule k3po = new K3poRule();
-    private final TestRule timeout = new DisableOnDebug(new Timeout(15, SECONDS));
 
     private final GatewayRule gateway = new GatewayRule() {
         {
@@ -62,7 +58,7 @@ public class WsebInactivityTimeoutIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(k3po).around(gateway).around(timeout);
+    public TestRule chain = createRuleChain(gateway, k3po);
 
     @Specification("echo.inactivity.timeout.should.close")
     @Test

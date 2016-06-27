@@ -92,8 +92,8 @@ public class Socks5LogicHandler extends AbstractSocksLogicHandler {
         LOGGER.debug(" doHandshake()");
 
         // Send request
-        writeRequest(nextFilter, request, ((Integer) getSession().getAttribute(
-                HANDSHAKE_STEP)).intValue());
+        writeRequest(nextFilter, request, (Integer) getSession().getAttribute(
+                HANDSHAKE_STEP));
     }
 
     /**
@@ -180,8 +180,8 @@ public class Socks5LogicHandler extends AbstractSocksLogicHandler {
      */
     private IoBuffer encodeAuthenticationPacket(final SocksProxyRequest request)
             throws UnsupportedEncodingException, GSSException {
-        byte method = ((Byte) getSession().getAttribute(
-                Socks5LogicHandler.SELECTED_AUTH_METHOD)).byteValue();
+        byte method = (Byte) getSession().getAttribute(
+                Socks5LogicHandler.SELECTED_AUTH_METHOD);
 
         switch (method) {
             case SocksProxyConstants.NO_AUTH:
@@ -331,8 +331,7 @@ public class Socks5LogicHandler extends AbstractSocksLogicHandler {
     public synchronized void messageReceived(final NextFilter nextFilter,
             final IoBuffer buf) {
         try {
-            int step = ((Integer) getSession().getAttribute(HANDSHAKE_STEP))
-                    .intValue();
+            int step = (Integer) getSession().getAttribute(HANDSHAKE_STEP);
 
             if (step == SocksProxyConstants.SOCKS5_GREETING_STEP
                     && buf.get(0) != SocksProxyConstants.SOCKS_VERSION_5) {
@@ -377,8 +376,8 @@ public class Socks5LogicHandler extends AbstractSocksLogicHandler {
 
         } else if (step == SocksProxyConstants.SOCKS5_AUTH_STEP) {
             // Authentication to the SOCKS server 
-            byte method = ((Byte) getSession().getAttribute(
-                    Socks5LogicHandler.SELECTED_AUTH_METHOD)).byteValue();
+            byte method = (Byte) getSession().getAttribute(
+                    Socks5LogicHandler.SELECTED_AUTH_METHOD);
 
             if (method == SocksProxyConstants.GSSAPI_AUTH) {
                 int oldPos = buf.position();
@@ -453,8 +452,8 @@ public class Socks5LogicHandler extends AbstractSocksLogicHandler {
         // the authentication process
         boolean isAuthenticating = false;
         if (step == SocksProxyConstants.SOCKS5_AUTH_STEP) {
-            byte method = ((Byte) getSession().getAttribute(
-                    Socks5LogicHandler.SELECTED_AUTH_METHOD)).byteValue();
+            byte method = (Byte) getSession().getAttribute(
+                    Socks5LogicHandler.SELECTED_AUTH_METHOD);
             if (method == SocksProxyConstants.GSSAPI_AUTH) {
                 GSSContext ctx = (GSSContext) getSession().getAttribute(
                         GSS_CONTEXT);

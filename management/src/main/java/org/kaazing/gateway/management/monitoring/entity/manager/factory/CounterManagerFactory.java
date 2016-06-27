@@ -21,8 +21,8 @@
 
 package org.kaazing.gateway.management.monitoring.entity.manager.factory;
 
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 import org.kaazing.gateway.management.monitoring.entity.manager.ServiceCounterManager;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 /**
  * Factory for returning a specific counter manager

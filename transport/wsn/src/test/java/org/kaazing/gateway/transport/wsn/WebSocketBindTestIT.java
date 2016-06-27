@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,7 +21,7 @@
 
 package org.kaazing.gateway.transport.wsn;
 
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
@@ -58,47 +58,47 @@ public class WebSocketBindTestIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    public TestRule chain = createRuleChain(gateway, robot);
 
     @Specification("canConnectUsingNormalWebSocketURI")
-    @Test(timeout = 8000)
+    @Test
     public void canConnectUsingNormalWebSocketURI() throws Exception {
         robot.finish();
     }
 
     @Specification("canConnectUsingNormalWebSocketURIWithExtraSlashAfterEcho")
-    @Test(timeout = 8000)
+    @Test
     public void canConnectUsingNormalWebSocketURIWithExtraSlash() throws Exception {
         robot.finish();
     }
 
     @Specification("canConnectUsingNormalWebSocketURIWithoutLoadBalancing")
-    @Test(timeout = 8000)
+    @Test
     //TODO:KG-8523
     public void canConnectUsingNormalWebSocketURIWithoutLoadBalancing() throws Exception {
         robot.finish();
     }
 
     @Specification("cannotConnectUsingWebSocketURIWithExtraPathElement")
-    @Test(timeout = 1500)
+    @Test
     public void cannotConnectUsingWebSocketURIWithExtraPathElement() throws Exception {
         robot.finish();
     }
 
     @Specification("canConnectUsingPathlessWebSocketURI")
-    @Test(timeout = 8000)
+    @Test
     public void canConnectUsingPathlessWebSocketURI() throws Exception {
         robot.finish();
     }
 
     @Specification("canConnectUsingPathlessWebSocketURIWithExtraSlash")
-    @Test(timeout = 8000)
+    @Test
     public void canConnectUsingPathlessWebSocketURIWithExtraSlash() throws Exception {
         robot.finish();
     }
 
     @Specification("cannotConnectToPathlessWebSocketURIWithExtraPathElement")
-    @Test(timeout = 8000)
+    @Test
     public void cannotConnectToPathlessWebSocketURIWithExtraPathElement() throws Exception {
         robot.finish();
     }

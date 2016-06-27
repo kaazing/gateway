@@ -21,7 +21,7 @@
 
 package org.kaazing.gateway.transport.wseb;
 
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
 import java.net.URI;
@@ -60,22 +60,22 @@ public class WseHandshakeIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    public TestRule chain = createRuleChain(gateway, robot);
 
     @Specification("wse.handshake.send.receive.3_5")
-    @Test(timeout = 5000)
+    @Test
     public void testHandshakeSendReceiveVersion3_5() throws Exception {
         robot.finish();
     }
 
     @Specification("wse.handshake.send.receive")
-    @Test(timeout = 5000)
+    @Test
     public void testHandshakeSendReceive() throws Exception {
         robot.finish();
     }
 
     @Specification("closeDownstreamShouldUnbindUpstream")
-    @Test(timeout = 5000)
+    @Test
     public void closeDownstreamShouldUnbindUpstream() throws Exception {
         robot.finish();
     }

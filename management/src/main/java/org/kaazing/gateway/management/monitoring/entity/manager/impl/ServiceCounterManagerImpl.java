@@ -22,20 +22,19 @@
 package org.kaazing.gateway.management.monitoring.entity.manager.impl;
 
 import org.kaazing.gateway.management.Utils.ManagementSessionType;
-import org.kaazing.gateway.management.monitoring.entity.LongMonitoringCounter;
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 import org.kaazing.gateway.management.monitoring.entity.manager.ServiceCounterManager;
+import org.kaazing.gateway.service.LongMonitoringCounter;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 public class ServiceCounterManagerImpl implements
         ServiceCounterManager {
 
-    private static final String SEPARATOR = "-";
-    private static final String CURRENT_NUMBER_OF_SESSIONS = "-current-number-of-sessions";
-    private static final String CURRENT_NUMBER_OF_NATIVE_SESSIONS = "-current-number-of-native-sessions";
-    private static final String CURRENT_NUMBER_OF_EMULATED_SESSIONS = "-current-number-of-emulated-sessions";
-    private static final String CUMULATIVE_NUMBER_OF_SESSIONS = "-cumulative-number-of-sessions";
-    private static final String CUMULATIVE_NUMBER_OF_NATIVE_SESSIONS = "-cumulative-number-of-native-sessions";
-    private static final String CUMULATIVE_NUMBER_OF_EMULATED_SESSIONS = "-cumulative-number-of-emulated-sessions";
+    private static final String CURRENT_NUMBER_OF_SESSIONS = "current-number-of-sessions";
+    private static final String CURRENT_NUMBER_OF_NATIVE_SESSIONS = "current-number-of-native-sessions";
+    private static final String CURRENT_NUMBER_OF_EMULATED_SESSIONS = "current-number-of-emulated-sessions";
+    private static final String CUMULATIVE_NUMBER_OF_SESSIONS = "cumulative-number-of-sessions";
+    private static final String CUMULATIVE_NUMBER_OF_NATIVE_SESSIONS = "cumulative-number-of-native-sessions";
+    private static final String CUMULATIVE_NUMBER_OF_EMULATED_SESSIONS = "cumulative-number-of-emulated-sessions";
     private LongMonitoringCounter numberOfSessionsCounter;
     private LongMonitoringCounter numberOfNativeSessionsCounter;
     private LongMonitoringCounter numberOfEmulatedSessionsCounter;
@@ -44,31 +43,11 @@ public class ServiceCounterManagerImpl implements
     private LongMonitoringCounter cumulativeEmulatedSessionsCounter;
 
     private MonitoringEntityFactory monitoringEntityFactory;
-    private String serviceName;
-    private String gatewayId;
 
-    public ServiceCounterManagerImpl(MonitoringEntityFactory monitoringEntityFactory,
-            String serviceName, String gatewayId) {
+    public ServiceCounterManagerImpl(MonitoringEntityFactory monitoringEntityFactory) {
         this.monitoringEntityFactory = monitoringEntityFactory;
-        this.serviceName = serviceName;
-        this.gatewayId = gatewayId;
+        initializeSessionCounters();
    }
-
-    @Override
-    public void initializeSessionCounters() {
-        numberOfSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(gatewayId + SEPARATOR + serviceName
-                + CURRENT_NUMBER_OF_SESSIONS);
-        numberOfNativeSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(gatewayId + SEPARATOR + serviceName
-                + CURRENT_NUMBER_OF_NATIVE_SESSIONS);
-        numberOfEmulatedSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(gatewayId + SEPARATOR + serviceName
-                + CURRENT_NUMBER_OF_EMULATED_SESSIONS);
-        cumulativeSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(gatewayId + SEPARATOR + serviceName
-                + CUMULATIVE_NUMBER_OF_SESSIONS);
-        cumulativeNativeSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(gatewayId + SEPARATOR + serviceName
-                + CUMULATIVE_NUMBER_OF_NATIVE_SESSIONS);
-        cumulativeEmulatedSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(gatewayId + SEPARATOR + serviceName
-                + CUMULATIVE_NUMBER_OF_EMULATED_SESSIONS);
-    }
 
     @Override
     public void incrementSessionCounters(ManagementSessionType managementSessionType) {
@@ -93,6 +72,17 @@ public class ServiceCounterManagerImpl implements
         else if (managementSessionType.equals(ManagementSessionType.EMULATED)) {
             numberOfEmulatedSessionsCounter = numberOfEmulatedSessionsCounter.decrement();
         }
+    }
+
+    // Monitoring factory interface
+    @Override
+    public LongMonitoringCounter makeLongMonitoringCounter(String name) {
+        return monitoringEntityFactory.makeLongMonitoringCounter(name);
+    }
+
+    @Override
+    public void close() {
+        monitoringEntityFactory.close();
     }
 
     /**
@@ -143,4 +133,21 @@ public class ServiceCounterManagerImpl implements
         return cumulativeEmulatedSessionsCounter;
     }
 
+    /**
+     * Method initializing the service session counters
+     * @return
+     */
+    private void initializeSessionCounters() {
+        if (monitoringEntityFactory == null) {
+            return;
+        }
+        numberOfSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(CURRENT_NUMBER_OF_SESSIONS);
+        numberOfNativeSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(CURRENT_NUMBER_OF_NATIVE_SESSIONS);
+        numberOfEmulatedSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(CURRENT_NUMBER_OF_EMULATED_SESSIONS);
+        cumulativeSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(CUMULATIVE_NUMBER_OF_SESSIONS);
+        cumulativeNativeSessionsCounter =
+                monitoringEntityFactory.makeLongMonitoringCounter(CUMULATIVE_NUMBER_OF_NATIVE_SESSIONS);
+        cumulativeEmulatedSessionsCounter =
+                monitoringEntityFactory.makeLongMonitoringCounter(CUMULATIVE_NUMBER_OF_EMULATED_SESSIONS);
+    }
 }

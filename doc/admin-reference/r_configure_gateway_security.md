@@ -50,11 +50,11 @@ security
 
 **The** `security` element contains the following elements:
 
-| Element    | Description                                                                                                                               |
-|------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| Element    | Description                                                                                                                         |
+|:-----------|:------------------------------------------------------------------------------------------------------------------------------------|
 | keystore   | The keystore contains the encryption keys for secure communications with KAAZING Gateway (see [keystore](#keystore))                |
 | truststore | The truststore contains digital certificates for certificate authorities trusted by KAAZING Gateway (see [truststore](#truststore)) |
-| realm      | The realm associates an authenticated user with a set of authorized roles (see [realm](#realm))                                   |
+| realm      | The realm associates an authenticated user with a set of authorized roles (see [realm](#realm))                                     |
 
 ### keystore
 
@@ -62,10 +62,10 @@ security
 
 Identifies the keystore file that contains the certificates for the host names accepted by the Gateway over TLS (formerly SSL). When the Gateway is configured to accept `https://` or `wss://` schemes, the Gateway uses the certificates and key pairs in the keystore to establish a TLS session with clients connecting via those schemes. `keystore` contains the following elements:
 
-| Element                                           | Description                                                                                                                                                                                |
-|---------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| type                  | The type (format) of the keystore file. The supported type is `JCEKS` (Java Cryptography Extension key store). If the `type` element is not specified, the Gateway throws an exception. |
-| file                  | The location of the keystore file (absolute path or path relative to the `gateway-config.xml` file).                                                                                       |
+| Element       | Description                                                                                                                                                                             |
+|:--------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| type          | The type (format) of the keystore file. The supported type is `JCEKS` (Java Cryptography Extension key store). If the `type` element is not specified, the Gateway throws an exception. |
+| file          | The location of the keystore file (absolute path or path relative to the `gateway-config.xml` file).                                                                                    |
 | password-file | The name of the file containing the password used by the Gateway and other applications to access the keystore file.                                                                    |
 
 #### Example
@@ -90,11 +90,11 @@ Identifies the keystore file that contains the certificates for the host names a
 
 Identifies the truststore file that contains certificates for hosts and certificate authorities trusted by the Gateway. To connect to a back-end service or message broker using TLS/SSL, the Gateway must have the certificate for the host name of the back-end service or message broker in the truststore. `truststore` contains the following elements:
 
-| Element                                             | Description                                                                                                                                                                                                                                                                                                             |
-|-----------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| <a name="truststore_type"></a>type                  | Not required by default. The type (format) of the truststore file. The default supported type is `JKS` (Java Key Store). If you specify `JCEKS` (Java Cryptography Extension Key Store) when importing a certificate into the truststore, then you must add `<type>JCEKS</type>` or the Gateway throws an exception. |
-| <a name="truststore_file"></a>file                  | The location of the truststore file (absolute path or path relative to the `gateway-config.xml` file). There is no password file associated with the truststore. The default password is `changeit`. You should modify this password using the `keytool -storepasswd` command.                                          |
-| <a name="truststore_passwordfile"></a>password-file | The name of the file containing the password used by the Gateway and other applications to access the truststore file.                                                                                                                                                                                               |
+| Element                                             | Description                                                                                                                                                                                                                                                                                                          |
+|:----------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| type                  | Not required by default. The type (format) of the truststore file. The default supported type is `JKS` (Java Key Store). If you specify `JCEKS` (Java Cryptography Extension Key Store) when importing a certificate into the truststore, then you must add `<type>JCEKS</type>` or the Gateway throws an exception. |
+| file                  | The location of the truststore file (absolute path or path relative to the `gateway-config.xml` file). There is no password file associated with the truststore. The default password is `changeit`. You should modify this password using the `keytool -storepasswd` command.                                       |
+| password-file | The name of the file containing the password used by the Gateway and other applications to access the truststore file.                                                                                                                                                                                               |
 
 #### Example
 
@@ -120,11 +120,11 @@ Identifies the truststore file that contains certificates for hosts and certific
 
 This is the element that associates an authenticated user with a set of authorized roles. `realm` contains the following elements:
 
-| Element                                               | Description                                                                                                                                                                                                                                                                                                                                                                                                          |
-|-------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| name                         | The name of the realm.                                                                                                                                                                                                                                                                                                                                                                                               |
-| description           | The description of the realm.                                                                                                                                                                                                                                                                                                                                                                                        |
-| authentication                 | The authentication information the Gateway uses to challenge the user, respond to the challenge response, process logins, and govern the authorization and session timeouts (see [authentication](#authentication)).                                                                                                                                                                                                    |
+| Element              | Description                                                                                                                                                                                                                                                                                                                                                                                                          |
+|:---------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| name                 | The name of the realm.                                                                                                                                                                                                                                                                                                                                                                                               |
+| description          | The description of the realm.                                                                                                                                                                                                                                                                                                                                                                                        |
+| authentication       | The authentication information the Gateway uses to challenge the user, respond to the challenge response, process logins, and govern the authorization and session timeouts (see [authentication](#authentication)).                                                                                                                                                                                                 |
 | user-principal-class | The name of the class that represents a user principal that an administrator wants to know about. When a principal of this class is authenticated, a notification of such is sent through the management service. If no management service is configured, then this element is ignored. The class must implement [`java.security.Principal`](http://docs.oracle.com/javase/7/docs/api/java/security/Principal.html). |
 
 #### Example
@@ -179,12 +179,12 @@ This is the element that associates an authenticated user with a set of authoriz
 Use `authentication` to configure the authentication parameters for the `realm`, which includes the challenge-scheme and the parts of the request that contain authentication information. `authentication` contains the following elements:
 
 - ##### `http-challenge-scheme`
-  This element is required and specifies the method used for authentication: `Basic`, `Application Basic`, `Negotiate`, `Application Negotiate`, or `Application Token`:
-  
-  - Use `Basic` or `Negotiate` to allow the browser to respond to authentication challenges. 
-  - Use `Application Basic` or `Application Negotiate` to allow the client to respond to authentication challenges. The client in this case is the KAAZING Gateway client that is built based on the KAAZING Gateway client libraries. To use client-level authentication, configure the client to handle the authentication information, as described in [developer how-to](../index.md) documentation.
+  This element is required and specifies the method used for authentication: `Basic`, `Application Basic`, `Negotiate`, and `Application Token`:
+
+  - Use `Basic` or `Negotiate` to allow the browser to respond to authentication challenges.
+  - Use `Application Basic` to allow the client to respond to authentication challenges. The client in this case is the KAAZING Gateway client that is built based on the KAAZING Gateway client libraries. To use client-level authentication, configure the client to handle the authentication information, as described in [developer how-to](../index.md) documentation.
   - Use `Application Token` to allow the client to present a third-party token or custom token to be presented to your custom login module.  
-  - Use `Negotiate` or `Application Negotiate` if using Kerberos Network Authentication. For more information, see [Secure Network Traffic with the Gateway](../security/o_tls.md).
+  - Use `Negotiate` if using Kerberos Network Authentication. For more information, see [Secure Network Traffic with the Gateway](../security/o_tls.md).
 
 - ##### `http-header`
   Specifies the names of the header or headers that carry authentication data for use by the login modules in this realm. This element is optional. If you do not specify it, then the Gateway uses `<http-header>Authorization</http-header>` for the challenge response (see [Custom HTTP Authentication Tokens](#custom-http-authentication-tokens)).
@@ -196,9 +196,9 @@ Use `authentication` to configure the authentication parameters for the `realm`,
   Specifies the name or names of HTTP cookies that carry authentication data for use by the login modules in this realm. This element is optional. If you do not specify it, then the Gateway uses `<http-header>Authorization</http-header>` for the challenge response (see [Custom HTTP Authentication Tokens](#custom-http-authentication-tokens)).
 
 - ##### `authorization-mode`
-  Specifies the challenge or recycle mode the Gateway uses to handle credentials provided when the client logs in. 
+  Specifies the challenge or recycle mode the Gateway uses to handle credentials provided when the client logs in.
   - Use `challenge` to enable the Gateway to challenge the client for credentials when none are presented. The Gateway will not write its own authorization session cookie.Use recycle to enable the Gateway to write its own authorization session cookie.
-  - Use `recycle`to enable the Gateway to write its own authorization session cookie. The `recycle` option is only applicable to `Basic`, `Application Basic`, `Negotiate`, and `Application Negotiate` HTTP challenge schemes.
+  - Use `recycle` to enable the Gateway to write its own authorization session cookie. The `recycle` option is only applicable to `Basic`, `Application Basic`, and `Negotiate` HTTP challenge schemes.
 
 - ##### `authorization-timeout`![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
   For directory services, this element specifies the time interval that must elapse without service access before the Gateway challenges the client for credentials.
@@ -246,14 +246,14 @@ For more detailed information about implementation, see [Create a Custom Login M
 
 This element configures the login module, which communicates with a user database to validate user's credentials and to determine a set of authorized roles. See [Configure a Chain of Login Modules](../security/p_auth_configure_login_module.md). The `login-module` contains the elements described in the following table.
 
-| Element | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| type    | The type of login module: `file`, `ldap`, `kerberos5`, `gss`, `jndi`, `keystore`, and `custom`. See the `login-module` examples that follow this table. Note: You must use the `kerberos5` and `gss` elements together, and in that sequence. For information about using these login-modules, see [Configure a Chain of Login Modules](../security/p_auth_configure_login_module.md).                                                                                                                                                                                                                                                      |
+| Element | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+|:--------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| type    | The type of login module: `file`, `ldap`, `kerberos5`, `gss`, `jndi`, `keystore`, and `custom`. See the `login-module` examples that follow this table. Note: You must use the `kerberos5` and `gss` elements together, and in that sequence. For information about using these login-modules, see [Configure a Chain of Login Modules](../security/p_auth_configure_login_module.md).                                                                                                                                                                                                                                                    |
 | success | The behavior of the login module at the time it validates the user's credentials. Possible values are: `required`, `requisite`, `sufficient`, and `optional`. The success status options are defined in the `javax.security.auth.login.Configuration` class. Authentication succeeds if all required and requisite login modules succeed, or if a sufficient or optional login module succeeds. The table in [Configure a Chain of Login Modules](../security/p_auth_configure_login_module.md) provides more information about how the order of login modules and the setting of the success element controls authentication processing. |
-| options | The configuration options specific to the type of login module (see [options login-module](#options-login-module)).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| options | The configuration options specific to the type of login module (see [options login-module](#options-login-module)).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
 
-##### <a name="options-login-module"></a>options (`login-module`)
+##### options (`login-module`)
 
 **Required?** Optional; **Occurs:** zero or one
 
@@ -261,12 +261,12 @@ This is the element for adding options to specific types of login modules. The o
 
 `options` contains the following elements:
 
-| Option        | Applies to login-module type | Description                                                                                                                                                                                                           |
-|---------------|------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| debug         | `file`                       | If `true`, then the login module sends debug information (at the DEBUG level) to the logger. If `false` (the default), then the login module disables sending logging information to the logger. This is the default. |
-| tryFirstToken | `gss`                        |    If `true`, then the login module looks in the JAAS shared state for a token using the key: `com.kaazing.gateway.server.auth.gss.token`. If `false` (the default), then the login module uses a CallbackHandler to discover the token from `LoginContext`.  |
+| Option        | Applies to login-module type | Description                                                                                                                                                                                                                                               |
+|:--------------|:-----------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| debug         | `file`                       | If `true`, then the login module sends debug information (at the DEBUG level) to the logger. If `false` (the default), then the login module disables sending logging information to the logger. This is the default.                                     |
+| tryFirstToken | `gss`                        | If `true`, then the login module looks in the JAAS shared state for a token using the key: `com.kaazing.gateway.server.auth.gss.token`. If `false` (the default), then the login module uses a CallbackHandler to discover the token from `LoginContext`. |
 
-##### <a name="example-of-a-file-login-module"></a>Example of a `file` Login Module
+##### Example of a `file` Login Module
 
 The following example shows a `file`-based `login-module` element that uses the flat XML file,` jaas-config.xml`:
 
@@ -284,7 +284,7 @@ The following example shows a `file`-based `login-module` element that uses the 
 
 For information about the `file` login module options, see the table in the [options (login-module)](#options-login-module) section.
 
-##### <a name="example-of-a-ldap-login-module"></a>Example of a `ldap` login module
+##### Example of a `ldap` login module
 
 The following example shows an LDAP-based `login-module` element:
 
@@ -305,9 +305,9 @@ The following example shows an LDAP-based `login-module` element:
 
 For information about configuring the LDAP login-module options, see the [Class LDAPLoginModule documentation](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/LdapLoginModule.html).
 
-##### <a name="example-of-kerberos5-login-module"></a>Example of `kerberos5` login module
+##### Example of `kerberos5` login module
 
-The following example shows a `kerberos5`-based `login-module` element. You must use the `kerberos5` and [`gss`](#gss-login-module) elements together, and in that sequence. Both of these login modules are required when using the `Negotiate` or `Application Negotiate` [schemes](#authentication):
+The following example shows a `kerberos5`-based `login-module` element. You must use the `kerberos5` and [`gss`](#gss-login-module) elements together, and in that sequence. This login module is required when using the `Negotiate` [scheme](#authentication):
 
 ``` xml
 <login-module>
@@ -326,9 +326,9 @@ The following example shows a `kerberos5`-based `login-module` element. You must
 
 For information about configuring the Kerberos login module options, see the [Krb5LoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/Krb5LoginModule.html "Krb5LoginModule (Java Authentication and Authorization Service )") documentation. For information about how to use KAAZING Gateway with Kerberos, see [Configure Kerberos V5 Network Authentication](../security/o_auth_configure.md).
 
-##### <a name="gss-login-module"></a>`gss` login module
+##### `gss` login module
 
-The following example shows a `gss`-based `login-module` element that you define after the Kerberos login module in the chain to enable the Kerberos tokens to travel over the Web. Both of these login modules are required when using the `Negotiate` or `Application Negotiate` [schemes](#authentication):
+The following example shows a `gss`-based `login-module` element that you define after the Kerberos login module in the chain to enable the Kerberos tokens to travel over the Web. This login modules is required when using the `Negotiate` [scheme](#authentication):
 
 ``` xml
 <login-module>
@@ -339,7 +339,7 @@ The following example shows a `gss`-based `login-module` element that you define
 
 For information about the `gss` login module options, see the table in the [options (login-module)](#options-login-module) section. The `gss` login-module element requires no options but must follow the [kerberos5](#example-of-kerberos5-login-module) login-module element, because the `gss` login-module element uses the credentials obtained by the [kerberos5](#example-of-kerberos5-login-module) login-module element to verify the service ticket presented by the client. See [Configure Kerberos V5 Network Authentication](../security/u_kerberos_configure.md) and [Using Kerberos V5 Network Authentication with the Gateway](../security/u_kerberos_configure.md) for more information.
 
-##### <a name="example-of-a-jndi-login-module"></a>Example of a `jndi` login module
+##### Example of a `jndi` login module
 
 The following example shows a jndi-based `login-module` element. It translates the examples for the login module in the [JndiLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/JndiLoginModule.html) javadoc into the XML you would use in the `security.realm` section of the Gateway configuration:
 
@@ -358,7 +358,7 @@ The following example shows a jndi-based `login-module` element. It translates t
 
 For information about configuring the JNDI login-module options, see the [JndiLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/JndiLoginModule.html) documentation.
 
-##### <a name="example-of-a-keystore-login-module"></a>Example of a `keystore` login module
+##### Example of a `keystore` login module
 
 The following example shows a keystore-based `login-module` element. It translates the examples in the [KeyStoreLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/KeyStoreLoginModule.html) javadoc into the XML you would use in the `security.realm` section of the Gateway configuration:
 
@@ -377,7 +377,7 @@ The following example shows a keystore-based `login-module` element. It translat
 
 For information about configuring the keystore login-module options, see the [KeyStoreLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/KeyStoreLoginModule.html) documentation.
 
-##### <a name="example-of-a-custom-login-module"></a>Example of a `custom` login module
+##### Example of a `custom` login module
 
 KAAZING Gateway also supports a plugin mechanism for integration with custom authentication modules based on the Java LoginModule API.
 

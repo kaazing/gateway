@@ -35,6 +35,7 @@ import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENG
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolHeaderFilter.PROTOCOL_HTTPXE_1_1;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter.PROTOCOL_HTTP_1_1;
 
+import java.io.IOException;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -210,7 +211,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     private <T extends ConnectFuture> void connectInternal0(ConnectFuture connectFuture,
             final ResourceAddress address, final IoHandler handler, final IoSessionInitializer<T> initializer) {
 
-        IoSession transportSession = persistentConnectionsStore.take((HttpResourceAddress)address);
+        IoSession transportSession = persistentConnectionsStore.take((HttpResourceAddress) address);
         if (transportSession != null) {
             connectUsingExistingTransport(connectFuture, address, transportSession, handler, initializer);
         } else {
@@ -451,9 +452,9 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
         @Override
         protected void doSessionClosed(IoSessionEx session) throws Exception {
-            DefaultHttpSession httpSession = HTTP_SESSION_KEY.get(session);
+            DefaultHttpSession httpSession = HTTP_SESSION_KEY.remove(session);
             if (httpSession != null && !httpSession.isClosing()) {
-                httpSession.reset(new Exception("Early termination of IO session").fillInStackTrace());
+                httpSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
                 return;
             }
 
@@ -466,28 +467,22 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         @Override
         protected void doExceptionCaught(IoSessionEx session, Throwable cause)
                 throws Exception {
-            DefaultHttpSession httpSession = HTTP_SESSION_KEY.get(session);
-            if (httpSession != null && !httpSession.isClosing()) {
-                httpSession.reset(cause);
-            }
-            else {
-                ConnectFuture httpConnectFuture = HTTP_CONNECT_FUTURE_KEY.remove(session);
-                if (httpConnectFuture != null) {
-                    httpConnectFuture.setException(cause);
+            if (logger.isDebugEnabled()) {
+                String message = format("Error on HTTP connection attempt: %s", cause);
+                if (logger.isTraceEnabled()) {
+                    // note: still debug level, but with extra detail about the exception
+                    logger.debug(message, cause);
                 }
                 else {
-                    if (logger.isDebugEnabled()) {
-                        String message = format("Error on HTTP connection attempt: %s", cause);
-                        if (logger.isTraceEnabled()) {
-                            // note: still debug level, but with extra detail about the exception
-                            logger.debug(message, cause);
-                        }
-                        else {
-                            logger.debug(message);
-                        }
-                    }
+                    logger.debug(message);
                 }
-                session.close(true);
+            }
+
+            session.close(true);
+
+            ConnectFuture httpConnectFuture = HTTP_CONNECT_FUTURE_KEY.remove(session);
+            if (httpConnectFuture != null) {
+                httpConnectFuture.setException(cause);
             }
         }
 

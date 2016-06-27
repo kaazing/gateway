@@ -24,6 +24,7 @@ package org.kaazing.gateway.transport.ws.bridge.extensions.pingpong;
 import org.apache.mina.core.filterchain.IoFilter;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
 import org.kaazing.gateway.transport.ws.extension.ExtensionParameterBuilder;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.util.Utils;
@@ -36,7 +37,8 @@ public final class PingPongExtension extends WebSocketExtension {
 
     private final ExtensionHeader extension;
 
-    public PingPongExtension(ExtensionHeader extension) {
+    public PingPongExtension(ExtensionHeader extension, ExtensionHelper extensionHelper) {
+        super(extensionHelper);
         this.extension = new ExtensionHeaderBuilder(extension).append(
                 new ExtensionParameterBuilder(Utils.toHex(CONTROL_BYTES))).done();
     }

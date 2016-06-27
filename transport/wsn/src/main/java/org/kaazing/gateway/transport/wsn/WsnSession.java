@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.security.auth.DefaultLoginResult;
+import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.Direction;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.bridge.CachingMessageEncoder;
@@ -72,9 +72,9 @@ public class WsnSession extends AbstractWsBridgeSession<WsnSession, WsBuffer> {
 
     public WsnSession(IoServiceEx service, IoProcessorEx<WsnSession> processor, ResourceAddress localAddress,
                       ResourceAddress remoteAddress, IoSessionEx parent, IoBufferAllocatorEx<WsBuffer> allocator,
-                      URI httpRequestURI, DefaultLoginResult loginResult,
+                      URI httpRequestURI, ResultAwareLoginContext loginContext,
                       WebSocketWireProtocol version, List<WebSocketExtension> extensions) {
-        super(service, processor, localAddress, remoteAddress, parent, allocator, Direction.BOTH, loginResult, extensions);
+        super(service, processor, localAddress, remoteAddress, parent, allocator, Direction.BOTH, loginContext, extensions);
         this.httpRequestURI = httpRequestURI;
         this.version = version;
         this.sendCloseFrame = new AtomicBoolean();
@@ -136,5 +136,9 @@ public class WsnSession extends AbstractWsBridgeSession<WsnSession, WsBuffer> {
 
     public Throwable getCloseException() {
         return closeException;
+    }
+
+    void setCloseException(Throwable t) {
+        this.closeException = t;
     }
 }

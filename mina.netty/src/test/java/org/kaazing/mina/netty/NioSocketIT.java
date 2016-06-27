@@ -60,8 +60,10 @@ import org.jboss.netty.channel.socket.nio.WorkerPool;
 import org.jboss.netty.handler.logging.LoggingHandler;
 import org.jboss.netty.logging.InternalLogLevel;
 import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
 
+import org.junit.rules.TestRule;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.future.BindFuture;
@@ -71,11 +73,19 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.netty.socket.nio.DefaultNioSocketChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.nio.NioSocketChannelIoAcceptor;
 import org.kaazing.mina.netty.socket.nio.NioSocketChannelIoConnector;
+import org.kaazing.test.util.ITUtil;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
  * Integration test for mina.netty layer
  */
 public class NioSocketIT {
+
+    private final TestRule trace = new MethodExecutionTrace();
+
+    @Rule
+    public final TestRule chain = ITUtil.createRuleChain(trace, 15, TimeUnit.SECONDS);
+
     SocketAddress bindTo = new LocalAddress(8123);
     SocketAddress bindTo2 = new LocalAddress(8124);
     ChannelIoAcceptor<?, ?, ?> acceptor;

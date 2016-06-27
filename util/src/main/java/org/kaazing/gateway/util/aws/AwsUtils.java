@@ -414,11 +414,7 @@ public final class AwsUtils {
         try {
             DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             return db.parse(new ByteArrayInputStream(xmlStr.getBytes()));
-        } catch (ParserConfigurationException pcex) {
-            //ignore
-        } catch (SAXException saxEx) {
-            //ignore
-        } catch (IOException ioex) {
+        } catch (ParserConfigurationException | IOException | SAXException pcex) {
             //ignore
         }
 

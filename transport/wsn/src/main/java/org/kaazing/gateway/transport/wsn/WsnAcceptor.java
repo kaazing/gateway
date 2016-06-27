@@ -23,8 +23,12 @@ package org.kaazing.gateway.transport.wsn;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static org.kaazing.gateway.resource.address.ResourceAddress.BIND_ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.URLUtils.appendURI;
+import static org.kaazing.gateway.resource.address.URLUtils.ensureTrailingSlash;
+import static org.kaazing.gateway.resource.address.URLUtils.modifyURIPath;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_CHALLENGE_SCHEME;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.CODEC_REQUIRED;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
@@ -39,6 +43,7 @@ import static org.kaazing.gateway.transport.ws.util.WsUtils.negotiateWebSocketPr
 import static org.kaazing.gateway.transport.wsn.WsnSession.SESSION_KEY;
 import static org.kaazing.mina.core.buffer.IoBufferEx.FLAG_NONE;
 
+import java.io.IOException;
 import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -74,7 +79,6 @@ import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.URLUtils;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.resource.address.wsn.WsnResourceAddressFactorySpi;
-import org.kaazing.gateway.security.auth.DefaultLoginResult;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
 import org.kaazing.gateway.transport.AbstractBridgeSession;
@@ -100,10 +104,8 @@ import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpMergeRequestFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolCompatibilityFilter;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsBinaryMessage;
 import org.kaazing.gateway.transport.ws.WsCloseMessage;
@@ -122,6 +124,7 @@ import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameBase64Filter;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameEncodingSupport;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameTextFilter;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameUtf8Filter;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.transport.ws.util.WsHandshakeNegotiationException;
@@ -139,6 +142,8 @@ import org.slf4j.LoggerFactory;
 
 public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.WsnBinding> {
 
+    private static final TypedAttributeKey<ResultAwareLoginContext> LOGIN_CONTEXT_TRANSFER_KEY
+                            = new TypedAttributeKey<>(WsnAcceptor.class, "login_transfer");
     private static final TypedAttributeKey<Subject> SUBJECT_TRANSFER_KEY
                             = new TypedAttributeKey<>(WsnAcceptor.class, "subject_transfer");
 
@@ -198,6 +203,22 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory resourceAddressFactory;
     private WebSocketExtensionFactory webSocketExtensionFactory;
+
+    private static final ExtensionHelper extensionHelper = new ExtensionHelper() {
+
+        @Override
+        public void setLoginContext(IoSession session, ResultAwareLoginContext loginContext) {
+            WsnSession wsnSession = SESSION_KEY.get(session);
+            assert wsnSession !=  null;
+            wsnSession.setLoginContext(loginContext);
+        }
+
+        @Override
+        public void closeWebSocketConnection(IoSession session) {
+            ((WsnSession)session).close(false);
+        }
+
+    };
 
     public WsnAcceptor() {
         super(new DefaultIoSessionConfigEx());
@@ -420,6 +441,8 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             }
         };
 
+        bindApiPath(address);
+
         BridgeAcceptor acceptor = bridgeServiceFactory.newBridgeAcceptor(address.getTransport());
         try {
             ResourceAddress transport = address.getTransport();
@@ -433,9 +456,34 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
     @Override
     protected UnbindFuture unbindInternal(ResourceAddress address, IoHandler handler,
             BridgeSessionInitializer<? extends IoFuture> initializer) {
+        unbindApiPath(address);
         ResourceAddress transport = address.getTransport();
         BridgeAcceptor acceptor = bridgeServiceFactory.newBridgeAcceptor(transport);
         return acceptor.unbind(address.getTransport());
+    }
+
+    private void bindApiPath(ResourceAddress address) {
+        ResourceAddress apiAddress = createApiAddress(address);
+        bridgeServiceFactory.newBridgeAcceptor(apiAddress).bind(apiAddress, WsAcceptor.API_PATH_HANDLER, null);
+    }
+
+    private void unbindApiPath(ResourceAddress address) {
+        ResourceAddress apiAddress = createApiAddress(address);
+        bridgeServiceFactory.newBridgeAcceptor(apiAddress).unbind(apiAddress);
+    }
+
+    private ResourceAddress createApiAddress(ResourceAddress address) {
+        ResourceAddress transport = address.getTransport();
+
+        ResourceOptions apiAddressOptions = ResourceOptions.FACTORY.newResourceOptions(transport);
+        // /;api/operation is a terminal endpoint so next protocol should be null
+        apiAddressOptions.setOption(NEXT_PROTOCOL, null);
+        // even if the address has an alternate, do not bind the alternate
+        apiAddressOptions.setOption(BIND_ALTERNATE, Boolean.FALSE);
+
+        String path = appendURI(ensureTrailingSlash(address.getExternalURI()), HttpProtocolCompatibilityFilter.API_PATH).getPath();
+        URI apiLocation = modifyURIPath(transport.getResource(), path);
+        return resourceAddressFactory.newResourceAddress(apiLocation, apiAddressOptions);
     }
 
     private IoHandler selectHandler(ResourceAddress address) {
@@ -523,12 +571,12 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                 @Override
                 public WsnSession call() {
                     URI httpRequestURI = httpUri;
-                    ResultAwareLoginContext loginContext = (ResultAwareLoginContext) session.getAttribute(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY);
+                    ResultAwareLoginContext loginContext = LOGIN_CONTEXT_TRANSFER_KEY.remove(session);
                     IoBufferAllocatorEx<?> parentAllocator = session.getBufferAllocator();
                     IoBufferAllocatorEx<WsBuffer> allocator = wasHixieHandshake ? new WsDraftHixieBufferAllocator(parentAllocator)
                                                                                 : new WsBufferAllocator(parentAllocator, false /* masking */);
                     WsnSession newWsnSession = new WsnSession(WsnAcceptor.this, getProcessor(), localAddress, remoteAddress,
-                            session, allocator, httpRequestURI, loginContext == null ? new DefaultLoginResult() : loginContext.getLoginResult(),
+                            session, allocator, httpRequestURI, loginContext,
                             wsVersion, null);
 
                     IoHandler handler = getHandler(localAddress);
@@ -641,23 +689,20 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
         @Override
         protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
-            WsnSession wsnSession = SESSION_KEY.get(session);
-            if (wsnSession != null && !wsnSession.isClosing()) {
-                wsnSession.reset(cause);
-            }
-            else {
-                if (logger.isDebugEnabled()) {
-                    String message = format("Error on WebSocket connection, closing connection: %s", cause);
-                    if (logger.isTraceEnabled()) {
-                        // note: still debug level, but with extra detail about the exception
-                        logger.debug(message, cause);
-                    }
-                    else {
-                        logger.debug(message);
-                    }
+            if (logger.isDebugEnabled()) {
+                String message = format("Error on WebSocket connection, closing connection: %s", cause);
+                if (logger.isTraceEnabled()) {
+                    // note: still debug level, but with extra detail about the exception
+                    logger.debug(message, cause);
+                } else {
+                    logger.debug(message);
                 }
-                session.close(true);
             }
+
+            WsnSession wsnSession = SESSION_KEY.get(session);
+            wsnSession.setCloseException(cause);
+
+            session.close(true);
         }
 
         /*
@@ -669,13 +714,9 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
         @Override
         protected void doSessionClosed(IoSessionEx session) throws Exception {
-            WsnSession wsnSession = SESSION_KEY.get(session);
-            if (wsnSession != null && !wsnSession.isClosing() && !wsnSession.getLocalAddress().getOption(WsResourceAddress.LIGHTWEIGHT)) {
-                wsnSession.reset(new Exception("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
-            }
-
-            if (wsnSession != null && wsnSession.getLocalAddress().getOption(WsResourceAddress.LIGHTWEIGHT)) {
-                wsnSession.close(true);
+            WsnSession wsnSession = SESSION_KEY.remove(session);
+            if (wsnSession != null && !wsnSession.isClosing()) {
+                wsnSession.reset(new IOException("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
             }
 
             IoFilterChain filterChain = session.getFilterChain();
@@ -752,7 +793,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             // Set the extensions on whichever WsnSession they were negotiated (light weight or wsx).
             List<WebSocketExtension> extensions = ACTIVE_EXTENSIONS_KEY.get(session);
             if (extensions != null) {
-                WsUtils.addExtensionFilters(extensions, filterChain, codecRequired);
+                WsUtils.addExtensionFilters(extensions, extensionHelper, filterChain, codecRequired);
             }
 
             // Use ping and pong, if available, to detect and close dead connections.
@@ -951,6 +992,10 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                 String httpChallengeScheme = session.getLocalAddress().getOption(REALM_CHALLENGE_SCHEME);
                 if (httpChallengeScheme != null && httpChallengeScheme.startsWith(AUTH_SCHEME_APPLICATION_PREFIX)) {
                     // challenge scheme starts with "Application ", so reject it (403 as no way to negotiate)
+                    if (logger.isInfoEnabled()) {
+                        logger.info(String.format("A Kaazing client library must be used for challenge scheme \"%s\", " +
+                               "rejecting connection from %s", httpChallengeScheme, session.getRemoteAddress()));
+                    }
                     session.setStatus(HttpStatus.CLIENT_FORBIDDEN);
                     session.close(false);
                     return false;
@@ -1079,7 +1124,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     try {
                         negotiated = WsUtils.negotiateExtensionsAndSetResponseHeader(
                                 webSocketExtensionFactory, (WsResourceAddress) wsLocalAddress, clientRequestedExtensions,
-                                session, HEADER_SEC_WEBSOCKET_EXTENSION);
+                                session, HEADER_SEC_WEBSOCKET_EXTENSION, extensionHelper);
                     }
                     catch(ProtocolException e) {
                         handleExtensionNegotiationException(session, clientRequestedExtensions, e);
@@ -1102,7 +1147,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                             parent.setAttribute(LOCAL_ADDRESS_KEY, session.getLocalAddress());
                             parent.setAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY, session.getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
                             parent.setAttribute(SUBJECT_TRANSFER_KEY, session.getSubject());
-                            parent.setAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY, session.getAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY));
+                            parent.setAttribute(LOGIN_CONTEXT_TRANSFER_KEY, session.getLoginContext());
                             parent.setAttribute(HTTP_REQUEST_URI_KEY, session.getRequestURL());
                         }
                     });
@@ -1288,7 +1333,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     try {
                         negotiated = WsUtils.negotiateExtensionsAndSetResponseHeader(
                                 webSocketExtensionFactory, (WsResourceAddress) wsLocalAddress, clientRequestedExtensions,
-                                session, HEADER_SEC_WEBSOCKET_EXTENSION);
+                                session, HEADER_SEC_WEBSOCKET_EXTENSION, extensionHelper);
                     }
                     catch(ProtocolException e) {
                         handleExtensionNegotiationException(session, clientRequestedExtensions, e);
@@ -1339,10 +1384,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                                         .getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
                                 parent.setAttribute(SUBJECT_TRANSFER_KEY, session.getSubject());
                                 parent.setAttribute(HTTP_REQUEST_URI_KEY, session.getRequestURL());
-                                parent.setAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY,
-                                                    session.getAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY));
-
-
+                                parent.setAttribute(LOGIN_CONTEXT_TRANSFER_KEY, session.getLoginContext());
                             }
                         });
                         session.close(false);
@@ -1468,7 +1510,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                    try {
                        negotiated = WsUtils.negotiateExtensionsAndSetResponseHeader(
                                webSocketExtensionFactory, (WsResourceAddress) wsLocalAddress, clientRequestedExtensions,
-                               session, HEADER_X_WEBSOCKET_EXTENSIONS);
+                               session, HEADER_X_WEBSOCKET_EXTENSIONS, extensionHelper);
                    }
                    catch(ProtocolException e) {
                        handleExtensionNegotiationException(session, clientRequestedExtensions, e);
@@ -1501,10 +1543,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                                    .getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
                            parent.setAttribute(SUBJECT_TRANSFER_KEY, session.getSubject());
                            parent.setAttribute(HTTP_REQUEST_URI_KEY, session.getRequestURL());
-                           parent.setAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY,
-                                               session.getAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY));
-
-
+                           parent.setAttribute(LOGIN_CONTEXT_TRANSFER_KEY, session.getLoginContext());
                        }
                    });
                    session.close(false);

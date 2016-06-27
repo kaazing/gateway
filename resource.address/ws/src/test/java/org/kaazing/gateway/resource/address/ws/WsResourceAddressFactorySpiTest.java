@@ -183,10 +183,6 @@ public class WsResourceAddressFactorySpiTest {
         ResourceAddress wsxdraft = wsdraft.getOption(ALTERNATE);
         assertEquals("wsx-draft", wsxdraft.getExternalURI().getScheme());
 
-        ResourceAddress wsr = wsxdraft.getOption(ALTERNATE);
-        assertEquals("wsr", wsr.getExternalURI().getScheme());
-
-        assertNull(wsr.getOption(ALTERNATE));
     }
 
     @Test
@@ -207,19 +203,15 @@ public class WsResourceAddressFactorySpiTest {
             switch(alternateCount) {
                 case 1: verifyExpectedAddress(cursor, "ws://localhost:2020/", 3, "ws/rfc6455"); break;
                 case 2: verifyExpectedAddress(cursor, "ws://localhost:2020/", 3, "wse/1.0"); break;
-                // This could change to depth 4 once we make httpxe addresses primary.
-                // case 2: verifyExpectedAddress(cursor, "ws://localhost:2020/", 4, "wse/1.0"); break;
                 case 3: verifyExpectedAddress(cursor, "ws://localhost:2020/", 5, "ws/rfc6455"); break;
                 case 4: verifyExpectedAddress(cursor, "ws://localhost:2020/", 3, "ws/draft-7x"); break;
                 case 5: verifyExpectedAddress(cursor, "ws://localhost:2020/", 5, "ws/draft-7x"); break;
-                case 6: verifyExpectedAddress(cursor, "ws://localhost:2020/", 3, "wsr/1.0"); break;
-                // This could change to depth 4 once we make httpxe addresses primary.
-                //case 6: verifyExpectedAddress(cursor, "ws://localhost:2020/", 4, "wsr/1.0"); break;
+
             }
             cursor = cursor.getOption(ALTERNATE);
         }
 
-        assertEquals(6, alternateCount);
+        assertEquals(5, alternateCount);
 
     }
 
@@ -254,8 +246,6 @@ public class WsResourceAddressFactorySpiTest {
         Comparator<ResourceAddress> cmp = Comparators.compareResourceOriginPathAlternatesAndProtocolStack();
         ResourceAddress addr1 = makeResourceAddress(new URI("ws://localhost:8001/echo"));
 
-        ResourceAddress addr2 = makeResourceAddress(new URI("wsr://localhost:8001/echo"));
-        assertEquals(0, cmp.compare(addr1, addr2));
 
         Map<String, Object> options = new HashMap<>();
         options.put("http.nextProtocol", "wse/1.0");

@@ -32,11 +32,11 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.DEFAULT_HTTP_KEEPALIVE_MAX_CONNECTIONS;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.DEFAULT_HTTP_KEEPALIVE_CONNECTIONS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_TIMEOUT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.LOGIN_CONTEXT_FACTORY;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_MAX_CONNECTIONS;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_CONNECTIONS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_PARAMETER_NAMES;
@@ -87,7 +87,7 @@ public class HttpResourceAddressFactorySpiTest {
         options.put("http.qualifier", "random");
         options.put("http.keepAlive", false);
         options.put("http.keepAliveTimeout", (int) SECONDS.toMillis(5));
-        options.put("http.keepalive.max.connections", 10);
+        options.put("http.keepalive.connections", 10);
         options.put("http.realmName", "demo");
         options.put("http.requiredRoles", new String[] { "admin" });
         options.put("http.transport", URI.create("tcp://localhost:2121"));
@@ -133,7 +133,7 @@ public class HttpResourceAddressFactorySpiTest {
         assertNull(address.getOption(TRANSPORT));
         assertTrue(address.getOption(KEEP_ALIVE));
         assertEquals(address.getOption(KEEP_ALIVE_TIMEOUT).intValue(), 30);
-        assertEquals(address.getOption(KEEP_ALIVE_MAX_CONNECTIONS).intValue(), DEFAULT_HTTP_KEEPALIVE_MAX_CONNECTIONS);
+        assertEquals(address.getOption(KEEP_ALIVE_CONNECTIONS).intValue(), DEFAULT_HTTP_KEEPALIVE_CONNECTIONS);
         assertNull(address.getOption(REALM_NAME));
         assertEmpty(address.getOption(REQUIRED_ROLES));
         assertEquals("challenge",address.getOption(REALM_AUTHORIZATION_MODE));
@@ -153,7 +153,7 @@ public class HttpResourceAddressFactorySpiTest {
         assertEquals("random", address.getOption(QUALIFIER));
         assertNull(address.getOption(TRANSPORT));
         assertEquals(5000L, address.getOption(KEEP_ALIVE_TIMEOUT).longValue());
-        assertEquals(10, address.getOption(KEEP_ALIVE_MAX_CONNECTIONS).intValue());
+        assertEquals(10, address.getOption(KEEP_ALIVE_CONNECTIONS).intValue());
         assertFalse(address.getOption(KEEP_ALIVE));
         assertEquals("demo", address.getOption(REALM_NAME));
         assertArrayEquals(new String[] { "admin" }, address.getOption(REQUIRED_ROLES));

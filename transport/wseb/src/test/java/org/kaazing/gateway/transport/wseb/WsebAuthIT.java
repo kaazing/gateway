@@ -21,44 +21,32 @@
 
 package org.kaazing.gateway.transport.wseb;
 
-import org.kaazing.gateway.server.test.GatewayRule;
-import org.kaazing.gateway.server.test.config.GatewayConfiguration;
-import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.apache.log4j.PropertyConfigurator;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
-import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
-import org.kaazing.k3po.junit.annotation.Specification;
-import org.kaazing.k3po.junit.rules.K3poRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
+
+import java.net.URI;
+import java.security.Principal;
+import java.util.Map;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-import java.net.URI;
-import java.security.Principal;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
-import static org.junit.rules.RuleChain.outerRule;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.kaazing.gateway.server.test.GatewayRule;
+import org.kaazing.gateway.server.test.config.GatewayConfiguration;
+import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class WsebAuthIT {
 
     private final K3poRule robot = new K3poRule();
 
-    @BeforeClass
-    public static void init() throws Exception {
-        PropertyConfigurator.configure("src/test/resources/log4j-diagnostic.properties");
-    }
-
-    @Rule
-    public TestRule timeout = new DisableOnDebug(new Timeout(10, TimeUnit.SECONDS));
-    
-    public GatewayRule gateway = new GatewayRule() {
+    private GatewayRule gateway = new GatewayRule() {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                 .service()
@@ -90,7 +78,7 @@ public class WsebAuthIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    public TestRule chain = createRuleChain(gateway, robot);
 
     @Before
     public void initLoginModule() {

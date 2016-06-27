@@ -832,6 +832,65 @@
         </complexContent>
     </complexType>
 
+    <complexType name="amqp.proxyServiceType">
+        <annotation>
+            <documentation>This type of service is used to expose the AMQP proxy
+            service.</documentation>
+        </annotation>
+
+        <complexContent>
+            <restriction base="gateway:ServiceType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1" name="name"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0" name="description"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="unbounded" minOccurs="1" name="accept"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0" name="connect"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0" name="balance"
+                             type="anyURI"/>
+
+                    <element fixed="amqp.proxy" maxOccurs="1" minOccurs="1"
+                             name="type" type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0" name="properties"
+                             type="gateway:ServicePropertiesType"/>
+
+                    <element maxOccurs="1" minOccurs="0" name="accept-options"
+                             type="gateway:ServiceAcceptOptionsType" />
+
+                    <element maxOccurs="1" minOccurs="0"  name="connect-options"
+                             type="gateway:ServiceConnectOptionsType" />
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="realm-name"
+                             type="gateway:CollapsedString">
+                        <annotation>
+                            <documentation>
+                                The name of the security realm used for
+                                authentication or * to indicate any valid user.
+                            </documentation>
+                        </annotation>
+                    </element>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="authorization-constraint"
+                             type="gateway:AuthorizationConstraintType"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="cross-site-constraint"
+                             type="gateway:CrossSiteConstraintType"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
     <complexType name="http.proxyServiceType">
         <annotation>
             <documentation>This service provides reverse proxying of http requests.</documentation>
@@ -1246,7 +1305,7 @@
                     </documentation>
                 </annotation>
             </element>
-            <element name="http.keepalive.max.connections" maxOccurs="1" minOccurs="0" type="nonNegativeInteger" default="2">
+            <element name="http.keepalive.connections" maxOccurs="1" minOccurs="0" type="nonNegativeInteger" default="2">
                 <annotation>
                     <documentation>Gateway caches the specified number of idle keep-alive (or persistent) connections
                         to upstream server in the cache of each worker. Those connections will timeout based on

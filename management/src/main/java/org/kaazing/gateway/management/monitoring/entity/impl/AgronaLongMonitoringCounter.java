@@ -21,7 +21,8 @@
 
 package org.kaazing.gateway.management.monitoring.entity.impl;
 
-import org.kaazing.gateway.management.monitoring.entity.LongMonitoringCounter;
+import org.kaazing.gateway.service.LongMonitoringCounter;
+
 import uk.co.real_logic.agrona.concurrent.AtomicCounter;
 
 /**

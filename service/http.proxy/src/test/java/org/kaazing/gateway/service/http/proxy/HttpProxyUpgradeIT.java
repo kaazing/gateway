@@ -21,28 +21,22 @@
 
 package org.kaazing.gateway.service.http.proxy;
 
+import static org.kaazing.test.util.ITUtil.createRuleChain;
+
+import java.net.URI;
+
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-import java.net.URI;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.rules.RuleChain.outerRule;
-
 public class HttpProxyUpgradeIT {
 
-    @Rule
-    public TestRule timeout = new DisableOnDebug(new Timeout(10, SECONDS));
-
-    private final K3poRule robot = new K3poRule();
+    private final K3poRule k3po = new K3poRule();
 
     private final GatewayRule gateway = new GatewayRule() {
         {
@@ -61,30 +55,30 @@ public class HttpProxyUpgradeIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    public TestRule chain = createRuleChain(gateway, k3po);
 
     @Specification("http.proxy.upgrade.websocket")
     @Test
     public void upgradeWebSocket() throws Exception {
-        robot.finish();
+        k3po.finish();
     }
 
     @Specification("http.proxy.upgrade.client.disconnect")
     @Test
     public void clientDisconnect() throws Exception {
-        robot.finish();
+        k3po.finish();
     }
 
     @Specification("http.proxy.upgrade.server.disconnect")
     @Test
     public void serverDisconnect() throws Exception {
-        robot.finish();
+        k3po.finish();
     }
 
     @Specification("http.proxy.upgrade.websocket.basic.auth")
     @Test
     public void upgradeBasicAuthWebSocket() throws Exception {
-        robot.finish();
+        k3po.finish();
     }
 
 }

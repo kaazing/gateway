@@ -46,6 +46,7 @@ import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.context.resolve.GatewayContextResolver;
+import org.kaazing.gateway.server.util.version.DuplicateJarFinder;
 import org.slf4j.Logger;
 import org.w3c.dom.Element;
 
@@ -81,6 +82,7 @@ final class GatewayImpl implements Gateway {
     private Launcher gateway;
     private Gateway baseGateway;
     private KaazingFileWatchdog watchDog;
+    private final DuplicateJarFinder duplicateJarFinder;
 
     /**
      * <p> Create a new in-process Gateway instance.
@@ -92,6 +94,7 @@ final class GatewayImpl implements Gateway {
      */
     public GatewayImpl(Gateway baseGateway) {
         this.baseGateway = baseGateway;
+        this.duplicateJarFinder = new DuplicateJarFinder(LOGGER);
     }
 
     // Configure a new Gateway instance with the given environment properties.
@@ -174,8 +177,8 @@ final class GatewayImpl implements Gateway {
                 !bypassPlatformCheckStr.equalsIgnoreCase("no") &&
                 !bypassPlatformCheckStr.equalsIgnoreCase("n");
 
-        if (!bypassPlatformCheck && !supportedJavaVersion(1, 7, "0_21")) {
-            throw new RuntimeException("Unsupported JDK version, Please install Java SE 7.0 patch 21 or later and relaunch " +
+        if (!bypassPlatformCheck && !supportedJavaVersion(1, 8, "0")) {
+            throw new RuntimeException("Unsupported JDK version, Please install Java SE 8.0 or later and relaunch " +
                     "Kaazing WebSocket Gateway");
         }
 
@@ -292,6 +295,8 @@ final class GatewayImpl implements Gateway {
         if ((overrideLogging == null) || !Boolean.parseBoolean(overrideLogging)) {
             configureLogging(configDir, configuration);
         }
+
+        duplicateJarFinder.findDuplicateJars();
 
         displayVersionInfo();
 

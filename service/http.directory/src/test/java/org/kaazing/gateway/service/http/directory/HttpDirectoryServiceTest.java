@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
@@ -46,11 +45,6 @@ import org.kaazing.test.util.MethodExecutionTrace;
 public class HttpDirectoryServiceTest {
     @Rule
     public TestRule testExecutionTrace = new MethodExecutionTrace();
-
-    @Before
-    public void setup() {
-        PropertyConfigurator.configure("src/test/resources/log4j-trace.properties");
-    }
 
     @Test
     public void testCreateService() throws Exception {

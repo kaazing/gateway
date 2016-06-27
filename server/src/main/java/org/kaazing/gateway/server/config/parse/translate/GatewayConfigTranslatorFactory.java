@@ -21,10 +21,13 @@
 
 package org.kaazing.gateway.server.config.parse.translate;
 
+import static java.util.ServiceLoader.load;
+
+import java.util.ServiceLoader;
+
 import org.kaazing.gateway.server.config.parse.GatewayConfigNamespace;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.kaazing.gateway.server.config.parse.translate.spi.GatewayConfigTranslatorFactorySpi;
 
 /**
  * Classes which translate/transform a DOM representing the config file implement this interface.  These classes are used by the
@@ -32,15 +35,36 @@ import org.slf4j.LoggerFactory;
  */
 public class GatewayConfigTranslatorFactory {
 
-    private static final Logger logger = LoggerFactory.getLogger(GatewayConfigTranslatorFactory.class);
+    private final ServiceLoader<GatewayConfigTranslatorFactorySpi> services;
 
-    private static final GatewayConfigTranslatorFactory instance = new GatewayConfigTranslatorFactory();
-
-    protected GatewayConfigTranslatorFactory() {
+    public GatewayConfigTranslatorFactory(ServiceLoader<GatewayConfigTranslatorFactorySpi> services) {
+        this.services = services;
     }
 
-    public static GatewayConfigTranslatorFactory getInstance() {
-        return instance;
+    /**
+     * Creates a new instance of GatewayConfigTranslatorFactory. It uses the default {@link ClassLoader} to load
+     * {@link GatewayConfigTranslatorFactorySpi} objects that are registered using META-INF/services.
+     *
+     * @return GatewayConfigTranslatorFactory
+     */
+    public static GatewayConfigTranslatorFactory newInstance() {
+        ServiceLoader<GatewayConfigTranslatorFactorySpi> services = load(GatewayConfigTranslatorFactorySpi.class);
+        return newInstance(services);
+    }
+
+    /**
+     * Creates a new instance of GatewayConfigTranslatorFactory. It uses the specified {@link ClassLoader} to load
+     * {@link GatewayConfigTranslatorFactorySpi} objects that are registered using META-INF/services.
+     *
+     * @return GatewayConfigTranslatorFactory
+     */
+    public static GatewayConfigTranslatorFactory newInstance(ClassLoader cl) {
+        ServiceLoader<GatewayConfigTranslatorFactorySpi> services = load(GatewayConfigTranslatorFactorySpi.class, cl);
+        return newInstance(services);
+    }
+
+    private static GatewayConfigTranslatorFactory newInstance(ServiceLoader<GatewayConfigTranslatorFactorySpi> services) {
+        return new GatewayConfigTranslatorFactory(services);
     }
 
     /**
@@ -49,19 +73,16 @@ public class GatewayConfigTranslatorFactory {
      *
      * @param ns
      * @return
+     * @throws Exception
      */
-    public GatewayConfigTranslator getTranslator(GatewayConfigNamespace ns) {
-        // First, we create our pipeline composite
-        GatewayConfigTranslatorPipeline pipeline = new GatewayConfigTranslatorPipeline();
-
-        switch (ns) {
-
-            case SEPTEMBER_2014:
-                // Currently no per-namespace translator to add in here, just validate
-                GatewayConfigTranslator september2014Validator = new September2014Validator();
-                pipeline.addTranslator(september2014Validator);
+    public GatewayConfigTranslator getTranslator(GatewayConfigNamespace namespace) throws Exception {
+        GatewayConfigTranslator result = null;
+        for (GatewayConfigTranslatorFactorySpi factory : services) {
+            result = factory.getTranslator(namespace);
+            if (result != null) {
+                return result;
+            }
         }
-
-        return pipeline;
+        throw new Exception("Unrecognized gateway configuration namespace " + namespace);
     }
 }

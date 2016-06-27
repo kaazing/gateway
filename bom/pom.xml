@@ -140,11 +140,6 @@
             </dependency>
             <dependency>
                 <groupId>org.kaazing</groupId>
-                <artifactId>gateway.transport.wsr</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.kaazing</groupId>
                 <artifactId>gateway.transport.wseb</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -214,11 +209,6 @@
             <dependency>
                 <groupId>org.kaazing</groupId>
                 <artifactId>gateway.resource.address.wsn</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.kaazing</groupId>
-                <artifactId>gateway.resource.address.wsr</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,7 +21,7 @@
 
 package org.kaazing.gateway.service.http.directory;
 
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
 import java.net.URI;
@@ -37,9 +37,9 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class DirectoryServiceEmbeddedGWTestIT {
 
-    private static String DIRECTORY_SERVICE_ACCEPT = "http://localhost:8000/"; 
+    private static String DIRECTORY_SERVICE_ACCEPT = "http://localhost:8000/";
     private static String AUTH_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8008/auth";
-    
+
     private final K3poRule robot = new K3poRule();
     private final GatewayRule gateway = new GatewayRule() {
         {
@@ -63,31 +63,31 @@ public class DirectoryServiceEmbeddedGWTestIT {
                             .authorization()
                                  .requireRole("AUTHORIZED")
                             .done()
-                        .done()     
+                        .done()
                         .security()
                             .realm()
                                 .name("demo")
                                 .description("Kaazing WebSocket Gateway Demo")
-                                .httpChallengeScheme("Application Token")   
+                                .httpChallengeScheme("Application Token")
                                 .authorizationMode("challenge")
-                                .loginModule()                          
+                                .loginModule()
                                 .type("class:org.kaazing.gateway.security.auth.YesLoginModule")
                                     .success("requisite")
                                     .option("roles", "AUTHORIZED, ADMINISTRATOR")
                             .done()
-                        .done()                 
+                        .done()
                      .done()
                 .done();
             // @formatter:on
             init(configuration);
         }
     };
-   
+
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
-    
+    public TestRule chain = createRuleChain(gateway, robot);
+
     @Specification("get.content.type.xsj")
-    @Test(timeout = 5000)
+    @Test
     public void testGetContentTypeXSJ() throws Exception {
         robot.finish();
     }

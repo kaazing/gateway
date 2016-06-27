@@ -36,6 +36,7 @@ class OriginServer implements Runnable {
     private volatile boolean stopped;
     ServerSocket socket;
     private volatile IOException ioe;        // handler's exception
+    private Thread acceptThread;
 
     interface Handler {
         // Handler must close socket. Also the server calls handle
@@ -51,7 +52,8 @@ class OriginServer implements Runnable {
     void start() throws Exception {
         ServerSocketFactory serverSocketFactory = ServerSocketFactory.getDefault();
         socket = serverSocketFactory.createServerSocket(port);
-        new Thread(this, "Origin Server").start();
+        acceptThread = new Thread(this, "Origin Server");
+        acceptThread.start();
     }
 
     @Override
@@ -77,6 +79,12 @@ class OriginServer implements Runnable {
         stopped = true;
         if (socket != null) {
             socket.close();
+        }
+        if (acceptThread != null) {
+            try {
+                acceptThread.join();
+            } catch (InterruptedException ignore) {
+            }
         }
         if (ioe != null) {
             throw ioe;
