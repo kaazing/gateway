@@ -50,6 +50,7 @@ public class WsnConnectorRule implements TestRule {
 
     private ResourceAddressFactory addressFactory;
     private WsnConnector wsnConnector;
+    private Map<String, Object> connectOptions = new HashMap<>();
 
     @Override
     public Statement apply(Statement base, Description description) {
@@ -62,7 +63,6 @@ public class WsnConnectorRule implements TestRule {
 
     public ConnectFuture connect(String connect, Long wsInactivityTimeout, IoHandler connectHandler)
             throws InterruptedException {
-        Map<String, Object> connectOptions = new HashMap<>();
         if (wsInactivityTimeout != null) {
             connectOptions.put("inactivityTimeout", wsInactivityTimeout);
         }
@@ -75,8 +75,6 @@ public class WsnConnectorRule implements TestRule {
 
     public ConnectFuture connect(String connect, String[] protocols, String[] extensions, IoHandler connectHandler)
             throws InterruptedException {
-        Map<String, Object> connectOptions = new HashMap<>();
-
         if (protocols != null) {
             connectOptions.put(SUPPORTED_PROTOCOLS.name(), protocols);
         }
@@ -126,6 +124,7 @@ public class WsnConnectorRule implements TestRule {
                 httpConnector = (HttpConnector)transportFactory.getTransport("http").getConnector();
                 httpConnector.setBridgeServiceFactory(serviceFactory);
                 httpConnector.setResourceAddressFactory(addressFactory);
+                httpConnector.setSchedulerProvider(schedulerProvider);
 
                 wsnConnector = (WsnConnector)transportFactory.getTransport("wsn").getConnector();
                 wsnConnector.setConfiguration(new Properties());
@@ -144,4 +143,9 @@ public class WsnConnectorRule implements TestRule {
         }
 
     }
+
+    public Map<String, Object> getConnectOptions() {
+        return connectOptions;
+    }
+
 }

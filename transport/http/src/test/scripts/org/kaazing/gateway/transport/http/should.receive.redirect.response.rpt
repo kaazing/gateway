@@ -43,9 +43,5 @@ read method "GET"
 read version "HTTP/1.1"
 read header "Upgrade" "websocket"
 read header "Sec-WebSocket-Version" "13"
-read header "Sec-WebSocket-Key" "dGhlIHNhbXBsZSBub25jZQ=="
-#read header "Origin" "http://localhost:8080"
-#read header "Host" "localhost:8081"
-#read header "Connection" "Upgrade"
 read closed
 

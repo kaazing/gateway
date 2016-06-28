@@ -74,6 +74,7 @@ import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.URLUtils;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.resource.address.wsn.WsnResourceAddressFactorySpi;
@@ -290,7 +291,6 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     initializer.initializeSession(session, future);
                 }
                 final WsnSession wsnSession = (WsnSession) session;
-                boolean redirectResponse = false;
                 if (wsnSession.isBalanceSupported()) {
                     // NOTE: this collection is either null, empty or length one.
                     //       the balancee URI is selected in the HttpBalancerService's
@@ -1054,13 +1054,6 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                         webSocketUpgradeResponseValue = WEB_SOCKET;
                     }
 
-                    // build the HTML5 WebSocket handshake response
-                    session.setStatus(HttpStatus.INFO_SWITCHING_PROTOCOLS);
-                    session.setReason(REASON_WEB_SOCKET_HANDSHAKE);
-                    session.addWriteHeader(HEADER_UPGRADE, webSocketUpgradeResponseValue);
-                    session.addWriteHeader(HEADER_CONNECTION, HEADER_UPGRADE);
-                    session.addWriteHeader(HEADER_WEBSOCKET_ACCEPT, WsUtils.acceptHash(key));
-
                     // negotiate protocol
                     String chosenProtocol;
                     try {
@@ -1126,6 +1119,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                             assert balancerKeys instanceof List;
                             List<String> availableBalanceeURIs = (List<String>) balancerKeys;
                             String balanceURI = availableBalanceeURIs.get((int) (Math.random() * availableBalanceeURIs.size()));
+                            balanceURI = URLUtils.modifyURIScheme(URI.create(balanceURI), "http").toString();
                             session.setStatus(HttpStatus.REDIRECT_FOUND);
                             session.setWriteHeader("location", balanceURI);
                             session.close(false);
@@ -1133,6 +1127,12 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                         }
                     }
 
+                    // build the HTML5 WebSocket handshake response
+                    session.setStatus(HttpStatus.INFO_SWITCHING_PROTOCOLS);
+                    session.setReason(REASON_WEB_SOCKET_HANDSHAKE);
+                    session.addWriteHeader(HEADER_UPGRADE, webSocketUpgradeResponseValue);
+                    session.addWriteHeader(HEADER_CONNECTION, HEADER_UPGRADE);
+                    session.addWriteHeader(HEADER_WEBSOCKET_ACCEPT, WsUtils.acceptHash(key));
                     // do upgrade
                     UpgradeFuture upgradeFuture = session.upgrade(ioBridgeHandler);
                     upgradeFuture.addListener(new IoFutureListener<UpgradeFuture>() {

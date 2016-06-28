@@ -128,9 +128,9 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
             options.setOption(KEEP_ALIVE, keepAlive);
         }
 
-        Integer maxRedirects = (Integer) optionsByName.remove(MAXIMUM_REDIRECTS.name());
+        Object maxRedirects = optionsByName.remove(MAXIMUM_REDIRECTS.name());
         if (maxRedirects != null) {
-            options.setOption(MAXIMUM_REDIRECTS, maxRedirects);
+            options.setOption(MAXIMUM_REDIRECTS, maxRedirects instanceof String ? Integer.parseInt((String) maxRedirects) : (Integer) maxRedirects);
         }
 
         Integer keepAliveTimeout = (Integer) optionsByName.remove(KEEP_ALIVE_TIMEOUT.name());

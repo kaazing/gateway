@@ -48,22 +48,5 @@ write "Sec-WebSocket-Extensions: x-kaazing-idle-timeout,x-kaazing-ping-pong,x-ka
 write "\r\n"
 write option mask [0x00 0x00 0x00 0x00]
 
-read [0x82 0x7E 0x01 0x40]
+read [0x82 0x7E 0x00 0xCD]
 read /HTTP.+ 302 .+\r\n/
-#read "Connection: Upgrade\r\n"
-#read /Date.+\r\n/
-#read "Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\n"
-#read /Sec-WebSocket-Extensions.+\r\n/
-#read /Server.+\r\n/
-#read "Upgrade: websocket\r\n"
-#read "\r\n"
-
-#read [0x82 0x00]
-#read [0x82 0x29 0xEF 0x83 0xBF 0x52]
-#read "ws://node.kaazing.com:8001/echo?.kl=Y"
-
-#write [0x88 0x80] ${writeMask}
-#write option mask ${writeMask}
-#write option mask [0x00 0x00 0x00 0x00]
-
-#read [0x88 0x02]
