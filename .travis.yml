@@ -3,8 +3,8 @@ language: Java
 jdk: oraclejdk8
 env:
   global:
-    - secure: "sG5h/UB/s3uhN6DF4F4jRHLKDTbqGipDdCBaUu/8mZ8kqgtZtMAh6yodj1HrRbEzov0kCsjDYTnv90YzZWIbmrzRNY3M/B/P47DKkCxjf6ejbSY9D0OJnqbjzOyfiDP6bAs64pUzfjylkYuvNVhkCxN0Ay7k8cvT9D0XOX3nUHc="
-    - secure: "P5oMhssZHp8eBezF2WEUZrzR6du/ibhcNRmZhSC8uKN0NO6AKlGLBID2llQrWED7RoZLoYhReR04LqdQZboGKvmqZ1TRHDkhwUOsFAGFIC2wxFrZPNy06anOjaT+ZfOsMZCtN+mXCaCARSBCSJP7L0vyEIdfaw+ZG2LxBV2GrK0="
+    - secure: "eUJzrr3JIxDF1Cf6Qnlj+g1rtX0NOEoOKvMNw9V/0JYP++vtUW9GD11gJ0YwfRU4/za3R4WBcW8JgtvOiyDCZkIRd+1nTsHeKY/ERwFjG8S29X7R6DUEUHL00B03MGJ0NZyRE1lzDc/np4zqcuH8wHqzXwszu+iQsTqrzHegROM="
+    - secure: "F6oCHN9p/gAFymPD091Yq/7niP1swVRrox7wPUQ3g/ELpIl8GS5JD2GapfVhsdV5oOkIXn0JWmzNSAVrI9jeUVZUCtkUdr+OMdyzzS9iJHmDxQOGnz3/vefbV5VQTCIFZKzE2c7usVcaxkVj4E+Ao4pcrXoXOzbvx2In2D/7+B8="
 before_install: certificates/add-to-cacerts.sh
 install: mvn -q -B -U install -DskipTests -DskipITs
 script:
