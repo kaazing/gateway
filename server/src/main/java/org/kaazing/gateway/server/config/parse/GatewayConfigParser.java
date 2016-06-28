@@ -159,7 +159,7 @@ public class GatewayConfigParser {
         Document dom = xmlReader.build(configFile);
         Element root = dom.getRootElement();
         GatewayConfigNamespace namespace =  GatewayConfigNamespace.fromURI(root.getNamespace().getURI());
-        checkForSNMP(root);
+        checkForOutdated(root);
         
         boolean writeTranslatedFile = !namespace.equals(GatewayConfigNamespace.CURRENT_NS);
         File translatedConfigFile = writeTranslatedFile ?
@@ -171,13 +171,16 @@ public class GatewayConfigParser {
         return translatedConfigFile;
     }
     
-    private void checkForSNMP(Element root) throws Exception {
+    private void checkForOutdated(Element root) throws Exception {
         Namespace namespace = root.getNamespace();
         List<Element> children = root.getChildren("service", namespace);
         for (Element child : children) {
             Element typeChild = child.getChild("type", namespace);
-            if (typeChild.getText().equals("management.snmp")) {
-                throw new Exception("snmp management type is no longer supported.");
+            String type = typeChild.getText();
+            if (type.equals("management.snmp")) {
+                throw new Exception("snmp management type is outdated and no longer supported."); 
+            } else if (type.equals("session")) {
+                throw new Exception("session service type is outdated and no longer supported.");
             }
         }
         
