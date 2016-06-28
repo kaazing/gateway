@@ -54,25 +54,34 @@ public class GatewayTest {
                 new GatewayConfigurationBuilder()
                         .webRootDirectory(new File("src/test/webapp"))
                         .service()
-                        .type("echo")
-                        .accept("ws://localhost:8001/jms")
-                        .property("a", "aValue")
-                        .property("b", "bValue")
-                        .nestedProperty("nestedA")
-                        .property("Aa", "AaValue1")
-                        .property("Ab", "AbValue1")
+                            .type("echo")
+                            .accept("ws://localhost:8001/jms")
+                            .property("a", "aValue")
+                            .property("b", "bValue")
+                            .nestedProperty("nestedA")
+                                .property("Aa", "AaValue1")
+                                .property("Ab", "AbValue1")
+                            .done()
+                            .nestedProperty("nestedA")
+                                .property("Aa", "AaValue2")
+                                .property("Ab", "AbValue2")
+                            .done()
+                            .property("c", "cValue")
+                            .nestedProperty("nestedB")
+                                .property("Ba", "BaValue")
+                                .property("Bb", "BbValue")
+                                .nestedProperty("nestedC")
+                                    .property("Ca", "CaValue")
+                                    .property("Cb", "CbValue")
+                                    .nestedProperty("nestedD")
+                                        .property("Da", "DaValue")
+                                        .property("Db", "DbValue")
+                                    .done()
+                                .done()
+                            .done()
                         .done()
-                        .nestedProperty("nestedA")
-                        .property("Aa", "AaValue2")
-                        .property("Ab", "AbValue2")
-                        .done()
-                        .property("c", "cValue")
-                        .nestedProperty("nestedB")
-                        .property("Ba", "BaValue")
-                        .property("Bb", "BbValue")
-                        .done()
-                        .done()
-                        .done();
+                    .done();
+
 
         GatewayContext gateway = new Gateway().createGatewayContext(configuration);
 
@@ -91,11 +100,21 @@ public class GatewayTest {
         assertEquals("AbValue2", nestedA.get(1).get("Ab"));
 
         List<ServiceProperties> nestedB = properties.getNested("nestedB");
+        assertNotNull(nestedB);
         assertEquals("BaValue", nestedB.get(0).get("Ba"));
         assertEquals("BbValue", nestedB.get(0).get("Bb"));
-
-        assertNotNull(nestedB);
         assertEquals(1, nestedB.size());
-    }
 
+        List<ServiceProperties> nestedC = nestedB.get(0).getNested("nestedC");
+        assertNotNull(nestedC);
+        assertEquals("CaValue", nestedC.get(0).get("Ca"));
+        assertEquals("CbValue", nestedC.get(0).get("Cb"));
+        assertEquals(1, nestedC.size());
+
+        List<ServiceProperties> nestedD = nestedC.get(0).getNested("nestedD");
+        assertNotNull(nestedD);
+        assertEquals("DaValue", nestedD.get(0).get("Da"));
+        assertEquals("DbValue", nestedD.get(0).get("Db"));
+        assertEquals(1, nestedD.size());
+    }
 }

@@ -192,7 +192,7 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
     }
 
     void setRawInterestOpsNow(int interestOps) {
-        setInterestOpsNow(interestOps);
+        this.setInternalInterestOps(interestOps);
     }
 
     @Override

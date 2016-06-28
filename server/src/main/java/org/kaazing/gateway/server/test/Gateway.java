@@ -492,6 +492,7 @@ public class Gateway {
         for (NestedServicePropertiesConfiguration nestedProperty : nestedPropertyConfig.getNestedProperties()) {
             Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(),
                     nestedProperty.getConfigElementName());
+            domNode.appendChild(newElement);
             appendNestedProperties(nestedProperty, newElement, ownerDocument);
         }
     }
