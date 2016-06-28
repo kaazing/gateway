@@ -202,9 +202,6 @@ public class GatewayContextResolver {
 
         this.transportContextsBySchemeName = new HashMap<>();
         this.transportContextsByName = new HashMap<>();
-
-        // Initialize the SslCipherSuites (pertains to KG-7059)
-        SslCipherSuites.init();
     }
 
     public GatewayContext resolve(GatewayConfigDocument gatewayConfigDoc)
@@ -1036,7 +1033,7 @@ public class GatewayContextResolver {
             }
 
             //Login Module Inject Rule 4: Inject Timeout Module at Front of Chain
-            if (authType.isSetSessionTimeout()) {
+            if (authType.isSetSessionTimeout() && authType.getSessionTimeout() != null) {
                 Map<String, String> options = new HashMap<>();
                 if (authType.isSetSessionTimeout()) {
                     options.put("session-timeout", resolveTimeIntervalValue(authType.getSessionTimeout()));

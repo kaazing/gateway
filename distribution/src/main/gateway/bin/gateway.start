@@ -48,6 +48,21 @@ if [ -z "$GATEWAY_OPTS" ]; then
   GATEWAY_OPTS="$GATEWAY_OPTS -Djava.security.egd=file:/dev/urandom"
 fi
 
+# You can define flags to opt into using early access features by setting the value
+# of the GATEWAY_FEATURES environment variable to a comma separated list of features
+# to enable before calling this script.
+# The script itself should not be changed.
+FEATURE_OPTS=""
+if [ -n "$GATEWAY_FEATURES" ]
+then
+   echo Enabling early access features: $GATEWAY_FEATURES  
+   set -f; IFS=,
+   for feature in $GATEWAY_FEATURES; do
+      FEATURE_OPTS="$FEATURE_OPTS -Dfeature.$feature"
+   done
+   set =f; unset IFS
+fi
+
 # Add a directory for management support
 JAVA_LIBRARY_PATH="$GW_HOME/lib/sigar"
 
@@ -58,4 +73,4 @@ if [ "$GATEWAY_IDENTIFIER" != "" ]; then
 fi
 
 # Startup the gateway
-exec java $GATEWAY_OPTS $GW_ID -Djava.library.path="$JAVA_LIBRARY_PATH" -XX:+HeapDumpOnOutOfMemoryError -cp "$GW_HOME/lib/*" org.kaazing.gateway.server.Main $*
+exec java $GATEWAY_OPTS $FEATURE_OPTS $GW_ID -Djava.library.path="$JAVA_LIBRARY_PATH" -XX:+HeapDumpOnOutOfMemoryError -cp "$GW_HOME/lib/*" org.kaazing.gateway.server.Main $*

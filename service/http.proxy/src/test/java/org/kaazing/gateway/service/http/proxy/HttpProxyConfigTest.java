@@ -27,6 +27,7 @@ import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class HttpProxyConfigTest {
@@ -52,6 +53,7 @@ public class HttpProxyConfigTest {
         // @formatter:off
         GatewayConfiguration configuration =
                 new GatewayConfigurationBuilder()
+                        .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
                         .service()
                             .name("simple")
                             .accept("http://localhost:8110")
@@ -75,6 +77,7 @@ public class HttpProxyConfigTest {
         // @formatter:off
         GatewayConfiguration configuration =
                 new GatewayConfigurationBuilder()
+                        .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
                         .service()
                             .name("nested")
                             .accept("http://localhost:8110")
@@ -105,6 +108,7 @@ public class HttpProxyConfigTest {
         // @formatter:off
         GatewayConfiguration configuration =
                 new GatewayConfigurationBuilder()
+                        .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
                         .service()
                             .name("useForwarded")
                             .accept("http://localhost:8110")

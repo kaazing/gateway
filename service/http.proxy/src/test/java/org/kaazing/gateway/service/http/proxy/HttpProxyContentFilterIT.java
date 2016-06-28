@@ -27,7 +27,7 @@ import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-public class HttpProxyRequestIT {
+public class HttpProxyContentFilterIT {
 
     private final K3poRule robot = new K3poRule();
 
@@ -38,11 +38,12 @@ public class HttpProxyRequestIT {
                     new GatewayConfigurationBuilder()
                         .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
                         .service()
-                            .accept("http://localhost:8110")
-                            .connect("http://localhost:8080")
+                            .accept("http://localhost:8110/")
+                            .connect("http://localhost:8080/")
+                            .name("Proxy Service")
                             .type("http.proxy")
                             .connectOption("http.keepalive", "disabled")
-                            .done()
+                        .done()
                     .done();
             // @formatter:on
             init(configuration);
@@ -52,28 +53,9 @@ public class HttpProxyRequestIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-    @Specification( "http.proxy.query.string")
+    @Specification("content.filter.zero.content.length")
     @Test
-    public void queryString() throws Exception {
+    public void shouldNotInjectContentWhenContentLengthIsPresent() throws Exception {
         robot.finish();
     }
-
-    @Specification( "http.proxy.post.method")
-    @Test
-    public void postMethod() throws Exception {
-        robot.finish();
-    }
-
-    @Specification( "http.proxy.status.500")
-    @Test
-    public void status500() throws Exception {
-        robot.finish();
-    }
-
-    @Specification( "http.proxy.get.method.status.401")
-    @Test
-    public void getMethodStatus401() throws Exception {
-        robot.finish();
-    }
-
 }

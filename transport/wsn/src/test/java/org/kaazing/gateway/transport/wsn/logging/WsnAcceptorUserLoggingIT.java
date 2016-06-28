@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -106,7 +107,7 @@ public class WsnAcceptorUserLoggingIT {
     private TestRule timeoutRule = new DisableOnDebug(new Timeout(10, SECONDS));
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(k3po).around(timeoutRule).around(checkLogMessageRule).around(gateway);
+    public TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(checkLogMessageRule).around(gateway).around(k3po).around(timeoutRule);
 
     @Specification("asyncBasicLoginModuleSuccess")
     @Test
