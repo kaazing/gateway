@@ -233,7 +233,7 @@ public class DefaultClusterContextTest {
         }
     }
 
-    @Test
+    @Test(timeout=Integer.MAX_VALUE)
     public void shouldSeeBalancerStateAfterClusterMembersLeave() throws Exception {
         DefaultClusterContext clusterContext1 = null;
         DefaultClusterContext clusterContext2 = null;
@@ -400,6 +400,7 @@ public class DefaultClusterContextTest {
         Map<String, List<String>> myBalanceTargets = new HashMap<>();
         myBalanceTargets.put(balanceURI, myTargets);
         memberIdBalancerMap.put(memberId, myBalanceTargets);
+
     }
 
     private void validateClusterState(ClusterContext... clusterContext) {

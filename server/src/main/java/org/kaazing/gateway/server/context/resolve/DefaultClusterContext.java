@@ -76,10 +76,11 @@ import com.hazelcast.map.impl.MapListenerAdapter;
  * ClusterContext for KEG
  * <p/>
  * <br>Balancer data<ol>
- * <li> HttpBalancerService.MEMBERID_BALANCER_MAP_NAME: <ul>
- * <li> List of balanced URIs for one member
- * <li>Key: Cluster member id <li>Value: Map(key: balancerURI, value: acceptURIs) </ul>
- *  <li>HttpBalancerService.BALANCER_MAP_NAME
+ * <li> HttpBalancerService.MEMBERID_BALANCER_MAP_NAME: 
+ * <ul><li> List of balanced URIs for one member
+ * <li>Key: Cluster member id <li>Value: Map(key: balancerURI, value: acceptURIs) 
+ * </ul>
+ * <li>HttpBalancerService.BALANCER_MAP_NAME
  * <ul><li> List of balanced URIs for whole cluster <li>Key: balanceURI <li>Value: acceptURIs </ul> </ol>
  */
 public class DefaultClusterContext implements ClusterContext, LogListener {
@@ -171,10 +172,9 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         mapConfig.setBackupCount(3);
 
         MapConfig sharedBalancerMapConfig = hazelCastConfig.getMapConfig(BALANCER_MAP_NAME);
+        sharedBalancerMapConfig.setBackupCount(4);
         MapConfig memberBalancerMapConfig = hazelCastConfig.getMapConfig(MEMBERID_BALANCER_MAP_NAME);
-
-        // disable port auto increment
-        hazelCastConfig.getNetworkConfig().setPortAutoIncrement(false);
+        memberBalancerMapConfig.setBackupCount(4);
 
         // The first accepts port is the port used by all network interfaces.
         int clusterPort = (localInterfaces.size() > 0) ? localInterfaces.get(0).getPort() : -1;
@@ -182,16 +182,17 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         // TO turn off logging in hazelcast API.
         // Note: must use Logger.getLogger, not LogManager.getLogger
         java.util.logging.Logger logger = java.util.logging.Logger.getLogger("com.hazelcast");
-        logger.setLevel(Level.OFF);
+        //logger.setLevel(Level.OFF);
 
         NetworkConfig networkConfig = new NetworkConfig();
         hazelCastConfig.setNetworkConfig(networkConfig);
+        // disable port auto increment
+        hazelCastConfig.getNetworkConfig().setPortAutoIncrement(false);
+
         // initialize hazelcast
         if (clusterPort != -1) {
             hazelCastConfig.getNetworkConfig().setPort(clusterPort);
         }
-
-        
 
         for (MemberId localInterface : localInterfaces) {
             String protocol = localInterface.getProtocol();
@@ -731,6 +732,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
     @Override
     public String getClusterName() {
+        System.out.println("ClusterName: " + clusterName);
         return this.clusterName;
     }
 
@@ -934,6 +936,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
                 throw new RuntimeException("Unable to initialize the cluster");
             }
             Cluster cluster = clusterInstance.getCluster();
+            System.out.println("cluster.toString():" + cluster.hashCode());
             cluster.addMembershipListener(this.membershipListener);
 
             // Register a listener for Hazelcast logging events
