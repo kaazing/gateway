@@ -56,7 +56,6 @@ import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlOptions;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
@@ -159,31 +158,15 @@ public class GatewayConfigParser {
         Document dom = xmlReader.build(configFile);
         Element root = dom.getRootElement();
         GatewayConfigNamespace namespace =  GatewayConfigNamespace.fromURI(root.getNamespace().getURI());
-        checkForOutdated(root);
-        
+
         boolean writeTranslatedFile = !namespace.equals(GatewayConfigNamespace.CURRENT_NS);
         File translatedConfigFile = writeTranslatedFile ?
                 new File(configFile.getParent(), configFile.getName()
                 + TRANSLATED_CONFIG_FILE_EXT) : configFile;
 
         translate(namespace, dom, translatedConfigFile, writeTranslatedFile);
-        
+
         return translatedConfigFile;
-    }
-    
-    private void checkForOutdated(Element root) throws Exception {
-        Namespace namespace = root.getNamespace();
-        List<Element> children = root.getChildren("service", namespace);
-        for (Element child : children) {
-            Element typeChild = child.getChild("type", namespace);
-            String type = typeChild.getText();
-            if (type.equals("management.snmp")) {
-                throw new Exception("snmp management type is outdated and no longer supported."); 
-            } else if (type.equals("session")) {
-                throw new Exception("session service type is outdated and no longer supported.");
-            }
-        }
-        
     }
 
     /**

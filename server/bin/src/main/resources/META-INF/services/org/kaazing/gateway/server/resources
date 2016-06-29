@@ -1,0 +1,5 @@
+xs=org/kaazing/gateway/client/xd/XMLHttpBridge.js
+xsp=org/kaazing/gateway/client/xd/PostMessageParentBridge.js
+xsc=org/kaazing/gateway/client/xd/PostMessageChildBridge.js
+xse=org/kaazing/gateway/client/xd/EventSourceBridge.js
+xsj=org/kaazing/gateway/bridge/CrossSiteAcceptor40.jar
