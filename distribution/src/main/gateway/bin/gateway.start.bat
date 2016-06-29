@@ -58,5 +58,18 @@ if "%GATEWAY_IDENTIFIER%" NEQ "" (
     set GW_ID="-Dorg.kaazing.gateway.server.GATEWAY_IDENTIFIER=%GATEWAY_IDENTIFIER%"
 )
 
+rem Checking java version
+java -version 1>nul 2>nul || (
+   echo no java installed
+   exit /b 2
+)
+for /f tokens^=2-5^ delims^=.-_"" %%j in ('java -fullversion 2^>^&1') do set (jver=%%j%%k%%l%%m)
+
+if %jver% LSS 18000 (
+  echo java version is to low 
+  echo at least 1.8 is needed
+  exit /b 1
+)
+
 rem Startup the gateway
 java %FEATURE_OPTS% %GATEWAY_OPTS% %GW_ID% -Djava.library.path="%JAVA_LIBRARY_PATH%" -XX:+HeapDumpOnOutOfMemoryError -cp "%GW_HOME%\lib\*" org.kaazing.gateway.server.WindowsMain %*
