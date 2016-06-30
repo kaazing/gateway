@@ -66,7 +66,7 @@ java -version 1>nul 2>nul || (
 for /f eol^=J^ tokens^=2-5^ delims^=.-_^" %%j in ('java -fullversion 2^>^&1') do set "jver=%%j%%k"
 
 if %jver% LSS 18 (
-  echo "Java 8 or higher must be installed to start the Gateway." 
+  echo "Java 8 or higher must be installed to start the Gateway."
   exit /b 1
 )
 
