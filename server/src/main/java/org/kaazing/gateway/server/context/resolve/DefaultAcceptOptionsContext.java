@@ -43,21 +43,14 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.kaazing.gateway.server.config.nov2015.ServiceAcceptOptionsType;
 import org.kaazing.gateway.service.AcceptOptionsContext;
-import org.kaazing.gateway.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DefaultAcceptOptionsContext extends DefaultOptionsContext implements AcceptOptionsContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultAcceptOptionsContext.class);
-
-    private static long DEFAULT_TCP_HANDSHAKE_TIMEOUT_MILLIS = 10000; //10 seconds
-    private static long DEFAULT_SSL_HANDSHAKE_TIMEOUT_MILLIS = 10000; //10 seconds
-    private static long DEFAULT_HTTP_HANDSHAKE_TIMEOUT_MILLIS = 10000; //10 seconds
-    private static long DEFAULT_WS_HANDSHAKE_TIMEOUT_MILLIS = 10000; //10 seconds
 
     /**
      * The name of the extended handshake protocol to be sent on the wire.
@@ -218,11 +211,11 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
         if (sslTransport != null) {
             result.put(SSL_TRANSPORT, sslTransport);
         }
-        result.put("tcp.handshake.timeout", getHandshakeTimeout("tcp.handshake.timeout", DEFAULT_TCP_HANDSHAKE_TIMEOUT_MILLIS));
-        result.put("ssl.handshake.timeout", getHandshakeTimeout("ssl.handshake.timeout", DEFAULT_SSL_HANDSHAKE_TIMEOUT_MILLIS));
-        result.put("http.handshake.timeout",
-                getHandshakeTimeout("http.handshake.timeout", DEFAULT_HTTP_HANDSHAKE_TIMEOUT_MILLIS));
-        result.put("ws.handshake.timeout", getHandshakeTimeout("ws.handshake.timeout", DEFAULT_WS_HANDSHAKE_TIMEOUT_MILLIS));
+
+        result.put("tcp.handshake.timeout", getHandshakeTimeout(optionsCopy.remove("tcp.handshake.timeout")));
+        result.put("ssl.handshake.timeout", getHandshakeTimeout(optionsCopy.remove("ssl.handshake.timeout")));
+        result.put("http.handshake.timeout", getHandshakeTimeout(optionsCopy.remove("http.handshake.timeout")));
+        result.put("ws.handshake.timeout", getHandshakeTimeout(optionsCopy.remove("ws.handshake.timeout")));
 
         String httpTransport = getTransportURI("http.transport", optionsCopy.remove("http.transport"));
         if (httpTransport != null) {
@@ -265,17 +258,5 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
 
     private Map<String, String> parseAcceptOptionsType(ServiceAcceptOptionsType acceptOptionsType) {
         return acceptOptionsType != null ? parseOptions(acceptOptionsType.getDomNode()) : new HashMap<>();
-    }
-
-    private long getHandshakeTimeout(String optionName, long defaultValue) {
-        long handshakeTimeout = defaultValue;
-        String handshakeTimeoutValue = options.get(optionName);
-        if (handshakeTimeoutValue != null) {
-            long val = Utils.parseTimeInterval(handshakeTimeoutValue, TimeUnit.MILLISECONDS);
-            if (val >= 0) {
-                handshakeTimeout = val;
-            }
-        }
-        return handshakeTimeout;
     }
 }

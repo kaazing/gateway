@@ -138,7 +138,6 @@ public class TcpResourceAddressFactorySpiTest {
         assertNull(address.getOption(QUALIFIER));
         assertNull(address.getOption(BIND_ADDRESS));
         assertEquals(0xFFFFFFFFL, address.getOption(MAXIMUM_OUTBOUND_RATE).longValue());
-        assertEquals(10000, address.getOption(HANDSHAKE_TIMEOUT).longValue());
     }
 
     @Test

@@ -15,22 +15,23 @@
  */
 package org.kaazing.gateway.server.context.resolve;
 
-import org.kaazing.gateway.resource.address.uri.URIUtils;
-import org.kaazing.gateway.util.Utils;
-import org.kaazing.gateway.util.ssl.SslCipherSuites;
-import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import static java.lang.String.format;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
+import org.kaazing.gateway.util.Utils;
+import org.kaazing.gateway.util.ssl.SslCipherSuites;
+import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 class DefaultOptionsContext {
 
@@ -147,6 +148,17 @@ class DefaultOptionsContext {
             }
         }
         return tcpMaximumOutboundRate;
+    }
+
+    static Long getHandshakeTimeout(String handshakeTimeoutValue) {
+        Long handshakeTimeout = null;
+        if (handshakeTimeoutValue != null) {
+            long val = Utils.parseTimeInterval(handshakeTimeoutValue, TimeUnit.MILLISECONDS);
+            if (val >= 0) {
+                handshakeTimeout = val;
+            }
+        }
+        return handshakeTimeout;
     }
 
     static boolean[] getVerifyClientProperties(String sslVerifyClientValue) {

@@ -140,7 +140,6 @@ public class HttpResourceAddressFactorySpiTest {
         assertEmpty(address.getOption(REALM_AUTHENTICATION_COOKIE_NAMES));
         assertNull(address.getOption(LOGIN_CONTEXT_FACTORY));
         assertTrue(address.getOption(SERVER_HEADER_ENABLED));
-        assertEquals(10000, address.getOption(HANDSHAKE_TIMEOUT).longValue());
     }
 
     @Test

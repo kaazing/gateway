@@ -151,7 +151,7 @@ public final class HttpResourceAddress extends ResourceAddress {
                 case REALM_USER_PRINCIPAL_CLASSES:
                     return (V) realmUserPrincipalClasses;
                 case HANDSHAKE_TIMEOUT:
-                    return (V) Long.valueOf(handshakeTimeout);
+                    return (V) handshakeTimeout;
             }
         }
 
@@ -419,7 +419,7 @@ public final class HttpResourceAddress extends ResourceAddress {
 
     private static final class HandshakeTimeoutOption extends HttpResourceOption<Long> {
         private HandshakeTimeoutOption() {
-            super(Kind.HANDSHAKE_TIMEOUT, "handshake.timeout", HANDSHAKE_TIMEOUT_MILLIS_DEFAULT);
+            super(Kind.HANDSHAKE_TIMEOUT, "handshake.timeout");
         }
     }
 

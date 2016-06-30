@@ -37,7 +37,6 @@ public final class TcpResourceAddress extends ResourceAddress {
     public static final ResourceOption<Long> HANDSHAKE_TIMEOUT = new HandshakeTimeoutOption();
 
     private static final long MAXIMUM_OUTBOUND_RATE_DEFAULT = 0xFFFFFFFFL;
-    private static final long HANDSHAKE_TIMEOUT_MILLIS_DEFAULT = 10000;
 
     private InetSocketAddress bindAddress;
     private long maximumOutboundRate = MAXIMUM_OUTBOUND_RATE.defaultValue();
@@ -58,7 +57,7 @@ public final class TcpResourceAddress extends ResourceAddress {
                 case MAXIMUM_OUTBOUND_RATE:
                     return (V) valueOf(maximumOutboundRate);
                 case HANDSHAKE_TIMEOUT:
-                    return (V) valueOf(handshakeTimeout);
+                    return (V) handshakeTimeout;
             }
         }
 
@@ -119,7 +118,7 @@ public final class TcpResourceAddress extends ResourceAddress {
 
     private static final class HandshakeTimeoutOption extends TcpResourceOption<Long> {
         private HandshakeTimeoutOption() {
-            super(Kind.HANDSHAKE_TIMEOUT, "handshake.timeout", HANDSHAKE_TIMEOUT_MILLIS_DEFAULT);
+            super(Kind.HANDSHAKE_TIMEOUT, "handshake.timeout");
         }
     }
 

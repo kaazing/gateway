@@ -120,6 +120,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
     public static final TypedAttributeKey<Boolean> HTTPXE_SPEC_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "httpxeSpec");
     static final TypedAttributeKey<DefaultHttpSession> SESSION_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "session");
 
+    private static final long DEFAULT_HTTP_HANDSHAKE_TIMEOUT_MILLIS = 10000;
+
     private final Map<String, Set<HttpAcceptFilter>> acceptFiltersByProtocol;
     private final Set<HttpAcceptFilter> allAcceptFilters;
     private Map<ResourceAddress, Long> handshakeTimeoutByTransportAddress = new HashMap<>();
@@ -277,9 +279,17 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         //
         final ResourceAddress transportAddress = address.getTransport();
 
-        handshakeTimeoutByTransportAddress.put(transportAddress, address.getOption(HANDSHAKE_TIMEOUT).longValue());
-        if(transportAddress.hasOption(ALTERNATE)) {
-            handshakeTimeoutByTransportAddress.put(transportAddress.getOption(ALTERNATE), address.getOption(HANDSHAKE_TIMEOUT).longValue());
+        final Long handshakeTimeout = address.getOption(HANDSHAKE_TIMEOUT);
+        if (handshakeTimeout != null) {
+            Long newMappedValue = handshakeTimeoutByTransportAddress.computeIfPresent(transportAddress, (key, value) -> {
+                Long handshakeTimeoutValue = Math.min(handshakeTimeout, value);
+                setHandshakeTimeoutValueForAlternate(transportAddress, handshakeTimeoutValue);
+                return handshakeTimeoutValue;
+            });
+            if (newMappedValue == null) {
+                handshakeTimeoutByTransportAddress.put(transportAddress, handshakeTimeout);
+                setHandshakeTimeoutValueForAlternate(transportAddress, handshakeTimeout);
+            }
         }
 
         final URI transportURI = transportAddress.getResource();
@@ -293,6 +303,12 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
         BridgeAcceptor acceptor = bridgeServiceFactory.newBridgeAcceptor(transportAddress);
         acceptor.bind(transportAddress, bridgeHandler, sessionInitializer);
+    }
+
+    private void setHandshakeTimeoutValueForAlternate(final ResourceAddress transportAddress, Long handshakeTimeout) {
+        if(transportAddress.hasOption(ALTERNATE)) {
+            handshakeTimeoutByTransportAddress.put(transportAddress.getOption(ALTERNATE), handshakeTimeout);
+        }
     }
 
     @Override
@@ -549,7 +565,9 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         ResourceAddress transportAddress = LOCAL_ADDRESS.get(session);
         ScheduledExecutorService taskExecutor = Executors.newScheduledThreadPool(1);
 
-        Long handshakeTimeout = handshakeTimeoutByTransportAddress.get(transportAddress);
+        Long handshakeTimeout =
+                handshakeTimeoutByTransportAddress.get(transportAddress) != null ? handshakeTimeoutByTransportAddress
+                        .get(transportAddress) : DEFAULT_HTTP_HANDSHAKE_TIMEOUT_MILLIS;
         if (handshakeTimeout > 0) {
             chain.addLast("httpHandshakeTimeoutStartTimer", new HttpStartHandshakeTimerFilter(logger, handshakeTimeout, taskExecutor));
         }

@@ -89,6 +89,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractNioAcceptor.class);
 
     private static final String NEXT_PROTOCOL_FILTER = "nio#next-protocol";
+    private static final long DEFAULT_TCP_HANDSHAKE_TIMEOUT_MILLIS = 10000;
 
     private final AtomicBoolean started;
     private final NextProtocolBindings bindings;
@@ -212,8 +213,10 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             ResourceAddress localAddress = binding.bindAddress();
             LOCAL_ADDRESS.set(session, localAddress);
 
-            Long handshakeTimeout = localAddress.getOption(HANDSHAKE_TIMEOUT).longValue();
-            if (handshakeTimeout != null && handshakeTimeout > 0) {
+            Long handshakeTimeout =
+                    localAddress.getOption(HANDSHAKE_TIMEOUT) != null ? localAddress.getOption(HANDSHAKE_TIMEOUT).longValue()
+                            : DEFAULT_TCP_HANDSHAKE_TIMEOUT_MILLIS;
+            if (handshakeTimeout > 0) {
                 session.getFilterChain().addLast("tcpHandshakeTimeout", new NioHandshakeFilter(logger, handshakeTimeout));
             }
 

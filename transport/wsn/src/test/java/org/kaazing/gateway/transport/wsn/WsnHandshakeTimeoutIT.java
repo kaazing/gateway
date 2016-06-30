@@ -17,6 +17,7 @@ package org.kaazing.gateway.transport.wsn;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -54,6 +55,7 @@ public class WsnHandshakeTimeoutIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(gateway).around(robot).around(timeout);
 
+    @Ignore("Work in progress")
     @Specification("test.wsn.handshake.timeout")
     @Test
     public void wsnHandshakeTimeoutKillsSlowSession() throws Exception {

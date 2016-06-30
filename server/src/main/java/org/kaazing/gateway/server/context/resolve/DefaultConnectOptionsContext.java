@@ -32,11 +32,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.kaazing.gateway.server.config.nov2015.ServiceConnectOptionsType;
 import org.kaazing.gateway.service.ConnectOptionsContext;
-import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,11 +44,6 @@ public class DefaultConnectOptionsContext extends DefaultOptionsContext implemen
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultConnectOptionsContext.class);
 
     private final Map<String, String> options;  // unmodifiable map
-
-    private static long DEFAULT_TCP_HANDSHAKE_TIMEOUT_MILLIS = 10000; //10 seconds
-    private static long DEFAULT_SSL_HANDSHAKE_TIMEOUT_MILLIS = 10000; //10 seconds
-    private static long DEFAULT_HTTP_HANDSHAKE_TIMEOUT_MILLIS = 10000; //10 seconds
-    private static long DEFAULT_WS_HANDSHAKE_TIMEOUT_MILLIS = 10000; //10 seconds
     public DefaultConnectOptionsContext() {
         this.options = Collections.emptyMap();
     }
@@ -82,11 +75,12 @@ public class DefaultConnectOptionsContext extends DefaultOptionsContext implemen
 
         long wsInactivityTimeout = getWsInactivityTimeout(wsInactivityTimeoutStr);
         result.put("ws.inactivityTimeout", wsInactivityTimeout);
-        result.put("tcp.handshake.timeout", getHandshakeTimeout("tcp.handshake.timeout", DEFAULT_TCP_HANDSHAKE_TIMEOUT_MILLIS));
-        result.put("ssl.handshake.timeout", getHandshakeTimeout("ssl.handshake.timeout", DEFAULT_SSL_HANDSHAKE_TIMEOUT_MILLIS));
-        result.put("http.handshake.timeout",
-                getHandshakeTimeout("http.handshake.timeout", DEFAULT_HTTP_HANDSHAKE_TIMEOUT_MILLIS));
-        result.put("ws.handshake.timeout", getHandshakeTimeout("ws.handshake.timeout", DEFAULT_WS_HANDSHAKE_TIMEOUT_MILLIS));
+
+        result.put("tcp.handshake.timeout", getHandshakeTimeout(optionsCopy.remove("tcp.handshake.timeout")));
+        result.put("ssl.handshake.timeout", getHandshakeTimeout(optionsCopy.remove("ssl.handshake.timeout")));
+        result.put("http.handshake.timeout", getHandshakeTimeout(optionsCopy.remove("http.handshake.timeout")));
+        result.put("ws.handshake.timeout", getHandshakeTimeout(optionsCopy.remove("ws.handshake.timeout")));
+
 
         int httpKeepaliveTimeout = getHttpKeepaliveTimeout(httpKeepaliveTimeoutStr);
         result.put("http[http/1.1].keepAliveTimeout", httpKeepaliveTimeout);
@@ -98,6 +92,11 @@ public class DefaultConnectOptionsContext extends DefaultOptionsContext implemen
 
         boolean keepAlive = isHttpKeepaliveEnabled(optionsCopy.remove("http.keepalive"));
         result.put("http[http/1.1].keepAlive", keepAlive);
+
+        Integer keepaliveConnections = getHttpKeepaliveConnections(optionsCopy.remove("http.keepalive.connections"));
+        if (keepaliveConnections != null) {
+            result.put("http[http/1.1].keepalive.connections", keepaliveConnections);
+        }
 
         String[] sslCiphers = getSslCiphers(optionsCopy.remove("ssl.ciphers"));
         if (sslCiphers != null) {
@@ -145,18 +144,6 @@ public class DefaultConnectOptionsContext extends DefaultOptionsContext implemen
         }
 
         return result;
-    }
-
-    private long getHandshakeTimeout(String optionName, long defaultValue) {
-        long handshakeTimeout = defaultValue;
-        String handshakeTimeoutValue = options.get(optionName);
-        if (handshakeTimeoutValue != null) {
-            long val = Utils.parseTimeInterval(handshakeTimeoutValue, TimeUnit.MILLISECONDS);
-            if (val >= 0) {
-                handshakeTimeout = val;
-            }
-        }
-        return handshakeTimeout;
     }
 
     private Map<String, String> parseConnectOptionsType(ServiceConnectOptionsType connectOptionsType) {
