@@ -626,8 +626,8 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         return httpxeSpecCompliant;
     }
 
-        void resetParent(IoSessionEx newParent){
-        setParent(newParent);
+    public IoSessionEx setParent(IoSessionEx newParent){
+        return super.setParent(newParent);
     }
 
     int getAndDecrementRedirectsAllowed() {
