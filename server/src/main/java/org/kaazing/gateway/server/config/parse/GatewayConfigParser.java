@@ -159,15 +159,13 @@ public class GatewayConfigParser {
         Document dom = xmlReader.build(configFile);
         Element root = dom.getRootElement();
         GatewayConfigNamespace namespace =  GatewayConfigNamespace.fromURI(root.getNamespace().getURI());
-        checkForOutdated(root);
-        
+        checkForOutdated(root); 
         boolean writeTranslatedFile = !namespace.equals(GatewayConfigNamespace.CURRENT_NS);
         File translatedConfigFile = writeTranslatedFile ?
                 new File(configFile.getParent(), configFile.getName()
                 + TRANSLATED_CONFIG_FILE_EXT) : configFile;
 
         translate(namespace, dom, translatedConfigFile, writeTranslatedFile);
-        
         return translatedConfigFile;
     }
     
