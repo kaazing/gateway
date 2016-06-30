@@ -60,14 +60,13 @@ if "%GATEWAY_IDENTIFIER%" NEQ "" (
 
 rem Checking java version
 java -version 1>nul 2>nul || (
-   echo no java installed
-   exit /b 2
+    echo "Java is not installed. Cannot start the Gateway."
+    exit /b 2
 )
-for /f tokens^=2-5^ delims^=.-_"" %%j in ('java -fullversion 2^>^&1') do set (jver=%%j%%k%%l%%m)
+for /f eol^=J^ tokens^=2-5^ delims^=.-_^" %%j in ('java -fullversion 2^>^&1') do set "jver=%%j%%k"
 
-if %jver% LSS 18000 (
-  echo java version is to low 
-  echo at least 1.8 is needed
+if %jver% LSS 18 (
+  echo "Java 8 or higher must be installed to start the Gateway." 
   exit /b 1
 )
 

@@ -84,7 +84,7 @@ if type -p java; then
 elif [[ -n "$JAVA_HOME" ]] && [[ -x "$JAVA_HOME/bin/java" ]]; then
   _java="JAVA_HOME/bin/java"
 else
-  echo "There is no Java version installed. Gateway cannot start up."
+  echo "Java is not installed. Cannot start the Gateway."
   exit 1
 fi
 
