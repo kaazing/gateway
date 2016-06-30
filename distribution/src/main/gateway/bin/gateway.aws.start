@@ -1,0 +1,111 @@
+#!/bin/bash
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+PRG="$0"
+
+while [ -h "$PRG" ] ; do
+  ls=`ls -ld "$PRG"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG=`dirname "$PRG"`/"$link"
+  fi
+done
+
+PRGDIR=`dirname "$PRG"`
+
+# A temporary variable for the location of the gateway installation,
+# to allow determining the conf and lib subdirectories (assumed to 
+# be siblings to this script's 'bin' directory).
+GW_HOME=`cd "$PRGDIR/.." ; pwd`
+
+# Indicate whether or not we are running from an installed Linux
+# version of the Gateway or an unzipped, self-contained version.
+# The value controls where the Gateway looks for certain files
+# it needs to operate.  Do not change this value!
+INSTALLED_LINUX=false
+
+# This is cloud specific, so grab the hostname from the metadata
+# and use it for a -D command line parameter to allow the Gateway
+# to start on the correct host
+HOSTNAME=`wget -q -O - http://169.254.169.254/latest/meta-data/public-hostname | tr -d '\n'`
+# If it is on vpc, hostname is used in lieu of public-hostname
+if [ "$HOSTNAME" == "" ]; then
+  HOSTNAME=`wget -q -O - http://169.254.169.254/latest/meta-data/hostname | tr -d '\n'`
+fi
+
+#Check to see if AWS parameters where successfully obtained
+if [ "$HOSTNAME" == "" ]; then
+    echo "AWS Hostname could not be resolved via AWS EC2 user-data api"
+    echo "This startup script must be run from an EC2 instance"
+    echo "Exiting..."
+    exit 1;
+fi
+
+# You can define various Java system properties by setting the value
+# of the GATEWAY_OPTS environment variable before calling this script.
+# The script itself should not be changed. For example, the setting
+# below sets the Java maximum memory to 512MB.
+[ -z "$GATEWAY_OPTS" ] && GATEWAY_OPTS="-Xmx512m"
+
+# You can define flags to opt into using early access features by setting the value
+# of the GATEWAY_FEATURES environment variable to a comma separated list of features
+# to enable before calling this script.
+# The script itself should not be changed.
+FEATURE_OPTS=""
+if [ -n "$GATEWAY_FEATURES" ]
+then
+   echo Enabling early access features: $GATEWAY_FEATURES  
+   set -f; IFS=,
+   for feature in $GATEWAY_FEATURES; do
+      FEATURE_OPTS="$FEATURE_OPTS -Dfeature.$feature"
+   done
+   set =f; unset IFS
+fi
+
+# Check if Java exists
+if type -p java; then
+  _java=java
+elif [[ -n "$JAVA_HOME" ]] && [[ -x "$JAVA_HOME/bin/java" ]]; then
+  _java="JAVA_HOME/bin/java"
+else
+  echo "Java is not installed. Cannot start the Gateway."
+  exit 1
+fi
+
+# Check the Java version
+if [[ "$_java" ]]; then
+ # Does not work when JAVA_OPTIONS is set
+ # JAVA_VER=$(java -version 2>&1 | sed 's/.*version "\(.*\)\.\(.*\)\..*"/\1\2/; 1q')
+ JAVA_VER=$(java -version 2>&1 | grep -i version | cut -d'"' -f2 | cut -d'.' -f1-2)
+  if [[ "$JAVA_VER" > "1.7" ]]; then
+    echo version "$JAVA_VER"
+  else
+    echo "Java 8 or higher must be installed to start the Gateway"
+    exit 1
+  fi
+fi
+
+# Add a directory for management support
+JAVA_LIBRARY_PATH="$GW_HOME/lib/sigar"
+
+if [ $INSTALLED_LINUX == "true" ]; then
+    exec java $GATEWAY_OPTS $FEATURE_OPTS -Djava.library.path="$JAVA_LIBRARY_PATH" -Dgateway.hostname=$HOSTNAME -cp "$GW_HOME/lib/*" org.kaazing.gateway.server.InstalledLinuxMain $*
+else
+    exec java $GATEWAY_OPTS $FEATURE_OPTS -Djava.library.path="$JAVA_LIBRARY_PATH" -Dgateway.hostname=$HOSTNAME -cp "$GW_HOME/lib/*" org.kaazing.gateway.server.Main $*
+fi

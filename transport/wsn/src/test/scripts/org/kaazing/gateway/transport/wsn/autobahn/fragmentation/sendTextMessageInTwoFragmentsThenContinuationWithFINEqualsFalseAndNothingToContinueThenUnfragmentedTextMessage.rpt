@@ -1,0 +1,61 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Autobahn test case 5.15
+
+# Case Description
+# Send text Message fragmented into 2 fragments, then Continuation Frame with FIN = false where there is nothing to continue, 
+# then unfragmented Text Message, all sent in one chop.
+
+# Case Expectation
+# The connection is failed immediately, since there is no message to continue.
+
+connect tcp://localhost:8555
+connected
+
+write "GET /echo HTTP/1.1\r\n"
+write "User-Agent: AutobahnTestSuite/0.6.1-0.8.8\r\n"
+write "Host: localhost:8555\r\n"
+write "Upgrade: WebSocket\r\n"
+write "Connection: Upgrade\r\n"
+write "Pragma: no-cache\r\n"
+write "Cache-Control: no-cache\r\n"
+write "Sec-WebSocket-Key: xcYhOENasyag5BSPpfK0Tw==\r\n"
+write "Sec-WebSocket-Version: 13\r\n"
+write "\r\n"
+
+read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
+read "Connection: Upgrade\r\n"
+read /Date: .*\r\n/
+read "Sec-WebSocket-Accept: czkePdV1Q7gKE92PbbRTwTid55s=\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "Upgrade: WebSocket\r\n"
+read "\r\n"
+
+# Websocket text in two fragments followed by continuation frame with FIN = false then unfragmented text with payload in one chop
+write [0x01 0x89 0xe2 0x60 0x60 0xf1 0x84 0x12 0x01 0x96 0x8f 0x05 0x0e 0x85 0xd3 0x80 0x89 0x3d 0x2d 0xce 0xa0 0x5b 0x5f 0xaf 0xc7 0x50 0x48 0xa0 0xd4 0x0f 0x00 0x89 0x22 0x23 0x92 0x4e 0x44 0x51 0xf3 0x29 0x4f 0x46 0xfc 0x3a 0x11 0x81 0x89 0x3b 0x13 0xc2 0x34 0x5d 0x61 0xa3 0x53 0x56 0x76 0xac 0x40 0x0f]
+
+# read fragment1, fragment2
+read [0x01 0x09 0x66 0x72 0x61 0x67 0x6d 0x65 0x6e 0x74 0x31]
+read [0x80 0x09 0x66 0x72 0x61 0x67 0x6d 0x65 0x6e 0x74 0x32]
+
+# Websocket close with close code 1002 (protocol error)
+read [0x88 0x02 0x03 0xea]
+write [0x88 0x82 0x19 0xe6 0x53 0x6a 0x1a 0x0c]
+
+# Server should close the connection
+
+closed

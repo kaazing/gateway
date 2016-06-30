@@ -1,0 +1,5 @@
+org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactoryTest$MockWebSocketExtensionFactorySpi
+org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactoryTest$FooWebSocketExtensionFactory
+org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactoryTest$PerMessageDeflateWebSocketExtensionFactory
+org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactoryTest$NetworkWebSocketExtensionFactory
+org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactoryTest$PingPongWebSocketExtensionFactory

@@ -1,0 +1,99 @@
+#!/bin/bash
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+PRG="$0"
+
+while [ -h "$PRG" ] ; do
+  ls=`ls -ld "$PRG"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG=`dirname "$PRG"`/"$link"
+  fi
+done
+
+PRGDIR=`dirname "$PRG"`
+
+# A temporary variable for the location of the gateway installation,
+# to allow determining the conf and lib subdirectories (assumed to 
+# be siblings to this script's 'bin' directory).
+GW_HOME=`cd "$PRGDIR/.." ; pwd`
+
+# You can define various Java system properties by setting the value
+# of the GATEWAY_OPTS environment variable before calling this script.
+# The script itself should not be changed.
+if [ -z "$GATEWAY_OPTS" ]; then
+  # Sets the Java maximum memory to 512MB
+  GATEWAY_OPTS="-Xmx512m"
+  # By default, Java uses /dev/random to gather entropy data for cryptographic
+  # needs. However, using /dev/random can cause delays during Gateway startup,
+  # especially in virtualized environments. /dev/urandom does not require
+  # collection of entropy data in subsequent runs.
+  # See: https://github.com/kaazing/gateway/issues/167
+  GATEWAY_OPTS="$GATEWAY_OPTS -Djava.security.egd=file:/dev/urandom"
+fi
+
+# You can define flags to opt into using early access features by setting the value
+# of the GATEWAY_FEATURES environment variable to a comma separated list of features
+# to enable before calling this script.
+# The script itself should not be changed.
+FEATURE_OPTS=""
+if [ -n "$GATEWAY_FEATURES" ]
+then
+   echo Enabling early access features: $GATEWAY_FEATURES  
+   set -f; IFS=,
+   for feature in $GATEWAY_FEATURES; do
+      FEATURE_OPTS="$FEATURE_OPTS -Dfeature.$feature"
+   done
+   set =f; unset IFS
+fi
+
+# Check if Java exists
+if type -p java; then
+  _java=java
+elif [[ -n "$JAVA_HOME" ]] && [[ -x "$JAVA_HOME/bin/java" ]]; then
+  _java="JAVA_HOME/bin/java"
+else
+  echo "Java is not installed. Cannot start the Gateway."
+  exit 1
+fi
+
+# Check the Java version
+if [[ "$_java" ]]; then
+ # Does not work when JAVA_OPTIONS is set
+ # JAVA_VER=$(java -version 2>&1 | sed 's/.*version "\(.*\)\.\(.*\)\..*"/\1\2/; 1q')
+ JAVA_VER=$(java -version 2>&1 | grep -i version | cut -d'"' -f2 | cut -d'.' -f1-2)
+  if [[ "$JAVA_VER" > "1.7" ]]; then
+    echo version "$JAVA_VER"
+  else
+    echo "Java 8 or higher must be installed to start the Gateway"
+    exit 1
+  fi
+fi
+
+# Add a directory for management support
+JAVA_LIBRARY_PATH="$GW_HOME/lib/sigar"
+
+# Set the gateway identifier (Required by multiple gateway instances)
+GW_ID=""
+if [ "$GATEWAY_IDENTIFIER" != "" ]; then
+  GW_ID="-Dorg.kaazing.gateway.server.GATEWAY_IDENTIFIER=$GATEWAY_IDENTIFIER"
+fi
+
+# Startup the gateway
+exec java $GATEWAY_OPTS $FEATURE_OPTS $GW_ID -Djava.library.path="$JAVA_LIBRARY_PATH" -XX:+HeapDumpOnOutOfMemoryError -cp "$GW_HOME/lib/*" org.kaazing.gateway.server.Main $*

@@ -1,0 +1,83 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.kaazing</groupId>
+        <artifactId>gateway.bridge.parent</artifactId>
+        <version>develop-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>gateway.bridge</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Kaazing Gateway Bridge</name>
+    <url>https://github.com/kaazing/gateway/bridge/gateway.bridge</url>
+
+    <scm>
+        <url>https://github.com/kaazing/gateway/bridge/gateway.bridge</url>
+        <connection>scm:git:https://github.com/kaazing/gateway.git</connection>
+    </scm>
+
+    <dependencies>
+        <!-- This dependency is needed for core assemblies, but could be 
+            removed if those are fixed. Otherwise, it is not used here but must remain -->
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.client.java.bridge</artifactId>
+            <version>[5.0.0.0,5.1.0.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.client.javascript.bridge</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <stripVersion>true</stripVersion>
+                            <outputDirectory>${basedir}/target/resources</outputDirectory>
+                            <includeArtifactIds>
+                                gateway.client.java.bridge,
+                                gateway.client.javascript.bridge
+                            </includeArtifactIds>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <!-- 1.8 (latest at this time) does not seem to working with the configuration below, so hardcoding to 1.7 -->
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <copy file="${basedir}/target/resources/gateway.client.java.bridge.jar" tofile="${project.build.outputDirectory}/org/kaazing/gateway/bridge/CrossSiteAcceptor40.jar" />
+                                <unzip src="${basedir}/target/resources/gateway.client.javascript.bridge.jar" dest="${project.build.outputDirectory}">
+                                    <patternset>
+                                        <include name="**/*.js" />
+                                    </patternset>
+                                </unzip>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

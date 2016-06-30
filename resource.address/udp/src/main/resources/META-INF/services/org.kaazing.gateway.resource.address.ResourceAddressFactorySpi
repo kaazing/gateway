@@ -1,0 +1,2 @@
+org.kaazing.gateway.resource.address.udp.McpResourceAddressFactorySpi
+org.kaazing.gateway.resource.address.udp.UdpResourceAddressFactorySpi

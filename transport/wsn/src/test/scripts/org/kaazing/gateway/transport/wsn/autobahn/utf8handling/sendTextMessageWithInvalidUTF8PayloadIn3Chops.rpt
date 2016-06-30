@@ -1,0 +1,65 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Autobahn test case 6.4.3
+
+# Case Description
+# Same as Case 6.4.1, but we send message not in 3 frames, but in 3 chops of the same message frame. 
+# MESSAGE PARTS:
+# PART1 = cebae1bdb9cf83cebcceb5
+# PART2 = f4908080
+# PART3 = 656469746564
+
+# Case Expectation
+# The first chop is accepted, we expect to timeout on the first wait. 
+# The 2nd chop should be rejected immediately (fail fast on UTF-8). 
+# If we timeout, we expect the connection is failed at least then, since the complete message payload is not valid UTF-8.
+
+connect tcp://localhost:8555
+connected
+
+write "GET /echo HTTP/1.1\r\n"
+write "User-Agent: AutobahnTestSuite/0.6.1-0.8.8\r\n"
+write "Host: localhost:8555\r\n"
+write "Upgrade: WebSocket\r\n"
+write "Connection: Upgrade\r\n"
+write "Pragma: no-cache\r\n"
+write "Cache-Control: no-cache\r\n"
+write "Sec-WebSocket-Key: wSKWqvYrd7sJpNqirMTFRw==\r\n"
+write "Sec-WebSocket-Version: 13\r\n"
+write "\r\n"
+
+read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
+read "Connection: Upgrade\r\n"
+read /Date: .*\r\n/
+read "Sec-WebSocket-Accept: Exf0qngIAOmbvSvUfDRiSTwOFGo=\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "Upgrade: WebSocket\r\n"
+read "\r\n"
+
+# Websocket text in chops (part 1 and 2)
+write [0x01 0x95 0xc2 0x9f 0x58 0x53 0x0c 0x25 0xb9 0xee 0x7b 0x50 0xdb 0x9d 0x7e 0x51 0xed] 
+write [0xa7 0x52 0x42 0x1f]
+
+# utf-8 fail fast, so didn't bother writing rest of message
+
+# Websocket close with close code 1007 (invalid frame payload data) 
+read [0x88 0x02 0x03 0xef]
+write [0x88 0x82 0xcf 0x4e 0xcb 0x17 0xcc 0xa1]
+
+# Server should close the connection
+
+closed

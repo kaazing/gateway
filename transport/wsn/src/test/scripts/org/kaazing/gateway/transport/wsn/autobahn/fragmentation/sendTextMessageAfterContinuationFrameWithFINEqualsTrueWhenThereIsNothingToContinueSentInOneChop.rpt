@@ -1,0 +1,56 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Autobahn test case 5.9
+
+# Case Description
+# Send unfragmented Text Message after Continuation Frame with FIN = true, where there is nothing to continue, sent in one chop.
+
+# Case Expectation
+# The connection is failed immediately, since there is no message to continue.
+
+connect tcp://localhost:8555
+connected
+
+write "GET /echo HTTP/1.1\r\n"
+write "User-Agent: AutobahnTestSuite/0.6.1-0.8.8\r\n"
+write "Host: localhost:8555\r\n"
+write "Upgrade: WebSocket\r\n"
+write "Connection: Upgrade\r\n"
+write "Pragma: no-cache\r\n"
+write "Cache-Control: no-cache\r\n"
+write "Sec-WebSocket-Key: Th/EnQRHAQpLxuFt8ikePA==\r\n"
+write "Sec-WebSocket-Version: 13\r\n"
+write "\r\n"
+
+read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
+read "Connection: Upgrade\r\n"
+read /Date: .*\r\n/
+read "Sec-WebSocket-Accept: eUeT76yRb1J0fjJpLrT2griV6Sc=\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "Upgrade: WebSocket\r\n"
+read "\r\n"
+
+# Websocket continuation with FIN = true. Followed by Websocket text with payload
+write [0x80 0x98 0x73 0x41 0xf1 0x53 0x1d 0x2e 0x9f 0x7e 0x10 0x2e 0x9f 0x27 0x1a 0x2f 0x84 0x32 0x07 0x28 0x9e 0x3d 0x53 0x31 0x90 0x2a 0x1f 0x2e 0x90 0x37 0x81 0x8d 0x40 0x93 0xad 0xf6 0x08 0xf6 0xc1 0x9a 0x2f 0xbf 0x8d 0x81 0x2f 0xe1 0xc1 0x92 0x61]
+
+# Websocket close with close code 1002 (protocol error)
+read [0x88 0x02 0x03 0xea]
+write [0x88 0x82 0xac 0xa6 0x8a 0x14 0xaf 0x4c]
+
+# Server should close the connection
+
+closed

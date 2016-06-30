@@ -1,0 +1,57 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+## This test came from converting rtest project (http://svn.kaazing.wan/gateway.server.rtests/) to robot test.
+## This test might represent 3.6.x.y client behavior since the origin of rtests project was 3.6.x.y code line.
+
+connect tcp://127.0.0.1:8001
+connected
+
+# RFC6455Firefox11BetaExtendedHandshake connection request
+write "GET /echo?.kl=Y HTTP/1.1\r\n"
+write "Host: localhost:8001\r\n"
+write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:11.0) Gecko/20100101 Firefox/11.0\r\n"
+write "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n"
+write "Accept-Language: en-us,en;q=0.5\r\n"
+write "Accept-Encoding: gzip, deflate\r\n"
+write "Connection: keep-alive, Upgrade\r\n"
+write "Sec-WebSocket-Version: 13\r\n"
+write "Origin: http://localhost:8001\r\n"
+write "Sec-WebSocket-Protocol: x-kaazing-handshake\r\n"
+write "Sec-WebSocket-Key: qqSUZf7gkYUO47sEGUgIJQ==\r\n"
+write "Cookie: __utma=111872281.319134413.1321376658.1321376658.1321376658.1; __utmz=111872281.1321376658.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)\r\n"
+write "Pragma: no-cache\r\n"
+write "Cache-Control: no-cache\r\n"
+write "Upgrade: websocket\r\n"
+write "\r\n"
+
+# 101 Response
+read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
+read "Connection: Upgrade\r\n"
+read /Date: .*\r\n/
+read "Sec-WebSocket-Accept: OOyJskC0Wrte6ecPvY3JUemp9/U=\r\n"
+read "Sec-WebSocket-Protocol: x-kaazing-handshake\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "Upgrade: websocket\r\n"
+#read "Sec-WebSocket-Origin: http://localhost:8001\r\n"
+#read "Sec-WebSocket-Location: ws://localhost:8001/echo?.kl=Y\r\n"
+#read "X-Frame-Type: binary\r\n"
+read "\r\n"
+# binary-encoded balancer directive - NO balance needed       
+read [0x82 0x04 0xEF 0x83 0xBF 0x4E]
+
+close
+closed

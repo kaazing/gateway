@@ -1,0 +1,3 @@
+org.kaazing.gateway.transport.http.resource.impl.HttpClientAccessPolicyXmlFactorySpi
+org.kaazing.gateway.transport.http.resource.impl.HttpCrossOriginJavaBridgeVerifierFactorySpi
+org.kaazing.gateway.transport.http.resource.impl.HttpInjectedDynamicResourceFactorySpi

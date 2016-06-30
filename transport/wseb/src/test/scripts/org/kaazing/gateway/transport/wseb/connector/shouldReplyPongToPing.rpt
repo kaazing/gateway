@@ -1,0 +1,95 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# wseb create request
+
+accept http://localhost:8011/path/;e/cb
+accepted
+connected
+
+read method "GET"
+read version "HTTP/1.1"
+# read header "X-WebSocket-Version" "wseb-1.1"
+read header "X-Sequence-No" /(?<sequence>[0-9]{1,3})/
+read closed
+
+write status "201" "Created" 
+write version "HTTP/1.1"
+write header "X-WebSocket-Version" "wseb-1.1"
+write header "Content-Type" "text/plain;charset=utf-8"
+write header content-length
+write "http://localhost:8011/path/;e/ub/QD12TQhXT6I5KeCrDe6g0IC9qoDkIioh\n"
+write "http://localhost:8011/path/;e/db/QD12TQhXT6I5KeCrDe6g0IC9qoDkIioh\n"
+write close
+write notify CREATED
+
+
+# wseb downstream request
+
+accept http://localhost:8011/path/;e/db/QD12TQhXT6I5KeCrDe6g0IC9qoDkIioh
+read await CREATED
+accepted
+connected
+
+read method "GET"
+read version "HTTP/1.1"
+read header "X-Sequence-No" ${wse:asString(sequence + 1)}
+read closed
+
+write status "200" "OK"
+write version "HTTP/1.1"
+write header "Content-Type" "application/octet-stream"
+write header "Connection" "close"
+write flush
+
+write [0x01 0x30 0x30 0xff] # NO-OP
+write flush
+
+write [0x89 0x00] # PING
+write flush
+
+write notify PING_SENT
+
+# wseb upstream request from proxy service wse connect
+
+accept http://localhost:8011/path/;e/ub/QD12TQhXT6I5KeCrDe6g0IC9qoDkIioh
+accepted
+connected
+
+read await CREATED
+
+read method "POST"
+read version "HTTP/1.1"
+# read header "Content-Type" "application/octet-stream"
+read header "X-Sequence-No" ${wse:asString(sequence + 1)}
+
+read await PING_SENT
+
+# NOOP (not in wse spec server.send.ping/response.rpt but valid)
+read [0x01 0x30 0x30 0xff]
+
+# PONG reply
+read [0x8a 0x00]
+
+#read [0x01 0x30 0x31 0xFF]
+#read closed
+
+#write status "200" "OK"
+#write version "HTTP/1.1"
+#write header content-length
+#write close
+
+

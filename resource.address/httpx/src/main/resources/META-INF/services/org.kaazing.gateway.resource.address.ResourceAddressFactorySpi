@@ -1,0 +1,2 @@
+org.kaazing.gateway.resource.address.httpx.HttpxResourceAddressFactorySpi
+org.kaazing.gateway.resource.address.httpx.HttpxSslResourceAddressFactorySpi

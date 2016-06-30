@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.kaazing</groupId>
+        <artifactId>gateway</artifactId>
+        <version>develop-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    <artifactId>gateway.service.http.balancer</artifactId>
+    <name>Http Balancer Service</name>
+    <description>Gateway balancer service that balances requests for any other gateway service</description>
+
+    <url>https://github.com/kaazing/gateway.service.http.balancer.git</url>
+    <scm>
+        <connection>scm:git:${project.scm.url}</connection>
+        <developerConnection>scm:git:${project.scm.url}</developerConnection>
+        <url>git@github.com:kaazing/gateway.service.http.balancer.git</url>
+    </scm>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.transport.http</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.transport.sse</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.transport.wseb</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.transport.wsn</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- test dependencies -->
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.resource.address.httpxe</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.resource.address.httpx</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.resource.address.wsx</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.transport.pipe</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.server</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.service.echo</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>test.util</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>k3po.junit</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+     <plugins>
+        <plugin>
+            <dependencies>
+                <dependency>
+                    <groupId>org.kaazing</groupId>
+                    <artifactId>specification.http</artifactId>
+                    <version>${k3po.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.kaazing</groupId>
+                    <artifactId>specification.httpx</artifactId>
+                    <version>${k3po.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.kaazing</groupId>
+                    <artifactId>specification.ws</artifactId>
+                    <version>${k3po.version}</version>
+                </dependency>
+            </dependencies>
+            <groupId>org.kaazing</groupId>
+            <artifactId>k3po-maven-plugin</artifactId>
+            <version>${k3po.version}</version>
+            <configuration>
+                <skipTests>${skipITs}</skipTests>
+            </configuration>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>start</goal>
+                        <goal>stop</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+        </plugin>
+    </plugins>
+</build>
+
+</project>

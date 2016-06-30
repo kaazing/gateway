@@ -1,0 +1,111 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.kaazing</groupId>
+        <artifactId>gateway.bridge.parent</artifactId>
+        <version>develop-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>gateway.client.javascript.bridge</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Kaazing Gateway Client Javascript Bridge Packaging</name>
+    <url>https://github.com/kaazing/gateway/bridge/gateway.client.javascript.bridge</url>
+
+    <scm>
+        <url>https://github.com/kaazing/gateway/bridge/gateway.client.javascript.bridge</url>
+        <connection>scm:git:https://github.com/kaazing/gateway.git</connection>
+    </scm>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.kaazing</groupId>
+                <artifactId>unpack-bower-dependency-maven-plugin</artifactId>
+                <version>1.0.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <bowerDependencies>
+                        <bowerDependency>
+                            <name>kaazing-client-javascript-bridge</name>
+                            <location>https://github.com/kaazing/bower-kaazing-client-javascript-bridge.git</location>
+                            <version>[5.0.0,5.1.0]</version>
+                        </bowerDependency>
+                    </bowerDependencies>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <!-- here the phase you need -->
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/org/kaazing/gateway/client/xd/</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.directory}/bower-dependency/kaazing-client-javascript-bridge/js</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <!--This plugin's configuration is used to store Eclipse 
+                    m2e settings only. It has no influence on the Maven build itself. -->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.kaazing</groupId>
+                                        <artifactId>unpack-bower-dependency-maven-plugin</artifactId>
+                                        <versionRange>[1.0,)</versionRange>
+                                        <goals>
+                                            <goal>unpack</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

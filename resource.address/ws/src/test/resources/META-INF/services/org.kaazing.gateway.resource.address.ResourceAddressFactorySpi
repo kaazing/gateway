@@ -1,0 +1,10 @@
+org.kaazing.gateway.resource.address.ws.MockWsn
+org.kaazing.gateway.resource.address.ws.MockWsnSsl
+org.kaazing.gateway.resource.address.ws.MockWsDraft
+org.kaazing.gateway.resource.address.ws.MockWsDraftSsl
+org.kaazing.gateway.resource.address.ws.MockWse
+org.kaazing.gateway.resource.address.ws.MockWseSsl
+org.kaazing.gateway.resource.address.ws.MockWsx
+org.kaazing.gateway.resource.address.ws.MockWsxSsl
+org.kaazing.gateway.resource.address.ws.MockWsxDraft
+org.kaazing.gateway.resource.address.ws.MockWsxDraftSsl

@@ -1,0 +1,60 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+connect tcp://127.0.0.1:8001
+connected
+
+# Connection request
+write "GET /echo?.kl=Y HTTP/1.1\r\n"
+write "Upgrade: websocket\r\n"
+write "Connection: Upgrade\r\n"
+write "Host: localhost:8001\r\n"
+write "Origin: http://localhost:8001\r\n"
+write "Sec-WebSocket-Key: nDaimG37f4nUqogPypithw==\r\n"
+write "Sec-WebSocket-Version: 13\r\n"
+# Try with multiple extensions for good measure (and because they will be used together)
+write "Sec-WebSocket-Extensions: x-kaazing-idle-timeout,x-kaazing-ping-pong\r\n"
+write "\r\n"
+
+# 101 Response
+
+read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
+read "Connection: Upgrade\r\n"
+read /Date: .*\r\n/
+read /Sec-WebSocket-Accept: .*\r\n/
+# The 4 control bytes for ping-pong extension are 0x01010102:
+read "Sec-WebSocket-Extensions: x-kaazing-idle-timeout; timeout=2000\r\n"
+read "Sec-WebSocket-Extensions: x-kaazing-ping-pong; 01010102"
+read "\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "Upgrade: websocket\r\n"
+read "\r\n"
+
+# binary-encoded balancer directive - NO balance needed      
+read [0x82 0x04 0xEF 0x83 0xBF 0x4E]
+
+# Expect extended PING
+read [0x81 0x06 0x01 0x01 0x01 0x02 0x09 0x00]
+
+# Send (masked) extended PONG response (unmasked form is [0x81 0x06 0x01 0x01 0x01 0x02 0x0a 0x00])
+write [0x81 0x86 0x01 0x01 0x01 0x01 0x00 0x00 0x00 0x03 0x0b 0x01]
+
+# Expect another extended PING
+read [0x81 0x06 0x01 0x01 0x01 0x02 0x09 0x00]
+
+# Don't respond. Server should close connection (inactivity timeout expired)
+
+closed

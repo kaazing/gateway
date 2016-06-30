@@ -1,0 +1,140 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# create request (as done by .Net 3.5 client)
+
+connect tcp://localhost:8123
+connected
+
+# Send create request
+
+write "POST /;post/echo/;e/cb HTTP/1.1\r\n"
+write "X-WebSocket-Version: wseb-1.0\r\n"
+write "X-Accept-Commands: ping\r\n"
+write "X-Origin: privileged://localhost:8123\r\n"
+write "X-Origin-privileged%3A%2F%2Flocalhost%3A8123: privileged://localhost:8123\r\n"
+write "Host: localhost:8123\r\n"
+write "Content-Length: 3\r\n"
+write "Expect: 100-continue\r\n"
+write "Connection: Keep-Alive\r\n"
+write "\r\n"
+write ">|<"
+
+write notify CREATE_REQUESTED
+
+read await CREATE_REQUESTED
+
+read "HTTP/1.1 200 OK\r\n"
+read "Cache-Control: no-cache\r\n"
+read "Content-Length: 196\r\n"
+read "Content-Type: text/plain;charset=UTF-8\r\n"
+read /Date: .*/ "\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "\r\n"
+read "HTTP/1.1 201 Created\r\n"
+read "Content-Type: text/plain;charset=UTF-8\r\n"
+# read "Content-Length: 132\r\n"
+read "\r\n"
+# Example: http://localhost:8123/echo/;e/ub/fUOutUjjl9sgFumZWv1XySfdooieOf7e
+read "http://localhost:8123/echo/;e/ub/"
+read [(:sessionId){32}] 
+read "\n"
+read "http://localhost:8123/echo/;e/db/"
+read ${sessionId} 
+read "\n"
+
+read notify CREATED
+
+# upstream request (PONG response) on same TCP connection
+write await PING_RECEIVED
+# write "POST /;post/echo/;e/ub/fUOutUjjl9sgFumZWv1XySfdooieOf7e HTTP/1.1\r\n"
+write "POST /;post/echo/;e/ub/"
+write ${sessionId}
+write " HTTP/1.1\r\n"
+write "Content-Type: application/octet-stream\r\n"
+write "X-WebSocket-Version: wseb-1.0\r\n"
+write "X-Origin: privileged://localhost:8123\r\n"
+write "X-Origin-privileged%3A%2F%2Flocalhost%3A8123: privileged://localhost:8123\r\n"
+write "Host: localhost:8123\r\n"
+write "Content-Length: 6\r\n"
+write "Expect: 100-continue\r\n"
+write "Connection: Close\r\n"
+write "\r\n"
+write [0x8a 0x00] # pong
+write [0x01 0x30 0x31 0xff] # reconnect
+write notify PONG_REPLY_SENT
+
+read "HTTP/1.1 200 OK\r\n"
+read "Content-Length: 19\r\n"
+read "Content-Type: text/plain;charset=UTF-8\r\n"
+read /Date: .*/ "\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "\r\n"
+read "HTTP/1.1 200 OK\r\n"
+read "\r\n"
+
+closed
+
+# downstream on separate TCP connection
+connect tcp://localhost:8123
+connected
+write await CREATED
+# write "POST /;post/echo/;e/db/fUOutUjjl9sgFumZWv1XySfdooieOf7e?.kf=0&.kp=2048&.kcc=private HTTP/1.1\r\n"
+write "POST /;post/echo/;e/db/"
+write ${sessionId}
+write "?.kf=0&.kp=2048&.kcc=private HTTP/1.1\r\n"
+write "Content-Type: text/plain\r\n"
+write "X-WebSocket-Version: wseb-1.0\r\n"
+write "X-Origin: privileged://localhost:8123\r\n"
+write "X-Origin-privileged%3A%2F%2Flocalhost%3A8123: privileged://localhost:8123\r\n"
+write "Host: localhost:8123\r\n"
+write "Content-Length: 3\r\n"
+write "Expect: 100-continue\r\n"
+write "\r\n"
+write ">|<"
+write notify DOWNSTREAM_REQUESTED
+
+read await DOWNSTREAM_REQUESTED
+read "HTTP/1.1 200 OK\r\n"
+read "Cache-Control: private\r\n"
+read "Connection: close\r\n"
+read "Content-Type: application/octet-stream\r\n"
+read /Date: .*/ "\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "X-Content-Type-Options: nosniff\r\n"
+read "\r\n"
+read "HTTP/1.1 200 OK\r\n"
+read "Content-Type: application/octet-stream\r\n"
+read "X-Idle-Timeout: 5\r\n"
+read "\r\n"
+read [0x01 0x30 0x30 0xff] # NO-OP
+read [0x01]
+# Padding to 2048 bytes (0 is 0x30). The following line does not work unfortunately:
+# read /0*/ "0"
+read [0..2044]
+read [0xff]
+read [0x89 0x00]  # ping
+read notify PING_RECEIVED
+read await PONG_REPLY_SENT
+read [0x89 0x00]  # ping
+
+# close command
+read [0x01 0x30 0x32 0xff]
+# reconnect command
+read [0x01 0x30 0x31 0xff]
+
+# server should close connection due to inactivity timeout
+closed

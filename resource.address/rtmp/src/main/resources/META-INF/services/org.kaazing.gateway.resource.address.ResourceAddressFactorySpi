@@ -1,0 +1,2 @@
+org.kaazing.gateway.resource.address.rtmp.RtmpResourceAddressFactorySpi
+org.kaazing.gateway.resource.address.rtmp.RtmpsResourceAddressFactorySpi

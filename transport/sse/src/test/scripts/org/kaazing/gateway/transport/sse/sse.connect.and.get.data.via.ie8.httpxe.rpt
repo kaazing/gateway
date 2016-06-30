@@ -1,0 +1,75 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+#Backend
+
+accept tcp://localhost:7556
+accepted
+connected
+write await CONNECTED_AND_CAN_SEND_DATA_FROM_BACKEND_TO_FRONT
+write "Kobe is greater than Griffen"
+close
+closed
+
+
+connect tcp://localhost:8005
+connected
+
+write "POST /sse?.kb=512&.kp=256&.kac=ex&.kct=application/x-message-http HTTP/1.1\r\n"
+write "Accept: */*\r\n"
+write "Origin: http://localhost:8005\r\n"
+write "Accept-Language: en-US\r\n"
+write "Accept-Encoding: gzip, deflate\r\n"
+write "User-Agent: Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0)\r\n"
+write "Host: localhost:8005\r\n"
+write "Content-Length: 45\r\n"
+write "Connection: Keep-Alive\r\n"
+write "Cache-Control: no-cache\r\n"
+write "\r\n"
+write "GET /sse?.kb=512&.kp=256&.kac=ex HTTP/1.1\r\n\r\n"
+
+
+read "HTTP/1.1 200 OK\r\n"
+read "Access-Control-Allow-Credentials: true\r\n"
+read "Access-Control-Allow-Headers: content-type\r\n"
+read "Access-Control-Allow-Headers: authorization\r\n"
+read "Access-Control-Allow-Headers: x-websocket-extensions\r\n"
+read "Access-Control-Allow-Headers: x-websocket-version\r\n"
+read "Access-Control-Allow-Headers: x-websocket-protocol\r\n"
+read "Access-Control-Allow-Headers: content-type\r\n"
+read "Access-Control-Allow-Headers: authorization\r\n"
+read "Access-Control-Allow-Headers: x-websocket-extensions\r\n"
+read "Access-Control-Allow-Headers: x-websocket-version\r\n"
+read "Access-Control-Allow-Headers: x-websocket-protocol\r\n"
+read "Access-Control-Allow-Origin: http://localhost:8005\r\n"
+read "Cache-Control: no-cache\r\n"
+read "Connection: close\r\n"
+read "Content-Type: text/plain\r\n"
+read /Date: .*\r\n/
+read "Server: Kaazing Gateway\r\n"
+read "X-Content-Type-Options: nosniff\r\n"
+read "\r\n"
+
+read "HTTP/1.1 200 OK\r\n"
+read "Content-Type: text/event-stream\r\n"
+read "\r\n"
+read notify CONNECTED_AND_CAN_SEND_DATA_FROM_BACKEND_TO_FRONT
+read /location:.*\n/
+read "\n"
+read /:.*\n/
+read "\n"
+read "data:Kobe is greater than Griffen\n"
+read "\n"

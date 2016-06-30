@@ -1,0 +1,57 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Autobahn test case 6.11.3
+
+# Case Description
+# Send a text message with payload which is valid UTF-8 in one fragment.
+# Payload: 0xefbfbd
+
+# Case Expectation
+# The message is echo'ed back to us.
+
+connect tcp://localhost:8555
+connected
+
+write "GET /echo HTTP/1.1\r\n"
+write "User-Agent: AutobahnTestSuite/0.6.1-0.8.8\r\n"
+write "Host: localhost:8555\r\n"
+write "Upgrade: WebSocket\r\n"
+write "Connection: Upgrade\r\n"
+write "Pragma: no-cache\r\n"
+write "Cache-Control: no-cache\r\n"
+write "Sec-WebSocket-Key: o+mr5K4pnXIacoWNbejFgQ==\r\n"
+write "Sec-WebSocket-Version: 13\r\n"
+write "\r\n"
+
+read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
+read "Connection: Upgrade\r\n"
+read /Date: .*\r\n/
+read "Sec-WebSocket-Accept: 3aIkZ1FFp5+jGFyduk1YrNU8Wzg=\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "Upgrade: WebSocket\r\n"
+read "\r\n"
+
+# Websocket text with valid UTF8 payload
+write [0x81 0x83 0xc7 0x68 0x1d 0x0d 0x28 0xd7 0xa0]
+read [0x81 0x03 0xef 0xbf 0xbd]
+    
+# Websocket close with normal closure
+write [0x88 0x82 0x2a 0x0f 0xe8 0xfe 0x29 0xe7]
+read [0x88 0x02 0x03 0xe8]
+
+close
+closed

@@ -1,0 +1,58 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Autobahn test case 2.2
+
+# Case Description
+# Send ping with small text payload.
+
+# Case Expectation
+# Pong with payload echo'ed is sent in reply to Ping. Clean close with normal code.
+
+connect tcp://localhost:8555
+connected
+
+write "GET /echo HTTP/1.1\r\n"
+write "User-Agent: AutobahnTestSuite/0.6.1-0.8.8\r\n"
+write "Host: localhost:8555\r\n"
+write "Upgrade: WebSocket\r\n"
+write "Connection: Upgrade\r\n"
+write "Pragma: no-cache\r\n"
+write "Cache-Control: no-cache\r\n"
+write "Sec-WebSocket-Key: 8gEepZqKZazFM9emCXZq6w==\r\n"
+write "Sec-WebSocket-Version: 13\r\n"
+write "\r\n"
+
+read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
+read "Connection: Upgrade\r\n"
+read /Date: .*\r\n/
+read "Sec-WebSocket-Accept: CoV6UVncRT9IOBXcxsXsxZFeQVI=\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "Upgrade: WebSocket\r\n"
+read "\r\n"
+
+# Websocket ping with payload
+write [0x89 0x8d 0x6e 0xcf 0xaa 0xd3 0x26 0xaa 0xc6 0xbf 0x01 0xe3 0x8a 0xa4 0x01 0xbd 0xc6 0xb7 0x4f]
+
+# Websocket pong with payload
+read [0x8a 0x0d 0x48 0x65 0x6c 0x6c 0x6f 0x2c 0x20 0x77 0x6f 0x72 0x6c 0x64 0x21]
+   
+# Websocket close with normal closure    
+write [0x88 0x82 0x1d 0x69 0x9b 0xb0 0x1e 0x81]
+read [0x88 0x02 0x03 0xe8]
+
+close
+closed

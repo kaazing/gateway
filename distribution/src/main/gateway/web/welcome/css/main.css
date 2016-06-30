@@ -1,0 +1,62 @@
+body {
+  font-family: HelveticaNeue-Light, "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  padding-top: 10px;
+}
+
+a {
+  color: #fd8032;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: #E35C08;
+}
+
+#congratulations {
+  background-color: #fd8032;
+  color: #333333;
+  border: 0;
+  margin-top: 10px;
+}
+#congratulations p {
+  margin: 0;
+}
+
+.panel {
+  width: 100%;
+}
+
+#getting-help .panel-body {
+  padding-bottom: 8px;
+}
+
+.equal, .equal > div[class*='col-'] {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    flex:1 1 auto;
+}
+
+code {
+  background-color: #f5f5f5;
+  color: inherit;
+}
+
+code.indented {
+  margin-left: 30px;
+}
+
+ol, ul {
+  padding-left: 20px;
+}
+
+.panel-heading {
+  font-weight: bold;
+}
+
+footer {
+  margin-top: 10px;
+}

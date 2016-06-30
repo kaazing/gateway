@@ -1,0 +1,4 @@
+org.kaazing.gateway.resource.address.wsxdraft.WsxDraftResourceAddressFactorySpi
+org.kaazing.gateway.resource.address.wsxdraft.WsxDraftSslResourceAddressFactorySpi
+org.kaazing.gateway.resource.address.wsxdraft.WsxDraftResourceAddressFactorySpi
+org.kaazing.gateway.resource.address.wsxdraft.WsxDraftSslResourceAddressFactorySpi

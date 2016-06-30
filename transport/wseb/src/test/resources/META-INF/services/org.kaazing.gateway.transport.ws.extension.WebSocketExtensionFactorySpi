@@ -1,0 +1,2 @@
+org.kaazing.gateway.transport.wseb.extensions.test.WsebExtensionWithFilterIT$ExtensionFactory
+org.kaazing.gateway.transport.wseb.specification.wse.acceptor.OpeningIT$ExtensionFactory

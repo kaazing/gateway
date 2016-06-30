@@ -1,0 +1,71 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+connect tcp://localhost:8004
+connected
+
+write "GET /clientaccesspolicy.xml HTTP/1.1\r\n"
+write "Host: localhost:8004\r\n"
+write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/536.30.1 (KHTML, like Gecko) Version/6.0.5 Safari/536.30.1\r\n"
+write "Accept: */*\r\n"
+write "Referer: http://localhost:8000/demo/core/silverlight/ws.html\r\n"
+write "Accept-Language: en-us\r\n"
+write "Accept-Encoding: gzip, deflate\r\n"
+write "Cookie: __utma=111872281.1642154580.1338920702.1338920702.1355960252.2\r\n"
+write "Connection: Keep-Alive\r\n"
+write "\r\n"
+
+read "HTTP/1.1 200 OK\r\n"
+read "Content-Length: 1245\r\n"
+read /Date: .*\r\n/
+read "Server: Kaazing Gateway\r\n"
+read "\r\n"
+
+read "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+read "<access-policy>\n"
+read "<cross-domain-access>\n"
+read "<policy>\n"
+read /.allow-from http-request-headers..Authorization.X-WebSocket-Extensions.X-WebSocket-Version.X-Origin.X-Accept-Commands.X-Sequence-No.X-Origin-http.*localhost.*800.*/ "\n"
+read /.domain uri..http.*localhost:800.*/ "\n"
+read "</allow-from>\n"
+read "<grant-to>\n"
+read "<resource path=\"/;get/echo\" include-subpaths=\"true\"/>\n"
+read "<resource path=\"/;post/echo\" include-subpaths=\"true\"/>\n"
+read "</grant-to>\n"
+read "</policy>\n"
+read "<policy>\n"
+read /.allow-from http-request-headers..Authorization.X-WebSocket-Extensions.X-WebSocket-Version.X-Origin.X-Accept-Commands.X-Sequence-No.X-Origin-http.*localhost.*800.*/ "\n"
+read /.domain uri..http.*localhost:800.*/ "\n"
+read "</allow-from>\n"
+read "<grant-to>\n"
+read "<resource path=\"/;get/echo\" include-subpaths=\"true\"/>\n"
+read "<resource path=\"/;post/echo\" include-subpaths=\"true\"/>\n"
+read "</grant-to>\n"
+read "</policy>\n"
+read "<policy>\n"
+read /.allow-from http-request-headers..Authorization.X-WebSocket-Extensions.X-WebSocket-Version.X-Origin.X-Accept-Commands.X-Sequence-No.X-Origin-http.*localhost.*800.*/ "\n"
+read /.domain uri..http.*localhost:800.*/ "\n"
+read "</allow-from>\n"
+read "<grant-to>\n"
+read "<resource path=\"/;get/echo\" include-subpaths=\"true\"/>\n"
+read "<resource path=\"/;post/echo\" include-subpaths=\"true\"/>\n"
+read "</grant-to>\n"
+read "</policy>\n"
+read "</cross-domain-access>\n"
+read "</access-policy>\n"
+
+close
+closed

@@ -1,0 +1,45 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+connect tcp://localhost:8011
+connected
+
+write "GET /jms?.kl=Y HTTP/1.1\r\n"
+write "X-Server-IP: 12.33.127.82\r\n"
+write "X-MDS-URL-Category: ,-2\r\n"
+write "Pragma: no-cache\r\n"
+write "Cache-Control: no-cache\r\n"
+write "Origin: http://10.141.43.16:8501\r\n"
+write "Sec-WebSocket-Version: 13\r\n"
+write "User-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36\r\n"
+write "Accept-Encoding: gzip, deflate, sdch\r\n"
+write "Accept-Language: en-US,en;q=0.8\r\n"
+write "Cookie: optimizelyEndUserId=oeu1415375657467r0.9280483976472169; optimizelySegments=%7B%22185947912%22%3A%22gc%22%2C%22185983613%22%3A%22referral%22%2C%22186050380%22%3A%22false%22%7D; optimizelyBuckets=%7B%7D; WT_FPC=id=2c3f4b923f4c1b579311415337860659:lv=1422831939113:ss=1422831939113; WRUID=1700722714.183935487; __CT_Data=gpv=9&apv_5257_www09=9&cpv_5257_www09=5; _ga=GA1.2.483515955.1415375662\r\n"
+write "Sec-WebSocket-Key: kIK40+uG1680i6QfQ8rsgw==\r\n"
+write "Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits\r\n"
+write "Sec-WebSocket-Protocol: x-kaazing-handshake, x-kaazing-bump\r\n"
+write "Via: 1.1 CTSINBLRSWGA 0AE2216D\r\n"
+write "Host: foo.example.com\r\n"
+
+# Donot add the following headers as proxy removed them
+#write "Upgrade: websocket\r\n"
+#write "Connection: Upgrade\r\n"
+write "\r\n"
+
+read "HTTP/1.1 400 WebSocket Upgrade Failure\r\n"
+
+close
+closed

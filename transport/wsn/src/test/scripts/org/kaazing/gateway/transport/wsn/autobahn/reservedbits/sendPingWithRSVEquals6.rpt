@@ -1,0 +1,56 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Autobahn test case 3.6
+
+# Case Description
+# Send Ping with RSV = 6.
+
+# Case Expectation
+# The connection is failed immediately, since RSV must be 0.
+
+connect tcp://localhost:8555
+connected
+
+write "GET /echo HTTP/1.1\r\n"
+write "User-Agent: AutobahnTestSuite/0.6.1-0.8.8\r\n"
+write "Host: localhost:8555\r\n"
+write "Upgrade: WebSocket\r\n"
+write "Connection: Upgrade\r\n"
+write "Pragma: no-cache\r\n"
+write "Cache-Control: no-cache\r\n"
+write "Sec-WebSocket-Key: I4mdiT2zIGCn5aNg95UyTw==\r\n"
+write "Sec-WebSocket-Version: 13\r\n"
+write "\r\n"
+
+read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
+read "Connection: Upgrade\r\n"
+read /Date: .*\r\n/
+read "Sec-WebSocket-Accept: pva4tvGG3QZAB1Pgk07pKxIAG0k=\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "Upgrade: WebSocket\r\n"
+read "\r\n"
+
+# Websocket ping with payload and RSV = 6 (invalid)
+write [0xe9 0x8d 0x2c 0x55 0x33 0xf7 0x64 0x30 0x5f 0x9b 0x43 0x79 0x13 0x80 0x43 0x27 0x5f 0x93 0x0d]
+
+# Websocket close with close code 1002 (protocol error)
+read [0x88 0x02 0x03 0xea]
+write [0x88 0x82 0xeb 0x18 0x0c 0x3b 0xe8 0xf2]
+
+# Server should close the connection
+
+closed

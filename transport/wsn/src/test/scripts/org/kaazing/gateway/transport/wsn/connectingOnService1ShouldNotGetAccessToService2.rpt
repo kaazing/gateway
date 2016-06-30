@@ -1,0 +1,42 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# This script is created from a wireshark trace of javascript 4.0.4 client connecting to 4.0.4 gateway
+connect tcp://127.0.0.1:8001
+connected
+
+# Connection request
+write "GET /echo80?.kl=Y HTTP/1.1\r\n"
+write "Upgrade: websocket\r\n"
+write "Connection: Upgrade\r\n"
+write "Host: localhost\r\n"
+write "Origin: http://localhost:8001\r\n"
+write "Sec-WebSocket-Protocol: x-kaazing-handshake\r\n"
+write "Pragma: no-cache\r\n"
+write "Cache-Control: no-cache\r\n"
+write "Sec-WebSocket-Key: IxGbSe76b54FYsCrhkePPw==\r\n"
+write "Sec-WebSocket-Version: 13\r\n"
+write "Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits, x-webkit-deflate-frame\r\n"
+write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.107 Safari/537.36\r\n"
+write "\r\n"
+
+# 101 Response
+
+read "HTTP/1.1 404"
+
+close
+
+closed

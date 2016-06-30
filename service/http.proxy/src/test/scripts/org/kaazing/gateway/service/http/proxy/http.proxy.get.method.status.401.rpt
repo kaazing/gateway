@@ -1,0 +1,76 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# curl 7.37.1 <---> Gateway <---> tomcat 8.0.1
+
+connect tcp://localhost:8110
+connected
+
+write "GET /manager/html?org.apache.catalina.filters.CSRF_NONCE=4658FCBFF001B039C9E963E713E47992 HTTP/1.1\r\n"
+write "User-Agent: curl/7.37.1\r\n"
+write "Host: localhost:8110\r\n"
+write "Accept: */*\r\n"
+write "\r\n"
+
+read "HTTP/1.1 401 Unauthorized\r\n"
+read "Cache-Control: private\r\n"
+read "Content-Type: text/html;charset=ISO-8859-1\r\n"
+read /Date: .*/ "\r\n"
+read "Expires: Wed, 31 Dec 1969 16:00:00 PST\r\n"
+read "Server: Apache-Coyote/1.1\r\n"
+read "Transfer-Encoding: chunked\r\n"
+read "WWW-Authenticate: Basic realm=\"Tomcat Manager Application\"\r\n"
+read "\r\n"
+read "14\r\n"
+read "<html>Hellooo</html>\r\n"
+read "0\r\n"
+read "\r\n"
+
+close
+closed
+
+#
+# tomcat server
+#
+
+accept tcp://localhost:8080
+accepted
+connected
+
+read "GET /manager/html?org.apache.catalina.filters.CSRF_NONCE=4658FCBFF001B039C9E963E713E47992 HTTP/1.1\r\n"
+read /Via: 1.1 kaazing-.+/ "\r\n"
+read "User-Agent: curl/7.37.1\r\n"
+read "Host: localhost:8080\r\n"
+read "Connection: close\r\n"
+read "Accept: */*\r\n"
+read "\r\n"
+
+write "HTTP/1.1 401 Unauthorized\r\n"
+write "Server: Apache-Coyote/1.1\r\n"
+write "Cache-Control: private\r\n"
+write "Expires: Wed, 31 Dec 1969 16:00:00 PST\r\n"
+write "WWW-Authenticate: Basic realm=\"Tomcat Manager Application\"\r\n"
+write "Content-Type: text/html;charset=ISO-8859-1\r\n"
+write "Transfer-Encoding: chunked\r\n"
+write "Date: Thu, 19 Feb 2015 22:02:53 GMT\r\n"
+write "\r\n"
+write "14\r\n"
+write "<html>Hellooo</html>\r\n"
+write "0\r\n"
+write "\r\n"
+
+# gateway(sender) closes the connection
+closed

@@ -1,0 +1,70 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# KG-11124
+# app.token.three.attempts.failure.rpt 
+#Frontend
+connect http://localhost:8555/
+connected
+
+write method "GET"
+write header "User-Agent" "AutobahnTestSuite/0.6.1-0.8.8"
+write header host
+write header "Upgrade" "WebSocket"
+write header "Connection" "Upgrade"
+write header "Pragma" "no-cache"
+write header "Cache-Control" "no-cache"
+write header "Sec-WebSocket-Key" "qGJGE4V5NjJxQHMzSF7ViQ=="
+write header "Sec-WebSocket-Version" "13"
+
+read header "Connection" "Upgrade"
+read header "Sec-WebSocket-Accept" "IF0nEhUtZc3XUMigyQOarssta9w="
+read header "Upgrade" "WebSocket"
+
+# Websocket text with empty payload
+write [0x81 0x80 0x13 0x95 0x59 0x76]
+write await BACKENDCONNECTING
+# Websocket close with normal closure
+write [0x88 0x82 0x7e 0xc6 0x58 0xde 0x7d 0x2e]
+read [0x88 0x02 0x03 0xe8]
+read notify FRONTENDCLOSED
+
+# Backend
+accept tcp://localhost:8556
+accepted
+connected
+read "GET / HTTP/1.1\r\n"
+read "User-Agent: Kaazing Gateway\r\n"
+read "Upgrade: websocket\r\n"
+read "Sec-WebSocket-Version: 13\r\n"
+read "Sec-WebSocket-Key: " /(?<key>[a-zA-Z0-9+\/=]{24})\r\n/
+read "Origin: http://localhost:8556\r\n"
+read "Host: localhost:8556\r\n"
+read "Connection: Upgrade\r\n"
+read "\r\n"
+read notify BACKENDCONNECTING
+write await FRONTENDCLOSED
+write "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
+write "Connection: Upgrade\r\n"
+write "Sec-WebSocket-Accept: " ${ws:handshakeHash(key)} "\r\n"
+write "Server: Kaazing Gateway\r\n"
+write "Upgrade: WebSocket\r\n"
+write "\r\n"
+
+# Close
+read [0x88 0x82]
+close
+closed

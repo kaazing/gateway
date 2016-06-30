@@ -1,0 +1,140 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+connect tcp://localhost:8110
+connected
+
+write "GET /echo HTTP/1.1\r\n"
+write "Upgrade: websocket\r\n"
+write "Connection: Upgrade\r\n"
+write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
+write "Host: localhost:8110\r\n"
+write "Origin: http://localhost:8110\r\n"
+write "Sec-WebSocket-Key: nDaimG37f4nUqogPypithw==\r\n"
+write "Sec-WebSocket-Version: 13\r\n"
+write "\r\n"
+
+read "HTTP/1.1 401 Unauthorized\r\n"
+read "Content-Length: 64\r\n"
+read "Content-Type: text/html\r\n"
+read /Date: .*/ "\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "WWW-Authenticate: Basic realm=\"Kaazing WebSocket Gateway Demo\"\r\n"
+read "\r\n"
+read "<html><head></head><body><h1>401 Unauthorized</h1></body></html>"
+
+
+
+write "GET /echo HTTP/1.1\r\n"
+write "Upgrade: websocket\r\n"
+write "Connection: Upgrade\r\n"
+write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
+write "Host: localhost:8110\r\n"
+write "Origin: http://localhost:8110\r\n"
+write "Sec-WebSocket-Key: nDaimG37f4nUqogPypithw==\r\n"
+write "Sec-WebSocket-Version: 13\r\n"
+write "Authorization: Basic am9lOndlbGNvbWU=\r\n"
+write "\r\n"
+
+read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
+read "Connection: Upgrade\r\n"
+read "Date: " /.*/ "\r\n"
+read /Sec-WebSocket-Accept: .*/ "\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "Upgrade: websocket\r\n"
+read "\r\n"
+
+
+
+# text frame: mask=944ec61c payload=fragment1
+write [0x81 0x89 0x94 0x4e 0xc6 0x1c 0xf2 0x3c 0xa7 0x7b 0xf9 0x2b 0xa8 0x68 0xa5]
+read [0x81 0x09 0x66 0x72 0x61 0x67 0x6D 0x65 0x6E 0x74 0x31]
+
+# text frame: mask=944ec61c payload=fragment1
+write [0x81 0x89 0x94 0x4e 0xc6 0x1c 0xf2 0x3c 0xa7 0x7b 0xf9 0x2b 0xa8 0x68 0xa5]
+read [0x81 0x09 0x66 0x72 0x61 0x67 0x6D 0x65 0x6E 0x74 0x31]
+
+# close frame: mask=2806ea57 close code=1000
+write [0x88 0x82 0x28 0x06 0xea 0x57 0x2b 0xee]
+read [0x88 0x02 0x03 0xe8]
+
+close
+closed
+
+#
+# Origin server
+#
+
+accept tcp://localhost:8080
+accepted
+connected
+
+read "GET /echo HTTP/1.1\r\n"
+read /Via: 1.1 kaazing-.+/ "\r\n"
+read "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
+read "Upgrade: websocket\r\n"
+read "Sec-WebSocket-Version: 13\r\n"
+read "Sec-WebSocket-Key: nDaimG37f4nUqogPypithw==\r\n"
+read "Origin: http://localhost:8110\r\n"
+read "Host: localhost:8080\r\n"
+read "Connection: Upgrade\r\n"
+read "\r\n"
+
+write "HTTP/1.1 401 Unauthorized\r\n"
+write "Content-Type: text/html\r\n"
+write "WWW-Authenticate: Basic realm=\"Kaazing WebSocket Gateway Demo\"\r\n"
+write "Content-Length: 64\r\n"
+write "\r\n"
+write "<html><head></head><body><h1>401 Unauthorized</h1></body></html>"
+
+
+
+read "GET /echo HTTP/1.1\r\n"
+read /Via: 1.1 kaazing-.+/ "\r\n"
+read "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
+read "Upgrade: websocket\r\n"
+read "Sec-WebSocket-Version: 13\r\n"
+read "Sec-WebSocket-Key: nDaimG37f4nUqogPypithw==\r\n"
+read "Origin: http://localhost:8110\r\n"
+read "Host: localhost:8080\r\n"
+read "Connection: Upgrade\r\n"
+read "Authorization: Basic am9lOndlbGNvbWU=\r\n"
+read "\r\n"
+
+write "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
+write "Connection: Upgrade\r\n"
+write "Date: Wed, 04 Mar 2015 02:26:37 GMT\r\n"
+write "Sec-WebSocket-Accept: Uq2pD+MOrXQIut+yUNUP6dvhWBw=\r\n"
+write "Server: Kaazing Gateway\r\n"
+write "Upgrade: websocket\r\n"
+write "\r\n"
+
+
+
+# text frame: mask=944ec61c payload=fragment1
+read [0x81 0x89 0x94 0x4e 0xc6 0x1c 0xf2 0x3c 0xa7 0x7b 0xf9 0x2b 0xa8 0x68 0xa5]
+write [0x81 0x09 0x66 0x72 0x61 0x67 0x6D 0x65 0x6E 0x74 0x31]
+
+# text frame: mask=944ec61c payload=fragment1
+read [0x81 0x89 0x94 0x4e 0xc6 0x1c 0xf2 0x3c 0xa7 0x7b 0xf9 0x2b 0xa8 0x68 0xa5]
+write [0x81 0x09 0x66 0x72 0x61 0x67 0x6D 0x65 0x6E 0x74 0x31]
+
+# close frame: mask=2806ea57 close code=1000
+read [0x88 0x82 0x28 0x06 0xea 0x57 0x2b 0xee]
+write [0x88 0x02 0x03 0xe8]
+
+# gateway should close the connection
+closed

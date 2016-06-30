@@ -1,0 +1,63 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+connect tcp://127.0.0.1:8001
+connected
+
+# Connection request
+write "GET /echo?.kl=Y HTTP/1.1\r\n"
+write "Upgrade: websocket\r\n"
+write "Connection: Upgrade\r\n"
+write "Host: localhost:8001\r\n"
+write "Origin: http://localhost:8001\r\n"
+write "Sec-WebSocket-Protocol: x-kaazing-handshake\r\n"
+write "Pragma: no-cache\r\n"
+write "Cache-Control: no-cache\r\n"
+write "Sec-WebSocket-Key: ePYyZxvR5fDLh/oEugMjbA==\r\n"
+write "Sec-WebSocket-Version: 13\r\n"
+write "Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits, x-webkit-deflate-frame\r\n"
+write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.77 Safari/537.36\r\n"
+write "\r\n"
+
+# 101 Response
+
+read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
+read "Connection: Upgrade\r\n"
+read /Date: .*\r\n/
+read /Sec-WebSocket-Accept: .*\r\n/
+read "Sec-WebSocket-Protocol: x-kaazing-handshake\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "Upgrade: websocket\r\n"
+read "\r\n"
+
+# binary-encoded balancer directive - NO balance needed      
+read [0x82 0x04 0xEF 0x83 0xBF 0x4E]
+
+# Masked enveloped HTTP request (including requested x-kaazing-... extensions)
+# Sent only part then send nothing, to simulate network connectivity loss
+write [0x81 0xfe 0x00 0xa6 0x6f 0xe3 0x41 0x38 0x28 0xa6 0x15 0x18 0x40 0x86 0x22 0x50]
+write [0x00 0xc3 0x09 0x6c 0x3b 0xb3 0x6e 0x09 0x41 0xd2 0x4c 0x32 0x38 0x86 0x23 0x6b]
+write [0x00 0x80 0x2a 0x5d 0x1b 0xce 0x11 0x4a 0x00 0x97 0x2e 0x5b 0x00 0x8f 0x7b 0x18]
+write [0x62 0xe9 0x12 0x5d 0x0c 0xce 0x16 0x5d 0x0d 0xb0 0x2e 0x5b 0x04 0x86 0x35 0x15]
+write [0x3f 0x91 0x2e 0x4c 0x00 0x80 0x2e 0x54 0x55 0xc3 0x4c 0x32 0x3c 0x86 0x22 0x15]
+write [0x38 0x86 0x23 0x6b 0x00 0x80 0x2a 0x5d 0x1b 0xce 0x04 0x40 0x1b 0x86 0x2f 0x4b]
+
+# Expect a regular RFC-6455 PING since handshake was not completed.
+read [0x89 0x00]
+
+# Don't respond. Server should close connection (inactivity timeout expired)
+
+closed

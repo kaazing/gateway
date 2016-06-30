@@ -1,0 +1,62 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Autobahn test case 5.4
+
+# Case Description
+# Send text Message fragmented into 2 fragments, octets are sent in frame-wise chops.
+
+# Case Expectation
+# Message is processed and echo'ed back to us.
+
+connect tcp://localhost:8555
+connected
+
+write "GET /echo HTTP/1.1\r\n"
+write "User-Agent: AutobahnTestSuite/0.6.1-0.8.8\r\n"
+write "Host: localhost:8555\r\n"
+write "Upgrade: WebSocket\r\n"
+write "Connection: Upgrade\r\n"
+write "Pragma: no-cache\r\n"
+write "Cache-Control: no-cache\r\n"
+write "Sec-WebSocket-Key: 4d4HGKeeCHgwrLquUyD2tA==\r\n"
+write "Sec-WebSocket-Version: 13\r\n"
+write "\r\n"
+
+read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
+read "Connection: Upgrade\r\n"
+read /Date: .*\r\n/
+read "Sec-WebSocket-Accept: R4PDKDWb0dvma/R3d0/MAd3q394=\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "Upgrade: WebSocket\r\n"
+read "\r\n"
+
+# Websocket text in two fragments with octets in frame-wise chops
+write [0x01 0x89 0x3b 0xd3 0xfb 0xbf 0x5d 0xa1 0x9a 0xd8 0x56 0xb6 0x95 0xcb 0x0a]
+write [0x80 0x89 0xec 0xcb 0x05 0x93 0x8a 0xb9 0x64 0xf4 0x81 0xae 0x6b 0xe7 0xde]
+
+# Websocket text with payload
+# read [0x81 0x12 0x66 0x72 0x61 0x67 0x6d 0x65 0x6e 0x74 0x31 0x66 0x72 0x61 0x67 0x6d 0x65 0x6e 0x74 0x32]
+# or two frames
+read [0x01 0x09 0x66 0x72 0x61 0x67 0x6d 0x65 0x6e 0x74 0x31]
+read [0x80 0x09 0x66 0x72 0x61 0x67 0x6d 0x65 0x6e 0x74 0x32]
+
+# Websocket close with normal closure
+write [0x88 0x82 0x63 0x87 0xa1 0x0d 0x60 0x6f]
+read [0x88 0x02 0x03 0xe8]
+
+close
+closed

@@ -1,0 +1,34 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# get.nonexistent.page.check.status.code.404
+connect tcp://localhost:8003
+connected
+
+write "GET /nonexistentpage.html HTTP/1.1\r\n"
+write "Host: localhost:8003\r\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:8.0) Gecko/20100101 Firefox/8.0\r\n"
+write "Accept: text/html, application/xhtml+xml, application/xml;q=0.9,*/*;q=0.8\r\n\r\n"
+write notify BARRIER
+
+#We need to wait for all the data to be written first
+read await BARRIER
+read "HTTP/1.1 404 Not Found\r\n"
+read "Content-Type: text/html\r\n"
+read "Content-Length: 61\r\n"
+read "\r\n"
+read "<html><head></head><body><h1>404 Not Found</h1></body></html>"
+#wait for server to close connection due to http.keepalive.timeout
+closed

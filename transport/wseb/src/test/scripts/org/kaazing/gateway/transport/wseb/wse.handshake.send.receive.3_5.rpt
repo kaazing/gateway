@@ -1,0 +1,200 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# wse.handshake.send.receive
+
+##############################################TCP-CONNECTION-1-SCRIPT##################################################
+# Create TCP connection no.- 1: We will use this one to send the "CREATE {upstream,downstream}-URL-pair-for-client" request to server and then reuse it as downstream TCP connection
+connect tcp://localhost:8001
+connected
+
+#TIME SEQ: 1 - Send a request to server through TCP-1 to "CREATE {upstream,downstream}-URL-pair-for-client"
+write "GET /echo/;e/ct?.kn=5038883530069143 HTTP/1.1\r\n"
+write "Host: localhost:8001\r\n"
+write "Connection: keep-alive\r\n"
+write "X-Origin: http://localhost:8001\r\n"
+write "X-WebSocket-Version: wseb-1.0\r\n"
+write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36\r\n"
+write "Accept: */*\r\n"
+write "DNT: 1\r\n"
+write "Referer: http://localhost:8001/?.kr=xs\r\n"
+write "Accept-Encoding: gzip,deflate,sdch\r\n"
+write "Accept-Language: en-US,en;q=0.8\r\n"
+write "\r\n"
+write notify CREATE_REQUESTED
+
+
+#TIME SEQ: 2 - {upstream,downstream}-URL-pair-for-client created
+read await CREATE_REQUESTED
+read "HTTP/1.1 200 OK\r\n"
+read "Cache-Control: no-cache\r\n"
+read /Content-Length: .*/"\r\n"
+read "Content-Type: text/plain;charset=UTF-8\r\n"
+read /Date: .*/ "\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "\r\n"
+read "HTTP/1.1 201 Created\r\n"
+read "Content-Type: text/plain;charset=UTF-8\r\n"
+read "\r\n"
+read "http://localhost:8001/echo/;e/ut/"
+read [(:sessionId){32}]
+read "\n"
+read "http://localhost:8001/echo/;e/dt/"
+read ${sessionId} 
+read "\n"
+read notify CREATED
+
+# This point onwards we will use our TCP connection - 1 as downstream TCP connection
+
+#TIME SEQ: 3 - send the downstream request through connection no.-1, to keep it alive 
+write await CREATED
+write "GET /echo/;e/dt/"
+write ${sessionId}
+write "?.kc=text/plain;charset=windows-1252&.kb=4096&.kid=8221466513350606 HTTP/1.1\r\n"
+write "Host: localhost:8001\r\n"
+write "Connection: keep-alive\r\n"
+write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36\r\n"
+write "X-Origin: http://localhost:8001\r\n"
+write "Accept: */*\r\n"
+write "DNT: 1\r\n"
+write "Referer: http://localhost:8001/?.kr=xs\r\n"
+write "Accept-Encoding: gzip,deflate,sdch\r\n"
+write "Accept-Language: en-US,en;q=0.8\r\n"
+write "\r\n"
+write notify DOWNSTREAM_CONNECTION_SENT
+
+
+#TIME SEQ: 4 - Receive the OK response for downstream through our TCP connection no.-1
+read await DOWNSTREAM_CONNECTION_SENT
+read "HTTP/1.1 200 OK\r\n"
+read "Cache-Control: no-cache\r\n"
+read "Connection: close\r\n"
+read "Content-Type: text/plain;charset=windows-1252\r\n"
+read /Date: .*/ "\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "X-Content-Type-Options: nosniff\r\n"
+read "\r\n"
+read "HTTP/1.1 200 OK\r\n"
+read "Content-Type: text/plain;charset=windows-1252\r\n"
+read "X-Idle-Timeout: 60\r\n"
+read "\r\n"
+read notify DOWNSTREAM_CONNECTION_CREATED
+
+
+#TIME SEQ: 6.1 - Receive the Hello Websocket! echo back from server through our downstream TCP connection no.-1
+read await UPSTREAM_HELLO_SENT
+read [0x01 0x30 0x30 0xFF 0x80 0x11]
+read "Hello, WebSocket!"
+read notify DOWNSTREAM_HELLO_RECEIVED
+
+#TIME SEQ: 6.1 + x - Hip hip hooray! we can now close the downstream TCP connection no.-1
+read await UPSTREAM_CLOSE_SENT
+## expect close and reconnect commands (reconnect just indicates end of stream)
+read [0x01 0x30 0x32 0xff]
+read [0x01 0x30 0x31 0xff]
+closed
+#####################################END-TCP-CONNECTION-1-SCRIPT####################################################
+
+
+
+
+######################################TCP-CONNECTION-2-SCRIPT#######################################################
+
+#Create a separate tcp connection TCP connection no. 2, for upstream
+connect tcp://localhost:8001
+connected
+
+#TIME SEQ: 5 - Once the downstream connection is created successfully, now we can send out upstream Hello Websocket! request through TCP connection - 2.
+write await DOWNSTREAM_CONNECTION_CREATED
+write "POST /echo/;e/ut/"
+write ${sessionId}
+write "&.kr=0.12842891924083233 HTTP/1.1\r\n"
+write "Host: localhost:8001\r\n"
+write "Connection: keep-alive\r\n"
+write "Content-Length: 25\r\n"
+write "Origin: http://localhost:8001\r\n"
+write "X-Origin: http://localhost:8001\r\n"
+write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36\r\n"
+write "Content-Type: text/plain; charset=UTF-8\r\n"
+write "Accept: */*\r\n"
+write "DNT: 1\r\n"
+write "Referer: http://localhost:8001/?.kr=xs\r\n"
+write "Accept-Encoding: gzip,deflate,sdch\r\n"
+write "Accept-Language: en-US,en;q=0.8\r\n"
+write "\r\n"
+write [0x00]
+write "Hello, WebSocket!"
+#Sending 0x30 0x31 command for reconnect
+write [0xC3 0xBF 0x01 0x30 0x31 0xC3 0xBF]
+write notify UPSTREAM_HELLO_SENT
+
+
+#TIME SEQ: 6.2 - Receive the Hello Websocket! OK response from server through our upstream TCP connection no.-2
+read await UPSTREAM_HELLO_SENT
+read "HTTP/1.1 200 OK\r\n"
+read /Content-Length: .*/ "\r\n"
+read "Content-Type: text/plain;charset=UTF-8\r\n"
+read /Date: .*/ "\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "\r\n"
+read "HTTP/1.1 200 OK\r\n"
+read "\r\n"
+read notify UPSTREAM_HELLO_RESPONDED
+
+
+#TIME SEQ: 7 - We will now send the upstream-close request through our upstream TCP connection no.-2
+write await DOWNSTREAM_HELLO_RECEIVED
+write "POST /echo/;e/ut/"
+write ${sessionId}
+write "&.kr=0.8107905252836645 HTTP/1.1\r\n"
+write "Host: localhost:8001\r\n"
+write "Connection: keep-alive\r\n"
+write "Content-Length: 10\r\n"
+write "Origin: http://localhost:8001\r\n"
+write "X-Origin: http://localhost:8001\r\n"
+write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36\r\n"
+write "Content-Type: text/plain; charset=UTF-8\r\n"
+write "Accept: */*\r\n"
+write "DNT: 1\r\n"
+write "Referer: http://localhost:8001/?.kr=xs\r\n"
+write "Accept-Encoding: gzip,deflate,sdch\r\n"
+write "Accept-Language: en-US,en;q=0.8\r\n"
+write "\r\n"
+#Sending 0x30 0x32 command for close
+write [0x01 0x30 0x32 0xC3 0xBF]
+#Sending 0x30 0x31 command for reconnect
+write [0x01 0x30 0x31 0xC3 0xBF]
+write notify UPSTREAM_CLOSE_SENT
+
+
+#TIME SEQ: 8 - We will now receive the upstream-close OK response through our upstream TCP connection no.-2
+read await UPSTREAM_CLOSE_SENT
+read "HTTP/1.1 200 OK\r\n"
+read /Content-Length: .*/ "\r\n"
+read "Content-Type: text/plain;charset=UTF-8\r\n"
+read /Date: .*/ "\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "\r\n"
+read "HTTP/1.1 200 OK\r\n"
+read "\r\n"
+read notify UPSTREAM_CLOSE_SENT_OK
+
+
+#TIME SEQ: 9 : Yep.. Done! we can now close the downstream TCP connection no.-2
+close
+closed
+
+#######################################END-TCP-CONNECTION-2-SCRIPT#####################################################

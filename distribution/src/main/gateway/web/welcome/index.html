@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" type="image/png" href="images/favicon.png"/>
+
+  <title>Kaazing WebSocket Gateway</title>
+
+  <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <link href="css/main.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <div class="container">
+
+    <a href="http://kaazing.com/?v=ce${gateway.version}"><img src="images/kaazing.png"></a>
+
+    <div class="panel panel-default text-center" id="congratulations">
+      <div class="panel-body">
+        <h4><strong>Congratulations! You've successfully installed Kaazing WebSocket Gateway ${gateway.version}</strong></h4>
+      </div>
+    </div>
+
+    <div class="row equal">
+
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            Where are my files?
+          </div>
+          <div class="panel-body">
+            <p>This is the default <code>index.html</code> page located in:</p>
+            <p><code class="indented">GATEWAY_HOME/web/welcome</code></p>
+            <p>and the configuration file is:</p>
+            <p><code class="indented">GATEWAY_HOME/conf/gateway-config.xml</code></p>
+            <p>where <code>GATEWAY_HOME</code> is the root of your gateway installation.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            Try an echo test
+          </div>
+          <div class="panel-body">
+            <p>Want to test a WebSocket connection to this Gateway?</p>
+            <ol>
+              <li><p>Open the <a class="echo-location" href="http://websocket.org/echo.html?location=ws://localhost:8000" target="_blank">websocket.org echo test page</a></p></li>
+              <li><p>Enter <code class="echo-location"></code> in the <strong>Location</strong> field</p></li>
+              <li><p>Connect and send a message</p></li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="row equal">
+
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            Getting started
+          </div>
+          <div class="panel-body">
+            <ul>
+              <li><p><a href="//kaazing.com/documentation/?v=ce${gateway.version}">Online documentation</a></p></li>
+              <li><p><a href="https://github.com/kaazing/tutorials" target="_blank">Examples and tutorials</a></p></li>
+              <li><p>Getting started apps for <a href="https://github.com/kaazing/javascript.getting.started">JavaScript</a></p></li>
+              <li><p>Getting started apps for <a href="https://github.com/kaazing/java.getting.started">Java</a></p></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="panel panel-default" id="getting-help">
+          <div class="panel-heading">
+            Getting help
+          </div>
+          <div class="panel-body">
+            <ul>
+              <li><p>Post questions on <a href="http://stackoverflow.com/questions/ask?tags=kaazing">Stack Overflow with a tag of "kaazing"</a></p></li>
+              <li><p>Get access to expert WebSocket developers with our <a href="https://kaazing.com/named-developer-program/?v=ce${gateway.version}">Named Developer Program</a></p></li>
+              <li><p><a href="https://github.com/kaazing/gateway/issues">GitHub issues</a></p></li>
+              <li>
+
+                <!-- Begin MailChimp Signup Form -->
+                <p>Subscribe to be notified of security alerts, bug fixes, and new features:</p>
+                <link href="http://cdn-images.mailchimp.com/embedcode/slim-10_7.css" rel="stylesheet" type="text/css">
+                <style type="text/css">
+                  #mc_embed_signup {background:#fff; clear:left; font:14px Helvetica,Arial,sans-serif; }
+                  #mc_embed_signup form {padding: 0;}
+                  #mc_embed_signup input.email, #mc_embed_signup input.button {display: inline-block; margin-bottom: 0; font-size: 12px; margin-right: 2px; min-height: 24px; height: 24px; line-height: 24px;}
+                  #mc_embed_signup input.button {width: 100px;}
+                  /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+                     We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+                </style>
+                <div id="mc_embed_signup">
+                <form action="http://kaazing.us11.list-manage.com/subscribe/post?u=eb49372a4810d827579afd667&amp;id=c0a3721170" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+                    <div id="mc_embed_signup_scroll">
+                  <input type="email" value="" name="EMAIL" class="email" id="mce-EMAIL" placeholder="Email address" required>
+                  <input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button">
+                    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+                    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_eb49372a4810d827579afd667_c0a3721170" tabindex="-1" value=""></div>
+                    <div class="clear"></div>
+                    </div>
+                </form>
+                </div>
+                <!--End mc_embed_signup-->
+
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="jquery/jquery-2.2.2.min.js"></script>
+  <script src="bootstrap/js/bootstrap.min.js"></script>
+
+  <script>
+
+    $(document).ready(function() {
+      var echoLocation = "ws://"+location.hostname+(location.port ? ":"+location.port: "")+"/echo";
+      $("code.echo-location").text(echoLocation);
+      $("a.echo-location").attr("href", "http://websocket.org/echo.html?location="+echoLocation);
+    });
+
+  </script>
+
+</body>
+
+</html>

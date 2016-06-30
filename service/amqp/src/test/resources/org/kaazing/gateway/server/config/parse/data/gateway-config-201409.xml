@@ -1,0 +1,570 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+
+    Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<gateway-config xmlns="http://xmlns.kaazing.org/2014/09/gateway">
+
+
+  <!--
+  #############################################################################
+  #############################################################################
+                Kaazing WebSocket Gateway Configuration File
+
+  This configuration file identifies all the possible services and associated
+  security and management that flow through Kaazing WebSocket Gateway.
+
+  Refer to the section the section titled "Description of the
+  gateway-config.xml Configuration Elements" in the Administrator's Guide
+  for more information.
+
+  This file uses a parameter: gateway.hostname. You can use other parameters in
+  this file, as well. You can set parameter definitions in gateway-config.properties
+  or pass parameters on the command line when starting the Gateway, for example:
+  -Dgateway.hostname=<host or ip address>
+
+  See the document "How to Configure Kaazing WebSocket Gateway Using Parameters"
+  to learn more about using parameters in this file.
+  #############################################################################
+  #############################################################################
+  -->
+
+  <!--
+  Property defaults
+
+  Specify the default values for properties which will be substituted when
+  the Gateway starts. You can replace any values in this configuration file
+  with a property using the dollar-sign and curly brace format demonstrated
+  in the echo service below. Starting the Gateway replaces all instances of
+  property-name with the value you specify in this section.
+
+  You can supersede property default values by using an environment variable
+  when starting the Gateway. See the Setting Up Kaazing WebSocket Gateway guide
+  in the documentation for more information.
+  -->
+  <properties>
+    <property>
+      <name>gateway.hostname</name>
+      <value>localhost</value>
+    </property>
+    <property>
+      <name>gateway.base.port</name>
+      <value>8000</value>
+    </property>
+    <property>
+      <name>gateway.extras.port</name>
+      <value>8001</value>
+    </property>
+  </properties>
+
+  <!--
+  Echo service
+  The echo service is a service that receives a string of characters
+  through a websocket and returns the same characters to the sender.
+  The service "echoes" any input. This service is primarily used
+  for validating the basic gateway configuration.
+  The Echo service runs a separate port to verify cross-origin access.
+  -->
+
+  <service>
+    <name>echo</name>
+    <accept>ws://${gateway.hostname}:${gateway.extras.port}/echo</accept>
+
+    <type>echo</type>
+
+   <!--
+    You can set accept options at the service level or at the service defaults level.
+    Setting options at the service level overrides options you set at the service
+    defaults level.
+
+    See the Service Defaults block of this configuration file for information on the
+    accept options you can set.
+
+    For example, you can set accept options for binding WebSocket (ws) and WebSocket
+    secure (wss) to different ports on the Gateway host. You can only bind protocols for
+    addresses present in the service's accept strings. If you try to bind a
+    protocol for an address that does not exist in the service's accept strings,
+    the bindings will have no effect.
+    -->
+
+    <!--
+    <accept-options>
+      <ws.bind>80</ws.bind>
+      <wss.bind>443</wss.bind>
+    </accept-options>
+    -->
+
+    <!--
+    <auth-constraint>
+      <require-role>AUTHORIZED</require-role>
+    </auth-constraint>
+    -->
+
+    <cross-site-constraint>
+      <allow-origin>http://${gateway.hostname}:${gateway.extras.port}</allow-origin>
+    </cross-site-constraint>
+  </service>
+
+  <!--
+  Directory service
+  The directory service is a service that exposes a directory of files.
+  It is used to host static files accessed via the embedded web server within
+  the Kaazing WebSocket Gateway.  For example, the Kaazing 'home' page and
+  all of the Kaazing developer and administration documentation in the
+  Gateway distribution are accessed through this service.
+
+  The <directory> tag specifies the path of your static files relative
+  to GATEWAY_HOME/web, where GATEWAY_HOME is the directory where you
+  installed the Kaazing WebSocket Gateway.
+  Note: An absolute path cannot be specified.
+  -->
+
+  <service>
+    <name>directory</name>
+    <accept>http://${gateway.hostname}:${gateway.base.port}/</accept>
+
+    <type>directory</type>
+    <properties>
+      <directory>/base</directory>
+      <welcome-file>index.html</welcome-file>
+      <options>indexes</options>
+    </properties>
+
+    <!--
+    <auth-constraint>
+      <require-role>AUTHORIZED</require-role>
+    </auth-constraint>
+    -->
+  </service>
+
+  <service>
+    <name>directory2</name>
+    <accept>http://${gateway.hostname}:${gateway.extras.port}/</accept>
+
+    <type>directory</type>
+    <properties>
+      <directory>/extras</directory>
+      <welcome-file>index.html</welcome-file>
+      <options>indexes</options>
+    </properties>
+
+    <!--
+    <auth-constraint>
+      <require-role>AUTHORIZED</require-role>
+    </auth-constraint>
+    -->
+  </service>
+
+  <!--
+  #############################################################################
+  #############################################################################
+                       Security configuration
+  #############################################################################
+  #############################################################################
+  -->
+
+  <!-- Security configuration -->
+  <security>
+    <!--
+    The keystore element is used to configure the keystore that contains
+    encryption keys for secure communications with Kaazing WebSocket Gateway.
+    -->
+    <keystore>
+      <type>JCEKS</type>
+      <file>keystore.db</file>
+      <password-file>keystore.pw</password-file>
+    </keystore>
+
+    <!--
+    The truststore element is used to configure the truststore that
+    contains digital certificates for certificate authorities
+    trusted by Kaazing WebSocket Gateway.
+    -->
+    <truststore>
+      <file>truststore.db</file>
+    </truststore>
+
+    <!--
+    This is the element that associates an authenticated user with a set
+    of authorized roles.
+    -->
+    <realm>
+      <name>demo</name>
+      <description>Kaazing WebSocket Gateway Demo</description>
+
+      <authentication>
+        <http-challenge-scheme>Application Basic</http-challenge-scheme>
+
+        <login-modules>
+          <login-module>
+            <type>file</type>
+            <success>required</success>
+            <options>
+              <file>jaas-config.xml</file>
+            </options>
+          </login-module>
+        </login-modules>
+      </authentication>
+    </realm>
+  </security>
+
+
+  <!--
+  #############################################################################
+  #############################################################################
+                            Upgrading Your License
+
+  The developer's version of the Kaazing WebSocket Gateway demo bundle allows
+  only a limited number of concurrent client connections.
+  To upgrade your license, contact sales@kaazing.com.
+  After you place a valid license key in GATEWAY_HOME/license, messages similar
+  to the following example INFO messages display in your shell or command
+  prompt at server startup:
+  INFO  Checking license information
+  INFO    Valid license found for: Joe User, Example Corporation,
+          joe@example.com
+  INFO    License expires on 06 Jun 2044
+  INFO  Starting in licensed mode
+  #############################################################################
+  #############################################################################
+  -->
+
+
+  <!--
+  #############################################################################
+  #############################################################################
+                       Additional service configuration
+
+  Note: Proxy services are designed to proxy connections to back-end service.
+  #############################################################################
+  #############################################################################
+  -->
+
+  <!--
+  Proxy service to AMQP server
+  Important: Requires AMQP version 0-9-1
+  Advanced Message Queuing Protocol (AMQP) is an open standard for messaging
+  middleware that was originally designed by the financial services industry
+  to provide an interoperable protocol for managing the flow of enterprise
+  messages. To guarantee messaging interoperability, AMQP defines both a
+  wire-level protocol and a model, the AMQP Model, of messaging capabilities.
+  An example of a message broker that provides built-in support for Stomp is
+  RabbitMQ.
+  -->
+  <service>
+    <name>amqp.proxy</name>
+    <accept>ws://${gateway.hostname}:${gateway.extras.port}/amqp</accept>
+    <connect>tcp://${gateway.hostname}:5672</connect>
+
+    <type>amqp.proxy</type>
+
+    <!--
+    <auth-constraint>
+      <require-role>AUTHORIZED</require-role>
+    </auth-constraint>
+    -->
+
+    <cross-site-constraint>
+      <allow-origin>http://${gateway.hostname}:${gateway.extras.port}</allow-origin>
+    </cross-site-constraint>
+  </service>
+
+  <!--
+  UDP broadcast service
+  This type of service is used to broadcast information from a back-end
+  service.
+
+  Kaazing WebSocket Gateway supports Multicast. To configure a service
+  that is running on Kaazing WebSocket Gateway to use a multicast address,
+  you must specify the multicast URI in the accept property.
+  See the section "Configuring Kaazing Gateway to Use Multicast" in the
+  Administrator's Guide for more information.
+  -->
+  <service>
+    <name>broadcast</name>
+    <accept>sse://${gateway.hostname}:${gateway.extras.port}/sse</accept>
+    <connect>udp://${gateway.hostname}:50505</connect>
+    <type>broadcast</type>
+    <properties>
+     
+    </properties>
+
+    <!--
+    <auth-constraint>
+      <require-role>AUTHORIZED</require-role>
+    </auth-constraint>
+    -->
+
+    <cross-site-constraint>
+      <allow-origin>http://${gateway.hostname}:${gateway.extras.port}</allow-origin>
+    </cross-site-constraint>
+  </service>
+
+<!--
+  #############################################################################
+  #############################################################################
+                             Service Defaults
+  #############################################################################
+  #############################################################################
+  -->
+
+  <!--
+  The accept element in a service is frequently sufficient for the service to
+  receive messages and requests. However, sometimes the value of the accept
+  element does not match the physical description of the host. For example, the
+  Gateway may be behind a load balancer or in a cloud environment, in which case
+  its local network information may not match the settings specified by the
+  accept element.
+
+  For instance, your service may accept on ws://www.example.com but that
+  hostname resolves to the IP address of the load balancer, not the Gateway
+  host. In such a case, you can configure the Gateway using the {protocol}.bind
+  element, which enables you to bind the address specified in the accept element
+  to an internal address (where the address maps in your network). This option
+  provides a choice of binding the address to a specific port or hostname and
+  port (if you specify a hostname here, you must specify a port).
+
+  See the section "Configuring Network Addresses" in the Administrator's Guide
+  for more information.
+
+  You can configure default values that apply to all services. Elements and
+  values you specify in individual services override the defaults you specify
+  in this section. The following list shows the service configurations
+  you can specify in this section:
+
+    * Accept Options
+
+      - SSL Encryption
+        The SSL encryption can be in one of two forms:
+
+          <ssl.encryption>enabled</ssl.encryption>
+        or
+          <ssl.encryption>disabled</ssl.encryption>
+
+        The default is <ssl.encryption>enabled</ssl.encryption> so does not need to be
+        explicitly set if there is no ssl.encryption specified.
+
+      - Protocol binds
+        These are in the form:
+
+        <{protocol}.bind>[hostname:]port</{protocol}.bind>
+
+        {protocol} is one of ws, wss, http, https, ssl, or tcp. In the value,
+        hostname is optional, but port is required. If a hostname (or IP
+        address) is not specified, then the Gateway will bind to the wildcard
+        address (0.0.0.0) using the given port. Binding to the wildcard address
+        means the Gateway will listen on all interfaces of the host.
+
+        If there are multiple accepts on a service, each using different
+        protocols, then each protocol that needs to be bound must be explicitly
+        bound. For example:
+
+        <service>
+          <accept>http://192.168.10.25:8000/echo</accept>
+          <accept>ws://192.168.10.25:8001/echo</accept>
+          <accept-options>
+            <http.bind>80</http.bind>
+            <ws.bind>443</ws.bind>
+          </accept-options>
+        </service>
+
+ 		- Maximum WebSocket message size
+		    By default, the maximum size of data permitted in an incoming WebSocket
+		    frame is 128 kilobytes. You can change the maximum incoming data size over
+		    ws and wss by setting the following accept-option (see the Administrator's Guide
+		    for more information):
+
+		    <ws.maximum.message.size>64k</ws.maximum.message.size>
+
+      - HTTP(S) keep-alive timeout
+        This is the number of seconds the Gateway will wait for a subsequent request
+        on an HTTP or HTTPS connection before closing the connection to conserve
+        resources. The default value is 30 seconds. You can change this value by setting
+        the following accept-option (see the Administrator's Guide for more information):
+
+        <http.keepalive.timeout>120</http.keepalive.timeout>
+
+      An example for setting service defaults (turning SSL encryption off, binding each
+      protocol, reducing the limit for incoming WebSocket frame size and increasing the
+      timeout for HTTP connections) is as follows. Note that in this example both ws
+      and http are bound to port 80. This works because they are compatible protocols.
+      Similarly, wss and https can both be bound to the same port because they are
+      compatible protocols. However, if you try to bind incompatible protocols to the
+      same port, you will receive a port conflict error on Gateway startup. For instance,
+      you cannot bind ws and https to the same port.
+
+      <service-defaults>
+        <accept-options>
+          <ssl.encryption>disabled</ssl.encryption>
+          <ws.bind>80</ws.bind>
+          <wss.bind>192.168.10.25:443</wss.bind>
+          <http.bind>192.168.10.25:80</http.bind>
+          <https.bind>192.168.10.25:443</https.bind>
+          <tcp.bind>192.168.10.25:8075</tcp.bind>
+          <ws.maximum.message.size>32k</ws.maximum.message.size>
+          <http.keepalive.timeout>60</http.keepalive.timeout>
+        </accept-options>
+      </service-defaults>
+
+    * MIME-type Mappings
+
+      A service can return files of various types to a client.  Generally, HTTP
+      mandates that a response containing a file also specify a Content-Type
+      header describing the file contents.  You may use a <mime-mapping> block to specify
+      the Content-Type value to be returned for files with a particular name extension.
+      For example,
+
+      <mime-mapping>
+        <extension>png</extension>
+        <mime-type>image/png</mime-type>
+      </mime-mapping>
+      <mime-mapping>
+        <extension>html</extension>
+        <mime-type>text/html</mime-type>
+      </mime-mapping>
+
+      indicates that for files with names ending in '.png', the header
+      'Content-Type: image/png' should be returned by the Gateway, and 'Content-Type: text/html'
+      should be returned for .html files.  Mappings can be specified in the both the
+      <service-defaults> block and in any <service> blocks.  If a mapping for a given extension
+      is specified in both the <service-defaults> block and a <service> block, the <service>-level
+      mapping will be used when providing files from that service.
+
+      An initial set of mappings is provided in <service-defaults> below, and should be edited
+      as needed, but not removed.  If specified in <service-defaults>, all <mime-mapping> blocks
+      must come after any <accept-options>.  If specified in <service>, all <mime-mapping> blocks
+      must come just before any <cross-site-constraint> blocks.
+  -->
+  <service-defaults>
+    <mime-mapping>
+      <extension>html</extension>
+      <mime-type>text/html</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+      <extension>htm</extension>
+      <mime-type>text/html</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+      <extension>js</extension>
+      <mime-type>text/javascript</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+      <extension>png</extension>
+      <mime-type>image/png</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+      <extension>gif</extension>
+      <mime-type>image/gif</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+      <extension>jpg</extension>
+      <mime-type>image/jpeg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+      <extension>jpeg</extension>
+      <mime-type>image/jpeg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+      <extension>css</extension>
+      <mime-type>text/css</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+      <extension>swf</extension>
+      <mime-type>application/x-shockwave-flash</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+      <extension>xap</extension>
+      <mime-type>application/x-silverlight-app</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+      <extension>htc</extension>
+      <mime-type>text/x-component</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+      <extension>jnlp</extension>
+      <mime-type>application/x-java-jnlp-file</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+      <extension>manifest</extension>
+      <mime-type>text/cache-manifest</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+      <extension>appcache</extension>
+      <mime-type>text/cache-manifest</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+      <extension>vtt</extension>
+      <mime-type>text/vtt</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+      <extension>aspx</extension>
+      <mime-type>text/html</mime-type>
+    </mime-mapping>
+  </service-defaults>
+
+  <!--
+  #############################################################################
+  #############################################################################
+                         Network Address Mapping
+  #############################################################################
+  #############################################################################
+    -->
+
+
+  <!--
+  When a firewall or load-balancing router front-ends the Kaazing WebSocket
+  Gateway, DNS resolves to the public IP address of that device.
+  Administrators should configure this device to forward network requests
+  to the Kaazing WebSocket Gateway located on the internal network.
+  In this arrangement, you need to configure the Gateway and override
+  its default behavior by using the <network> tag and its <address-mapping>
+  child element tag.
+  See the section "Network Address Mapping" in the Administrator's Guide
+  for more information.
+
+  For example, you can map the internal address gateway.dmz.net:8000 to the
+  external address of a firewall at www.example.com:80 as follows:
+
+    <network>
+      <address-mapping>
+        <internal-address>gateway.dmz.net:8000</internal-address>
+        <external-address>www.example.com:80</external-address>
+      </address-mapping>
+    </network>
+
+  This signals Kaazing WebSocket Gateway to listen on the internal address
+  gateway.dmz.net:8000 to serve requests originally sent to the external
+  address www.example.com:80. Alternatively, the IP address can be used
+  in the configuration parameters as shown in the following example
+  (you can also specify an IP address and port for the external address).
+
+    <network>
+      <address-mapping>
+        <internal-address>192.168.0.1:8000</internal-address>
+        <external-address>www.example.com:80</external-address>
+      </address-mapping>
+    </network>
+  -->
+
+  <!--
+  #############################################################################
+  #############################################################################
+                            Do not remove closing element
+  #############################################################################
+  #############################################################################
+  -->
+
+</gateway-config>

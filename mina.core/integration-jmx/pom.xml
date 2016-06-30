@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.kaazing</groupId>
+        <artifactId>mina-parent</artifactId>
+        <version>develop-SNAPSHOT</version>
+        <relativePath>../parent</relativePath>
+    </parent>
+    <artifactId>mina-integration-jmx</artifactId>
+    <name>Apache MINA JMX Integration</name>
+    <packaging>jar</packaging>
+
+    <scm>
+        <url>https://github.com/kaazing/gateway/mina.core/integration-jmx</url>
+        <connection>scm:git:https://github.com/gateway.git</connection>
+    </scm>
+
+    <properties>
+        <exportedPackage>org.apache.mina.integration.jmx</exportedPackage>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>${mina.groupId}</groupId>
+            <artifactId>mina-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${mina.groupId}</groupId>
+            <artifactId>mina-integration-beans</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${mina.groupId}</groupId>
+            <artifactId>mina-integration-ognl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+</project>
