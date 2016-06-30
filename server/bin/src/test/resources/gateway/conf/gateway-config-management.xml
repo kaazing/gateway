@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+
+    Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<gateway-config xmlns="http://xmlns.kaazing.com/2012/03/gateway">
+
+
+    <properties>
+        <property>
+            <name>gateway.hostname</name>
+            <value>localhost</value>
+        </property>
+        <property>
+            <name>gateway.base.port</name>
+            <value>8000</value>
+        </property>
+        <property>
+            <name>gateway.jmx.port</name>
+            <value>2020</value>
+        </property>
+    </properties>
+
+    <service>
+        <accept>http://${gateway.hostname}:${gateway.base.port}/</accept>
+
+        <type>directory</type>
+        <properties>
+            <directory>/base</directory>
+            <welcome-file>index.html</welcome-file>
+            <error-pages-directory>/error-pages</error-pages-directory>
+            <options>indexes</options>
+        </properties>
+
+        <realm-name>demo</realm-name>
+    </service>
+
+    <!-- Security configuration -->
+    <security>
+        <!--
+        The keystore element is used to configure the keystore that contains
+        encryption keys for secure communications with Kaazing WebSocket Gateway.
+        -->
+        <keystore>
+            <type>JCEKS</type>
+            <file>keystore.db</file>
+            <password-file>keystore.pw</password-file>
+        </keystore>
+
+        <!--
+        The truststore element is used to configure the truststore that
+        contains digital certificates for certificate authorities
+        trusted by Kaazing WebSocket Gateway.
+        -->
+        <truststore>
+            <file>truststore.db</file>
+        </truststore>
+
+        <!--
+        This is the element that associates an authenticated user with a set
+        of authorized roles.
+        -->
+        <realm>
+            <name>demo</name>
+            <description>Kaazing WebSocket Gateway Demo</description>
+
+            <!--
+            This is the element that specifies how authentication of users
+            is undertaken for the realm.
+            -->
+            <authentication>
+
+                <!--
+                Specifies how the gateway issues HTTP challenges when
+                unauthorized connections are made. Standard HTTP "Basic"
+                and "Negotiate" are supported, with the Application variants:
+                "Application Basic", and "Application Negotiate".  For custom
+                HTTP challenge schemes, use "Application Token".
+                -->
+                <http-challenge-scheme>Basic</http-challenge-scheme>
+
+                <!--
+                The http items below specify how the gateway accepts credentials
+                when connections are made.  In addition to the standard HTTP
+                "Authorization" header, the Gateway can access credentials sent in
+                custom HTTP headers, query parameters and cookies.
+                -->
+
+                <!--
+                <http-header>Custom-Header-Name</http-header>
+                <http-query-parameter>Query-Parameter-Name</http-query-parameter>
+                <http-cookie>Cookie-Name</http-cookie>
+                -->
+
+                <!--
+                The login modules below specify how the gateway communicates
+                with a "user database" to validate user credentials, and
+                to determine a set of authorized roles.
+                -->
+                <login-modules>
+                    <!--
+                    The login module communicates with a user database to
+                    validate user's credentials and to determine a set of
+                    authorized roles. By default, the file-based module is used.
+                    -->
+                    <login-module>
+                        <type>file</type>
+                        <success>required</success>
+                        <options>
+                            <file>jaas-config.xml</file>
+                        </options>
+                    </login-module>
+
+                    <!--
+                    The following is an example of an LDAP-based login-module element:
+                    -->
+                    <!--
+                    <login-module>
+                      <type>ldap</type>
+                      <success>required</success>
+                      <options>
+                        <userProvider>ldap://ldap-svr/ou=people,dc=example,dc=com</userProvider>
+                        <userFilter>(&amp;(uid={USERNAME})(objectClass=inetOrgPerson))</userFilter>
+                        <authzIdentity>{EMPLOYEENUMBER}</authzIdentity>
+                      </options>
+                    </login-module>
+                    -->
+
+                    <!--
+                    Kaazing WebSocket Gateway also supports a plugin mechanism for integration
+                    with custom authentication modules based on the Java LoginModule API.
+                    To use a custom authentication module, configure your login-module element
+                    as follows:
+                    -->
+                    <!--
+                    <login-module>
+                      <type>class:fully-qualified-class-name</type>
+                      <success>required</success>
+                      <options>
+                        .
+                        .
+                        .
+                      </options>
+                    </login-module>
+                    -->
+                </login-modules>
+            </authentication>
+        </realm>
+    </security>
+
+    <service-defaults>
+        <mime-mapping>
+            <extension>html</extension>
+            <mime-type>text/html</mime-type>
+        </mime-mapping>
+        <mime-mapping>
+            <extension>htm</extension>
+            <mime-type>text/html</mime-type>
+        </mime-mapping>
+        <mime-mapping>
+            <extension>js</extension>
+            <mime-type>text/javascript</mime-type>
+        </mime-mapping>
+        <mime-mapping>
+            <extension>png</extension>
+            <mime-type>image/png</mime-type>
+        </mime-mapping>
+        <mime-mapping>
+            <extension>gif</extension>
+            <mime-type>image/gif</mime-type>
+        </mime-mapping>
+        <mime-mapping>
+            <extension>jpg</extension>
+            <mime-type>image/jpeg</mime-type>
+        </mime-mapping>
+        <mime-mapping>
+            <extension>jpeg</extension>
+            <mime-type>image/jpeg</mime-type>
+        </mime-mapping>
+        <mime-mapping>
+            <extension>css</extension>
+            <mime-type>text/css</mime-type>
+        </mime-mapping>
+        <mime-mapping>
+            <extension>swf</extension>
+            <mime-type>application/x-shockwave-flash</mime-type>
+        </mime-mapping>
+        <mime-mapping>
+            <extension>xap</extension>
+            <mime-type>application/x-silverlight-app</mime-type>
+        </mime-mapping>
+        <mime-mapping>
+            <extension>htc</extension>
+            <mime-type>text/x-component</mime-type>
+        </mime-mapping>
+        <mime-mapping>
+            <extension>jnlp</extension>
+            <mime-type>application/x-java-jnlp-file</mime-type>
+        </mime-mapping>
+        <mime-mapping>
+            <extension>manifest</extension>
+            <mime-type>text/cache-manifest</mime-type>
+        </mime-mapping>
+        <mime-mapping>
+            <extension>appcache</extension>
+            <mime-type>text/cache-manifest</mime-type>
+        </mime-mapping>
+        <mime-mapping>
+            <extension>vtt</extension>
+            <mime-type>text/vtt</mime-type>
+        </mime-mapping>
+        <mime-mapping>
+            <extension>aspx</extension>
+            <mime-type>text/html</mime-type>
+        </mime-mapping>
+    </service-defaults>
+
+    <management>
+        <!-- specify protocol, network interface (possibly internal) and port -->
+        <accept>jmx://${gateway.hostname}:${gateway.jmx.port}/</accept>
+
+        <!-- secure the management using a security realm -->
+        <realm-name>demo</realm-name>
+
+        <!-- configure the authorized user roles -->
+        <authorization-constraint>
+            <require-role>ADMINISTRATOR</require-role>
+        </authorization-constraint>
+    </management>
+
+</gateway-config>
