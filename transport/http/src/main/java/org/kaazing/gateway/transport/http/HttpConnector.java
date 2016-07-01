@@ -38,7 +38,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.Resource;
 
@@ -70,7 +69,6 @@ import org.kaazing.gateway.transport.http.bridge.HttpMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBuffer;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBufferAllocator;
-import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
@@ -88,7 +86,6 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     private ResourceAddressFactory addressFactory;
     private final PersistentConnectionPool persistentConnectionsStore;
     private Properties configuration;
-    private ScheduledExecutorService schedulerProvider;
 
     public HttpConnector() {
         super(new DefaultIoSessionConfigEx());
@@ -115,11 +112,6 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     @Resource(name = "configuration")
     public void setConfiguration(Properties configuration) {
         this.configuration = configuration;
-    }
-
-    @Resource(name = "schedulerProvider")
-    public void setSchedulerProvider(SchedulerProvider provider) {
-        this.schedulerProvider = provider.getScheduler("HttpConnector", true);
     }
 
     @Override
@@ -490,6 +482,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
             return httpSession.getRemoteAddress().hasOption(key);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public <T> T getOption(ResourceOption<T> key) {
             if (ResourceAddress.TRANSPORT_URI.equals(key) || ResourceAddress.TRANSPORT.equals(key)

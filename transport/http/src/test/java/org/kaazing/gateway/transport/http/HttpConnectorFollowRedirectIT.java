@@ -18,15 +18,19 @@ package org.kaazing.gateway.transport.http;
 import static org.junit.Assert.assertTrue;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
+import java.net.SocketAddress;
+
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.jmock.Mockery;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 public class HttpConnectorFollowRedirectIT {
@@ -51,8 +55,16 @@ public class HttpConnectorFollowRedirectIT {
                 new ConnectSessionInitializer());
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
+        DefaultHttpSession session = (DefaultHttpSession) connectFuture.getSession();
+        SocketAddress localAddressPriorToReconnect = session.getLocalAddress();
 
         k3po.finish();
+
+        SocketAddress localAddressAfterReconnect = session.getLocalAddress();
+        Assert.assertNotEquals(localAddressPriorToReconnect, localAddressAfterReconnect);
+        ResourceAddress remoteAddress = (ResourceAddress) session.getRemoteAddress();
+        Assert.assertEquals(8081, remoteAddress.getResource().getPort());
+        Assert.assertTrue(session.getUpgradeFuture().getSession().getRemoteAddress().toString().endsWith("8081"));
     }
 
     private static class ConnectSessionInitializer implements IoSessionInitializer<ConnectFuture> {
