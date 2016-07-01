@@ -17,13 +17,17 @@
 connect tcp://localhost:8001
 connected
 
-write "GET /jms?.kl=Y HTTP/1.1\r\n"
-write "Upgrade: websocket\r\n"
-write "Connection: Upgrade\r\n"
-write "Host: localhost:8001\r\n"
-write "Sec-WebSocket-Protocol: x-kaazing-handshake, x-kaazing-bump\r\n"
-write "Sec-WebSocket-Key: ux63MC0852T2CjyVKr5pog==\r\n"
-write "Sec-WebSocket-Version: 13\r\n"
-write "Sec-WebSocket-Extensions: x-webkit-deflate-frame\r\n"
+write method "GET"
+write header "User-Agent" "AutobahnTestSuite/0.6.1-0.8.8"
+write header host
+write header "Upgrade" "WebSocket"
+write header "Connection" "Upgrade"
+write header "Sec-WebSocket-Key" "qGJGE4V5NjJxQHMzSF7ViQ=="
+write header "Sec-WebSocket-Version" "13"
 
+read header "Connection" "Upgrade"
+read header "Sec-WebSocket-Accept" "IF0nEhUtZc3XUMigyQOarssta9w="
+read header "Upgrade" "WebSocket"
+
+close
 closed
