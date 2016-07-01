@@ -124,7 +124,6 @@ public class WsnConnectorRule implements TestRule {
                 httpConnector = (HttpConnector)transportFactory.getTransport("http").getConnector();
                 httpConnector.setBridgeServiceFactory(serviceFactory);
                 httpConnector.setResourceAddressFactory(addressFactory);
-                httpConnector.setSchedulerProvider(schedulerProvider);
 
                 wsnConnector = (WsnConnector)transportFactory.getTransport("wsn").getConnector();
                 wsnConnector.setConfiguration(new Properties());

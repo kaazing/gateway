@@ -97,7 +97,6 @@ public class HttpConnectorRule implements TestRule {
                 httpConnector = (HttpConnector)transportFactory.getTransport("http").getConnector();
                 httpConnector.setBridgeServiceFactory(serviceFactory);
                 httpConnector.setResourceAddressFactory(addressFactory);
-                httpConnector.setSchedulerProvider(schedulerProvider);
 
                 base.evaluate();
             } finally {
