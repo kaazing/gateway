@@ -16,6 +16,7 @@
 package org.kaazing.gateway.transport.http;
 
 import static java.lang.String.format;
+import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolCompatibilityFilter.HttpConditionalWrappedResponseFilter.conditionallyWrappedResponsesRequired;
 import static org.kaazing.gateway.util.InternalSystemProperty.HTTPXE_SPECIFICATION;
 
@@ -23,6 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,7 +45,6 @@ import javax.security.auth.Subject;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.IoProcessor;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.CommitFuture;
@@ -103,7 +104,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 
     // internal
     private IoHandler upgradeHandler;
-    private final UpgradeFuture upgradeFuture;
+    private final DefaultUpgradeFuture upgradeFuture;
     private final CommitFuture commitFuture;
     private final ResponseFuture responseFuture;
     private final AtomicBoolean committing;
@@ -118,7 +119,8 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     private boolean httpxeSpecCompliant;
 
 	private int redirectsAllowed;
-    private ResourceAddress localRemoteAddress = null;
+	private ResourceAddress redirectlocalAddress;
+    private ResourceAddress redirectRemoteAddress;
 
     @SuppressWarnings("deprecation")
     private DefaultHttpSession(IoServiceEx service,
@@ -562,12 +564,12 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 
     @Override
     public ResourceAddress getLocalAddress() {
-        return super.getLocalAddress();
+        return (this.redirectlocalAddress != null) ? this.redirectlocalAddress: super.getLocalAddress();
     }
 
     @Override
     public ResourceAddress getRemoteAddress() {
-        return (localRemoteAddress == null) ? super.getRemoteAddress() : localRemoteAddress;
+        return (this.redirectRemoteAddress != null) ? this.redirectRemoteAddress: super.getRemoteAddress();
     }
 
     public Queue<IoBufferEx> getDeferredReads() {
@@ -627,6 +629,13 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     }
 
     public IoSessionEx setParent(IoSessionEx newParent){
+        this.setLocalAddress(LOCAL_ADDRESS.get(newParent));
+        // newParent.getRemoteAddress(); httpSession.setLocalAddress((ResourceAddress)redirectRemoteAddress);
+        upgradeFuture.setSession(newParent);
+        if (!SslUtils.isSecure(newParent) && secure) {
+            throw new InvalidParameterException("Can not switch from a secure session to a non secure session");
+        }
+
         return super.setParent(newParent);
     }
 
@@ -638,10 +647,12 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         return result;
     }
 
-    public void setRemoteAddress(ResourceAddress newConnectAddress) {
-        // used by redirects
-        this.localRemoteAddress = newConnectAddress;
+    public void setLocalAddress(ResourceAddress redirectlocalAddress) {
+        this.redirectlocalAddress = redirectlocalAddress;
     }
 
+    public void setRemoteAddress(ResourceAddress redirectRemoteAddress) {
+        this.redirectRemoteAddress = redirectRemoteAddress;
+    }
 
 }

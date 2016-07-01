@@ -302,19 +302,22 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         @Override
         protected void doSessionClosed(IoSessionEx session) throws Exception {
             DefaultHttpSession httpSession = HTTP_SESSION_KEY.remove(session);
-            boolean connectionClose = hasCloseHeader(httpSession.getReadHeaders(HttpHeaders.HEADER_CONNECTION));
-            if (!httpSession.isClosing() && !connectionClose) {
-            	httpSession.setStatus(HttpStatus.SERVER_GATEWAY_TIMEOUT);
-                httpSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
-                return;
-            }
-            if (connectionClose && !httpSession.isClosing()) {
-                httpSession.getProcessor().remove(httpSession);
-            }
+//            assert httpSession != null;
+            if (httpSession != null) {
+                boolean connectionClose = hasCloseHeader(httpSession.getReadHeaders(HttpHeaders.HEADER_CONNECTION));
+                if (!httpSession.isClosing() && !connectionClose) {
+                    httpSession.setStatus(HttpStatus.SERVER_GATEWAY_TIMEOUT);
+                    httpSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
+                    return;
+                }
+                if (connectionClose && !httpSession.isClosing()) {
+                    httpSession.getProcessor().remove(httpSession);
+                }
 
-            if (!session.isClosing()) {
-                IoFilterChain filterChain = session.getFilterChain();
-                removeBridgeFilters(filterChain);
+                if (!session.isClosing()) {
+                    IoFilterChain filterChain = session.getFilterChain();
+                    removeBridgeFilters(filterChain);
+                }
             }
         }
 
@@ -439,12 +442,11 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
             DefaultConnectFuture connectFuture = new DefaultConnectFuture();
             HTTP_SESSION_KEY.remove(session);
             connectFuture.addListener(future -> session.close(false));
-
             httpSession.setRemoteAddress(newConnectAddress);
-            schedulerProvider.submit(() -> {
+//            schedulerProvider.submit(() -> {
                 final HttpSessionFactory httpSessionFactory = new RedirectSessionFactory(httpSession);
                 connectInternal0(connectFuture, newConnectAddress, httpSessionFactory);
-            });
+//            });
             return connectFuture;
         }
 
