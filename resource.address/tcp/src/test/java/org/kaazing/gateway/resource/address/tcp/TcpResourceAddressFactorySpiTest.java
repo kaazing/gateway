@@ -212,6 +212,5 @@ public class TcpResourceAddressFactorySpiTest {
         alternate = alternate.getOption(ALTERNATE);
         assertNull(alternate);
     }
-    
 
 }

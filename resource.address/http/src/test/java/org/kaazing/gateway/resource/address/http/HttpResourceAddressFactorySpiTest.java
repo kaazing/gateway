@@ -49,14 +49,23 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.security.LoginContextFactory;
 import org.kaazing.gateway.security.TypedCallbackHandlerMap;
+import org.kaazing.test.util.ResolutionTestUtils;
 
 public class HttpResourceAddressFactorySpiTest {
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
+    private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
     private HttpResourceAddressFactorySpi addressFactorySpi;
     private String addressURI;
     private Map<String, Object> options;
@@ -175,6 +184,40 @@ public class HttpResourceAddressFactorySpiTest {
         assertNotNull(address.getOption(TRANSPORT_URI));
         assertEquals("tcp://localhost:2121", address.getOption(TRANSPORT_URI));
     }
+
+    @Test
+    public void shouldCreateAddressWithTransportOptionsAndAllowNetworkInterfaceSyntaxBrackets() {
+        ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
+        Map<String, Object> options = new HashMap<>();
+        options.put("http.transport", "tcp://[@" + networkInterface + "]:8080");
+        ResourceAddress address = addressFactory.newResourceAddress(addressURI, options);
+        verifyTransport(address, "tcp://127.0.0.1:8080");
+    }
+
+    @Test
+    public void shouldCreateAddressWithTransportOptionsAndAllowNetworkInterfaceSyntaxNoBrackets() {
+        ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
+        Map<String, Object> options = new HashMap<>();
+        options.put("http.transport", "tcp://@" + networkInterface + ":8080");
+        if (networkInterface.contains(" ")) {
+            thrown.expect(IllegalArgumentException.class);
+            thrown.expectMessage("Network interface syntax host contains spaces but misses bracket(s)");
+        }
+        ResourceAddress address = addressFactory.newResourceAddress(addressURI, options);
+        verifyTransport(address, "tcp://127.0.0.1:8080");
+    }
+
+    private void verifyTransport(ResourceAddress address,
+            final String expectedTransportURI) {
+    if (expectedTransportURI == null) {
+        Assert.assertNull(address.getTransport());
+    } else {
+        String scheme = URIUtils.getScheme(expectedTransportURI);
+        Assert.assertEquals(scheme, address.getTransport().getResource().getScheme());
+        URI uriExpectedTransportURI = URI.create(expectedTransportURI);
+        Assert.assertEquals(uriExpectedTransportURI, address.getTransport().getResource());
+    }
+}
 
     private void assertEmpty(String[] objects) {
         if (objects != null) {
