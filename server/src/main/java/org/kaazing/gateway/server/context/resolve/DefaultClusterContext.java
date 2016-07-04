@@ -356,6 +356,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         // The cluster instance should be shutdown by the Gateway, so there should be no need for the default
         // Hazelcast shutdown hook.
         hazelCastConfig.setProperty(GroupProperties.PROP_SHUTDOWNHOOK_ENABLED, "false");
+        //Disable HazelCast's usage data collection,which is enabled by default.
+        hazelCastConfig.setProperty("hazelcast.phone.home.enabled", "false"); 
 
         return hazelCastConfig;
     }

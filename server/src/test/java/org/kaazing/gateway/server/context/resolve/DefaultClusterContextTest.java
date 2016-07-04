@@ -162,6 +162,7 @@ public class DefaultClusterContextTest {
             assertEquals("Expected local member port to be same as used to construct the cluster",
                     member1.getPort(),
                     clusterContext1.getLocalMember().getPort());
+            clusterContext2.start();
         } finally {
             clusterContext1.dispose();
         }
