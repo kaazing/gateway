@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -97,6 +98,28 @@ public class UdpResourceAddressFactorySpiTest {
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPort() throws Exception {
         factory.newResourceAddress("udp://127.0.0.1");
+    }
+
+    @Ignore("Does not work as expected since (new URI('tcp://@ethh:8080')).getHost() returns 'ethh' instead of the expected '@ethh'")
+    @Test
+    public void shouldThrowSpecificNICExceptionNoBrackets() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("The interface name @ethh is not recognized");
+        factory.newResourceAddress("udp://@ethh:8080");
+    }
+
+    @Test
+    public void shouldThrowSpecificNICExceptionBrackets() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("The interface name [@ethh] is not recognized");
+        factory.newResourceAddress("udp://[@ethh]:8080");
+    }
+
+    @Test
+    public void shouldThrowGenericResolutionException() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Unable to resolve DNS name: ethh");
+        factory.newResourceAddress("udp://ethh:8080");
     }
 
     @Test

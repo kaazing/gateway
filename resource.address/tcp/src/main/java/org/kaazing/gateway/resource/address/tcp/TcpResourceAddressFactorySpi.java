@@ -15,6 +15,7 @@
  */
 package org.kaazing.gateway.resource.address.tcp;
 
+import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
@@ -50,6 +51,7 @@ import org.kaazing.gateway.resource.address.uri.URIUtils;
 
 public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpResourceAddress> {
 
+    private static final String NETWORK_INTERFACE_AUTHORITY = "(\\[{0,1}@[a-zA-Z0-9 :]*\\]{0,1})";
     private static final String JAVA_NET_PREFER_IPV4_STACK = "java.net.preferIPv4Stack";
     private static final String SCHEME_NAME = "tcp";
     private static final String PROTOCOL_NAME = "tcp";
@@ -195,7 +197,17 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             }
         }
         catch (UnknownHostException e) {
-            throw new IllegalArgumentException(format("Unable to resolve DNS name: %s", getHost(location)), e);
+            String host = getHost(location);
+            Pattern pattern = Pattern.compile(URIUtils.NETWORK_INTERFACE_AUTHORITY);
+            Matcher matcher = pattern.matcher(host);
+            // Test for network interface syntax and throw specific error message if found
+            if (matcher.find()) {
+                throw new IllegalArgumentException(format("The interface name %s is not recognized", host), e);
+            }
+            // Network interface syntax format not detected so generic error message can be thrown
+            else {
+                throw new IllegalArgumentException(format("Unable to resolve DNS name: %s", host), e);
+            }
         }
 
         if (tcpAddresses.isEmpty()) {
