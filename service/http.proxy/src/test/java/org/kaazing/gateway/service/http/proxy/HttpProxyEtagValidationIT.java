@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.http.proxy;
 
-import static org.kaazing.test.util.ITUtil.createRuleChain;
+package org.kaazing.gateway.service.http.proxy;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,7 +25,9 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-public class HttpProxyChunkingIT {
+import static org.kaazing.test.util.ITUtil.createRuleChain;
+
+public class HttpProxyEtagValidationIT {
 
     private final K3poRule robot = new K3poRule();
 
@@ -40,7 +41,7 @@ public class HttpProxyChunkingIT {
                             .connect("http://localhost:8080")
                             .type("http.proxy")
                             .connectOption("http.keepalive", "disabled")
-                        .done()
+                            .done()
                     .done();
             // @formatter:on
             init(configuration);
@@ -50,27 +51,15 @@ public class HttpProxyChunkingIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-    @Specification("http.proxy.payload.complete.chunked.encoding")
+    @Specification("http.proxy.etag.weak.validation")
     @Test
-    public void completeChunkedEncoding() throws Exception {
+    public void EtagWeakValidation() throws Exception {
         robot.finish();
     }
 
-    @Specification("http.proxy.gzip.chunked.encoding")
+    @Specification("http.proxy.etag.strong.validation")
     @Test
-    public void gzipChunkedEncoding() throws Exception {
-        robot.finish();
-    }
-
-    @Specification("http.proxy.payload.image.chunked.encoding")
-    @Test
-    public void imageChunkedEncoding() throws Exception {
-        robot.finish();
-    }
-
-    @Specification("http.proxy.payload.binary.chunked.encoding")
-    @Test
-    public void binaryDataChunkedEncoding() throws Exception {
+    public void EtagStrongValidation() throws Exception {
         robot.finish();
     }
 
