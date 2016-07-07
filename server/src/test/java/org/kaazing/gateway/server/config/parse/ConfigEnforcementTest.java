@@ -41,21 +41,6 @@ public class ConfigEnforcementTest {
     }
 
     @Test(expected = GatewayConfigParserException.class)
-    public void testBadAcceptPath() throws Exception {
-        File configFile = null;
-        try {
-            configFile =
-                    createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-test-bad-accept" +
-                            "-path.xml");
-            parser.parse(configFile);
-        } finally {
-            if (configFile != null) {
-                configFile.delete();
-            }
-        }
-    }
-
-    @Test(expected = GatewayConfigParserException.class)
     public void testNoBalancedService() throws Exception {
         File configFile = null;
         try {
@@ -77,21 +62,6 @@ public class ConfigEnforcementTest {
             configFile =
                     createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-test-valid-balanced" +
                             "-service.xml");
-            parser.parse(configFile);
-        } finally {
-            if (configFile != null) {
-                configFile.delete();
-            }
-        }
-    }
-
-    @Test(expected = GatewayConfigParserException.class)
-    public void testSeptSchemaInvalidBalancedSvc() throws Exception {
-        File configFile = null;
-        try {
-            configFile =
-                    createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-test-sep-schema" +
-                            "-invalid-balanced-svc.xml");
             parser.parse(configFile);
         } finally {
             if (configFile != null) {
@@ -136,21 +106,6 @@ public class ConfigEnforcementTest {
         try {
             configFile =
                     createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-test-ws-and-wss.xml");
-            parser.parse(configFile);
-        } finally {
-            if (configFile != null) {
-                configFile.delete();
-            }
-        }
-    }
-
-    @Test(expected = GatewayConfigParserException.class)
-    public void testInvalidWSandWSS() throws Exception {
-        File configFile = null;
-        try {
-            configFile =
-                    createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-test-invalid-ws-and" +
-                            "-wss.xml");
             parser.parse(configFile);
         } finally {
             if (configFile != null) {
