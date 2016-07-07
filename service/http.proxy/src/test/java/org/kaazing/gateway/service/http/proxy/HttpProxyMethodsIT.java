@@ -28,7 +28,7 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-public class HttpProxyHP7IT {
+public class HttpProxyMethodsIT {
 
     //    private final K3poRule robot = new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7235");
     private final K3poRule robot = new K3poRule();
@@ -61,20 +61,20 @@ public class HttpProxyHP7IT {
     }
 
 
-    @Specification("http.proxy.FQDN")
+    @Specification("http.proxy.fqdn")
     @Test
     public void fullyQualifiedDomainName() throws Exception {
         robot.finish();
     }
 
 
-    @Specification("http.proxy.GET.request")
+    @Specification("http.proxy.get.request")
     @Test
     public void httpProxyGetRequest() throws Exception {
         robot.finish();
     }
 
-    @Specification("http.proxy.PUT.request")
+    @Specification("http.proxy.put.request")
     @Test
     public void httpProxyPutRequest() throws Exception {
         robot.finish();

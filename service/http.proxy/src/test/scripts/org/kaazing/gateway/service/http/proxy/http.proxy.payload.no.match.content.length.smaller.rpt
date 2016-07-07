@@ -27,23 +27,7 @@ write "Accept-Encoding: gzip, deflate, sdch\r\n"
 write "Accept-Language: en-US,en;q=0.8\r\n"
 write "\r\n"
 
-
-# Packet length 204 bytes
-# wait 993371
-read "HTTP/1.1 200 OK\r\n"
-read "Access-Control-Allow-Credentials: true\r\n"
-read "Access-Control-Allow-Origin: *\r\n"
-read "Content-Type: application/octet-stream\r\n"
-read "Date: Fri, 01 Jul 2016 15:49:44 GMT\r\n"
-read "Server: nginx\r\n"
-read "Transfer-Encoding: chunked\r\n"
-read "\r\n"
-read "18\r\n"
-
-
-# First 4 bytes?
-read [0x31 0x38 0x0d 0x0a]
-read [0x60 0x7A 0x8E 0x98 0x18 0xA8 0xFC 0x7C 0xE6 0xC7 0x5B 0x48 0x52 0xC4 0x21 0x85 0x52 0x5C 0x7D 0xDC 0x20 0x91 0x90 0x63]
+read "HTTP/1.1 504 Gateway Timeout\r\n"
 
 close
 closed
@@ -80,6 +64,7 @@ read "\r\n"
 write "HTTP/1.1 200 OK\r\n"
 write "Access-Control-Allow-Credentials: true\r\n"
 write "Access-Control-Allow-Origin: *\r\n"
+write "Content-Length: 14\r\n"
 write "Content-Type: application/octet-stream\r\n"
 write "Date: Fri, 01 Jul 2016 15:49:44 GMT\r\n"
 write "Server: nginx\r\n"
