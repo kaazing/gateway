@@ -57,6 +57,8 @@ public class IoSessionChannelHandler extends SimpleChannelHandler {
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
     throws Exception {
+        System.out.println("JITU IoSessionChannelHandler pipelien = ");
+
         session.getService().initializeSession(session, future, initializer);
         idleTracker.addSession(session);
         session.getProcessor().add(session);
@@ -110,6 +112,8 @@ public class IoSessionChannelHandler extends SimpleChannelHandler {
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
             throws Exception {
+        System.out.println("JITU IoSessionChannelHandler messageReceivied = " + e);
+
         Object message = e.getMessage();
         if (message instanceof ChannelBuffer) {
             ChannelBuffer buf = (ChannelBuffer) message;
@@ -121,6 +125,8 @@ public class IoSessionChannelHandler extends SimpleChannelHandler {
 
         // filter chain can change if session is re-aligned
         IoFilterChain filterChain = session.getFilterChain();
+        System.out.println("JITU IoSessionChannelHandler sending upstream message = " + message);
+
         filterChain.fireMessageReceived(message);
     }
 

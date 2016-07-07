@@ -105,7 +105,7 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
     boolean inWriteNowLoop;
     boolean writeSuspended;
 
-    private volatile InetSocketAddress localAddress;
+    volatile InetSocketAddress localAddress;
     volatile InetSocketAddress remoteAddress;
 
     final C channel;

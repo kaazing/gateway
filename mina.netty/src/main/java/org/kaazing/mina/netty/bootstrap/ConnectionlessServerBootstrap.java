@@ -15,8 +15,12 @@
  */
 package org.kaazing.mina.netty.bootstrap;
 
+import static org.jboss.netty.channel.Channels.fireChannelConnected;
+import static org.jboss.netty.channel.Channels.fireChannelOpen;
+import static org.jboss.netty.channel.Channels.fireMessageReceived;
 import static org.jboss.netty.channel.Channels.pipeline;
 
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,10 +34,15 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.ChildChannelStateEvent;
+import org.jboss.netty.channel.DefaultChildChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.ServerChannelFactory;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
+import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
+import org.kaazing.mina.netty.IoAcceptorChannelHandler;
 
 class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements ServerBootstrap {
 
@@ -82,80 +91,72 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
 
     private final class ConnectionlessParentChannelHandler extends SimpleChannelUpstreamHandler {
 
-        private final Map<SocketAddress, Map<SocketAddress, Channel>> childChannelsByLocalAddress;
+        // remote address --> child channel
+        private final Map<SocketAddress, Channel> childChannels;
 
-        public ConnectionlessParentChannelHandler() {
-            childChannelsByLocalAddress = new ConcurrentHashMap<>();
+        ConnectionlessParentChannelHandler() {
+            childChannels = new ConcurrentHashMap<>();
         }
 
         @Override
-        public void channelConnected(ChannelHandlerContext ctx,
-                ChannelStateEvent e) throws Exception {
-            // TODO Auto-generated method stub
+        public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
             super.channelConnected(ctx, e);
         }
 
-        @Override
-        public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
-                throws Exception {
+        public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
+            System.out.println("JITU ********* childChannelOpen " + e.getChildChannel().getRemoteAddress() + " thread = " + Thread.currentThread());
+            ((IoAcceptorChannelHandler) parentHandler).childChannelOpen(ctx, e);
+            fireChannelConnected(e.getChildChannel(), e.getChildChannel().getRemoteAddress());
 
-//            // lookup child channel based on local and remote addresses
-//            Channel channel = e.getChannel();
-//            SocketAddress remoteAddress = e.getRemoteAddress();
-//            Channel childChannel = getChildChannel(channel, remoteAddress, true);
-//
-//            // deliver message received to child channel pipeline
-//            fireMessageReceived(childChannel, e);
+//            try {
+//                System.out.println("JITU ********* firing channelConnected (before) on child channel childChannelOpen" + e.getChildChannel());
+//                // TODO make sure it has remote address
+//                fireChannelConnected(e.getChildChannel(), e.getChannel().getRemoteAddress());
+//                System.out.println("JITU ********* firing channelConnected (after) on child channel childChannelOpen" + e.getChildChannel());
+//            } catch(Exception ex) {
+//                ex.printStackTrace();
+//            }
         }
 
         @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
-                throws Exception {
+        public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+
+            System.out.println("JITU *** ConnectionlessServerBootstrap received message = " + e);
+
+            // lookup child channel based on local and remote addresses
+            Channel channel = e.getChannel();
+            Channel childChannel = getChildChannel(channel, e.getRemoteAddress());
+
+            // deliver message received to child channel pipeline
+            fireMessageReceived(childChannel, e.getMessage());
+        }
+
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
             ctx.sendUpstream(e);
         }
 
-        private Channel getChildChannel(Channel channel, SocketAddress remoteAddress,
-                                        boolean createIfNull) throws Exception {
-
-            SocketAddress localAddress = channel.getLocalAddress();
-            Map<SocketAddress, Channel> childChannelsByRemoteAddress = childChannelsByLocalAddress.get(localAddress);
-            if (childChannelsByRemoteAddress == null && createIfNull) {
-                Map<SocketAddress, Channel> newChildChannels = new ConcurrentHashMap<>();
-                childChannelsByRemoteAddress = childChannelsByLocalAddress.put(localAddress, newChildChannels);
-                if (childChannelsByRemoteAddress == null) {
-                    childChannelsByRemoteAddress = newChildChannels;
+        private Channel getChildChannel(Channel channel, SocketAddress remoteAddress) throws Exception {
+            return childChannels.computeIfAbsent(remoteAddress, x -> {
+                ChannelPipelineFactory childPipelineFactory = getPipelineFactory();
+                ChannelPipeline childPipeline;
+                try {
+                    childPipeline = childPipelineFactory.getPipeline();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
-            }
-            if (childChannelsByRemoteAddress != null) {
-                Channel childChannel = childChannelsByRemoteAddress.get(remoteAddress);
-                if (childChannel == null && createIfNull) {
-                    ChannelPipelineFactory childPipelineFactory = getPipelineFactory();
-                    ChannelPipeline newChildPipeline = childPipelineFactory.getPipeline();
-                    ChannelFactory channelFactory = channel.getFactory();
-                    Channel newChildChannel = channelFactory.newChannel(newChildPipeline);
-                    childChannel = childChannelsByRemoteAddress.put(remoteAddress, newChildChannel);
-                    if (childChannel == null) {
-//                        newChildChannel.bind(localAddress);
-                        newChildChannel.connect(remoteAddress);
-                        childChannel = newChildChannel;
-                    }
-                }
-                if (childChannel != null) {
-                    final Map<SocketAddress, Channel> childChannelsByRemoteAddress0 = childChannelsByRemoteAddress;
-                    final SocketAddress remoteAddress0 = remoteAddress;
-                    ChannelFuture closeFuture = childChannel.getCloseFuture();
-                    closeFuture.addListener(new ChannelFutureListener() {
+                System.out.println("JITU server pipeline = " + channel.getPipeline());
+                System.out.println("JITU child pipeline = " + childPipeline);
 
-                        @Override
-                        public void operationComplete(ChannelFuture future) throws Exception {
-                            childChannelsByRemoteAddress0.remove(remoteAddress0);
-                        }
+                ChannelFactory channelFactory = channel.getFactory();
+                NioDatagramChannel childChannel = (NioDatagramChannel) ((NioDatagramChannelFactory)channelFactory).newChildChannel(channel, childPipeline);
+                childChannel.setLocalAddress((InetSocketAddress) channel.getLocalAddress());
+                childChannel.setRemoteAddress((InetSocketAddress) remoteAddress);
+                fireChannelOpen(childChannel);
+                //fireChannelConnected(childChannel, remoteAddress);
 
-                    });
-                }
                 return childChannel;
-            }
-            return null;
+            });
         }
     }
 }

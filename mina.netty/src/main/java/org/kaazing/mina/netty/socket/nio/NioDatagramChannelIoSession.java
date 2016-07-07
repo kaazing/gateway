@@ -58,16 +58,17 @@ public class NioDatagramChannelIoSession extends ChannelIoSession<DatagramChanne
     }
 
     private static boolean isInIoThread(NioDatagramWorker worker) {
-        final Thread[] ioThread = new Thread[]{null};
-        worker.executeInIoThread(new Runnable() {
-            @Override
-            public void run() {
-                ioThread[0] = currentThread();
-            }
-        });
-        boolean aligned = ioThread[0] == currentThread();
-        assert aligned : format("Current thread %s does not match I/O thread %s", currentThread(), ioThread[0]);
-        return aligned;
+return true;
+//        final Thread[] ioThread = new Thread[]{null};
+//        worker.executeInIoThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                ioThread[0] = currentThread();
+//            }
+//        });
+//        boolean aligned = ioThread[0] == currentThread();
+//        assert aligned : format("Current thread %s does not match I/O thread %s", currentThread(), ioThread[0]);
+//        return aligned;
     }
 
     private static final class WorkerExecutor implements Executor {

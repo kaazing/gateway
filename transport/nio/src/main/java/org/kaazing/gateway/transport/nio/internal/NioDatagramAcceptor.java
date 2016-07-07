@@ -16,6 +16,7 @@
 package org.kaazing.gateway.transport.nio.internal;
 
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.Properties;
 
 import javax.annotation.Resource;
@@ -32,6 +33,9 @@ import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.NioBindException;
 import org.kaazing.gateway.transport.bio.MulticastAcceptor;
 import org.kaazing.mina.core.service.IoAcceptorEx;
+import org.kaazing.mina.netty.socket.DatagramChannelIoSessionConfig;
+import org.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
+import org.kaazing.mina.netty.socket.nio.NioDatagramChannelIoAcceptor;
 import org.slf4j.LoggerFactory;
 
 public class NioDatagramAcceptor extends AbstractNioAcceptor {
@@ -56,16 +60,9 @@ public class NioDatagramAcceptor extends AbstractNioAcceptor {
 	@Override
     protected IoAcceptorEx initAcceptor(final IoSessionInitializer<? extends IoFuture> initializer) {
 	    // TODO: use the following instead of Mina when/if we get NioDatagramChannelIoAcceptor working
-//	    DatagramChannelIoSessionConfig config;
-//        try {
-//            config = new DefaultDatagramChannelIoSessionConfig();
-//        }
-//        catch (SocketException e) {
-//            throw new RuntimeException(e);
-//        }
-//	    NioDatagramChannelIoAcceptor acceptor = new NioDatagramChannelIoAcceptor(config, initializer);
-//      acceptor.setIoSessionInitializer(initializer);
-        org.apache.mina.transport.socket.nio.NioDatagramAcceptorEx acceptor = new org.apache.mina.transport.socket.nio.NioDatagramAcceptorEx();
+	    DatagramChannelIoSessionConfig config = new DefaultDatagramChannelIoSessionConfig();
+	    NioDatagramChannelIoAcceptor acceptor = new NioDatagramChannelIoAcceptor(config);
+        acceptor.setIoSessionInitializer(initializer);
 
         // TODO: move the following (WITHOUT the sessionCreated override) back up to AbstractNioAcceptor.init once we stop using
         //       Mina's NioDatagramAcceptor. We'll pass the initializer directly into NioDatagramChannelIoAcceptor
