@@ -56,7 +56,11 @@ public final class URIUtils {
      */
     public static String getHost(String uriString) {
         try {
-            return (new URI(uriString)).getHost();
+            URI uri = new URI(uriString);
+            if (uri.getAuthority().startsWith("@") && !uri.getHost().startsWith("@")) {
+                return "@" + uri.getHost();
+            }
+            return uri.getHost();
         }
         catch (URISyntaxException e) {
             try {

@@ -101,7 +101,6 @@ public class TcpResourceAddressFactorySpiTest {
         factory.newResourceAddress("tcp://127.0.0.1");
     }
 
-    @Ignore("Does not work as expected since (new URI('tcp://@ethh:8080')).getHost() returns 'ethh' instead of the expected '@ethh'")
     @Test
     public void shouldThrowSpecificNICExceptionNoBrackets() {
         thrown.expect(IllegalArgumentException.class);
