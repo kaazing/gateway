@@ -26,6 +26,7 @@ import org.jboss.netty.channel.socket.DatagramChannelConfig;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
 import org.jboss.netty.channel.socket.nio.NioDatagramWorker;
 
+import org.jboss.netty.channel.socket.nio.NioWorker;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.netty.ChannelIoService;
 import org.kaazing.mina.netty.ChannelIoSession;
@@ -39,8 +40,6 @@ import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
  */
 public class NioDatagramChannelIoSession extends ChannelIoSession<DatagramChannelConfig> {
 
-    private static final ThreadLocal<WorkerExecutor> WORKER_EXECUTOR = new VicariousThreadLocal<>();
-
     public NioDatagramChannelIoSession(ChannelIoService service,
             IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor, NioDatagramChannel channel) {
         super(service, processor, channel, new DefaultDatagramChannelIoSessionConfig(),
@@ -48,28 +47,27 @@ public class NioDatagramChannelIoSession extends ChannelIoSession<DatagramChanne
     }
 
     private static Executor asExecutor(NioDatagramWorker worker) {
-        assert isInIoThread(worker) : "Session created from non-I/O thread";
-        WorkerExecutor executor = WORKER_EXECUTOR.get();
+        WorkerExecutor executor = (WorkerExecutor) CURRENT_WORKER.get();
         if (executor == null) {
+            assert isInIoThread(worker) : "Session created from non-I/O thread";
             executor = new WorkerExecutor(worker);
-            WORKER_EXECUTOR.set(executor);
+            CURRENT_WORKER.set(executor);
         }
         assert executor.worker == worker : "Worker does not match I/O thread";
         return executor;
     }
 
     private static boolean isInIoThread(NioDatagramWorker worker) {
-return true;
-//        final Thread[] ioThread = new Thread[]{null};
-//        worker.executeInIoThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                ioThread[0] = currentThread();
-//            }
-//        });
-//        boolean aligned = ioThread[0] == currentThread();
-//        assert aligned : format("Current thread %s does not match I/O thread %s", currentThread(), ioThread[0]);
-//        return aligned;
+        final Thread[] ioThread = new Thread[]{null};
+        worker.executeInIoThread(new Runnable() {
+            @Override
+            public void run() {
+                ioThread[0] = currentThread();
+            }
+        });
+        boolean aligned = ioThread[0] == currentThread();
+        assert aligned : format("Current thread %s does not match I/O thread %s", currentThread(), ioThread[0]);
+        return aligned;
     }
 
     private static final class WorkerExecutor implements Executor {
