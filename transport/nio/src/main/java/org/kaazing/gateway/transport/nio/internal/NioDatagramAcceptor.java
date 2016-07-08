@@ -50,13 +50,6 @@ public class NioDatagramAcceptor extends AbstractNioAcceptor {
         return "udp";
     }
 
-    private Properties configuration;
-
-    @Resource(name = "configuration")
-    public void setConfiguration(Properties configuration) {
-        this.configuration = configuration;
-    }
-
 	@Override
     protected IoAcceptorEx initAcceptor(final IoSessionInitializer<? extends IoFuture> initializer) {
 	    // TODO: use the following instead of Mina when/if we get NioDatagramChannelIoAcceptor working

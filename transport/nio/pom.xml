@@ -93,12 +93,18 @@
                     </execution>
                 </executions>
                 <dependencies>
-                	<dependency>
-            			<groupId>org.kaazing</groupId>
-            			<artifactId>specification.tcp</artifactId>
-            			<version>${k3po.version}</version>
-            			<scope>runtime</scope>
-        			</dependency>
+                    <dependency>
+                        <groupId>org.kaazing</groupId>
+                        <artifactId>specification.tcp</artifactId>
+                        <version>${k3po.version}</version>
+                        <scope>runtime</scope>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.kaazing</groupId>
+                        <artifactId>specification.udp</artifactId>
+                        <version>${k3po.version}</version>
+                        <scope>runtime</scope>
+                    </dependency>
                 </dependencies>
             </plugin>
             <plugin>

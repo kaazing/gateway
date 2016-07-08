@@ -53,7 +53,7 @@ public class NioDatagramAcceptorTest {
     public TestRule timeout = new DisableOnDebug(new Timeout(10, TimeUnit.SECONDS));
 
     @Test
-    public void bindAndAcceptShouldInvokeExtensions() throws Exception {
+    public void echo() throws Exception {
         Mockery context = new Mockery();
         context.setThreadingPolicy(new Synchroniser());
         IoHandler handler = context.mock(IoHandler.class);
@@ -63,12 +63,11 @@ public class NioDatagramAcceptorTest {
 
         Properties configuration = new Properties();
         NioDatagramAcceptor acceptor = new NioDatagramAcceptor(configuration);
-        acceptor.setConfiguration(configuration);
         acceptor.setResourceAddressFactory(newResourceAddressFactory());
 
         acceptor.bind(bindAddress, handler, null);
         String str = "Hello World";
-        byte[] bytes = str.getBytes();
+        byte[] bytes = str.getBytes(UTF_8);
 
         Sequence order = context.sequence("order");
         context.checking(new Expectations() {
