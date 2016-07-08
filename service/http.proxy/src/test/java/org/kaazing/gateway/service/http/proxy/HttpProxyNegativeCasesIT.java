@@ -64,13 +64,52 @@ public class HttpProxyNegativeCasesIT {
         robot.finish();
     }
 
-
-    @Ignore // passes regardless of the read bytes
     @Specification("http.proxy.content.without.content.length.header")
     @Test
     public void sendContentWithoutContentLengthHeader() throws Exception {
         robot.finish();
     }
 
+    @Specification("http.proxy.payload.no.match.content.length.smaller")
+    @Test
+    public void sendPayloadWithContentLengthSmaller() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("http.proxy.payload.no.match.content.length.bigger")
+    @Test
+    public void sendPayloadWithContentLengthBigger() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("http.proxy.close.connection.reconnect")
+    @Test
+    public void cutConnectionHalfWayThoughAndReconnect() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("http.proxy.no.method.is.send")
+    @Test
+    public void noMethodIsSend() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("http.proxy.send.made.up.method")
+    @Test
+    public void sendMadeUpMethod() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("http.proxy.multiple.half.complete.requests")
+    @Test
+    public void sendMultipleHalfCompleteRequests() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("http.proxy.empty.header")
+    @Test
+    public void EmptyHeaderShouldBeRejected() throws Exception {
+        robot.finish();
+    }
 
 }

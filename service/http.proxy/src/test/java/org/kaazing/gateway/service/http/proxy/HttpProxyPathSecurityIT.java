@@ -74,10 +74,4 @@ public class HttpProxyPathSecurityIT {
         robot.finish();
     }
 
-    @Specification("http.proxy.parameter.with.multiple.tokens")
-    @Test
-    public void sendParameterWithMultipleTokens() throws Exception {
-        robot.finish();
-    }
-
 }

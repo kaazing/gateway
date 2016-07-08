@@ -49,7 +49,6 @@ public class HttpProxyMethodsIT {
         init(configuration);
     }};
 
-
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
@@ -60,13 +59,11 @@ public class HttpProxyMethodsIT {
         robot.finish();
     }
 
-
     @Specification("http.proxy.fqdn")
     @Test
     public void fullyQualifiedDomainName() throws Exception {
         robot.finish();
     }
-
 
     @Specification("http.proxy.get.request")
     @Test

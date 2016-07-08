@@ -27,33 +27,38 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-public class HttpProxyEmptyHeaderIT {
+public class HttpProxyParametersIT {
 
     private final K3poRule robot = new K3poRule();
 
-    private final GatewayRule gateway = new GatewayRule() {
-        {
-            // @formatter:off
-            GatewayConfiguration configuration =
-                    new GatewayConfigurationBuilder()
-                        .service()
-                            .accept("http://localhost:8110")
-                            .connect("http://localhost:8080")
-                            .type("http.proxy")
-                            .connectOption("http.keepalive", "disabled")
-                            .done()
-                    .done();
-            // @formatter:on
-            init(configuration);
-        }
-    };
+    private final GatewayRule gateway = new GatewayRule() {{
+        // @formatter:off
+        GatewayConfiguration configuration =
+                new GatewayConfigurationBuilder()
+                    .service()
+                        .accept("http://localhost:8110/a")
+                        .connect("http://localhost:8080/a")
+                        .type("http.proxy")
+                        .connectOption("http.keepalive", "disabled")
+                    .done()
+                .done();
+        // @formatter:on
+        init(configuration);
+    }};
+
 
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-    @Specification("http.proxy.empty.header")
+    @Specification("http.proxy.parameter.with.multiple.tokens")
     @Test
-    public void EmptyHeaderShouldBeRejected() throws Exception {
+    public void sendParameterWithMultipleTokens() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("http.proxy.parameter.wse.specific")
+    @Test
+    public void sendParameterWseSpecific() throws Exception {
         robot.finish();
     }
 

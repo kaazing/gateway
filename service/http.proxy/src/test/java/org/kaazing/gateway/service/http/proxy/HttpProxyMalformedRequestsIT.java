@@ -60,7 +60,6 @@ public class HttpProxyMalformedRequestsIT {
         robot.finish();
     }
 
-
     @Ignore // read "GET /" instead of "read "GET http://username:password@localhost:8080/"
     @Specification("http.proxy.malformed.user.info.on.uri")
     @Test
@@ -107,6 +106,5 @@ public class HttpProxyMalformedRequestsIT {
     public void obsInHeaderValue() throws Exception {
         robot.finish();
     }
-
 
 }
