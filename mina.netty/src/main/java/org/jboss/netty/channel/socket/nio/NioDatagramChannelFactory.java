@@ -95,6 +95,7 @@ import org.jboss.netty.util.ExternalResourceReleasable;
 public class NioDatagramChannelFactory implements DatagramChannelFactory {
 
     private final NioDatagramPipelineSink sink;
+    private final NioChildDatagramPipelineSink childSink;
     private final WorkerPool<NioDatagramWorker> workerPool;
     private final InternetProtocolFamily family;
     private boolean releasePool;
@@ -120,6 +121,7 @@ public class NioDatagramChannelFactory implements DatagramChannelFactory {
         workerPool = new NioDatagramWorkerPool(Executors.newCachedThreadPool(), SelectorUtil.DEFAULT_IO_THREADS);
         this.family = family;
         sink = new NioDatagramPipelineSink(workerPool);
+        childSink = new NioChildDatagramPipelineSink(workerPool);
         releasePool = true;
     }
 
@@ -217,6 +219,7 @@ public class NioDatagramChannelFactory implements DatagramChannelFactory {
         this.workerPool = workerPool;
         this.family = family;
         sink = new NioDatagramPipelineSink(workerPool);
+        childSink = new NioChildDatagramPipelineSink(workerPool);
     }
 
     public DatagramChannel newChannel(final ChannelPipeline pipeline) {
@@ -224,7 +227,7 @@ public class NioDatagramChannelFactory implements DatagramChannelFactory {
     }
 
     public DatagramChannel newChildChannel(Channel parent, final ChannelPipeline pipeline) {
-        return new NioDatagramChannel(parent, this, pipeline, sink, sink.nextWorker(), family);
+        return new NioChildDatagramChannel(parent, this, pipeline, childSink, childSink.nextWorker(), family);
     }
 
     public void shutdown() {

@@ -56,6 +56,18 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
     private PreallocationRef poolHead;
     private Preallocation current = new Preallocation(DEFAULT_PREALLOCATION_SIZE);
 
+    SendBuffer acquire(Object message) {
+        if (message instanceof ChannelBuffer) {
+            return acquire((ChannelBuffer) message);
+        }
+        if (message instanceof FileRegion) {
+            return acquire((FileRegion) message);
+        }
+
+        throw new IllegalArgumentException(
+                "unsupported message type: " + message.getClass());
+    }
+
     SendBuffer acquire(AbstractNioChannel<?> channel, Object message) {
         if (message instanceof ChannelBuffer) {
             return acquire(channel, (ChannelBuffer) message);
@@ -73,6 +85,56 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
             return EMPTY_BUFFER;
         }
         return new FileSendBuffer(src);
+    }
+
+    private SendBuffer acquire(ChannelBuffer src) {
+        final int size = src.readableBytes();
+        if (size == 0) {
+            return EMPTY_BUFFER;
+        }
+
+        if (src instanceof CompositeChannelBuffer && ((CompositeChannelBuffer) src).useGathering()) {
+            return new GatheringSendBuffer(src.toByteBuffers());
+        }
+
+        if (src.isDirect()) {
+            return new UnpooledSendBuffer(src.toByteBuffer());
+        }
+        if (src.readableBytes() > DEFAULT_PREALLOCATION_SIZE) {
+            return new UnpooledSendBuffer(src.toByteBuffer());
+        }
+
+        Preallocation current = this.current;
+        ByteBuffer buffer = current.buffer;
+        int remaining = buffer.remaining();
+        PooledSendBuffer dst;
+
+        if (size < remaining) {
+            int nextPos = buffer.position() + size;
+            ByteBuffer slice = buffer.duplicate();
+            buffer.position(align(nextPos));
+            slice.limit(nextPos);
+            current.refCnt ++;
+            dst = new PooledSendBuffer(current, slice);
+        } else if (size > remaining) {
+            this.current = current = getPreallocation();
+            buffer = current.buffer;
+            ByteBuffer slice = buffer.duplicate();
+            buffer.position(align(size));
+            slice.limit(size);
+            current.refCnt ++;
+            dst = new PooledSendBuffer(current, slice);
+        } else { // size == remaining
+            current.refCnt ++;
+            this.current = getPreallocation0();
+            dst = new PooledSendBuffer(current, current.buffer);
+        }
+
+        ByteBuffer dstbuf = dst.buffer;
+        dstbuf.mark();
+        src.getBytes(src.readerIndex(), dstbuf);
+        dstbuf.reset();
+        return dst;
     }
 
     private SendBuffer acquire(AbstractNioChannel<?> channel, ChannelBuffer src) {

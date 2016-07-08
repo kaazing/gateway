@@ -20,6 +20,7 @@ import static java.lang.Thread.currentThread;
 
 import java.util.concurrent.Executor;
 
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.socket.DatagramChannelConfig;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
