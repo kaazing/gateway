@@ -52,7 +52,6 @@ public class NioDatagramAcceptor extends AbstractNioAcceptor {
 
 	@Override
     protected IoAcceptorEx initAcceptor(final IoSessionInitializer<? extends IoFuture> initializer) {
-	    // TODO: use the following instead of Mina when/if we get NioDatagramChannelIoAcceptor working
 	    DatagramChannelIoSessionConfig config = new DefaultDatagramChannelIoSessionConfig();
 	    NioDatagramChannelIoAcceptor acceptor = new NioDatagramChannelIoAcceptor(config);
         acceptor.setIoSessionInitializer(initializer);

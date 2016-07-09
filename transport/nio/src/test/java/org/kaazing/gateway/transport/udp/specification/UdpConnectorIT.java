@@ -23,6 +23,8 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.future.ConnectFuture;
@@ -62,7 +64,7 @@ public class UdpConnectorIT {
     @Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {     
-                {"udp://127.0.0.1:8080"}//, {"tcp://[@" + networkInterface + "]:8080"}
+                {"udp://127.0.0.1:8080"}//, {"udp://[@" + networkInterface + "]:8080"}
            });
     }
 
@@ -90,6 +92,7 @@ public class UdpConnectorIT {
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
             @Override
             protected void doSessionOpened(IoSessionEx session) throws Exception {
+                System.out.println("doSessionOpened ***** ");
                 writeStringMessageToSession("client data", session);
             }
         });
@@ -101,7 +104,8 @@ public class UdpConnectorIT {
     public void shouldReceiveServerSentData() throws Exception {
         k3po.start();
         k3po.awaitBarrier("BOUND");
-        String[] data = new String[1];
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<String> data = new AtomicReference<>();
         connectTo8080(new IoHandlerAdapter<IoSessionEx>() {
 
             @Override
@@ -111,14 +115,14 @@ public class UdpConnectorIT {
 
             @Override
             protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
-                System.out.println("***** decoded = " + message);
-
-                data[0] = new String(((IoBuffer) message).array());
+                data.set(new String(((IoBuffer) message).array()));
+                latch.countDown();
             }
         });
 
         k3po.finish();
-        assertEquals("server data", data[0]);
+        latch.await(2, TimeUnit.SECONDS);   // since k3po finishes early
+        assertEquals("server data", data.get());
     }
 
     @Test
