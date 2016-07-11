@@ -15,11 +15,15 @@
  */
 package org.kaazing.gateway.transport.udp.specification;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertEquals;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
@@ -85,23 +89,27 @@ public class UdpAcceptorIT {
     @Test
     @Specification("establish.connection/client")
     public void establishConnection() throws Exception {
-        bindTo8080(new IoHandlerAdapter<>());
+        CountDownLatch latch = new CountDownLatch(1);
+
+        bindTo8080(new IoHandlerAdapter<IoSessionEx>() {
+            @Override
+            protected void doSessionOpened(IoSessionEx session) throws Exception {
+                latch.countDown();
+            }
+        });
+
         k3po.finish();
+
+        latch.await(2, SECONDS);
     }
 
     @Test
     @Specification("server.sent.data/client")
     public void serverSentData() throws Exception {
-        bindTo8080(new IoHandlerAdapter<IoSessionEx>(){
+        bindTo8080(new IoHandlerAdapter<IoSessionEx>() {
+
             @Override
-            protected void doSessionOpened(IoSessionEx session) throws Exception {
-                System.out.println("******** session opened =" + session);
-
-            }
-
             protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
-                String decoded = new String(((IoBuffer) message).array());
-                System.out.println("decoded=" + decoded);
                 writeStringMessageToSession("server data", session);
             }
         });
@@ -112,24 +120,37 @@ public class UdpAcceptorIT {
     @Test
     @Specification("client.sent.data/client")
     public void clientSentData() throws Exception {
-        bindTo8080(new IoHandlerAdapter<>());
+        CountDownLatch latch = new CountDownLatch(1);
+
+        bindTo8080(new IoHandlerAdapter<IoSessionEx>() {
+            @Override
+            protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
+                String decoded = new String(((IoBuffer) message).array());
+                assertEquals("client data", decoded);
+                latch.countDown();
+            }
+        });
         k3po.finish();
+
+        latch.await(2, SECONDS);
     }
 
     @Test
     @Specification("echo.data/client")
     public void bidirectionalData() throws Exception {
         bindTo8080(new IoHandlerAdapter<IoSessionEx>(){
-            private int counter = 1;
-            private DataMatcher dataMatch = new DataMatcher("client data " + counter);
+            private boolean first = true;
+
             @Override
             protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
                 String decoded = new String(((IoBuffer) message).array());
-
-                if (dataMatch.addFragment(decoded)) {
-                    writeStringMessageToSession("server data " + counter, session);
-                    counter++;
-                    dataMatch = new DataMatcher("client data " + counter);
+                if (first) {
+                    assertEquals("client data 1", decoded);
+                    writeStringMessageToSession("server data 1", session);
+                    first = false;
+                } else {
+                    assertEquals("client data 2", decoded);
+                    writeStringMessageToSession("server data 2", session);
                 }
             }
         });
@@ -141,115 +162,48 @@ public class UdpAcceptorIT {
     @Test
     @Specification("server.close/client")
     public void serverClose() throws Exception {
+        // TODO Configure timeout as accept option
+        CountDownLatch latch = new CountDownLatch(1);
         bindTo8080(new IoHandlerAdapter<IoSessionEx>(){
             @Override
-            protected void doSessionOpened(IoSessionEx session) throws Exception {
-                session.close(true);
+            protected void doSessionClosed(IoSessionEx session) throws Exception {
+                latch.countDown();
             }
         });
 
         k3po.finish();
-    }
 
-    @Test
-    @Specification("client.close/client")
-    public void clientClose() throws Exception {
-        bindTo8080(new IoHandlerAdapter<IoSessionEx>() {
-            @Override
-            protected void doSessionOpened(IoSessionEx session) throws Exception {
-                k3po.notifyBarrier("CLOSEABLE");
-            }
-        });
-        k3po.finish();
+        latch.await(2, SECONDS);
     }
 
     @Test
     @Specification("concurrent.connections/client")
     public void concurrentConnections() throws Exception {
-        bindTo8080(new IoHandlerAdapter<IoSessionEx>(){
-
-            @Override
-            protected void doSessionOpened(IoSessionEx session) throws Exception {
-                session.setAttribute("dataMatch", new DataMatcher("Hello"));
-            }
-
+        class ConcurrentHandler extends IoHandlerAdapter<IoSessionEx> {
             @Override
             protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
-                String decoded = new String(((IoBuffer) message).array());
-                DataMatcher dataMatch = (DataMatcher) session.getAttribute("dataMatch");
-
-                if (dataMatch.addFragment(decoded)) {
-                    if (dataMatch.target.equals("Hello")) {
-                        dataMatch = new DataMatcher("Goodbye");
-                        writeStringMessageToSession("Hello", session);
-
-                    } else {
-                        dataMatch = new DataMatcher("");
-                        writeStringMessageToSession("Goodbye", session);
-                    }
-                    session.setAttribute("dataMatch", dataMatch);
-                }
+                session.write(message);
             }
-        });
-        k3po.finish();
+        };
 
+        bindTo8080(new ConcurrentHandler());
+        k3po.finish();
     }
 
     @Test
     @Specification("idle.concurrent.connections/client")
     public void idleConcurrentConnections() throws Exception {
-        bindTo8080(new IoHandlerAdapter<IoSessionEx>(){
-
-            @Override
-            protected void doSessionOpened(IoSessionEx session) throws Exception {
-                session.setAttribute("dataMatch", new DataMatcher("Hello"));
-            }
-
+        class ConcurrentHandler extends IoHandlerAdapter<IoSessionEx> {
             @Override
             protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
-                String decoded = new String(((IoBuffer) message).array());
-                DataMatcher dataMatch = (DataMatcher) session.getAttribute("dataMatch");
-
-                if (dataMatch.addFragment(decoded)) {
-                    if (dataMatch.target.equals("Hello")) {
-                        dataMatch = new DataMatcher("Goodbye");
-                        writeStringMessageToSession("Hello", session);
-
-                    } else {
-                        dataMatch = new DataMatcher("");
-                        writeStringMessageToSession("Goodbye", session);
-                    }
-                    session.setAttribute("dataMatch", dataMatch);
-                }
+                session.write(message);
             }
-        });
-        bindTo8081(new IoHandlerAdapter<IoSessionEx>(){
+        };
 
-            @Override
-            protected void doSessionOpened(IoSessionEx session) throws Exception {
-                session.setAttribute("dataMatch", new DataMatcher("Hello"));
-            }
-
-            @Override
-            protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
-                String decoded = new String(((IoBuffer) message).array());
-                DataMatcher dataMatch = (DataMatcher) session.getAttribute("dataMatch");
-
-                if (dataMatch.addFragment(decoded)) {
-                    if (dataMatch.target.equals("Hello")) {
-                        dataMatch = new DataMatcher("Goodbye");
-                        writeStringMessageToSession("Hello", session);
-
-                    } else {
-                        dataMatch = new DataMatcher("");
-                        writeStringMessageToSession("Goodbye", session);
-                    }
-                    session.setAttribute("dataMatch", dataMatch);
-                }
-            }
-        });
+        // TODO configure timeout as accept option
+        bindTo8080(new ConcurrentHandler());
+        bindTo8081(new ConcurrentHandler());
         k3po.finish();
-
     }
 
 }

@@ -17,6 +17,7 @@ package org.kaazing.gateway.transport.udp.specification;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.nio.ByteBuffer;
@@ -30,7 +31,6 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IoSession;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -42,12 +42,11 @@ import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
-import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.test.util.ResolutionTestUtils;
 
 /**
- * RFC-793
+ * RFC-768
  */
 @RunWith(Parameterized.class)
 public class UdpConnectorIT {
@@ -71,11 +70,10 @@ public class UdpConnectorIT {
     @Parameter
     public String uri;
 
-    private void connectTo8080(IoHandlerAdapter<IoSessionEx> handler) throws InterruptedException {
-        final String connectURIString = uri;
-        ConnectFuture x = connector.connect(connectURIString, handler, null);
-        x.await(1, SECONDS);
-        Assert.assertTrue("Failed to connect, exception " + x.getException(), x.isConnected());
+    private void connectTo8080(IoHandlerAdapter<IoSessionEx> handler) throws Exception {
+        ConnectFuture connectFuture = connector.connect(uri, handler, null);
+        connectFuture.await(1, SECONDS);
+        assertTrue(connectFuture.isConnected());
     }
 
     private void writeStringMessageToSession(String message, IoSession session) {
@@ -86,13 +84,12 @@ public class UdpConnectorIT {
 
     @Test
     @Specification("establish.connection/server")
-    public void shouldEstablishConnection() throws Exception {
+    public void establishConnection() throws Exception {
         k3po.start();
         k3po.awaitBarrier("BOUND");
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
             @Override
             protected void doSessionOpened(IoSessionEx session) throws Exception {
-                System.out.println("doSessionOpened ***** ");
                 writeStringMessageToSession("client data", session);
             }
         });
@@ -101,7 +98,7 @@ public class UdpConnectorIT {
 
     @Test
     @Specification("server.sent.data/server")
-    public void shouldReceiveServerSentData() throws Exception {
+    public void serverSentData() throws Exception {
         k3po.start();
         k3po.awaitBarrier("BOUND");
         CountDownLatch latch = new CountDownLatch(1);
@@ -121,13 +118,13 @@ public class UdpConnectorIT {
         });
 
         k3po.finish();
-        latch.await(2, TimeUnit.SECONDS);   // since k3po finishes early
+        latch.await(2, TimeUnit.SECONDS);   // since k3po may finish early
         assertEquals("server data", data.get());
     }
 
     @Test
     @Specification("client.sent.data/server")
-    public void shouldReceiveClientSentData() throws Exception {
+    public void clientSentData() throws Exception {
         k3po.start();
         k3po.awaitBarrier("BOUND");
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
@@ -142,7 +139,7 @@ public class UdpConnectorIT {
 
     @Test
     @Specification("echo.data/server")
-    public void shouldEchoData() throws Exception {
+    public void bidirectionalData() throws Exception {
         k3po.start();
         k3po.awaitBarrier("BOUND");
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
@@ -170,71 +167,58 @@ public class UdpConnectorIT {
     }
 
     @Test
-    @Specification("server.close/server")
-    public void shouldHandleServerClose() throws Exception {
+    @Specification("client.close/server")
+    public void clientClose() throws Exception {
+        CountDownLatch closed = new CountDownLatch(1);
+
         k3po.start();
         k3po.awaitBarrier("BOUND");
-        CountDownLatch closed = new CountDownLatch(1);
-        connectTo8080(new IoHandlerAdapter<IoSessionEx>() {
+        // TODO Configure timeout as connect option
+        connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
+            @Override
+            protected void doSessionOpened(IoSessionEx session) throws Exception {
+                writeStringMessageToSession("client data", session);
+            }
             @Override
             protected void doSessionClosed(IoSessionEx session) throws Exception {
                 closed.countDown();
             }
         });
-        
-        k3po.notifyBarrier("CLOSEABLE");
+        k3po.finish();
+
         closed.await(5,  SECONDS);
-
-        k3po.finish();
-    }
-
-    @Test
-    @Specification("client.close/server")
-    public void shouldIssueClientClose() throws Exception {
-        k3po.start();
-        k3po.awaitBarrier("BOUND");
-        connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
-            @Override
-            protected void doSessionOpened(IoSessionEx session) throws Exception {
-                session.close(true);
-            }
-        });
-        k3po.finish();
     }
 
     @Test
     @Specification("concurrent.connections/server")
-    public void shouldEstablishConcurrentConnections() throws Exception {
-        IoHandlerAdapter<IoSessionEx> adapter = new IoHandlerAdapter<IoSessionEx>(){
+    public void concurrentConnections() throws Exception {
+        class ConcurrentHandler extends IoHandlerAdapter<IoSessionEx> {
+            private boolean first = true;
+
             @Override
             protected void doSessionOpened(IoSessionEx session) throws Exception {
-                session.setAttribute("dataMatch", new DataMatcher("Hello"));
                 writeStringMessageToSession("Hello", session);
             }
 
             @Override
             protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
                 String decoded = new String(((IoBuffer) message).array());
-                DataMatcher dataMatch = (DataMatcher) session.getAttribute("dataMatch");
-
-                if (dataMatch.addFragment(decoded)) {
-                    if (dataMatch.target.equals("Hello")) {
-                        dataMatch = new DataMatcher("Goodbye");
-                        writeStringMessageToSession("Goodbye", session);
-
-                    } else {
-                        session.close(true);
-                    }
-                    session.setAttribute("dataMatch", dataMatch);
+                if (first) {
+                    assertEquals("Hello", decoded);
+                    writeStringMessageToSession("Goodbye", session);
+                    first = false;
+                } else {
+                    assertEquals("Goodbye", decoded);
                 }
-
             }
         };
+
         k3po.start();
         k3po.awaitBarrier("BOUND");
-        connectTo8080(adapter);
-        connectTo8080(adapter);
-        connectTo8080(adapter);
+
+        connectTo8080(new ConcurrentHandler());
+        connectTo8080(new ConcurrentHandler());
+        connectTo8080(new ConcurrentHandler());
 
         k3po.finish();
     }
