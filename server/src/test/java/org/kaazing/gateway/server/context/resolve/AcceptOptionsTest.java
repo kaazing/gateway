@@ -36,8 +36,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParserException;
-import org.kaazing.gateway.server.config.june2016.GatewayConfigDocument;
-import org.kaazing.gateway.server.config.june2016.ServiceAcceptOptionsType;
+import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.nov2015.ServiceAcceptOptionsType;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.TransportOptionNames;
 
