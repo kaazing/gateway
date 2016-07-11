@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.util.feature;
+
+package org.kaazing.gateway.transport.http;
+
+import org.apache.mina.core.session.IoSession;
 
 /**
- * Specifies new features which are being released as early access features.
+ * Session Factory used for create Http Sessions in the connector.
+ *
  */
-public interface EarlyAccessFeatures {
+@FunctionalInterface
+interface HttpConnectSessionFactory {
 
-    EarlyAccessFeature HTTP_PROXY_SERVICE = new EarlyAccessFeature("http.proxy", "HTTP Proxy Service", false);
-    EarlyAccessFeature WSN_302_REDIRECT = new EarlyAccessFeature("wsn.302.redirect", "Send redirect for wsn via 302", false);
-    EarlyAccessFeature WSX_302_REDIRECT = new EarlyAccessFeature("wsx.302.redirect", "Send redirect for wsx via 302", false);
+    DefaultHttpSession get(IoSession parent) throws Exception;
 
 }
