@@ -21,8 +21,11 @@ import org.apache.mina.core.session.IoSession;
 
 public class DefaultUpgradeFuture extends DefaultIoFuture implements UpgradeFuture {
 
+	private IoSession session;
+
     public DefaultUpgradeFuture(IoSession session) {
         super(session);
+        this.setSession(session);
     }
 
     @Override
@@ -57,6 +60,15 @@ public class DefaultUpgradeFuture extends DefaultIoFuture implements UpgradeFutu
     @Override
     public UpgradeFuture removeListener(IoFutureListener<?> listener) {
         return (UpgradeFuture) super.removeListener(listener);
+    }
+
+    @Override
+    public IoSession getSession() {
+        return session;
+    }
+
+    public void setSession(IoSession session) {
+        this.session = session;
     }
 
 }

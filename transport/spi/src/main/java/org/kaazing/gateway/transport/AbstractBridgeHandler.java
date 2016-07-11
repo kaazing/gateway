@@ -93,7 +93,8 @@ public abstract class AbstractBridgeHandler implements IoHandler {
     @Override
     public void sessionOpened(IoSession session) throws Exception {
     	//LOG.trace("SESSION OPENED: " + session);
-        getHandler(session).sessionOpened(session);
+        IoHandler handler = getHandler(session);
+        handler.sessionOpened(session);
     }
 
     protected final IoHandler getHandler(IoSession session) throws Exception {
