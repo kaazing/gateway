@@ -63,10 +63,7 @@ public class IoSessionFactoryChannelHandler extends SimpleChannelHandler {
         ChannelHandler handler = new IoSessionChannelHandler(session, future, initializer,
                 service.getSessionIdleTracker());
         ChannelPipeline pipeline = ctx.getPipeline();
-        System.out.println("JITU IoSessionFactoryChannelHandler before pipelien = " + pipeline);
         pipeline.addAfter(baseName, name, handler);
-        System.out.println("JITU IoSessionFactoryChannelHandler after pipelien = " + pipeline);
-
         ctx.sendUpstream(e);
         pipeline.remove(this);
     }

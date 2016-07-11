@@ -100,7 +100,7 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
     private final class ConnectionlessParentChannelHandler extends SimpleChannelUpstreamHandler {
 
         // remote address --> child channel
-        private final Map<SocketAddress, Channel> childChannels;
+        private final Map<SocketAddress, NioDatagramChannel> childChannels;
 
         ConnectionlessParentChannelHandler() {
             childChannels = new ConcurrentHashMap<>();
@@ -114,7 +114,10 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
         public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
             System.out.println("JITU ********* childChannelOpen " + e.getChildChannel().getRemoteAddress() + " thread = " + Thread.currentThread());
             ((IoAcceptorChannelHandler) parentHandler).childChannelOpen(ctx, e);
-            fireChannelConnected(e.getChildChannel(), e.getChildChannel().getRemoteAddress());
+            NioDatagramChannel childChannel = (NioDatagramChannel) e.getChildChannel();
+            childChannel.getWorker().executeInIoThread(
+                    () -> fireChannelConnected(childChannel, childChannel.getRemoteAddress())
+            );
 
 //            try {
 //                System.out.println("JITU ********* firing channelConnected (before) on child channel childChannelOpen" + e.getChildChannel());
@@ -133,10 +136,12 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
 
             // lookup child channel based on local and remote addresses
             Channel channel = e.getChannel();
-            Channel childChannel = getChildChannel(channel, e.getRemoteAddress());
+            NioDatagramChannel childChannel = getChildChannel(channel, e.getRemoteAddress());
 
             // deliver message received to child channel pipeline
-            fireMessageReceived(childChannel, e.getMessage());
+            childChannel.getWorker().executeInIoThread(
+                    () -> fireMessageReceived(childChannel, e.getMessage())
+            );
         }
 
         @Override
@@ -144,7 +149,7 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
             ctx.sendUpstream(e);
         }
 
-        private Channel getChildChannel(Channel channel, SocketAddress remoteAddress) throws Exception {
+        private NioDatagramChannel getChildChannel(Channel channel, SocketAddress remoteAddress) throws Exception {
             return childChannels.computeIfAbsent(remoteAddress, x -> {
                 ChannelPipelineFactory childPipelineFactory = getPipelineFactory();
                 ChannelPipeline childPipeline;

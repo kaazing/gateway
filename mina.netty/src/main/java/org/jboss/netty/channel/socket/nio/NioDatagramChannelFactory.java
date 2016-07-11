@@ -226,10 +226,9 @@ public class NioDatagramChannelFactory implements DatagramChannelFactory {
         return new NioDatagramChannel(this, pipeline, sink, sink.nextWorker(), family);
     }
 
+    // Added to create child datagram channels (not part of netty)
     public DatagramChannel newChildChannel(Channel parent, final ChannelPipeline pipeline) {
-        //return new NioChildDatagramChannel(parent, this, pipeline, childSink, childSink.nextWorker(), family);
-        // TODO todo thread alignment (at present putting the child channel on to the same thread)
-        return new NioChildDatagramChannel(parent, this, pipeline, childSink, ((NioDatagramChannel)parent).getWorker(), family);
+        return new NioChildDatagramChannel(parent, this, pipeline, childSink, childSink.nextWorker(), family);
     }
 
     public void shutdown() {
