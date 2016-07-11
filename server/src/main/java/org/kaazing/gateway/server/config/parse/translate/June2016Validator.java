@@ -26,5 +26,4 @@ public class June2016Validator extends GatewayConfigTranslatorPipeline {
         // Set the namespace
         addTranslator(new RemoveRequireUser());   
     }
-
 }

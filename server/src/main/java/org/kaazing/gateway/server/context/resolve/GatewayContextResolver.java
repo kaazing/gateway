@@ -462,7 +462,7 @@ public class GatewayContextResolver {
         List<Map<String, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI =
                 new ArrayList<>();
 
-        for (org.kaazing.gateway.server.config.nov2015.ServiceType serviceConfig : serviceConfigs) {
+        for (ServiceType serviceConfig : serviceConfigs) {
             String serviceName = serviceConfig.getName();
             String serviceDescription = serviceConfig.getDescription();
             String[] acceptStrings = serviceConfig.getAcceptArray();

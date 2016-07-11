@@ -54,5 +54,4 @@ public class RemoveRequireUser extends AbstractVisitor {
             visit(child);
         }
     }
-    
 }
