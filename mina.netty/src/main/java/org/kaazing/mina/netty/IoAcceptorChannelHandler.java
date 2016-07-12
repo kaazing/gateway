@@ -83,8 +83,6 @@ public class IoAcceptorChannelHandler extends SimpleChannelUpstreamHandler {
 
         childPipeline.addLast("factory",
                 new IoSessionFactoryChannelHandler(acceptor, null, acceptor.getIoSessionInitializer()));
-        System.out.println("JITU Adding IoSessionFactoryChannelHandler to child pipelien = " + childPipeline);
-
 
         super.childChannelOpen(ctx, e);
     }

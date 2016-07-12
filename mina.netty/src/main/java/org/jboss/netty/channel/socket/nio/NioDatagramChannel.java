@@ -330,7 +330,6 @@ public class NioDatagramChannel extends AbstractNioChannel<DatagramChannel>
 
     @Override
     public ChannelFuture write(Object message, SocketAddress remoteAddress) {
-        System.out.println("JITU write message = " + message + " address = " + remoteAddress);
         if (remoteAddress == null || remoteAddress.equals(getRemoteAddress())) {
             return super.write(message, null);
         } else {

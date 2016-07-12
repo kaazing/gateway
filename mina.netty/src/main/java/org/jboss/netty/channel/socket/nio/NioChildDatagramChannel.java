@@ -324,13 +324,11 @@ public class NioChildDatagramChannel extends NioDatagramChannel {
 
     @Override
     public ChannelFuture write(Object message) {
-        System.out.println("JITU NioChildDatagramChannel#write message = " + message);
         return getParent().write(message, remoteAddress);
     }
 
     @Override
     public ChannelFuture write(Object message, SocketAddress remoteAddress) {
-        System.out.println("JITU NioChildDatagramChannel#write message = " + message + " address = " + remoteAddress);
         return getParent().write(message, remoteAddress);
     }
 }

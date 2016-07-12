@@ -118,15 +118,6 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
             childChannel.getWorker().executeInIoThread(
                     () -> fireChannelConnected(childChannel, childChannel.getRemoteAddress())
             );
-
-//            try {
-//                System.out.println("JITU ********* firing channelConnected (before) on child channel childChannelOpen" + e.getChildChannel());
-//                // TODO make sure it has remote address
-//                fireChannelConnected(e.getChildChannel(), e.getChannel().getRemoteAddress());
-//                System.out.println("JITU ********* firing channelConnected (after) on child channel childChannelOpen" + e.getChildChannel());
-//            } catch(Exception ex) {
-//                ex.printStackTrace();
-//            }
         }
 
         @Override

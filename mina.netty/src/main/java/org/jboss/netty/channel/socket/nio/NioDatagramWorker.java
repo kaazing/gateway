@@ -275,8 +275,8 @@ public class NioDatagramWorker extends AbstractNioWorker {
                         channel.writeSuspended = false;
                         break;
                     }
-
-                    channel.currentWriteBuffer = buf = sendBufferPool.acquire(evt.getMessage());
+                    // similar to mina.netty's copy of AbstractNioWorker, passing channel as parameter
+                    channel.currentWriteBuffer = buf = sendBufferPool.acquire(channel, evt.getMessage());
                 } else {
                     buf = channel.currentWriteBuffer;
                 }

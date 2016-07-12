@@ -108,12 +108,12 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
                     break;
             }
         } else if (e instanceof MessageEvent) {
-            channel.getParent().write(((MessageEvent) e).getMessage(), channel.getRemoteAddress());
-//            final MessageEvent event = (MessageEvent) e;
-//
-//            final boolean offered = channel.writeBufferQueue.offer(event);
-//            assert offered;
-//            channel.worker.writeFromUserCode(channel);
+            // In netty AbstractNioChannel is thread-safe but not in mina.netty's copy
+            // Scheduling the write since child channels and parent channel are on different i/o threads
+            NioDatagramChannel parent = (NioDatagramChannel) channel.getParent();
+            parent.getWorker().executeInIoThread(
+                    () -> parent.write(((MessageEvent) e).getMessage(), channel.getRemoteAddress())
+            );
         }
     }
 
