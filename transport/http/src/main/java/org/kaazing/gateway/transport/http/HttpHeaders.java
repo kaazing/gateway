@@ -24,6 +24,10 @@ public interface HttpHeaders {
 
     String HEADER_HOST = "Host";
     String HEADER_MAX_AGE = "Max-Age";
+    String HEADER_E_TAG = "ETag";
+    String HEADER_LAST_MODIFIED = "Last-Modified";
+    String HEADER_IF_MODIFIED_SINCE = "If-Modified-Since";
+    String HEADER_EXPIRES = "Expires";
     String HEADER_USER_AGENT = "User-Agent";
     String HEADER_WEBSOCKET_EXTENSIONS = "X-WebSocket-Extensions";
     String HEADER_WEBSOCKET_VERSION = "X-WebSocket-Version";
@@ -37,6 +41,7 @@ public interface HttpHeaders {
     String HEADER_X_FORWARDED_HOST = "X-Forwarded-Host";
     String HEADER_X_FORWARDED_PROTO = "X-Forwarded-Proto";
     String HEADER_CACHE_CONTROL = "Cache-Control";
+    String HEADER_WARNING = "Warning";
 
     String HEADER_UPGRADE = "Upgrade";
     String HEADER_VIA= "Via";
