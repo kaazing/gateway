@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hazelcast.config.AwsConfig;
 import com.hazelcast.config.Config;
-import com.hazelcast.config.Join;
+import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MulticastConfig;
 import com.hazelcast.config.NetworkConfig;
@@ -68,10 +68,12 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
+import com.hazelcast.core.MapEvent;
 import com.hazelcast.core.Member;
+import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
-import com.hazelcast.impl.GroupProperties;
+import com.hazelcast.instance.GroupProperties;
 import com.hazelcast.logging.LogEvent;
 import com.hazelcast.logging.LogListener;
 import com.hazelcast.logging.LoggingService;
@@ -185,12 +187,12 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         mapConfig.setBackupCount(3);
 
         MapConfig sharedBalancerMapConfig = hazelCastConfig.getMapConfig(BALANCER_MAP_NAME);
-        sharedBalancerMapConfig.setBackupCount(Integer.MAX_VALUE);
+        sharedBalancerMapConfig.setBackupCount(3);
         MapConfig memberBalancerMapConfig = hazelCastConfig.getMapConfig(MEMBERID_BALANCER_MAP_NAME);
-        memberBalancerMapConfig.setBackupCount(Integer.MAX_VALUE);
+        memberBalancerMapConfig.setBackupCount(3);
 
         // disable port auto increment
-        hazelCastConfig.setPortAutoIncrement(false);
+        hazelCastConfig.getNetworkConfig().setPortAutoIncrement(false);
 
         // The first accepts port is the port used by all network interfaces.
         int clusterPort = (localInterfaces.size() > 0) ? localInterfaces.get(0).getPort() : -1;
@@ -200,12 +202,12 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         java.util.logging.Logger logger = java.util.logging.Logger.getLogger("com.hazelcast");
         logger.setLevel(Level.OFF);
 
+        NetworkConfig networkConfig = new NetworkConfig();
+       
         // initialize hazelcast
         if (clusterPort != -1) {
-            hazelCastConfig.setPort(clusterPort);
+            networkConfig.setPort(clusterPort);
         }
-
-        NetworkConfig networkConfig = new NetworkConfig();
 
         for (MemberId localInterface : localInterfaces) {
             String protocol = localInterface.getProtocol();
@@ -235,7 +237,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
         boolean usingMulticast = false;
 
-        Join joinConfig = networkConfig.getJoin();
+        JoinConfig joinConfig = networkConfig.getJoin();
         MulticastConfig multicastConfig = joinConfig.getMulticastConfig();
 
         // Disable multicast to avoid using the default multicast address 224.2.2.3:54327.
@@ -289,7 +291,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             if (unicastAddresses.size() > 0) {
                 tcpIpConfig.setEnabled(!usingMulticast);
                 for (InetSocketAddress unicastAddress : unicastAddresses) {
-                    tcpIpConfig.addAddress(new Address(unicastAddress));
+                    tcpIpConfig.addMember(unicastAddress.toString());
                 }
             }
 
@@ -368,6 +370,9 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         // The cluster instance should be shutdown by the Gateway, so there should be no need for the default
         // Hazelcast shutdown hook.
         hazelCastConfig.setProperty(GroupProperties.PROP_SHUTDOWNHOOK_ENABLED, "false");
+
+        //Disable HazelCast's usage data collection,which is enabled by default.
+        hazelCastConfig.setProperty(GroupProperties.PROP_PHONE_HOME_ENABLED, "false"); 
 
         return hazelCastConfig;
     }
@@ -579,6 +584,12 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             GL.info(GL.CLUSTER_LOGGER_NAME, "Member Removed");
             logClusterStateAtInfoLevel();
         }
+
+        @Override
+        public void memberAttributeChanged(MemberAttributeEvent arg0) {
+            // TODO Auto-generated method stub
+            
+        }
     };
 
     @Override
@@ -620,6 +631,18 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         public void entryUpdated(EntryEvent<MemberId, String> updatedEntryEvent) {
             throw new RuntimeException("Instance keys can not be updated, only added or removed.");
         }
+
+        @Override
+        public void mapCleared(MapEvent arg0) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void mapEvicted(MapEvent arg0) {
+            // TODO Auto-generated method stub
+            
+        }
     };
 
     private EntryListener<String, Collection<String>> balancerMapEntryListener = new
@@ -649,13 +672,25 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
                     .getKey(), updatedEntryEvent.getValue());
             fireBalancerEntryUpdated(updatedEntryEvent);
         }
+
+        @Override
+        public void mapCleared(MapEvent arg0) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void mapEvicted(MapEvent arg0) {
+            // TODO Auto-generated method stub
+            
+        }
     };
 
     // cluster collections
 
     @Override
-    public Lock getLock(Object obj) {
-        return clusterInstance.getLock(obj);
+    public Lock getLock(String name) {
+        return clusterInstance.getLock(name);
     }
 
     @Override

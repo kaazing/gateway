@@ -36,24 +36,58 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.kaazing.gateway.service.cluster.EntryListenerSupport;
+import org.kaazing.gateway.util.AtomicCounter;
+
+import com.hazelcast.config.Config;
+import com.hazelcast.core.ClientService;
+import com.hazelcast.core.Cluster;
+import com.hazelcast.core.DistributedObject;
+import com.hazelcast.core.DistributedObjectListener;
+import com.hazelcast.core.Endpoint;
 import com.hazelcast.core.EntryEvent;
+import com.hazelcast.core.EntryEventType;
 import com.hazelcast.core.EntryListener;
+import com.hazelcast.core.EntryView;
+import com.hazelcast.core.ExecutionCallback;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IAtomicLong;
+import com.hazelcast.core.IAtomicReference;
 import com.hazelcast.core.ICollection;
+import com.hazelcast.core.ICondition;
+import com.hazelcast.core.ICountDownLatch;
+import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IList;
 import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
+import com.hazelcast.core.ISemaphore;
+import com.hazelcast.core.ISet;
 import com.hazelcast.core.ITopic;
-import com.hazelcast.core.Instance;
+import com.hazelcast.core.IdGenerator;
 import com.hazelcast.core.ItemListener;
-import com.hazelcast.core.MapEntry;
-import com.hazelcast.monitor.LocalLockStats;
+import com.hazelcast.core.LifecycleService;
+import com.hazelcast.core.MultiMap;
+import com.hazelcast.core.PartitionService;
+import com.hazelcast.core.ReplicatedMap;
+import com.hazelcast.logging.LoggingService;
+import com.hazelcast.map.EntryProcessor;
+import com.hazelcast.map.MapInterceptor;
+import com.hazelcast.map.listener.MapListener;
+import com.hazelcast.map.listener.MapPartitionLostListener;
+import com.hazelcast.mapreduce.JobTracker;
+import com.hazelcast.mapreduce.aggregation.Aggregation;
+import com.hazelcast.mapreduce.aggregation.Supplier;
 import com.hazelcast.monitor.LocalMapStats;
 import com.hazelcast.monitor.LocalQueueStats;
-import com.hazelcast.query.Expression;
 import com.hazelcast.query.Predicate;
-import org.kaazing.gateway.service.cluster.EntryListenerSupport;
-import org.kaazing.gateway.util.AtomicCounter;
+import com.hazelcast.quorum.QuorumService;
+import com.hazelcast.ringbuffer.Ringbuffer;
+import com.hazelcast.transaction.HazelcastXAResource;
+import com.hazelcast.transaction.TransactionContext;
+import com.hazelcast.transaction.TransactionException;
+import com.hazelcast.transaction.TransactionOptions;
+import com.hazelcast.transaction.TransactionalTask;
 
 public class MemoryCollectionsFactory implements CollectionsFactory {
 
@@ -110,7 +144,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
     }
 
     @Override
-    public ILock getLock(Object owner) {
+    public ILock getLock(String owner) {
         synchronized (locks) {
             ILock lock = locks.get(owner);
             if (lock == null) {
@@ -171,7 +205,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
     }
 
-    private class MapEntryImpl<K, V> implements MapEntry<K, V> {
+    private class MapEntryImpl<K, V> implements EntryView<K, V> {
         private final K key;
         private final V value;
 
@@ -191,7 +225,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public int getHits() {
+        public long getHits() {
             return 1;
         }
 
@@ -221,18 +255,13 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public boolean isValid() {
-            return true;
-        }
-
-        @Override
         public boolean equals(Object o) {
             if (o == null ||
-                    !(o instanceof MapEntry)) {
+                    !(o instanceof EntryView)) {
                 return false;
             }
 
-            MapEntry that = (MapEntry) o;
+            EntryView that = (EntryView) o;
 
             return that.getKey().equals(getKey()) && that.getValue().equals(getValue());
 
@@ -246,14 +275,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @Override
         public V getValue() {
             return value;
-        }
-
-        @Override
-        public V setValue(V value) {
-            // This method isn't supported, and really should not be.
-            // To change a value, simply call setValue() on the map itself,
-            // not on this MapEntry object.
-            throw new UnsupportedOperationException("setValue");
         }
 
         @Override
@@ -271,6 +292,12 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             sb.append(", value=").append(value);
             sb.append(" }");
             return sb.toString();
+        }
+
+        @Override
+        public long getTtl() {
+            // TODO Auto-generated method stub
+            return 0;
         }
     }
 
@@ -300,7 +327,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public MapEntry<K, V> getMapEntry(K key) {
+        public EntryView<K, V> getEntryView(K key) {
             V value = map.get(key);
             return new MapEntryImpl<>(key, value);
         }
@@ -350,22 +377,22 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public V putIfAbsent(K key, V value) {
             V oldValue = map.putIfAbsent(key, value);
             if (oldValue == null) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_ADDED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.ADDED.getType(), key, oldValue, value);
                 listenerSupport.entryAdded(event);
             }
             else {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_UPDATED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED.getType(), key, oldValue, value);
                 listenerSupport.entryUpdated(event);
             }
             return oldValue;
         }
 
         @SuppressWarnings("unchecked")
-		@Override
+        @Override
         public boolean remove(Object key, Object value) {
             boolean wasRemoved = map.remove(key, value);
             if (wasRemoved) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_REMOVED, (K)key, (V)value);
+                EntryEvent<K, V> event = (EntryEvent<K, V>) new EntryEvent<>(name, null, EntryEventType.REMOVED.getType(), key, value, null);
                 listenerSupport.entryRemoved(event);
             }
             return wasRemoved;
@@ -375,11 +402,11 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public V replace(K key, V value) {
             V oldValue = map.replace(key, value);
             if (oldValue != null) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_UPDATED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED.getType(), key, oldValue, value);
                 listenerSupport.entryUpdated(event);
             }
             else {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_ADDED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.ADDED.getType(), key, oldValue, value);
                 listenerSupport.entryAdded(event);
             }
             return oldValue;
@@ -389,7 +416,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public boolean replace(K key, V oldValue, V newValue) {
             boolean wasReplaced = map.replace(key, oldValue, newValue);
             if (wasReplaced) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_UPDATED, key, newValue);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED.getType(), key, oldValue, newValue);
                 listenerSupport.entryUpdated(event);
             }
             return wasReplaced;
@@ -442,11 +469,11 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public V put(K key, V value) {
             V oldValue = map.put(key, value);
             if (oldValue != null) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_UPDATED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED.getType(), key, oldValue, value);
                 listenerSupport.entryUpdated(event);
             }
             else {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_ADDED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.ADDED.getType(), key, oldValue, value);
                 listenerSupport.entryAdded(event);
             }
             return oldValue;
@@ -475,16 +502,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             map.clear();
         }
 
-        @Override
-        public Object getId() {
-            return this;
-        }
-
-        @Override
-        public InstanceType getInstanceType() {
-            return InstanceType.MAP;
-        }
-
         private Lock supplyLock(Object key) {
             Lock lock = locks.get(key);
             if (lock == null) {
@@ -508,8 +525,8 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public Set<Map.Entry<K, V>> entrySet(Predicate predicate) {
             Set<Map.Entry<K, V>> entrySet = new LinkedHashSet<>();
             for (Map.Entry<K, V> entry : map.entrySet()) {
-                MapEntry me = getMapEntry(entry.getKey());
-                if (predicate.apply(me)) {
+                EntryView me = getEntryView(entry.getKey());
+                if (predicate.apply((java.util.Map.Entry) me)) {
                     entrySet.add(entry);
                 }
             }
@@ -523,7 +540,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             Object value = map.remove(key);
             boolean removed = (value !=  null);
             if (removed) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_EVICTED, (K)key, (V) value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.EVICTED.getType(), (K)key, (V) value, null);
                 listenerSupport.entryEvicted(event);
             }
             return removed;
@@ -538,8 +555,8 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public Set<K> keySet(Predicate predicate) {
             Set<K> keySet = new LinkedHashSet<>();
             for (K key : map.keySet()) {
-                MapEntry me = getMapEntry(key);
-                if (predicate.apply(me)) {
+                EntryView me = getEntryView(key);
+                if (predicate.apply((java.util.Map.Entry) me)) {
                     keySet.add(key);
                 }
             }
@@ -558,11 +575,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public boolean lockMap(long time, TimeUnit timeunit) {
-            throw new UnsupportedOperationException("lockMap");
-        }
-
-        @Override
         public V put(K key, V value, long ttl, TimeUnit timeunit) {
             throw new UnsupportedOperationException("put");
         }
@@ -578,16 +590,11 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public void unlockMap() {
-            throw new UnsupportedOperationException("unlockMap");
-        }
-
-        @Override
         public Collection<V> values(Predicate predicate) {
             Set<V> values = new LinkedHashSet<>();
             for (Map.Entry<K, V> entry : map.entrySet()) {
-                MapEntry me = getMapEntry(entry.getKey());
-                if (predicate.apply(me)) {
+                EntryView<K, V> me = getEntryView(entry.getKey());
+                if (predicate.apply((java.util.Map.Entry) me)) {
                     values.add(entry.getValue());
                 }
             }
@@ -601,7 +608,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             V value = map.remove(key);
             boolean removed = (value !=  null);
             if (removed) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_REMOVED, (K)key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.REMOVED.getType(), (K)key, value, null);
                 listenerSupport.entryRemoved(event);
             }
             return value;
@@ -615,11 +622,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @Override
         public Future<V> putAsync(K key, V value) {
             throw new UnsupportedOperationException("putAsync");
-        }
-
-        @Override
-        public void addIndex(Expression<?> arg0, boolean arg1) {
-            throw new UnsupportedOperationException("addIndex");
         }
 
         @Override
@@ -638,11 +640,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public void putAndUnlock(K arg0, V arg1) {
-            throw new UnsupportedOperationException("putAndLock");
-        }
-
-        @Override
         public void putTransient(K arg0, V arg1, long arg2, TimeUnit arg3) {
             throw new UnsupportedOperationException("putTransient");
         }
@@ -653,40 +650,295 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public V tryLockAndGet(K arg0, long arg1, TimeUnit arg2)
-                throws TimeoutException {
-            throw new UnsupportedOperationException("tryLockAndGet");
+        public boolean tryRemove(K paramK, long paramLong, TimeUnit paramTimeUnit) {
+            throw new UnsupportedOperationException("tryRemove");
+        }
+        @Override
+        public String getPartitionKey() {
+            // TODO Auto-generated method stub
+            return null;
         }
 
         @Override
-        public Object tryRemove(K arg0, long arg1, TimeUnit arg2)
-                throws TimeoutException {
-            throw new UnsupportedOperationException("tryRemove");
+        public String getServiceName() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void delete(Object paramObject) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void loadAll(boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void loadAll(Set<K> paramSet, boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public Future<V> putAsync(K paramK, V paramV, long paramLong, TimeUnit paramTimeUnit) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void set(K paramK, V paramV) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void set(K paramK, V paramV, long paramLong, TimeUnit paramTimeUnit) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void lock(K paramK, long paramLong, TimeUnit paramTimeUnit) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public boolean isLocked(K paramK) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public boolean tryLock(K paramK,
+                               long paramLong1,
+                               TimeUnit paramTimeUnit1,
+                               long paramLong2,
+                               TimeUnit paramTimeUnit2) throws InterruptedException {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public void forceUnlock(K paramK) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public String addLocalEntryListener(MapListener paramMapListener) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addLocalEntryListener(EntryListener paramEntryListener) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addLocalEntryListener(MapListener paramMapListener,
+                                            Predicate<K, V> paramPredicate,
+                                            boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addLocalEntryListener(EntryListener paramEntryListener,
+                                            Predicate<K, V> paramPredicate,
+                                            boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addLocalEntryListener(MapListener paramMapListener,
+                                            Predicate<K, V> paramPredicate,
+                                            K paramK,
+                                            boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addLocalEntryListener(EntryListener paramEntryListener,
+                                            Predicate<K, V> paramPredicate,
+                                            K paramK,
+                                            boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addInterceptor(MapInterceptor paramMapInterceptor) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void removeInterceptor(String paramString) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public String addEntryListener(MapListener paramMapListener, boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addEntryListener(EntryListener paramEntryListener, boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public boolean removeEntryListener(String paramString) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public String addPartitionLostListener(MapPartitionLostListener paramMapPartitionLostListener) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public boolean removePartitionLostListener(String paramString) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public String addEntryListener(MapListener paramMapListener, K paramK, boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addEntryListener(EntryListener paramEntryListener, K paramK, boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addEntryListener(MapListener paramMapListener,
+                                       Predicate<K, V> paramPredicate,
+                                       boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addEntryListener(EntryListener paramEntryListener,
+                                       Predicate<K, V> paramPredicate,
+                                       boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addEntryListener(MapListener paramMapListener,
+                                       Predicate<K, V> paramPredicate,
+                                       K paramK,
+                                       boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addEntryListener(EntryListener paramEntryListener,
+                                       Predicate<K, V> paramPredicate,
+                                       K paramK,
+                                       boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void evictAll() {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public Object executeOnKey(K paramK, EntryProcessor paramEntryProcessor) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Map<K, Object> executeOnKeys(Set<K> paramSet, EntryProcessor paramEntryProcessor) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void submitToKey(K paramK, EntryProcessor paramEntryProcessor, ExecutionCallback paramExecutionCallback) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public Future submitToKey(K paramK, EntryProcessor paramEntryProcessor) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Map<K, Object> executeOnEntries(EntryProcessor paramEntryProcessor) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Map<K, Object> executeOnEntries(EntryProcessor paramEntryProcessor, Predicate paramPredicate) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <SuppliedValue, Result> Result aggregate(Supplier<K, V, SuppliedValue> paramSupplier,
+                                                        Aggregation<K, SuppliedValue, Result> paramAggregation) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <SuppliedValue, Result> Result aggregate(Supplier<K, V, SuppliedValue> paramSupplier,
+                                                        Aggregation<K, SuppliedValue, Result> paramAggregation,
+                                                        JobTracker paramJobTracker) {
+            // TODO Auto-generated method stub
+            return null;
         }
     }
 
-    private abstract class InstanceImpl implements Instance {
+    private abstract class InstanceImpl implements HazelcastInstance {
 
         @Override
-        public abstract InstanceType getInstanceType();
+        public abstract Collection<DistributedObject> getDistributedObjects();
 
         @Override
-        public Object getId() {
-            return this;
-        }
-
-        @Override
-        public void destroy() {
+        public String getName() {
+            return this.getName();
         }
 
     }
 
     private class ILockImpl extends InstanceImpl implements ILock {
 
-        private final Object owner;
+        private final String owner;
         private final Lock lock;
 
-        public ILockImpl(Object owner) {
+        public ILockImpl(String owner) {
             this.owner = owner;
             this.lock = new ReentrantLock();
         }
@@ -722,22 +974,290 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public InstanceType getInstanceType() {
-            return InstanceType.LOCK;
-        }
-
-        @Override
-        public Object getLockObject() {
-            return owner;
-        }
-
-        @Override
         public void destroy() {
             locks.remove(owner);
         }
 
         @Override
-        public LocalLockStats getLocalLockStats() {
+        public String getPartitionKey() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String getServiceName() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <E> IQueue<E> getQueue(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <E> ITopic<E> getTopic(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <E> ISet<E> getSet(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <E> IList<E> getList(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <K, V> IMap<K, V> getMap(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <K, V> ReplicatedMap<K, V> getReplicatedMap(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public JobTracker getJobTracker(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <K, V> MultiMap<K, V> getMultiMap(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public ILock getLock(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <E> Ringbuffer<E> getRingbuffer(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <E> ITopic<E> getReliableTopic(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Cluster getCluster() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Endpoint getLocalEndpoint() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public IExecutorService getExecutorService(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <T> T executeTransaction(TransactionalTask<T> paramTransactionalTask) throws TransactionException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <T> T executeTransaction(TransactionOptions paramTransactionOptions,
+                                        TransactionalTask<T> paramTransactionalTask) throws TransactionException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public TransactionContext newTransactionContext() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public TransactionContext newTransactionContext(TransactionOptions paramTransactionOptions) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public IdGenerator getIdGenerator(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public IAtomicLong getAtomicLong(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <E> IAtomicReference<E> getAtomicReference(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public ICountDownLatch getCountDownLatch(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public ISemaphore getSemaphore(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addDistributedObjectListener(DistributedObjectListener paramDistributedObjectListener) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public boolean removeDistributedObjectListener(String paramString) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public Config getConfig() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public PartitionService getPartitionService() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public QuorumService getQuorumService() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public ClientService getClientService() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public LoggingService getLoggingService() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public LifecycleService getLifecycleService() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <T extends DistributedObject> T getDistributedObject(String paramString1, String paramString2) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public ConcurrentMap<String, Object> getUserContext() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public HazelcastXAResource getXAResource() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void shutdown() {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void forceUnlock() {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public Object getKey() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public int getLockCount() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public long getRemainingLeaseTime() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public boolean isLocked() {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public boolean isLockedByCurrentThread() {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public void lock(long paramLong, TimeUnit paramTimeUnit) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public ICondition newCondition(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public boolean tryLock(long paramLong1, TimeUnit paramTimeUnit1, long paramLong2, TimeUnit paramTimeUnit2)
+                throws InterruptedException {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public Collection<DistributedObject> getDistributedObjects() {
             // TODO Auto-generated method stub
             return null;
         }
@@ -777,11 +1297,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public IListImpl(String name) {
             super(name);
             list = new LinkedList<>();
-        }
-
-        @Override
-        public InstanceType getInstanceType() {
-            return InstanceType.LIST;
         }
 
         @Override
@@ -918,6 +1433,253 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             return list.toArray(a);
         }
 
+        @Override
+        public String addItemListener(ItemListener<E> paramItemListener, boolean paramBoolean) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public boolean removeItemListener(String paramString) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public String getPartitionKey() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String getServiceName() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void destroy() {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public <E> IQueue<E> getQueue(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <E> ITopic<E> getTopic(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <E> ISet<E> getSet(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <E> IList<E> getList(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <K, V> IMap<K, V> getMap(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <K, V> ReplicatedMap<K, V> getReplicatedMap(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public JobTracker getJobTracker(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <K, V> MultiMap<K, V> getMultiMap(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public ILock getLock(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <E> Ringbuffer<E> getRingbuffer(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <E> ITopic<E> getReliableTopic(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Cluster getCluster() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Endpoint getLocalEndpoint() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public IExecutorService getExecutorService(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <T> T executeTransaction(TransactionalTask<T> paramTransactionalTask) throws TransactionException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <T> T executeTransaction(TransactionOptions paramTransactionOptions,
+                                        TransactionalTask<T> paramTransactionalTask) throws TransactionException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public TransactionContext newTransactionContext() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public TransactionContext newTransactionContext(TransactionOptions paramTransactionOptions) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public IdGenerator getIdGenerator(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public IAtomicLong getAtomicLong(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <E> IAtomicReference<E> getAtomicReference(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public ICountDownLatch getCountDownLatch(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public ISemaphore getSemaphore(String paramString) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String addDistributedObjectListener(DistributedObjectListener paramDistributedObjectListener) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public boolean removeDistributedObjectListener(String paramString) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public Config getConfig() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public PartitionService getPartitionService() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public QuorumService getQuorumService() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public ClientService getClientService() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public LoggingService getLoggingService() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public LifecycleService getLifecycleService() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public <T extends DistributedObject> T getDistributedObject(String paramString1, String paramString2) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public ConcurrentMap<String, Object> getUserContext() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public HazelcastXAResource getXAResource() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void shutdown() {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public Collection<DistributedObject> getDistributedObjects() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
     }
 
     private class IQueueImpl<E> implements IQueue<E> {
@@ -936,8 +1698,9 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public void addItemListener(ItemListener<E> listener, boolean includeValue) {
+        public String addItemListener(ItemListener<E> listener, boolean includeValue) {
             this.itemListenerSupport.addItemListener(listener, includeValue);
+            return name;
         }
 
         @Override
@@ -946,23 +1709,13 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public void removeItemListener(ItemListener<E> listener) {
-            this.itemListenerSupport.removeItemListener(listener);
+        public boolean removeItemListener(String name) {
+            this.itemListenerSupport.removeItemListener(name);
         }
 
         @Override
         public void destroy() {
             queue.clear();
-        }
-
-        @Override
-        public Object getId() {
-            return this.name;
-        }
-
-        @Override
-        public InstanceType getInstanceType() {
-            return InstanceType.QUEUE;
         }
 
         @Override
@@ -1123,6 +1876,17 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             throw new UnsupportedOperationException("getLocalQueueStats");
         }
 
+        @Override
+        public String getPartitionKey() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String getServiceName() {
+            // TODO Auto-generated method stub
+            return null;
+        }
     }
 
     private class ItemListenerSupport<E> {

@@ -171,8 +171,8 @@ class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
     }
 
 
-    public Lock getLock(Object obj) {
-        return clusterContext.getLock(obj);
+    public Lock getLock(String name) {
+        return clusterContext.getLock(name);
     }
 
 }

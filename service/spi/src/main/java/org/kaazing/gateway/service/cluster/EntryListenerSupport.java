@@ -20,6 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
+import com.hazelcast.core.MapEvent;
 
 public class EntryListenerSupport<K, V> implements EntryListener<K, V>  {
     private List<EntryListenerEntry<K,V>> listenerEntries;
@@ -116,6 +117,18 @@ public class EntryListenerSupport<K, V> implements EntryListener<K, V>  {
             this.key = key;
             this.includeValue = includeValue;
         }
+    }
+
+    @Override
+    public void mapCleared(MapEvent paramMapEvent) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void mapEvicted(MapEvent paramMapEvent) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

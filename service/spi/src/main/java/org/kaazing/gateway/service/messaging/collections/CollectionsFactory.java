@@ -33,7 +33,7 @@ public interface CollectionsFactory {
 
     <E> ITopic<E> getTopic(String name);
 
-    ILock getLock(Object obj);
+    ILock getLock(String name);
 
     <K, V> void addEntryListener(EntryListener<K, V> listener, String name);
 

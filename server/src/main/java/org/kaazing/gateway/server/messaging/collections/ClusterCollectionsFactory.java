@@ -15,7 +15,7 @@
  */
 package org.kaazing.gateway.server.messaging.collections;
 
-import com.hazelcast.core.AtomicNumber;
+import com.hazelcast.core.IAtomicLong;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IList;
@@ -56,8 +56,8 @@ public class ClusterCollectionsFactory implements CollectionsFactory {
     }
 
     @Override
-    public ILock getLock(Object obj) {
-        return cluster.getLock(obj);
+    public ILock getLock(String name) {
+        return cluster.getLock(name);
     }
 
     @Override
@@ -70,13 +70,13 @@ public class ClusterCollectionsFactory implements CollectionsFactory {
 
     @Override
     public AtomicCounter getAtomicCounter(String name) {
-        return new ClusterAtomicCounter(cluster.getAtomicNumber(name));
+        return new ClusterAtomicCounter(cluster.getAtomicLong(name));
     }
 
     private final class ClusterAtomicCounter implements AtomicCounter {
-        private AtomicNumber atomicNumber;
+        private IAtomicLong atomicNumber;
 
-        private ClusterAtomicCounter(AtomicNumber number) {
+        private ClusterAtomicCounter(IAtomicLong number) {
             atomicNumber = number;
         }
 

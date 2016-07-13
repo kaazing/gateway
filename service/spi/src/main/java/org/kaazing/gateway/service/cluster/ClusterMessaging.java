@@ -109,9 +109,10 @@ public class ClusterMessaging {
         ITopic<Message> topic = clusterContext.getCollectionsFactory().getTopic(name);
         topic.addMessageListener(new MessageListener<Message>() {
             @Override
-            public void onMessage(Message msg) {
-               receiveMessage(msg);
+            public void onMessage(com.hazelcast.core.Message<Message> msg) {
+               receiveMessage(msg.getMessageObject());
             }
+
         });
     }
     

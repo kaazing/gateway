@@ -18,8 +18,11 @@ package org.kaazing.gateway.server.cluster;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.MapEvent;
+
 import org.junit.Test;
 import org.kaazing.gateway.server.context.resolve.StandaloneClusterContext;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -143,6 +146,18 @@ public class StandaloneClusterContextTest {
             public void entryUpdated(EntryEvent<String, String> event) {
                 assertEquals(event.getValue(), value2);
             }
+
+            @Override
+            public void mapCleared(MapEvent paramMapEvent) {
+                // TODO Auto-generated method stub
+                
+            }
+
+            @Override
+            public void mapEvicted(MapEvent paramMapEvent) {
+                // TODO Auto-generated method stub
+                
+            }
         }, true);
 
         imap.put("test1", value1);
@@ -175,6 +190,18 @@ public class StandaloneClusterContextTest {
             @Override
             public void entryUpdated(EntryEvent<String, String> event) {
                 assertEquals(event.getValue(), null);
+            }
+
+            @Override
+            public void mapCleared(MapEvent paramMapEvent) {
+                // TODO Auto-generated method stub
+                
+            }
+
+            @Override
+            public void mapEvicted(MapEvent paramMapEvent) {
+                // TODO Auto-generated method stub
+                
             }
         }, false);
 
@@ -210,6 +237,18 @@ public class StandaloneClusterContextTest {
         public void entryUpdated(EntryEvent<K, V> event) {
             udpatedCount++;
 
+        }
+
+        @Override
+        public void mapCleared(MapEvent paramMapEvent) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void mapEvicted(MapEvent paramMapEvent) {
+            // TODO Auto-generated method stub
+            
         }
     }
 }
