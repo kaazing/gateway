@@ -35,6 +35,7 @@ import static org.jboss.netty.channel.Channels.*;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executor;
 
+import org.apache.mina.core.future.WriteFuture;
 import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
@@ -75,7 +76,6 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
      */
     public void eventSunk(final ChannelPipeline pipeline, final ChannelEvent e)
             throws Exception {
-        System.out.println("JITU NioChildDatagramPipelineSink event = " + e);
 
         final NioDatagramChannel channel = (NioDatagramChannel) e.getChannel();
         final ChannelFuture future = e.getFuture();
@@ -108,12 +108,32 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
                     break;
             }
         } else if (e instanceof MessageEvent) {
-            // In netty AbstractNioChannel is thread-safe but not in mina.netty's copy
-            // Scheduling the write since child channels and parent channel are on different i/o threads
+            // final MessageEvent event = (MessageEvent) e;
+            // final boolean offered = parent.writeBufferQueue.offer(event);
+            // assert offered;
+            // parent.worker.writeFromUserCode(parent);
+            //
+            // In netty AbstractNioChannel#writeBufferQueue is thread-safe but not in mina.netty's copy.
+            // Scheduling the write on parent channel thread since child channels and parent channel are
+            // on different i/o threads
             NioDatagramChannel parent = (NioDatagramChannel) channel.getParent();
-            parent.getWorker().executeInIoThread(
-                    () -> parent.write(((MessageEvent) e).getMessage(), channel.getRemoteAddress())
-            );
+
+            class WriteTask implements Runnable {
+                @Override
+                public void run() {
+                    Object message = ((MessageEvent) e).getMessage();
+                    ChannelFuture parentFuture = parent.write(message, channel.getRemoteAddress());
+                    parentFuture.addListener(f -> {
+                        if (f.isSuccess()) {
+                            future.setSuccess();
+                        } else {
+                            future.setFailure(f.getCause());
+                        }
+                    });
+                }
+            }
+
+            parent.getWorker().executeInIoThread(new WriteTask());
         }
     }
 

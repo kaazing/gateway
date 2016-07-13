@@ -17,6 +17,7 @@ package org.kaazing.gateway.transport.udp.specification;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.nio.ByteBuffer;
@@ -26,6 +27,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IoSession;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -80,10 +82,10 @@ public class UdpAcceptorIT {
         k3po.notifyBarrier("BOUND1");
     }
 
-    private void writeStringMessageToSession(String message, IoSession session) {
+    private WriteFuture writeStringMessageToSession(String message, IoSession session) {
         ByteBuffer data = ByteBuffer.wrap(message.getBytes());
         IoBufferAllocatorEx<?> allocator = ((IoSessionEx) session).getBufferAllocator();
-        session.write(allocator.wrap(data.duplicate()));
+        return session.write(allocator.wrap(data));
     }
 
     @Test
@@ -106,15 +108,19 @@ public class UdpAcceptorIT {
     @Test
     @Specification("server.sent.data/client")
     public void serverSentData() throws Exception {
+        WriteFuture[] futures = new WriteFuture[1];
         bindTo8080(new IoHandlerAdapter<IoSessionEx>() {
 
             @Override
             protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
-                writeStringMessageToSession("server data", session);
+                WriteFuture future = writeStringMessageToSession("server data", session);
+                futures[0] = future;
             }
         });
 
         k3po.finish();
+        futures[0].await(2, SECONDS);
+        assertTrue(futures[0].isWritten());
     }
 
     @Test

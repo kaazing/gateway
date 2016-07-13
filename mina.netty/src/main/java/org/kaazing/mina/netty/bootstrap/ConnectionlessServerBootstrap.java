@@ -112,7 +112,6 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
         }
 
         public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
-            System.out.println("JITU ********* childChannelOpen " + e.getChildChannel().getRemoteAddress() + " thread = " + Thread.currentThread());
             ((IoAcceptorChannelHandler) parentHandler).childChannelOpen(ctx, e);
             NioDatagramChannel childChannel = (NioDatagramChannel) e.getChildChannel();
             childChannel.getWorker().executeInIoThread(
@@ -122,9 +121,6 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
 
         @Override
         public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-
-            System.out.println("JITU *** ConnectionlessServerBootstrap received message = " + e);
-
             // lookup child channel based on local and remote addresses
             Channel channel = e.getChannel();
             NioDatagramChannel childChannel = getChildChannel(channel, e.getRemoteAddress());
@@ -149,8 +145,6 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                System.out.println("JITU server pipeline = " + channel.getPipeline());
-                System.out.println("JITU child pipeline = " + childPipeline);
 
                 ChannelFactory channelFactory = channel.getFactory();
                 NioDatagramChannel childChannel = (NioDatagramChannel) ((NioDatagramChannelFactory)channelFactory).newChildChannel(channel, childPipeline);

@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.future.ConnectFuture;
+import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IoSession;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -76,10 +77,10 @@ public class UdpConnectorIT {
         assertTrue(connectFuture.isConnected());
     }
 
-    private void writeStringMessageToSession(String message, IoSession session) {
+    private WriteFuture writeStringMessageToSession(String message, IoSession session) {
         ByteBuffer data = ByteBuffer.wrap(message.getBytes());
         IoBufferAllocatorEx<?> allocator = ((IoSessionEx) session).getBufferAllocator();
-        session.write(allocator.wrap(data.duplicate()));
+        return session.write(allocator.wrap(data));
     }
 
     @Test
@@ -127,14 +128,18 @@ public class UdpConnectorIT {
     public void clientSentData() throws Exception {
         k3po.start();
         k3po.awaitBarrier("BOUND");
+        WriteFuture[] futures = new WriteFuture[1];
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
             @Override
             protected void doSessionOpened(IoSessionEx session) throws Exception {
-                writeStringMessageToSession("client data", session);
+                WriteFuture future = writeStringMessageToSession("client data", session);
+                futures[0] = future;
             }
         });
 
         k3po.finish();
+        futures[0].await(2, SECONDS);
+        assertTrue(futures[0].isWritten());
     }
 
     @Test
