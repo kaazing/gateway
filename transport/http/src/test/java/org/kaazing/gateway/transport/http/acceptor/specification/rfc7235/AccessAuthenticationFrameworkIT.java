@@ -44,7 +44,7 @@ import org.kaazing.test.util.MethodExecutionTrace;
  * Test to validate behavior as specified in <a href="https://tools.ietf.org/html/rfc7235#section-2">RFC 7235 section 2:
  * Access Authentication Framework</a>.
  */
-@Ignore("Multiple Http Status Codes")
+@Ignore("Previous iteration of rfc7235 tests were perviously created in https://github.com/kaazing/gateway/pull/220")
 public class AccessAuthenticationFrameworkIT {
     private static final ResourceAddress HTTP_ADDRESS = httpAddress();
 
@@ -69,25 +69,25 @@ public class AccessAuthenticationFrameworkIT {
     public void shouldRespondWithForbiddenStatusCode() throws Exception {
         testHttpNoResponseMessage(HTTP_ADDRESS);
     }
-    
+
     @Test
     @Specification({"invalid.then.valid.credentials/request"})
     public void shouldRespondWithUnauthorizedStatusCodeWithInvalidCredentials() throws Exception {
         testHttpNoResponseMessage(HTTP_ADDRESS);
     }
-    
+
     @Test
     @Specification({"missing.then.valid.credentials"})
     public void shouldRespondWithUnauthorizedStatusCodeWithMissingCredentials() throws Exception {
         testHttpNoResponseMessage(HTTP_ADDRESS);
     }
-    
+
     @Test
     @Specification({"partial.then.valid.credentials/request"})
     public void shouldRespondWithUnauthorizedStatusCodeWithPartialCredentials() throws Exception {
         testHttpNoResponseMessage(HTTP_ADDRESS);
     }
-    
+
     @Test
     @Specification({"proxy.authentication/request"})
     public void shouldPassWithProxyAuthentication() throws Exception {
