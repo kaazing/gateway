@@ -21,5 +21,6 @@ package org.kaazing.gateway.util.feature;
 public interface EarlyAccessFeatures {
 
     static EarlyAccessFeature HTTP_PROXY_SERVICE = new EarlyAccessFeature("http.proxy", "HTTP Proxy Service", false);
+    static EarlyAccessFeature PROTOCOL_HANDSHAKE_TIMEOUT = new EarlyAccessFeature("protocol.handshake.timeout", "Protocol Handshake Timeout", false);
 
 }

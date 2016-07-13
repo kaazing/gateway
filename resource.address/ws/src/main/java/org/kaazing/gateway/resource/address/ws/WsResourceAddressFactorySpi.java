@@ -123,9 +123,9 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
             options.setOption(REQUIRED_PROTOCOLS, requiredProtocols);
         }
 
-        Long handshakeTimeout = (Long) optionsByName.remove(HANDSHAKE_TIMEOUT.name());
+        Object handshakeTimeout = optionsByName.remove(HANDSHAKE_TIMEOUT.name());
         if (handshakeTimeout != null) {
-            options.setOption(HANDSHAKE_TIMEOUT, handshakeTimeout);
+            options.setOption(HANDSHAKE_TIMEOUT, handshakeTimeout instanceof String ? Long.parseLong((String) handshakeTimeout): (Long) handshakeTimeout);
         }
     }
 

@@ -43,9 +43,11 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.kaazing.gateway.server.config.nov2015.ServiceAcceptOptionsType;
 import org.kaazing.gateway.service.AcceptOptionsContext;
+import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,14 +69,18 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
 
     private final Map<String, String> binds;        // gets modified by balancer service
     private final Map<String, String> options;      // unmodifiable map without bind options like tcp.bind etc
+    private Properties configuration;
 
     public DefaultAcceptOptionsContext() {
         this.binds = new HashMap<>();
         this.options = Collections.emptyMap();
     }
 
-    public DefaultAcceptOptionsContext(ServiceAcceptOptionsType acceptOptions, ServiceAcceptOptionsType defaultOptions) {
+    public DefaultAcceptOptionsContext(ServiceAcceptOptionsType acceptOptions, ServiceAcceptOptionsType defaultOptions, Properties configuration) {
         Map<String, String> options = parseAcceptOptionsType(acceptOptions);
+
+        this.configuration = configuration;
+        checkHandshakeTimeoutEnabled(options);
         parseAcceptOptionsType(defaultOptions).entrySet()
                 .stream()
                 .forEach(e -> options.putIfAbsent(e.getKey(), e.getValue()));
@@ -92,6 +98,21 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
 
         this.options = Collections.unmodifiableMap(options);
     }
+
+    private void checkHandshakeTimeoutEnabled(Map<String, String> options) {
+        if (options.containsKey("tcp.handshake.timeout") || options.containsKey("ssl.handshake.timeout")
+                || options.containsKey("http.handshake.timeout") || options.containsKey("ws.handshake.timeout")) {
+            EarlyAccessFeatures.PROTOCOL_HANDSHAKE_TIMEOUT.assertEnabled(configuration, LOGGER);
+        }
+
+        if (configuration != null && !EarlyAccessFeatures.PROTOCOL_HANDSHAKE_TIMEOUT.isEnabled(configuration)) {
+            options.put("tcp.handshake.timeout", "0");
+            options.put("ssl.handshake.timeout", "0");
+            options.put("http.handshake.timeout", "0");
+            options.put("ws.handshake.timeout", "0");
+        }
+    }
+
 
     @Override
     public Map<String, String> getBinds() {

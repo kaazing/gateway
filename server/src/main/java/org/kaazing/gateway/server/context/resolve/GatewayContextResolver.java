@@ -403,7 +403,7 @@ public class GatewayContextResolver {
 
         ServiceAcceptOptionsType serviceAcceptOptions = serviceDefaults.getAcceptOptions();
         if (serviceAcceptOptions != null) {
-            acceptOptions = new DefaultAcceptOptionsContext(null, serviceAcceptOptions);
+            acceptOptions = new DefaultAcceptOptionsContext(null, serviceAcceptOptions, null);
         }
 
         DefaultConnectOptionsContext connectOptions = null;
@@ -631,7 +631,7 @@ public class GatewayContextResolver {
             ServiceAcceptOptionsType acceptOptions = serviceConfig.getAcceptOptions();
             ServiceAcceptOptionsType defaultOptionsConfig =
                     (defaultServiceConfig != null) ? defaultServiceConfig.getAcceptOptions() : null;
-            AcceptOptionsContext acceptOptionsContext = new DefaultAcceptOptionsContext(acceptOptions, defaultOptionsConfig);
+            AcceptOptionsContext acceptOptionsContext = new DefaultAcceptOptionsContext(acceptOptions, defaultOptionsConfig, configuration);
 
             ServiceConnectOptionsType connectOptions = serviceConfig.getConnectOptions();
 
