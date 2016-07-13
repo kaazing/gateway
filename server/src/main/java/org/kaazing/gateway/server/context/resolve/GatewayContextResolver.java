@@ -521,8 +521,9 @@ public class GatewayContextResolver {
             String name = serviceConfig.getRealmName();
             if (serviceConfig.isSetRealmName()) {
                 realmContext = realmsContext.getRealmContext(name);
-                if (realmContext != null) {
+                if (realmContext != null && !name.equals("auth-required")) {
                     if (requireRolesCollection.isEmpty()) {
+                        System.out.println("added");
                         Collections.addAll(requireRolesCollection, "*");
                     }
                 }
