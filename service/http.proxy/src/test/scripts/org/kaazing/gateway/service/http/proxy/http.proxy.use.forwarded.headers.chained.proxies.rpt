@@ -47,8 +47,8 @@ read "X-Forwarded-Proto: http\r\n"
 read "X-Forwarded-Proto: http\r\n"
 read "X-Forwarded-Host: localhost:8112\r\n"
 read "X-Forwarded-Host: localhost:8113\r\n"
-read "X-Forwarded-For: 127.0.0.1\r\n"
-read "X-Forwarded-For: 127.0.0.1\r\n"
+read /"X-Forwarded-For: 127.0.0.1:".[0-9]+."\r\n"/
+read /"X-Forwarded-For: 127.0.0.1:".[0-9].+"\r\n"/
 /Via: 1.1 kaazing-.+/ "\r\n"
 /Via: 1.1 kaazing-.+/ "\r\n"
 /Via: 1.1 kaazing-.+/ "\r\n"
@@ -56,8 +56,8 @@ read "X-Forwarded-For: 127.0.0.1\r\n"
 /Via: 1.1 kaazing-.+/ "\r\n"
 read "User-Agent: curl/7.37.1\r\n"
 read "Host: localhost:8081\r\n"
-read "Forwarded: for=127.0.0.1;by=127.0.0.1;proto=http;host=localhost:8112\r\n"
-read "Forwarded: for=127.0.0.1;by=127.0.0.1;proto=http;host=localhost:8113\r\n"
+read /"Forwarded: for=127.0.0.1:".[0-9]+.";by=127.0.0.1;proto=http;host=localhost:8112\r\n"/
+read /"Forwarded: for=127.0.0.1:".[0-9]+.";by=127.0.0.1;proto=http;host=localhost:8113\r\n"/
 read "Connection: close\r\n"
 read "\r\n"
 

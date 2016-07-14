@@ -55,6 +55,7 @@ import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.service.proxy.AbstractProxyAcceptHandler;
 import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
+import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.DefaultHttpSession;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
@@ -107,6 +108,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
     private String connectURI;
     private String useForwarded;
+    private int remoteClientPort;
     private boolean rewriteCookieDomain;
     private boolean rewriteCookiePath;
     private boolean rewriteLocation;
@@ -197,6 +199,9 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
     @Override
     public void sessionOpened(IoSession session) {
+    	// get the port number of the remote client
+    	BridgeSession bridgeSession = (BridgeSession) session;
+    	remoteClientPort = BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getTransport().getResource().getPort();
         if (!session.isClosing()) {
             final DefaultHttpSession acceptSession = (DefaultHttpSession) session;
             // final Subject subject = ((IoSessionEx) acceptSession).getSubject();
@@ -486,9 +491,9 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         }
 
         if (FORWARDED_INJECT.equalsIgnoreCase(useForwarded)) {
-            String remoteIpAddress = getResourceIpAddress(acceptSession, FORWARDED_FOR);
-            if (remoteIpAddress != null) {
-                connectSession.addWriteHeader(HEADER_X_FORWARDED_FOR, remoteIpAddress);
+            String remoteIpWithPort = format("%s:%d", getResourceIpAddress(acceptSession, FORWARDED_FOR), remoteClientPort);
+            if (remoteIpWithPort != null) {
+                connectSession.addWriteHeader(HEADER_X_FORWARDED_FOR, remoteIpWithPort);
             }
 
             String serverIpAddress = getResourceIpAddress(acceptSession, FORWARDED_BY);
@@ -505,7 +510,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             connectSession.addWriteHeader(HEADER_X_FORWARDED_HOST, format("%s:%s", host, port));
             
             connectSession.addWriteHeader(HEADER_FORWARDED,
-                    format("%s=%s;%s=%s;%s=%s;%s=%s:%s", FORWARDED_FOR, remoteIpAddress, FORWARDED_BY, serverIpAddress,
+                    format("%s=%s;%s=%s;%s=%s;%s=%s:%s", FORWARDED_FOR, remoteIpWithPort, FORWARDED_BY, serverIpAddress,
                             FORWARDED_PROTO, protocol, FORWARDED_HOST, host, port));
         }
     }
