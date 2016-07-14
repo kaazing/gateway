@@ -16,16 +16,6 @@
 package org.kaazing.gateway.server.context.resolve;
 
 import org.kaazing.gateway.server.config.june2016.ServiceConnectOptionsType;
-import org.kaazing.gateway.service.ConnectOptionsContext;
-import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
