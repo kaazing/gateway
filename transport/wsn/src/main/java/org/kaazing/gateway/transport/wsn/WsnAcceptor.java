@@ -24,6 +24,7 @@ import static org.kaazing.gateway.resource.address.URLUtils.appendURI;
 import static org.kaazing.gateway.resource.address.URLUtils.ensureTrailingSlash;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_CHALLENGE_SCHEME;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.CODEC_REQUIRED;
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.HANDSHAKE_TIMEOUT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.MAX_MESSAGE_SIZE;
@@ -52,6 +53,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.Resource;
@@ -1091,6 +1093,14 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
                     final ResourceAddress wsLocalAddress = localAddress;
 
+                    ScheduledExecutorService taskExecutor = Executors.newScheduledThreadPool(1);
+
+                    Long handshakeTimeout = 10000L;//localAddress.getOption(HANDSHAKE_TIMEOUT).longValue();
+                    if (handshakeTimeout != null && handshakeTimeout > 0) {
+                        session.getFilterChain().addLast("wsnStartHandshakeTimerFilter",
+                                new WsxStartHandshakeTimerFilter(logger, handshakeTimeout, taskExecutor));
+                    }
+
                     // negotiate extensions
                     final List<WebSocketExtension> negotiated;
                     try {
@@ -1137,6 +1147,9 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     upgradeFuture.addListener(new IoFutureListener<UpgradeFuture>() {
                         @Override
                         public void operationComplete(UpgradeFuture future) {
+                            if (handshakeTimeout > 0) {
+                                session.getFilterChain().addLast("wsnHandshakeTimeoutStopTimer", new WsxStopHandshakeTimerFilter(taskExecutor));
+                            }
                             IoSession parent = future.getSession();
                             parent.setAttribute("encoding", encoding);
                             parent.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, wsProtocol0);
