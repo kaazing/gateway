@@ -37,7 +37,7 @@ public class RemoveRequireUser extends AbstractVisitor {
     }
 
     @Override
-    public void visit(Element element) throws Exception {
+    public void visit(Element element) {
         Element typeElement = element.getChild(REALM, namespace);
         if (typeElement != null) {
             element.removeChildren(CONSTRAINT, namespace);
@@ -46,7 +46,7 @@ public class RemoveRequireUser extends AbstractVisitor {
     }
     
     @Override
-    public void translate(Document dom) throws Exception {
+    public void translate(Document dom) {
         Element root = dom.getRootElement();
         namespace = root.getNamespace();
         List<Element> children = dom.getRootElement().getChildren(SERVICE_NODE, namespace);

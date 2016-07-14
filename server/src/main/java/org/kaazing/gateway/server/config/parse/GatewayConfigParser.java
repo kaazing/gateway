@@ -119,9 +119,6 @@ public class GatewayConfigParser {
         this.configuration = configuration;
     }
 
-    private void translate(final GatewayConfigNamespace ns, final Document dom,
-            final File translatedConfigFile, boolean writeTranslatedFile) throws Exception {
-
     private void translate(final GatewayConfigNamespace ns,
                            final Document dom,
                            final File translatedConfigFile,
