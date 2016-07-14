@@ -471,7 +471,7 @@ public class GatewayConfigParser {
                     + "\n\n\n");
             output = new ByteArrayInputStream(buffer.toByteArray());
         } catch (IOException e) {
-            throw new RuntimeException("could not buffer stream", e);
+            throw new GatewayConfigParserException("could not buffer stream");
         }
         return output;
     }

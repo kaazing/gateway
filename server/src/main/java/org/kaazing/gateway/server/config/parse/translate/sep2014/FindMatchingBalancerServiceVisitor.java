@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.server.config.parse.translate.sep2014;
 
+import static java.lang.String.format;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -23,10 +25,8 @@ import java.util.Set;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.filter.ElementFilter;
-
+import org.kaazing.gateway.server.config.parse.GatewayConfigParserException;
 import org.kaazing.gateway.server.config.parse.translate.AbstractVisitor;
-
-import static java.lang.String.format;
 
 /**
  * For each balance URI on a service, make sure there is a matching balancer service accept URI.
@@ -90,7 +90,7 @@ public class FindMatchingBalancerServiceVisitor extends AbstractVisitor {
         // all the services have been visited, ensure the that every balance URI matches a balancer accept URI
         for (String balanceURI : balanceURIs) {
             if (!balancerAcceptURIs.contains(balanceURI)) {
-                throw new RuntimeException(
+                throw new GatewayConfigParserException(
                         format("balance URI: %s does not point to a balancer service's accept URI in the configuration file, " +
                                         "unable to launch the Gateway",
                                 balanceURI));
@@ -100,7 +100,7 @@ public class FindMatchingBalancerServiceVisitor extends AbstractVisitor {
         // ensure that every balancer accept URI matches a balance URI
         for (String balancerAcceptURI : balancerAcceptURIs) {
             if (!balanceURIs.contains(balancerAcceptURI)) {
-                throw new RuntimeException(
+                throw new GatewayConfigParserException(
                         format("Detected orphaned balancer accept URI: %s, no balance URIs in the configuration file point to " +
                                         "this balancer service.  Unable to launch the Gateway.",
                                 balancerAcceptURI));
