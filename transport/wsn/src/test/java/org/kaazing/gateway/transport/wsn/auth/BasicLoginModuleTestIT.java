@@ -39,7 +39,7 @@ public class BasicLoginModuleTestIT {
                     .realmName("demo")
                         .authorization()
                         .requireRole("USER")
-                   .done()
+                    .done()
                 .done()
                 .security()
                     .realm()
