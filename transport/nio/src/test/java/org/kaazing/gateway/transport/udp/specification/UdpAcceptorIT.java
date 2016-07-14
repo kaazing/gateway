@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.future.WriteFuture;
+import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -169,8 +170,18 @@ public class UdpAcceptorIT {
     @Specification("server.close/client")
     public void serverClose() throws Exception {
         // TODO Configure timeout as accept option
-        CountDownLatch latch = new CountDownLatch(1);
-        bindTo8080(new IoHandlerAdapter<IoSessionEx>(){
+        CountDownLatch latch = new CountDownLatch(3);
+        bindTo8080(new IoHandlerAdapter<IoSessionEx>() {
+            @Override
+            protected void doSessionOpened(IoSessionEx session) throws Exception {
+                latch.countDown();
+            }
+
+            @Override
+            protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
+                latch.countDown();
+            }
+
             @Override
             protected void doSessionClosed(IoSessionEx session) throws Exception {
                 latch.countDown();

@@ -15,6 +15,7 @@
  */
 package org.kaazing.mina.netty.bootstrap;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jboss.netty.channel.Channels.fireChannelBound;
 import static org.jboss.netty.channel.Channels.fireChannelClosed;
 import static org.jboss.netty.channel.Channels.fireChannelConnected;
@@ -28,6 +29,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.jboss.netty.channel.AbstractChannel;
 import org.jboss.netty.channel.Channel;
@@ -52,7 +54,7 @@ import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 import org.kaazing.mina.netty.IoAcceptorChannelHandler;
 
-class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements ServerBootstrap {
+public class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements ServerBootstrap {
 
     private ChannelHandler parentHandler;
 
@@ -97,7 +99,7 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
         return parentHandler;
     }
 
-    private final class ConnectionlessParentChannelHandler extends SimpleChannelUpstreamHandler {
+    public final class ConnectionlessParentChannelHandler extends SimpleChannelUpstreamHandler {
 
         // remote address --> child channel
         private final Map<SocketAddress, NioDatagramChannel> childChannels;
@@ -111,6 +113,7 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
             super.channelConnected(ctx, e);
         }
 
+        @Override
         public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
             ((IoAcceptorChannelHandler) parentHandler).childChannelOpen(ctx, e);
             NioDatagramChannel childChannel = (NioDatagramChannel) e.getChildChannel();
@@ -136,6 +139,19 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
             ctx.sendUpstream(e);
         }
 
+        @Override
+        public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+            childChannels.forEach(((socketAddress, childChannel) -> childChannel.close()));
+            childChannels.clear();
+
+            e.getFuture().setSuccess();
+        }
+
+        public void closeChildChannel(NioDatagramChannel childChannel) {
+            System.out.println("JITU removing child channel " + childChannel + " map = " + childChannels);
+            childChannels.remove(childChannel.getRemoteAddress());
+        }
+
         private NioDatagramChannel getChildChannel(Channel channel, SocketAddress remoteAddress) throws Exception {
             return childChannels.computeIfAbsent(remoteAddress, x -> {
                 ChannelPipelineFactory childPipelineFactory = getPipelineFactory();
@@ -151,7 +167,6 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
                 childChannel.setLocalAddress((InetSocketAddress) channel.getLocalAddress());
                 childChannel.setRemoteAddress((InetSocketAddress) remoteAddress);
                 fireChannelOpen(childChannel);
-                //fireChannelConnected(childChannel, remoteAddress);
 
                 return childChannel;
             });

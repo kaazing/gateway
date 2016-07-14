@@ -15,14 +15,9 @@
  */
 package org.kaazing.gateway.transport.nio.internal;
 
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.util.Properties;
-
-import javax.annotation.Resource;
-
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.ResourceAddress;
@@ -37,6 +32,9 @@ import org.kaazing.mina.netty.socket.DatagramChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.nio.NioDatagramChannelIoAcceptor;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetAddress;
+import java.util.Properties;
 
 public class NioDatagramAcceptor extends AbstractNioAcceptor {
 
@@ -71,24 +69,27 @@ public class NioDatagramAcceptor extends AbstractNioAcceptor {
             }
         });
 
-        String readBufferSize = configuration.getProperty("org.kaazing.gateway.transport.udp.READ_BUFFER_SIZE");
-        String minimumReadBufferSize = configuration.getProperty("org.kaazing.gateway.transport.udp.MINIMUM_READ_BUFFER_SIZE");
-        String maximumReadBufferSize = configuration.getProperty("org.kaazing.gateway.transport.udp.MAXIMUM_READ_BUFFER_SIZE");
 
+        String readBufferSize = configuration.getProperty("org.kaazing.gateway.transport.udp.READ_BUFFER_SIZE");
         if (readBufferSize != null) {
             acceptor.getSessionConfig().setReadBufferSize(Integer.parseInt(readBufferSize));
             logger.debug("READ_BUFFER_SIZE setting for UDP acceptor: {}", readBufferSize);
         }
 
+        String minimumReadBufferSize = configuration.getProperty("org.kaazing.gateway.transport.udp.MINIMUM_READ_BUFFER_SIZE");
         if (minimumReadBufferSize != null) {
             acceptor.getSessionConfig().setMinReadBufferSize(Integer.parseInt(minimumReadBufferSize));
             logger.debug("MINIMUM_READ_BUFFER_SIZE setting for UDP acceptor: {}", minimumReadBufferSize);
         }
 
+        String maximumReadBufferSize = configuration.getProperty("org.kaazing.gateway.transport.udp.MAXIMUM_READ_BUFFER_SIZE");
         if (maximumReadBufferSize != null) {
             acceptor.getSessionConfig().setMaxReadBufferSize(Integer.parseInt(maximumReadBufferSize));
             logger.debug("MAXIMUM_READ_BUFFER_SIZE setting for UDP acceptor: {}", maximumReadBufferSize);
         }
+
+        // TODO via property ?
+        acceptor.getSessionConfig().setIdleTimeInMillis(IdleStatus.BOTH_IDLE, 500);
 
         return acceptor;
     }

@@ -36,6 +36,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.Executor;
 
 import org.apache.mina.core.future.WriteFuture;
+import org.jboss.netty.bootstrap.ConnectionlessBootstrap;
 import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
@@ -43,6 +44,7 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelState;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
+import org.kaazing.mina.netty.bootstrap.ConnectionlessServerBootstrap;
 
 /**
  * Receives downstream events from a {@link ChannelPipeline}.  It contains
@@ -86,6 +88,7 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
             switch (state) {
                 case OPEN:
                     if (Boolean.FALSE.equals(value)) {
+                        closeRequested(pipeline, e);
                         channel.worker.close(channel, future);
                     }
                     break;
@@ -138,6 +141,8 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
     }
 
     private static void close(NioDatagramChannel channel, ChannelFuture future) {
+        System.out.println("childsink close");
+
         try {
             channel.getDatagramChannel().socket().close();
             if (channel.setClosed()) {
@@ -161,6 +166,8 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
      */
     private static void bind(final NioDatagramChannel channel,
                              final ChannelFuture future, final InetSocketAddress address) {
+        System.out.println("childsink bind");
+
         boolean bound = false;
         boolean started = false;
         try {
@@ -186,7 +193,7 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
     private static void connect(
             NioDatagramChannel channel, ChannelFuture future,
             InetSocketAddress remoteAddress) {
-
+System.out.println("childsink connect");
         boolean bound = channel.isBound();
         boolean connected = false;
         boolean workerStarted = false;
@@ -220,6 +227,14 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
             if (connected && !workerStarted) {
                 channel.worker.close(channel, future);
             }
+        }
+    }
+
+    void closeRequested(ChannelPipeline pipeline, ChannelEvent evt) throws Exception {
+        if (!evt.getFuture().isSuccess()) {
+            NioDatagramChannel parent = (NioDatagramChannel) evt.getChannel().getParent();
+            ConnectionlessServerBootstrap.ConnectionlessParentChannelHandler handler = (ConnectionlessServerBootstrap.ConnectionlessParentChannelHandler) parent.getPipeline().getLast();
+            handler.closeChildChannel((NioDatagramChannel) evt.getChannel());
         }
     }
 
