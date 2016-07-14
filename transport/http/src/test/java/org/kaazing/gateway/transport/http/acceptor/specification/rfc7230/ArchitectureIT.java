@@ -77,7 +77,7 @@ public class ArchitectureIT {
         testHttpVersionNoResponseMessage(HTTP_ADDRESS);
     }
 
-    @Ignore("400 instead of 505")
+    @Ignore("change to 400 being ok")
     @Test
     @Specification({"response.must.be.505.on.invalid.version/request"})
     public void inboundMustSend505OnInvalidVersion() throws Exception {
@@ -100,23 +100,13 @@ public class ArchitectureIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Timeout")
     @Test
     @Specification({"inbound.must.reply.with.version.one.dot.one.when.received.higher.minor.version/request"})
     public void inboundMustReplyWithVersionOneDotOneWhenReceivedHigherMinorVersion() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-
-        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
-            @Override
-            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
-                latch.countDown();
-                session.close(false);
-            }
-        };
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>();
         acceptor.bind(HTTP_ADDRESS, acceptHandler);
 
         k3po.finish();
-        assertTrue(latch.await(4, SECONDS));
     }
     
     @Ignore("400 instead of 505")
@@ -132,11 +122,13 @@ public class ArchitectureIT {
         testHttpVersionNoResponseMessage(HTTP_ADDRESS);
     }
 
-    @Ignore("Timeout")
     @Test
     @Specification({"inbound.must.reject.requests.missing.host.identifier/request"})
     public void inboundMustRejectRequestsMissingHostIdentifier() throws Exception {
-        testHttpVersionNoResponseMessage(HTTP_ADDRESS);
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>();
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
     }
 
     @Ignore("404 instead of 400")

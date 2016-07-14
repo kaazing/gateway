@@ -64,9 +64,11 @@ public final class HttpResourceAddress extends ResourceAddress {
     public static final ResourceOption<String> ENCRYPTION_KEY_ALIAS = new EncryptionKeyAliasOption();
     public static final ResourceOption<String> SERVICE_DOMAIN = new ServiceDomainOption();
     public static final HttpResourceOption<Boolean> SERVER_HEADER_ENABLED = new HttpServerHeaderOption();
+    public static final HttpResourceOption<Boolean> DATE_HEADER_ENABLED = new HttpServerDateHeaderOption();
     public static final HttpResourceOption<Collection<Class<? extends Principal>>> REALM_USER_PRINCIPAL_CLASSES = new HttpRealmAuthenticationUserPrincipalClassesOption();
 
     private Boolean serverHeaderEnabled = SERVER_HEADER_ENABLED.defaultValue();
+    private Boolean dateHeaderEnabled = DATE_HEADER_ENABLED.defaultValue();
     private Boolean keepAlive = KEEP_ALIVE.defaultValue();
     private Integer httpMaxRedirects = MAXIMUM_REDIRECTS.defaultValue();
     private Integer keepAliveTimeout = KEEP_ALIVE_TIMEOUT.defaultValue();
@@ -149,6 +151,8 @@ public final class HttpResourceAddress extends ResourceAddress {
                     return (V) serviceDomain;
                 case SERVER_HEADER:
                     return (V) serverHeaderEnabled;
+                case DATE_HEADER:
+                    return (V) dateHeaderEnabled;
                 case REALM_USER_PRINCIPAL_CLASSES:
                     return (V) realmUserPrincipalClasses;
             }
@@ -232,6 +236,9 @@ public final class HttpResourceAddress extends ResourceAddress {
                 case SERVER_HEADER:
                     serverHeaderEnabled = (Boolean) value;
                     return;
+                case DATE_HEADER:
+                    dateHeaderEnabled = (Boolean) value;
+                    return;
                 case REALM_USER_PRINCIPAL_CLASSES:
                     realmUserPrincipalClasses = (Collection<Class<? extends Principal>>) value;
                     return;
@@ -258,7 +265,7 @@ public final class HttpResourceAddress extends ResourceAddress {
             REALM_AUTHENTICATION_HEADER_NAMES, REALM_AUTHENTICATION_PARAMETER_NAMES, REALM_AUTHENTICATION_COOKIE_NAMES,
             LOGIN_CONTEXT_FACTORY, INJECTABLE_HEADERS,
             ORIGIN_SECURITY, TEMP_DIRECTORY, GATEWAY_ORIGIN_SECURITY, BALANCE_ORIGINS,
-            AUTHENTICATION_CONNECT, AUTHENTICATION_IDENTIFIER, ENCRYPTION_KEY_ALIAS, SERVICE_DOMAIN, SERVER_HEADER,
+            AUTHENTICATION_CONNECT, AUTHENTICATION_IDENTIFIER, ENCRYPTION_KEY_ALIAS, SERVICE_DOMAIN, SERVER_HEADER, DATE_HEADER,
             REALM_USER_PRINCIPAL_CLASSES ,MAX_REDIRECTS
         }
 
@@ -412,6 +419,12 @@ public final class HttpResourceAddress extends ResourceAddress {
     private static final class HttpServerHeaderOption extends HttpResourceOption<Boolean> {
         private HttpServerHeaderOption() {
             super(Kind.SERVER_HEADER, "serverHeaderEnabled", Boolean.TRUE);
+        }
+    }
+
+    private static final class HttpServerDateHeaderOption extends HttpResourceOption<Boolean> {
+        private HttpServerDateHeaderOption() {
+            super(Kind.DATE_HEADER, "dateHeaderEnabled", Boolean.TRUE);
         }
     }
 

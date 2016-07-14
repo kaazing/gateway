@@ -196,7 +196,7 @@ public class MessageFormatIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Error in setting status")
+    @Ignore("Error in status code")
     @Test
     @Specification({"server.should.reject.obs.in.header.value/request"})
     public void serverShouldRejectOBSInHeaderValue() throws Exception {

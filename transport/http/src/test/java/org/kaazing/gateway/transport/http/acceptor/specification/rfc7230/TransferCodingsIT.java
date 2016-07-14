@@ -45,6 +45,7 @@ import org.kaazing.test.util.MethodExecutionTrace;
  * Test to validate behavior as specified in <a href="https://tools.ietf.org/html/rfc7231#section-4">RFC 7231 section 4:
  * Request Methods</a>.
  */
+@Ignore("Tests not merged yet https://github.com/k3po/k3po/pull/343/")
 public class TransferCodingsIT {
     private static final ResourceAddress HTTP_ADDRESS = httpAddress();
 
@@ -64,28 +65,24 @@ public class TransferCodingsIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("Can't find script")
     @Test
     @Specification({"request.transfer.encoding.chunked/request"})
     public void requestTransferEncodingChunked() throws Exception {
         standardHttpTestCase(HTTP_ADDRESS);
     }
     
-    @Ignore("Can't find script")
     @Test
     @Specification({"response.transfer.encoding.chunked/request"})
     public void responseTransferEncodingChunked() throws Exception {
         standardHttpTestCase(HTTP_ADDRESS);
     }
     
-    @Ignore("Can't find script")
     @Test
     @Specification({"request.transfer.encoding.chunked.with.trailer/request"})
     public void requestTransferEncodingChunkedWithTrailer() throws Exception {
         standardHttpTestCase(HTTP_ADDRESS);
     }
     
-    @Ignore("Can't find script")
     @Test
     @Specification({"response.transfer.encoding.chunked.with.trailer/request"})
     public void responseTransferEncodingChunkedWithTrailer() throws Exception {

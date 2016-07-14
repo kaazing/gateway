@@ -65,7 +65,6 @@ public class ConnectionManagementIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("too much data")
     @Test
     @Specification({"client.must.close.connection.after.request.with.connection.close/request"})
     public void clientMustCloseConnectionAfterRequestWithConnectionClose() throws Exception {
