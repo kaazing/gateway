@@ -56,6 +56,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -215,39 +216,37 @@ public class GatewayConfigParser {
         parseOptions.setLoadStripComments();
 
         File translatedConfigFile;
-        try {
-            translatedConfigFile = getTranslatedConfigFile(configFile);
-        } catch (Exception e) {
-            Throwable rootCause = getRootCause(e);
-            if (rootCause == null) {
-                rootCause = e;
-            }
+//        try {
+            try {
+                translatedConfigFile = getTranslatedConfigFile(configFile);
+            } catch (ConfigurationException | JDOMException e) {
+                Throwable rootCause = getRootCause(e);
+                if (rootCause == null) {
+                    rootCause = e;
+                }
 
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.error("Error upgrading XML: " + rootCause, rootCause);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.error("Error upgrading XML: " + rootCause, rootCause);
 
-            } else {
-                LOGGER.error("Error upgrading XML: " + rootCause);
-            }
+                } else {
+                    LOGGER.error("Error upgrading XML: " + rootCause);
+                }
 
-            // If it's not an IllegalArgumentException, wrap it in a
-            // GatewayConfigParserException
-            if (e instanceof IllegalArgumentException) {
-                throw (IllegalArgumentException)e;
-
-            } else {
+                // Wrap it in a GatewayConfigParserException
                 throw new GatewayConfigParserException(e.getMessage());
+
             }
-        }
+
 
         List<String> xmlParseErrors = new ArrayList<>();
-        try {
-            config = GatewayConfigDocument.Factory.parse(new FileInputStream(translatedConfigFile), parseOptions);
+        
+            try {
+                config = GatewayConfigDocument.Factory.parse(new FileInputStream(translatedConfigFile), parseOptions);
+            } catch (XmlException e) {
+                // track the parse error so that we don't make the 2nd pass through the file
+                xmlParseErrors.add("Invalid XML: " + getRootCause(e).getMessage());
+            }
 
-        } catch (Exception e) {
-            // track the parse error so that we don't make the 2nd pass through the file
-            xmlParseErrors.add("Invalid XML: " + getRootCause(e).getMessage());
-        }
 
         if (xmlParseErrors.isEmpty()) {
             // The properties used in parameter substitution are now proper XMLBeans
@@ -287,26 +286,27 @@ public class GatewayConfigParser {
                         "Gateway config file '" + configFileName + "' post XSL transformation", LOGGER);
             }
 
-            try {
-                config = GatewayConfigDocument.Factory.parse(xmlTransformedIn, parseOptions);
-            } catch (Exception e) {
-                // If parsing with previous namespace was also unsuccessful,
-                // process errors top down, failing fast, for user level errors
-               try {
-                    if (xmlInjectedFuture.get()) {
-                        if (xmlTransformedFuture.get()) {
-                            throw e;
+            
+                try {
+                    config = GatewayConfigDocument.Factory.parse(xmlTransformedIn, parseOptions);
+                } catch (XmlException e) {
+                    // If parsing with previous namespace was also unsuccessful,
+                    // process errors top down, failing fast, for user level errors
+                   try {
+                        if (xmlInjectedFuture.get()) {
+                            if (xmlTransformedFuture.get()) {
+                                throw e;
+                            }
                         }
+                    } catch (Exception n) {
+                        xmlParseErrors.add("Invalid XML: " + getRootCause(n).getMessage());
                     }
-                } catch (Exception n) {
-                    xmlParseErrors.add("Invalid XML: " + getRootCause(n).getMessage());
+                } finally {
+                    xmlInjectedFuture.cancel(true);
+                    xmlInjectedExecutor.shutdownNow();
+                    xmlTransformedFuture.cancel(true);
+                    xmlTransformedExecutor.shutdownNow();
                 }
-            } finally {
-                xmlInjectedFuture.cancel(true);
-                xmlInjectedExecutor.shutdownNow();
-                xmlTransformedFuture.cancel(true);
-                xmlTransformedExecutor.shutdownNow();
-            }
         }
 
         validateGatewayConfig(config, xmlParseErrors);
@@ -450,7 +450,7 @@ public class GatewayConfigParser {
             buffer.flush();
             log.trace(message + "\n\n\n" + new String(buffer.toByteArray(), CHARSET_OUTPUT) + "\n\n\n");
             output = new ByteArrayInputStream(buffer.toByteArray());
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException("could not buffer stream", e);
         }
         return output;
