@@ -33,11 +33,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.rmi.RemoteException;
 import java.security.Key;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -1058,19 +1061,19 @@ public class DefaultServiceContext implements ServiceContext {
     }
 
     @Override
-    public void init() throws Exception {
+    public void init() {
         getService().init(this);
     }
 
     @Override
-    public void start() throws Exception {
+    public void start() throws MalformedURLException, RemoteException, URISyntaxException, IOException{
         if (started.compareAndSet(false, true)) {
             getService().start();
         }
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() throws IOException, URISyntaxException  {
         if (started.compareAndSet(true, false)) {
             // So management won't get screwed up, don't allow the service
             // to add any more sessions than there already are.

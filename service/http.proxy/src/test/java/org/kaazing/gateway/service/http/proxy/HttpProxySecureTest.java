@@ -40,6 +40,8 @@ public class HttpProxySecureTest {
     private final char[] password = TlsTestUtil.password();
     private final KeyStore trustStore = TlsTestUtil.trustStore();
     private final SSLSocketFactory clientSocketFactory = TlsTestUtil.clientSocketFactory();
+    
+    private final SSLSocketFactory clientSSLSocketFactory = TlsTestUtil.clientSSLSocketFactory();
 
     @Rule
     public TestRule testExecutionTrace = new MethodExecutionTrace();
@@ -97,5 +99,56 @@ public class HttpProxySecureTest {
         }
     }
 
+    // client <---- ssl/http ---> gateway <---- ssl/http -----> origin server
+    @Test(timeout = 5000)
+    public void proxyWithSSL() throws Exception {
+        Gateway gateway = new Gateway();
+        // @formatter:off
+        GatewayConfiguration configuration =
+                new GatewayConfigurationBuilder()
+                    .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
+                    .service()
+                        .accept("https://localhost:8110")
+                        .connect("https://localhost:8080")
+                        .type("http.proxy")
+                    .done()
+                    .security()
+                        .trustStore(trustStore)
+                        .keyStore(keyStore)
+                        .keyStorePassword(password)
+                    .done()
+                .done();
+        // @formatter:on
 
+        String response =
+                "HTTP/1.1 200 OK\r\n" +
+                "Server: Apache-Coyote/1.1\r\n" +
+                "Content-Type: text/html;charset=UTF-8\r\n" +
+                "Transfer-Encoding: chunked\r\n" +
+                "Date: Tue, 10 Feb 2015 02:17:15 GMT\r\n" +
+                "Connection: close\r\n" +
+                "\r\n" +
+                "14\r\n" +
+                "<html>Hellooo</html>\r\n" +
+                "0\r\n" +
+                "\r\n";
+        OriginServer.HttpHandler handler = new OriginServer.HttpHandler(response);
+        SecureOriginServer originServer = new SecureOriginServer(8080, handler);
+
+        try {
+            originServer.start();
+            gateway.start(configuration);
+
+            HttpsURLConnection con  = (HttpsURLConnection) new URL("https://localhost:8110/index.html").openConnection();
+            con.setSSLSocketFactory(clientSSLSocketFactory);
+            try(BufferedReader r = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+                String line = r.readLine();
+                assertEquals("<html>Hellooo</html>", line);
+                assertNull(r.readLine());
+            }
+        } finally {
+            gateway.stop();
+            originServer.stop();
+        }
+    }
 }

@@ -46,7 +46,7 @@ public class FindMatchingBalancerServiceVisitor extends AbstractVisitor {
     }
 
     @Override
-    public void visit(Element element) throws Exception {
+    public void visit(Element element) {
         // First get the balance elements from the service element (same namespace as the service element)
         List<Element> balanceElements = element.getChildren(BALANCE_URI_ELEMENT, element.getNamespace());
         if (balanceElements != null) {
@@ -74,12 +74,12 @@ public class FindMatchingBalancerServiceVisitor extends AbstractVisitor {
     }
 
     @Override
-    public void translate(Document dom) throws Exception {
+    public void translate(Document dom) {
 
         Element root = dom.getRootElement();
 
         // Gather the service elements and visit them ensuring that any balance tags differ
-        // from the accept tags by hostname only.
+        // from the accept tags by host name only.
         ElementFilter nameFilter = new ElementFilter(SERVICE_ELEMENT);
         Iterator<?> iter = root.getDescendants(nameFilter);
         while (iter.hasNext()) {

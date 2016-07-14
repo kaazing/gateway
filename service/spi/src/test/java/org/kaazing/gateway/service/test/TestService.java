@@ -26,23 +26,23 @@ public class TestService implements Service {
     }
 
     @Override
-    public void init(ServiceContext serviceContext) throws Exception {
+    public void init(ServiceContext serviceContext) {
         // needs to initialization
     }
 
     @Override
-    public void start() throws Exception {
+    public void start()  {
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop()  {
     }
 
     @Override
-    public void quiesce() throws Exception {
+    public void quiesce()  {
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy()  {
     }
 }

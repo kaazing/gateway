@@ -16,6 +16,10 @@
 package org.kaazing.gateway.service;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -75,9 +79,9 @@ public interface ServiceContext {
 
     File getTempDirectory();
 
-    void init() throws Exception;
+    void init() ;
 
-    void start() throws Exception;
+    void start() throws MalformedURLException, RemoteException, URISyntaxException, IOException;
 
     void bind(Collection<String> acceptURIs, IoHandler handler);
 
@@ -94,7 +98,7 @@ public interface ServiceContext {
 
     void unbindConnectsIfNecessary(Collection<String> connectURIs);
 
-    void stop() throws Exception;
+    void stop() throws IOException, URISyntaxException ;
 
     void destroy() throws Exception;
     
