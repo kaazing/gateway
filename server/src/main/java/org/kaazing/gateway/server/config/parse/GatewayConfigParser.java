@@ -63,13 +63,13 @@ import org.jdom.output.XMLOutputter;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.config.parse.translate.GatewayConfigTranslator;
 import org.kaazing.gateway.server.config.parse.translate.GatewayConfigTranslatorFactory;
-import org.kaazing.gateway.server.config.june2016.ClusterType;
-import org.kaazing.gateway.server.config.june2016.GatewayConfigDocument;
-import org.kaazing.gateway.server.config.june2016.PropertiesType;
-import org.kaazing.gateway.server.config.june2016.PropertyType;
-import org.kaazing.gateway.server.config.june2016.SecurityType;
-import org.kaazing.gateway.server.config.june2016.ServiceDefaultsType;
-import org.kaazing.gateway.server.config.june2016.ServiceType;
+import org.kaazing.gateway.server.config.nov2015.ClusterType;
+import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.nov2015.PropertiesType;
+import org.kaazing.gateway.server.config.nov2015.PropertyType;
+import org.kaazing.gateway.server.config.nov2015.SecurityType;
+import org.kaazing.gateway.server.config.nov2015.ServiceDefaultsType;
+import org.kaazing.gateway.server.config.nov2015.ServiceType;
 import org.kaazing.gateway.util.parse.ConfigParameter;
 import org.slf4j.Logger;
 import org.xml.sax.Attributes;
@@ -82,8 +82,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class GatewayConfigParser {
 
     /**
-     * XSL stylesheet to be used before parsing. Adds xsi:type to login-module
-     * and service elements.
+     * XSL stylesheet to be used before parsing. Adds xsi:type to login-module and service elements.
      */
     private static final String GATEWAY_CONFIG_ANNOTATE_TYPES_XSL = "META-INF/gateway-config-annotate-types.xsl";
 
@@ -114,11 +113,14 @@ public class GatewayConfigParser {
         this.configuration = configuration;
     }
 
-    private void translate(final GatewayConfigNamespace ns, final Document dom,
-            final File translatedConfigFile, boolean writeTranslatedFile) throws Exception {
 
-        GatewayConfigTranslator translator = GatewayConfigTranslatorFactory.newInstance()
-                .getTranslator(ns);
+    private void translate(final GatewayConfigNamespace ns,
+                           final Document dom,
+                           final File translatedConfigFile,
+                           boolean writeTranslatedFile)
+            throws Exception {
+
+        GatewayConfigTranslator translator = GatewayConfigTranslatorFactory.newInstance().getTranslator(ns);
         translator.translate(dom);
 
         if (writeTranslatedFile) {
@@ -146,26 +148,27 @@ public class GatewayConfigParser {
         }
     }
 
-    private File getTranslatedConfigFile(final File configFile) throws Exception {
+    private File getTranslatedConfigFile(final File configFile)
+            throws Exception {
 
         // Build a DOM of the config file, so that we can easily sniff the
-        // namespace used. We then key off the namespace and attempt to
+        // namespace used.  We then key off the namespace and attempt to
         // Do The Right Thing(tm).
 
         SAXBuilder xmlReader = new SAXBuilder();
         Document dom = xmlReader.build(configFile);
         Element root = dom.getRootElement();
-        GatewayConfigNamespace namespace = GatewayConfigNamespace
-                .fromURI(root.getNamespace().getURI());
-        checkForNoLongerSupported(root);
+        GatewayConfigNamespace namespace =  GatewayConfigNamespace.fromURI(root.getNamespace().getURI());
+        checkForNoLongerSupported(root); 
         boolean writeTranslatedFile = !namespace.equals(GatewayConfigNamespace.CURRENT_NS);
-        File translatedConfigFile = writeTranslatedFile ? new File(configFile.getParent(),
-                configFile.getName() + TRANSLATED_CONFIG_FILE_EXT) : configFile;
+        File translatedConfigFile = writeTranslatedFile ?
+                new File(configFile.getParent(), configFile.getName()
+                + TRANSLATED_CONFIG_FILE_EXT) : configFile;
 
         translate(namespace, dom, translatedConfigFile, writeTranslatedFile);
         return translatedConfigFile;
     }
-
+    
     private void checkForNoLongerSupported(Element root) throws Exception {
         Namespace namespace = root.getNamespace();
         List<Element> children = root.getChildren("service", namespace);
@@ -173,22 +176,20 @@ public class GatewayConfigParser {
             Element typeChild = child.getChild("type", namespace);
             String type = typeChild.getText();
             if (type.equals("management.snmp")) {
-                throw new Exception("snmp management type is no longer supported.");
+                throw new Exception("snmp management type is no longer supported."); 
             } else if (type.equals("session")) {
                 throw new Exception("session service type is no longer supported.");
             }
         }
-
+        
     }
 
     /**
      * Parse and validate a gateway configuration file.
      *
-     * @param configFile
-     *            the configuration file
+     * @param configFile the configuration file
      * @return GatewayConfig the parsed gateway configuration
-     * @throws Exception
-     *             when a problem occurs
+     * @throws Exception when a problem occurs
      */
     public GatewayConfigDocument parse(final File configFile) throws Exception {
         long time = 0;
@@ -196,8 +197,7 @@ public class GatewayConfigParser {
             time = System.currentTimeMillis();
         }
 
-        // For errors and logging (KG-1379) we need to report the real config
-        // file name,
+        // For errors and logging (KG-1379) we need to report the real config file name,
         // which is not always 'gateway-config.xml'.
         String configFileName = configFile.getName();
 
@@ -237,18 +237,15 @@ public class GatewayConfigParser {
 
         List<String> xmlParseErrors = new ArrayList<>();
         try {
-            config = GatewayConfigDocument.Factory.parse(new FileInputStream(translatedConfigFile),
-                    parseOptions);
+            config = GatewayConfigDocument.Factory.parse(new FileInputStream(translatedConfigFile), parseOptions);
 
         } catch (Exception e) {
-            // track the parse error so that we don't make the 2nd pass through
-            // the file
+            // track the parse error so that we don't make the 2nd pass through the file
             xmlParseErrors.add("Invalid XML: " + getRootCause(e).getMessage());
         }
 
         if (xmlParseErrors.isEmpty()) {
-            // The properties used in parameter substitution are now proper
-            // XMLBeans
+            // The properties used in parameter substitution are now proper XMLBeans
             // and should be injected after an initial parse
             GatewayConfigDocument.GatewayConfig gatewayConfig = config.getGatewayConfig();
             PropertiesType properties = gatewayConfig.getProperties();
@@ -259,35 +256,30 @@ public class GatewayConfigParser {
                 }
             }
 
-            // make a second pass through the file now, injecting the properties
-            // and performing XSL translations
+            // make a second pass through the file now, injecting the properties and performing XSL translations
             InputStream xmlInjectedIn = new PipedInputStream();
             OutputStream xmlInjectedOut = new PipedOutputStream((PipedInputStream) xmlInjectedIn);
             ExecutorService xmlInjectedExecutor = Executors.newSingleThreadExecutor();
-            Future<Boolean> xmlInjectedFuture = xmlInjectedExecutor
-                    .submit(new XMLParameterInjector(new FileInputStream(translatedConfigFile),
-                            xmlInjectedOut, propertiesMap, configuration, xmlParseErrors));
+            Future<Boolean> xmlInjectedFuture = xmlInjectedExecutor.submit(new XMLParameterInjector(new FileInputStream(
+                    translatedConfigFile), xmlInjectedOut, propertiesMap, configuration, xmlParseErrors));
 
             // trace injected xml
             if (LOGGER.isTraceEnabled()) {
                 xmlInjectedIn = bufferToTraceLog(xmlInjectedIn,
-                        "Gateway config file '" + configFileName + "' post parameter injection",
-                        LOGGER);
+                        "Gateway config file '" + configFileName + "' post parameter injection", LOGGER);
             }
 
             // Pass gateway-config through the pre-parse transformer
             InputStream xmlTransformedIn = new PipedInputStream();
-            OutputStream xmlTransformedOut = new PipedOutputStream(
-                    (PipedInputStream) xmlTransformedIn);
+            OutputStream xmlTransformedOut = new PipedOutputStream((PipedInputStream) xmlTransformedIn);
             ExecutorService xmlTransformedExecutor = Executors.newSingleThreadExecutor();
-            Future<Boolean> xmlTransformedFuture = xmlTransformedExecutor.submit(new XSLTransformer(
-                    xmlInjectedIn, xmlTransformedOut, GATEWAY_CONFIG_ANNOTATE_TYPES_XSL));
+            Future<Boolean> xmlTransformedFuture = xmlTransformedExecutor.submit(
+                    new XSLTransformer(xmlInjectedIn, xmlTransformedOut, GATEWAY_CONFIG_ANNOTATE_TYPES_XSL));
 
             // trace transformed xml
             if (LOGGER.isTraceEnabled()) {
                 xmlTransformedIn = bufferToTraceLog(xmlTransformedIn,
-                        "Gateway config file '" + configFileName + "' post XSL transformation",
-                        LOGGER);
+                        "Gateway config file '" + configFileName + "' post XSL transformation", LOGGER);
             }
 
             try {
@@ -295,7 +287,7 @@ public class GatewayConfigParser {
             } catch (Exception e) {
                 // If parsing with previous namespace was also unsuccessful,
                 // process errors top down, failing fast, for user level errors
-                try {
+               try {
                     if (xmlInjectedFuture.get()) {
                         if (xmlTransformedFuture.get()) {
                             throw e;
@@ -315,8 +307,8 @@ public class GatewayConfigParser {
         validateGatewayConfig(config, xmlParseErrors);
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("parsed " + " gateway config file '" + configFileName + "' in ["
-                    + (System.currentTimeMillis() - time) + " ms]");
+            LOGGER.debug("parsed " + " gateway config file '" + configFileName + "' in [" + (System.currentTimeMillis() - time) +
+                    " ms]");
         }
 
         return config;
@@ -325,11 +317,9 @@ public class GatewayConfigParser {
     /**
      * Validate the parsed gateway configuration file.
      *
-     * @param configDoc
-     *            the XmlObject representing the gateway-config document
+     * @param configDoc the XmlObject representing the gateway-config document
      */
-    private void validateGatewayConfig(GatewayConfigDocument configDoc,
-            List<String> preProcessErrors) {
+    private void validateGatewayConfig(GatewayConfigDocument configDoc, List<String> preProcessErrors) {
         List<XmlError> errorList = new ArrayList<>();
         for (String preProcessError : preProcessErrors) {
             errorList.add(XmlError.forMessage(preProcessError, XmlError.SEVERITY_ERROR));
@@ -350,14 +340,12 @@ public class GatewayConfigParser {
                     for (ServiceType service : services) {
                         String name = service.getName();
                         if (name == null || name.length() == 0) {
-                            errorList.add(XmlError.forMessage(
-                                    "All services must have unique non-empty names",
+                            errorList.add(XmlError.forMessage("All services must have unique non-empty names",
                                     XmlError.SEVERITY_ERROR));
                         } else if (serviceNames.indexOf(name) >= 0) {
-                            errorList.add(XmlError.forMessage(
-                                    "Service name must be unique. More than one service named '"
-                                            + name + "'",
-                                    XmlError.SEVERITY_ERROR));
+                            errorList.add(XmlError
+                                    .forMessage("Service name must be unique. More than one service named '" + name + "'",
+                                            XmlError.SEVERITY_ERROR));
                         } else {
                             serviceNames.add(name);
                         }
@@ -366,20 +354,17 @@ public class GatewayConfigParser {
 
                 SecurityType[] security = config.getSecurityArray();
                 if (security != null && security.length > 1) {
-                    errorList.add(XmlError.forMessage(
-                            "Multiple <security> elements found; only one allowed",
+                    errorList.add(XmlError.forMessage("Multiple <security> elements found; only one allowed",
                             XmlError.SEVERITY_ERROR));
                 }
                 ServiceDefaultsType[] serviceDefaults = config.getServiceDefaultsArray();
                 if (serviceDefaults != null && serviceDefaults.length > 1) {
-                    errorList.add(XmlError.forMessage(
-                            "Multiple <service-defaults> elements found; only one allowed",
+                    errorList.add(XmlError.forMessage("Multiple <service-defaults> elements found; only one allowed",
                             XmlError.SEVERITY_ERROR));
                 }
                 ClusterType[] clusterConfigs = config.getClusterArray();
                 if (clusterConfigs != null && clusterConfigs.length > 1) {
-                    errorList.add(XmlError.forMessage(
-                            "Multiple <cluster> elements found; only one allowed",
+                    errorList.add(XmlError.forMessage("Multiple <cluster> elements found; only one allowed",
                             XmlError.SEVERITY_ERROR));
                 }
             }
@@ -399,30 +384,23 @@ public class GatewayConfigParser {
                         LOGGER.error("  Line: " + line + " Column: " + column);
                     }
                 }
-                LOGGER.error("  " + error.getMessage()
-                        .replaceAll("@" + GatewayConfigNamespace.CURRENT_NS, ""));
-                if (error.getMessage().contains("notify-options")
-                        || error.getMessage().contains("notify")) {
+                LOGGER.error("  " + error.getMessage().replaceAll("@" + GatewayConfigNamespace.CURRENT_NS, ""));
+                if (error.getMessage().contains("notify-options") || error.getMessage().contains("notify")) {
                     validationError = "Could not start because of references to APNs in the configuration."
-                            + " APNs is not supported in this version of the gateway, but will be added in a future release.";
+                     + " APNs is not supported in this version of the gateway, but will be added in a future release.";
                     LOGGER.error(validationError);
 
                 }
                 if (error.getMessage().contains("DataRateString")) {
-                    // Yeah, it's crude, but customers are going to keep
-                    // tripping over cases like 100KB/s being invalid otherwise
+                    // Yeah, it's crude, but customers are going to keep tripping over cases like 100KB/s being invalid otherwise
                     // Example output:
                     // ERROR - Validation errors in gateway configuration file
-                    // ERROR - Line: 12 Column: 36
-                    // ERROR - string value '1m' does not match pattern for
-                    // DataRateString in namespace http://xmlns.kaazing
+                    // ERROR -   Line: 12 Column: 36
+                    // ERROR -   string value '1m' does not match pattern for DataRateString in namespace http://xmlns.kaazing
                     // .com/2012/08/gateway
-                    // ERROR - (permitted data rate units are B/s, kB/s, KiB/s,
-                    // kB/s, MB/s, and MiB/s)
-                    // ERROR - <xml-fragment
-                    // xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
-                    LOGGER.error("  "
-                            + "(permitted data rate units are B/s, kB/s, KiB/s, kB/s, MB/s, and MiB/s)");
+                    // ERROR -   (permitted data rate units are B/s, kB/s, KiB/s, kB/s, MB/s, and MiB/s)
+                    // ERROR -   <xml-fragment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                    LOGGER.error("  " + "(permitted data rate units are B/s, kB/s, KiB/s, kB/s, MB/s, and MiB/s)");
                 }
                 if (error.getCursorLocation() != null) {
                     LOGGER.error("  " + error.getCursorLocation().xmlText());
@@ -448,8 +426,7 @@ public class GatewayConfigParser {
     }
 
     /**
-     * Buffer a stream, flushing it to <code>log</code> and returning it as
-     * input
+     * Buffer a stream, flushing it to <code>log</code> and returning it as input
      *
      * @param input
      * @param message
@@ -466,8 +443,7 @@ public class GatewayConfigParser {
                 buffer.write(data, 0, read);
             }
             buffer.flush();
-            log.trace(message + "\n\n\n" + new String(buffer.toByteArray(), CHARSET_OUTPUT)
-                    + "\n\n\n");
+            log.trace(message + "\n\n\n" + new String(buffer.toByteArray(), CHARSET_OUTPUT) + "\n\n\n");
             output = new ByteArrayInputStream(buffer.toByteArray());
         } catch (Exception e) {
             throw new RuntimeException("could not buffer stream", e);
@@ -484,11 +460,10 @@ public class GatewayConfigParser {
      */
     private static int countNewLines(char[] ch, int start, int length) {
         int newLineCount = 0;
-        // quite reliable, since only Commodore 8-bit machines, TRS-80, Apple II
-        // family, Mac OS up to version 9 and OS-9
+        // quite reliable, since only Commodore 8-bit machines, TRS-80, Apple II family, Mac OS up to version 9 and OS-9
         // use only '\r'
         for (int i = start; i < length; i++) {
-            newLineCount = newLineCount + ((ch[i] == '\n') ? 1 : 0);
+            newLineCount = newLineCount +  ((ch[i] == '\n') ? 1 : 0);
         }
         return newLineCount;
     }
@@ -505,9 +480,9 @@ public class GatewayConfigParser {
         private List<String> errors;
         private int currentFlushedLine = 1;
 
-        public XMLParameterInjector(InputStream souceInput, OutputStream injectedOutput,
-                Map<String, String> properties, Properties configuration, List<String> errors)
-                        throws UnsupportedEncodingException {
+        public XMLParameterInjector(InputStream souceInput, OutputStream injectedOutput, Map<String, String> properties,
+                                    Properties configuration, List<String> errors)
+                throws UnsupportedEncodingException {
             this.souceInput = souceInput;
             this.injectedOutput = new OutputStreamWriter(injectedOutput, CHARSET_OUTPUT_XML);
             this.properties = properties;
@@ -546,8 +521,7 @@ public class GatewayConfigParser {
         /**
          * Parse the config file, resolving and injecting parameters encountered
          *
-         * @return <code>true</code> if processed without errors,
-         *         <code>false</code> otherwise
+         * @return <code>true</code> if processed without errors, <code>false</code> otherwise
          */
         @Override
         public Boolean call() throws Exception {
@@ -572,31 +546,28 @@ public class GatewayConfigParser {
 
                     @Override
                     public void startDocument() throws SAXException {
-                        write("<?xml version=\"1.0\" encoding=\"" + CHARSET_OUTPUT_XML + "\" ?>"
-                                + System.getProperty("line.separator"));
+                        write("<?xml version=\"1.0\" encoding=\"" + CHARSET_OUTPUT_XML + "\" ?>" +
+                                System.getProperty("line.separator"));
                     }
 
                     @Override
-                    public void startElement(String uri, String localName, String qName,
-                            Attributes attributes) throws SAXException {
+                    public void startElement(String uri, String localName, String qName, Attributes attributes)
+                            throws SAXException {
                         realignElement();
-                        String elementName = (localName == null || localName.equals("")) ? qName
-                                : localName;
+                        String elementName = (localName == null || localName.equals("")) ? qName : localName;
                         write("<" + elementName);
                         if (attributes != null) {
                             for (int i = 0; i < attributes.getLength(); i++) {
-                                String attributeName = (attributes.getLocalName(i) == null
-                                        || attributes.getLocalName(i).equals(""))
-                                                ? attributes.getQName(i)
-                                                : attributes.getLocalName(i);
+                                String attributeName = (attributes.getLocalName(i) == null || attributes
+                                        .getLocalName(i).equals("")) ? attributes.getQName(i) : attributes
+                                                               .getLocalName(i);
                                 write(" " + attributeName + "=\"");
                                 char[] attributeValue = attributes.getValue(i).toCharArray();
                                 write(ConfigParameter.resolveAndReplace(attributeValue, 0,
-                                        attributeValue.length, properties, configuration, errors)
-                                        + "\"");
+                                        attributeValue.length, properties, configuration, errors) + "\"");
                             }
                         }
-                        write(new char[] { '>' });
+                        write(new char[]{'>'});
                     }
 
                     @Override
@@ -607,31 +578,25 @@ public class GatewayConfigParser {
                     }
 
                     @Override
-                    public void ignorableWhitespace(char[] ch, int start, int length)
-                            throws SAXException {
+                    public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
                         write(ch, start, length);
                     }
 
                     @Override
                     public void characters(char[] ch, int start, int length) throws SAXException {
-                        write(ConfigParameter.resolveAndReplace(ch, start, length, properties,
-                                configuration, errors));
+                        write(ConfigParameter.resolveAndReplace(ch, start, length, properties, configuration, errors));
                     }
 
                     @Override
-                    public void endElement(String uri, String localName, String qName)
-                            throws SAXException {
+                    public void endElement(String uri, String localName, String qName) throws SAXException {
                         realignElement();
-                        String elementName = (localName == null || localName.equals("")) ? qName
-                                : localName;
+                        String elementName = (localName == null || localName.equals("")) ? qName : localName;
                         write("</" + elementName + ">");
                     }
 
                 };
-                parser.getXMLReader().setProperty("http://xml.org/sax/properties/lexical-handler",
-                        handler);
-                parser.getXMLReader().setProperty(
-                        "http://apache.org/xml/properties/input-buffer-size",
+                parser.getXMLReader().setProperty("http://xml.org/sax/properties/lexical-handler", handler);
+                parser.getXMLReader().setProperty("http://apache.org/xml/properties/input-buffer-size",
                         souceInput.available());
                 parser.parse(souceInput, handler);
             } finally {
@@ -653,13 +618,10 @@ public class GatewayConfigParser {
         /**
          * Constructor.
          *
-         * @param streamToTransform
-         *            the gateway configuration file to transform
-         * @param transformerOutput
-         *            the output stream to be used for transformed output
+         * @param streamToTransform the gateway configuration file to transform
+         * @param transformerOutput the output stream to be used for transformed output
          */
-        public XSLTransformer(InputStream streamToTransform, OutputStream transformerOutput,
-                String stylesheet) {
+        public XSLTransformer(InputStream streamToTransform, OutputStream transformerOutput, String stylesheet) {
             this.streamToTransform = streamToTransform;
             this.transformerOutput = transformerOutput;
             this.stylesheet = stylesheet;
@@ -668,8 +630,7 @@ public class GatewayConfigParser {
         /**
          * Transform the gateway configuration file using the stylesheet.
          *
-         * @return <code>true</code> if processed without errors,
-         *         <code>false</code> otherwise
+         * @return <code>true</code> if processed without errors, <code>false</code> otherwise
          */
         @Override
         public Boolean call() throws Exception {
@@ -680,20 +641,17 @@ public class GatewayConfigParser {
                 Source xmlSource = new StreamSource(streamToTransform);
                 Source xslSource = new StreamSource(xslIn);
                 Result xmlResult = new StreamResult(transformerOutput);
-                Transformer transformer = TransformerFactory.newInstance()
-                        .newTransformer(xslSource);
+                Transformer transformer = TransformerFactory.newInstance().newTransformer(xslSource);
                 transformer.setOutputProperty(OutputKeys.ENCODING, CHARSET_OUTPUT_XML);
                 transformer.setErrorListener(new ErrorListener() {
 
                     @Override
-                    public void warning(TransformerException exception)
-                            throws TransformerException {
+                    public void warning(TransformerException exception) throws TransformerException {
                         throw exception;
                     }
 
                     @Override
-                    public void fatalError(TransformerException exception)
-                            throws TransformerException {
+                    public void fatalError(TransformerException exception) throws TransformerException {
                         throw exception;
                     }
 
