@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.kaazing.gateway.server.config.parse.translate;
 
-import org.kaazing.gateway.server.config.parse.translate.sep2014.FindMatchingBalancerServiceVisitor;
+import org.kaazing.gateway.server.config.parse.translate.june2016.RemoveRequireUser;
 
-public class November2015Validator extends GatewayConfigTranslatorPipeline {
-    public November2015Validator() {
+public class June2016Validator extends GatewayConfigTranslatorPipeline {
+
+    public June2016Validator() {
         super();
-
-        // for each balance URI, make sure there is a corresponding balancer service accepting on that URI
-        // for each balancer service accept URI, make sure there is a corresponding balance URI pointing to that service
-        addTranslator(new FindMatchingBalancerServiceVisitor());
+        
+        // Set the namespace
+        addTranslator(new RemoveRequireUser());   
     }
 }

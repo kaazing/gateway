@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.kaazing.gateway.transport.wsn.auth;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
@@ -26,8 +27,7 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-public class BasicLoginModuleTestIT {
-
+public class BasicLoginModuleTestRoleIT {
     private K3poRule robot = new K3poRule();
 
     public GatewayRule gateway = new GatewayRule() {
@@ -37,9 +37,6 @@ public class BasicLoginModuleTestIT {
                     .accept("ws://localhost:8001/echoAuth")
                     .type("echo")
                     .realmName("demo")
-                        .authorization()
-                        .requireRole("USER")
-                   .done()
                 .done()
                 .security()
                     .realm()
@@ -49,7 +46,6 @@ public class BasicLoginModuleTestIT {
                         .loginModule()
                             .type("class:org.kaazing.gateway.transport.wsn.auth.TestBasicLoginModule")
                             .success("requisite")
-                            .option("roles", "USER")
                         .done()
                     .done()
                 .done()
@@ -61,11 +57,11 @@ public class BasicLoginModuleTestIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-	@Specification("basicLoginModuleFirstRequestSuccess")
-	@Test
-	public void basicLoginModuleFirstRequestSuccess() throws Exception {
-		robot.finish();
-	}
+    @Specification("basicLoginModuleFirstRequestSuccess")
+    @Test
+    public void basicLoginModuleFirstRequestSuccess() throws Exception {
+        robot.finish();
+    }
 
     @Specification("basicLoginModuleSecondRequestSuccess")
     @Test
@@ -84,5 +80,4 @@ public class BasicLoginModuleTestIT {
     public void basicLoginModuleFailure() throws Exception {
         robot.finish();
     }
-
 }

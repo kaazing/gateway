@@ -39,6 +39,6 @@ public class September2014ToNovember2015Translator extends GatewayConfigTranslat
         addTranslator(new AddDirectoryServiceLocationVisitor());
 
         // Set the March2016(Current) namespace.
-        addTranslator(new NamespaceVisitor(GatewayConfigNamespace.CURRENT_NS));
+        addTranslator(new NamespaceVisitor(GatewayConfigNamespace.NOVEMBER_2015));
     }
 }

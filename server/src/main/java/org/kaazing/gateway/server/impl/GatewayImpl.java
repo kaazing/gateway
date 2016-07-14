@@ -41,7 +41,7 @@ import org.kaazing.gateway.server.GatewayAlreadyRunningException;
 import org.kaazing.gateway.server.GatewayObserver;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
-import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.june2016.GatewayConfigDocument;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.context.resolve.GatewayContextResolver;
 import org.kaazing.gateway.server.util.version.DuplicateJarFinder;
