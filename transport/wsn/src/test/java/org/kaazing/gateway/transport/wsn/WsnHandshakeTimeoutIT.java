@@ -26,6 +26,7 @@ import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.MethodExecutionTrace;
@@ -38,6 +39,7 @@ public class WsnHandshakeTimeoutIT {
         {
             // @formatter:off
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
+                .property(EarlyAccessFeatures.PROTOCOL_HANDSHAKE_TIMEOUT.getPropertyName(), "true")
                 .service()
                     .accept("ws://localhost:8001/")
                     .type("echo")
