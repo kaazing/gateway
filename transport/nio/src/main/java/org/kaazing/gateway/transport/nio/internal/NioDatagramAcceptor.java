@@ -27,6 +27,7 @@ import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.NioBindException;
 import org.kaazing.gateway.transport.bio.MulticastAcceptor;
+import org.kaazing.gateway.transport.nio.NioSystemProperty;
 import org.kaazing.mina.core.service.IoAcceptorEx;
 import org.kaazing.mina.netty.socket.DatagramChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
@@ -35,6 +36,8 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.util.Properties;
+
+import static org.kaazing.gateway.transport.nio.NioSystemProperty.UDP_IDLE_TIMEOUT;
 
 public class NioDatagramAcceptor extends AbstractNioAcceptor {
 
@@ -88,8 +91,8 @@ public class NioDatagramAcceptor extends AbstractNioAcceptor {
             logger.debug("MAXIMUM_READ_BUFFER_SIZE setting for UDP acceptor: {}", maximumReadBufferSize);
         }
 
-        // TODO via property ?
-        acceptor.getSessionConfig().setIdleTimeInMillis(IdleStatus.BOTH_IDLE, 500);
+        int idleTimeout = UDP_IDLE_TIMEOUT.getIntProperty(configuration);
+        acceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, idleTimeout);
 
         return acceptor;
     }

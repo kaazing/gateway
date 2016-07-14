@@ -44,7 +44,7 @@ public class UdpAcceptorRule implements TestRule {
     private final String log4jPropertiesResourceName;
     private ResourceAddressFactory addressFactory;
     private NioDatagramAcceptor acceptor;
-    private Properties configuration = new Properties();
+    private final Properties configuration;
 
     @Override
     public Statement apply(Statement base, Description description) {
@@ -52,11 +52,16 @@ public class UdpAcceptorRule implements TestRule {
     }
 
     public UdpAcceptorRule() {
-        this(null);
+        this(null, new Properties());
     }
 
-    public UdpAcceptorRule(String log4jPropertiesResourceName) {
+    public UdpAcceptorRule(Properties configuration) {
+        this(null, configuration);
+    }
+
+    public UdpAcceptorRule(String log4jPropertiesResourceName, Properties configuration) {
         this.log4jPropertiesResourceName = log4jPropertiesResourceName;
+        this.configuration = configuration;
     }
 
     public void bind(String accept, IoHandler acceptHandler) {
@@ -66,11 +71,6 @@ public class UdpAcceptorRule implements TestRule {
 
     public void bind(ResourceAddress acceptAddress, IoHandler acceptHandler) {
         acceptor.bind(acceptAddress, acceptHandler, null);
-    }
-
-    public UdpAcceptorRule configuration(Properties configuration) {
-        this.configuration = configuration;
-        return this;
     }
 
     private final class AcceptorStatement extends Statement {
@@ -118,11 +118,6 @@ public class UdpAcceptorRule implements TestRule {
             }
         }
 
-    }
-
-    public UdpAcceptorRule addConfigurationProperty(String propertyName, String propertyValue) {
-        configuration.setProperty(propertyName, propertyValue);
-        return this;
     }
 
 }

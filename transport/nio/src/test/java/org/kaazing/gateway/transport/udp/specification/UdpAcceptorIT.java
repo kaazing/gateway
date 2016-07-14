@@ -18,11 +18,13 @@ package org.kaazing.gateway.transport.udp.specification;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.kaazing.gateway.transport.nio.NioSystemProperty.UDP_IDLE_TIMEOUT;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -39,6 +41,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.nio.NioSystemProperty;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -54,7 +57,13 @@ public class UdpAcceptorIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/udp/rfc768");
     
-    private UdpAcceptorRule acceptor = new UdpAcceptorRule();
+    private final UdpAcceptorRule acceptor;
+    {
+        Properties config = new Properties();
+        config.put(UDP_IDLE_TIMEOUT.getPropertyName(), "2");
+
+        acceptor = new UdpAcceptorRule(config);
+    }
 
     private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
 
@@ -169,7 +178,6 @@ public class UdpAcceptorIT {
     @Test
     @Specification("server.close/client")
     public void serverClose() throws Exception {
-        // TODO Configure timeout as accept option
         CountDownLatch latch = new CountDownLatch(3);
         bindTo8080(new IoHandlerAdapter<IoSessionEx>() {
             @Override
@@ -190,7 +198,7 @@ public class UdpAcceptorIT {
 
         k3po.finish();
 
-        latch.await(2, SECONDS);
+        latch.await(3, SECONDS);
     }
 
     @Test

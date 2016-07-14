@@ -15,37 +15,14 @@
  */
 package org.kaazing.mina.netty.bootstrap;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.jboss.netty.channel.Channels.fireChannelBound;
-import static org.jboss.netty.channel.Channels.fireChannelClosed;
-import static org.jboss.netty.channel.Channels.fireChannelConnected;
-import static org.jboss.netty.channel.Channels.fireChannelDisconnected;
-import static org.jboss.netty.channel.Channels.fireChannelOpen;
-import static org.jboss.netty.channel.Channels.fireChannelUnbound;
-import static org.jboss.netty.channel.Channels.fireMessageReceived;
-import static org.jboss.netty.channel.Channels.pipeline;
-
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-
-import org.jboss.netty.channel.AbstractChannel;
 import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelConfig;
-import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelFactory;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.ChannelSink;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ChildChannelStateEvent;
-import org.jboss.netty.channel.DefaultChildChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.ServerChannelFactory;
@@ -53,6 +30,16 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 import org.kaazing.mina.netty.IoAcceptorChannelHandler;
+
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static org.jboss.netty.channel.Channels.fireChannelConnected;
+import static org.jboss.netty.channel.Channels.fireChannelOpen;
+import static org.jboss.netty.channel.Channels.fireMessageReceived;
+import static org.jboss.netty.channel.Channels.pipeline;
 
 public class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements ServerBootstrap {
 
@@ -148,7 +135,6 @@ public class ConnectionlessServerBootstrap extends ConnectionlessBootstrap imple
         }
 
         public void closeChildChannel(NioDatagramChannel childChannel) {
-            System.out.println("JITU removing child channel " + childChannel + " map = " + childChannels);
             childChannels.remove(childChannel.getRemoteAddress());
         }
 
