@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.kaazing.gateway.server.config.nov2015.ServiceAcceptOptionsType;
+import org.kaazing.gateway.server.config.june2016.ServiceAcceptOptionsType;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.slf4j.Logger;

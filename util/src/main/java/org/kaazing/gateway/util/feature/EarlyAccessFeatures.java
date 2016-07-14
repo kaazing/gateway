@@ -20,7 +20,9 @@ package org.kaazing.gateway.util.feature;
  */
 public interface EarlyAccessFeatures {
 
-    static EarlyAccessFeature HTTP_PROXY_SERVICE = new EarlyAccessFeature("http.proxy", "HTTP Proxy Service", false);
-    static EarlyAccessFeature PROTOCOL_HANDSHAKE_TIMEOUT = new EarlyAccessFeature("protocol.handshake.timeout", "Protocol Handshake Timeout", false);
+    EarlyAccessFeature HTTP_PROXY_SERVICE = new EarlyAccessFeature("http.proxy", "HTTP Proxy Service", false);
+    EarlyAccessFeature WSN_302_REDIRECT = new EarlyAccessFeature("wsn.302.redirect", "Send redirect for wsn via 302", false);
+    EarlyAccessFeature WSX_302_REDIRECT = new EarlyAccessFeature("wsx.302.redirect", "Send redirect for wsx via 302", false);
+    EarlyAccessFeature PROTOCOL_HANDSHAKE_TIMEOUT = new EarlyAccessFeature("protocol.handshake.timeout", "Protocol Handshake Timeout", false);
 
 }
