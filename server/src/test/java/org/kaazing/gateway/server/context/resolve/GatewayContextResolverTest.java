@@ -48,7 +48,7 @@ import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
-import org.kaazing.gateway.server.config.june2016.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.transport.TestAcceptor;
@@ -148,7 +148,11 @@ public class GatewayContextResolverTest {
     @Test
     public void testLowerCaseOfResolvedServices() throws Exception {
         configFile = createTempFileFromResource("org/kaazing/gateway/server/context/parse/data/gateway-config-mixedcase.xml");
+<<<<<<< HEAD
         GatewayConfigDocument doc = parser.parse(configFile);
+=======
+        org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument doc = parser.parse(configFile);
+>>>>>>> 2a3577a9766d8d9c435fa6eb618fd2c5d6c0bb27
         GatewayContext ctx = resolver.resolve(doc);
 
         Collection<? extends ServiceContext> services = ctx.getServices();
@@ -287,7 +291,7 @@ public class GatewayContextResolverTest {
     @Test
     public void shouldInjectResourcesIntoTransportExtensions() throws Exception {
         configFile = createTempFileFromResource("gateway/conf/gateway-config-test-transport.xml");
-        org.kaazing.gateway.server.config.june2016.GatewayConfigDocument doc = parser.parse(configFile);
+        org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument doc = parser.parse(configFile);
         GatewayContext ctx = resolver.resolve(doc);
 
         DefaultTransportContext transport = ctx.getTransportForScheme("ws");

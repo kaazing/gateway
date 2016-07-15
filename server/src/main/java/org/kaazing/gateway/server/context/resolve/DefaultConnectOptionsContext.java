@@ -15,7 +15,7 @@
  */
 package org.kaazing.gateway.server.context.resolve;
 
-import org.kaazing.gateway.server.config.june2016.ServiceConnectOptionsType;
+import org.kaazing.gateway.server.config.nov2015.ServiceConnectOptionsType;
 import org.kaazing.gateway.service.ConnectOptionsContext;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
 import org.slf4j.Logger;
