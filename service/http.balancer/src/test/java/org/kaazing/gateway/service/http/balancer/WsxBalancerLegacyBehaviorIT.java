@@ -24,11 +24,10 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-public class WsxBalancerIT {
+public class WsxBalancerLegacyBehaviorIT {
 
     private final K3poRule k3po = new K3poRule();
 
@@ -54,7 +53,6 @@ public class WsxBalancerIT {
                             .allowOrigin("*")
                         .done()
                     .done()
-                    .property(EarlyAccessFeatures.WSX_302_REDIRECT.getPropertyName(), "true")
             .done();
 
             init(configuration);
@@ -66,7 +64,7 @@ public class WsxBalancerIT {
     public TestRule chain = createRuleChain(gateway, k3po,  10, SECONDS);
 
     @Test
-    @Specification("wsx.balancer.request")
+    @Specification("legacy.wsx.balancer.request")
     public void balancerFrameShouldIncludeClusterMembersURL() throws Exception {
         k3po.finish();
     }

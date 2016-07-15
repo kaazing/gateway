@@ -225,7 +225,6 @@ public class UdpAcceptorIT {
             }
         };
 
-        // TODO configure timeout as accept option
         bindTo8080(new ConcurrentHandler());
         bindTo8081(new ConcurrentHandler());
         k3po.finish();

@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.server.config.parse.translate;
 
-import org.kaazing.gateway.server.config.parse.translate.sep2014.FindMatchingBalancerServiceVisitor;
+package org.kaazing.gateway.transport.http;
 
-public class November2015Validator extends GatewayConfigTranslatorPipeline {
-    public November2015Validator() {
-        super();
+import org.apache.mina.core.session.IoSession;
 
-        // for each balance URI, make sure there is a corresponding balancer service accepting on that URI
-        // for each balancer service accept URI, make sure there is a corresponding balance URI pointing to that service
-        addTranslator(new FindMatchingBalancerServiceVisitor());
-    }
+/**
+ * Session Factory used for create Http Sessions in the connector.
+ *
+ */
+@FunctionalInterface
+interface HttpConnectSessionFactory {
+
+    DefaultHttpSession get(IoSession parent) throws Exception;
+
 }

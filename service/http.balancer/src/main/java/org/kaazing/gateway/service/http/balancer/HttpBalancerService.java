@@ -30,7 +30,6 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.apache.mina.core.future.ConnectFuture;
-import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.URLUtils;
@@ -42,6 +41,7 @@ import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.gateway.transport.BridgeSessionInitializerAdapter;
 import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
+import org.kaazing.gateway.transport.http.HttpAcceptor;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.sse.SseProtocol;
 import org.kaazing.gateway.transport.ws.WsProtocol;
@@ -57,8 +57,6 @@ import org.kaazing.gateway.util.GL;
 public class HttpBalancerService implements Service {
     public static final String BALANCER_MAP_NAME = "balancerMap";
     public static final String MEMBERID_BALANCER_MAP_NAME = "memberIdBalancerMap";
-
-    private static final AttributeKey BALANCEES_KEY = new AttributeKey(HttpBalancerService.class, "balancees");
 
     private WsebBalancerServiceHandler wsebHandler;
     private WsnBalancerServiceHandler wsnHandler;
@@ -117,7 +115,7 @@ public class HttpBalancerService implements Service {
                         GL.debug(GL.CLUSTER_LOGGER_NAME, "HttpBalancerService initializeSession Selected Balancee URI: {}", selectedBalanceeURI);
                     }
                     IoSession parent = httpSession.getParent();
-                    parent.setAttribute(BALANCEES_KEY, selectedBalanceeURIs);
+                    parent.setAttribute(HttpAcceptor.BALANCEES_KEY, selectedBalanceeURIs);
                 }
             };
 
@@ -127,7 +125,7 @@ public class HttpBalancerService implements Service {
                 WsnSession wsnSession = (WsnSession) session;
                 if (wsnSession.isBalanceSupported()) {
                     IoSession parent = wsnSession.getParent();
-                    List<String> selectedBalanceeURIs = (List<String>) parent.getAttribute(BALANCEES_KEY);
+                    List<String> selectedBalanceeURIs = (List<String>) parent.getAttribute(HttpAcceptor.BALANCEES_KEY);
                     wsnSession.setBalanceeURIs(selectedBalanceeURIs);
                 }
             }
