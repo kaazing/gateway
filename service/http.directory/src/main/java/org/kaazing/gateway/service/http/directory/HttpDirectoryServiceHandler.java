@@ -222,6 +222,7 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
         if (!modified) {
             // file has not been modified so set status and close session
             session.setWriteHeader("ETag", etag);
+            session.setWriteHeader("Last-Modified", RFC822_FORMAT_PATTERN.format(requestFile.lastModified()));
             session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
             session.close(false);
             return;

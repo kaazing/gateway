@@ -74,6 +74,7 @@ public class HttpUtils {
 
 
 	private static final DateFormat[] RFC822_PARSE_PATTERNS = new DateFormat[] {
+	    new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH),
 		new SimpleDateFormat("EEE, d MMM yy HH:mm:ss z", Locale.ENGLISH),
 		new SimpleDateFormat("EEE, d MMM yy HH:mm z", Locale.ENGLISH),
 		new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z", Locale.ENGLISH),
@@ -158,6 +159,7 @@ public class HttpUtils {
 					out.put(buf, 0, length);
 				}
 				out.flip();
+				in.close();
 
 				httpResponse.setHeader("ETag", etag);
 				httpResponse.setHeader("Last-Modified", RFC822_FORMAT_PATTERN.format(requestFile.lastModified()));
@@ -194,7 +196,7 @@ public class HttpUtils {
                     out.put(buf, 0, length);
                 }
                 out.flip();
-
+                in.close();
                 httpSession.setWriteHeader("ETag", etag);
                 httpSession.setWriteHeader("Last-Modified", RFC822_FORMAT_PATTERN.format(requestFile.lastModified()));
                 httpSession.setWriteHeader("Expires", RFC822_FORMAT_PATTERN.format(System.currentTimeMillis()));
@@ -283,7 +285,8 @@ public class HttpUtils {
 		}
 
 		// check modified time against file last modified
-		return lastModified > ifModifiedSinceDate.getTime();
+		double time_difference = Math.floor(Math.abs(lastModified - ifModifiedSinceDate.getTime())/1000);
+		return time_difference>0;
 	}
 
 	public static void addLastModifiedHeader(HttpSession session, File requestFile) {
