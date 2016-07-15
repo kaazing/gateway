@@ -99,7 +99,11 @@ public class MessageFormatIT {
     @Test
     @Specification({"inbound.should.reject.request.with.whitespace.between.start.line.and.first.header/request"})
     public void inboundShouldRejectRequestWithWhitespaceBetweenStartLineAndFirstHeader() throws Exception {
-        standardHttpTestCase(HTTP_ADDRESS);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>();
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
     }
 
     @Test
@@ -358,24 +362,20 @@ public class MessageFormatIT {
         assertTrue(latch.await(4, SECONDS));
     }
     
-    @Ignore("No Response to Bad Request.")
+    @Ignore("Errored")
     @Test
     @Specification({"non.http.request.to.http.server.should.be.responded.to.with.400/request"})
     public void nonHttpRequestToHttpServerShouldBeRespondedToWith400() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-
         final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
-                latch.countDown();
                 session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
-                session.close(true);
+                session.close(false);
             }
         };
         acceptor.bind(HTTP_ADDRESS, acceptHandler);
 
         k3po.finish();
-        assertTrue(latch.await(4, SECONDS));
     }
 
     private void standardHttpTestCase(ResourceAddress address) throws Exception {

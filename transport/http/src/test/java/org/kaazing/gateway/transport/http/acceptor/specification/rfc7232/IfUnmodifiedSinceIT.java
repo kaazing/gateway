@@ -36,6 +36,7 @@ import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptorRule;
 import org.kaazing.gateway.transport.http.HttpHeaders;
+import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.ITUtil;
@@ -58,31 +59,29 @@ public class IfUnmodifiedSinceIT {
 
     private TestRule contextRule = ITUtil.toTestRule(context);
     private final TestRule trace = new MethodExecutionTrace();
-    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7232/preconditions/if.unmodified.since");
+    private final K3poRule k3po =
+            new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7232/preconditions/if.unmodified.since");
     private final TestRule timeoutRule = new DisableOnDebug(new Timeout(5, SECONDS));
 
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("Multiple status codes")
     @Test
     @Specification({"condition.failed.delete.status.412/request"})
     public void shouldResultInPreconditionFailedResponseWithDeleteAndConditionFailed() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS);
+        testHttpNoResponseMessageConditional(HTTP_ADDRESS, HttpStatus.CLIENT_PRECONDITION_FAILED);
     }
 
-    @Ignore("Multiple status codes")
     @Test
     @Specification({"condition.failed.post.status.412/request"})
     public void shouldResultInPreconditionFailedResponseWithPostAndConditionFailed() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS);
+        testHttpNoResponseMessageConditional(HTTP_ADDRESS, HttpStatus.CLIENT_PRECONDITION_FAILED);
     }
 
-    @Ignore("Multiple status codes")
     @Test
     @Specification({"condition.failed.put.status.412/request"})
     public void shouldResultInPreconditionFailedResponseWithPutAndConditionFailed() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS);
+        testHttpNoResponseMessageConditional(HTTP_ADDRESS, HttpStatus.CLIENT_PRECONDITION_FAILED);
     }
 
     @Test
@@ -168,7 +167,31 @@ public class IfUnmodifiedSinceIT {
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));
     }
-    
+
+    private void testHttpNoResponseMessageConditional(ResourceAddress address, HttpStatus input) throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if (session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_UNMODIFIED_SINCE)) {
+                    session.setStatus(input);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_LAST_MODIFIED, String.valueOf(System.currentTimeMillis()));
+                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
+    }
+
     private void testHttpNoResponseMessageWithETag(ResourceAddress address) throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
 

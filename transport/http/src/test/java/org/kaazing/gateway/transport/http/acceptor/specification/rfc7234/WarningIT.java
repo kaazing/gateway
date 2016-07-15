@@ -65,56 +65,10 @@ public class WarningIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("I don't know what the error is.")
+    @Ignore("I don't know what the error is")
     @Test
     @Specification({"199.misc.warning/request"})
     public void shouldReceiveResponseWithWarningHeader() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS, "199 - \"Miscellaneous Warning\"");
-    }
-
-    @Ignore("I don't know what the error is.")
-    @Test
-    @Specification({"110.response.stale.from.cache/request"})
-    public void shouldReceiveResponseWithStaleHeader() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS, "110 - \"Response is Stale\"");
-    }
-
-    @Ignore("I don't know what the error is.")
-    @Test
-    @Specification({"111.revalidation.failed.from.cache/request"})
-    public void shouldReceiveResponseWithRevalidateHeader() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS, "111 - \"Revalidation Failed\"");
-    }
-
-    @Ignore("I don't know what the error is.")
-    @Test
-    @Specification({"112.disconnected.operation.from.cache/request"})
-    public void shouldReceiveResponseWithDisconnectedHeader() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS, "112 - \"Disconnected Operation\"");
-    }
-
-    @Ignore("I don't know what the error is.")
-    @Test
-    @Specification({"113.heuristic.expiration.from.cache/request"})
-    public void shouldReceiveResponseWithHeuristicHeader() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS, "113 - \"Heuristic Expiration\"");
-    }
-
-    @Ignore("I don't know what the error is.")
-    @Test
-    @Specification({"214.transformation.applied.from.cache/request"})
-    public void shouldReceiveResponseWithTransformationHeader() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS, "214 - \"Transformation Applied\"");
-    }
-
-    @Ignore("I don't know what the error is.")
-    @Test
-    @Specification({"299.misc.persistent.warning/request"})
-    public void shouldReceiveResponseWithMiscPersistentWarning() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS, "299 - \"Miscellaneous Persistent Warning\"");
-    }
-
-    private void testHttpNoResponseMessage(ResourceAddress address, String warning) throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
 
         final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
@@ -123,11 +77,143 @@ public class WarningIT {
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
                 session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
-                session.addWriteHeader(HttpHeaders.HEADER_WARNING, warning);
+                session.addWriteHeader(HttpHeaders.HEADER_WARNING, "199");
                 session.close(false);
             }
         };
-        acceptor.bind(address, acceptHandler);
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
+    }
+
+    @Ignore("I don't know what the error is.")
+    @Test
+    @Specification({"110.response.stale.from.cache/request"})
+    public void shouldReceiveResponseWithStaleHeader() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                session.addWriteHeader(HttpHeaders.HEADER_WARNING, "110");
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
+    }
+
+    @Ignore("I don't know what the error is.")
+    @Test
+    @Specification({"111.revalidation.failed.from.cache/request"})
+    public void shouldReceiveResponseWithRevalidateHeader() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                session.addWriteHeader(HttpHeaders.HEADER_WARNING, "111");
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
+    }
+
+    @Ignore("I don't know what the error is.")
+    @Test
+    @Specification({"112.disconnected.operation.from.cache/request"})
+    public void shouldReceiveResponseWithDisconnectedHeader() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                session.addWriteHeader(HttpHeaders.HEADER_WARNING, "112");
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
+    }
+
+    @Ignore("I don't know what the error is.")
+    @Test
+    @Specification({"113.heuristic.expiration.from.cache/request"})
+    public void shouldReceiveResponseWithHeuristicHeader() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                session.addWriteHeader(HttpHeaders.HEADER_WARNING, "113");
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
+    }
+
+    @Ignore("I don't know what the error is.")
+    @Test
+    @Specification({"214.transformation.applied.from.cache/request"})
+    public void shouldReceiveResponseWithTransformationHeader() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                session.addWriteHeader(HttpHeaders.HEADER_WARNING, "214");
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
+    }
+
+    @Ignore("I don't know what the error is.")
+    @Test
+    @Specification({"299.misc.persistent.warning/request"})
+    public void shouldReceiveResponseWithMiscPersistentWarning() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                session.addWriteHeader(HttpHeaders.HEADER_WARNING, "299");
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
 
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));

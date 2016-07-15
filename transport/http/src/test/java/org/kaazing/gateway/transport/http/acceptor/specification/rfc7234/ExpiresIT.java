@@ -36,6 +36,7 @@ import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptorRule;
 import org.kaazing.gateway.transport.http.HttpHeaders;
+import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.ITUtil;
@@ -64,11 +65,28 @@ public class ExpiresIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("Multiple Status Codes")
     @Test
     @Specification({"already.expired.conditional.request.304/request"})
     public void shouldReceiveOKWhenCacheResponseExpiredForUnconditionalRequest() throws Exception {
-        testHttpResponseWithLastModifiedAndExpired(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_MODIFIED_SINCE)) {
+                    session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_LAST_MODIFIED, String.valueOf(System.currentTimeMillis()));
+                session.addWriteHeader(HttpHeaders.HEADER_EXPIRES, String.valueOf(System.currentTimeMillis()));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
 
     @Test
@@ -116,11 +134,28 @@ public class ExpiresIT {
         testHttpNoResponseMessage(HTTP_ADDRESS);
     }
 
-    @Ignore("Multiple Status Codes")
     @Test
     @Specification({"invalid.date.conditional.request.304/request"})
     public void shouldReceiveNotModifiedWhenCachedResponseIsStaleDueToInvalidDateForConditionalRequest() throws Exception {
-        testHttpResponseWithLastModifiedAndExpired(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_MODIFIED_SINCE)) {
+                    session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_LAST_MODIFIED, String.valueOf(System.currentTimeMillis()));
+                session.addWriteHeader(HttpHeaders.HEADER_EXPIRES, String.valueOf(System.currentTimeMillis()));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
 
     @Test
@@ -129,11 +164,28 @@ public class ExpiresIT {
         testHttpNoResponseMessage(HTTP_ADDRESS);
     }
 
-    @Ignore("Multiple Status Codes")
     @Test
     @Specification({"stale.response.conditional.request.304/request"})
     public void shouldReceiveNotModifiedWhenCachedResponseIsStaleForConditionalRequest() throws Exception {
-        testHttpResponseWithLastModifiedAndExpired(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_MODIFIED_SINCE)) {
+                    session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_LAST_MODIFIED, String.valueOf(System.currentTimeMillis()));
+                session.addWriteHeader(HttpHeaders.HEADER_EXPIRES, String.valueOf(System.currentTimeMillis()));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
 
     @Test

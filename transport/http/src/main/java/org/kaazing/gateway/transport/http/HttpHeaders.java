@@ -27,6 +27,8 @@ public interface HttpHeaders {
     String HEADER_E_TAG = "ETag";
     String HEADER_LAST_MODIFIED = "Last-Modified";
     String HEADER_IF_MODIFIED_SINCE = "If-Modified-Since";
+    String HEADER_IF_UNMODIFIED_SINCE = "If-Unmodified-Since";
+    String HEADER_IF_NONE_MATCH = "If-None-Match";
     String HEADER_EXPIRES = "Expires";
     String HEADER_USER_AGENT = "User-Agent";
     String HEADER_WEBSOCKET_EXTENSIONS = "X-WebSocket-Extensions";

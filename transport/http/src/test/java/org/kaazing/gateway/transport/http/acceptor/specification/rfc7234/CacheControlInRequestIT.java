@@ -71,11 +71,28 @@ public class CacheControlInRequestIT {
         testHttpCacheControlHeader(HTTP_ADDRESS);
     }
 
-    @Ignore("Errored multiple status codes")
     @Test
     @Specification({"max-age.stale.response.conditional.request.304/request"})
     public void shouldReceiveNotModifiedWhenCachedResponseIsStaleForConditionalRequestWithMaxAge() throws Exception {
-        testHttpETagAndCacheControlHeader(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_NONE_MATCH)) {
+                    session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
+                session.addWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, String.valueOf("max-age=600"));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
 
     @Test
@@ -96,11 +113,28 @@ public class CacheControlInRequestIT {
         testHttpCacheControlHeader(HTTP_ADDRESS);
     }
 
-    @Ignore("Errored multiple status codes")
     @Test
     @Specification({"max-stale.stale.response.conditional.request.304/request"})
     public void shouldReceiveNotModifiedWithStaleCachedResponseWhenMaxStaleExceedsLimitForConditionalRequest() throws Exception {
-        testHttpETagAndCacheControlHeader(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_NONE_MATCH)) {
+                    session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
+                session.addWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, String.valueOf("max-age=600"));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
 
     @Test
@@ -115,12 +149,29 @@ public class CacheControlInRequestIT {
         testHttpCacheControlHeader(HTTP_ADDRESS);
     }
 
-    @Ignore("Errored multiple status codes")
     @Test
     @Specification({"min-fresh.fresh.response.conditional.request.304/request"})
     public void shouldReceiveNotModifiedWithFreshCachedResponseWhenMinFreshExceedsLimitForForConditionalRequest()
             throws Exception {
-        testHttpETagAndCacheControlHeader(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_NONE_MATCH)) {
+                    session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
+                session.addWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, String.valueOf("max-age=600"));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
 
     @Test
@@ -129,11 +180,28 @@ public class CacheControlInRequestIT {
         testHttpCacheControlHeader(HTTP_ADDRESS);
     }
 
-    @Ignore("Errored multiple status codes")
     @Test
     @Specification({"min-fresh.stale.response.conditional.request.304/request"})
     public void shouldReceiveNotModifiedWithStaleCachedResponseWhenMinFreshExceedsLimitForConditionalRequest() throws Exception {
-        testHttpETagAndCacheControlHeader(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_NONE_MATCH)) {
+                    session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
+                session.addWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, String.valueOf("max-age=600"));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
 
     @Test
@@ -143,11 +211,28 @@ public class CacheControlInRequestIT {
         testHttpCacheControlHeader(HTTP_ADDRESS);
     }
 
-    @Ignore("Errored multiple status codes")
     @Test
     @Specification({"no-cache.conditional.request.304/request"})
     public void shouldReceiveNotModifiedWithNoCacheForConditionalRequest() throws Exception {
-        testHttpETagAndCacheControlHeader(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_NONE_MATCH)) {
+                    session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
+                session.addWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, String.valueOf("max-age=600"));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
 
     @Test
@@ -189,11 +274,29 @@ public class CacheControlInRequestIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Multiple Requests")
     @Test
     @Specification({"max-stale.with.warn-code.112/request"})
     public void shouldGiveWarningCode112WithMaxStale() throws Exception {
-        testHttpETagAndCacheControlHeader(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_NONE_MATCH)) {
+                    session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
+                session.addWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, String.valueOf("max-age=600"));
+                session.addWriteHeader(HttpHeaders.HEADER_WARNING, "112");
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
 
     @Test

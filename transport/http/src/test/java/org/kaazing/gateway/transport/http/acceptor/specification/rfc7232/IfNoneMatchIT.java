@@ -65,7 +65,6 @@ public class IfNoneMatchIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("Multiple different status codes.")
     @Test
     @Specification({"multiple.etags.delete.status.400/request"})
     public void shouldResultInBadRequestResponseWithDeleteAndMutipleETags() throws Exception {
@@ -76,6 +75,11 @@ public class IfNoneMatchIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_NONE_MATCH)) {
+                    session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
                 session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
                 session.close(false);
             }
@@ -98,39 +102,129 @@ public class IfNoneMatchIT {
         testHttpNoResponseMessage(HTTP_ADDRESS);
     }
     
-    @Ignore("Multiple Different Status Codes")
     @Test
     @Specification({"multiple.etags.post.status.400/request"})
     public void shouldResultInBadRequestResponseWithPostAndMutipleETags() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_NONE_MATCH)) {
+                    session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
     
-    @Ignore("Multiple Different Status Codes")
     @Test
     @Specification({"multiple.etags.put.status.400/request"})
     public void shouldResultInBadRequestResponseWithPutAndMutipleETags() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_NONE_MATCH)) {
+                    session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
     
-    @Ignore("Multiple Different Status Codes")
     @Test
     @Specification({"multiple.etags.get.status.304/request"})
     public void shouldResultInNotModifiedResponseWithGetAndMutipleETags() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_NONE_MATCH)) {
+                    session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
     
-    @Ignore("Multiple Different Status Codes")
     @Test
     @Specification({"multiple.etags.head.status.304/request"})
     public void shouldResultInNotModifiedResponseWithHeadAndMutipleETags() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_NONE_MATCH)) {
+                    session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
     
-    @Ignore("Multiple Different Status Codes")
     @Test
     @Specification({"single.etag.delete.status.400/request"})
     public void shouldResultBadRequestResponseWithDeleteAndSingleETag() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_NONE_MATCH)) {
+                    session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
     
     @Test
@@ -139,11 +233,29 @@ public class IfNoneMatchIT {
         testHttpNoResponseMessage(HTTP_ADDRESS);
     }
     
-    @Ignore("Multiple Different Status Codes")
     @Test
     @Specification({"single.etag.get.status.304/request"})
     public void shouldResultInNotModifiedResponseWithGetAndSingleETag() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_NONE_MATCH)) {
+                    session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
     
     @Test
@@ -152,32 +264,104 @@ public class IfNoneMatchIT {
         testHttpNoResponseMessage(HTTP_ADDRESS);
     }
     
-    @Ignore("Multiple Different Status Codes")
     @Test
     @Specification({"single.etag.head.status.304/request"})
     public void shouldResultInNotModifiedResponseWithHeadAndSingleETag() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_NONE_MATCH)) {
+                    session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
     
-    @Ignore("Multiple Different Status Codes")
     @Test
     @Specification({"single.etag.post.status.400/request"})
     public void shouldResultBadRequestResponseWithPostAndSingleETag() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_NONE_MATCH)) {
+                    session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
     
-    @Ignore("Multiple Different Status Codes")
     @Test
     @Specification({"single.etag.put.status.400/request"})
     public void shouldResultBadRequestResponseWithPutAndSingleETag() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_NONE_MATCH)) {
+                    session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
     
-    @Ignore("Multiple Different Status Codes")
     @Test
     @Specification({"wildcard.delete.status.412/request"})
     public void shouldResultInPreconditionFailedResponseWithDeleteAndWildcard() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_NONE_MATCH)) {
+                    session.setStatus(HttpStatus.CLIENT_PRECONDITION_FAILED);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
     
     @Test
@@ -190,7 +374,11 @@ public class IfNoneMatchIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-                session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_NONE_MATCH)) {
+                    session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
                 session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
                 session.close(false);
             }

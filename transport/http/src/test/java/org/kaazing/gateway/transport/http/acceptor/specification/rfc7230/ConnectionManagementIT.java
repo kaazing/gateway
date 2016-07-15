@@ -122,7 +122,6 @@ public class ConnectionManagementIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Some header included")
     @Test
     @Specification({"connections.should.persist.by.default/client"})
     public void connectionsShouldPersistByDefault() throws Exception {
@@ -147,6 +146,7 @@ public class ConnectionManagementIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
+    @Ignore("Writing Bytes")
     @Test
     @Specification({"server.should.accept.http.pipelining/request"})
     public void serverShouldAcceptHttpPipelining() throws Exception {
@@ -166,7 +166,6 @@ public class ConnectionManagementIT {
 
                 if (session.getRequestURI().toString().equals("/request1")) {
                     byte[] x = "request1".getBytes();
-                    System.out.println(Arrays.toString(x));
                     session.getBufferAllocator().allocate(8);
                     session.write(x);
                 } else if (session.getRequestURI().toString().equals("/request2")) {
@@ -260,6 +259,7 @@ public class ConnectionManagementIT {
                 latch.countDown();
                 session.setStatus(HttpStatus.SUCCESS_OK);
                 session.addWriteHeader(HttpHeaders.HEADER_CONNECTION, "close");
+                session.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(0));
                 session.close(true);
             }
 

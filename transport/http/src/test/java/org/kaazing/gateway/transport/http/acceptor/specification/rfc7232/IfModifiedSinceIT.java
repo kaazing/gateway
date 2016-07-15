@@ -36,6 +36,7 @@ import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptorRule;
 import org.kaazing.gateway.transport.http.HttpHeaders;
+import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.ITUtil;
@@ -64,18 +65,57 @@ public class IfModifiedSinceIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("Figure out how to have 2 separate error messages.")
     @Test
     @Specification({"condition.failed.get.status.304/request"})
     public void shouldResultInNotModifiedResponseWithGetAndConditionFailed() throws Exception {
-        testHttpModifiedHeaders(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+            long previous_current_time = System.currentTimeMillis();
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_MODIFIED_SINCE)) {
+                    session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
+                session.addWriteHeader(HttpHeaders.HEADER_LAST_MODIFIED, String.valueOf(previous_current_time));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Figure out how to have 2 separate error messages.")
     @Test
     @Specification({"condition.failed.head.status.304/request"})
     public void shouldResultInNotModifiedResponseWithHeadAndConditionFailed() throws Exception {
-        testHttpModifiedHeaders(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            long previous_current_time = System.currentTimeMillis();
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_MODIFIED_SINCE)) {
+                    session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_LAST_MODIFIED, String.valueOf(previous_current_time));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
 
     @Test
@@ -108,7 +148,6 @@ public class IfModifiedSinceIT {
         testHttpNoResponseMessage(HTTP_ADDRESS);
     }
 
-    @Ignore("Figure out how to have 2 separate error messages.")
     @Test
     @Specification({"ignored.with.get.and.if.none.match/request"})
     public void shouldIgnoreIfModifiedSinceHeaderAsGetAlsoContainsIfNoneMatchHeader() throws Exception {
@@ -121,6 +160,11 @@ public class IfModifiedSinceIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_MODIFIED_SINCE)) {
+                    session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
                 session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
                 session.addWriteHeader(HttpHeaders.HEADER_LAST_MODIFIED, String.valueOf(previous_current_time));
 
@@ -133,7 +177,6 @@ public class IfModifiedSinceIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Figure out how to have 2 separate error messages.")
     @Test
     @Specification({"ignored.with.head.and.if.none.match/request"})
     public void shouldIgnoreIfModifiedSinceHeaderAsHeadAlsoContainsIfNoneMatchHeader() throws Exception {
@@ -146,6 +189,11 @@ public class IfModifiedSinceIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
+                if(session.getReadHeaders().containsKey(HttpHeaders.HEADER_IF_MODIFIED_SINCE)) {
+                    session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
+                } else {
+                    session.setStatus(HttpStatus.SUCCESS_OK);
+                }
                 session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
                 session.addWriteHeader(HttpHeaders.HEADER_LAST_MODIFIED, String.valueOf(previous_current_time));
 
@@ -198,7 +246,6 @@ public class IfModifiedSinceIT {
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
                 session.addWriteHeader(HttpHeaders.HEADER_LAST_MODIFIED, String.valueOf(previous_current_time));
-
                 session.close(false);
             }
         };
