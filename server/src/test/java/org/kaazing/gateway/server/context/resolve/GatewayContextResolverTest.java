@@ -287,7 +287,7 @@ public class GatewayContextResolverTest {
     @Test
     public void shouldInjectResourcesIntoTransportExtensions() throws Exception {
         configFile = createTempFileFromResource("gateway/conf/gateway-config-test-transport.xml");
-        org.kaazing.gateway.server.config.june2016.GatewayConfigDocument doc = parser.parse(configFile);
+        GatewayConfigDocument doc = parser.parse(configFile);
         GatewayContext ctx = resolver.resolve(doc);
 
         DefaultTransportContext transport = ctx.getTransportForScheme("ws");
