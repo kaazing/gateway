@@ -36,6 +36,7 @@ import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptorRule;
 import org.kaazing.gateway.transport.http.HttpHeaders;
+import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.ITUtil;
@@ -167,25 +168,53 @@ public class CacheControlInRequestIT {
         testHttpCacheControlHeader(HTTP_ADDRESS);
     }
 
-    @Ignore("Waiting for k3po merge.")
     @Test
     @Specification({"max-stale.with.warn-code.110/request"})
     public void shouldGiveWarningCode110WithMaxStale() throws Exception {
-        testHttpCacheControlHeader(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                session.addWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, String.valueOf("max-age=600"));
+                session.addWriteHeader(HttpHeaders.HEADER_WARNING, "110");
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Waiting for k3po merge.")
+    @Ignore("Multiple Requests")
     @Test
     @Specification({"max-stale.with.warn-code.112/request"})
     public void shouldGiveWarningCode112WithMaxStale() throws Exception {
-        testHttpCacheControlHeader(HTTP_ADDRESS);
+        testHttpETagAndCacheControlHeader(HTTP_ADDRESS);
     }
 
-    @Ignore("Waiting for k3po merge.")
     @Test
     @Specification({"only-if-cached.504/request"})
     public void shouldRespondToOnlyIfCachedWith504() throws Exception {
-        testHttpCacheControlHeader(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                session.setStatus(HttpStatus.SERVER_GATEWAY_TIMEOUT);
+                session.addWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, String.valueOf("max-age=600"));
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
 
     private void testHttpCacheControlHeader(ResourceAddress address) throws Exception {

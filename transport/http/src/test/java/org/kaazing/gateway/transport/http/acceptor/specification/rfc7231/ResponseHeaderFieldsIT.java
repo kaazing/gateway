@@ -35,6 +35,7 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptorRule;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.k3po.junit.annotation.Specification;
@@ -65,14 +66,24 @@ public class ResponseHeaderFieldsIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("Not Added Yet")
+    @Ignore("CHECK OUT SPECIFICATION")
     @Test
     @Specification({"allow.lists.resource.methods/request"})
     public void allowHeaderInformsMethodsAssociatedWithResource() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS);
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                session.setStatus(HttpStatus.CLIENT_METHOD_NOT_ALLOWED);
+                session.addWriteHeader(HttpHeaders.HEADER_ALLOW, "Not Allowed");
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
     }
 
-    @Ignore("Not Added Yet")
     @Test
     @Specification({"server.header.lists.software.used.by.server/request"})
     public void serverHeaderContainsInformationAboutSoftwareUsedByServer() throws Exception {
@@ -87,15 +98,7 @@ public class ResponseHeaderFieldsIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-
-                if (session.getMethod().equals(HttpMethod.TRACE)) {
-                    session.setStatus(HttpStatus.SERVER_NOT_IMPLEMENTED);
-                } else if (session.getMethod().equals(HttpMethod.OPTIONS)) {
-                    session.setStatus(HttpStatus.CLIENT_METHOD_NOT_ALLOWED);
-                } else {
-                    session.setStatus(HttpStatus.SUCCESS_OK);
-                }
-
+                session.setStatus(HttpStatus.SUCCESS_OK);
                 session.close(false);
             }
         };

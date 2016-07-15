@@ -35,6 +35,7 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptorRule;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
@@ -45,7 +46,6 @@ import org.kaazing.test.util.MethodExecutionTrace;
  * Test to validate behavior as specified in <a href="https://tools.ietf.org/html/rfc7231#section-4">RFC 7231 section 4:
  * Request Methods</a>.
  */
-@Ignore("Tests need to be committed to k3po.")
 public class AgeResponseIT {
     private static final ResourceAddress HTTP_ADDRESS = httpAddress();
 
@@ -85,9 +85,7 @@ public class AgeResponseIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-
-                session.setStatus(HttpStatus.SERVER_GATEWAY_TIMEOUT);
-
+                session.addWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, "Fresh");
                 session.close(false);
             }
         };
@@ -99,7 +97,7 @@ public class AgeResponseIT {
 
     private static ResourceAddress httpAddress() {
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-        String address = "http://localhost:8080/index.html";
+        String address = "http://localhost:8000/resource";
         return addressFactory.newResourceAddress(address);
     }
 }

@@ -70,24 +70,13 @@ public class MessageRoutingIT {
         standardHttpTestCase(HTTP_ADDRESS);
     }
 
-    @Ignore("Timeout Error")
     @Test
     @Specification({"inbound.must.reject.request.with.400.if.missing.host.header/request"})
     public void inboundMustRejectRequestWith400IfMissingHostHeader() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-
-        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
-            @Override
-            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
-                latch.countDown();
-                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
-                session.close(true);
-            }
-        };
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>();
         acceptor.bind(HTTP_ADDRESS, acceptHandler);
 
         k3po.finish();
-        assertTrue(latch.await(4, SECONDS));
     }
 
     @Test
@@ -109,24 +98,13 @@ public class MessageRoutingIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Timeout Error")
     @Test
     @Specification({"inbound.must.reject.request.with.400.if.host.header.occurs.more.than.once/request"})
     public void inboundMustRejectRequestWith400IfHostHeaderOccursMoreThanOnce() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-
-        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
-            @Override
-            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
-                latch.countDown();
-                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
-                session.close(true);
-            }
-        };
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>();
         acceptor.bind(HTTP_ADDRESS, acceptHandler);
 
         k3po.finish();
-        assertTrue(latch.await(4, SECONDS));
     }
 
     private void standardHttpTestCase(ResourceAddress address) throws Exception {

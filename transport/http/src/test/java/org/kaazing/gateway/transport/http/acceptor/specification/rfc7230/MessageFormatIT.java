@@ -96,7 +96,6 @@ public class MessageFormatIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Error in test case")
     @Test
     @Specification({"inbound.should.reject.request.with.whitespace.between.start.line.and.first.header/request"})
     public void inboundShouldRejectRequestWithWhitespaceBetweenStartLineAndFirstHeader() throws Exception {
@@ -129,28 +128,16 @@ public class MessageFormatIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Doesn't Respond at all")
     @Test
     @Specification({"server.should.send.501.to.unimplemented.methods/request"})
     public void serverShouldSend501ToUnImplementedMethods() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-
-        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
-            @Override
-            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
-                latch.countDown();
-                session.setStatus(HttpStatus.SERVER_NOT_IMPLEMENTED);
-                session.write("0");
-                session.close(false);
-            }
-        };
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>();
         acceptor.bind(HTTP_ADDRESS, acceptHandler);
 
         k3po.finish();
-        assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Error in setting status")
+    @Ignore("Not responding with any status code?")
     @Test
     @Specification({"server.should.send.414.to.request.with.too.long.a.request/request"})
     public void serverShouldSend414ToRequestWithTooLongARequest() throws Exception {
@@ -176,7 +163,7 @@ public class MessageFormatIT {
         standardHttpTestCase(HTTP_ADDRESS);
     }
 
-    @Ignore("Not responding")
+    @Ignore("404 vs 400?")
     @Test
     @Specification({"server.must.reject.header.with.space.between.header.name.and.colon/request"})
     public void serverMustRejectHeaderWithSpaceBetweenHeaderNameAndColon() throws Exception {
@@ -196,7 +183,7 @@ public class MessageFormatIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Error in status code")
+    @Ignore("No Status Code Responded")
     @Test
     @Specification({"server.should.reject.obs.in.header.value/request"})
     public void serverShouldRejectOBSInHeaderValue() throws Exception {
@@ -216,7 +203,7 @@ public class MessageFormatIT {
         assertTrue(latch.await(4, SECONDS));
     }
     
-    @Ignore("Error in status code.")
+    @Ignore("No Status Code Responded")
     @Test
     @Specification({"proxy.or.gateway.must.reject.obs.in.header.value/request"})
     public void proxyOrGatewayMustRejectOBSInHeaderValue() throws Exception {
@@ -256,7 +243,7 @@ public class MessageFormatIT {
         assertTrue(latch.await(4, SECONDS));
     }
     
-    @Ignore("Error in status code.")
+    @Ignore("No Status Code Responded")
     @Test
     @Specification({"server.should.send.501.to.unknown.transfer.encoding/request"})
     public void serverShouldSend501ToUnknownTransferEncoding() throws Exception {
@@ -294,7 +281,6 @@ public class MessageFormatIT {
         standardHttpTestCase(HTTP_ADDRESS);
     }
     
-    @Ignore("Error in test - 100 Continue instead of 100 OK")
     @Test
     @Specification({"head.response.must.not.have.content/request"})
     public void headResponseMustNotHaveContent() throws Exception {
@@ -352,7 +338,7 @@ public class MessageFormatIT {
         assertTrue(latch.await(4, SECONDS));
     }
     
-    @Ignore("Error in status code")
+    @Ignore("Supposed to be 200 but is 400")
     @Test
     @Specification({"robust.server.should.allow.extra.CRLF.after.request.line/request"})
     public void robustServerShouldAllowExtraCRLFAfterRequestLine() throws Exception {
@@ -372,7 +358,7 @@ public class MessageFormatIT {
         assertTrue(latch.await(4, SECONDS));
     }
     
-    @Ignore("Error in status code.")
+    @Ignore("No Response to Bad Request.")
     @Test
     @Specification({"non.http.request.to.http.server.should.be.responded.to.with.400/request"})
     public void nonHttpRequestToHttpServerShouldBeRespondedToWith400() throws Exception {

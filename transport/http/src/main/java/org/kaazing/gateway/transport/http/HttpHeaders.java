@@ -42,11 +42,13 @@ public interface HttpHeaders {
     String HEADER_X_FORWARDED_PROTO = "X-Forwarded-Proto";
     String HEADER_CACHE_CONTROL = "Cache-Control";
     String HEADER_WARNING = "Warning";
+    String HEADER_ALLOW = "Allow";
 
     String HEADER_UPGRADE = "Upgrade";
     String HEADER_VIA= "Via";
     String HEADER_CONNECTION = "Connection";
     String HEADER_TRANSFER_ENCODING = "Transfer-Encoding";
+    String HEADER_TRAILER = "Trailer";
     String HEADER_X_SEQUENCE_NO = "X-Sequence-No";
     String HEADER_SET_COOKIE = "Set-Cookie";
     String HEADER_LOCATION = "Location";

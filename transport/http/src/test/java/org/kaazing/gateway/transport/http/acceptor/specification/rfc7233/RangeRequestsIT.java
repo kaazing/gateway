@@ -45,7 +45,6 @@ import org.kaazing.test.util.MethodExecutionTrace;
  * Test to validate behavior as specified in <a href="https://tools.ietf.org/html/rfc7231#section-4">RFC 7231 section 4:
  * Request Methods</a>.
  */
-@Ignore("Tests to be committed to k3po")
 public class RangeRequestsIT {
     private static final ResourceAddress HTTP_ADDRESS = httpAddress();
 
@@ -74,7 +73,21 @@ public class RangeRequestsIT {
     @Test
     @Specification({"unsatisfactory.range.gives.416/request"})
     public void shouldGive416IfRangeIsNotSatisfactory() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                session.setStatus(HttpStatus.CLIENT_REQUEST_RANGE_NOT_SATISFIABLE);
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
 
     @Test
@@ -86,7 +99,21 @@ public class RangeRequestsIT {
     @Test
     @Specification({"partial.range.request/request"})
     public void partialRangeRequest() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                session.setStatus(HttpStatus.SUCCESS_PARTIAL_CONTENT);
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
 
     private void testHttpNoResponseMessage(ResourceAddress address) throws Exception {
@@ -97,9 +124,6 @@ public class RangeRequestsIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-
-                session.setStatus(HttpStatus.SERVER_GATEWAY_TIMEOUT);
-
                 session.close(false);
             }
         };
@@ -111,7 +135,7 @@ public class RangeRequestsIT {
 
     private static ResourceAddress httpAddress() {
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-        String address = "http://localhost:8080/index.html";
+        String address = "http://localhost:8000/resource";
         return addressFactory.newResourceAddress(address);
     }
 }

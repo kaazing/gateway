@@ -65,21 +65,32 @@ public class RequestHeaderFieldsIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("Not Added Yet")
     @Test
     @Specification({"expectation.responds.with.417/request"})
     public void serverShouldRespondToMeetableExpectWith417() throws Exception {
-        testHttpNoResponseMessage(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                session.setStatus(HttpStatus.CLIENT_EXPECTATION_FAILED);
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Not Added Yet")
     @Test
     @Specification({"intermediary.decrement.max.forward.header/request"})
     public void intermediaryMustDecrementMaxForwardHeaderOnOptionsOrTraceRequest() throws Exception {
         testHttpNoResponseMessage(HTTP_ADDRESS);
     }
 
-    @Ignore("Not Added Yet")
     @Test
     @Specification({"intermediary.responds.zero.max.forward/request"})
     public void intermediaryThatReceivesMaxForwardOfZeroOnOptionsOrTraceMustRespondToRequest() throws Exception {
@@ -94,15 +105,7 @@ public class RequestHeaderFieldsIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-
-                if (session.getMethod().equals(HttpMethod.TRACE)) {
-                    session.setStatus(HttpStatus.SERVER_NOT_IMPLEMENTED);
-                } else if (session.getMethod().equals(HttpMethod.OPTIONS)) {
-                    session.setStatus(HttpStatus.CLIENT_METHOD_NOT_ALLOWED);
-                } else {
-                    session.setStatus(HttpStatus.SUCCESS_OK);
-                }
-
+                session.setStatus(HttpStatus.SUCCESS_OK);
                 session.close(false);
             }
         };

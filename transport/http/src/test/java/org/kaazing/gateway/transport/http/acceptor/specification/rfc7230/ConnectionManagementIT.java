@@ -18,6 +18,7 @@ package org.kaazing.gateway.transport.http.acceptor.specification.rfc7230;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.service.IoHandler;
@@ -32,6 +33,9 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.ResourceOption;
+import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
+import org.kaazing.gateway.server.config.nov2015.ClusterType.Accept;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptorRule;
@@ -47,6 +51,7 @@ import org.kaazing.test.util.MethodExecutionTrace;
  * Request Methods</a>.
  */
 public class ConnectionManagementIT {
+    private static final String ADDRESS = "http://localhost:8080/";
     private static final ResourceAddress HTTP_ADDRESS = httpAddress();
 
     private final HttpAcceptorRule acceptor = new HttpAcceptorRule();
@@ -70,6 +75,9 @@ public class ConnectionManagementIT {
     public void clientMustCloseConnectionAfterRequestWithConnectionClose() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
 
+        acceptor.getAcceptOptions().put("http.dateHeaderEnabled", Boolean.FALSE);
+        acceptor.getAcceptOptions().put("http.serverHeaderEnabled", Boolean.FALSE);
+
         final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
 
             @Override
@@ -83,7 +91,7 @@ public class ConnectionManagementIT {
             }
 
         };
-        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+        acceptor.bind(ADDRESS, acceptHandler);
 
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));
@@ -99,7 +107,7 @@ public class ConnectionManagementIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-                
+
                 // write back the same message received
                 session.setStatus(HttpStatus.SUCCESS_OK);
                 session.addWriteHeader(HttpHeaders.HEADER_CONTENT_TYPE, String.valueOf("text/plain"));
@@ -114,75 +122,88 @@ public class ConnectionManagementIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Error similar to first test.")
+    @Ignore("Some header included")
     @Test
     @Specification({"connections.should.persist.by.default/client"})
     public void connectionsShouldPersistByDefault() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
 
+        acceptor.getAcceptOptions().put("http.dateHeaderEnabled", Boolean.FALSE);
+        acceptor.getAcceptOptions().put("http.serverHeaderEnabled", Boolean.FALSE);
+
         final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
 
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-
                 session.setStatus(HttpStatus.SUCCESS_OK);
                 session.close(false);
             }
 
         };
-        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+        acceptor.bind(ADDRESS, acceptHandler);
 
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("too much data")
     @Test
     @Specification({"server.should.accept.http.pipelining/request"})
     public void serverShouldAcceptHttpPipelining() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
+
+        acceptor.getAcceptOptions().put("http.dateHeaderEnabled", Boolean.FALSE);
+        acceptor.getAcceptOptions().put("http.serverHeaderEnabled", Boolean.FALSE);
 
         final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
 
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-                
 
                 session.setStatus(HttpStatus.SUCCESS_OK);
                 session.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(8));
 
-                if(session.getRequestURI().toString().equals("/request1")) {
-                    session.write("request1");
-                }else if(session.getRequestURI().toString().equals("/request2")) {
-                    session.write("request2");
-                }else {
-                    session.write("request3");
+                if (session.getRequestURI().toString().equals("/request1")) {
+                    byte[] x = "request1".getBytes();
+                    System.out.println(Arrays.toString(x));
+                    session.getBufferAllocator().allocate(8);
+                    session.write(x);
+                } else if (session.getRequestURI().toString().equals("/request2")) {
+                    byte[] x = "request2".getBytes();
+                    session.getBufferAllocator().allocate(8);
+                    session.write(x);
+                } else {
+                    byte[] x = "request3".getBytes();
+                    session.getBufferAllocator().allocate(8);
+                    session.write(x);
+                    session.getBufferAllocator().allocate(7).put(x);
                 }
 
                 session.close(true);
             }
 
         };
-        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+        acceptor.bind(ADDRESS, acceptHandler);
 
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Requires Time")
+    @Ignore("How to write bytes?")
     @Test
     @Specification({"client.with.pipelining.must.not.retry.pipelining.immediately.after.failure/request"})
     public void clientWithPipeliningMustNotRetryPipeliningImmediatelyAfterFailure() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
+
+        acceptor.getAcceptOptions().put("http.dateHeaderEnabled", Boolean.FALSE);
+        acceptor.getAcceptOptions().put("http.serverHeaderEnabled", Boolean.FALSE);
 
         final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
 
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-                
 
                 session.setStatus(HttpStatus.SUCCESS_OK);
                 session.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(8));
@@ -191,24 +212,25 @@ public class ConnectionManagementIT {
             }
 
         };
-        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+        acceptor.bind(ADDRESS, acceptHandler);
 
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Too much data")
     @Test
     @Specification({"server.must.close.its.half.of.connection.after.sending.response.if.it.receives.a.close/request"})
     public void serverMustCloseItsHalfOfConnectionAfterSendingResponseIfItReceivesAClose() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
+
+        acceptor.getAcceptOptions().put("http.dateHeaderEnabled", Boolean.FALSE);
+        acceptor.getAcceptOptions().put("http.serverHeaderEnabled", Boolean.FALSE);
 
         final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
 
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-                
 
                 session.setStatus(HttpStatus.SUCCESS_OK);
                 session.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(0));
@@ -217,17 +239,19 @@ public class ConnectionManagementIT {
             }
 
         };
-        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+        acceptor.bind(ADDRESS, acceptHandler);
 
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Too much data")
     @Test
     @Specification({"client.must.not.reuse.tcp.connection.when.receives.connection.close/request"})
     public void clientMustNotReuseTcpConnectionWhenReceivesConnectionClose() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
+
+        acceptor.getAcceptOptions().put("http.dateHeaderEnabled", Boolean.FALSE);
+        acceptor.getAcceptOptions().put("http.serverHeaderEnabled", Boolean.FALSE);
 
         final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
 
@@ -235,13 +259,12 @@ public class ConnectionManagementIT {
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
                 session.setStatus(HttpStatus.SUCCESS_OK);
-                session.addWriteHeader("connection", String.valueOf("close"));
-
+                session.addWriteHeader(HttpHeaders.HEADER_CONNECTION, "close");
                 session.close(true);
             }
 
         };
-        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+        acceptor.bind(ADDRESS, acceptHandler);
 
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));
@@ -316,7 +339,8 @@ public class ConnectionManagementIT {
 
     private static ResourceAddress httpAddress() {
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-        String address = "http://localhost:8080/";
+        String address = ADDRESS;
         return addressFactory.newResourceAddress(address);
     }
+
 }

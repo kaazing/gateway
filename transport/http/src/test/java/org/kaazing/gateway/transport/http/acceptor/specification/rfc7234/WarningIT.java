@@ -72,42 +72,42 @@ public class WarningIT {
         testHttpNoResponseMessage(HTTP_ADDRESS, "199 - \"Miscellaneous Warning\"");
     }
 
-    @Ignore("Test hasn't been merged to k3po")
+    @Ignore("I don't know what the error is.")
     @Test
     @Specification({"110.response.stale.from.cache/request"})
     public void shouldReceiveResponseWithStaleHeader() throws Exception {
         testHttpNoResponseMessage(HTTP_ADDRESS, "110 - \"Response is Stale\"");
     }
 
-    @Ignore("Test hasn't been merged to k3po")
+    @Ignore("I don't know what the error is.")
     @Test
     @Specification({"111.revalidation.failed.from.cache/request"})
     public void shouldReceiveResponseWithRevalidateHeader() throws Exception {
         testHttpNoResponseMessage(HTTP_ADDRESS, "111 - \"Revalidation Failed\"");
     }
 
-    @Ignore("Test hasn't been merged to k3po")
+    @Ignore("I don't know what the error is.")
     @Test
     @Specification({"112.disconnected.operation.from.cache/request"})
     public void shouldReceiveResponseWithDisconnectedHeader() throws Exception {
         testHttpNoResponseMessage(HTTP_ADDRESS, "112 - \"Disconnected Operation\"");
     }
 
-    @Ignore("Test hasn't been merged to k3po")
+    @Ignore("I don't know what the error is.")
     @Test
     @Specification({"113.heuristic.expiration.from.cache/request"})
     public void shouldReceiveResponseWithHeuristicHeader() throws Exception {
         testHttpNoResponseMessage(HTTP_ADDRESS, "113 - \"Heuristic Expiration\"");
     }
 
-    @Ignore("Test hasn't been merged to k3po")
+    @Ignore("I don't know what the error is.")
     @Test
     @Specification({"214.transformation.applied.from.cache/request"})
     public void shouldReceiveResponseWithTransformationHeader() throws Exception {
         testHttpNoResponseMessage(HTTP_ADDRESS, "214 - \"Transformation Applied\"");
     }
 
-    @Ignore("Test hasn't been merged to k3po")
+    @Ignore("I don't know what the error is.")
     @Test
     @Specification({"299.misc.persistent.warning/request"})
     public void shouldReceiveResponseWithMiscPersistentWarning() throws Exception {

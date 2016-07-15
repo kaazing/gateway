@@ -42,6 +42,7 @@ public class HttpAcceptorRule implements TestRule {
 
     private ResourceAddressFactory addressFactory;
     private HttpAcceptor httpAcceptor;
+    private Map<String, Object> connectOptions = new HashMap<>();
 
     @Override
     public Statement apply(Statement base, Description description) {
@@ -49,8 +50,14 @@ public class HttpAcceptorRule implements TestRule {
     }
 
     public void bind(String address, IoHandler acceptHandler) {
-        ResourceAddress resourceAddress = addressFactory.newResourceAddress(address);
+        ResourceAddress resourceAddress = 
+                addressFactory.newResourceAddress(address, getAcceptOptions());
+
         bind(resourceAddress, acceptHandler);
+    }
+
+    public Map<String, Object> getAcceptOptions() {
+        return connectOptions;
     }
 
     public void bind(ResourceAddress acceptAddress, IoHandler acceptHandler) {

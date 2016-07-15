@@ -20,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.CountDownLatch;
 
+import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
@@ -35,6 +36,7 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptorRule;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
@@ -45,7 +47,6 @@ import org.kaazing.test.util.MethodExecutionTrace;
  * Test to validate behavior as specified in <a href="https://tools.ietf.org/html/rfc7231#section-4">RFC 7231 section 4:
  * Request Methods</a>.
  */
-@Ignore("Tests not merged yet https://github.com/k3po/k3po/pull/343/")
 public class TransferCodingsIT {
     private static final ResourceAddress HTTP_ADDRESS = httpAddress();
 
@@ -71,10 +72,35 @@ public class TransferCodingsIT {
         standardHttpTestCase(HTTP_ADDRESS);
     }
     
+    @Ignore("maybe chunked transfer encoding issue")
     @Test
     @Specification({"response.transfer.encoding.chunked/request"})
     public void responseTransferEncodingChunked() throws Exception {
-        standardHttpTestCase(HTTP_ADDRESS);
+        acceptor.getAcceptOptions().put("http.dateHeaderEnabled", Boolean.FALSE);
+        acceptor.getAcceptOptions().put("http.serverHeaderEnabled", Boolean.FALSE);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            byte[] i = new byte[]{0x0a};
+            byte[] chunk = new byte[]{0x0d, 0x0a};
+            byte[] chunk_1 = "Chunk A".getBytes();
+            byte[] chunk_2 = "Chunk B".getBytes();
+            byte[] chunk_3 = "Chunk C".getBytes();
+            
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                session.setStatus(HttpStatus.SUCCESS_OK);
+                session.addWriteHeader(HttpHeaders.HEADER_CONTENT_TYPE, "text/plain");
+                session.addWriteHeader(HttpHeaders.HEADER_TRANSFER_ENCODING, "chunked");
+                session.close(false);
+                session.getBufferAllocator().allocate(7);
+                session.write(chunk_1);
+            }
+            
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
     }
     
     @Test
@@ -83,10 +109,29 @@ public class TransferCodingsIT {
         standardHttpTestCase(HTTP_ADDRESS);
     }
     
+    @Ignore("how to write bytes")
     @Test
     @Specification({"response.transfer.encoding.chunked.with.trailer/request"})
     public void responseTransferEncodingChunkedWithTrailer() throws Exception {
-        standardHttpTestCase(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+            
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                session.setStatus(HttpStatus.SUCCESS_OK);
+                session.addWriteHeader(HttpHeaders.HEADER_CONTENT_TYPE, "text/plain");
+                session.addWriteHeader(HttpHeaders.HEADER_TRANSFER_ENCODING, "chunked");
+                session.addWriteHeader(HttpHeaders.HEADER_TRAILER, "Trailing-Header");
+                session.close(false);
+            }
+            
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
 
     private void standardHttpTestCase(ResourceAddress address) throws Exception {
@@ -98,6 +143,7 @@ public class TransferCodingsIT {
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
                 session.setStatus(HttpStatus.SUCCESS_OK);
+                session.addWriteHeader(HttpHeaders.HEADER_CONTENT_TYPE, "text/plain");
                 session.close(false);
             }
             
