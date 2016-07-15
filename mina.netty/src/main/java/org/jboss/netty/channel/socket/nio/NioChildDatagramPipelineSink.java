@@ -30,21 +30,15 @@
  */
 package org.jboss.netty.channel.socket.nio;
 
-import static org.jboss.netty.channel.Channels.*;
-
-import java.net.InetSocketAddress;
-import java.util.concurrent.Executor;
-
-import org.apache.mina.core.future.WriteFuture;
-import org.jboss.netty.bootstrap.ConnectionlessBootstrap;
 import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelState;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.kaazing.mina.netty.bootstrap.ConnectionlessServerBootstrap;
+
+import java.util.concurrent.Executor;
 
 /**
  * Receives downstream events from a {@link ChannelPipeline}.  It contains
@@ -92,23 +86,6 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
                         channel.worker.close(channel, future);
                     }
                     break;
-                case BOUND:
-                    if (value != null) {
-                        bind(channel, future, (InetSocketAddress) value);
-                    } else {
-                        channel.worker.close(channel, future);
-                    }
-                    break;
-                case CONNECTED:
-                    if (value != null) {
-                        connect(channel, future, (InetSocketAddress) value);
-                    } else {
-                        NioDatagramWorker.disconnect(channel, future);
-                    }
-                    break;
-                case INTEREST_OPS:
-                    channel.worker.setInterestOps(channel, future, ((Integer) value).intValue());
-                    break;
             }
         } else if (e instanceof MessageEvent) {
             // final MessageEvent event = (MessageEvent) e;
@@ -137,96 +114,6 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
             }
 
             parent.getWorker().executeInIoThread(new WriteTask());
-        }
-    }
-
-    private static void close(NioDatagramChannel channel, ChannelFuture future) {
-        System.out.println("childsink close");
-
-        try {
-            channel.getDatagramChannel().socket().close();
-            if (channel.setClosed()) {
-                future.setSuccess();
-                if (channel.isBound()) {
-                    fireChannelUnbound(channel);
-                }
-                fireChannelClosed(channel);
-            } else {
-                future.setSuccess();
-            }
-        } catch (final Throwable t) {
-            future.setFailure(t);
-            fireExceptionCaught(channel, t);
-        }
-    }
-
-    /**
-     * Will bind the DatagramSocket to the passed-in address.
-     * Every call bind will spawn a new thread using the that basically in turn
-     */
-    private static void bind(final NioDatagramChannel channel,
-                             final ChannelFuture future, final InetSocketAddress address) {
-        System.out.println("childsink bind");
-
-        boolean bound = false;
-        boolean started = false;
-        try {
-            // First bind the DatagramSocket the specified port.
-            channel.getDatagramChannel().socket().bind(address);
-            bound = true;
-
-            future.setSuccess();
-            fireChannelBound(channel, address);
-
-            channel.worker.register(channel, null);
-            started = true;
-        } catch (final Throwable t) {
-            future.setFailure(t);
-            fireExceptionCaught(channel, t);
-        } finally {
-            if (!started && bound) {
-                close(channel, future);
-            }
-        }
-    }
-
-    private static void connect(
-            NioDatagramChannel channel, ChannelFuture future,
-            InetSocketAddress remoteAddress) {
-System.out.println("childsink connect");
-        boolean bound = channel.isBound();
-        boolean connected = false;
-        boolean workerStarted = false;
-
-        future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
-
-        // Clear the cached address so that the next getRemoteAddress() call
-        // updates the cache.
-        channel.remoteAddress = null;
-
-        try {
-            channel.getDatagramChannel().connect(remoteAddress);
-            connected = true;
-
-            // Fire events.
-            future.setSuccess();
-            if (!bound) {
-                fireChannelBound(channel, channel.getLocalAddress());
-            }
-            fireChannelConnected(channel, channel.getRemoteAddress());
-
-            if (!bound) {
-                channel.worker.register(channel, future);
-            }
-
-            workerStarted = true;
-        } catch (Throwable t) {
-            future.setFailure(t);
-            fireExceptionCaught(channel, t);
-        } finally {
-            if (connected && !workerStarted) {
-                channel.worker.close(channel, future);
-            }
         }
     }
 
