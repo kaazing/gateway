@@ -23,7 +23,7 @@ import org.jdom.Element;
 import org.jdom.Namespace;
 import org.kaazing.gateway.server.config.parse.translate.AbstractVisitor;
 
-public class RemoveRequireUser extends AbstractVisitor {
+public class RemoveRealmVisitor extends AbstractVisitor {
     
     private static final String REALM = "realm-name";
     private static final String CONSTRAINT = "auth-constraint";
@@ -32,7 +32,7 @@ public class RemoveRequireUser extends AbstractVisitor {
     
     private Namespace namespace;
     
-    public RemoveRequireUser() {
+    public RemoveRealmVisitor() {
         super();
     }
 
@@ -40,8 +40,9 @@ public class RemoveRequireUser extends AbstractVisitor {
     public void visit(Element element) throws Exception {
         Element typeElement = element.getChild(REALM, namespace);
         if (typeElement != null) {
-            element.removeChildren(CONSTRAINT, namespace);
-            element.removeChildren(AUTH_CONSTRAINT, namespace);
+            if (element.getChildren(CONSTRAINT, namespace).size() == 0 && element.getChildren(AUTH_CONSTRAINT, namespace).size() == 0) {
+                element.removeChild(REALM, namespace);
+            }
         }   
     }
     

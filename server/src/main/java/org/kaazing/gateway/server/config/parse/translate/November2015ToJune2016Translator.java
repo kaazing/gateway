@@ -16,6 +16,7 @@
 package org.kaazing.gateway.server.config.parse.translate;
 
 import org.kaazing.gateway.server.config.parse.GatewayConfigNamespace;
+import org.kaazing.gateway.server.config.parse.translate.june2016.RemoveRealmVisitor;
 import org.kaazing.gateway.server.config.parse.translate.sep2014.FindMatchingBalancerServiceVisitor;
 
 public class November2015ToJune2016Translator extends GatewayConfigTranslatorPipeline {
@@ -27,5 +28,7 @@ public class November2015ToJune2016Translator extends GatewayConfigTranslatorPip
         addTranslator(new FindMatchingBalancerServiceVisitor());
         
         addTranslator(new NamespaceVisitor(GatewayConfigNamespace.CURRENT_NS));
+        
+        addTranslator(new RemoveRealmVisitor());
     }
 }

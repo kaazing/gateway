@@ -90,17 +90,17 @@ public class RemoveRequireUserTest {
         if (typeElement != null) {
             boolean check = element.removeChildren("authorization-constraint", namespace);
             if (check) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
     
     @Test
-    public void testRemoveRequireUserNov2015() throws Exception {
+    public void testNoRemoveRealmNov2015() throws Exception {
         // Create a temporary file to test on
         File configFile = null;
-        configFile = createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-require-role-remove-test.xml");
+        configFile = createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-no-remove-realm-test.xml");
         
         // Converting it into a document
         Document dom = getDocument(configFile);
@@ -117,6 +117,31 @@ public class RemoveRequireUserTest {
         List<Element> children = dom.getRootElement().getChildren("service", namespace);
         for (Element child : children) {
             assertTrue(ensureNoAuth(child, namespace));
+        }
+    }
+    
+    @Test
+    public void testRemoveRealmNov2015() throws Exception {
+        // Create a temporary file to test on
+        File configFile = null;
+        configFile = createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-yes-remove-realm-test.xml");
+        
+        // Converting it into a document
+        Document dom = getDocument(configFile);
+        GatewayConfigTranslator translator = getSpecificTranslator(dom);
+        translator.translate(dom);
+        
+        // Writing to a new file to read
+        writeTranslationToFile(configFile, dom);
+
+        File translatedFile = new File(configFile.getAbsolutePath() + TRANSLATED_CONFIG_FILE_EXT);
+        Document translatedDom = getDocument(translatedFile);
+        Element root = translatedDom.getRootElement();
+        Namespace namespace = root.getNamespace();
+        List<Element> children = dom.getRootElement().getChildren("service", namespace);
+        for (Element child : children) {
+            boolean check = child.removeChildren("realm-name", namespace);
+            assertTrue(!check);
         }
     }
 }

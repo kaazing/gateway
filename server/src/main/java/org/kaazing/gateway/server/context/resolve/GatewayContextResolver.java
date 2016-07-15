@@ -523,7 +523,6 @@ public class GatewayContextResolver {
                 realmContext = realmsContext.getRealmContext(name);
                 if (realmContext != null && !name.equals("auth-required")) {
                     if (requireRolesCollection.isEmpty()) {
-                        System.out.println("added");
                         Collections.addAll(requireRolesCollection, "*");
                     }
                 }

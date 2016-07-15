@@ -148,7 +148,7 @@ public class GatewayContextResolverTest {
     @Test
     public void testLowerCaseOfResolvedServices() throws Exception {
         configFile = createTempFileFromResource("org/kaazing/gateway/server/context/parse/data/gateway-config-mixedcase.xml");
-        org.kaazing.gateway.server.config.june2016.GatewayConfigDocument doc = parser.parse(configFile);
+        GatewayConfigDocument doc = parser.parse(configFile);
         GatewayContext ctx = resolver.resolve(doc);
 
         Collection<? extends ServiceContext> services = ctx.getServices();
