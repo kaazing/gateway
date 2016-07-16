@@ -77,7 +77,6 @@ import com.hazelcast.instance.GroupProperties;
 import com.hazelcast.logging.LogEvent;
 import com.hazelcast.logging.LogListener;
 import com.hazelcast.logging.LoggingService;
-import com.hazelcast.nio.Address;
 
 /**
  * ClusterContext for KEG

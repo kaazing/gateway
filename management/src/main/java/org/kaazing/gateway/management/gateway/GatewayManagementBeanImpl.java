@@ -215,6 +215,9 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
         // member variable of this bean is set from outside, and is not set unless we have a
         // real cluster config.
         ClusterContext context = gatewayContext.getCluster();
+        if(context == null) {
+            return null;
+        }
         String instanceKey = context.getInstanceKey(context.getLocalMember());
         return instanceKey;
     }
