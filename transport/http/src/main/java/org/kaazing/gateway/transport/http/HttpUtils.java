@@ -57,9 +57,11 @@ import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import static java.lang.Math.abs;
+import static java.lang.Math.floor;
 
 public class HttpUtils {
+    
 	// An optional header for requests to the gateway to turn on long-polling
 	// X-Kaazing-Proxy-Buffering: on | off
 	// "on" means an intermediary between the client and gateway is buffering.
@@ -74,15 +76,15 @@ public class HttpUtils {
 
 
 	private static final DateFormat[] RFC822_PARSE_PATTERNS = new DateFormat[] {
-	    new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH),
-		new SimpleDateFormat("EEE, d MMM yy HH:mm:ss z", Locale.ENGLISH),
-		new SimpleDateFormat("EEE, d MMM yy HH:mm z", Locale.ENGLISH),
-		new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z", Locale.ENGLISH),
-		new SimpleDateFormat("EEE, d MMM yyyy HH:mm z", Locale.ENGLISH),
-		new SimpleDateFormat("d MMM yy HH:mm z", Locale.ENGLISH),
-		new SimpleDateFormat("d MMM yy HH:mm:ss z", Locale.ENGLISH),
-		new SimpleDateFormat("d MMM yyyy HH:mm z", Locale.ENGLISH),
-		new SimpleDateFormat("d MMM yyyy HH:mm:ss z", Locale.ENGLISH)
+            new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH),
+            new SimpleDateFormat("EEE, d MMM yy HH:mm:ss z", Locale.ENGLISH),
+            new SimpleDateFormat("EEE, d MMM yy HH:mm z", Locale.ENGLISH),
+            new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z", Locale.ENGLISH),
+            new SimpleDateFormat("EEE, d MMM yyyy HH:mm z", Locale.ENGLISH),
+            new SimpleDateFormat("d MMM yy HH:mm z", Locale.ENGLISH),
+            new SimpleDateFormat("d MMM yy HH:mm:ss z", Locale.ENGLISH),
+            new SimpleDateFormat("d MMM yyyy HH:mm z", Locale.ENGLISH),
+            new SimpleDateFormat("d MMM yyyy HH:mm:ss z", Locale.ENGLISH)
 	};
 
 	private static final DateFormat RFC822_FORMAT_PATTERN = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);
@@ -285,8 +287,8 @@ public class HttpUtils {
 		}
 
 		// check modified time against file last modified
-		double time_difference = Math.floor(Math.abs(lastModified - ifModifiedSinceDate.getTime())/1000);
-		return time_difference>0;
+		double time_difference = floor(abs(lastModified - ifModifiedSinceDate.getTime())/1000);
+        return time_difference > 0;
 	}
 
 	public static void addLastModifiedHeader(HttpSession session, File requestFile) {
