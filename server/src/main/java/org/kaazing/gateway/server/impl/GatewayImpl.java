@@ -21,12 +21,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.security.GeneralSecurityException;
 import java.util.Properties;
 
 import javax.management.MBeanServer;
+import javax.naming.ConfigurationException;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.config.PropertySetter;
@@ -34,14 +37,15 @@ import org.apache.log4j.helpers.FileWatchdog;
 import org.apache.log4j.helpers.OptionConverter;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.kaazing.gateway.server.Gateway;
+import org.kaazing.gateway.server.GatewayAlreadyRunningException;
 import org.kaazing.gateway.server.GatewayObserver;
 import org.kaazing.gateway.server.Launcher;
-import org.kaazing.gateway.server.api.GatewayAlreadyRunningException;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.context.resolve.GatewayContextResolver;
 import org.kaazing.gateway.server.util.version.DuplicateJarFinder;
+import org.kaazing.gateway.server.util.version.DuplicateJarsException;
 import org.slf4j.Logger;
 import org.w3c.dom.Element;
 
@@ -126,7 +130,7 @@ final class GatewayImpl implements Gateway {
      * @throws Exception
      */
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         if (baseGateway != null) {
             baseGateway.destroy();
         }
@@ -144,11 +148,18 @@ final class GatewayImpl implements Gateway {
 
     /**
      * <p> Launch the in-process Gateway. </p>
-     *
+     * @throws GatewayAlreadyRunningException 
+     * @throws ConfigurationException 
+     * @throws DuplicateJarsException 
+     * @throws IOException 
+     * @throws GeneralSecurityException 
+     * @throws URISyntaxException 
+     * @throws IllegalAccessException 
+     * @throws InstantiationException 
      * @throws Exception
      */
     @Override
-    public void launch() throws Exception {
+    public void launch() throws GatewayAlreadyRunningException, ConfigurationException, IOException, InstantiationException, IllegalAccessException, URISyntaxException, GeneralSecurityException {
 
         if (baseGateway != null) {
             baseGateway.launch();
@@ -163,7 +174,7 @@ final class GatewayImpl implements Gateway {
             // Change to a public exception once all calls to System.getProperty() throughout the entire
             // codebase have been eliminated.
             //
-            throw new Exception("No environment has been specified");
+            throw new ConfigurationException("No environment has been specified");
         }
 
         String bypassPlatformCheckStr = configuration.getProperty(BYPASS_PLATFORM_CHECK_PROPERTY);
@@ -291,7 +302,11 @@ final class GatewayImpl implements Gateway {
             configureLogging(configDir, configuration);
         }
 
-        duplicateJarFinder.findDuplicateJars();
+        try {
+            duplicateJarFinder.findDuplicateJars();
+        } catch (DuplicateJarsException e1) {
+            throw new ConfigurationException(e1.getMessage());
+        }
 
         displayVersionInfo();
 
@@ -322,7 +337,7 @@ final class GatewayImpl implements Gateway {
         }
     }
 
-    private void configureLogging(File configDir, Properties configuration) throws Exception {
+    private void configureLogging(File configDir, Properties configuration) throws MalformedURLException {
         // Allow control over whether or not the Gateway logging external to the Gateway so that customers can configure their
         // own logging when embedding the Gateway
         String log4jConfigProperty = configuration.getProperty(GatewayImpl.LOG4J_CONFIG_PROPERTY);

@@ -50,7 +50,7 @@ public class ProxyService extends AbstractProxyService<ProxyServiceHandler> {
     }
 
     @Override
-    public void init(ServiceContext serviceContext) throws Exception {
+    public void init(ServiceContext serviceContext)  {
         super.init(serviceContext);
         Collection<String> connectURIs = serviceContext.getConnects();
         if (connectURIs == null || connectURIs.isEmpty()) {
@@ -68,7 +68,7 @@ public class ProxyService extends AbstractProxyService<ProxyServiceHandler> {
     }
 
     @Override
-    public void start() throws Exception {
+    public void start()  {
         super.start();
         getHandler().startServiceConnectManager();
     }

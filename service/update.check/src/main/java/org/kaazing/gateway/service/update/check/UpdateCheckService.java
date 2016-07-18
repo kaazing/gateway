@@ -76,12 +76,12 @@ public class UpdateCheckService implements Service {
     }
 
     @Override
-    public void init(ServiceContext serviceContext) throws Exception {
+    public void init(ServiceContext serviceContext)  {
         this.serviceContext = serviceContext;
     }
 
     @Override
-    public void start() throws Exception {
+    public void start() {
         // add listeners
         listeners.clear();
         addListener(new UpdateCheckLoggingListener());
@@ -98,17 +98,17 @@ public class UpdateCheckService implements Service {
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() {
         scheduledTasks.cancel(false);
     }
 
     @Override
-    public void quiesce() throws Exception {
+    public void quiesce() {
         scheduledTasks.cancel(false);
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         scheduledTasks.cancel(true);
     }
 

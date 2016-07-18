@@ -15,9 +15,17 @@
  */
 package org.kaazing.gateway.server;
 
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.security.GeneralSecurityException;
 import java.util.Properties;
 
 import javax.management.MBeanServer;
+import javax.naming.ConfigurationException;
+
+
 
 /**
  * Gateway for configuring, launching, and destroying a Launcher instance.  The GatewayFactory is used
@@ -159,18 +167,14 @@ public interface Gateway {
      * thrown.
      *
      * After calling destroy, the Gateway can be launched again.
-     *
-     * @throws Exception examples of exceptions thrown by the Gateway at launch time:  unable to read the configuration file,
-     *                   unable to bind to a network port specified in a service configuration, or a directory service's
-     *                   directory property is not a valid directory.
      */
-    void launch() throws Exception;
+    void launch() throws GatewayAlreadyRunningException,
+ConfigurationException, MalformedURLException,
+IOException, InstantiationException,
+IllegalAccessException, URISyntaxException, GeneralSecurityException;
 
     /**
      * Stops the running Gateway.  If the Gateway has already been destroyed this has no effect.
-     * @throws Exception an example of exceptions thrown by the Gateway at destroy time is unable to clean up management
-     *                   information from the MBeanServer, which could happen if the MBeanServer is destroyed out from
-     *                   underneath the Gateway unexpectedly.
      */
-    void destroy() throws Exception;
+    void destroy();
 }
