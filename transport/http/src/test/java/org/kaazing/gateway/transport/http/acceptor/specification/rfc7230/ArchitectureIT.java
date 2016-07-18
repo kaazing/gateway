@@ -94,8 +94,7 @@ public class ArchitectureIT {
 
         k3po.finish();
     }
-    
-    @Ignore("ERROR?")
+
     @Test
     @Specification({"origin.server.should.send.505.on.major.version.not.equal.to.one/request"})
     public void originServerShouldSend505OnMajorVersionNotEqualToOne() throws Exception {
@@ -113,15 +112,27 @@ public class ArchitectureIT {
     public void inboundMustRejectRequestsMissingHostIdentifier() throws Exception {
         final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>();
         acceptor.bind(HTTP_ADDRESS, acceptHandler);
-
         k3po.finish();
     }
 
-    @Ignore("ERROR?")
+    @Ignore("BUG: 404 Not Found response to bad URI request")
     @Test
     @Specification({"inbound.must.reject.requests.with.user.info.on.uri/request"})
     public void inboundMustRejectRequestWithUserInfoOnURI() throws Exception {
-        testHttpVersionNoResponseMessage(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                session.close(false);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
 
     @Test
@@ -138,10 +149,6 @@ public class ArchitectureIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-
-                session.setStatus(HttpStatus.SERVER_VERSION_NOT_SUPPORTED);
-                System.out.println(session.getStatus());
-                
                 session.close(false);
             }
         };
@@ -160,12 +167,11 @@ public class ArchitectureIT {
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
 
-                if(session.getVersion().equals(HttpVersion.HTTP_1_1)){
+                if (session.getVersion().equals(HttpVersion.HTTP_1_1)) {
                     session.setStatus(HttpStatus.SUCCESS_OK);
-                }else {
+                } else {
                     session.setStatus(HttpStatus.SERVER_VERSION_NOT_SUPPORTED);
                 }
-
 
                 session.close(false);
             }

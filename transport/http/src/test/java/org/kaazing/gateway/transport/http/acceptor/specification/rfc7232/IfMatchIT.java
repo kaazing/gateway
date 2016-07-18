@@ -380,70 +380,68 @@ public class IfMatchIT {
         testHttpNoResponseMessage(HTTP_ADDRESS);
     }
 
-    @Ignore("ERROR?")
-    @Test
-    @Specification({"wildcard.etag.delete.status.412/request"})
-    public void shouldCausePreconditionFailedWithDeleteAndWildcardForInvalidResource() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
+    /*
+     * Delete Method not handled w/ 412
+     * 
+     * @Test
+     * @Specification({"wildcard.etag.delete.status.412/request"})
+     * public void shouldCausePreconditionFailedWithDeleteAndWildcardForInvalidResource() throws Exception {
+     *    final CountDownLatch latch = new CountDownLatch(1);
+     *    final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+     *        @Override
+     *        protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+     *            latch.countDown();
+     *            session.setStatus(HttpStatus.CLIENT_PRECONDITION_FAILED);
+     *           session.close(false);
+     *        }
+     *    };
+     *    acceptor.bind(HTTP_ADDRESS, acceptHandler);
+     *  k3po.finish();
+     *  assertTrue(latch.await(4, SECONDS));
+     * }
+    */
 
-        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+    /*
+     * Post Method not handled w/ 412
+     * 
+     * @Test
+     * @Specification({"wildcard.etag.post.status.412/request"})
+     * public void shouldCausePreconditionFailedWithPostAndWildcardForInvalidResource() throws Exception {
+     *    final CountDownLatch latch = new CountDownLatch(1);
+     *    final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+     *        @Override
+     *        protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+     *            latch.countDown();
+     *            session.setStatus(HttpStatus.CLIENT_PRECONDITION_FAILED);
+     *           session.close(false);
+     *        }
+     *    };
+     *    acceptor.bind(HTTP_ADDRESS, acceptHandler);
+     *  k3po.finish();
+     *  assertTrue(latch.await(4, SECONDS));
+     * }
+    */
 
-            @Override
-            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
-                latch.countDown();
-                session.setStatus(HttpStatus.CLIENT_PRECONDITION_FAILED);
-                session.close(false);
-            }
-        };
-        acceptor.bind(HTTP_ADDRESS, acceptHandler);
-
-        k3po.finish();
-        assertTrue(latch.await(4, SECONDS));
-    }
-
-    @Ignore("ERROR?")
-    @Test
-    @Specification({"wildcard.etag.post.status.412/request"})
-    public void shouldCausePreconditionFailedWithPostAndWildcardForInvalidResource() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-
-        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
-
-            @Override
-            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
-                latch.countDown();
-                session.setStatus(HttpStatus.CLIENT_PRECONDITION_FAILED);
-                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
-                session.close(false);
-            }
-        };
-        acceptor.bind(HTTP_ADDRESS, acceptHandler);
-
-        k3po.finish();
-        assertTrue(latch.await(4, SECONDS));
-    }
-
-    @Ignore("ERROR?")
-    @Test
-    @Specification({"wildcard.etag.put.status.412/request"})
-    public void shouldCausePreconditionFailedWithPutAndWildcardForInvalidResource() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-
-        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
-
-            @Override
-            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
-                latch.countDown();
-                session.setStatus(HttpStatus.CLIENT_PRECONDITION_FAILED);
-                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, String.valueOf("6d82cbb050ddc7fa9cbb659014546e59"));
-                session.close(false);
-            }
-        };
-        acceptor.bind(HTTP_ADDRESS, acceptHandler);
-
-        k3po.finish();
-        assertTrue(latch.await(4, SECONDS));
-    }
+    /*
+     * Put Method not handled w/ 412
+     * 
+     * @Test
+     * @Specification({"wildcard.etag.put.status.412/request"})
+     * public void shouldCausePreconditionFailedWithPutAndWildcardForInvalidResource() throws Exception {
+     *    final CountDownLatch latch = new CountDownLatch(1);
+     *    final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+     *        @Override
+     *        protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+     *            latch.countDown();
+     *            session.setStatus(HttpStatus.CLIENT_PRECONDITION_FAILED);
+     *           session.close(false);
+     *        }
+     *    };
+     *    acceptor.bind(HTTP_ADDRESS, acceptHandler);
+     *  k3po.finish();
+     *  assertTrue(latch.await(4, SECONDS));
+     * }
+    */
 
     private void testHttpNoResponseMessage(ResourceAddress address) throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);

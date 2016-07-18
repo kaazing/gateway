@@ -19,9 +19,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.rules.RuleChain.outerRule;
 
 import java.io.File;
-import java.net.URI;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -34,7 +32,6 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
-@Ignore("Is not connecting?")
 public class AuthorizationIT {
 
     private TestRule trace = new MethodExecutionTrace();
@@ -44,42 +41,19 @@ public class AuthorizationIT {
     public GatewayRule gateway = new GatewayRule() {
         {
 
-            GatewayConfiguration configuration = new GatewayConfigurationBuilder()
-                    .webRootDirectory(new File("src/test"))
-                    .service()
-                        .accept("http://localhost:8000")
-                        .type("directory")
-                        .property("directory", "/resources")
-                        .property("welcome-file", "resource")
-                        .realmName("demo1")
-                        .authorization()
-                            .requireRole("AUTHORIZED")
-                        .done()
-                        .crossOrigin()
-                            .allowOrigin("*")
-                        .done()
-                    .done()
-                    .security()
-                        .realm()
-                            .name("demo1")
-                            .description("Kaazing WebSocket Gateway Demo")
-                            .httpChallengeScheme("Basic")
-                            .authorizationMode("challenge")
-                            .loginModule()
-                                 .type("file")
-                                 .success("required")
-                                 .option("file", "src/test/resources/jaas-config.xml")
-                            .done()
-                        .done()
-                    .done()
-                .done();
+            GatewayConfiguration configuration = new GatewayConfigurationBuilder().webRootDirectory(new File("src/test"))
+                    .service().accept("http://localhost:8000").type("directory").property("directory", "/resources")
+                    .property("welcome-file", "resource").realmName("demo1").authorization().requireRole("AUTHORIZED").done()
+                    .crossOrigin().allowOrigin("*").done().done().security().realm().name("demo1")
+                    .description("Kaazing WebSocket Gateway Demo").httpChallengeScheme("Basic").authorizationMode("challenge")
+                    .loginModule().type("file").success("required").option("file", "src/test/resources/jaas-config.xml").done()
+                    .done().done().done();
             init(configuration);
         }
     };
 
     @Rule
     public TestRule chain = outerRule(trace).around(robot).around(gateway).around(timeout);
-
 
     @Test
     @Specification("framework/invalid.then.valid.credentials/request")
@@ -99,12 +73,15 @@ public class AuthorizationIT {
         robot.finish();
     }
 
-    @Specification("framework/forbidden/request")
-    @Test
-    public void forbiddenTest() throws Exception {
-    	robot.finish();
-    }
-    
+    /*
+     * Not Applicable for gateway authorization
+     * @Specification("framework/forbidden/request")
+     * @Test
+     * public void forbiddenTest() throws Exception {
+     *     robot.finish();
+     * }
+     */
+
     @Test
     @Specification("framework/partial.then.valid.credentials/request")
     public void unauthorizedInvalidUsernameValidPassword() throws Exception {
@@ -124,6 +101,3 @@ public class AuthorizationIT {
     }
 
 }
-
-
-

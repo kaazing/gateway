@@ -35,6 +35,12 @@
     <password>admin</password>
     <role-name>ADMINISTRATOR</role-name>
   </user>
+  
+  <user>
+    <name>unauthorized</name>
+    <password>user</password>
+    <role-name>SIMPLE USER</role-name>
+  </user>
 
   <role>
     <name>ADMINISTRATOR</name>
@@ -44,6 +50,11 @@
   <role>
     <name>AUTHORIZED</name>
     <description>Authorized users</description>
+  </role>
+  
+  <role>
+    <name>SIMPLE USER</name>
+    <description>Simple user</description>
   </role>
 
 </jaas-config>

@@ -23,6 +23,7 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.mina.core.service.IoHandler;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -112,7 +113,7 @@ public class MessageFormatIT {
         standardHttpTestCase(HTTP_ADDRESS);
     }
 
-    @Ignore("Not responding with any status code?")
+    @Ignore("BUG: No response to lacking URI")
     @Test
     @Specification({"inbound.should.reject.invalid.request.line/request"})
     public void inboundShouldRejectInvalidRequestLine() throws Exception {
@@ -141,7 +142,7 @@ public class MessageFormatIT {
         k3po.finish();
     }
 
-    @Ignore("Not responding with any status code?")
+    @Ignore("BUG: No response to error in URI")
     @Test
     @Specification({"server.should.send.414.to.request.with.too.long.a.request/request"})
     public void serverShouldSend414ToRequestWithTooLongARequest() throws Exception {
@@ -167,7 +168,16 @@ public class MessageFormatIT {
         standardHttpTestCase(HTTP_ADDRESS);
     }
 
-    @Ignore("ERROR?")
+    /*
+     * No whitespace is allowed between the header field-name and colon.  In
+     * the past, differences in the handling of such whitespace have led to
+     * security vulnerabilities in request routing and response handling.  A
+     * server MUST reject any received request message that contains
+     * whitespace between a header field-name and colon with a response code
+     * of 400 (Bad Request).  A proxy MUST remove any such whitespace from a
+     * response message before forwarding the message downstream.
+     */
+    @Ignore("Not Spec Complient")
     @Test
     @Specification({"server.must.reject.header.with.space.between.header.name.and.colon/request"})
     public void serverMustRejectHeaderWithSpaceBetweenHeaderNameAndColon() throws Exception {
@@ -187,7 +197,7 @@ public class MessageFormatIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Not responding with any status code?")
+    @Ignore("BUG: No response to error in bad header.")
     @Test
     @Specification({"server.should.reject.obs.in.header.value/request"})
     public void serverShouldRejectOBSInHeaderValue() throws Exception {
@@ -207,7 +217,7 @@ public class MessageFormatIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Not responding with any status code?")
+    @Ignore("BUG: No response to error in bad header.")
     @Test
     @Specification({"proxy.or.gateway.must.reject.obs.in.header.value/request"})
     public void proxyOrGatewayMustRejectOBSInHeaderValue() throws Exception {
@@ -246,11 +256,23 @@ public class MessageFormatIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Not responding with any status code?")
+    @Ignore("Talk with David/John Later")
     @Test
     @Specification({"server.should.send.501.to.unknown.transfer.encoding/request"})
     public void serverShouldSend501ToUnknownTransferEncoding() throws Exception {
-        standardHttpTestCase(HTTP_ADDRESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                latch.countDown();
+                session.close(true);
+            }
+        };
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+        assertTrue(latch.await(4, SECONDS));
     }
 
     @Test
@@ -340,7 +362,7 @@ public class MessageFormatIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Supposed to be 200 but is 400")
+    @Ignore("BUG: Extra CRLF makes response 400.")
     @Test
     @Specification({"robust.server.should.allow.extra.CRLF.after.request.line/request"})
     public void robustServerShouldAllowExtraCRLFAfterRequestLine() throws Exception {
@@ -360,21 +382,23 @@ public class MessageFormatIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("ERROR?")
-    @Test
-    @Specification({"non.http.request.to.http.server.should.be.responded.to.with.400/request"})
-    public void nonHttpRequestToHttpServerShouldBeRespondedToWith400() throws Exception {
-        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
-            @Override
-            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
-                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
-                session.close(false);
-            }
-        };
-        acceptor.bind(HTTP_ADDRESS, acceptHandler);
-
-        k3po.finish();
-    }
+    /*
+     * Bytes won't make it to the Http layer
+     * 
+     * @Test
+     * @Specification({"non.http.request.to.http.server.should.be.responded.to.with.400/request"})
+     * public void nonHttpRequestToHttpServerShouldBeRespondedToWith400() throws Exception {
+     *     final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+     *         @Override
+     *         protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+     *             session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+     *             session.close(false);
+     *         }
+     *     };
+     *     acceptor.bind(HTTP_ADDRESS, acceptHandler);
+     *     k3po.finish();
+     * }
+     */
 
     private void standardHttpTestCase(ResourceAddress address) throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);

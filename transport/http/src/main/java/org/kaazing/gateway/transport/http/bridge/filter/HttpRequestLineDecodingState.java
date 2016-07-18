@@ -165,6 +165,10 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
         protected DecodingState finishDecode(IoBuffer buffer,
                 ProtocolDecoderOutput out) throws Exception {
             String httpVersion = buffer.getString(US_ASCII_DECODER);
+            if(httpVersion.startsWith("HTTP/") && httpVersion.length() == 8 && !(httpVersion.charAt(5)== '1')) {
+                httpVersion = "HTTP/1.1";
+                throw new HttpProtocolDecoderException(HttpStatus.SERVER_VERSION_NOT_SUPPORTED);
+            }
             HttpVersion version;
             try
             {

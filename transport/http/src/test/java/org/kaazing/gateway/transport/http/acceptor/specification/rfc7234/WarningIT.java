@@ -51,11 +51,7 @@ public class WarningIT {
 
     private final HttpAcceptorRule acceptor = new HttpAcceptorRule();
 
-    private JUnitRuleMockery context = new JUnitRuleMockery() {
-        {
-            setThreadingPolicy(new Synchroniser());
-        }
-    };
+    private JUnitRuleMockery context=new JUnitRuleMockery(){{setThreadingPolicy(new Synchroniser());}};
 
     private TestRule contextRule = ITUtil.toTestRule(context);
     private final TestRule trace = new MethodExecutionTrace();
@@ -86,7 +82,6 @@ public class WarningIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("I don't know what the error is.")
     @Test
     @Specification({"110.response.stale.from.cache/request"})
     public void shouldReceiveResponseWithStaleHeader() throws Exception {
@@ -97,18 +92,21 @@ public class WarningIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                if(session.getReadHeaderNames().contains(HttpHeaders.HEADER_IF_MODIFIED_SINCE)) {
+                    session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_LAST_MODIFIED, String.valueOf(System.currentTimeMillis()));
+                session.addWriteHeader(HttpHeaders.HEADER_EXPIRES, "expires");
                 session.addWriteHeader(HttpHeaders.HEADER_WARNING, "110");
                 session.close(false);
             }
         };
-        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+        acceptor.bind(httpAddress2(), acceptHandler);
 
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("I don't know what the error is.")
     @Test
     @Specification({"111.revalidation.failed.from.cache/request"})
     public void shouldReceiveResponseWithRevalidateHeader() throws Exception {
@@ -119,7 +117,11 @@ public class WarningIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                if(session.getReadHeaderNames().contains(HttpHeaders.HEADER_IF_NONE_MATCH)) {
+                    session.setStatus(HttpStatus.SERVER_GATEWAY_TIMEOUT);
+                }
+                session.addWriteHeader(HttpHeaders.HEADER_E_TAG, "etag");
+                session.addWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, "must-revalidate");
                 session.addWriteHeader(HttpHeaders.HEADER_WARNING, "111");
                 session.close(false);
             }
@@ -130,7 +132,6 @@ public class WarningIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("I don't know what the error is.")
     @Test
     @Specification({"112.disconnected.operation.from.cache/request"})
     public void shouldReceiveResponseWithDisconnectedHeader() throws Exception {
@@ -141,18 +142,17 @@ public class WarningIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                session.setStatus(HttpStatus.SERVER_BAD_GATEWAY);
                 session.addWriteHeader(HttpHeaders.HEADER_WARNING, "112");
                 session.close(false);
             }
         };
-        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+        acceptor.bind(httpAddress2(), acceptHandler);
 
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("I don't know what the error is.")
     @Test
     @Specification({"113.heuristic.expiration.from.cache/request"})
     public void shouldReceiveResponseWithHeuristicHeader() throws Exception {
@@ -163,18 +163,16 @@ public class WarningIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
                 session.addWriteHeader(HttpHeaders.HEADER_WARNING, "113");
                 session.close(false);
             }
         };
-        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+        acceptor.bind(httpAddress2(), acceptHandler);
 
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("I don't know what the error is.")
     @Test
     @Specification({"214.transformation.applied.from.cache/request"})
     public void shouldReceiveResponseWithTransformationHeader() throws Exception {
@@ -185,18 +183,17 @@ public class WarningIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                session.setStatus(HttpStatus.REDIRECT_USE_PROXY);
                 session.addWriteHeader(HttpHeaders.HEADER_WARNING, "214");
                 session.close(false);
             }
         };
-        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+        acceptor.bind(httpAddress2(), acceptHandler);
 
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("I don't know what the error is.")
     @Test
     @Specification({"299.misc.persistent.warning/request"})
     public void shouldReceiveResponseWithMiscPersistentWarning() throws Exception {
@@ -212,7 +209,7 @@ public class WarningIT {
                 session.close(false);
             }
         };
-        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+        acceptor.bind(httpAddress2(), acceptHandler);
 
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));
@@ -222,5 +219,11 @@ public class WarningIT {
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         String address = "http://localhost:8000/index.html";
         return addressFactory.newResourceAddress(address);
+    }
+
+    private static ResourceAddress httpAddress2() {
+        ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
+        String input = "http://localhost:8000/resource";
+        return addressFactory.newResourceAddress(input);
     }
 }
