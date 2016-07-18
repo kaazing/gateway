@@ -66,7 +66,7 @@ public class ResponseHeaderFieldsIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("Patch method not implemented - gives 405")
+    @Ignore("ERROR?")
     @Test
     @Specification({"allow.lists.resource.methods/request"})
     public void allowHeaderInformsMethodsAssociatedWithResource() throws Exception {

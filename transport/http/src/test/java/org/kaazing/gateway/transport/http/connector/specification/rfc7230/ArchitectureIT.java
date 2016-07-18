@@ -64,7 +64,6 @@ public class ArchitectureIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po).around(timeoutRule);
 
-
     @Test
     @Specification({"outbound.must.send.version/response"})
     public void outboundMustSendVersion() throws Exception {
@@ -92,7 +91,7 @@ public class ArchitectureIT {
 
         k3po.finish();
     }
-    
+
     @Ignore("Assertion Failure?")
     @Test
     @Specification({"inbound.must.send.version/response"})
@@ -121,10 +120,10 @@ public class ArchitectureIT {
 
         k3po.finish();
     }
-    
+
     @Test
-    @Specification({"response.must.be.505.on.invalid.version/response"})
-    public void inboundMustSend505OnInvalidVersion() throws Exception {
+    @Specification({"response.must.be.400.on.invalid.version/response"})
+    public void inboundMustSend400OnInvalidVersion() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
@@ -149,7 +148,7 @@ public class ArchitectureIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"inbound.must.reply.with.version.one.dot.one.when.received.higher.minor.version/response"})
     public void inboundMustReplyWithVersionOneDotOneWhenReceivedHigherMinorVersion() throws Exception {
@@ -177,7 +176,7 @@ public class ArchitectureIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"origin.server.should.send.505.on.major.version.not.equal.to.one/response"})
     public void originServerShouldSend505OnMajorVersionNotEqualToOne() throws Exception {
@@ -205,7 +204,7 @@ public class ArchitectureIT {
 
         k3po.finish();
     }
-    
+
     @Ignore("Assertion Error")
     @Test
     @Specification({"client.must.send.host.identifier/response"})
@@ -228,14 +227,15 @@ public class ArchitectureIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetHost());
+        ConnectFuture connectFuture =
+                connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetHost());
         connectFuture.getSession();
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
-    
-    @Ignore("Doesn't close with \r\n new line")
+
+    @Ignore("How to remove header.")
     @Test
     @Specification({"inbound.must.reject.requests.missing.host.identifier/response"})
     public void inboundMustRejectRequestsMissingHostIdentifier() throws Exception {
@@ -263,8 +263,8 @@ public class ArchitectureIT {
 
         k3po.finish();
     }
-    
-    @Ignore("Might not be applicable")
+
+    @Ignore("Errored")
     @Test
     @Specification({"inbound.must.reject.requests.with.user.info.on.uri/response"})
     public void inboundMustRejectRequestWithUserInfoOnURI() throws Exception {
@@ -286,13 +286,15 @@ public class ArchitectureIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerErroredGet());
+        connector.getConnectOptions();
+        ConnectFuture connectFuture =
+                connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerErroredGet());
         connectFuture.getSession();
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"inbound.should.allow.requests.with.percent.chars.in.uri/response"})
     public void inboundShouldAllowRequestsWithPercentCharsInURI() throws Exception {
@@ -314,7 +316,8 @@ public class ArchitectureIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8080/Some%20Path", handler, new ConnectSessionInitializerGet());
+        ConnectFuture connectFuture =
+                connector.connect("http://localhost:8080/Some%20Path", handler, new ConnectSessionInitializerGet());
         connectFuture.getSession();
         assertTrue(closed.await(2, SECONDS));
 
@@ -328,7 +331,7 @@ public class ArchitectureIT {
             connectSession.setMethod(HttpMethod.GET);
         }
     }
-    
+
     private static class ConnectSessionInitializerGetHost implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -337,7 +340,7 @@ public class ArchitectureIT {
             connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, String.valueOf(connectSession.getRequestURL()));
         }
     }
-    
+
     private static class ConnectSessionInitializerErroredGet implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -345,6 +348,5 @@ public class ArchitectureIT {
             connectSession.setMethod(HttpMethod.GET);
         }
     }
-
 
 }

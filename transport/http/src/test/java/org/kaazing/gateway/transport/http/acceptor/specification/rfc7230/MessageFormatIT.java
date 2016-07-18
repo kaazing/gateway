@@ -112,7 +112,7 @@ public class MessageFormatIT {
         standardHttpTestCase(HTTP_ADDRESS);
     }
 
-    @Ignore("Not responding with 400?")
+    @Ignore("Not responding with any status code?")
     @Test
     @Specification({"inbound.should.reject.invalid.request.line/request"})
     public void inboundShouldRejectInvalidRequestLine() throws Exception {
@@ -167,7 +167,7 @@ public class MessageFormatIT {
         standardHttpTestCase(HTTP_ADDRESS);
     }
 
-    @Ignore("404 vs 400?")
+    @Ignore("ERROR?")
     @Test
     @Specification({"server.must.reject.header.with.space.between.header.name.and.colon/request"})
     public void serverMustRejectHeaderWithSpaceBetweenHeaderNameAndColon() throws Exception {
@@ -187,7 +187,7 @@ public class MessageFormatIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("No Status Code Responded")
+    @Ignore("Not responding with any status code?")
     @Test
     @Specification({"server.should.reject.obs.in.header.value/request"})
     public void serverShouldRejectOBSInHeaderValue() throws Exception {
@@ -206,8 +206,8 @@ public class MessageFormatIT {
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));
     }
-    
-    @Ignore("No Status Code Responded")
+
+    @Ignore("Not responding with any status code?")
     @Test
     @Specification({"proxy.or.gateway.must.reject.obs.in.header.value/request"})
     public void proxyOrGatewayMustRejectOBSInHeaderValue() throws Exception {
@@ -226,8 +226,7 @@ public class MessageFormatIT {
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));
     }
-    
-    
+
     @Test
     @Specification({"inbound.on.receiving.field.with.length.larger.than.wanting.to.process.must.reply.with.4xx/request"})
     public void inboundOnReceivingFieldWithLengthLargerThanWantingToProcessMustReplyWith4xx() throws Exception {
@@ -246,15 +245,14 @@ public class MessageFormatIT {
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));
     }
-    
-    @Ignore("No Status Code Responded")
+
+    @Ignore("Not responding with any status code?")
     @Test
     @Specification({"server.should.send.501.to.unknown.transfer.encoding/request"})
     public void serverShouldSend501ToUnknownTransferEncoding() throws Exception {
         standardHttpTestCase(HTTP_ADDRESS);
     }
-    
-    @Ignore("disconnected error instead of closed")
+
     @Test
     @Specification({"outbound.should.process.response.with.content.length/request"})
     public void outboundShouldProcessResponseWithContentLength() throws Exception {
@@ -272,19 +270,19 @@ public class MessageFormatIT {
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));
     }
-    
+
     @Test
     @Specification({"inbound.should.process.request.with.content.length/request"})
     public void inboundShouldProcessRequestWithContentLength() throws Exception {
         standardHttpTestCase(HTTP_ADDRESS);
     }
-    
+
     @Test
     @Specification({"client.should.send.content.length.header.in.post.even.if.no.content/request"})
     public void clientShouldSendContentLengthHeaderInPostEvenIfNoContent() throws Exception {
         standardHttpTestCase(HTTP_ADDRESS);
     }
-    
+
     @Test
     @Specification({"head.response.must.not.have.content/request"})
     public void headResponseMustNotHaveContent() throws Exception {
@@ -303,7 +301,7 @@ public class MessageFormatIT {
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));
     }
-    
+
     @Test
     @Specification({"head.response.must.not.have.content.though.may.have.content.length/request"})
     public void headResponseMustNotHaveContentThoughMayHaveContentLength() throws Exception {
@@ -322,7 +320,7 @@ public class MessageFormatIT {
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));
     }
-    
+
     @Test
     @Specification({"server.must.reject.request.with.multiple.different.content.length/request"})
     public void serverMustRejectRequestWithMultipleDifferentContentLength() throws Exception {
@@ -341,7 +339,7 @@ public class MessageFormatIT {
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));
     }
-    
+
     @Ignore("Supposed to be 200 but is 400")
     @Test
     @Specification({"robust.server.should.allow.extra.CRLF.after.request.line/request"})
@@ -361,8 +359,8 @@ public class MessageFormatIT {
         k3po.finish();
         assertTrue(latch.await(4, SECONDS));
     }
-    
-    @Ignore("Errored")
+
+    @Ignore("ERROR?")
     @Test
     @Specification({"non.http.request.to.http.server.should.be.responded.to.with.400/request"})
     public void nonHttpRequestToHttpServerShouldBeRespondedToWith400() throws Exception {

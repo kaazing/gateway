@@ -311,7 +311,6 @@ public class ConnectionManagementIT {
         k3po.finish();
     }
 
-    @Ignore("TODO")
     @Test
     @Specification({"server.that.sends.upgrade.required.must.include.upgrade.header/response"})
     public void serverThatSendsUpgradeRequiredMustIncludeUpgradeHeader() throws Exception {
@@ -340,7 +339,7 @@ public class ConnectionManagementIT {
         k3po.finish();
     }
 
-    @Ignore("TODO")
+    @Ignore("Not upgrading")
     @Test
     @Specification({"server.that.is.upgrading.must.send.a.101.response/response"})
     public void serverThatIsUpgradingMustSendA100Response() throws Exception {

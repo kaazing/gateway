@@ -72,7 +72,7 @@ public class TransferCodingsIT {
         standardHttpTestCase(HTTP_ADDRESS);
     }
     
-    @Ignore("maybe chunked transfer encoding issue")
+    @Ignore("Cannot Write Bytes")
     @Test
     @Specification({"response.transfer.encoding.chunked/request"})
     public void responseTransferEncodingChunked() throws Exception {
@@ -109,7 +109,7 @@ public class TransferCodingsIT {
         standardHttpTestCase(HTTP_ADDRESS);
     }
     
-    @Ignore("how to write bytes")
+    @Ignore("Cannot Write Bytes")
     @Test
     @Specification({"response.transfer.encoding.chunked.with.trailer/request"})
     public void responseTransferEncodingChunkedWithTrailer() throws Exception {

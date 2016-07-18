@@ -34,7 +34,7 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
-@Ignore("Errors galore")
+@Ignore("Is not connecting?")
 public class AuthorizationIT {
 
     private TestRule trace = new MethodExecutionTrace();

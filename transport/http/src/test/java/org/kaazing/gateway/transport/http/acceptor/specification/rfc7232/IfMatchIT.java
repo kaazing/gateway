@@ -380,7 +380,7 @@ public class IfMatchIT {
         testHttpNoResponseMessage(HTTP_ADDRESS);
     }
 
-    @Ignore("Wrong status code returned.")
+    @Ignore("ERROR?")
     @Test
     @Specification({"wildcard.etag.delete.status.412/request"})
     public void shouldCausePreconditionFailedWithDeleteAndWildcardForInvalidResource() throws Exception {
@@ -401,7 +401,7 @@ public class IfMatchIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("404 instead of 412")
+    @Ignore("ERROR?")
     @Test
     @Specification({"wildcard.etag.post.status.412/request"})
     public void shouldCausePreconditionFailedWithPostAndWildcardForInvalidResource() throws Exception {
@@ -423,7 +423,7 @@ public class IfMatchIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("404 instead of 412")
+    @Ignore("ERROR?")
     @Test
     @Specification({"wildcard.etag.put.status.412/request"})
     public void shouldCausePreconditionFailedWithPutAndWildcardForInvalidResource() throws Exception {

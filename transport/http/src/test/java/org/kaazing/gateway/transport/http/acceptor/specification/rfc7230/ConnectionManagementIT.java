@@ -146,7 +146,7 @@ public class ConnectionManagementIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Writing Bytes")
+    @Ignore("Cannot Write Bytes")
     @Test
     @Specification({"server.should.accept.http.pipelining/request"})
     public void serverShouldAcceptHttpPipelining() throws Exception {
@@ -189,7 +189,7 @@ public class ConnectionManagementIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("How to write bytes?")
+    @Ignore("Cannot Write Bytes")
     @Test
     @Specification({"client.with.pipelining.must.not.retry.pipelining.immediately.after.failure/request"})
     public void clientWithPipeliningMustNotRetryPipeliningImmediatelyAfterFailure() throws Exception {

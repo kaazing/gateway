@@ -65,7 +65,6 @@ public class WarningIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("I don't know what the error is")
     @Test
     @Specification({"199.misc.warning/request"})
     public void shouldReceiveResponseWithWarningHeader() throws Exception {
