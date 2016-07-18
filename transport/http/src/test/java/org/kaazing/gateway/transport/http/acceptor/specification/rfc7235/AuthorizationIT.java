@@ -41,13 +41,35 @@ public class AuthorizationIT {
     public GatewayRule gateway = new GatewayRule() {
         {
 
-            GatewayConfiguration configuration = new GatewayConfigurationBuilder().webRootDirectory(new File("src/test"))
-                    .service().accept("http://localhost:8000").type("directory").property("directory", "/resources")
-                    .property("welcome-file", "resource").realmName("demo1").authorization().requireRole("AUTHORIZED").done()
-                    .crossOrigin().allowOrigin("*").done().done().security().realm().name("demo1")
-                    .description("Kaazing WebSocket Gateway Demo").httpChallengeScheme("Basic").authorizationMode("challenge")
-                    .loginModule().type("file").success("required").option("file", "src/test/resources/jaas-config.xml").done()
-                    .done().done().done();
+            GatewayConfiguration configuration = new GatewayConfigurationBuilder()
+                    .webRootDirectory(new File("src/test"))
+                        .service()
+                            .accept("http://localhost:8000")
+                            .type("directory")
+                            .property("directory", "/resources")
+                            .property("welcome-file", "resource")
+                            .realmName("demo1")
+                            .authorization()
+                                .requireRole("AUTHORIZED")
+                            .done()
+                            .crossOrigin()
+                                .allowOrigin("*")
+                            .done()
+                        .done()
+                        .security()
+                            .realm()
+                                .name("demo1")
+                                .description("Kaazing WebSocket Gateway Demo")
+                                .httpChallengeScheme("Basic")
+                                .authorizationMode("challenge")
+                                .loginModule()
+                                    .type("file")
+                                    .success("required")
+                                    .option("file", "src/test/resources/jaas-config.xml")
+                                .done()
+                            .done()
+                        .done()
+                    .done();
             init(configuration);
         }
     };

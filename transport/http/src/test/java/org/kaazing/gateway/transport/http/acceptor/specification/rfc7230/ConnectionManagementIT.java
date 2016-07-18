@@ -18,10 +18,12 @@ package org.kaazing.gateway.transport.http.acceptor.specification.rfc7230;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
+import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 
+import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IoSession;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Ignore;
@@ -33,9 +35,6 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
-import org.kaazing.gateway.resource.address.ResourceOption;
-import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
-import org.kaazing.gateway.server.config.nov2015.ClusterType.Accept;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptorRule;
@@ -43,6 +42,8 @@ import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
+import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.test.util.ITUtil;
 import org.kaazing.test.util.MethodExecutionTrace;
 
@@ -146,7 +147,12 @@ public class ConnectionManagementIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Cannot Write Bytes")
+    private WriteFuture writeStringMessageToSession(String message, IoSession session) {
+        ByteBuffer data = ByteBuffer.wrap(message.getBytes());
+        IoBufferAllocatorEx<?> allocator = ((IoSessionEx) session).getBufferAllocator();
+        return session.write(allocator.wrap(data));
+    }
+
     @Test
     @Specification({"server.should.accept.http.pipelining/request"})
     public void serverShouldAcceptHttpPipelining() throws Exception {
@@ -165,18 +171,11 @@ public class ConnectionManagementIT {
                 session.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(8));
 
                 if (session.getRequestURI().toString().equals("/request1")) {
-                    byte[] x = "request1".getBytes();
-                    session.getBufferAllocator().allocate(8);
-                    session.write(x);
+                    writeStringMessageToSession("request1", session);
                 } else if (session.getRequestURI().toString().equals("/request2")) {
-                    byte[] x = "request2".getBytes();
-                    session.getBufferAllocator().allocate(8);
-                    session.write(x);
+                    writeStringMessageToSession("request2", session);
                 } else {
-                    byte[] x = "request3".getBytes();
-                    session.getBufferAllocator().allocate(8);
-                    session.write(x);
-                    session.getBufferAllocator().allocate(7).put(x);
+                    writeStringMessageToSession("request3", session);
                 }
 
                 session.close(true);
@@ -189,7 +188,6 @@ public class ConnectionManagementIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Cannot Write Bytes")
     @Test
     @Specification({"client.with.pipelining.must.not.retry.pipelining.immediately.after.failure/request"})
     public void clientWithPipeliningMustNotRetryPipeliningImmediatelyAfterFailure() throws Exception {
