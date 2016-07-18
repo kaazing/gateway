@@ -182,7 +182,8 @@ class NioDatagramPipelineSink extends AbstractNioChannelSink {
             if (!bound) {
                 fireChannelBound(channel, channel.getLocalAddress());
             }
-            // Moved to NioDatagramWorker
+            // mina.netty change - moved to NioDatagramWorker so that it is
+            // fired in the correct thread
             // fireChannelConnected(channel, channel.getRemoteAddress());
 
             if (!bound) {

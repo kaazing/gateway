@@ -85,7 +85,6 @@ public class NioDatagramChannelIoAcceptorIT {
             @Override
             public void messageReceived(IoSession session, Object message)
                     throws Exception {
-                System.out.println("acceptor handler received message = " + message);
                 IoBuffer buf = (IoBuffer) message;
                 session.write(buf.duplicate());
             }

@@ -226,9 +226,9 @@ public class NioDatagramChannelFactory implements DatagramChannelFactory {
         return new NioDatagramChannel(this, pipeline, sink, sink.nextWorker(), family);
     }
 
-    // Added to create child datagram channels (not part of netty)
+    // mina.netty change -  adding this to create child datagram channels
     public DatagramChannel newChildChannel(Channel parent, final ChannelPipeline pipeline) {
-        return new NioChildDatagramChannel(parent, this, pipeline, childSink, childSink.nextWorker(), family);
+        return new NioDatagramChannel(parent, this, pipeline, childSink, childSink.nextWorker(), family);
     }
 
     public void shutdown() {

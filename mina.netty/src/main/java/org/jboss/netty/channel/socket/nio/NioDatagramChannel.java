@@ -77,6 +77,7 @@ public class NioDatagramChannel extends AbstractNioChannel<DatagramChannel>
         fireChannelOpen(this);
     }
 
+    // mina.netty change - creates a child channel for a parent channel
     NioDatagramChannel(Channel parent, final ChannelFactory factory,
                        final ChannelPipeline pipeline, final ChannelSink sink,
                        final NioDatagramWorker worker, InternetProtocolFamily family) {

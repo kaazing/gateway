@@ -178,7 +178,6 @@ public class UdpConnectorIT {
 
         k3po.start();
         k3po.awaitBarrier("BOUND");
-        // TODO Configure timeout as connect option
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
             @Override
             protected void doSessionOpened(IoSessionEx session) throws Exception {

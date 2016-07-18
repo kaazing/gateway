@@ -203,8 +203,9 @@ public class NioDatagramWorker extends AbstractNioWorker {
                 if (future != null) {
                     future.setSuccess();
                 }
-                // similar to tcp, connected event is fired here instead in NioDatagramPipelineSink
-                // this means NioDatagramChannelIoSession is created in the i/o thread
+                // mina.netty change - similar to tcp, connected event is fired here instead
+                // in NioDatagramPipelineSink. This means NioDatagramChannelIoSession is
+                // created in the correct i/o thread
                 fireChannelConnected(channel, remoteAddress);
             } catch (final IOException e) {
                 if (future != null) {
@@ -275,7 +276,7 @@ public class NioDatagramWorker extends AbstractNioWorker {
                         channel.writeSuspended = false;
                         break;
                     }
-                    // similar to mina.netty's copy of AbstractNioWorker, passing channel as parameter
+                    // mina.netty change - similar to mina.netty's AbstractNioWorker, passing channel as parameter
                     channel.currentWriteBuffer = buf = sendBufferPool.acquire(channel, evt.getMessage());
                 } else {
                     buf = channel.currentWriteBuffer;

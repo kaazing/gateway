@@ -17,28 +17,22 @@ package org.kaazing.mina.netty.socket.nio;
 
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
-import static org.apache.mina.core.session.IdleStatus.BOTH_IDLE;
 
 import java.util.concurrent.Executor;
 
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
-import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
-import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.socket.DatagramChannelConfig;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
 import org.jboss.netty.channel.socket.nio.NioDatagramWorker;
 
-import org.jboss.netty.channel.socket.nio.NioWorker;
 import org.kaazing.mina.core.service.IoProcessorEx;
-import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.netty.ChannelIoService;
 import org.kaazing.mina.netty.ChannelIoSession;
 import org.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
-import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

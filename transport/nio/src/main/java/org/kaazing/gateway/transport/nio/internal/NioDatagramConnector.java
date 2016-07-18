@@ -34,7 +34,6 @@ import org.kaazing.gateway.transport.bio.MulticastConnector;
 import org.kaazing.mina.core.service.IoConnectorEx;
 import org.kaazing.mina.netty.socket.DatagramChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
-import org.kaazing.mina.netty.socket.nio.NioDatagramChannelIoAcceptor;
 import org.kaazing.mina.netty.socket.nio.NioDatagramChannelIoConnector;
 import org.slf4j.LoggerFactory;
 
