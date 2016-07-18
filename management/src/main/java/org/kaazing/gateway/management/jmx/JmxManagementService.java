@@ -19,7 +19,10 @@ import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.RMIClientSocketFactory;
@@ -68,6 +71,8 @@ import org.slf4j.LoggerFactory;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
+import java.io.IOException;
+
 /**
  * Service for handling JMX management of the gateway (cluster?)
  */
@@ -91,7 +96,7 @@ public class JmxManagementService implements ManagementService, NotificationList
     private ServiceContext serviceContext;
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy()  {
         // FIXME:  implement
     }
 
@@ -132,7 +137,7 @@ public class JmxManagementService implements ManagementService, NotificationList
     }
 
     @Override
-    public void init(ServiceContext serviceContext) throws Exception {
+    public void init(ServiceContext serviceContext) {
         try {
             Sigar sigar = new Sigar();
             Uptime uptime = sigar.getUptime();
@@ -151,7 +156,7 @@ public class JmxManagementService implements ManagementService, NotificationList
     }
 
     @Override
-    public void start() throws Exception {
+    public void start() throws URISyntaxException, IOException {
         // update the management context with service, license, security, cluster, network,
         // and realm config info before starting the service
         managementContext.updateManagementContext(securityContext);
@@ -235,7 +240,7 @@ public class JmxManagementService implements ManagementService, NotificationList
     }
 
     @Override
-    public void quiesce() throws Exception {
+    public void quiesce() {
 //        serviceContext.unbind(serviceContext.getAccepts(), handler);
     }
 
@@ -253,7 +258,7 @@ public class JmxManagementService implements ManagementService, NotificationList
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() throws IOException  {
         quiesce();
 
         // KG-10156:  Add some logging to indicate that JMX has stopped

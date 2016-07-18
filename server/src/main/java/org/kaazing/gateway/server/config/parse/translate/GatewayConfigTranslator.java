@@ -27,5 +27,5 @@ public interface GatewayConfigTranslator {
     /**
      * @param dom
      */
-    void translate(Document dom) throws Exception;
+    void translate(Document dom);
 }

@@ -21,6 +21,7 @@ import static org.kaazing.gateway.resource.address.uri.URIUtils.getPath;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getQuery;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -83,7 +84,7 @@ public class HttpBalancerService implements Service {
     }
 
     @Override
-    public void init(ServiceContext serviceContext) throws Exception {
+    public void init(ServiceContext serviceContext)  {
         this.serviceContext = serviceContext;
         wsebHandler = new WsebBalancerServiceHandler();
         wsebHandler.setAccepts(serviceContext.getAccepts());
@@ -97,7 +98,7 @@ public class HttpBalancerService implements Service {
     }
 
     @Override
-    public void start() throws Exception {
+    public void start() throws URISyntaxException  {
         final BridgeSessionInitializer<ConnectFuture> wsBalancerSessionInitializer = new BridgeSessionInitializerAdapter<ConnectFuture>() {
 
             private final BridgeSessionInitializer<ConnectFuture> preUpgradeHttpSessionInitializer = new BridgeSessionInitializerAdapter<ConnectFuture>() {
@@ -142,7 +143,7 @@ public class HttpBalancerService implements Service {
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() throws URISyntaxException {
         quiesce();
 
         if (serviceContext != null) {
@@ -153,7 +154,7 @@ public class HttpBalancerService implements Service {
     }
 
     @Override
-    public void quiesce() throws Exception {
+    public void quiesce() throws URISyntaxException {
         if (serviceContext != null) {
             serviceContext.unbind(HttpBalancerService.toHttpBalancerURIs(serviceContext.getAccepts(), serviceContext.getAcceptOptionsContext(), transportFactory), wsebHandler);
             serviceContext.unbind(HttpBalancerService.toWsBalancerURIs(serviceContext.getAccepts(), serviceContext.getAcceptOptionsContext(), transportFactory), wsnHandler);
@@ -161,7 +162,7 @@ public class HttpBalancerService implements Service {
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
     }
 
     /**
@@ -170,11 +171,12 @@ public class HttpBalancerService implements Service {
      * @param uris
      *            the URIs to convert
      * @return the converted URIs
+     * @throws URISyntaxException 
      * @throws Exception
      */
     private static Collection<String> toWsBalancerURIs(Collection<String> uris,
                                                     AcceptOptionsContext acceptOptionsCtx,
-                                                    TransportFactory transportFactory) throws Exception {
+                                                    TransportFactory transportFactory) throws URISyntaxException  {
         List<String> httpURIs = new ArrayList<>(uris.size());
         for (String uri : uris) {
             String schemeFromAcceptURI = uri.substring(0, uri.indexOf(':'));
@@ -209,11 +211,11 @@ public class HttpBalancerService implements Service {
      * @param uris
      *            the URIs to convert
      * @return the converted URIs
-     * @throws Exception
+     * @throws URISyntaxException
      */
     private static Collection<String> toHttpBalancerURIs(Collection<String> uris,
                                                       AcceptOptionsContext acceptOptionsCtx,
-                                                      TransportFactory transportFactory) throws Exception {
+                                                      TransportFactory transportFactory) throws URISyntaxException  {
         List<String> httpURIs = new ArrayList<>(uris.size());
         for (String uri : uris) {
             Protocol protocol = transportFactory.getProtocol(getScheme(uri));

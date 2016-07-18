@@ -58,11 +58,11 @@ public abstract class AbstractVisitor
     }
 
     // Implemented by subclasses
-    public abstract void visit(Element element) throws Exception;
+    public abstract void visit(Element element);
 
     @Override
     public void translate(Document dom)
-            throws Exception {
+             {
 
         Element root = dom.getRootElement();
         visit(root);
