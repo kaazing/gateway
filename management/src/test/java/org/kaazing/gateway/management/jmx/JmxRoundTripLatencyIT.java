@@ -39,7 +39,7 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-
+@Ignore
 public class JmxRoundTripLatencyIT {
 
     private static final String ECHO_WSE_SERVICE = "echoWse";

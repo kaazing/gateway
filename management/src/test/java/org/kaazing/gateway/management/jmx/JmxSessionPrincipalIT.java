@@ -125,6 +125,7 @@ public class JmxSessionPrincipalIT {
         "wse.session.with.user.principal.joe",
         "wsn.session.with.user.principal.ann" })
     @Test
+    @Ignore
     public void shouldKillSessionsByUserPrincipal() throws Exception {
         ObjectName echoServiceMbeanName = null;
 

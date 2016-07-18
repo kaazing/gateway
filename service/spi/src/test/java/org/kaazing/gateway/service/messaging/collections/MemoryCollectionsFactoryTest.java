@@ -15,13 +15,14 @@
  */
 package org.kaazing.gateway.service.messaging.collections;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.hazelcast.core.IMap;
@@ -30,14 +31,18 @@ import com.hazelcast.query.SqlPredicate;
 
 public class MemoryCollectionsFactoryTest {
     private static final String MAP_NAME = "TestMap";
+    private static final String MAP_NAME_1 = "TestMap1";
 
-    private MemoryCollectionsFactory factory;
+    private static MemoryCollectionsFactory factory;
 
     // In support of http://jira.kaazing.wan/browse/KG-5001, the
     // MemoryCollectionsFactory's IMap implementation needs to handle
     // querying for keys, values, entries using Predicates.
 
-    private class TestObject {
+    @SuppressWarnings("rawtypes")
+    private static class TestObject implements Serializable, Comparable{
+
+        private static final long serialVersionUID = 1L;
         private final String value;
 
         public TestObject(String value) {
@@ -68,10 +73,16 @@ public class MemoryCollectionsFactoryTest {
         public String toString() {
             return String.format("{ value=%s }", value);
         }
+
+        @Override
+        public int compareTo(Object o) {
+            
+            return 0;
+        }
     }
 
-    @Before
-    public void setUp()
+    @BeforeClass
+    public static void setUp()
         throws Exception {
 
         factory = new MemoryCollectionsFactory();
@@ -91,7 +102,7 @@ public class MemoryCollectionsFactoryTest {
     public void shouldGetIMapLocalKeySet()
         throws Exception {
 
-        IMap<String, String> map = factory.getMap(MAP_NAME);
+        IMap<String, String> map = factory.getMap(MAP_NAME_1);
 
         // Add three keys
         String k1 = "foo";

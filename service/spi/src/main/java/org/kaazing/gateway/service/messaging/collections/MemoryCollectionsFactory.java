@@ -15,8 +15,11 @@
  */
 package org.kaazing.gateway.service.messaging.collections;
 
+import java.util.logging.Level;
+
 import org.kaazing.gateway.util.AtomicCounter;
 
+import com.hazelcast.config.Config;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -26,13 +29,25 @@ import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 import com.hazelcast.core.ITopic;
+import com.hazelcast.instance.GroupProperties;
 
 public class MemoryCollectionsFactory implements CollectionsFactory {
-    private HazelcastInstance hazelcastInstance;
+    private static HazelcastInstance hazelcastInstance ;
 
+    static {
+        Config config = new Config("StandAlone");
+        config.setProperty(GroupProperties.PROP_PHONE_HOME_ENABLED, "false");
+        config.setProperty("hazelcast.io.thread.count", "1");
+        config.getNetworkConfig().setPortAutoIncrement(false);
+        config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
+        hazelcastInstance = Hazelcast.newHazelcastInstance(config);
+        java.util.logging.Logger logger = java.util.logging.Logger.getLogger("com.hazelcast");
+        logger.setLevel(Level.OFF);
+
+    }
+    
+   
     public MemoryCollectionsFactory() {
-        this.hazelcastInstance = Hazelcast.newHazelcastInstance();
-        //hazelcastInstance.getConfig().setProperty(GroupProperties.PROP_PHONE_HOME_ENABLED, "false");
     }
 
     @Override

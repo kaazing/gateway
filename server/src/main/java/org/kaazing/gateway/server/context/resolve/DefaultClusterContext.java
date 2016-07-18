@@ -190,19 +190,10 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         MapConfig memberBalancerMapConfig = hazelCastConfig.getMapConfig(MEMBERID_BALANCER_MAP_NAME);
         memberBalancerMapConfig.setBackupCount(3);
 
-        // disable port auto increment
-        hazelCastConfig.getNetworkConfig().setPortAutoIncrement(false);
-
         // The first accepts port is the port used by all network interfaces.
         int clusterPort = (localInterfaces.size() > 0) ? localInterfaces.get(0).getPort() : -1;
-
-        // TO turn off logging in hazelcast API.
-        // Note: must use Logger.getLogger, not LogManager.getLogger
-        java.util.logging.Logger logger = java.util.logging.Logger.getLogger("com.hazelcast");
-        logger.setLevel(Level.OFF);
-
         NetworkConfig networkConfig = new NetworkConfig();
-       
+
         // initialize hazelcast
         if (clusterPort != -1) {
             networkConfig.setPort(clusterPort);
@@ -215,19 +206,17 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
                         "with tcp://");
             }
 
-            // NOTE: The version of Hazelcast(1.9.4.8) that is being used does not support IPv6 address. The Hazelcast library
+            // NOTE: The version of Hazelcast(1.9.4.8) that was being used did not support IPv6 address. The Hazelcast library
             //       throws NumberFormatException when IPv6 address is specified as an interface to bind to.
-            String hostAddress = localInterface.getHost();
-            InetAddress address = getResolvedAddressFromHost(hostAddress);
-
-            if (address instanceof Inet6Address) {
+            // TODO add support for IPv6 with test coverage.
+            // Here is 3.6.4 Doc link: http://docs.hazelcast.org/docs/latest/manual/html-single/index.html#ipv6-support
+            if (getResolvedAddressFromHost(localInterface.getHost()) instanceof Inet6Address) {
                 throw new IllegalArgumentException("ERROR: Cluster member accept url - '" + localInterface.toString() +
                         "' consists of IPv6 address which is not supported. Use Ipv4 address instead.");
             }
 
             // convertHostToIP method is used in order to address situations in which network interface syntax is present
-            String hostConvertedToIP = convertHostToIP(localInterface.getHost());
-            networkConfig.getInterfaces().addInterface(hostConvertedToIP);
+            networkConfig.getInterfaces().addInterface(convertHostToIP(localInterface.getHost()));
 
             if (localInterface.getPort() != clusterPort) {
                 throw new IllegalArgumentException("Port numbers on the network interfaces in <accept> do not match");
@@ -290,7 +279,11 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             if (unicastAddresses.size() > 0) {
                 tcpIpConfig.setEnabled(!usingMulticast);
                 for (InetSocketAddress unicastAddress : unicastAddresses) {
-                    tcpIpConfig.addMember(unicastAddress.toString());
+                    String unicastAddressString = unicastAddress.toString();
+                    if((unicastAddressString.indexOf("/") == 0) && (unicastAddressString.length() > 1)) {
+                        unicastAddressString = unicastAddressString.substring(1);
+                    }
+                    tcpIpConfig.addMember(unicastAddressString);
                 }
             }
 
@@ -362,6 +355,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             //           Hazelcast does not discard the interface explicitly specified to bind to.
             hazelCastConfig.setProperty(GroupProperties.PROP_SOCKET_BIND_ANY, "false");
         }
+        // disable port auto increment
+        networkConfig.setPortAutoIncrement(false);
 
         hazelCastConfig.setNetworkConfig(networkConfig);
 
@@ -372,6 +367,12 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
         //Disable HazelCast's usage data collection,which is enabled by default.
         hazelCastConfig.setProperty(GroupProperties.PROP_PHONE_HOME_ENABLED, "false"); 
+
+        // TODO: this should go in Log4J xml so we can enable disable without changing code.
+        // TO turn off logging in hazelcast API.
+        // Note: must use Logger.getLogger, not LogManager.getLogger
+        java.util.logging.Logger logger = java.util.logging.Logger.getLogger("com.hazelcast");
+        logger.setLevel(Level.OFF);
 
         return hazelCastConfig;
     }
