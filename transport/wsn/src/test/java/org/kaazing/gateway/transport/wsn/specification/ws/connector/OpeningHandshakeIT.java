@@ -285,9 +285,7 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Issue# 311: Missing Connection header in handshake response. connectFuture.isConnected() must return false")
-    @Specification({
-        "response.header.connection.missing/handshake.response" })
+    @Specification({"response.header.connection.missing/handshake.response"})
     public void shouldFailConnectionWhenResponseHeaderConnectionMissing() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 
