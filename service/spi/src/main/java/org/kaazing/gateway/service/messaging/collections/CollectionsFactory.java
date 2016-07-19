@@ -31,7 +31,7 @@ public interface CollectionsFactory {
 
     <E> IList<E> getList(String name);
 
-     <E> ITopic<E> getTopic(String name);
+    <E> ITopic<E> getTopic(String name);
 
     ILock getLock(String name);
 

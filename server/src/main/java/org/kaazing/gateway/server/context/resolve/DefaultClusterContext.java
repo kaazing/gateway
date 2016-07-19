@@ -272,7 +272,6 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
                 }
                 multicastConfig.setEnabled(true);
                 InetSocketAddress multicastAddress = multicastAddresses.get(0);
-                System.out.println("multicastAddress.getHostName(): " + multicastAddress.getHostName());
                 multicastConfig.setMulticastGroup(multicastAddress.getHostName());
                 multicastConfig.setMulticastPort(multicastAddress.getPort());
             }
