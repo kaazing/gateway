@@ -59,6 +59,8 @@ import org.kaazing.mina.core.future.DefaultWriteFutureEx;
 import org.kaazing.mina.core.future.WriteFutureEx;
 import org.kaazing.mina.core.write.DefaultWriteRequestEx;
 import org.kaazing.mina.core.write.WriteRequestEx;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base implementation of {@link IoSession}.
@@ -98,6 +100,8 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
                 session.writtenBytesThroughput = 0;
             }
     };
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractIoSession.class);
 
     /**
      * An internal write request object that triggers session close.
@@ -426,9 +430,9 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
         try {
             if (message instanceof IoBuffer
                     && !((IoBuffer) message).hasRemaining()) {
-                // Nothing to write : probably an error in the user code
-                throw new IllegalArgumentException(
-                "message is empty. Forgot to call flip()?");
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Message is empty. Forgot to call flip()?");
+                }
             } else if (message instanceof FileChannel) {
                 FileChannel fileChannel = (FileChannel) message;
                 message = new DefaultFileRegion(fileChannel, 0, fileChannel.size());
