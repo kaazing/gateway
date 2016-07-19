@@ -41,7 +41,7 @@ import static org.jboss.netty.channel.Channels.fireChannelOpen;
 import static org.jboss.netty.channel.Channels.fireMessageReceived;
 import static org.jboss.netty.channel.Channels.pipeline;
 
-public class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements ServerBootstrap {
+class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements ServerBootstrap {
 
     private ChannelHandler parentHandler;
 
@@ -86,7 +86,7 @@ public class ConnectionlessServerBootstrap extends ConnectionlessBootstrap imple
         return parentHandler;
     }
 
-    public final class ConnectionlessParentChannelHandler extends SimpleChannelUpstreamHandler {
+    private final class ConnectionlessParentChannelHandler extends SimpleChannelUpstreamHandler {
 
         // remote address --> child channel
         private final Map<SocketAddress, NioDatagramChannel> childChannels;
@@ -107,6 +107,12 @@ public class ConnectionlessServerBootstrap extends ConnectionlessBootstrap imple
             childChannel.getWorker().executeInIoThread(
                     () -> fireChannelConnected(childChannel, childChannel.getRemoteAddress())
             );
+        }
+
+        @Override
+        public void childChannelClosed(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
+            Channel childChannel = e.getChildChannel();
+            childChannels.remove(childChannel.getRemoteAddress());
         }
 
         @Override
@@ -132,10 +138,6 @@ public class ConnectionlessServerBootstrap extends ConnectionlessBootstrap imple
             childChannels.clear();
 
             e.getFuture().setSuccess();
-        }
-
-        public void closeChildChannel(NioDatagramChannel childChannel) {
-            childChannels.remove(childChannel.getRemoteAddress());
         }
 
         private NioDatagramChannel getChildChannel(Channel channel, SocketAddress remoteAddress) throws Exception {

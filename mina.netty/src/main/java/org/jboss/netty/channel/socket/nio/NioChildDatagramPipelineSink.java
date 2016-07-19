@@ -36,7 +36,6 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelState;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
-import org.kaazing.mina.netty.bootstrap.ConnectionlessServerBootstrap;
 
 import java.util.concurrent.Executor;
 
@@ -82,7 +81,6 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
             switch (state) {
                 case OPEN:
                     if (Boolean.FALSE.equals(value)) {
-                        closeRequested(pipeline, e);
                         channel.worker.close(channel, future);
                     }
                     break;
@@ -114,14 +112,6 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
             }
 
             parent.getWorker().executeInIoThread(new WriteTask());
-        }
-    }
-
-    void closeRequested(ChannelPipeline pipeline, ChannelEvent evt) throws Exception {
-        if (!evt.getFuture().isSuccess()) {
-            NioDatagramChannel parent = (NioDatagramChannel) evt.getChannel().getParent();
-            ConnectionlessServerBootstrap.ConnectionlessParentChannelHandler handler = (ConnectionlessServerBootstrap.ConnectionlessParentChannelHandler) parent.getPipeline().getLast();
-            handler.closeChildChannel((NioDatagramChannel) evt.getChannel());
         }
     }
 
