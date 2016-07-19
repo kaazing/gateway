@@ -36,27 +36,27 @@ public class DummyService implements Service {
     }
 
     @Override
-    public void init(ServiceContext serviceContext){
+    public void init(ServiceContext serviceContext) throws Exception {
         // no-op
     }
 
     @Override
-    public void start() {
+    public void start() throws Exception {
         // no-op
     }
 
     @Override
-    public void stop() {
+    public void stop() throws Exception {
         // no-op
     }
 
     @Override
-    public void quiesce() {
+    public void quiesce() throws Exception {
         // no-op
     }
 
     @Override
-    public void destroy() {
+    public void destroy() throws Exception {
         // no-op
     }
 
