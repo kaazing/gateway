@@ -98,7 +98,10 @@ public class ArchitectureIT {
     @Test
     @Specification({"origin.server.should.send.505.on.major.version.not.equal.to.one/request"})
     public void originServerShouldSend505OnMajorVersionNotEqualToOne() throws Exception {
-        testHttpVersionErrors(HTTP_ADDRESS);
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>();
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
     }
 
     @Test

@@ -18,10 +18,12 @@ package org.kaazing.gateway.transport.http.acceptor.specification.rfc7230;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 
+import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IoSession;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Ignore;
@@ -40,6 +42,8 @@ import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
+import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.test.util.ITUtil;
 import org.kaazing.test.util.MethodExecutionTrace;
 
@@ -71,8 +75,13 @@ public class TransferCodingsIT {
     public void requestTransferEncodingChunked() throws Exception {
         standardHttpTestCase(HTTP_ADDRESS);
     }
-    
-    @Ignore("Cannot Write Bytes")
+
+    private WriteFuture writeStringMessageToSession(String message, IoSession session) {
+        ByteBuffer data = ByteBuffer.wrap(message.getBytes());
+        IoBufferAllocatorEx<?> allocator = ((IoSessionEx) session).getBufferAllocator();
+        return session.write(allocator.wrap(data));
+    }
+
     @Test
     @Specification({"response.transfer.encoding.chunked/request"})
     public void responseTransferEncodingChunked() throws Exception {
@@ -81,42 +90,37 @@ public class TransferCodingsIT {
 
         final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
 
-            byte[] i = new byte[]{0x0a};
-            byte[] chunk = new byte[]{0x0d, 0x0a};
-            byte[] chunk_1 = "Chunk A".getBytes();
-            byte[] chunk_2 = "Chunk B".getBytes();
-            byte[] chunk_3 = "Chunk C".getBytes();
-            
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 session.setStatus(HttpStatus.SUCCESS_OK);
                 session.addWriteHeader(HttpHeaders.HEADER_CONTENT_TYPE, "text/plain");
                 session.addWriteHeader(HttpHeaders.HEADER_TRANSFER_ENCODING, "chunked");
+                writeStringMessageToSession("Chunk A", session);
+                writeStringMessageToSession("Chunk B", session);
+                writeStringMessageToSession("Chunk C", session);
                 session.close(false);
-                session.getBufferAllocator().allocate(7);
-                session.write(chunk_1);
             }
-            
+
         };
         acceptor.bind(HTTP_ADDRESS, acceptHandler);
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"request.transfer.encoding.chunked.with.trailer/request"})
     public void requestTransferEncodingChunkedWithTrailer() throws Exception {
         standardHttpTestCase(HTTP_ADDRESS);
     }
-    
-    @Ignore("Cannot Write Bytes")
+
+    @Ignore("Cannot write a trailer.")
     @Test
     @Specification({"response.transfer.encoding.chunked.with.trailer/request"})
     public void responseTransferEncodingChunkedWithTrailer() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
 
         final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
-            
+
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
@@ -124,9 +128,12 @@ public class TransferCodingsIT {
                 session.addWriteHeader(HttpHeaders.HEADER_CONTENT_TYPE, "text/plain");
                 session.addWriteHeader(HttpHeaders.HEADER_TRANSFER_ENCODING, "chunked");
                 session.addWriteHeader(HttpHeaders.HEADER_TRAILER, "Trailing-Header");
+                writeStringMessageToSession("Chunk A", session);
+                writeStringMessageToSession("Chunk B", session);
+                writeStringMessageToSession("Chunk C", session);
                 session.close(false);
             }
-            
+
         };
         acceptor.bind(HTTP_ADDRESS, acceptHandler);
 
@@ -138,7 +145,7 @@ public class TransferCodingsIT {
         final CountDownLatch latch = new CountDownLatch(1);
 
         final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
-            
+
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
@@ -146,7 +153,7 @@ public class TransferCodingsIT {
                 session.addWriteHeader(HttpHeaders.HEADER_CONTENT_TYPE, "text/plain");
                 session.close(false);
             }
-            
+
         };
         acceptor.bind(address, acceptHandler);
 

@@ -66,7 +66,7 @@ public class ResponseHeaderFieldsIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("file separate issue - what to do when receive unused headers.")
+    @Ignore("BUG: What to do when unknown http method given")
     @Test
     @Specification({"allow.lists.resource.methods/request"})
     public void allowHeaderInformsMethodsAssociatedWithResource() throws Exception {

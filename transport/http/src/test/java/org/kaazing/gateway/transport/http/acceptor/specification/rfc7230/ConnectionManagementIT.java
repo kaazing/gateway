@@ -204,6 +204,11 @@ public class ConnectionManagementIT {
 
                 session.setStatus(HttpStatus.SUCCESS_OK);
                 session.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(8));
+                if (session.getRequestURI().toString().equals("/request1")) {
+                    writeStringMessageToSession("request1", session);
+                } else {
+                    writeStringMessageToSession("request2", session);
+                }
 
                 session.close(true);
             }

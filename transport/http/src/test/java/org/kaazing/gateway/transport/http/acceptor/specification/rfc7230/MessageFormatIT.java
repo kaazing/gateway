@@ -23,7 +23,6 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.mina.core.service.IoHandler;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -256,7 +255,7 @@ public class MessageFormatIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Talk with David/John Later")
+    @Ignore("Transfer Encoding Bug")
     @Test
     @Specification({"server.should.send.501.to.unknown.transfer.encoding/request"})
     public void serverShouldSend501ToUnknownTransferEncoding() throws Exception {
