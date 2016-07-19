@@ -19,8 +19,6 @@ import static java.util.ServiceLoader.load;
 
 import java.util.ServiceLoader;
 
-import javax.naming.ConfigurationException;
-
 import org.kaazing.gateway.server.config.parse.GatewayConfigNamespace;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.config.parse.translate.spi.GatewayConfigTranslatorFactorySpi;
@@ -69,10 +67,9 @@ public class GatewayConfigTranslatorFactory {
      *
      * @param ns
      * @return
-     * @throws ConfigurationException 
      * @throws Exception
      */
-    public GatewayConfigTranslator getTranslator(GatewayConfigNamespace namespace) throws ConfigurationException {
+    public GatewayConfigTranslator getTranslator(GatewayConfigNamespace namespace) throws Exception {
         GatewayConfigTranslator result;
         for (GatewayConfigTranslatorFactorySpi factory : services) {
             result = factory.getTranslator(namespace);
@@ -80,6 +77,6 @@ public class GatewayConfigTranslatorFactory {
                 return result;
             }
         }
-        throw new ConfigurationException("Unrecognized gateway configuration namespace " + namespace);
+        throw new Exception("Unrecognized gateway configuration namespace " + namespace);
     }
 }

@@ -55,7 +55,7 @@ public class NamespaceVisitor extends AbstractVisitor {
     }
 
     @Override
-    public void translate(Document dom) {
+    public void translate(Document dom) throws Exception {
 
         super.translate(dom);
 
