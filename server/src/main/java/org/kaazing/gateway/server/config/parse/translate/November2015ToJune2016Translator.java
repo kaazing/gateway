@@ -26,8 +26,7 @@ public class November2015ToJune2016Translator extends GatewayConfigTranslatorPip
         // for each balance URI, make sure there is a corresponding balancer service accepting on that URI
         // for each balancer service accept URI, make sure there is a corresponding balance URI pointing to that service
         addTranslator(new FindMatchingBalancerServiceVisitor());
-        
-        
+
         addTranslator(new RemoveRealmVisitor());
 
         addTranslator(new NamespaceVisitor(GatewayConfigNamespace.CURRENT_NS));
