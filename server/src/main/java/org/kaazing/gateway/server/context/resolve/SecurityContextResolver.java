@@ -18,9 +18,14 @@ package org.kaazing.gateway.server.context.resolve;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 
 import org.kaazing.gateway.server.config.nov2015.SecurityStoreType;
 import org.kaazing.gateway.server.config.nov2015.SecurityType;
@@ -37,7 +42,9 @@ public class SecurityContextResolver implements ContextResolver<SecurityType, De
     }
 
     @Override
-    public DefaultSecurityContext resolve(SecurityType securityConfig) throws Exception {
+    public DefaultSecurityContext resolve(SecurityType securityConfig) 
+            throws GeneralSecurityException, IOException
+    {
 
         KeyStore keyStore = null;
         String keyStoreRelativePath = null;
@@ -112,8 +119,8 @@ public class SecurityContextResolver implements ContextResolver<SecurityType, De
                 trustStoreFilePath == null ? null : trustStoreFilePath.getAbsolutePath(), trustStorePassword);
     }
 
-    private KeyStore loadKeyStore(SecurityStoreType.Type.Enum keyStoreType, File location, char[] password)
-            throws Exception {
+    private KeyStore loadKeyStore(SecurityStoreType.Type.Enum keyStoreType, File location, char[] password) throws IOException, NoSuchAlgorithmException, CertificateException, KeyStoreException
+             {
         KeyStore keyStore = KeyStore.getInstance(keyStoreType == null ? KeyStore.getDefaultType() : keyStoreType.toString());
         FileInputStream in = new FileInputStream(location);
         try {
@@ -131,7 +138,7 @@ public class SecurityContextResolver implements ContextResolver<SecurityType, De
         return keyStore;
     }
 
-    private static char[] loadKeyStorePassword(File location) throws Exception {
+    private static char[] loadKeyStorePassword(File location) throws IOException  {
         BufferedReader in = new BufferedReader(new FileReader(location));
         String line = in.readLine();
         in.close();

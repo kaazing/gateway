@@ -40,6 +40,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import javax.naming.ConfigurationException;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.ErrorListener;
@@ -47,15 +49,18 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.JDOMException;
 import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
@@ -113,12 +118,11 @@ public class GatewayConfigParser {
         this.configuration = configuration;
     }
 
-
     private void translate(final GatewayConfigNamespace ns,
                            final Document dom,
                            final File translatedConfigFile,
-                           boolean writeTranslatedFile)
-            throws Exception {
+                           boolean writeTranslatedFile) throws IOException, ConfigurationException
+             {
 
         GatewayConfigTranslator translator = GatewayConfigTranslatorFactory.newInstance().getTranslator(ns);
         translator.translate(dom);
@@ -148,8 +152,8 @@ public class GatewayConfigParser {
         }
     }
 
-    private File getTranslatedConfigFile(final File configFile)
-            throws Exception {
+    private File getTranslatedConfigFile(final File configFile) throws JDOMException, IOException, ConfigurationException
+             {
 
         // Build a DOM of the config file, so that we can easily sniff the
         // namespace used.  We then key off the namespace and attempt to
@@ -169,16 +173,16 @@ public class GatewayConfigParser {
         return translatedConfigFile;
     }
     
-    private void checkForNoLongerSupported(Element root) throws Exception {
+    private void checkForNoLongerSupported(Element root) throws ConfigurationException  {
         Namespace namespace = root.getNamespace();
         List<Element> children = root.getChildren("service", namespace);
         for (Element child : children) {
             Element typeChild = child.getChild("type", namespace);
             String type = typeChild.getText();
             if (type.equals("management.snmp")) {
-                throw new Exception("snmp management type is no longer supported."); 
+                throw new ConfigurationException("snmp management type is no longer supported."); 
             } else if (type.equals("session")) {
-                throw new Exception("session service type is no longer supported.");
+                throw new ConfigurationException("session service type is no longer supported.");
             }
         }
         
@@ -189,9 +193,10 @@ public class GatewayConfigParser {
      *
      * @param configFile the configuration file
      * @return GatewayConfig the parsed gateway configuration
+     * @throws IOException 
      * @throws Exception when a problem occurs
      */
-    public GatewayConfigDocument parse(final File configFile) throws Exception {
+    public GatewayConfigDocument parse(final File configFile) throws IOException {
         long time = 0;
         if (LOGGER.isDebugEnabled()) {
             time = System.currentTimeMillis();
@@ -212,7 +217,7 @@ public class GatewayConfigParser {
         File translatedConfigFile;
         try {
             translatedConfigFile = getTranslatedConfigFile(configFile);
-        } catch (Exception e) {
+        } catch (ConfigurationException | JDOMException e) {
             Throwable rootCause = getRootCause(e);
             if (rootCause == null) {
                 rootCause = e;
@@ -225,21 +230,17 @@ public class GatewayConfigParser {
                 LOGGER.error("Error upgrading XML: " + rootCause);
             }
 
-            // If it's not an IllegalArgumentException, wrap it in a
-            // GatewayConfigParserException
-            if (e instanceof IllegalArgumentException) {
-                throw e;
+            // Wrap it in a GatewayConfigParserException
+            throw new GatewayConfigParserException(e.getMessage());
 
-            } else {
-                throw new GatewayConfigParserException(e.getMessage());
-            }
         }
+
 
         List<String> xmlParseErrors = new ArrayList<>();
         try {
             config = GatewayConfigDocument.Factory.parse(new FileInputStream(translatedConfigFile), parseOptions);
 
-        } catch (Exception e) {
+        } catch (XmlException e) {
             // track the parse error so that we don't make the 2nd pass through the file
             xmlParseErrors.add("Invalid XML: " + getRootCause(e).getMessage());
         }
@@ -284,7 +285,7 @@ public class GatewayConfigParser {
 
             try {
                 config = GatewayConfigDocument.Factory.parse(xmlTransformedIn, parseOptions);
-            } catch (Exception e) {
+            } catch (XmlException e) {
                 // If parsing with previous namespace was also unsuccessful,
                 // process errors top down, failing fast, for user level errors
                try {
@@ -292,7 +293,7 @@ public class GatewayConfigParser {
                         if (xmlTransformedFuture.get()) {
                             throw e;
                         }
-                    }
+                        }
                 } catch (Exception n) {
                     xmlParseErrors.add("Invalid XML: " + getRootCause(n).getMessage());
                 }
@@ -445,8 +446,8 @@ public class GatewayConfigParser {
             buffer.flush();
             log.trace(message + "\n\n\n" + new String(buffer.toByteArray(), CHARSET_OUTPUT) + "\n\n\n");
             output = new ByteArrayInputStream(buffer.toByteArray());
-        } catch (Exception e) {
-            throw new RuntimeException("could not buffer stream", e);
+        } catch (IOException e) {
+            throw new GatewayConfigParserException("could not buffer stream");
         }
         return output;
     }
@@ -522,9 +523,12 @@ public class GatewayConfigParser {
          * Parse the config file, resolving and injecting parameters encountered
          *
          * @return <code>true</code> if processed without errors, <code>false</code> otherwise
+         * @throws SAXException 
+         * @throws ParserConfigurationException 
+         * @throws IOException 
          */
         @Override
-        public Boolean call() throws Exception {
+        public Boolean call() throws ParserConfigurationException, SAXException, IOException {
             try {
                 SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
                 DefaultHandler handler = new DefaultHandler2() {
@@ -631,9 +635,11 @@ public class GatewayConfigParser {
          * Transform the gateway configuration file using the stylesheet.
          *
          * @return <code>true</code> if processed without errors, <code>false</code> otherwise
+         * @throws IOException 
+         * @throws TransformerException 
          */
         @Override
-        public Boolean call() throws Exception {
+        public Boolean call() throws IOException, TransformerException {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             URL resource = classLoader.getResource(stylesheet);
             InputStream xslIn = resource.openStream();

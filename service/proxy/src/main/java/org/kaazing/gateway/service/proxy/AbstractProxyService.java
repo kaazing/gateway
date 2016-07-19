@@ -53,7 +53,7 @@ public abstract class AbstractProxyService<HandlerType extends AbstractProxyHand
     }
 
     @Override
-    public void init(ServiceContext serviceContext) throws Exception {
+    public void init(ServiceContext serviceContext) {
         this.serviceContext = serviceContext;
         // lookup service properties
         ServiceProperties properties = serviceContext.getProperties();
@@ -70,13 +70,13 @@ public abstract class AbstractProxyService<HandlerType extends AbstractProxyHand
     }
 
     @Override
-    public void start() throws Exception {
+    public void start(){
         serviceContext.bind(serviceContext.getAccepts(), handler);
         serviceContext.bindConnectsIfNecessary(serviceContext.getConnects());
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() {
         quiesce();
 
         // defer until stop to allow connect to succeed and re-enable the service
@@ -90,14 +90,14 @@ public abstract class AbstractProxyService<HandlerType extends AbstractProxyHand
     }
 
     @Override
-    public void quiesce() throws Exception {
+    public void quiesce() {
         if (serviceContext != null) {
             serviceContext.unbind(serviceContext.getAccepts(), handler);
         }
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
     }
 
     protected abstract HandlerType createHandler();

@@ -41,7 +41,7 @@ class BroadcastServiceHandler extends IoHandlerAdapter {
     private final OnClientMessage onClientMessage;
 
     BroadcastServiceHandler(boolean disconnectClientsOnReconnect, long maximumScheduledWriteBytes, OnClientMessage onClientMessage, Logger logger)
-            throws Exception {
+             {
         this.onClientMessage = onClientMessage;
         this.clients = new ConcurrentHashSet<>();
         this.handler = new BroadcastListenHandler(Collections.unmodifiableCollection(clients),

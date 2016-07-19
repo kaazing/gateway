@@ -42,7 +42,7 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
     }
 
     @Override
-    public void init(ServiceContext serviceContext) throws Exception {
+    public void init(ServiceContext serviceContext) {
         EarlyAccessFeatures.HTTP_PROXY_SERVICE.assertEnabled(configuration, serviceContext.getLogger());
         super.init(serviceContext);
         Collection<String> connectURIs = serviceContext.getConnects();

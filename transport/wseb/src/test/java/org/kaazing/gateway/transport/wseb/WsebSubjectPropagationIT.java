@@ -198,30 +198,30 @@ public class WsebSubjectPropagationIT {
         }
 
         @Override
-        public void init(ServiceContext serviceContext) throws Exception {
+        public void init(ServiceContext serviceContext)  {
             this.serviceContext = serviceContext;
             handler = new SubjectServiceHandler();
         }
 
         @Override
-        public void start() throws Exception {
+        public void start()  {
             serviceContext.bind(serviceContext.getAccepts(), handler);
         }
 
         @Override
-        public void stop() throws Exception {
+        public void stop()  {
             // TODO Auto-generated method stub
 
         }
 
         @Override
-        public void quiesce() throws Exception {
+        public void quiesce()  {
             // TODO Auto-generated method stub
 
         }
 
         @Override
-        public void destroy() throws Exception {
+        public void destroy() {
             // TODO Auto-generated method stub
 
         }

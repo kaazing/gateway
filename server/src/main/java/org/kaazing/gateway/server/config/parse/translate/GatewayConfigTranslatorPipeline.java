@@ -46,7 +46,7 @@ public class GatewayConfigTranslatorPipeline implements GatewayConfigTranslator 
     }
 
     @Override
-    public void translate(Document dom) throws Exception {
+    public void translate(Document dom) {
 
         for (GatewayConfigTranslator translator : translators) {
             translator.translate(dom);

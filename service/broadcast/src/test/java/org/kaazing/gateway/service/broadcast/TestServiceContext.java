@@ -21,7 +21,10 @@ import static org.kaazing.gateway.resource.address.uri.URIUtils.getPort;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.SocketAddress;
+import java.net.URISyntaxException;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -167,12 +170,12 @@ public class TestServiceContext implements ServiceContext {
     }
 
     @Override
-    public void init() throws Exception {
+    public void init()  {
         service.init(this);
     }
 
     @Override
-    public void start() throws Exception {
+    public void start() throws MalformedURLException, RemoteException, URISyntaxException, IOException  {
         service.start();
     }
 
@@ -219,7 +222,7 @@ public class TestServiceContext implements ServiceContext {
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() throws IOException, URISyntaxException {
         service.stop();
     }
 
