@@ -29,6 +29,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -105,7 +106,7 @@ public class UdpAcceptorIT {
 
         bindTo8080(new IoHandlerAdapter<IoSessionEx>() {
             @Override
-            protected void doSessionOpened(IoSessionEx session) throws Exception {
+            protected void doSessionOpened(IoSessionEx session) {
                 latch.countDown();
             }
         });
@@ -122,7 +123,7 @@ public class UdpAcceptorIT {
         bindTo8080(new IoHandlerAdapter<IoSessionEx>() {
 
             @Override
-            protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
+            protected void doMessageReceived(IoSessionEx session, Object message) {
                 WriteFuture future = writeStringMessageToSession("server data", session);
                 futures[0] = future;
             }
@@ -140,7 +141,7 @@ public class UdpAcceptorIT {
 
         bindTo8080(new IoHandlerAdapter<IoSessionEx>() {
             @Override
-            protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
+            protected void doMessageReceived(IoSessionEx session, Object message) {
                 String decoded = new String(((IoBuffer) message).array());
                 assertEquals("client data", decoded);
                 latch.countDown();
@@ -158,7 +159,7 @@ public class UdpAcceptorIT {
             private boolean first = true;
 
             @Override
-            protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
+            protected void doMessageReceived(IoSessionEx session, Object message) {
                 String decoded = new String(((IoBuffer) message).array());
                 if (first) {
                     assertEquals("client data 1", decoded);
@@ -181,17 +182,17 @@ public class UdpAcceptorIT {
         CountDownLatch latch = new CountDownLatch(3);
         bindTo8080(new IoHandlerAdapter<IoSessionEx>() {
             @Override
-            protected void doSessionOpened(IoSessionEx session) throws Exception {
+            protected void doSessionOpened(IoSessionEx session) {
                 latch.countDown();
             }
 
             @Override
-            protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
+            protected void doMessageReceived(IoSessionEx session, Object message) {
                 latch.countDown();
             }
 
             @Override
-            protected void doSessionClosed(IoSessionEx session) throws Exception {
+            protected void doSessionClosed(IoSessionEx session) {
                 latch.countDown();
             }
         });
@@ -202,11 +203,43 @@ public class UdpAcceptorIT {
     }
 
     @Test
+    @Specification("server.close/client")
+    public void serverCloseFuture() throws Exception {
+        CountDownLatch latch = new CountDownLatch(3);
+        CloseFuture[] futures = new CloseFuture[1];
+
+        bindTo8080(new IoHandlerAdapter<IoSessionEx>() {
+            @Override
+            protected void doSessionOpened(IoSessionEx session) {
+                latch.countDown();
+            }
+
+            @Override
+            protected void doMessageReceived(IoSessionEx session, Object message) {
+                CloseFuture future = session.close(true);
+                futures[0] = future;
+                latch.countDown();
+            }
+
+            @Override
+            protected void doSessionClosed(IoSessionEx session) {
+                latch.countDown();
+            }
+        });
+
+        k3po.finish();
+
+        latch.await(3, SECONDS);
+        futures[0].await(2, SECONDS);
+        assertTrue(futures[0].isClosed());
+    }
+
+    @Test
     @Specification("concurrent.connections/client")
     public void concurrentConnections() throws Exception {
         class ConcurrentHandler extends IoHandlerAdapter<IoSessionEx> {
             @Override
-            protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
+            protected void doMessageReceived(IoSessionEx session, Object message) {
                 session.write(message);
             }
         };
@@ -220,7 +253,7 @@ public class UdpAcceptorIT {
     public void idleConcurrentConnections() throws Exception {
         class ConcurrentHandler extends IoHandlerAdapter<IoSessionEx> {
             @Override
-            protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
+            protected void doMessageReceived(IoSessionEx session, Object message) {
                 session.write(message);
             }
         };

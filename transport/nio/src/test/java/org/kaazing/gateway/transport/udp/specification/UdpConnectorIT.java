@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IoSession;
@@ -90,7 +91,7 @@ public class UdpConnectorIT {
         k3po.awaitBarrier("BOUND");
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
             @Override
-            protected void doSessionOpened(IoSessionEx session) throws Exception {
+            protected void doSessionOpened(IoSessionEx session) {
                 writeStringMessageToSession("client data", session);
             }
         });
@@ -107,12 +108,12 @@ public class UdpConnectorIT {
         connectTo8080(new IoHandlerAdapter<IoSessionEx>() {
 
             @Override
-            protected void doSessionOpened(IoSessionEx session) throws Exception {
+            protected void doSessionOpened(IoSessionEx session) {
                 writeStringMessageToSession("client data", session);
             }
 
             @Override
-            protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
+            protected void doMessageReceived(IoSessionEx session, Object message) {
                 data.set(new String(((IoBuffer) message).array()));
                 latch.countDown();
             }
@@ -131,7 +132,7 @@ public class UdpConnectorIT {
         WriteFuture[] futures = new WriteFuture[1];
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
             @Override
-            protected void doSessionOpened(IoSessionEx session) throws Exception {
+            protected void doSessionOpened(IoSessionEx session) {
                 WriteFuture future = writeStringMessageToSession("client data", session);
                 futures[0] = future;
             }
@@ -151,12 +152,12 @@ public class UdpConnectorIT {
             private boolean first = true;
 
             @Override
-            protected void doSessionOpened(IoSessionEx session) throws Exception {
+            protected void doSessionOpened(IoSessionEx session) {
                 writeStringMessageToSession("client data 1", session);
             }
 
             @Override
-            protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
+            protected void doMessageReceived(IoSessionEx session, Object message) {
                 String decoded = new String(((IoBuffer) message).array());
                 if (first) {
                     assertEquals("server data 1", decoded);
@@ -180,11 +181,11 @@ public class UdpConnectorIT {
         k3po.awaitBarrier("BOUND");
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
             @Override
-            protected void doSessionOpened(IoSessionEx session) throws Exception {
+            protected void doSessionOpened(IoSessionEx session) {
                 writeStringMessageToSession("client data", session);
             }
             @Override
-            protected void doSessionClosed(IoSessionEx session) throws Exception {
+            protected void doSessionClosed(IoSessionEx session) {
                 closed.countDown();
             }
         });
@@ -194,18 +195,46 @@ public class UdpConnectorIT {
     }
 
     @Test
+    @Specification("client.close/server")
+    public void clientCloseFuture() throws Exception {
+        CountDownLatch latch = new CountDownLatch(2);
+        CloseFuture[] futures = new CloseFuture[1];
+
+        k3po.start();
+        k3po.awaitBarrier("BOUND");
+        connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
+            @Override
+            protected void doSessionOpened(IoSessionEx session) {
+                writeStringMessageToSession("client data", session);
+                CloseFuture future = session.close(true);
+                futures[0] = future;
+                latch.countDown();
+            }
+            @Override
+            protected void doSessionClosed(IoSessionEx session) {
+                latch.countDown();
+            }
+        });
+        k3po.finish();
+
+        latch.await(5,  SECONDS);
+        futures[0].await(2, SECONDS);
+        assertTrue(futures[0].isClosed());
+    }
+
+    @Test
     @Specification("concurrent.connections/server")
     public void concurrentConnections() throws Exception {
         class ConcurrentHandler extends IoHandlerAdapter<IoSessionEx> {
             private boolean first = true;
 
             @Override
-            protected void doSessionOpened(IoSessionEx session) throws Exception {
+            protected void doSessionOpened(IoSessionEx session) {
                 writeStringMessageToSession("Hello", session);
             }
 
             @Override
-            protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
+            protected void doMessageReceived(IoSessionEx session, Object message) {
                 String decoded = new String(((IoBuffer) message).array());
                 if (first) {
                     assertEquals("Hello", decoded);
