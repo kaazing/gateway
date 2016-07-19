@@ -15,11 +15,6 @@
  */
 package org.kaazing.gateway.server.context.resolve;
 
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IdGenerator;
-import com.hazelcast.instance.GroupProperties;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,7 +24,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.kaazing.gateway.server.messaging.buffer.MemoryMessageBufferFactory;
-import org.kaazing.gateway.server.messaging.collections.ClusterCollectionsFactory;
 import org.kaazing.gateway.service.cluster.BalancerMapListener;
 import org.kaazing.gateway.service.cluster.ClusterConnectOptionsContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
@@ -42,6 +36,8 @@ import org.kaazing.gateway.service.messaging.buffer.MessageBufferFactory;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 import org.kaazing.gateway.service.messaging.collections.MemoryCollectionsFactory;
 import org.kaazing.gateway.util.Utils;
+
+import com.hazelcast.core.IdGenerator;
 
 /**
  * This class is the standalone case where the current node is itself the master this does not have any high availability

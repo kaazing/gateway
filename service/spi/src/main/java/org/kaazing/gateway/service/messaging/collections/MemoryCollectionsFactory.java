@@ -18,6 +18,7 @@ package org.kaazing.gateway.service.messaging.collections;
 import java.util.logging.Level;
 
 import org.kaazing.gateway.util.AtomicCounter;
+import org.kaazing.gateway.util.GL;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.core.EntryListener;
@@ -29,21 +30,22 @@ import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 import com.hazelcast.core.ITopic;
-import com.hazelcast.instance.GroupProperties;
 
 public class MemoryCollectionsFactory implements CollectionsFactory {
     private static HazelcastInstance hazelcastInstance ;
 
     static {
         Config config = new Config("StandAlone");
-        config.setProperty(GroupProperties.PROP_PHONE_HOME_ENABLED, "false");
+        config.setProperty("hazelcast.phone.home.enabled", "false");
         config.setProperty("hazelcast.io.thread.count", "1");
         config.getNetworkConfig().setPortAutoIncrement(false);
         config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
+        if (!GL.isTraceEnabled(GL.CLUSTER_LOGGER_NAME)) {
+            java.util.logging.Logger logger = java.util.logging.Logger.getLogger("com.hazelcast");
+            logger.setLevel(Level.OFF);
+        }
         hazelcastInstance = Hazelcast.newHazelcastInstance(config);
-        java.util.logging.Logger logger = java.util.logging.Logger.getLogger("com.hazelcast");
-        logger.setLevel(Level.OFF);
-
+        
     }
     
    

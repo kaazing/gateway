@@ -73,7 +73,6 @@ import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
-import com.hazelcast.instance.GroupProperties;
 import com.hazelcast.logging.LogEvent;
 import com.hazelcast.logging.LogListener;
 import com.hazelcast.logging.LoggingService;
@@ -175,6 +174,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private Config initializeHazelcastConfig() throws Exception {
 
         Config hazelCastConfig = new Config();
@@ -272,6 +272,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
                 }
                 multicastConfig.setEnabled(true);
                 InetSocketAddress multicastAddress = multicastAddresses.get(0);
+                System.out.println("multicastAddress.getHostName(): " + multicastAddress.getHostName());
                 multicastConfig.setMulticastGroup(multicastAddress.getHostName());
                 multicastConfig.setMulticastPort(multicastAddress.getPort());
             }
@@ -307,7 +308,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             // Explicitly enable the interface so that Hazelcast will pick the one specified
             if (!useAnyAddress) {
                 networkConfig.getInterfaces().setEnabled(true);
-                hazelCastConfig.setProperty(GroupProperties.PROP_SOCKET_BIND_ANY, "false");
+                hazelCastConfig.setProperty("hazelcast.socket.bind.any", "false");
             }
         } else {
             // Gateway is running in the AWS/Cloud env.
@@ -353,7 +354,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
             // KG-12825: Override the property PROP_SOCKET_BIND_ANY and set it to false so that
             //           Hazelcast does not discard the interface explicitly specified to bind to.
-            hazelCastConfig.setProperty(GroupProperties.PROP_SOCKET_BIND_ANY, "false");
+            hazelCastConfig.setProperty("hazelcast.socket.bind.any", "false");
         }
         // disable port auto increment
         networkConfig.setPortAutoIncrement(false);
@@ -363,17 +364,16 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         // Override the shutdown hook in Hazelcast so that the connection counts can be correctly maintained.
         // The cluster instance should be shutdown by the Gateway, so there should be no need for the default
         // Hazelcast shutdown hook.
-        hazelCastConfig.setProperty(GroupProperties.PROP_SHUTDOWNHOOK_ENABLED, "false");
+        hazelCastConfig.setProperty("hazelcast.shutdownhook.enabled", "false");
 
         //Disable HazelCast's usage data collection,which is enabled by default.
-        hazelCastConfig.setProperty(GroupProperties.PROP_PHONE_HOME_ENABLED, "false"); 
-
-        // TODO: this should go in Log4J xml so we can enable disable without changing code.
-        // TO turn off logging in hazelcast API.
-        // Note: must use Logger.getLogger, not LogManager.getLogger
-        java.util.logging.Logger logger = java.util.logging.Logger.getLogger("com.hazelcast");
-        logger.setLevel(Level.OFF);
-
+        hazelCastConfig.setProperty("hazelcast.phone.home.enabled", "false"); 
+ 
+        if (!GL.isTraceEnabled(GL.CLUSTER_LOGGER_NAME)) {
+            // Note: must use Logger.getLogger, not LogManager.getLogger
+            java.util.logging.Logger logger = java.util.logging.Logger.getLogger("com.hazelcast");
+            logger.setLevel(Level.OFF);
+        }
         return hazelCastConfig;
     }
 
