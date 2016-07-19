@@ -18,7 +18,6 @@ package org.kaazing.gateway.service.broadcast;
 // FIXME: Make InternalSystemProperty generic, maybe gateway.util?
 //import static org.kaazing.gateway.server.config.InternalSystemProperty.BROADCAST_SERVICE_DISCONNECT_CLIENTS_ON_RECONNECT;
 //import static org.kaazing.gateway.server.config.InternalSystemProperty.BROADCAST_SERVICE_MAXIMUM_PENDING_BYTES;
-
 import static org.kaazing.gateway.util.Utils.parseBoolean;
 import static org.kaazing.gateway.util.Utils.parsePositiveInteger;
 
@@ -41,7 +40,6 @@ import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * Gateway service of type "broadcast".
@@ -91,7 +89,7 @@ public class BroadcastService implements Service {
     }
 
     @Override
-    public void init(final ServiceContext serviceContext) {
+    public void init(final ServiceContext serviceContext) throws Exception {
         this.serviceContext = serviceContext;
 
         boolean disconnectClientsOnReconnect = parseBoolean(
@@ -127,7 +125,7 @@ public class BroadcastService implements Service {
     }
 
     @Override
-    public void start() {
+    public void start() throws Exception {
         reconnect.set(true);
 
         serviceContext.bind(serviceContext.getAccepts(), handler);
@@ -144,7 +142,7 @@ public class BroadcastService implements Service {
     }
 
     @Override
-    public void stop() {
+    public void stop() throws Exception {
         quiesce();
 
         // defer until stop to allow connect to succeed and re-enable the service
@@ -160,7 +158,7 @@ public class BroadcastService implements Service {
     }
 
     @Override
-    public void quiesce() {
+    public void quiesce() throws Exception {
         reconnect.set(false);
 
         if (serviceContext != null) {
@@ -169,7 +167,7 @@ public class BroadcastService implements Service {
     }
 
     @Override
-    public void destroy() {
+    public void destroy() throws Exception {
         scheduler.shutdownNow();
     }
 
@@ -223,12 +221,16 @@ public class BroadcastService implements Service {
             this.type = type;
         }
 
-        static OnClientMessage fromString(String str) throws IllegalArgumentException  {
+        static OnClientMessage fromString(String str) throws Exception {
             if(str == null){
                 return OnClientMessage.NOOP;
             }
-            
-            return OnClientMessage.valueOf(str.toUpperCase());
+            for (OnClientMessage e : OnClientMessage.values()) {
+                if (e.type.equalsIgnoreCase(str)) {
+                    return e;
+                }
+            }
+            throw new Exception(String.format("%s type not valid Enum type for %s", str, OnClientMessage.class));
         }
     }
 }

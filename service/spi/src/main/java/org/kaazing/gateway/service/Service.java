@@ -15,11 +15,6 @@
  */
 package org.kaazing.gateway.service;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.rmi.RemoteException;
-
 /**
  * Interface describing a Kaazing WebSocket Gateway service.
  */
@@ -35,41 +30,34 @@ public interface Service {
      * 
      * @throws Exception
      */
-    void init(ServiceContext serviceContext);
+    void init(ServiceContext serviceContext) throws Exception;
 
     /**
      * Starts the service.
-     * @throws URISyntaxException 
-     * @throws MalformedURLException 
-     * @throws RemoteException 
-     * @throws IOException 
      * 
      * @throws Exception
      */
-    void start() throws URISyntaxException, MalformedURLException, RemoteException, IOException;
+    void start() throws Exception;
 
     /**
      * Stops the service.
-     * @throws IOException 
-     * @throws URISyntaxException 
      * 
      * @throws Exception
      */
-    void stop() throws IOException, URISyntaxException;
+    void stop() throws Exception;
 
     /**
      * Quiesces the service.
-     * @throws URISyntaxException 
      * 
      * @throws Exception
      */
-    void quiesce() throws URISyntaxException;
+    void quiesce() throws Exception;
 
     /**
      * Destroys the service.
      * 
      * @throws Exception
      */
-    void destroy();
+    void destroy() throws Exception;
 
 }

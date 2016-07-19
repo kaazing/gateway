@@ -15,8 +15,6 @@
  */
 package org.kaazing.gateway.server.config.parse.translate.sep2014;
 
-import static java.lang.String.format;
-
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -25,8 +23,10 @@ import java.util.Set;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.filter.ElementFilter;
-import org.kaazing.gateway.server.config.parse.GatewayConfigParserException;
+
 import org.kaazing.gateway.server.config.parse.translate.AbstractVisitor;
+
+import static java.lang.String.format;
 
 /**
  * For each balance URI on a service, make sure there is a matching balancer service accept URI.
@@ -46,7 +46,7 @@ public class FindMatchingBalancerServiceVisitor extends AbstractVisitor {
     }
 
     @Override
-    public void visit(Element element) {
+    public void visit(Element element) throws Exception {
         // First get the balance elements from the service element (same namespace as the service element)
         List<Element> balanceElements = element.getChildren(BALANCE_URI_ELEMENT, element.getNamespace());
         if (balanceElements != null) {
@@ -74,12 +74,12 @@ public class FindMatchingBalancerServiceVisitor extends AbstractVisitor {
     }
 
     @Override
-    public void translate(Document dom) {
+    public void translate(Document dom) throws Exception {
 
         Element root = dom.getRootElement();
 
         // Gather the service elements and visit them ensuring that any balance tags differ
-        // from the accept tags by host name only.
+        // from the accept tags by hostname only.
         ElementFilter nameFilter = new ElementFilter(SERVICE_ELEMENT);
         Iterator<?> iter = root.getDescendants(nameFilter);
         while (iter.hasNext()) {
@@ -90,7 +90,7 @@ public class FindMatchingBalancerServiceVisitor extends AbstractVisitor {
         // all the services have been visited, ensure the that every balance URI matches a balancer accept URI
         for (String balanceURI : balanceURIs) {
             if (!balancerAcceptURIs.contains(balanceURI)) {
-                throw new GatewayConfigParserException(
+                throw new RuntimeException(
                         format("balance URI: %s does not point to a balancer service's accept URI in the configuration file, " +
                                         "unable to launch the Gateway",
                                 balanceURI));
@@ -100,7 +100,7 @@ public class FindMatchingBalancerServiceVisitor extends AbstractVisitor {
         // ensure that every balancer accept URI matches a balance URI
         for (String balancerAcceptURI : balancerAcceptURIs) {
             if (!balanceURIs.contains(balancerAcceptURI)) {
-                throw new GatewayConfigParserException(
+                throw new RuntimeException(
                         format("Detected orphaned balancer accept URI: %s, no balance URIs in the configuration file point to " +
                                         "this balancer service.  Unable to launch the Gateway.",
                                 balancerAcceptURI));

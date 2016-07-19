@@ -15,11 +15,8 @@
  */
 package org.kaazing.gateway.server.context.resolve;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-
 public interface ContextResolver<C, R> {
 
-    R resolve(C config) throws GeneralSecurityException, IOException ;
+    R resolve(C config) throws Exception;
 
 }

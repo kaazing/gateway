@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.server.context.resolve;
 
-import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -45,7 +44,7 @@ public class DefaultSecurityContext implements SecurityContext {
                                   String trustStoreFile,
                                   String trustStoreFilePath,
                                   char[] trustStorePassword)
-            throws GeneralSecurityException {
+            throws KeyStoreException, NoSuchAlgorithmException {
         this.keyStore = keyStore;
         this.keyStoreFile = keyStoreFile;
         this.keyStorePassword = keyStorePassword;

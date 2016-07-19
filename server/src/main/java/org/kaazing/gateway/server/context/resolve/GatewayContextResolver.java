@@ -26,13 +26,11 @@ import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getUserInfo;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -206,12 +204,12 @@ public class GatewayContextResolver {
         this.transportContextsByName = new HashMap<>();
     }
 
-    public GatewayContext resolve(GatewayConfigDocument gatewayConfigDoc) throws InstantiationException, IllegalAccessException, URISyntaxException, GeneralSecurityException, IOException
-             {
+    public GatewayContext resolve(GatewayConfigDocument gatewayConfigDoc)
+            throws Exception {
         return resolve(gatewayConfigDoc, System.getProperties());
     }
 
-    public GatewayContext resolve(GatewayConfigDocument gatewayConfigDoc, Properties configuration) throws InstantiationException, IllegalAccessException, URISyntaxException, GeneralSecurityException, IOException {
+    public GatewayContext resolve(GatewayConfigDocument gatewayConfigDoc, Properties configuration) throws Exception {
         GatewayConfigDocument.GatewayConfig gatewayConfig = gatewayConfigDoc.getGatewayConfig();
         Collection<? extends SchemeConfig> schemeConfigs = new LinkedList<>();
         SecurityType[] securityConfigs = gatewayConfig.getSecurityArray();
@@ -294,8 +292,8 @@ public class GatewayContextResolver {
     private Map<String, DefaultSchemeContext> resolveSchemes(Collection<? extends ServiceContext> serviceContexts,
                                                              Collection<? extends SchemeConfig> schemeConfigs,
                                                              Properties configuration,
-                                                             ResourceAddressFactory resourceAddressFactory) throws URISyntaxException
-             {
+                                                             ResourceAddressFactory resourceAddressFactory)
+            throws Exception {
 
         // load the default scheme information based on service accepts
         Set<String> schemeNames = new HashSet<>();
@@ -442,8 +440,8 @@ public class GatewayContextResolver {
                                                        TransportFactory transportFactory,
                                                        ServiceFactory serviceFactory,
                                                        ResourceAddressFactory resourceAddressFactory,
-                                                       ServiceDefaultsType serviceDefaults) throws InstantiationException, IllegalAccessException, URISyntaxException
-            {
+                                                       ServiceDefaultsType serviceDefaults)
+            throws Exception {
 
 //        Map<String, Class<? extends Service>> serviceClasses = new HashMap<String, Class<? extends Service>>();
         Collection<ServiceContext> serviceContexts = new HashSet<>();
@@ -1137,7 +1135,7 @@ public class GatewayContextResolver {
         return null;
     }
 
-    private Map<String, DefaultTransportContext> resolveTransports(TransportFactory transportFactory)  {
+    private Map<String, DefaultTransportContext> resolveTransports(TransportFactory transportFactory) throws Exception {
         for (String transportName : transportFactory.getTransportNames()) {
             Transport transport = transportFactory.getTransport(transportName);
             DefaultTransportContext transportContext =
