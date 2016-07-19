@@ -38,7 +38,7 @@ public class EchoService implements Service {
     }
 
     @Override
-    public void init(ServiceContext serviceContext) throws Exception {
+    public void init(ServiceContext serviceContext)  {
         this.serviceContext = serviceContext;
 
         ServiceProperties properties = serviceContext.getProperties();
@@ -48,12 +48,12 @@ public class EchoService implements Service {
     }
 
     @Override
-    public void start() throws Exception {
+    public void start()  {
         serviceContext.bind(serviceContext.getAccepts(), handler);
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop()  {
         quiesce();
 
         if (serviceContext != null) {
@@ -64,13 +64,13 @@ public class EchoService implements Service {
     }
 
     @Override
-    public void quiesce() throws Exception {
+    public void quiesce()  {
         if (serviceContext != null) {
             serviceContext.unbind(serviceContext.getAccepts(), handler);
         }
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy()  {
     }
 }

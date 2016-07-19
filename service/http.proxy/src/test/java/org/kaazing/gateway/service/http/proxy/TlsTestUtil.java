@@ -70,6 +70,21 @@ public class TlsTestUtil {
             throw new RuntimeException("Cannot create client ssl socket factory", e);
         }
     }
+    
+    static SSLSocketFactory clientSSLSocketFactory() {
+        try {
+            KeyStore trustStore = trustStore();
+
+            // Configure client socket factory to trust the gateway's certificate
+            SSLContext sslContext = SSLContext.getInstance("SSL");
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(trustStore);
+            sslContext.init(null, tmf.getTrustManagers(), null);
+            return sslContext.getSocketFactory();
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot create client ssl socket factory", e);
+        }
+    }
 
     static SSLServerSocketFactory serverSocketFactory() {
         try {

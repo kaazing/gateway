@@ -58,7 +58,7 @@ public class AddDirectoryServiceLocationVisitor extends AbstractVisitor {
     }
 
     @Override
-    public void visit(Element element) throws Exception {
+    public void visit(Element element)  {
         Element typeElement = element.getChild(TYPE, namespace);
         String type = typeElement.getTextTrim();
         if (type.equalsIgnoreCase(DIRECTORY)) {
@@ -79,7 +79,7 @@ public class AddDirectoryServiceLocationVisitor extends AbstractVisitor {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void translate(Document dom) throws Exception {
+    public void translate(Document dom) {
         Element root = dom.getRootElement();
         namespace = root.getNamespace();
         List<Element> children = dom.getRootElement().getChildren(SERVICE_NODE, namespace);

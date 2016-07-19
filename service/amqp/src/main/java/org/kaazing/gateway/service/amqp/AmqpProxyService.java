@@ -29,7 +29,7 @@ public class AmqpProxyService extends ProxyService {
     }
 
     @Override
-    public void init(ServiceContext context) throws Exception {
+    public void init(ServiceContext context)  {
         logger = context.getLogger();
         logger.trace("Initializing AMQP Proxy service");
         super.init(context);

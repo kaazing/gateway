@@ -15,6 +15,10 @@
  */
 package org.kaazing.gateway.server;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
@@ -45,18 +49,19 @@ public class Launcher {
         this.gatewayListener = gatewayListener;
     }
 
-    public void init(GatewayContext context) throws Exception {
+    public void init(GatewayContext context) throws URISyntaxException , IOException  {
         gatewayListener.startingGateway(context);
-        try {
-            initInternal(context);
-        } catch (Exception e) {
-            // shut down gateway if there was an error during init
-            destroy();
-            throw e;
-        }
+
+            try {
+                initInternal(context);
+            } catch (URISyntaxException | IOException e) {
+             // shut down gateway if there was an error during init
+                destroy();
+                throw e;
+            }
     }
 
-    private void initInternal(GatewayContext context) throws Exception {
+    private void initInternal(GatewayContext context) throws MalformedURLException, RemoteException, URISyntaxException, IOException  {
         this.context = context;
 
         long startAt = System.currentTimeMillis();
@@ -113,7 +118,7 @@ public class Launcher {
         }
     }
 
-    public void destroy() throws Exception {
+    public void destroy()  {
         long stopAt = System.currentTimeMillis();
 
         Set<String> boundURIs = new TreeSet<>();

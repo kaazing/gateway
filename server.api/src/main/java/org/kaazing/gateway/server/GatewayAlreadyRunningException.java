@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.server.api;
+package org.kaazing.gateway.server;
 
 /**
  * Exception raised when an attempt is made to launch a Gateway that is already running.
