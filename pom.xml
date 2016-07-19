@@ -39,7 +39,7 @@
     </properties>
 
     <modules>
-        <!--<module>bridge</module>-->
+        <module>bridge</module>
         <module>bom</module>
         <!--<module>docker</module> -->
         <module>distribution</module>

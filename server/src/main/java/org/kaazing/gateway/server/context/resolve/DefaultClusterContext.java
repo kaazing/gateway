@@ -125,6 +125,12 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         this.clusterMembers.addAll(members);
         this.schedulerProvider = schedulerProvider;
         this.connectOptions = connectOptions;
+
+        if (!GL.isTraceEnabled(GL.CLUSTER_LOGGER_NAME)) {
+            // Note: must use Logger.getLogger, not LogManager.getLogger
+            java.util.logging.Logger logger = java.util.logging.Logger.getLogger("com.hazelcast");
+            logger.setLevel(Level.OFF);
+        }
     }
 
     @Override
@@ -368,11 +374,6 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         //Disable HazelCast's usage data collection,which is enabled by default.
         hazelCastConfig.setProperty("hazelcast.phone.home.enabled", "false"); 
  
-        if (!GL.isTraceEnabled(GL.CLUSTER_LOGGER_NAME)) {
-            // Note: must use Logger.getLogger, not LogManager.getLogger
-            java.util.logging.Logger logger = java.util.logging.Logger.getLogger("com.hazelcast");
-            logger.setLevel(Level.OFF);
-        }
         return hazelCastConfig;
     }
 
