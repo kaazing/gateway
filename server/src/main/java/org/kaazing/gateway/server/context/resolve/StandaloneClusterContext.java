@@ -204,6 +204,7 @@ public class StandaloneClusterContext implements ClusterContext {
 
     @Override
     public void dispose() {
+        MemoryCollectionsFactory.getHazelcastInstance().getLifecycleService().shutdown();
     }
 
     @Override

@@ -51,6 +51,10 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
    
     public MemoryCollectionsFactory() {
     }
+    
+    public static HazelcastInstance getHazelcastInstance() {
+        return hazelcastInstance;
+    }
 
     @Override
     public <E> IList<E> getList(String name) {
