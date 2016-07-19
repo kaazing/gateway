@@ -22,8 +22,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.security.KeyStore;
 
-import org.kaazing.gateway.server.config.nov2015.SecurityStoreType;
-import org.kaazing.gateway.server.config.nov2015.SecurityType;
+import org.kaazing.gateway.server.config.june2016.SecurityStoreType;
+import org.kaazing.gateway.server.config.june2016.SecurityType;
 import org.slf4j.Logger;
 
 public class SecurityContextResolver implements ContextResolver<SecurityType, DefaultSecurityContext> {
