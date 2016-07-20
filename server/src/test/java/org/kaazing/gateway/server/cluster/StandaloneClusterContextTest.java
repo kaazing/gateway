@@ -20,13 +20,19 @@ import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MapEvent;
 
-import org.junit.Test;
-import org.kaazing.gateway.server.context.resolve.StandaloneClusterContext;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.kaazing.gateway.server.context.resolve.StandaloneClusterContext;
+
 public class StandaloneClusterContextTest {
+    
+  
+       CountDownLatch entryAdded, entryRemoved, entryUpdated, entryEvicted;
 
     @Test
     public void testIMapImplEntryListenerSupportPut() {
@@ -38,9 +44,11 @@ public class StandaloneClusterContextTest {
         imap.addEntryListener(listener1, true);
         imap.addEntryListener(listener2, true);
         imap.put("test1", value1);
+        entryAdded = new CountDownLatch(1);
         try {
-            Thread.sleep(1000);  //pause long enough for listeners to receive events
+            entryAdded.await(2000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         assertEquals(1, listener1.addedCount);
@@ -61,20 +69,24 @@ public class StandaloneClusterContextTest {
         EntryListenerImpl<String, String> listener2 = new EntryListenerImpl<>();
         imap.addEntryListener(listener1, true);
         imap.addEntryListener(listener2, true);
-        imap.put("test1", value1);
+        imap.put("test1", value1); 
+        entryAdded = new CountDownLatch(2);
         try {
-            Thread.sleep(1000);  //pause long enough for listeners to receive events
+            entryAdded.await(2000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         assertEquals(value1, imap.get("test1"));
         imap.remove("test1");
+        entryRemoved = new CountDownLatch(2);
         try {
-            Thread.sleep(1000);  //pause long enough for listeners to receive events
+            entryRemoved.await(2000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        assertEquals( 1, listener1.addedCount);
+        assertEquals(1, listener1.addedCount);
         assertEquals(0, listener1.udpatedCount);
         assertEquals(1, listener1.removedCount);
         assertEquals(1, listener2.addedCount);
@@ -91,27 +103,33 @@ public class StandaloneClusterContextTest {
         EntryListenerImpl<String, String> listener1 = new EntryListenerImpl<>();
         imap.addEntryListener(listener1, true);
         imap.put("test1", value1);
+        entryAdded = new CountDownLatch(1);
         try {
-            Thread.sleep(1000);  //pause long enough for listeners to receive events
+            entryAdded.await(2000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         assertEquals(1, listener1.addedCount);
         assertEquals(0, listener1.udpatedCount);
         assertEquals(value1, imap.get("test1"));
         imap.put("test1", value2);
+        entryUpdated = new CountDownLatch(1);
         try {
-            Thread.sleep(1000);  //pause long enough for listeners to receive events
+            entryUpdated.await(2000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         assertEquals(1, listener1.addedCount);
         assertEquals(1, listener1.udpatedCount);
         assertEquals(value2, imap.get("test1"));
         imap.remove("test1", value2);
+        entryRemoved = new CountDownLatch(1);
         try {
-            Thread.sleep(1000);  //pause long enough for listeners to receive events
+            entryRemoved.await(2000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         assertEquals(1, listener1.removedCount);
@@ -126,18 +144,22 @@ public class StandaloneClusterContextTest {
         EntryListenerImpl<String, String> listener1 = new EntryListenerImpl<>();
         imap.addEntryListener(listener1, true);
         imap.put("test1", value1);
+        entryAdded = new CountDownLatch(1);
         try {
-            Thread.sleep(1000);  //pause long enough for listeners to receive events
+            entryAdded.await(2000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         assertEquals(value1, imap.get("test1"));
         assertEquals(1, listener1.addedCount);
         assertEquals(0, listener1.evictedCount);
         imap.evict("test1");
+        entryEvicted = new CountDownLatch(1);
         try {
-            Thread.sleep(1000);  //pause long enough for listeners to receive events
+            entryEvicted.await(2000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         assertEquals(1, listener1.addedCount);
@@ -152,16 +174,20 @@ public class StandaloneClusterContextTest {
         EntryListenerImpl<String, String> listener1 = new EntryListenerImpl<>();
         imap.addEntryListener(listener1, true);
         imap.put("test1", value1);
+        entryAdded = new CountDownLatch(1);
         try {
-            Thread.sleep(1000);  //pause long enough for listeners to receive events
+            entryAdded.await(2000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         assertEquals(value1, imap.get("test1"));
         imap.replace("test1", "value2");
+        entryUpdated = new CountDownLatch(1);
         try {
-            Thread.sleep(1000);  //pause long enough for listeners to receive events
+            entryUpdated.await(2000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         assertEquals(1, listener1.addedCount);
@@ -273,22 +299,26 @@ public class StandaloneClusterContextTest {
         @Override
         public void entryAdded(EntryEvent<K, V> event) {
             addedCount++;
+            entryAdded.countDown();
         }
 
         @Override
         public void entryEvicted(EntryEvent<K, V> event) {
+            entryEvicted.countDown();
             evictedCount++;
         }
 
         @Override
         public void entryRemoved(EntryEvent<K, V> event) {
             removedCount++;
+            entryRemoved.countDown();
 
         }
 
         @Override
         public void entryUpdated(EntryEvent<K, V> event) {
             udpatedCount++;
+            entryUpdated.countDown();
 
         }
 

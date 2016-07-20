@@ -279,7 +279,12 @@
                     <execution>
                         <configuration>
                             <argLine>@{failsafeArgLine}</argLine>
+                            <skipTests>${skipITs}</skipTests>
                         </configuration>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
