@@ -36,6 +36,10 @@ public class HttpDirectoryServiceIT {
     private static final String ASTRISK_ORIGIN_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8002/";
     private static final String KEEPALIVE_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8003/keepAlive";
     private static final String NO_SERVER_HEADER = "http://localhost:8004/";
+    private static final String DIRECTORY_SERVICE_NO_SLASH = "http://localhost:8005/";
+    private static final String DIRECTORY_SERVICE_DOT_SLASH = "http://localhost:8006/";
+    private static final String DIRECTORY_SERVICE_NO_PATH = "http://localhost:8007/";
+    private static final String DIRECTORY_SERVICE_WRONG_PATH = "http://localhost:8008/";
 
     private final K3poRule robot = new K3poRule();
 
@@ -81,6 +85,30 @@ public class HttpDirectoryServiceIT {
                             .property("directory", "/public")
                             .property("welcome-file", "index.html")
                             .crossOrigin().allowOrigin("*").done()
+                        .done()
+                        .service()
+                            .accept(DIRECTORY_SERVICE_NO_SLASH)
+                            .type("directory")
+                            .property("directory", "public")
+                            .property("welcome-file", "index.html")
+                        .done()
+                        .service()
+                            .accept(DIRECTORY_SERVICE_DOT_SLASH)
+                            .type("directory")
+                            .property("directory", "./public")
+                            .property("welcome-file", "index.html")
+                        .done()
+                        .service()
+                            .accept(DIRECTORY_SERVICE_NO_PATH)
+                            .type("directory")
+                            .property("directory", "")
+                            .property("welcome-file", "index.html")
+                        .done()
+                        .service()
+                            .accept(DIRECTORY_SERVICE_WRONG_PATH)
+                            .type("directory")
+                            .property("directory", ".public")
+                            .property("welcome-file", "index.html")
                         .done()
                     .done();
             // @formatter:on
@@ -348,4 +376,27 @@ public class HttpDirectoryServiceIT {
         robot.finish();
     }
 
+    @Specification("directory.no.slash.code.200")
+    @Test
+    public void shouldFindResourceWithNoSlashInDirectory() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("directory.dot.slash.code.200")
+    @Test
+    public void shouldFindResourceWithDotSlashInDirectory() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("directory.no.path.code.200")
+    @Test
+    public void shouldFindRootWithNoPathInDirectory() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("directory.wrong.path.code.404")
+    @Test
+    public void shouldNotFindResourceWithWrongPathInDirectory() throws Exception {
+        robot.finish();
+    }
 }

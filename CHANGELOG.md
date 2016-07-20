@@ -1,16 +1,10 @@
 # Change Log
 
-## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
-
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.1.0...HEAD)
-
-**Implemented enhancements:**
-
-- Document using /dev/random vs /dev/urandom in production environments [\#170](https://github.com/kaazing/gateway/issues/170)
+## [5.1.1](https://github.com/kaazing/gateway/tree/5.1.1) (2016-06-27)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.1.0...5.1.1)
 
 **Fixed bugs:**
 
-- TextIT.clientSendTextInvalidUTF8 fails sometimes [\#474](https://github.com/kaazing/gateway/issues/474)
 - HttpDirectoryServiceIT.testUriWithParams fails with max-age mismatch [\#468](https://github.com/kaazing/gateway/issues/468)
 - JMX Session count is not correct on Echo Service [\#331](https://github.com/kaazing/gateway/issues/331)
 - Sporadic failure: Hangs on "transport.wsn.WsnAcceptorTest" [\#197](https://github.com/kaazing/gateway/issues/197)
@@ -22,12 +16,22 @@
 
 - Connect directly to ws service [\#590](https://github.com/kaazing/gateway/issues/590)
 - Java 7 throws unfriendly error [\#351](https://github.com/kaazing/gateway/issues/351)
+- Command center page throws an error when you open Configuration/Overview in Command center [\#320](https://github.com/kaazing/gateway/issues/320)
 - change "KAAZING" to "Kaazing" in all 5.0 docs [\#298](https://github.com/kaazing/gateway/issues/298)
+- log4j clean up [\#277](https://github.com/kaazing/gateway/issues/277)
 - WsebConnector doesn't send next protocol [\#266](https://github.com/kaazing/gateway/issues/266)
+- EE label in doc should have hint describing what it is [\#215](https://github.com/kaazing/gateway/issues/215)
+- Document using /dev/random vs /dev/urandom in production environments [\#170](https://github.com/kaazing/gateway/issues/170)
 
 **Merged pull requests:**
 
+- updated sonar user and password [\#609](https://github.com/kaazing/gateway/pull/609) ([AdrianCozma](https://github.com/AdrianCozma))
+- Fix for issue \#537: WsnAcceptorUserLoggingIT sporadic failures on missing close exception [\#608](https://github.com/kaazing/gateway/pull/608) ([msalavastru](https://github.com/msalavastru))
+- Added support for deeply nested properties to GatewayConfiguration for testing purposes [\#607](https://github.com/kaazing/gateway/pull/607) ([sanjay-saxena](https://github.com/sanjay-saxena))
+- Fix for issue \#518: Http proxy is adding its own unauthorized content to http response that are unauthorized [\#606](https://github.com/kaazing/gateway/pull/606) ([msalavastru](https://github.com/msalavastru))
+- Updated mina.netty version to resolve security scan \(note: we don't a… [\#603](https://github.com/kaazing/gateway/pull/603) ([dpwspoon](https://github.com/dpwspoon))
 - Early access features in Gateway [\#600](https://github.com/kaazing/gateway/pull/600) ([cmebarrow](https://github.com/cmebarrow))
+- Fix for issue 558 Directory service property directory must start with a / \#558 [\#599](https://github.com/kaazing/gateway/pull/599) ([msalavastru](https://github.com/msalavastru))
 - Fix for issue 80:  Multiple Log4J in distribution [\#598](https://github.com/kaazing/gateway/pull/598) ([msalavastru](https://github.com/msalavastru))
 - ws.inactivity.timeout populates http.keealive.timeout [\#597](https://github.com/kaazing/gateway/pull/597) ([jitsni](https://github.com/jitsni))
 - Disable WsnAcceptorUserLoggingIT.verifyPrincipalNameLoggedInLayersAbo… [\#596](https://github.com/kaazing/gateway/pull/596) ([ahousing](https://github.com/ahousing))
@@ -513,6 +517,7 @@
 - AgronaMonitoringEntityFactoryTest fails the build \(on Mac OS x\) [\#171](https://github.com/kaazing/gateway/issues/171)
 - \(doc\) Add connect options to service defaults description [\#143](https://github.com/kaazing/gateway/issues/143)
 - \(doc\) Add links to admin-reference/p\_config\_multicast.md [\#134](https://github.com/kaazing/gateway/issues/134)
+- Create a single distribution file for all environments [\#20](https://github.com/kaazing/gateway/issues/20)
 
 **Merged pull requests:**
 
@@ -581,11 +586,13 @@
 
 **Fixed bugs:**
 
+- WSE not working in F5 BIG-IP topologies with multiple gateways on port - BUG \[Duplicate\] [\#187](https://github.com/kaazing/gateway/issues/187)
 - Update to latest community to consume fixes for animal sniffer plugin [\#176](https://github.com/kaazing/gateway/issues/176)
 - Log files are overflowing 4MB maximum on travis when tests fail [\#166](https://github.com/kaazing/gateway/issues/166)
 
 **Closed issues:**
 
+- NioDatagramAcceptorExIT.shouldConnect not all expectations were satisfied \[Duplicate\] [\#185](https://github.com/kaazing/gateway/issues/185)
 - Long start time on systems with low entropy \(containers\) due to calls to getSecureBytes. [\#167](https://github.com/kaazing/gateway/issues/167)
 - \(doc\) Doc markdown needs to use "bash" for the code type [\#124](https://github.com/kaazing/gateway/issues/124)
 
@@ -706,10 +713,6 @@
 ## [5.0.1.22](https://github.com/kaazing/gateway/tree/5.0.1.22) (2015-04-09)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.21...5.0.1.22)
 
-**Implemented enhancements:**
-
-- Configuration doesn't allow \<connect-options\> in \<service-defaults\> [\#64](https://github.com/kaazing/gateway/issues/64)
-
 **Fixed bugs:**
 
 - SseSameOriginIT.sseIe8HttpxeConnectAndGetData sometimes fails [\#60](https://github.com/kaazing/gateway/issues/60)
@@ -720,6 +723,7 @@
 
 - Use sequence numbers to detect out of order requests in wseb [\#73](https://github.com/kaazing/gateway/issues/73)
 - Add Visitor to reorder elements in accept/connect options [\#70](https://github.com/kaazing/gateway/issues/70)
+- Configuration doesn't allow \<connect-options\> in \<service-defaults\> [\#64](https://github.com/kaazing/gateway/issues/64)
 
 **Merged pull requests:**
 
