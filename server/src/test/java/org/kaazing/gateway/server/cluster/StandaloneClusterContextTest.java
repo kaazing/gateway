@@ -44,8 +44,8 @@ public class StandaloneClusterContextTest {
         imap.addEntryListener(listener1, true);
         imap.addEntryListener(listener2, true);
         entryAdded = new CountDownLatch(1);
+        imap.put("test1", value1);
         try {
-            imap.put("test1", value1);
             entryAdded.await(2000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
@@ -69,10 +69,9 @@ public class StandaloneClusterContextTest {
         EntryListenerImpl<String, String> listener2 = new EntryListenerImpl<>();
         imap.addEntryListener(listener1, true);
         imap.addEntryListener(listener2, true);
-     
         entryAdded = new CountDownLatch(2);
+        imap.put("test1", value1); 
         try {
-            imap.put("test1", value1); 
             entryAdded.await(2000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
@@ -81,8 +80,8 @@ public class StandaloneClusterContextTest {
         assertEquals(value1, imap.get("test1"));
         
         entryRemoved = new CountDownLatch(2);
+        imap.remove("test1");
         try {
-            imap.remove("test1");
             entryRemoved.await(2000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
@@ -106,8 +105,8 @@ public class StandaloneClusterContextTest {
         imap.addEntryListener(listener1, true);
       
         entryAdded = new CountDownLatch(1);
+        imap.put("test1", value1);
         try {
-            imap.put("test1", value1);
             entryAdded.await(2000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
@@ -118,8 +117,8 @@ public class StandaloneClusterContextTest {
         assertEquals(value1, imap.get("test1"));
         
         entryUpdated = new CountDownLatch(1);
+        imap.put("test1", value2);
         try {
-            imap.put("test1", value2);
             entryUpdated.await(2000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
@@ -130,8 +129,8 @@ public class StandaloneClusterContextTest {
         assertEquals(value2, imap.get("test1"));
         
         entryRemoved = new CountDownLatch(1);
+        imap.remove("test1", value2);
         try {
-            imap.remove("test1", value2);
             entryRemoved.await(2000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
@@ -150,8 +149,8 @@ public class StandaloneClusterContextTest {
         imap.addEntryListener(listener1, true);
         
         entryAdded = new CountDownLatch(1);
+        imap.put("test1", value1);
         try {
-            imap.put("test1", value1);
             entryAdded.await(2000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
@@ -162,8 +161,8 @@ public class StandaloneClusterContextTest {
         assertEquals(0, listener1.evictedCount);
         
         entryEvicted = new CountDownLatch(1);
+        imap.evict("test1");
         try {
-            imap.evict("test1");
             entryEvicted.await(2000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
@@ -182,8 +181,8 @@ public class StandaloneClusterContextTest {
         imap.addEntryListener(listener1, true);
         
         entryAdded = new CountDownLatch(1);
+        imap.put("test1", value1);
         try {
-            imap.put("test1", value1);
             entryAdded.await(2000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
@@ -192,8 +191,8 @@ public class StandaloneClusterContextTest {
         assertEquals(value1, imap.get("test1"));
         
         entryUpdated = new CountDownLatch(1);
+        imap.replace("test1", "value2");
         try {
-            imap.replace("test1", "value2");
             entryUpdated.await(2000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
