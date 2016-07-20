@@ -64,6 +64,7 @@ public class ArchitectureIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po).around(timeoutRule);
 
+    @Ignore()
     @Test
     @Specification({"outbound.must.send.version/response"})
     public void outboundMustSendVersion() throws Exception {

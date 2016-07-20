@@ -30,6 +30,7 @@ import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -38,6 +39,7 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
 import org.kaazing.gateway.transport.http.HttpConnectorRule;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
@@ -68,6 +70,9 @@ public class MessageRoutingIT {
     public void inboundHostHeaderShouldFollowRequestLine() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
+        
+        connector.getConnectOptions().put("http.userAgentHeaderEnabled", Boolean.FALSE);
+        connector.getConnectOptions().put("http.hostHeaderEnabled", Boolean.FALSE);
 
         context.checking(new Expectations() {
             {
@@ -86,16 +91,19 @@ public class MessageRoutingIT {
 
         ConnectFuture connectFuture = connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerPost());
         connectFuture.getSession();
-        assertTrue(closed.await(2, SECONDS));
+        assertTrue(closed.await(4, SECONDS));
 
         k3po.finish();
     }
 
+    @Ignore
     @Test
     @Specification({"inbound.must.reject.request.with.400.if.host.header.does.not.match.uri/response"})
     public void inboundMustRejectRequestWith400IfHostHeaderDoesNotMatchURI() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
+        
+        connector.getConnectOptions().put("http.hostHeaderEnabled", Boolean.FALSE);
 
         context.checking(new Expectations() {
             {
@@ -112,18 +120,22 @@ public class MessageRoutingIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerPost());
+        ConnectFuture connectFuture = connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
         connectFuture.getSession();
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
 
+    @Ignore("Can't accept 2 host headers - good - no error")
     @Test
     @Specification({"inbound.must.reject.request.with.400.if.host.header.occurs.more.than.once/response"})
     public void inboundMustRejectRequestWith400IfHostHeaderOccursMoreThanOnce() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
+        
+        connector.getConnectOptions().put("http.userAgentHeaderEnabled", Boolean.FALSE);
+        connector.getConnectOptions().put("http.hostHeaderEnabled", Boolean.FALSE);
 
         context.checking(new Expectations() {
             {
@@ -140,7 +152,7 @@ public class MessageRoutingIT {
             }
         });
 
-        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetTwoHosts());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -150,8 +162,19 @@ public class MessageRoutingIT {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
             HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setRequestURI(URI.create("http://localhost:8080/"));
             connectSession.setMethod(HttpMethod.GET);
-            System.out.println(connectSession.getReadHeaderNames());
+            connectSession.setWriteHeader(HttpHeaders.HEADER_HOST, "anotherhost:8080");
+        }
+    }
+
+    private static class ConnectSessionInitializerGetTwoHosts implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.GET);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8080");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "anotherhost:8080");
         }
     }
 
@@ -160,6 +183,7 @@ public class MessageRoutingIT {
         public void initializeSession(IoSession session, ConnectFuture future) {
             HttpConnectSession connectSession = (HttpConnectSession) session;
             connectSession.setMethod(HttpMethod.POST);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8080");
         }
     }
 

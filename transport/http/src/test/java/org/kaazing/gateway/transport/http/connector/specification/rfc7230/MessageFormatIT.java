@@ -181,6 +181,7 @@ public class MessageFormatIT {
         k3po.finish();
     }
 
+    @Ignore
     @Test
     @Specification({"request.must.start.with.request.line/response"})
     public void requestMustStartWithRequestLine() throws Exception {
@@ -441,6 +442,7 @@ public class MessageFormatIT {
         k3po.finish();
     }
 
+    @Ignore("ERROR")
     @Test
     @Specification({"server.should.send.501.to.unknown.transfer.encoding/response"})
     public void serverShouldSend501ToUnknownTransferEncoding() throws Exception {
@@ -528,6 +530,7 @@ public class MessageFormatIT {
         k3po.finish();
     }
 
+    @Ignore
     @Test
     @Specification({"client.should.send.content.length.header.in.post.even.if.no.content/response"})
     public void clientShouldSendContentLengthHeaderInPostEvenIfNoContent() throws Exception {
@@ -556,6 +559,7 @@ public class MessageFormatIT {
         k3po.finish();
     }
 
+    @Ignore
     @Test
     @Specification({"head.response.must.not.have.content/response"})
     public void headResponseMustNotHaveContent() throws Exception {
@@ -584,6 +588,7 @@ public class MessageFormatIT {
         k3po.finish();
     }
 
+    @Ignore
     @Test
     @Specification({"head.response.must.not.have.content.though.may.have.content.length/response"})
     public void headResponseMustNotHaveContentThoughMayHaveContentLength() throws Exception {
@@ -671,6 +676,7 @@ public class MessageFormatIT {
         k3po.finish();
     }
 
+    @Ignore
     @Test
     @Specification({"non.http.request.to.http.server.should.be.responded.to.with.400/response"})
     public void nonHttpRequestToHttpServerShouldBeRespondedToWith400() throws Exception {

@@ -222,6 +222,7 @@ public class ConnectionManagementIT {
         k3po.finish();
     }
 
+    @Ignore()
     @Test
     @Specification({"server.must.close.its.half.of.connection.after.sending.response.if.it.receives.a.close/response"})
     public void serverMustCloseItsHalfOfConnectionAfterSendingResponseIfItReceivesAClose() throws Exception {
@@ -251,6 +252,7 @@ public class ConnectionManagementIT {
         k3po.finish();
     }
 
+    @Ignore
     @Test
     @Specification({"client.must.not.reuse.tcp.connection.when.receives.connection.close/response"})
     public void clientMustNotReuseTcpConnectionWhenReceivesConnectionClose() throws Exception {
@@ -308,6 +310,7 @@ public class ConnectionManagementIT {
         k3po.finish();
     }
 
+    @Ignore
     @Test
     @Specification({"server.that.sends.upgrade.required.must.include.upgrade.header/response"})
     public void serverThatSendsUpgradeRequiredMustIncludeUpgradeHeader() throws Exception {

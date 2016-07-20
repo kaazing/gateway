@@ -64,9 +64,13 @@ public final class HttpResourceAddress extends ResourceAddress {
     public static final ResourceOption<String> ENCRYPTION_KEY_ALIAS = new EncryptionKeyAliasOption();
     public static final ResourceOption<String> SERVICE_DOMAIN = new ServiceDomainOption();
     public static final HttpResourceOption<Boolean> SERVER_HEADER_ENABLED = new HttpServerHeaderOption();
+    public static final HttpResourceOption<Boolean> USER_AGENT_HEADER_ENABLED = new HttpUserAgentHeaderOption();
+    public static final HttpResourceOption<Boolean> HOST_HEADER_ENABLED = new HttpHostHeaderOption();
     public static final HttpResourceOption<Collection<Class<? extends Principal>>> REALM_USER_PRINCIPAL_CLASSES = new HttpRealmAuthenticationUserPrincipalClassesOption();
 
     private Boolean serverHeaderEnabled = SERVER_HEADER_ENABLED.defaultValue();
+    private Boolean userAgentHeaderEnabled = USER_AGENT_HEADER_ENABLED.defaultValue();
+    private Boolean hostHeaderEnabled = HOST_HEADER_ENABLED.defaultValue();
     private Boolean keepAlive = KEEP_ALIVE.defaultValue();
     private Integer httpMaxRedirects = MAXIMUM_REDIRECTS.defaultValue();
     private Integer keepAliveTimeout = KEEP_ALIVE_TIMEOUT.defaultValue();
@@ -149,6 +153,10 @@ public final class HttpResourceAddress extends ResourceAddress {
                     return (V) serviceDomain;
                 case SERVER_HEADER:
                     return (V) serverHeaderEnabled;
+                case USER_AGENT_HEADER:
+                    return (V) userAgentHeaderEnabled;
+                case HOST_HEADER:
+                    return (V) hostHeaderEnabled;
                 case REALM_USER_PRINCIPAL_CLASSES:
                     return (V) realmUserPrincipalClasses;
             }
@@ -232,6 +240,12 @@ public final class HttpResourceAddress extends ResourceAddress {
                 case SERVER_HEADER:
                     serverHeaderEnabled = (Boolean) value;
                     return;
+                case USER_AGENT_HEADER:
+                    userAgentHeaderEnabled = (Boolean) value;
+                    return;
+                case HOST_HEADER:
+                    hostHeaderEnabled = (Boolean) value;
+                    return;
                 case REALM_USER_PRINCIPAL_CLASSES:
                     realmUserPrincipalClasses = (Collection<Class<? extends Principal>>) value;
                     return;
@@ -259,7 +273,7 @@ public final class HttpResourceAddress extends ResourceAddress {
             LOGIN_CONTEXT_FACTORY, INJECTABLE_HEADERS,
             ORIGIN_SECURITY, TEMP_DIRECTORY, GATEWAY_ORIGIN_SECURITY, BALANCE_ORIGINS,
             AUTHENTICATION_CONNECT, AUTHENTICATION_IDENTIFIER, ENCRYPTION_KEY_ALIAS, SERVICE_DOMAIN, SERVER_HEADER,
-            REALM_USER_PRINCIPAL_CLASSES ,MAX_REDIRECTS
+            USER_AGENT_HEADER, HOST_HEADER, REALM_USER_PRINCIPAL_CLASSES ,MAX_REDIRECTS
         }
 
         private static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
@@ -412,6 +426,18 @@ public final class HttpResourceAddress extends ResourceAddress {
     private static final class HttpServerHeaderOption extends HttpResourceOption<Boolean> {
         private HttpServerHeaderOption() {
             super(Kind.SERVER_HEADER, "serverHeaderEnabled", Boolean.TRUE);
+        }
+    }
+
+    private static final class HttpUserAgentHeaderOption extends HttpResourceOption<Boolean> {
+        private HttpUserAgentHeaderOption() {
+            super(Kind.USER_AGENT_HEADER, "userAgentHeaderEnabled", Boolean.TRUE);
+        }
+    }
+
+    private static final class HttpHostHeaderOption extends HttpResourceOption<Boolean> {
+        private HttpHostHeaderOption() {
+            super(Kind.HOST_HEADER, "hostHeaderEnabled", Boolean.TRUE);
         }
     }
 
