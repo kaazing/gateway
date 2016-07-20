@@ -32,7 +32,7 @@ import org.kaazing.gateway.server.context.resolve.StandaloneClusterContext;
 public class StandaloneClusterContextTest {
     
   
-       CountDownLatch entryAdded, entryRemoved, entryUpdated, entryEvicted;
+    CountDownLatch entryAdded, entryRemoved, entryUpdated, entryEvicted;
 
     @Test
     public void testIMapImplEntryListenerSupportPut() {
