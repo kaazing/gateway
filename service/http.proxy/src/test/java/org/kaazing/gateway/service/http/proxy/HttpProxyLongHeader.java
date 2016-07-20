@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.service.http.proxy;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,10 +49,17 @@ public class HttpProxyLongHeader {
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-    @Specification("http.proxy.large.header2")
+    @Specification("http.proxy.large.header")
     @Test
     public void testExtremelyLargeHeader() throws Exception {
         robot.finish();
     }
+
+    @Specification("http.proxy.large.header2")
+    @Test
+    public void testExtremelyLargeHeaderTCP() throws Exception {
+        robot.finish();
+    }
+
 
 }
