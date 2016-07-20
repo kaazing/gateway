@@ -59,7 +59,7 @@ public class HttpProxyDeleteAndInvalidBytesIT {
     }
 
     @Test
-    @Specification("http.proxy.invalid.content")
+    @Specification("http.proxy.incorrect.encoded.content")
     public void invalidContent() throws Exception {
         k3po.finish();
     }
