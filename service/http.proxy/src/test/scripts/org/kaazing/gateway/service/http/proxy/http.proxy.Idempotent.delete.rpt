@@ -44,7 +44,6 @@
  read "\r\n"
 
 
-
  write method "DELETE"
  write "DELETE /examples/servlets/servlet/CookieExample HTTP/1.1\r\n"
  write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
@@ -60,7 +59,7 @@
  read "\r\n"
  read "14\r\n"
  read "0\r\n"
-  read "\r\n"
+ read "\r\n"
 
 close
 closed
@@ -74,7 +73,6 @@ accepted
 connected
 
 
-read "DELETE /backend\r\n"
 read "GET /get HTTP/1.1\r\n"
 read /Via: 1.1 kaazing-.+/ "\r\n"
 read "User-Agent: Mozilla/5.0\r\n"
@@ -104,6 +102,23 @@ write "14\r\n"
 write "0\r\n"
 write "\r\n"
 
+
+read "HTTP/1.1 404 Not Found\r\n"
+read "Date: Mon, 27 Jul 2009 12:28:53 GMT"
+read "Server: Apache/2.2.14 (Win32)""
+read "Content-type: text/html"
+read "Content-length: 30"
+read "Connection: Closed"
+
+write "Server: Apache-Coyote/1.1\r\n"
+write "Content-Type: text/html;charset=UTF-8\r\n"
+write "Transfer-Encoding: chunked\r\n"
+write "Date: Tue, 10 Feb 2015 02:17:15 GMT\r\n"
+write "Connection: close\r\n"
+write "\r\n"
+write "14\r\n"
+write "0\r\n"
+write "\r\n"
 
 
 # gateway(sender) closes the connection

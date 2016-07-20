@@ -44,6 +44,7 @@ read "\r\n"
 # Packet length 128 bytes
 # wait 965
 
+#This test sends two byte sequences that are not supported by UTF-8, decoded should be 248 and 249.
 read [0xF8 0xF9]
 
 close
