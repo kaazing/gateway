@@ -16,6 +16,7 @@
 package org.kaazing.gateway.server;
 
 import java.util.Properties;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
@@ -34,11 +35,11 @@ import org.slf4j.LoggerFactory;
  */
 public class GatewayCommandLineProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(GatewayCommandLineProcessor.class);
+    HelpPrinter helpPrinter;
 
-    private HelpFormatter helpFormatter;
-
-    protected GatewayCommandLineProcessor(HelpFormatter helpFormatter) {
-        this.helpFormatter = helpFormatter;
+    protected GatewayCommandLineProcessor( HelpFormatter formatter) {
+        helpPrinter = HelpPrinter.getInstance();
+        helpPrinter.setFormatter(formatter);
     }
 
     public void launchGateway(String[] args) {
@@ -53,7 +54,7 @@ public class GatewayCommandLineProcessor {
             Parser parser = new PosixParser();
             cmd = parser.parse(options, args);
         } catch (ParseException ex) {
-            printCliHelp("There was a problem with a command-line argument:\n" + ex.getMessage(), options);
+            helpPrinter.printCliHelp("There was a problem with a command-line argument:\n" + ex.getMessage(), options);
             return;
         }
 
@@ -64,12 +65,12 @@ public class GatewayCommandLineProcessor {
             for (String nonProcessedArg : nonProcessedArgs) {
                 System.out.println("   " + nonProcessedArg);
             }
-            printCliHelp(null, options);
+            helpPrinter.printCliHelp(null, options);
             return;
         }
 
         if (cmd.hasOption("help")) {
-            printCliHelp(null, options);
+            helpPrinter.printCliHelp(null, options);
             return;
         }
 
@@ -107,14 +108,6 @@ public class GatewayCommandLineProcessor {
         }
     }
 
-    private void printCliHelp(String message, Options options) {
-        if (message != null) {
-            System.out.println(message);
-        }
-
-        helpFormatter.printHelp("gateway.start", options, true);
-        return;
-    }
 
     private Options createOptions() {
         Options options = new Options();
