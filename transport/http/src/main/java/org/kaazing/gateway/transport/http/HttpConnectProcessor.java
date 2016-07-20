@@ -71,6 +71,7 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
         if (isChunked) {
             session.setChunked(true);
         }
+
         if (session.getMethod() == HttpMethod.GET || session.getMethod() == HttpMethod.HEAD || "0".equals(session.getWriteHeader(HEADER_CONTENT_LENGTH)) || isChunked) {
             URI resource = session.getRemoteAddress().getResource();
 
@@ -88,6 +89,7 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
             if (session.getWriteHeader(HttpHeaders.HEADER_USER_AGENT) == null) {
                 httpRequest.setHeader("User-Agent", "Kaazing Gateway");
             }
+            
 
             // override headers
             httpRequest.putHeaders(session.getWriteHeaders());
