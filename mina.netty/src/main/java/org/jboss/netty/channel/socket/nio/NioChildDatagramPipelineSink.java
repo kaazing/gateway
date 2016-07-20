@@ -30,6 +30,7 @@
  */
 package org.jboss.netty.channel.socket.nio;
 
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelPipeline;
@@ -96,22 +97,19 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
             // on different i/o threads
             NioDatagramChannel parent = (NioDatagramChannel) channel.getParent();
 
-            class WriteTask implements Runnable {
-                @Override
-                public void run() {
-                    Object message = ((MessageEvent) e).getMessage();
-                    ChannelFuture parentFuture = parent.write(message, channel.getRemoteAddress());
-                    parentFuture.addListener(f -> {
-                        if (f.isSuccess()) {
-                            future.setSuccess();
-                        } else {
-                            future.setFailure(f.getCause());
-                        }
-                    });
-                }
-            }
+            Runnable writeTask = () -> {
+                Object message = ((MessageEvent) e).getMessage();
+                ChannelFuture parentFuture = parent.write(message, channel.getRemoteAddress());
+                parentFuture.addListener(f -> {
+                    if (f.isSuccess()) {
+                        future.setSuccess();
+                    } else {
+                        future.setFailure(f.getCause());
+                    }
+                });
+            };
 
-            parent.getWorker().executeInIoThread(new WriteTask());
+            parent.getWorker().executeInIoThread(writeTask);
         }
     }
 
