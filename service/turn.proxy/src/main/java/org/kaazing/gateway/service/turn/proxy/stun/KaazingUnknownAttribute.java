@@ -1,12 +1,12 @@
 package org.kaazing.gateway.service.turn.proxy.stun;
 
-public class KaazingNoopAttribute implements StunMessageAttribute {
+public class KaazingUnknownAttribute extends StunMessageAttribute {
 
     private final short type;
     private final short length;
     private final byte[] variable;
 
-    public KaazingNoopAttribute(short type, short length, byte[] variable) {
+    public KaazingUnknownAttribute(short type, short length, byte[] variable) {
         this.type = type;
         this.length = length;
         this.variable = variable;

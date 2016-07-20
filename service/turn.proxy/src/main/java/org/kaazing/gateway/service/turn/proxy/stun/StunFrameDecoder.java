@@ -1,6 +1,7 @@
 package org.kaazing.gateway.service.turn.proxy.stun;
 
 import static org.kaazing.gateway.service.turn.proxy.stun.StunMessage.MAGIC_COOKIE;
+import static org.kaazing.gateway.service.turn.proxy.stun.StunMessage.attributePaddedLength;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +11,11 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.filter.codec.CumulativeProtocolDecoderEx;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
+    private static final Logger LOGGER = LoggerFactory.getLogger("service.turn.proxy");
 
     public StunFrameDecoder(IoBufferAllocatorEx<?> allocator) {
         super(allocator);
@@ -19,10 +23,10 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
 
     @Override
     protected boolean doDecode(IoSession session, IoBufferEx in, ProtocolDecoderOutput out) throws Exception {
+        LOGGER.trace("Decoding STUN message: " + in);
         if (in.remaining() < 20) {
             return false;
         }
-
         in.mark();
 
         // https://tools.ietf.org/html/rfc5389#section-6
@@ -42,14 +46,14 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
         byte[] transactionId = new byte[12];
         in.get(transactionId);
 
-        in.mark();
         if (in.remaining() < messageLength) {
+            in.reset();
             return false;
         }
 
         List<StunMessageAttribute> attributes = decodeAttributes(in, messageLength);
 
-        StunMessage stunMessage = new StunMessage(messageClass, method, messageLength, transactionId, attributes);
+        StunMessage stunMessage = new StunMessage(messageClass, method, transactionId, attributes);
         in.mark();
         out.write(stunMessage);
         return true;
@@ -73,11 +77,10 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
             remaining -= length;
 
             // remove padding
-            int padding = 4 - (length % 4);
-            for (int i = 0; i < padding; i++) {
+            for(int i = length; i < attributePaddedLength(length); i++){
                 in.get();
+                remaining -= 1;
             }
-            remaining -= padding;
         } while (remaining > 0);
         return stunMessageAttributes;
     }

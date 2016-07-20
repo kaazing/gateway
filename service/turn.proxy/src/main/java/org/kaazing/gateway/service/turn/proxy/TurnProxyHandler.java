@@ -1,5 +1,7 @@
 package org.kaazing.gateway.service.turn.proxy;
 
+import java.util.List;
+
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
@@ -8,6 +10,8 @@ import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.proxy.AbstractProxyAcceptHandler;
 import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
 import org.kaazing.gateway.service.turn.proxy.stun.StunCodecFilter;
+import org.kaazing.gateway.service.turn.proxy.stun.StunMessage;
+import org.kaazing.gateway.service.turn.proxy.stun.StunMessageAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,13 +50,18 @@ public class TurnProxyHandler extends AbstractProxyAcceptHandler {
 
     @Override
     public void messageReceived(IoSession session, Object message) {
-        super.messageReceived(session, message);
+        if(LOGGER.isDebugEnabled()){
+            LOGGER.debug("Recieved message [%s] from [%s] ", message, session);
+        }
+        StunMessage stunMessage = (StunMessage) message;
+        List<StunMessageAttribute> attributes = stunMessage.getAttributes();
+//        for(StunMessageAttribute attribute: )
+        super.messageReceived(session, stunMessage);
     }
 
     class ConnectHandler extends AbstractProxyHandler {
 
         public ConnectHandler() {
-            System.out.println("Creating Connect Handler");
         }
     }
 
