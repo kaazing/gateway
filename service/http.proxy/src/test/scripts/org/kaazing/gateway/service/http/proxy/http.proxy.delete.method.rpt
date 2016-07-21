@@ -25,7 +25,6 @@
 
  read status "200" /.*/
 
-
  write "DELETE /examples/servlets/servlet/CookieExample HTTP/1.1\r\n"
  write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
  write "Host: localhost:8110\r\n"
@@ -63,7 +62,6 @@
 
  write status "200" "OK"
 
-
  read method "DELETE"
  read "DELETE /examples/servlets/servlet/CookieExample HTTP/1.1\r\n"
  read "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
@@ -73,9 +71,5 @@
 
  write status "200" "OK"
 
-
-
-
 # gateway(sender) closes the connection
 closed
-

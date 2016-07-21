@@ -58,8 +58,8 @@
  read "Content-length: 30"
  read "Connection: Closed"
 
-close
-closed
+ close
+ closed
 
 #
 # Origin server
@@ -97,7 +97,6 @@ closed
  read "Connection: keep-alive"
 
  write "HTTP/1.1 404 Not Found\r\n"
-
 
 # gateway(sender) closes the connection
 closed
