@@ -126,9 +126,11 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         this.schedulerProvider = schedulerProvider;
         this.connectOptions = connectOptions;
 
-        if (!GL.isTraceEnabled(GL.CLUSTER_LOGGER_NAME)) {
-            // Note: must use Logger.getLogger, not LogManager.getLogger
-            java.util.logging.Logger logger = java.util.logging.Logger.getLogger("com.hazelcast");
+        // Note: must use Logger.getLogger, not LogManager.getLogger
+        java.util.logging.Logger logger = java.util.logging.Logger.getLogger("com.hazelcast");
+        if (GL.isTraceEnabled(GL.CLUSTER_LOGGER_NAME)) {
+            logger.setLevel(Level.FINEST);
+        }else {
             logger.setLevel(Level.OFF);
         }
     }
