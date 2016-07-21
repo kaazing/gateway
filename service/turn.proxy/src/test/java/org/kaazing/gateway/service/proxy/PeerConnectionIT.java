@@ -12,7 +12,7 @@ import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-public class TurnProxyIT {
+public class PeerConnectionIT {
 
     private final K3poRule k3po = new K3poRule()
             .setScriptRoot("org/kaazing/specification/turn/peer.connection")

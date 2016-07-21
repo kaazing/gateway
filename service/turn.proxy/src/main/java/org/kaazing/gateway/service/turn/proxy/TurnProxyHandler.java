@@ -1,7 +1,5 @@
 package org.kaazing.gateway.service.turn.proxy;
 
-import java.util.List;
-
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
@@ -11,13 +9,15 @@ import org.kaazing.gateway.service.proxy.AbstractProxyAcceptHandler;
 import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
 import org.kaazing.gateway.service.turn.proxy.stun.StunCodecFilter;
 import org.kaazing.gateway.service.turn.proxy.stun.StunMessage;
-import org.kaazing.gateway.service.turn.proxy.stun.StunMessageAttribute;
+import org.kaazing.gateway.service.turn.proxy.stun.StunMessageClass;
+import org.kaazing.gateway.service.turn.proxy.stun.StunMessageMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TurnProxyHandler extends AbstractProxyAcceptHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("service.turn.proxy");
+    public static final String TURN_STATE_KEY = "turn-state";
 
     private String connectURI;
 
@@ -36,13 +36,14 @@ public class TurnProxyHandler extends AbstractProxyAcceptHandler {
 
     @Override
     public void sessionCreated(IoSession acceptSession) {
+        acceptSession.setAttribute(TURN_STATE_KEY, TurnSessionState.NOT_CONNECTED);
         acceptSession.getFilterChain().addLast("STUN_CODEC", new StunCodecFilter());
         super.sessionCreated(acceptSession);
     }
 
     @Override
     public void sessionOpened(IoSession acceptSession) {
-        ConnectSessionInitializer sessionInitializer = new ConnectSessionInitializer(acceptSession);
+        ConnectSessionInitializer sessionInitializer = new ConnectSessionInitializer();
         ConnectFuture connectFuture = getServiceContext().connect(connectURI, getConnectHandler(), sessionInitializer);
         connectFuture.addListener(new ConnectListener(acceptSession));
         super.sessionOpened(acceptSession);
@@ -50,18 +51,27 @@ public class TurnProxyHandler extends AbstractProxyAcceptHandler {
 
     @Override
     public void messageReceived(IoSession session, Object message) {
-        if(LOGGER.isDebugEnabled()){
+        if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Recieved message [%s] from [%s] ", message, session);
         }
-        StunMessage stunMessage = (StunMessage) message;
-        List<StunMessageAttribute> attributes = stunMessage.getAttributes();
-//        for(StunMessageAttribute attribute: )
-        super.messageReceived(session, stunMessage);
+        super.messageReceived(session, message);
     }
 
     class ConnectHandler extends AbstractProxyHandler {
 
-        public ConnectHandler() {
+        @Override
+        public void messageReceived(IoSession session, Object message) {
+            if (session.getAttribute(TURN_STATE_KEY) != TurnSessionState.ALLOCATED && message instanceof StunMessage) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Recieved message [%s] from [%s] ", message, session);
+                }
+                StunMessage stunMessage = (StunMessage) message;
+                if (stunMessage.getMethod() == StunMessageMethod.ALLOCATE
+                        && stunMessage.getMessageClass() == StunMessageClass.RESPONSE) {
+                    session.setAttribute(TURN_STATE_KEY, TurnSessionState.ALLOCATED);
+                }
+            }
+            super.messageReceived(session, message);
         }
     }
 
@@ -69,11 +79,6 @@ public class TurnProxyHandler extends AbstractProxyAcceptHandler {
      * Initializer for connect session. It adds the processed accept session headers on the connect session
      */
     class ConnectSessionInitializer implements IoSessionInitializer<ConnectFuture> {
-        private final IoSession acceptSession;
-
-        ConnectSessionInitializer(IoSession acceptSession) {
-            this.acceptSession = acceptSession;
-        }
 
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {

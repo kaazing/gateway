@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
+import org.kaazing.gateway.service.turn.proxy.TurnProxyHandler;
+import org.kaazing.gateway.service.turn.proxy.TurnSessionState;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.filter.codec.CumulativeProtocolDecoderEx;
@@ -23,6 +25,13 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
 
     @Override
     protected boolean doDecode(IoSession session, IoBufferEx in, ProtocolDecoderOutput out) throws Exception {
+        if (session.getAttribute(TurnProxyHandler.TURN_STATE_KEY) == TurnSessionState.ALLOCATED) {
+            // No need to decode once allocated
+            out.write(in.duplicate());
+            in.position(in.limit());
+            return true;
+        }
+
         LOGGER.trace("Decoding STUN message: " + in);
         if (in.remaining() < 20) {
             return false;
@@ -77,7 +86,7 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
             remaining -= length;
 
             // remove padding
-            for(int i = length; i < attributePaddedLength(length); i++){
+            for (int i = length; i < attributePaddedLength(length); i++) {
                 in.get();
                 remaining -= 1;
             }

@@ -1,6 +1,6 @@
 package org.kaazing.gateway.service.turn.proxy.stun;
 
-enum StunMessageMethod {
+public enum StunMessageMethod {
     //@formatter:off
     RESERVED            ((short) 0x000),
     BINDING             ((short) 0x001),

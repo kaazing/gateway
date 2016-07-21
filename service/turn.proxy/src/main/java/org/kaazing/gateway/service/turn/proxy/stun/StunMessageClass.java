@@ -1,6 +1,6 @@
 package org.kaazing.gateway.service.turn.proxy.stun;
 
-enum StunMessageClass {
+public enum StunMessageClass {
     //@formatter:off
     REQUEST((short) 0x000),
     INDICATION((short) 0x010),
