@@ -43,7 +43,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.kaazing.gateway.server.config.nov2015.ServiceAcceptOptionsType;
+import org.kaazing.gateway.server.config.june2016.ServiceAcceptOptionsType;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

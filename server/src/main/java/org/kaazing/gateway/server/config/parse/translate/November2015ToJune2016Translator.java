@@ -15,14 +15,20 @@
  */
 package org.kaazing.gateway.server.config.parse.translate;
 
+import org.kaazing.gateway.server.config.parse.GatewayConfigNamespace;
+import org.kaazing.gateway.server.config.parse.translate.june2016.RemoveRealmVisitor;
 import org.kaazing.gateway.server.config.parse.translate.sep2014.FindMatchingBalancerServiceVisitor;
 
-public class November2015Validator extends GatewayConfigTranslatorPipeline {
-    public November2015Validator() {
+public class November2015ToJune2016Translator extends GatewayConfigTranslatorPipeline {
+    public November2015ToJune2016Translator() {
         super();
 
         // for each balance URI, make sure there is a corresponding balancer service accepting on that URI
         // for each balancer service accept URI, make sure there is a corresponding balance URI pointing to that service
         addTranslator(new FindMatchingBalancerServiceVisitor());
+
+        addTranslator(new RemoveRealmVisitor());
+
+        addTranslator(new NamespaceVisitor(GatewayConfigNamespace.CURRENT_NS));
     }
 }
