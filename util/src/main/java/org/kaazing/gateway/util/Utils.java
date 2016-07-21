@@ -624,19 +624,19 @@ public final class Utils {
 
             try {
                 if (SECONDS_UNITS.contains(unit.toLowerCase())) {
-                    result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.SECONDS));
+                    result = (long) (outputUnit.convert((long)providedMultiplier, TimeUnit.SECONDS));
                 } else if (MILLISECONDS_UNITS.contains(unit.toLowerCase())) {
-                    result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.MILLISECONDS));
+                	result = (long) (outputUnit.convert((long)providedMultiplier, TimeUnit.MILLISECONDS));
                 } else if (MINUTES_UNITS.contains(unit.toLowerCase())) {
-                    result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.MINUTES));
+                    result = (long) (outputUnit.convert((long)providedMultiplier, TimeUnit.MINUTES));
                 } else if (HOURS_UNITS.contains(unit.toLowerCase())) {
-                    result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.HOURS));
+                    result = (long) (outputUnit.convert((long)providedMultiplier, TimeUnit.HOURS));
                 } else if (DAYS_UNITS.contains(unit.toLowerCase())) {
-                    result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.DAYS));
+                    result = (long) (outputUnit.convert((long)providedMultiplier, TimeUnit.DAYS));
                 } else if (WEEKS_UNITS.contains(unit.toLowerCase())) {
-                    result = (long) (providedMultiplier * outputUnit.convert(NO_OF_DAYS_IN_A_WEEK * result, TimeUnit.DAYS));
+                    result = (long) (outputUnit.convert(NO_OF_DAYS_IN_A_WEEK * (long)providedMultiplier, TimeUnit.DAYS));
                 } else if (YEARS_UNITS.contains(unit.toLowerCase())) {
-                    result = (long) (providedMultiplier * outputUnit.convert(NO_OF_DAYS_IN_A_YEAR * result, TimeUnit.DAYS));
+                    result = (long) (outputUnit.convert(NO_OF_DAYS_IN_A_YEAR * (long)providedMultiplier, TimeUnit.DAYS));
                 }
                 if (result < 0) {
                     throw new NumberFormatException("Expected a non-negative time interval, received \""
