@@ -15,8 +15,14 @@
  */
 package org.kaazing.gateway.server;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,21 +30,42 @@ public class HelpPrinterTest {
 
     HelpPrinter help = null;
     Options options = null;
+    private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
     @Before
     public void SetUp() {
         help = HelpPrinter.getInstance();
         options = createOptions();
+        System.setOut(new PrintStream(outContent));
     }
+
+    @After
+    public void cleanUpStreams() {
+        System.setOut(null);
+    }
+
+    String[] expected_help = new String[]{"usage: gateway.start [--config <arg>] [--help]",
+            "--config <arg>   path to gateway configuration file", "--help           print the help text"};
 
     @Test
     public void testExceptionHelpPrinter() {
-
-        Exception ex = new Exception ("Test exception");
+        Exception ex = new Exception("Test exception");
+        help.setFormatter(new HelpFormatter());
         help.printCliHelp("There was a problem with a command-line argument:\n" + ex.getMessage(), options);
+        String output = outContent.toString();
+        String[] output_lines = output.split("\n");
+
+        assertEquals(expected_help.length, output_lines.length - 2); // we subtract 2 because of the extra-lines in the
+                                                                     // exceptio
+
+        assertEquals(output_lines[0].trim(), "There was a problem with a command-line argument:");
+        assertEquals(output_lines[1].trim(), "Test exception");
+
+        for (int i = 0; i < expected_help.length; i++) {
+            assertEquals(expected_help[i], output_lines[i + 2].trim());
+        }
     }
-    
-    
+
     private Options createOptions() {
         Options options = new Options();
         options.addOption(null, "config", true, "path to gateway configuration file");

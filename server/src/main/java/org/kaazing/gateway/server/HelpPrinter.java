@@ -25,31 +25,33 @@ public class HelpPrinter {
     protected HelpFormatter helpFormatter;
     private static HelpPrinter instance = null;
 
-    
     protected HelpPrinter() {
     }
 
     // Singleton method
     public static HelpPrinter getInstance() {
-        if (instance != null)  { 
+        if (instance != null) {
             return instance;
         }
-        
+
         // try to load some special help class
-        ServiceLoader<HelpPrinter> serviceLoader =
-                ServiceLoader.load(HelpPrinter.class);
-        //checking if load was successful
+        ServiceLoader<HelpPrinter> serviceLoader = ServiceLoader.load(HelpPrinter.class);
+        // checking if load was successful
         for (HelpPrinter provider : serviceLoader) {
             HelpPrinter.instance = provider;
             return HelpPrinter.instance;
-        } 
-        
-        //if no help class, return the default help
+        }
+
+        // if no help class, return the default help
         HelpPrinter.instance = new HelpPrinter();
         return HelpPrinter.instance;
     }
 
     public void printCliHelp(String message, Options options) {
+        if (helpFormatter == null) {
+            return;
+        }
+
         if (message != null) {
             System.out.println(message);
         }
@@ -59,8 +61,7 @@ public class HelpPrinter {
     }
 
     public void setFormatter(HelpFormatter formatter) {
-        this.helpFormatter=formatter;
+        this.helpFormatter = formatter;
     }
-
 
 }
