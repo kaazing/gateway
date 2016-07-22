@@ -241,12 +241,12 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         }
 
         Boolean userAgentHeaderEnabled = (Boolean) optionsByName.remove(USER_AGENT_HEADER_ENABLED.name());
-        if (serverHeaderEnabled != null) {
+        if (userAgentHeaderEnabled != null) {
             options.setOption(USER_AGENT_HEADER_ENABLED, userAgentHeaderEnabled);
         }
 
         Boolean hostHeaderEnabled = (Boolean) optionsByName.remove(HOST_HEADER_ENABLED.name());
-        if (serverHeaderEnabled != null) {
+        if (hostHeaderEnabled != null) {
             options.setOption(HOST_HEADER_ENABLED, hostHeaderEnabled);
         }
 

@@ -74,6 +74,7 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
         }
 
         if (!session.getRemoteAddress().getOption(HttpResourceAddress.USER_AGENT_HEADER_ENABLED)
+                || !session.getRemoteAddress().getOption(HttpResourceAddress.HOST_HEADER_ENABLED)
                 || session.getMethod() == HttpMethod.GET || session.getMethod() == HttpMethod.HEAD
                 || "0".equals(session.getWriteHeader(HEADER_CONTENT_LENGTH)) || isChunked) {
             URI resource = session.getRemoteAddress().getResource();
@@ -90,7 +91,7 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
 
             // default headers
             if (session.getWriteHeader(HttpHeaders.HEADER_USER_AGENT) == null
-                    && session.getRemoteAddress().getOption(HttpResourceAddress.USER_AGENT_HEADER_ENABLED) == Boolean.FALSE) {
+                    && session.getRemoteAddress().getOption(HttpResourceAddress.USER_AGENT_HEADER_ENABLED) == Boolean.TRUE) {
                 httpRequest.setHeader("User-Agent", "Kaazing Gateway");
             }
 
