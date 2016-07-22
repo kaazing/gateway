@@ -59,8 +59,8 @@ import static org.jboss.netty.channel.Channels.*;
 /**
  * Provides an NIO based {@link org.jboss.netty.channel.socket.DatagramChannel}.
  */
-public class NioDatagramChannel extends AbstractNioChannel<DatagramChannel>
-                                implements org.jboss.netty.channel.socket.DatagramChannel {
+public class NioChildDatagramChannel extends AbstractNioChannel<DatagramChannel>
+        implements org.jboss.netty.channel.socket.DatagramChannel {
 
     /**
      * The {@link DatagramChannelConfig}.
@@ -68,13 +68,21 @@ public class NioDatagramChannel extends AbstractNioChannel<DatagramChannel>
     private final NioDatagramChannelConfig config;
     private Map<InetAddress, List<MembershipKey>> memberships;
 
-    NioDatagramChannel(final ChannelFactory factory,
-            final ChannelPipeline pipeline, final ChannelSink sink,
-            final NioDatagramWorker worker, InternetProtocolFamily family) {
+    NioChildDatagramChannel(final ChannelFactory factory,
+                       final ChannelPipeline pipeline, final ChannelSink sink,
+                       final NioDatagramWorker worker, InternetProtocolFamily family) {
         super(null, factory, pipeline, sink, worker, openNonBlockingChannel(family));
         config = new DefaultNioDatagramChannelConfig(channel);
 
         fireChannelOpen(this);
+    }
+
+    // mina.netty change - creates a child channel for a parent channel
+    NioChildDatagramChannel(Channel parent, final ChannelFactory factory,
+                       final ChannelPipeline pipeline, final ChannelSink sink,
+                       final NioChildDatagramWorker worker, InternetProtocolFamily family) {
+        super(parent, factory, pipeline, sink, worker, openNonBlockingChannel(family));
+        config = new DefaultNioDatagramChannelConfig(channel);
     }
 
     private static DatagramChannel openNonBlockingChannel(InternetProtocolFamily family) {
@@ -91,16 +99,16 @@ public class NioDatagramChannel extends AbstractNioChannel<DatagramChannel>
                 //
                 // See #368
                 switch (family) {
-                case IPv4:
-                    channel = DatagramChannel.open(ProtocolFamilyConverter.convert(family));
-                    break;
+                    case IPv4:
+                        channel = DatagramChannel.open(ProtocolFamilyConverter.convert(family));
+                        break;
 
-                case IPv6:
-                    channel = DatagramChannel.open(ProtocolFamilyConverter.convert(family));
-                    break;
+                    case IPv6:
+                        channel = DatagramChannel.open(ProtocolFamilyConverter.convert(family));
+                        break;
 
-                default:
-                    throw new IllegalArgumentException();
+                    default:
+                        throw new IllegalArgumentException();
                 }
             }
 
@@ -112,8 +120,8 @@ public class NioDatagramChannel extends AbstractNioChannel<DatagramChannel>
     }
 
     @Override
-    public NioDatagramWorker getWorker() {
-        return (NioDatagramWorker) super.getWorker();
+    public NioChildDatagramWorker getWorker() {
+        return (NioChildDatagramWorker) super.getWorker();
     }
 
     public boolean isBound() {
@@ -139,7 +147,7 @@ public class NioDatagramChannel extends AbstractNioChannel<DatagramChannel>
     }
 
     public ChannelFuture joinGroup(InetAddress multicastAddress) {
-       try {
+        try {
             return joinGroup(
                     multicastAddress, NetworkInterface.getByInetAddress(getLocalAddress().getAddress()), null);
         } catch (SocketException e) {
@@ -203,7 +211,7 @@ public class NioDatagramChannel extends AbstractNioChannel<DatagramChannel>
     }
 
     public ChannelFuture leaveGroup(InetSocketAddress multicastAddress,
-            NetworkInterface networkInterface) {
+                                    NetworkInterface networkInterface) {
         return leaveGroup(multicastAddress.getAddress(), networkInterface, null);
     }
 
@@ -211,7 +219,7 @@ public class NioDatagramChannel extends AbstractNioChannel<DatagramChannel>
      * Leave the specified multicast group at the specified interface using the specified source.
      */
     public ChannelFuture leaveGroup(InetAddress multicastAddress,
-            NetworkInterface networkInterface, InetAddress source) {
+                                    NetworkInterface networkInterface, InetAddress source) {
         if (DetectionUtil.javaVersion() < 7) {
             throw new UnsupportedOperationException();
         } else {
@@ -233,7 +241,7 @@ public class NioDatagramChannel extends AbstractNioChannel<DatagramChannel>
                             MembershipKey key = keyIt.next();
                             if (networkInterface.equals(key.networkInterface())) {
                                 if (source == null && key.sourceAddress() == null ||
-                                    source != null && source.equals(key.sourceAddress())) {
+                                        source != null && source.equals(key.sourceAddress())) {
                                     key.drop();
                                     keyIt.remove();
                                 }
@@ -254,7 +262,7 @@ public class NioDatagramChannel extends AbstractNioChannel<DatagramChannel>
      *
      */
     public ChannelFuture block(InetAddress multicastAddress,
-            NetworkInterface networkInterface, InetAddress sourceToBlock) {
+                               NetworkInterface networkInterface, InetAddress sourceToBlock) {
         if (DetectionUtil.javaVersion() < 7) {
             throw new UnsupportedOperationException();
         } else {

@@ -46,20 +46,9 @@ import java.util.concurrent.Executor;
  */
 class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
 
-    private final WorkerPool<NioDatagramWorker> workerPool;
+    private final WorkerPool<NioChildDatagramWorker> workerPool;
 
-    /**
-     * Creates a new {@link NioDatagramPipelineSink} with a the number of {@link NioDatagramWorker}s
-     * specified in workerCount.  The {@link NioDatagramWorker}s take care of reading and writing
-     * for the {@link NioDatagramChannel}.
-     *
-     * @param workerExecutor
-     *        the {@link Executor} that will run the {@link NioDatagramWorker}s
-     *        for this sink
-     * @param workerCount
-     *        the number of {@link NioDatagramWorker}s for this sink
-     */
-    NioChildDatagramPipelineSink(final WorkerPool<NioDatagramWorker> workerPool) {
+    NioChildDatagramPipelineSink(final WorkerPool<NioChildDatagramWorker> workerPool) {
         this.workerPool = workerPool;
     }
 
@@ -73,7 +62,7 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
     public void eventSunk(final ChannelPipeline pipeline, final ChannelEvent e)
             throws Exception {
 
-        final NioDatagramChannel channel = (NioDatagramChannel) e.getChannel();
+        final NioChildDatagramChannel channel = (NioChildDatagramChannel) e.getChannel();
         final ChannelFuture future = e.getFuture();
         if (e instanceof ChannelStateEvent) {
             final ChannelStateEvent stateEvent = (ChannelStateEvent) e;
@@ -113,7 +102,7 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
         }
     }
 
-    NioDatagramWorker nextWorker() {
+    NioChildDatagramWorker nextWorker() {
         return workerPool.nextWorker();
     }
 

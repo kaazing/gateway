@@ -97,6 +97,7 @@ public class NioDatagramChannelFactory implements DatagramChannelFactory {
     private final NioDatagramPipelineSink sink;
     private final NioChildDatagramPipelineSink childSink;
     private final WorkerPool<NioDatagramWorker> workerPool;
+    private final WorkerPool<NioChildDatagramWorker> childPool;
     private final InternetProtocolFamily family;
     private boolean releasePool;
 
@@ -119,107 +120,11 @@ public class NioDatagramChannelFactory implements DatagramChannelFactory {
      */
     public NioDatagramChannelFactory(InternetProtocolFamily family) {
         workerPool = new NioDatagramWorkerPool(Executors.newCachedThreadPool(), SelectorUtil.DEFAULT_IO_THREADS);
+        childPool = new NioChildDatagramWorkerPool(Executors.newCachedThreadPool(), SelectorUtil.DEFAULT_IO_THREADS);
         this.family = family;
         sink = new NioDatagramPipelineSink(workerPool);
-        childSink = new NioChildDatagramPipelineSink(workerPool);
+        childSink = new NioChildDatagramPipelineSink(childPool);
         releasePool = true;
-    }
-
-    /**
-     * Creates a new instance.  Calling this constructor is same with calling
-     * {@link #NioDatagramChannelFactory(Executor, int)} with 2 * the number of
-     * available processors in the machine.  The number of available processors
-     * is obtained by {@link Runtime#availableProcessors()}.
-     * <p>
-     * Please note that the {@link InternetProtocolFamily} of the channel will be platform (and possibly
-     * configuration) dependent and therefore unspecified.
-     * Use {@link #NioDatagramChannelFactory(Executor, InternetProtocolFamily)} if unsure.
-     *
-     * @param workerExecutor
-     *        the {@link Executor} which will execute the I/O worker threads
-     */
-    public NioDatagramChannelFactory(final Executor workerExecutor) {
-        this(workerExecutor, SelectorUtil.DEFAULT_IO_THREADS);
-    }
-
-    /**
-     * Creates a new instance.
-     * <p>
-     * Please note that the {@link InternetProtocolFamily} of the channel will be platform (and possibly
-     * configuration) dependent and therefore unspecified.
-     * Use {@link #NioDatagramChannelFactory(Executor, int, InternetProtocolFamily)} if unsure.
-     *
-     * @param workerExecutor
-     *            the {@link Executor} which will execute the I/O worker threads
-     * @param workerCount
-     *            the maximum number of I/O worker threads
-     */
-    public NioDatagramChannelFactory(final Executor workerExecutor, final int workerCount) {
-        this(new NioDatagramWorkerPool(workerExecutor, workerCount));
-    }
-
-    /**
-    * Creates a new instance.
-    * <p>
-    * Please note that the {@link InternetProtocolFamily} of the channel will be platform (and possibly
-    * configuration) dependent and therefore unspecified.
-    * Use {@link #NioDatagramChannelFactory(WorkerPool, InternetProtocolFamily)} if unsure.
-    *
-    * @param workerPool
-    * the {@link WorkerPool} which will be used to obtain the {@link NioDatagramWorker} that execute
-    * the I/O worker threads
-    */
-    public NioDatagramChannelFactory(WorkerPool<NioDatagramWorker> workerPool) {
-        this(workerPool, null);
-    }
-
-    /**
-     * Creates a new instance.  Calling this constructor is same with calling
-     * {@link #NioDatagramChannelFactory(Executor, int)} with 2 * the number of
-     * available processors in the machine.  The number of available processors
-     * is obtained by {@link Runtime#availableProcessors()}.
-     *
-     * @param workerExecutor
-     *        the {@link Executor} which will execute the I/O worker threads
-     * @param family
-     *        the {@link InternetProtocolFamily} to use. This should be used for UDP multicast.
-     *        <strong>Be aware that this option is only considered when running on java7+</strong>
-     */
-    public NioDatagramChannelFactory(final Executor workerExecutor, InternetProtocolFamily family) {
-        this(workerExecutor, SelectorUtil.DEFAULT_IO_THREADS, family);
-    }
-
-    /**
-     * Creates a new instance.
-     *
-     * @param workerExecutor
-     *        the {@link Executor} which will execute the I/O worker threads
-     * @param workerCount
-     *        the maximum number of I/O worker threads
-     * @param family
-     *        the {@link InternetProtocolFamily} to use. This should be used for UDP multicast.
-     *        <strong>Be aware that this option is only considered when running on java7+</strong>
-     */
-    public NioDatagramChannelFactory(final Executor workerExecutor,
-            final int workerCount, InternetProtocolFamily family) {
-        this(new NioDatagramWorkerPool(workerExecutor, workerCount), family);
-    }
-
-    /**
-     * Creates a new instance.
-     *
-     * @param workerPool
-     *        the {@link WorkerPool} which will be used to obtain the {@link Worker} that execute
-     *        the I/O worker threads
-     * @param family
-     *        the {@link InternetProtocolFamily} to use. This should be used for UDP multicast.
-     *        <strong>Be aware that this option is only considered when running on java7+</strong>
-     */
-    public NioDatagramChannelFactory(WorkerPool<NioDatagramWorker> workerPool, InternetProtocolFamily family) {
-        this.workerPool = workerPool;
-        this.family = family;
-        sink = new NioDatagramPipelineSink(workerPool);
-        childSink = new NioChildDatagramPipelineSink(workerPool);
     }
 
     public DatagramChannel newChannel(final ChannelPipeline pipeline) {
@@ -227,8 +132,8 @@ public class NioDatagramChannelFactory implements DatagramChannelFactory {
     }
 
     // mina.netty change -  adding this to create child datagram channels
-    public DatagramChannel newChildChannel(Channel parent, final ChannelPipeline pipeline) {
-        return new NioDatagramChannel(parent, this, pipeline, childSink, childSink.nextWorker(), family);
+    public NioChildDatagramChannel newChildChannel(Channel parent, final ChannelPipeline pipeline) {
+        return new NioChildDatagramChannel(parent, this, pipeline, childSink, childSink.nextWorker(), family);
     }
 
     public void shutdown() {

@@ -69,7 +69,7 @@ import org.jboss.netty.util.ThreadRenamingRunnable;
 
 import org.kaazing.mina.netty.channel.DefaultWriteCompletionEventEx;
 
-abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
+public abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
 
     protected final SocketSendBufferPool sendBufferPool = new SocketSendBufferPool();
     private final DefaultWriteCompletionEventEx writeCompletionEvent = new DefaultWriteCompletionEventEx();
