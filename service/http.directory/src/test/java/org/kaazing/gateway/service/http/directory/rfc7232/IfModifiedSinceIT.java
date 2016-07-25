@@ -63,14 +63,12 @@ public class IfModifiedSinceIT {
     @Rule
     public final TestRule chain = outerRule(timeout).around(k3po).around(gateway);
 
-    @Ignore("https://github.com/kaazing/gateway/issues/383")
     @Test
     @Specification("condition.failed.get.status.304/request")
     public void shouldResultInNotModifiedResponseWithGetAndConditionFailed() throws Exception {
         k3po.finish();
     }
 
-    @Ignore("https://github.com/kaazing/gateway/issues/383")
     @Test
     @Specification("condition.failed.head.status.304/request")
     public void shouldResultInNotModifiedResponseWithHeadAndConditionFailed() throws Exception {

@@ -27,6 +27,7 @@ import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.CODEC_RE
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.MAX_MESSAGE_SIZE;
+import static org.kaazing.gateway.transport.http.HttpAcceptor.BALANCEES_KEY;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpMergeRequestFilter.DRAFT76_KEY3_BUFFER_KEY;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter.AUTH_SCHEME_APPLICATION_PREFIX;
 import static org.kaazing.gateway.transport.ws.util.WsUtils.ACTIVE_EXTENSIONS_KEY;
@@ -34,10 +35,14 @@ import static org.kaazing.gateway.transport.ws.util.WsUtils.HEADER_WEBSOCKET_EXT
 import static org.kaazing.gateway.transport.ws.util.WsUtils.HEADER_X_WEBSOCKET_EXTENSIONS;
 import static org.kaazing.gateway.transport.ws.util.WsUtils.negotiateWebSocketProtocol;
 import static org.kaazing.gateway.transport.wsn.WsnSession.SESSION_KEY;
+import static org.kaazing.gateway.util.feature.EarlyAccessFeatures.WSN_302_REDIRECT;
+import static org.kaazing.gateway.util.feature.EarlyAccessFeatures.WSX_302_REDIRECT;
+import static org.kaazing.gateway.util.ws.WebSocketWireProtocol.HYBI_13;
 import static org.kaazing.mina.core.buffer.IoBufferEx.FLAG_NONE;
 
 import java.io.IOException;
 import java.net.ProtocolException;
+import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -69,6 +74,7 @@ import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.URLUtils;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.resource.address.wsn.WsnResourceAddressFactorySpi;
@@ -121,6 +127,7 @@ import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.transport.ws.util.WsHandshakeNegotiationException;
 import org.kaazing.gateway.transport.ws.util.WsUtils;
 import org.kaazing.gateway.util.Encoding;
+import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -284,7 +291,6 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     initializer.initializeSession(session, future);
                 }
                 final WsnSession wsnSession = (WsnSession) session;
-                boolean redirectResponse = false;
                 if (wsnSession.isBalanceSupported()) {
                     // NOTE: this collection is either null, empty or length one.
                     //       the balancee URI is selected in the HttpBalancerService's
@@ -1048,13 +1054,6 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                         webSocketUpgradeResponseValue = WEB_SOCKET;
                     }
 
-                    // build the HTML5 WebSocket handshake response
-                    session.setStatus(HttpStatus.INFO_SWITCHING_PROTOCOLS);
-                    session.setReason(REASON_WEB_SOCKET_HANDSHAKE);
-                    session.addWriteHeader(HEADER_UPGRADE, webSocketUpgradeResponseValue);
-                    session.addWriteHeader(HEADER_CONNECTION, HEADER_UPGRADE);
-                    session.addWriteHeader(HEADER_WEBSOCKET_ACCEPT, WsUtils.acceptHash(key));
-
                     // negotiate protocol
                     String chosenProtocol;
                     try {
@@ -1105,8 +1104,35 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                         return;
                     }
 
+
                     final String wsProtocol0 = chosenProtocol;
 
+                    // Send out 302 HTTP Balance for WSN and WSX 
+                    Object balancerKeys = session.getParent().getAttribute(BALANCEES_KEY);
+                    if (!"x-kaazing-handshake".equals(wsProtocol0) && wsVersion == HYBI_13 && balancerKeys != null) {
+                        SocketAddress parentLocalAddress = session.getParent().getLocalAddress();
+                        boolean isWsx = parentLocalAddress instanceof ResourceAddress
+                                && ((ResourceAddress) parentLocalAddress).getOption(CODEC_REQUIRED);
+    
+                        if ((WSN_302_REDIRECT.isEnabled(configuration) && !isWsx)
+                                || (isWsx && WSX_302_REDIRECT.isEnabled(configuration))) {
+                            assert balancerKeys instanceof List;
+                            List<String> availableBalanceeURIs = (List<String>) balancerKeys;
+                            String balanceURI = availableBalanceeURIs.get((int) (Math.random() * availableBalanceeURIs.size()));
+                            balanceURI = URLUtils.modifyURIScheme(URI.create(balanceURI), "http").toString();
+                            session.setStatus(HttpStatus.REDIRECT_FOUND);
+                            session.setWriteHeader("location", balanceURI);
+                            session.close(false);
+                            break;
+                        }
+                    }
+
+                    // build the HTML5 WebSocket handshake response
+                    session.setStatus(HttpStatus.INFO_SWITCHING_PROTOCOLS);
+                    session.setReason(REASON_WEB_SOCKET_HANDSHAKE);
+                    session.addWriteHeader(HEADER_UPGRADE, webSocketUpgradeResponseValue);
+                    session.addWriteHeader(HEADER_CONNECTION, HEADER_UPGRADE);
+                    session.addWriteHeader(HEADER_WEBSOCKET_ACCEPT, WsUtils.acceptHash(key));
                     // do upgrade
                     UpgradeFuture upgradeFuture = session.upgrade(ioBridgeHandler);
                     upgradeFuture.addListener(new IoFutureListener<UpgradeFuture>() {
