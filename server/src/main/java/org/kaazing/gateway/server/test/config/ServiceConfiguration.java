@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.server.test.config;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -45,8 +47,8 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
     private final Set<String> unsuppressibleConnects;
     private final Map<String, String> unsuppressibleConnectOptions;
     private final Map<String, String> unsuppressibleMimeMappings;
-    private final Map<String, Suppressible<String>> properties;
-    private final Map<String, String> unsuppressibleProperties;
+    private final Map<String, Suppressible<List<String>>> properties;
+    private final Map<String, List<String>> unsuppressibleProperties;
     private final List<NestedServicePropertiesConfiguration> nestedProperties;
 
     public ServiceConfiguration() {
@@ -209,12 +211,16 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
     }
 
     // properties
-    public Map<String, String> getProperties() {
+    public Map<String, List<String>> getProperties() {
         return unsuppressibleProperties;
     }
 
     public void addProperty(String key, String value) {
-        unsuppressibleProperties.put(key, value);
+        if (unsuppressibleProperties.containsKey(key)) {
+            unsuppressibleProperties.get(key).add(value);
+        }
+        List<String> newValue = new ArrayList<String>(Arrays.asList(value));
+        unsuppressibleProperties.put(key, newValue);
     }
 
     protected class SuppressibleServiceConfigurationImpl extends SuppressibleServiceConfiguration {
@@ -241,13 +247,20 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
         }
 
         @Override
-        public Map<String, Suppressible<String>> getProperties() {
+        public Map<String, Suppressible<List<String>>> getProperties() {
             return properties;
         }
 
         @Override
         public void addProperty(String key, Suppressible<String> value) {
-            properties.put(key, value);
+            String v = value.value();
+            if (properties.containsKey(key)) {
+                properties.get(key).value().add(v);
+            } else {
+                List<String> newValue = new ArrayList<String>(Arrays.asList(v));
+                Suppressible<List<String>> supValue = new Suppressible<List<String>>(newValue, Suppressibles.getDefaultSuppressions());
+                properties.put(key, supValue);
+            }
         }
 
         @Override
