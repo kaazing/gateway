@@ -245,7 +245,7 @@ public class MessageFormatIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-                session.setStatus(HttpStatus.SUCCESS_OK);
+                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
                 session.close(true);
             }
         };
