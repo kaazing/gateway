@@ -136,7 +136,7 @@ public class AcceptOptionsTest {
         expectSuccess("ws.inactivity.timeout", "60", "ws.inactivityTimeout", 60000L, "http[http/1.1].keepAliveTimeout", 60);
         expectSuccess("ws.inactivity.timeout", "60s", "ws.inactivityTimeout", 60000L, "http[http/1.1].keepAliveTimeout", 60);
         //https://github.com/kaazing/gateway/issues/595
-        //expectSuccess("ws.inactivity.timeout", "60000ms", "ws.inactivityTimeout", 60000L, "http[http/1.1].keepAliveTimeout", 60);
+        expectSuccess("ws.inactivity.timeout", "60000ms", "ws.inactivityTimeout", 60000L, "http[http/1.1].keepAliveTimeout", 60);
     }
 
 
