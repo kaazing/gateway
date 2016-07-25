@@ -37,8 +37,9 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelState;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
+import org.kaazing.mina.netty.channel.DefaultChannelFutureEx;
 
-import java.util.concurrent.Executor;
+import java.net.SocketAddress;
 
 /**
  * Receives downstream events from a {@link ChannelPipeline}.  It contains
@@ -62,8 +63,8 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
     public void eventSunk(final ChannelPipeline pipeline, final ChannelEvent e)
             throws Exception {
 
-        final NioChildDatagramChannel channel = (NioChildDatagramChannel) e.getChannel();
-        final ChannelFuture future = e.getFuture();
+        final NioChildDatagramChannel childChannel = (NioChildDatagramChannel) e.getChannel();
+        final ChannelFuture childFuture = e.getFuture();
         if (e instanceof ChannelStateEvent) {
             final ChannelStateEvent stateEvent = (ChannelStateEvent) e;
             final ChannelState state = stateEvent.getState();
@@ -71,39 +72,66 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
             switch (state) {
                 case OPEN:
                     if (Boolean.FALSE.equals(value)) {
-                        channel.worker.close(channel, future);
+                        childChannel.worker.close(childChannel, childFuture);
                     }
                     break;
             }
         } else if (e instanceof MessageEvent) {
-            // final MessageEvent event = (MessageEvent) e;
-            // final boolean offered = parent.writeBufferQueue.offer(event);
-            // assert offered;
-            // parent.worker.writeFromUserCode(parent);
-            //
-            // In netty AbstractNioChannel#writeBufferQueue is thread-safe but not in mina.netty's copy.
-            // Scheduling the write on parent channel thread since child channels and parent channel are
-            // on different i/o threads
-            NioDatagramChannel parent = (NioDatagramChannel) channel.getParent();
-
-            Runnable writeTask = () -> {
-                Object message = ((MessageEvent) e).getMessage();
-                ChannelFuture parentFuture = parent.write(message, channel.getRemoteAddress());
-                parentFuture.addListener(f -> {
+            // Making sure that child channel WriteFuture is fired on child channel's worker thread
+            final MessageEvent childMessageEvent = (MessageEvent) e;
+            ParentMessageEvent parentMessageEvent = new ParentMessageEvent(childMessageEvent);
+            ChannelFuture parentFuture = parentMessageEvent.getFuture();
+            parentFuture.addListener(f -> {
+                childChannel.getWorker().executeInIoThread(() -> {
                     if (f.isSuccess()) {
-                        future.setSuccess();
+                        childFuture.setSuccess();
                     } else {
-                        future.setFailure(f.getCause());
+                        childFuture.setFailure(f.getCause());
                     }
                 });
-            };
+            });
 
-            parent.getWorker().executeInIoThread(writeTask);
+            // Write to parent channel
+            NioDatagramChannel parentChannel = (NioDatagramChannel) childChannel.getParent();
+            boolean offered = parentChannel.writeBufferQueue.offer(parentMessageEvent);
+            assert offered;
+            parentChannel.worker.writeFromUserCode(parentChannel);
         }
     }
 
     NioChildDatagramWorker nextWorker() {
         return workerPool.nextWorker();
+    }
+
+    private static final class ParentMessageEvent implements MessageEvent {
+
+        private final MessageEvent delegate;
+        private final ChannelFuture parentFuture;
+
+        ParentMessageEvent(MessageEvent delegate) {
+            this.delegate = delegate;
+            this.parentFuture = new DefaultChannelFutureEx();
+        }
+
+        @Override
+        public Object getMessage() {
+            return delegate.getMessage();
+        }
+
+        @Override
+        public SocketAddress getRemoteAddress() {
+            return delegate.getRemoteAddress();
+        }
+
+        @Override
+        public Channel getChannel() {
+            return delegate.getChannel();
+        }
+
+        @Override
+        public ChannelFuture getFuture() {
+            return parentFuture;
+        }
     }
 
 }

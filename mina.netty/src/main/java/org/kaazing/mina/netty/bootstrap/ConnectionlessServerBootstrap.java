@@ -114,8 +114,9 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
 
         @Override
         public void childChannelClosed(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
-            Channel childChannel = e.getChildChannel();
+            NioChildDatagramChannel childChannel = (NioChildDatagramChannel) e.getChildChannel();
             childChannels.remove(childChannel.getRemoteAddress());
+            childChannel.getWorker().deregister(childChannel);
         }
 
         @Override

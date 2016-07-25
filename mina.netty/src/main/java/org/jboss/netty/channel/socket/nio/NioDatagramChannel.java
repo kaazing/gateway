@@ -71,7 +71,7 @@ public class NioDatagramChannel extends AbstractNioChannel<DatagramChannel>
     NioDatagramChannel(final ChannelFactory factory,
             final ChannelPipeline pipeline, final ChannelSink sink,
             final NioDatagramWorker worker, InternetProtocolFamily family) {
-        super(null, factory, pipeline, sink, worker, openNonBlockingChannel(family));
+        super(null, factory, pipeline, sink, worker, openNonBlockingChannel(family), true);
         config = new DefaultNioDatagramChannelConfig(channel);
 
         fireChannelOpen(this);

@@ -39,6 +39,8 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -77,7 +79,7 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
     /**
      * Queue of write {@link MessageEvent}s.
      */
-    final Queue<MessageEvent> writeBufferQueue = new WriteRequestQueue();
+    final Queue<MessageEvent> writeBufferQueue;
 
     /**
      * Keeps track of the number of bytes that the {@link WriteRequestQueue} currently
@@ -116,14 +118,23 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
         super(id, parent, factory, pipeline, sink);
         this.worker = worker;
         channel = ch;
+        writeBufferQueue = new WriteRequestQueue(new ArrayDeque<>(16));
     }
 
     protected AbstractNioChannel(
             Channel parent, ChannelFactory factory,
             ChannelPipeline pipeline, ChannelSink sink, AbstractNioWorker worker, C ch)  {
+        this(parent, factory, pipeline, sink, worker, ch, false);
+    }
+
+    protected AbstractNioChannel(
+            Channel parent, ChannelFactory factory,
+            ChannelPipeline pipeline, ChannelSink sink, AbstractNioWorker worker, C ch, boolean concurrent)  {
         super(parent, factory, pipeline, sink);
         this.worker = worker;
         channel = ch;
+        // note: ArrayDeque for cases where we always write from the same I/O worker thread
+        writeBufferQueue = new WriteRequestQueue(concurrent ? new ConcurrentLinkedQueue<>() : new ArrayDeque<>(16));
     }
 
     /**
@@ -250,9 +261,8 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
 
         private final Queue<MessageEvent> queue;
 
-        public WriteRequestQueue() {
-            // note: we are always writing from the I/O worker thread
-            queue = new ArrayDeque<>(16);
+        public WriteRequestQueue(Queue<MessageEvent> queue) {
+            this.queue = queue;
         }
 
         @Override

@@ -78,6 +78,7 @@ public class NioChildDatagramWorker extends AbstractNioWorker {
 
     private final OneToOneRingBuffer ringBuffer;
     private final Map<Integer, Channel> childChannels;
+    private final AtomicBuffer atomicBuffer = new UnsafeBuffer(new byte[0]);
 
     /**
      * Sole constructor.
@@ -95,35 +96,28 @@ public class NioChildDatagramWorker extends AbstractNioWorker {
     public void messageReceived(NioChildDatagramChannel childChannel, Object message) {
         assert childChannel.getId() >= 0;
 
-        System.out.println("Adding a message to ring buffer " + ringBuffer);
         ChannelBuffer buf = (ChannelBuffer) message;
         ByteBuffer byteBuffer = buf.toByteBuffer();
-        //buf.skipBytes(buf.readableBytes());
-
-        //ByteBuffer byteBuffer = (ByteBuffer) message;
-        AtomicBuffer buffer = new UnsafeBuffer(new byte[0]); // TODO hoist into a field
-        buffer.wrap(byteBuffer);
-        try {
-            boolean written = ringBuffer.write(childChannel.getId(), buffer, 0, buffer.capacity());       // todo abs() may return negative
-            System.out.println("Writing boolean = " + written);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        atomicBuffer.wrap(byteBuffer);
+        ringBuffer.write(childChannel.getId(), atomicBuffer, 0, atomicBuffer.capacity());
     }
 
-    public void register(NioChildDatagramChannel childChannel)
-    {
+    public void register(NioChildDatagramChannel childChannel) {
         //executeInIoThread(() -> { doRegister(childChannel); });
         doRegister(childChannel);
     }
 
-    private void doRegister(NioChildDatagramChannel childChannel)
-    {
+    private void doRegister(NioChildDatagramChannel childChannel) {
         childChannels.put(childChannel.getId(), childChannel);
     }
 
     public void deregister(NioChildDatagramChannel childChannel) {
+        //executeInIoThread(() -> { doDeregister(childChannel); });
+        doDeregister(childChannel);
+    }
 
+    private void doDeregister(NioChildDatagramChannel childChannel) {
+        childChannels.remove(childChannel.getId());
     }
 
     @Override
@@ -220,7 +214,6 @@ public class NioChildDatagramWorker extends AbstractNioWorker {
 
     @Override
     protected Runnable createRegisterTask(Channel channel, ChannelFuture future) {
-        System.out.println("JITU channel is " + channel.getClass());
         return new ChannelRegistionTask((NioDatagramChannel) channel, future);
     }
 

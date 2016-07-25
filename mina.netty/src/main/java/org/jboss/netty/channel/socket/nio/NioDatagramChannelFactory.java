@@ -138,6 +138,7 @@ public class NioDatagramChannelFactory implements DatagramChannelFactory {
 
     public void shutdown() {
         workerPool.shutdown();
+        childPool.shutdown();
         if (releasePool) {
             releasePool();
         }
@@ -145,12 +146,16 @@ public class NioDatagramChannelFactory implements DatagramChannelFactory {
 
     public void releaseExternalResources() {
         workerPool.shutdown();
+        childPool.shutdown();
         releasePool();
     }
 
     private void releasePool() {
         if (workerPool instanceof ExternalResourceReleasable) {
             ((ExternalResourceReleasable) workerPool).releaseExternalResources();
+        }
+        if (childPool instanceof ExternalResourceReleasable) {
+            ((ExternalResourceReleasable) childPool).releaseExternalResources();
         }
     }
 }
