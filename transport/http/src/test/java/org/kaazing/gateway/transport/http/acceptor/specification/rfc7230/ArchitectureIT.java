@@ -144,23 +144,6 @@ public class ArchitectureIT {
         testHttpVersionNoResponseMessage(HTTP_ADDRESS);
     }
 
-    private void testHttpVersionErrors(ResourceAddress address) throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-
-        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
-
-            @Override
-            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
-                latch.countDown();
-                session.close(false);
-            }
-        };
-        acceptor.bind(address, acceptHandler);
-
-        k3po.finish();
-        assertTrue(latch.await(4, SECONDS));
-    }
-
     private void testHttpVersionNoResponseMessage(ResourceAddress address) throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
 
@@ -170,11 +153,7 @@ public class ArchitectureIT {
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
 
-                if (session.getVersion().equals(HttpVersion.HTTP_1_1)) {
-                    session.setStatus(HttpStatus.SUCCESS_OK);
-                } else {
-                    session.setStatus(HttpStatus.SERVER_VERSION_NOT_SUPPORTED);
-                }
+                session.setStatus(HttpStatus.SUCCESS_OK);
 
                 session.close(false);
             }

@@ -77,9 +77,7 @@ public class ResponseStatusCodesIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-
                 session.setStatus(HttpStatus.SERVER_GATEWAY_TIMEOUT);
-
                 session.close(false);
             }
         };

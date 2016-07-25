@@ -122,7 +122,7 @@ public class MessageFormatIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                session.setStatus(HttpStatus.SUCCESS_OK);
                 session.close(false);
             }
         };
@@ -151,7 +151,7 @@ public class MessageFormatIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-                session.setStatus(HttpStatus.CLIENT_REQUEST_URI_TOO_LONG);
+                session.setStatus(HttpStatus.SUCCESS_OK);
                 session.close(false);
             }
         };
@@ -186,7 +186,7 @@ public class MessageFormatIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                session.setStatus(HttpStatus.SUCCESS_OK);
                 session.close(true);
             }
         };
@@ -206,7 +206,7 @@ public class MessageFormatIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                session.setStatus(HttpStatus.SUCCESS_OK);
                 session.close(true);
             }
         };
@@ -226,7 +226,7 @@ public class MessageFormatIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-                session.setStatus(HttpStatus.SERVER_BAD_GATEWAY);
+                session.setStatus(HttpStatus.SUCCESS_OK);
                 session.close(true);
             }
         };
@@ -245,7 +245,7 @@ public class MessageFormatIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                session.setStatus(HttpStatus.SUCCESS_OK);
                 session.close(true);
             }
         };
@@ -265,6 +265,7 @@ public class MessageFormatIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
+                session.setStatus(HttpStatus.SUCCESS_OK);
                 session.close(true);
             }
         };
@@ -283,6 +284,7 @@ public class MessageFormatIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
+                session.setStatus(HttpStatus.SUCCESS_OK);
                 session.close(false);
             }
         };
