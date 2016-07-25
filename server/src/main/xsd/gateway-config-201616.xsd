@@ -1195,8 +1195,26 @@
                         connection.
                     </documentation>
                 </annotation>
+            </element>            
+            <element name="tls.ciphers" maxOccurs="1" minOccurs="0" type="gateway:CSVType">
+                <annotation>
+                    <documentation>A comma-separated list of
+                        SSL/TLS ciphersuite names to be used for this
+                        connection.
+                    </documentation>
+                </annotation>
             </element>
             <element name="ssl.protocols" maxOccurs="1" minOccurs="0" type="gateway:CSVType">
+                <annotation>
+                    <documentation>A comma-separated list of
+                        SSL/TLS protocol names to be used for this
+                        connection. The protocols names are SSLv2Hello, SSLv3, TLSv1, TLSv1.1,
+                        TLSv1.2. If not specified explicitly, SSLv3 protocol is not
+                        enabled by default (as it is known to have vulnerabilities).
+                    </documentation>
+                </annotation>
+            </element>
+            <element name="tls.protocols" maxOccurs="1" minOccurs="0" type="gateway:CSVType">
                 <annotation>
                     <documentation>A comma-separated list of
                         SSL/TLS protocol names to be used for this
@@ -1215,7 +1233,26 @@
                     </restriction>
                 </simpleType>
             </element>
+            <element name="tls.encryption" maxOccurs="1" minOccurs="0">
+                <simpleType>
+                    <restriction base="string">
+                        <enumeration value="enabled"></enumeration>
+                        <enumeration value="disabled"></enumeration>
+                        <whiteSpace value="collapse"></whiteSpace>
+                    </restriction>
+                </simpleType>
+            </element>
             <element name="ssl.verify-client" maxOccurs="1" minOccurs="0">
+                <simpleType>
+                    <restriction base="string">
+                        <enumeration value="none"></enumeration>
+                        <enumeration value="optional"></enumeration>
+                        <enumeration value="required"></enumeration>
+                        <whiteSpace value="collapse"></whiteSpace>
+                    </restriction>
+                </simpleType>
+            </element>
+            <element name="tls.verify-client" maxOccurs="1" minOccurs="0">
                 <simpleType>
                     <restriction base="string">
                         <enumeration value="none"></enumeration>
@@ -1240,6 +1277,9 @@
             <element name="ssl.bind" maxOccurs="1" minOccurs="0" type="gateway:CollapsedString">
                 <annotation/>
             </element>
+            <element name="tls.bind" maxOccurs="1" minOccurs="0" type="gateway:CollapsedString">
+                <annotation/>
+            </element>
             <element name="tcp.bind" maxOccurs="1" minOccurs="0" type="gateway:CollapsedString">
                 <annotation/>
             </element>
@@ -1259,6 +1299,9 @@
                 <annotation/>
             </element>
             <element name="ssl.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+                <annotation/>
+            </element>
+            <element name="tls.transport" maxOccurs="1" minOccurs="0" type="anyURI">
                 <annotation/>
             </element>
             <element name="http.transport" maxOccurs="1" minOccurs="0" type="anyURI">
@@ -1284,6 +1327,14 @@
                     </documentation>
                 </annotation>
             </element>
+            <element name="tls.ciphers" maxOccurs="1" minOccurs="0" type="gateway:CSVType">
+                <annotation>
+                    <documentation>A comma-separated list of
+                        SSL/TLS ciphersuite names to be used for this
+                        connection.
+                    </documentation>
+                </annotation>
+            </element>
             <element name="ssl.protocols" maxOccurs="1" minOccurs="0" type="gateway:CSVType">
                 <annotation>
                     <documentation>A comma-separated list of
@@ -1294,7 +1345,26 @@
                     </documentation>
                 </annotation>
             </element>
+            <element name="tls.protocols" maxOccurs="1" minOccurs="0" type="gateway:CSVType">
+                <annotation>
+                    <documentation>A comma-separated list of
+                        SSL/TLS protocol names to be used for this
+                        connection. The protocols names are SSLv2Hello, SSLv3, TLSv1, TLSv1.1,
+                        TLSv1.2. If not specified explicitly, SSLv3 protocol is not
+                        enabled by default (as it is known to have vulnerabilities).
+                    </documentation>
+                </annotation>
+            </element>
             <element name="ssl.encryption" maxOccurs="1" minOccurs="0">
+                <simpleType>
+                    <restriction base="string">
+                        <enumeration value="enabled"></enumeration>
+                        <enumeration value="disabled"></enumeration>
+                        <whiteSpace value="collapse"></whiteSpace>
+                    </restriction>
+                </simpleType>
+            </element>
+            <element name="tls.encryption" maxOccurs="1" minOccurs="0">
                 <simpleType>
                     <restriction base="string">
                         <enumeration value="enabled"></enumeration>
@@ -1316,6 +1386,9 @@
                 <annotation/>
             </element>
             <element name="ssl.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+                <annotation/>
+            </element>
+            <element name="tls.transport" maxOccurs="1" minOccurs="0" type="anyURI">
                 <annotation/>
             </element>
             <element name="http.transport" maxOccurs="1" minOccurs="0" type="anyURI">
