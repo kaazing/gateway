@@ -18,6 +18,7 @@ package org.kaazing.gateway.transport.http.connector.specification.rfc7233;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 
+import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.future.ConnectFuture;
@@ -65,7 +66,6 @@ public class RangeRequestsIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("TODO")
     @Test
     @Specification({"range.request/response"})
     public void rangeRequest() throws Exception {
@@ -87,13 +87,12 @@ public class RangeRequestsIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerPostRange());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
     
-    @Ignore("TODO")
     @Test
     @Specification({"unsatisfactory.range.gives.416/response"})
     public void shouldGive416IfRangeIsNotSatisfactory() throws Exception {
@@ -115,13 +114,12 @@ public class RangeRequestsIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerPostRange());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
     
-    @Ignore("TODO")
     @Test
     @Specification({"ignore.if-range.without.range.header/response"})
     public void serverIgnoresIfRangeRequestWithoutRangeHeader() throws Exception {
@@ -143,13 +141,12 @@ public class RangeRequestsIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerPost());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
     
-    @Ignore("TODO")
     @Test
     @Specification({"partial.range.request/response"})
     public void partialRangeRequest() throws Exception {
@@ -171,18 +168,35 @@ public class RangeRequestsIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerPostRange());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
 
-    private static class ConnectSessionInitializer implements IoSessionInitializer<ConnectFuture> {
+    private static class ConnectSessionInitializerPostRange implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
             HttpConnectSession connectSession = (HttpConnectSession) session;
-            connectSession.setMethod(HttpMethod.GET);
+            connectSession.setMethod(HttpMethod.POST);
             connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(7));
+            connectSession.addWriteHeader("Range", "bytes=100-");
+            ByteBuffer bytes = ByteBuffer.wrap("content".getBytes());
+            connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
+        }
+    }
+    
+    private static class ConnectSessionInitializerPost implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.POST);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(7));
+            connectSession.addWriteHeader("If-Range", "bytes=100-");
+            ByteBuffer bytes = ByteBuffer.wrap("content".getBytes());
+            connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
         }
     }
 

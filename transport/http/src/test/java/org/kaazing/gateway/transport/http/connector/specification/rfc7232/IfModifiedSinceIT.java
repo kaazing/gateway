@@ -67,7 +67,6 @@ public class IfModifiedSinceIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("AssertionError")
     @Test
     @Specification({"condition.failed.get.status.304/response"})
     public void shouldResultInNotModifiedResponseWithGetAndConditionFailed() throws Exception {
@@ -91,10 +90,25 @@ public class IfModifiedSinceIT {
                 });
             }
         });
-
         connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializer());
-        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerGet());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerGet());
+        assertTrue(closed2.await(2, SECONDS));
 
         k3po.finish();
     }
@@ -147,7 +161,6 @@ public class IfModifiedSinceIT {
         }
     }
 
-    @Ignore("AssertionError")
     @Test
     @Specification({"condition.passed.get.status.200/response"})
     public void shouldResultInOKResponseWithGetAndConditionPassed() throws Exception {
@@ -170,8 +183,25 @@ public class IfModifiedSinceIT {
         });
 
         connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerGetSuccess());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerGetSuccess());
+        assertTrue(closed2.await(2, SECONDS));
 
         k3po.finish();
     }
@@ -345,7 +375,6 @@ public class IfModifiedSinceIT {
         }
     }
 
-    @Ignore("AssertionError")
     @Test
     @Specification({"ignored.with.get.and.if.none.match/response"})
     public void shouldIgnoreIfModifiedSinceHeaderAsGetAlsoContainsIfNoneMatchHeader() throws Exception {
@@ -368,8 +397,25 @@ public class IfModifiedSinceIT {
         });
 
         connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerGetNoneMatch());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerGetNoneMatch());
+        assertTrue(closed2.await(2, SECONDS));
 
         k3po.finish();
     }
@@ -385,7 +431,6 @@ public class IfModifiedSinceIT {
         }
     }
 
-    @Ignore("AssertionError")
     @Test
     @Specification({"ignored.with.head.and.if.none.match/response"})
     public void shouldIgnoreIfModifiedSinceHeaderAsHeadAlsoContainsIfNoneMatchHeader() throws Exception {
@@ -408,8 +453,25 @@ public class IfModifiedSinceIT {
         });
 
         connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerHeadNoneMatch());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerHeadNoneMatch());
+        assertTrue(closed2.await(2, SECONDS));
 
         k3po.finish();
     }

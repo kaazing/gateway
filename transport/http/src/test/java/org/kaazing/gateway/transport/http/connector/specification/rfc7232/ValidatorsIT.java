@@ -18,6 +18,7 @@ package org.kaazing.gateway.transport.http.connector.specification.rfc7232;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 
+import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.future.ConnectFuture;
@@ -65,7 +66,6 @@ public class ValidatorsIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("TODO")
     @Test
     @Specification({"last.modified.in.get/response"})
     public void shouldReceiveLastModifiedInGetResponse() throws Exception {
@@ -93,7 +93,6 @@ public class ValidatorsIT {
         k3po.finish();
     }
     
-    @Ignore("TODO")
     @Test
     @Specification({"last.modified.in.head/response"})
     public void shouldReceiveLastModifiedInHeadResponse() throws Exception {
@@ -115,13 +114,21 @@ public class ValidatorsIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerHead());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
     
-    @Ignore("TODO")
+    private static class ConnectSessionInitializerHead implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.HEAD);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+        }
+    }
+    
     @Test
     @Specification({"last.modified.in.post/response"})
     public void shouldReceiveLastModifiedInPostResponse() throws Exception {
@@ -143,13 +150,24 @@ public class ValidatorsIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPost());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
     
-    @Ignore("TODO")
+    private static class ConnectSessionInitializerPost implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.POST);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(7));
+            ByteBuffer bytes = ByteBuffer.wrap("content".getBytes());
+            connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
+        }
+    }
+    
     @Test
     @Specification({"last.modified.in.put/response"})
     public void shouldReceiveLastModifiedInPutResponse() throws Exception {
@@ -171,13 +189,24 @@ public class ValidatorsIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPut());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
     
-    @Ignore("TODO")
+    private static class ConnectSessionInitializerPut implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.PUT);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(7));
+            ByteBuffer bytes = ByteBuffer.wrap("content".getBytes());
+            connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
+        }
+    }
+    
     @Test
     @Specification({"last.modified.with.strong.etag.in.get/response"})
     public void shouldReceiveLastModifiedAndStrongETagInGetResponse() throws Exception {
@@ -205,7 +234,6 @@ public class ValidatorsIT {
         k3po.finish();
     }
     
-    @Ignore("TODO")
     @Test
     @Specification({"last.modified.with.strong.etag.in.head/response"})
     public void shouldReceiveLastModifiedAndStrongETagInHeadResponse() throws Exception {
@@ -227,13 +255,12 @@ public class ValidatorsIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerHead());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
     
-    @Ignore("TODO")
     @Test
     @Specification({"last.modified.with.strong.etag.in.post/response"})
     public void shouldReceiveLastModifiedAndStrongETagInPostResponse() throws Exception {
@@ -255,13 +282,12 @@ public class ValidatorsIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPost());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
     
-    @Ignore("TODO")
     @Test
     @Specification({"last.modified.with.strong.etag.in.put/response"})
     public void shouldReceiveLastModifiedAndStrongETagInPutResponse() throws Exception {
@@ -283,13 +309,12 @@ public class ValidatorsIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPut());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
     
-    @Ignore("TODO")
     @Test
     @Specification({"last.modified.with.weak.etag.in.get/response"})
     public void shouldReceiveLastModifiedAndWeakETagInGetResponse() throws Exception {
@@ -317,7 +342,6 @@ public class ValidatorsIT {
         k3po.finish();
     }
     
-    @Ignore("TODO")
     @Test
     @Specification({"last.modified.with.weak.etag.in.head/response"})
     public void shouldReceiveLastModifiedAndWeakETagInHeadResponse() throws Exception {
@@ -339,13 +363,12 @@ public class ValidatorsIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerHead());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
     
-    @Ignore("TODO")
     @Test
     @Specification({"last.modified.with.weak.etag.in.post/response"})
     public void shouldReceiveLastModifiedAndWeakETagInPostResponse() throws Exception {
@@ -367,13 +390,12 @@ public class ValidatorsIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPost());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
     
-    @Ignore("TODO")
     @Test
     @Specification({"last.modified.with.weak.etag.in.put/response"})
     public void shouldReceiveLastModifiedAndWeakETagInPutResponse() throws Exception {
@@ -395,13 +417,12 @@ public class ValidatorsIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPut());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
     
-    @Ignore("TODO")
     @Test
     @Specification({"strong.etag.in.get/response"})
     public void shouldReceiveStrongETagInGetResponse() throws Exception {
@@ -429,7 +450,6 @@ public class ValidatorsIT {
         k3po.finish();
     }
     
-    @Ignore("TODO")
     @Test
     @Specification({"strong.etag.in.head/response"})
     public void shouldReceiveStrongETagInHeadResponse() throws Exception {
@@ -451,13 +471,12 @@ public class ValidatorsIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerHead());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
     
-    @Ignore("TODO")
     @Test
     @Specification({"strong.etag.in.post/response"})
     public void shouldReceiveStrongETagInPostResponse() throws Exception {
@@ -479,13 +498,12 @@ public class ValidatorsIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPost());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
     
-    @Ignore("TODO")
     @Test
     @Specification({"strong.etag.in.put/response"})
     public void shouldReceiveStrongETagInPutResponse() throws Exception {
@@ -507,13 +525,12 @@ public class ValidatorsIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPut());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
     
-    @Ignore("TODO")
     @Test
     @Specification({"weak.etag.in.get/response"})
     public void shouldReceiveWeakETagInGetResponse() throws Exception {
@@ -541,7 +558,6 @@ public class ValidatorsIT {
         k3po.finish();
     }
     
-    @Ignore("TODO")
     @Test
     @Specification({"weak.etag.in.head/response"})
     public void shouldReceiveWeakETagInHeadResponse() throws Exception {
@@ -563,13 +579,12 @@ public class ValidatorsIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerHead());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
     
-    @Ignore("TODO")
     @Test
     @Specification({"weak.etag.in.post/response"})
     public void shouldReceiveWeakETagInPostResponse() throws Exception {
@@ -591,13 +606,12 @@ public class ValidatorsIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPost());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
     
-    @Ignore("TODO")
     @Test
     @Specification({"weak.etag.in.put/response"})
     public void shouldReceiveWeakETagInPutResponse() throws Exception {
@@ -619,7 +633,7 @@ public class ValidatorsIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPut());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();

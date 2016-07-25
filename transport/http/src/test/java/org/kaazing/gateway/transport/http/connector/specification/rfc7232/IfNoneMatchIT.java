@@ -67,7 +67,7 @@ public class IfNoneMatchIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("TODO")
+    @Ignore("Multiple Etags")
     @Test
     @Specification({"multiple.etags.delete.status.400/response"})
     public void shouldResultInBadRequestResponseWithDeleteAndMutipleETags() throws Exception {
@@ -90,12 +90,28 @@ public class IfNoneMatchIT {
         });
 
         connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerDelete());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
 
-    @Ignore("TODO")
+    private static class ConnectSessionInitializerDelete implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.DELETE);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "r2d2xxxx");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag1");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag2");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(7));
+            ByteBuffer bytes = ByteBuffer.wrap("content".getBytes());
+            connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
+        }
+    }
+
+    @Ignore("multiple etags")
     @Test
     @Specification({"multiple.etags.get.status.200/response"})
     public void shouldResultInOKResponseWithGetAndMutipleETags() throws Exception {
@@ -117,13 +133,25 @@ public class IfNoneMatchIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerGet());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
 
-    @Ignore("TODO")
+    private static class ConnectSessionInitializerGet implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.GET);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag1");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag2");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag3");
+        }
+    }
+
+    @Ignore("Multiple etags")
     @Test
     @Specification({"multiple.etags.head.status.200/response"})
     public void shouldResultInOKResponseWithHeadAndMutipleETags() throws Exception {
@@ -145,13 +173,25 @@ public class IfNoneMatchIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerHead());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
 
-    @Ignore("TODO")
+    private static class ConnectSessionInitializerHead implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.HEAD);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag1");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag2");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag3");
+        }
+    }
+
+    @Ignore("Multiple etags")
     @Test
     @Specification({"multiple.etags.post.status.400/response"})
     public void shouldResultInBadRequestResponseWithPostAndMutipleETags() throws Exception {
@@ -176,10 +216,27 @@ public class IfNoneMatchIT {
         connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
 
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPost());
+
         k3po.finish();
     }
 
-    @Ignore("TODO")
+    private static class ConnectSessionInitializerPost implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.POST);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "r2d2xxxx");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag1");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag2");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(7));
+            ByteBuffer bytes = ByteBuffer.wrap("content".getBytes());
+            connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
+        }
+    }
+
+    @Ignore("Multiple etags")
     @Test
     @Specification({"multiple.etags.put.status.400/response"})
     public void shouldResultInBadRequestResponseWithPutAndMutipleETags() throws Exception {
@@ -203,11 +260,27 @@ public class IfNoneMatchIT {
 
         connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPut());
 
         k3po.finish();
     }
 
-    @Ignore("TODO")
+    private static class ConnectSessionInitializerPut implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.PUT);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "r2d2xxxx");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag1");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag2");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(7));
+            ByteBuffer bytes = ByteBuffer.wrap("content".getBytes());
+            connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
+        }
+    }
+
+    @Ignore("Multiple etags")
     @Test
     @Specification({"multiple.etags.get.status.304/response"})
     public void shouldResultInNotModifiedResponseWithGetAndMutipleETags() throws Exception {
@@ -231,11 +304,12 @@ public class IfNoneMatchIT {
 
         connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerGet());
 
         k3po.finish();
     }
 
-    @Ignore("TODO")
+    @Ignore("multiple etags")
     @Test
     @Specification({"multiple.etags.head.status.304/response"})
     public void shouldResultInNotModifiedResponseWithHeadAndMutipleETags() throws Exception {
@@ -259,11 +333,11 @@ public class IfNoneMatchIT {
 
         connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerHead());
 
         k3po.finish();
     }
 
-    @Ignore("TODO")
     @Test
     @Specification({"single.etag.delete.status.400/response"})
     public void shouldResultBadRequestResponseWithDeleteAndSingleETag() throws Exception {
@@ -285,13 +359,42 @@ public class IfNoneMatchIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
 
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerDeleteSingle());
+        assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
+    
+    private static class ConnectSessionInitializerDeleteSingle implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.DELETE);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "r2d2xxxx");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(7));
+            ByteBuffer bytes = ByteBuffer.wrap("content".getBytes());
+            connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
+        }
+    }
 
-    @Ignore("TODO")
     @Test
     @Specification({"single.etag.get.status.200/response"})
     public void shouldResultInOKResponseWithGetAndSingleETag() throws Exception {
@@ -313,13 +416,31 @@ public class IfNoneMatchIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerGetSingle());
         assertTrue(closed.await(2, SECONDS));
-
         k3po.finish();
     }
+    
+    private static class ConnectSessionInitializerGetSingle implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.GET);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "\"unmatched-tag\"");
+        }
+    }
+    
+    private static class ConnectSessionInitializerGetSingle2 implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.GET);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "\"r2d2xxxx\"");
+        }
+    }
 
-    @Ignore("TODO")
     @Test
     @Specification({"single.etag.get.status.304/response"})
     public void shouldResultInNotModifiedResponseWithGetAndSingleETag() throws Exception {
@@ -343,11 +464,27 @@ public class IfNoneMatchIT {
 
         connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
 
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerGetSingle2());
+        assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
 
-    @Ignore("TODO")
     @Test
     @Specification({"single.etag.head.status.200/response"})
     public void shouldResultInOKResponseWithHeadAndSingleETag() throws Exception {
@@ -369,13 +506,32 @@ public class IfNoneMatchIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerHeadSingle());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
 
-    @Ignore("TODO")
+    private static class ConnectSessionInitializerHeadSingle implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.HEAD);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "\"unmatched-tag\"");
+        }
+    }
+    
+    private static class ConnectSessionInitializerHeadSingle2 implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.HEAD);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "\"r2d2xxxx\"");
+        }
+    }
+
     @Test
     @Specification({"single.etag.head.status.304/response"})
     public void shouldResultInNotModifiedResponseWithHeadAndSingleETag() throws Exception {
@@ -399,11 +555,27 @@ public class IfNoneMatchIT {
 
         connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
 
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerHeadSingle2());
+        assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
 
-    @Ignore("TODO")
     @Test
     @Specification({"single.etag.post.status.400/response"})
     public void shouldResultBadRequestResponseWithPostAndSingleETag() throws Exception {
@@ -427,11 +599,40 @@ public class IfNoneMatchIT {
 
         connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
 
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPostSingle());
+        assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
+    
+    private static class ConnectSessionInitializerPostSingle implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.POST);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "\"r2d2xxxx\"");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(7));
+            ByteBuffer bytes = ByteBuffer.wrap("content".getBytes());
+            connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
+        }
+    }
 
-    @Ignore("TODO")
     @Test
     @Specification({"single.etag.put.status.400/response"})
     public void shouldResultBadRequestResponseWithPutAndSingleETag() throws Exception {
@@ -455,11 +656,40 @@ public class IfNoneMatchIT {
 
         connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
 
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPutSingle());
+        assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
+    
+    private static class ConnectSessionInitializerPutSingle implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.PUT);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "\"r2d2xxxx\"");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(7));
+            ByteBuffer bytes = ByteBuffer.wrap("content".getBytes());
+            connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
+        }
+    }
 
-    @Ignore("TODO")
     @Test
     @Specification({"wildcard.delete.status.412/response"})
     public void shouldResultInPreconditionFailedResponseWithDeleteAndWildcard() throws Exception {
@@ -481,13 +711,25 @@ public class IfNoneMatchIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerDeleteWildcard());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
+    
+    private static class ConnectSessionInitializerDeleteWildcard implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.DELETE);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "\"*\"");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(7));
+            ByteBuffer bytes = ByteBuffer.wrap("content".getBytes());
+            connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
+        }
+    }
 
-    @Ignore("TODO")
     @Test
     @Specification({"wildcard.get.status.304/response"})
     public void shouldResultInNotModifiedResponseWithGetAndWildcard() throws Exception {
@@ -509,13 +751,22 @@ public class IfNoneMatchIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerGetWildcard());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
+    
+    private static class ConnectSessionInitializerGetWildcard implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.GET);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "\"*\"");
+        }
+    }
 
-    @Ignore("TODO")
     @Test
     @Specification({"wildcard.head.status.304/response"})
     public void shouldResultInNotModifiedResponseWithHeadAndWildcard() throws Exception {
@@ -537,10 +788,20 @@ public class IfNoneMatchIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerHeadWildcard());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
+    }
+    
+    private static class ConnectSessionInitializerHeadWildcard implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.HEAD);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "\"*\"");
+        }
     }
 
     @Ignore("TODO")
@@ -565,13 +826,25 @@ public class IfNoneMatchIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPostWildcard());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
+    
+    private static class ConnectSessionInitializerPostWildcard implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.POST);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "\"*\"");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(7));
+            ByteBuffer bytes = ByteBuffer.wrap("content".getBytes());
+            connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
+        }
+    }
 
-    @Ignore("TODO")
     @Test
     @Specification({"wildcard.put.status.412/response"})
     public void shouldResultInPreconditionFailedResponseWithPutAndWildcard() throws Exception {
@@ -593,10 +866,23 @@ public class IfNoneMatchIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPutWildcard());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
+    }
+    
+    private static class ConnectSessionInitializerPutWildcard implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.PUT);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "\"*\"");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(7));
+            ByteBuffer bytes = ByteBuffer.wrap("content".getBytes());
+            connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
+        }
     }
 
     private static class ConnectSessionInitializer implements IoSessionInitializer<ConnectFuture> {

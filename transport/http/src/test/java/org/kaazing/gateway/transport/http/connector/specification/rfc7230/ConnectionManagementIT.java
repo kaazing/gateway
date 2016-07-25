@@ -160,7 +160,7 @@ public class ConnectionManagementIT {
         k3po.finish();
     }
 
-    @Ignore("Assertion Error")
+    @Ignore("Not accepting requests?")
     @Test
     @Specification({"server.should.accept.http.pipelining/response"})
     public void serverShouldAcceptHttpPipelining() throws Exception {
@@ -182,22 +182,52 @@ public class ConnectionManagementIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8080/request1", handler, new ConnectSessionInitializerGet());
-        connectFuture.getSession();
-
-        connectFuture = connector.connect("http://localhost:8080/request2", handler, new ConnectSessionInitializerGet());
-        connectFuture.getSession();
-
-        connectFuture = connector.connect("http://localhost:8080/request3", handler, new ConnectSessionInitializerGet());
-        connectFuture.getSession();
-
+        connector.connect("http://localhost:8080/request1", handler, new ConnectSessionInitializerGet());
         assertTrue(closed.await(4, SECONDS));
 
+        final CountDownLatch closed2 = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        
+        connector.connect("http://localhost:8080/request2", handler, new ConnectSessionInitializerGet());
+        assertTrue(closed2.await(4, SECONDS));
+        
+        final CountDownLatch closed3 = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed3.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        
+        connector.connect("http://localhost:8080/request3", handler, new ConnectSessionInitializerGet());
+        assertTrue(closed3.await(4, SECONDS));
         k3po.finish();
     }
 
-    @Ignore("Assertion Error")
+    @Ignore("Error?")
     @Test
     @Specification({"client.with.pipelining.must.not.retry.pipelining.immediately.after.failure/response"})
     public void clientWithPipeliningMustNotRetryPipeliningImmediatelyAfterFailure() throws Exception {
@@ -220,9 +250,47 @@ public class ConnectionManagementIT {
         });
 
         connector.connect("http://localhost:8080/request1", handler, new ConnectSessionInitializerGet());
-        connector.connect("http://localhost:8080/request2", handler, new ConnectSessionInitializerGet());
-        connector.connect("http://localhost:8080/request2", handler, new ConnectSessionInitializerGet());
         assertTrue(closed.await(2, SECONDS));
+        
+        final CountDownLatch closed2 = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        
+        connector.connect("http://localhost:8080/request2", handler, new ConnectSessionInitializerGet());
+        assertTrue(closed2.await(2, SECONDS));
+        
+        final CountDownLatch closed3 = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed3.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        
+        connector.connect("http://localhost:8080/request2", handler, new ConnectSessionInitializerGet());
+        assertTrue(closed3.await(2, SECONDS));
 
         k3po.finish();
     }
@@ -256,7 +324,7 @@ public class ConnectionManagementIT {
         k3po.finish();
     }
 
-    @Ignore("AssertionError")
+    @Ignore("Still assertion error?")
     @Test
     @Specification({"client.must.not.reuse.tcp.connection.when.receives.connection.close/response"})
     public void clientMustNotReuseTcpConnectionWhenReceivesConnectionClose() throws Exception {
@@ -279,8 +347,25 @@ public class ConnectionManagementIT {
         });
 
         connector.connect("http://localhost:8080/path1", handler, new ConnectSessionInitializerGetConnectionLength());
-        connector.connect("http://localhost:8080/path2", handler, new ConnectSessionInitializerGetConnectionLength());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8080/path2", handler, new ConnectSessionInitializerGetConnectionLength());
+        assertTrue(closed2.await(2, SECONDS));
 
         k3po.finish();
     }
@@ -314,7 +399,7 @@ public class ConnectionManagementIT {
         k3po.finish();
     }
 
-    @Ignore("Assertion Error")
+    @Ignore("Why AssertionError?")
     @Test
     @Specification({"server.that.sends.upgrade.required.must.include.upgrade.header/response"})
     public void serverThatSendsUpgradeRequiredMustIncludeUpgradeHeader() throws Exception {
@@ -336,8 +421,7 @@ public class ConnectionManagementIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();

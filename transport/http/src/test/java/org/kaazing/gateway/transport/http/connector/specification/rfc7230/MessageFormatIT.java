@@ -67,7 +67,7 @@ public class MessageFormatIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("AssertionError")
+    @Ignore("Why AssertionError?")
     @Test
     @Specification({"inbound.should.accept.headers/response"})
     public void inboundShouldAcceptHeaders() throws Exception {
@@ -89,9 +89,7 @@ public class MessageFormatIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetHeader());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetHeader());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -437,7 +435,7 @@ public class MessageFormatIT {
         k3po.finish();
     }
 
-    @Ignore("AssertionError")
+    @Ignore("Why assertion error?")
     @Test
     @Specification({"inbound.on.receiving.field.with.length.larger.than.wanting.to.process.must.reply.with.4xx/response"})
     public void inboundOnReceivingFieldWithLengthLargerThanWantingToProcessMustReplyWith4xx() throws Exception {
@@ -459,9 +457,7 @@ public class MessageFormatIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetLongHeader());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetLongHeader());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -496,7 +492,7 @@ public class MessageFormatIT {
         k3po.finish();
     }
 
-    @Ignore("AssertionError")
+    @Ignore("Why AssertionError?")
     @Test
     @Specification({"outbound.should.process.response.with.content.length/response"})
     public void outboundShouldProcessResponseWithContentLength() throws Exception {
@@ -518,9 +514,7 @@ public class MessageFormatIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
-        connectFuture.getSession();
-
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
         assertTrue(closed.await(4, SECONDS));
 
         k3po.finish();

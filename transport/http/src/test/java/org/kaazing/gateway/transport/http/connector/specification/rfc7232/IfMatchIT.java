@@ -66,7 +66,6 @@ public class IfMatchIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("AssertionError")
     @Test
     @Specification({"multiple.etags.delete.status.200/response"})
     public void shouldSucceedWithDeleteAndMatchingETagInTheList() throws Exception {
@@ -91,8 +90,24 @@ public class IfMatchIT {
             }
         });
         connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializer());
-        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerDelete());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerDelete());
+        assertTrue(closed2.await(2, SECONDS));
 
         k3po.finish();
     }
@@ -109,11 +124,10 @@ public class IfMatchIT {
             connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(7));
             ByteBuffer bytes = ByteBuffer.wrap("content".getBytes());
             connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
-            
+
         }
     }
 
-    @Ignore("AssertionError")
     @Test
     @Specification({"multiple.etags.get.status.200/response"})
     public void shouldIgnoreIfMatchHeaderWithGetAndMatchingETagInTheList() throws Exception {
@@ -136,8 +150,24 @@ public class IfMatchIT {
         });
 
         connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializer());
-        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerGet());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerGet());
+        assertTrue(closed2.await(2, SECONDS));
 
         k3po.finish();
     }
@@ -154,7 +184,6 @@ public class IfMatchIT {
         }
     }
 
-    @Ignore("AssertionError")
     @Test
     @Specification({"multiple.etags.head.status.200/response"})
     public void shouldIgnoreIfMatchHeaderWithHeadAndMatchingETagInTheList() throws Exception {
@@ -177,9 +206,25 @@ public class IfMatchIT {
         });
 
         connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializer());
+        assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
         connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerHead());
 
-        assertTrue(closed.await(2, SECONDS));
+        assertTrue(closed2.await(2, SECONDS));
 
         k3po.finish();
     }
@@ -196,7 +241,6 @@ public class IfMatchIT {
         }
     }
 
-    @Ignore("AssertionError")
     @Test
     @Specification({"multiple.etags.post.status.200/response"})
     public void shouldSucceedWithPostAndMatchingETagInTheList() throws Exception {
@@ -219,12 +263,28 @@ public class IfMatchIT {
         });
 
         connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializer());
-        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerPost());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerPost());
+        assertTrue(closed2.await(2, SECONDS));
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPost implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -240,7 +300,6 @@ public class IfMatchIT {
         }
     }
 
-    @Ignore("AssertionError")
     @Test
     @Specification({"multiple.etags.put.status.200/response"})
     public void shouldSucceedWithPutAndMatchingETagInTheList() throws Exception {
@@ -261,14 +320,29 @@ public class IfMatchIT {
                 });
             }
         });
-
         connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializer());
-        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerPut());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerPut());
+        assertTrue(closed2.await(2, SECONDS));
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPut implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -290,7 +364,7 @@ public class IfMatchIT {
     public void shouldCausePreconditionFailedWithDeleteAndNoMatchingETagsInTheList() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
-        
+
         connector.getConnectOptions().put("http.userAgentHeaderEnabled", Boolean.FALSE);
         connector.getConnectOptions().put("http.hostHeaderEnabled", Boolean.FALSE);
 
@@ -316,7 +390,7 @@ public class IfMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerDelete412 implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -328,7 +402,7 @@ public class IfMatchIT {
             connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(7));
             ByteBuffer bytes = ByteBuffer.wrap("content".getBytes());
             connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
-            
+
         }
     }
 
@@ -359,7 +433,7 @@ public class IfMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerGetUnexpected implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -401,7 +475,7 @@ public class IfMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerHeadUnexpected implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -443,7 +517,7 @@ public class IfMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPost412 implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -488,7 +562,7 @@ public class IfMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPut412 implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -504,7 +578,6 @@ public class IfMatchIT {
         }
     }
 
-    @Ignore("Assertion Error")
     @Test
     @Specification({"strong.etag.delete.status.200/response"})
     public void shouldSucceedWithDeleteAndMatchingStrongETag() throws Exception {
@@ -526,12 +599,29 @@ public class IfMatchIT {
             }
         });
         connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializer());
-        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerDeleteStrong());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerDeleteStrong());
+        assertTrue(closed2.await(2, SECONDS));
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerDeleteStrong implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -545,7 +635,6 @@ public class IfMatchIT {
         }
     }
 
-    @Ignore("Assertion Error")
     @Test
     @Specification({"strong.etag.get.status.200/response"})
     public void shouldSucceedWithGetAndMatchingStrongETag() throws Exception {
@@ -568,12 +657,28 @@ public class IfMatchIT {
         });
 
         connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializer());
-        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerGetSuccess());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerGetSuccess());
+        assertTrue(closed2.await(2, SECONDS));
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerGetSuccess implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -584,7 +689,6 @@ public class IfMatchIT {
         }
     }
 
-    @Ignore("AssertionError")
     @Test
     @Specification({"strong.etag.head.status.200/response"})
     public void shouldSucceedWithHeadAndMatchingStrongETag() throws Exception {
@@ -605,14 +709,30 @@ public class IfMatchIT {
                 });
             }
         });
-
         connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializer());
-        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerHeadSuccess());
         assertTrue(closed.await(2, SECONDS));
+
+        final CountDownLatch closed2 = new CountDownLatch(1);
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerHeadSuccess());
+        assertTrue(closed2.await(2, SECONDS));
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerHeadSuccess implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -623,7 +743,6 @@ public class IfMatchIT {
         }
     }
 
-    @Ignore("AssertionError")
     @Test
     @Specification({"strong.etag.post.status.200/response"})
     public void shouldSucceedWithPostAndMatchingStrongETag() throws Exception {
@@ -646,8 +765,25 @@ public class IfMatchIT {
         });
 
         connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializer());
-        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerPostSuccess());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerPostSuccess());
+        assertTrue(closed2.await(2, SECONDS));
 
         k3po.finish();
     }
@@ -693,7 +829,7 @@ public class IfMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPutSuccess implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -732,7 +868,7 @@ public class IfMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerDeleteStrongUnmatched implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -766,14 +902,14 @@ public class IfMatchIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerGetStrongUnmatched());
+        ConnectFuture connectFuture = connector.connect("http://localhost:8000/index.html", handler,
+                new ConnectSessionInitializerGetStrongUnmatched());
         connectFuture.getSession();
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerGetStrongUnmatched implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -804,14 +940,14 @@ public class IfMatchIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerHeadStrongUnmatched());
+        ConnectFuture connectFuture = connector.connect("http://localhost:8000/index.html", handler,
+                new ConnectSessionInitializerHeadStrongUnmatched());
         connectFuture.getSession();
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerHeadStrongUnmatched implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -842,14 +978,14 @@ public class IfMatchIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerPostStrongUnmatched());
+        ConnectFuture connectFuture = connector.connect("http://localhost:8000/index.html", handler,
+                new ConnectSessionInitializerPostStrongUnmatched());
         connectFuture.getSession();
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPostStrongUnmatched implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -883,14 +1019,14 @@ public class IfMatchIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerPutStrongUnmatched());
+        ConnectFuture connectFuture = connector.connect("http://localhost:8000/index.html", handler,
+                new ConnectSessionInitializerPutStrongUnmatched());
         connectFuture.getSession();
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPutStrongUnmatched implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -931,7 +1067,7 @@ public class IfMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerDeleteWeak implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -972,7 +1108,7 @@ public class IfMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerGetWeak implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -1010,7 +1146,7 @@ public class IfMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerHeadWeak implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -1048,7 +1184,7 @@ public class IfMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPostWeak implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -1089,7 +1225,7 @@ public class IfMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPutWeak implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -1128,7 +1264,7 @@ public class IfMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerDeleteWildcard implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -1169,7 +1305,7 @@ public class IfMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerGetWildcard implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -1207,7 +1343,7 @@ public class IfMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerHeadWildcard implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -1245,7 +1381,7 @@ public class IfMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPostWildcard implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -1286,7 +1422,7 @@ public class IfMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPutWildcard implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {

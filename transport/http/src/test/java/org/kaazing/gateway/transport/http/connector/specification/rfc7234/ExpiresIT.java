@@ -29,6 +29,7 @@ import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -45,7 +46,7 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.test.util.ITUtil;
 import org.kaazing.test.util.MethodExecutionTrace;
 
-public class CacheControlInRequestIT {
+public class ExpiresIT {
 
     private final HttpConnectorRule connector = new HttpConnectorRule();
 
@@ -57,15 +58,15 @@ public class CacheControlInRequestIT {
 
     private final TestRule trace = new MethodExecutionTrace();
     private TestRule contextRule = ITUtil.toTestRule(context);
-    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7234/request.cache-control");
+    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7234/expires");
     private final TestRule timeoutRule = new DisableOnDebug(new Timeout(5, SECONDS));
 
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po).around(timeoutRule);
 
     @Test
-    @Specification({"max-age.fresh.response.from.cache/response"})
-    public void shouldReceiveCachedResponseWithMaxAgeWhenCachedResponseIsFresh() throws Exception {
+    @Specification({"already.expired.conditional.request.304/response"})
+    public void shouldReceiveOKWhenCacheResponseExpiredForUnconditionalRequest() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
@@ -84,187 +85,7 @@ public class CacheControlInRequestIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
-        assertTrue(closed.await(2, SECONDS));
-
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({"max-age.stale.response.conditional.request.304/response"})
-    public void shouldReceiveNotModifiedWhenCachedResponseIsStaleForConditionalRequestWithMaxAge() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
-        assertTrue(closed.await(2, SECONDS));
-        final CountDownLatch closed2 = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed2.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer2());
-        assertTrue(closed2.await(2, SECONDS));
-        k3po.finish();
-    }
-
-    private static class ConnectSessionInitializer2 implements IoSessionInitializer<ConnectFuture> {
-        @Override
-        public void initializeSession(IoSession session, ConnectFuture future) {
-            HttpConnectSession connectSession = (HttpConnectSession) session;
-            connectSession.setMethod(HttpMethod.GET);
-            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "r2d2xxxx");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, "max-age=600");
-        }
-    }
-
-    @Test
-    @Specification({"max-age.stale.response.unconditional.request.200/response"})
-    public void shouldReceiveNotModifiedWhenCachedResponseIsStaleForUnconditionalRequestWithMaxAge() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
-        assertTrue(closed.await(2, SECONDS));
-        final CountDownLatch closed2 = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed2.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer2());
-        assertTrue(closed2.await(2, SECONDS));
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({"max-stale.any.age.from.cache/response"})
-    public void shouldReceiveCachedResponseForMaxStaleWithNoValue() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
-        assertTrue(closed.await(2, SECONDS));
-
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({"max-stale.stale.response.from.cache/response"})
-    public void shouldReceiveCachedResponseForMaxStaleWithinLimit() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
-        assertTrue(closed.await(2, SECONDS));
-
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({"max-stale.stale.response.conditional.request.304/response"})
-    public void shouldReceiveNotModifiedWithStaleCachedResponseWhenMaxStaleExceedsLimitForConditionalRequest() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
         final CountDownLatch closed2 = new CountDownLatch(1);
 
@@ -283,14 +104,14 @@ public class CacheControlInRequestIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer2());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer2());
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
 
     @Test
-    @Specification({"max-stale.stale.response.unconditional.request.200/response"})
-    public void shouldReceiveOKWithStaleCachedResponseWhenMaxStaleExceedsLimitForUnconditionalRequest() throws Exception {
+    @Specification({"already.expired.unconditional.request.200/response"})
+    public void shouldReceiveNotModifiedWhenCacheResponseExpiredForConditionalRequest() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
@@ -309,7 +130,7 @@ public class CacheControlInRequestIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
         final CountDownLatch closed2 = new CountDownLatch(1);
 
@@ -328,14 +149,14 @@ public class CacheControlInRequestIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer2());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
 
     @Test
-    @Specification({"min-fresh.fresh.response.from.cache/response"})
-    public void shouldReceiveCachedResponseForMinFreshWithinLimit() throws Exception {
+    @Specification({"fresh.response.from.cache/response"})
+    public void shouldReceiveUnexpiredResponseFromCache() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
@@ -354,16 +175,15 @@ public class CacheControlInRequestIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
 
     @Test
-    @Specification({"min-fresh.fresh.response.conditional.request.304/response"})
-    public void shouldReceiveNotModifiedWithFreshCachedResponseWhenMinFreshExceedsLimitForForConditionalRequest()
-            throws Exception {
+    @Specification({"ignored.when.cache-control.max-age.is.available/response"})
+    public void shouldIgnoreExpiresHeaderWhenCacheControlMaxAgeIsAvailable() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
@@ -382,7 +202,7 @@ public class CacheControlInRequestIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
         final CountDownLatch closed2 = new CountDownLatch(1);
 
@@ -401,14 +221,14 @@ public class CacheControlInRequestIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer2());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
 
     @Test
-    @Specification({"min-fresh.fresh.response.unconditional.request.200/response"})
-    public void shouldReceiveOKWithFreshCachedResponseWhenMinFreshExceedsLimitForForUnconditionalRequest() throws Exception {
+    @Specification({"ignored.when.cache-control.s-maxage.is.available/response"})
+    public void shouldIgnoreExpiresHeaderWhenCacheControlSharedMaxAgeIsAvailable() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
@@ -427,7 +247,7 @@ public class CacheControlInRequestIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
         final CountDownLatch closed2 = new CountDownLatch(1);
 
@@ -446,14 +266,14 @@ public class CacheControlInRequestIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer2());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
 
     @Test
-    @Specification({"min-fresh.stale.response.conditional.request.304/response"})
-    public void shouldReceiveNotModifiedWithStaleCachedResponseWhenMinFreshExceedsLimitForConditionalRequest() throws Exception {
+    @Specification({"ignored.when.multiple.expires.200/response"})
+    public void shouldIgnoreMultipleExpiresHeaderInResponse() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
@@ -472,7 +292,7 @@ public class CacheControlInRequestIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
         final CountDownLatch closed2 = new CountDownLatch(1);
 
@@ -491,15 +311,14 @@ public class CacheControlInRequestIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer2());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
 
     @Test
-    @Specification({"min-fresh.stale.response.unconditional.request.200/response"})
-    public void shouldReceiveNotModifiedWithStaleCachedResponseWhenMinFreshExceedsLimitForUnconditionalRequest()
-            throws Exception {
+    @Specification({"invalid.date.conditional.request.304/response"})
+    public void shouldReceiveNotModifiedWhenCachedResponseIsStaleDueToInvalidDateForConditionalRequest() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
@@ -518,7 +337,7 @@ public class CacheControlInRequestIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
         final CountDownLatch closed2 = new CountDownLatch(1);
 
@@ -537,14 +356,14 @@ public class CacheControlInRequestIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer2());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer2());
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
 
     @Test
-    @Specification({"no-cache.conditional.request.304/response"})
-    public void shouldReceiveNotModifiedWithNoCacheForConditionalRequest() throws Exception {
+    @Specification({"invalid.date.unconditional.request.200/response"})
+    public void shouldReceiveOKWhenCachedResponseIsStaleDueToInvalidDateForUnconditionalRequest() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
@@ -562,8 +381,7 @@ public class CacheControlInRequestIT {
                 });
             }
         });
-
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
         final CountDownLatch closed2 = new CountDownLatch(1);
 
@@ -582,14 +400,15 @@ public class CacheControlInRequestIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer2());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed2.await(2, SECONDS));
+
         k3po.finish();
     }
 
     @Test
-    @Specification({"no-cache.unconditional.request.200/response"})
-    public void shouldReceiveOKWithNoCacheForUnconditionalRequest() throws Exception {
+    @Specification({"stale.response.conditional.request.304/response"})
+    public void shouldReceiveNotModifiedWhenCachedResponseIsStaleForConditionalRequest() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
@@ -608,7 +427,7 @@ public class CacheControlInRequestIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
         final CountDownLatch closed2 = new CountDownLatch(1);
 
@@ -627,14 +446,14 @@ public class CacheControlInRequestIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer2());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer2());
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
 
     @Test
-    @Specification({"no-transform/response"})
-    public void shouldReceiveUntransformedCachedResponse() throws Exception {
+    @Specification({"stale.response.unconditional.request.200/response"})
+    public void shouldReceiveOKWhenCachedResponseIsStaleForUnconditionalRequest() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
@@ -652,89 +471,7 @@ public class CacheControlInRequestIT {
                 });
             }
         });
-
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
-        assertTrue(closed.await(2, SECONDS));
-
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({"only-if-cached.from.cache/response"})
-    public void shouldReceiveCachedResponseWithOnlyIfCachedAndReachableCache() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
-        assertTrue(closed.await(2, SECONDS));
-
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({"max-stale.with.warn-code.110/response"})
-    public void shouldGiveWarningCode110WithMaxStale() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
-        assertTrue(closed.await(2, SECONDS));
-
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({"max-stale.with.warn-code.112/response"})
-    public void shouldGiveWarningCode112WithMaxStale() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
         final CountDownLatch closed2 = new CountDownLatch(1);
 
@@ -753,34 +490,8 @@ public class CacheControlInRequestIT {
             }
         });
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer2());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed2.await(2, SECONDS));
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({"only-if-cached.504/response"})
-    public void shouldRespondToOnlyIfCachedWith504() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
-        assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
@@ -791,6 +502,16 @@ public class CacheControlInRequestIT {
             HttpConnectSession connectSession = (HttpConnectSession) session;
             connectSession.setMethod(HttpMethod.GET);
             connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+        }
+    }
+    
+    private static class ConnectSessionInitializer2 implements IoSessionInitializer<ConnectFuture> {
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setMethod(HttpMethod.GET);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_MODIFIED_SINCE, "Mon, 1 Jan 2015 01:23:45 GMT");
         }
     }
 
