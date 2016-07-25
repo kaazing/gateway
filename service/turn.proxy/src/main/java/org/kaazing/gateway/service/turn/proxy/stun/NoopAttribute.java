@@ -1,12 +1,12 @@
 package org.kaazing.gateway.service.turn.proxy.stun;
 
-public class KaazingUnknownAttribute extends StunMessageAttribute {
+public class NoopAttribute extends StunMessageAttribute {
 
     private final short type;
     private final short length;
     private final byte[] variable;
 
-    public KaazingUnknownAttribute(short type, short length, byte[] variable) {
+    public NoopAttribute(short type, short length, byte[] variable) {
         this.type = type;
         this.length = length;
         this.variable = variable;
@@ -17,7 +17,6 @@ public class KaazingUnknownAttribute extends StunMessageAttribute {
         return type;
     }
 
-    @Override
     public short getLength() {
         return length;
     }

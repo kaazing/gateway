@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public class TurnProxyHandler extends AbstractProxyAcceptHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("service.turn.proxy");
+    private static final Logger LOGGER = LoggerFactory.getLogger(TurnProxyHandler.class);
     public static final String TURN_STATE_KEY = "turn-state";
 
     private String connectURI;

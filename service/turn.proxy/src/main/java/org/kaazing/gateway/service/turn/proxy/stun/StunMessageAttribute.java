@@ -39,7 +39,7 @@ public abstract class StunMessageAttribute {
             return name;
         }
 
-        public int getType() {
+        public short getType() {
             return hexCode;
         }
 
@@ -102,21 +102,23 @@ public abstract class StunMessageAttribute {
         public static StunMessageAttribute get(int type, short length, byte[] variable) {
             switch (Type.valueOf(type)) {
             case MAPPED_ADDRESS:
-                return new MappedAddressAttribute((short) type, length, variable);
+                return new MappedAddressAttribute(variable);
             default:
-                return new KaazingUnknownAttribute((short) type, length, variable);
+                return new NoopAttribute((short) type, length, variable);
             }
         }
     }
 
     public abstract short getType();
 
-    public abstract short getLength();
-
     @Override
     public String toString() {
         int type = getType();
-        return String.format("%s, 0x%x with variable length %d", Type.valueOf(type), type, getLength());
+        return String.format("%s", Type.valueOf(type));
     }
+
+    public abstract short getLength();
+
+    public abstract byte[] getVariable();
 
 }

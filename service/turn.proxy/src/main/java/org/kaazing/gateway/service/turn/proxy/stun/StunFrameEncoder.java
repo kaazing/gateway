@@ -44,15 +44,13 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Encoding STUN attribute: " + attribute);
             }
-            if (attribute instanceof KaazingUnknownAttribute) {
-                buf.putShort(attribute.getType());
-                short length = attribute.getLength();
-                buf.putShort(length);
-                byte[] variable = ((KaazingUnknownAttribute) attribute).getVariable();
-                buf.put(variable);
-                for (int i = length; i < StunMessage.attributePaddedLength(length); i++) {
-                    buf.put((byte) 0x00);
-                }
+            buf.putShort(attribute.getType());
+            short length = attribute.getLength();
+            buf.putShort(length);
+            byte[] variable = attribute.getVariable();
+            buf.put(variable);
+            for (int i = length; i < StunMessage.attributePaddedLength(length); i++) {
+                buf.put((byte) 0x00);
             }
 
         }
