@@ -31,8 +31,8 @@
   </user>
   
   <user>
-    <name>unauthorized</name>
-    <password>user</password>
+    <name>baduser</name>
+    <password>badpass</password>
     <role-name>SIMPLE USER</role-name>
   </user>
 
@@ -48,9 +48,9 @@
   
   <role>
     <name>SIMPLE USER</name>
-    <description>Simple user</description>
+    <description>Simple User</description>
   </role>
-
+  
 </jaas-config>
 
 

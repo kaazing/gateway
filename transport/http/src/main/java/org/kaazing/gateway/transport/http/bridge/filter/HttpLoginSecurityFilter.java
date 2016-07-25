@@ -330,7 +330,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                 if (loggerEnabled()) {
                     log("Login module login required; [%s].", authToken);
                 }
-
+                
                 loginContext.login();
                 loginResult = loginContext.getLoginResult();
                 final LoginResult.Type resultType = loginResult.getType();
