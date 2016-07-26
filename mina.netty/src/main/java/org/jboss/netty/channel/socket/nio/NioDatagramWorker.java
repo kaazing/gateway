@@ -57,8 +57,6 @@ import static org.jboss.netty.channel.Channels.*;
  */
 public class NioDatagramWorker extends AbstractNioWorker {
 
-    private final SocketReceiveBufferAllocator bufferAllocator = new SocketReceiveBufferAllocator();
-
     /**
      * Sole constructor.
      *
@@ -78,7 +76,7 @@ public class NioDatagramWorker extends AbstractNioWorker {
         final DatagramChannel nioChannel = (DatagramChannel) key.channel();
         final int predictedRecvBufSize = predictor.nextReceiveBufferSize();
 
-        final ByteBuffer byteBuffer = bufferAllocator.get(predictedRecvBufSize).order(bufferFactory.getDefaultOrder());
+        final ByteBuffer byteBuffer = recvBufferPool.get(predictedRecvBufSize).order(bufferFactory.getDefaultOrder());
 
         boolean failure = true;
         SocketAddress remoteAddress = null;
@@ -361,6 +359,6 @@ public class NioDatagramWorker extends AbstractNioWorker {
     @Override
     public void run() {
         super.run();
-        bufferAllocator.releaseExternalResources();
+        recvBufferPool.releaseExternalResources();
     }
 }

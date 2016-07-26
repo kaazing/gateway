@@ -70,6 +70,7 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.ReceiveBufferSizePredictor;
 import org.jboss.netty.channel.socket.Worker;
 import org.jboss.netty.channel.socket.nio.SocketSendBufferPool.SendBuffer;
 import org.jboss.netty.util.ThreadNameDeterminer;
@@ -86,6 +87,7 @@ import uk.co.real_logic.agrona.concurrent.ringbuffer.OneToOneRingBuffer;
 
 public abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
 
+    protected final SocketReceiveBufferAllocator recvBufferPool = new SocketReceiveBufferAllocator();
     protected final SocketSendBufferPool sendBufferPool = new SocketSendBufferPool();
     private final DefaultWriteCompletionEventEx writeCompletionEvent = new DefaultWriteCompletionEventEx();
 
@@ -141,6 +143,7 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
     public void run() {
         super.run();
         sendBufferPool.releaseExternalResources();
+        recvBufferPool.releaseExternalResources();
     }
 
     @Override
@@ -680,8 +683,7 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
 
         if (childChannel != null) {
             final ChannelBufferFactory bufferFactory = childChannel.getConfig().getBufferFactory();
-
-            ByteBuffer byteBuffer = ByteBuffer.allocateDirect(1024); // TODO: use SocketReceiveBufferFactory
+            ByteBuffer byteBuffer = recvBufferPool.get(length).order(bufferFactory.getDefaultOrder());
             buffer.getBytes(index, byteBuffer, length);
             byteBuffer.flip();
 
