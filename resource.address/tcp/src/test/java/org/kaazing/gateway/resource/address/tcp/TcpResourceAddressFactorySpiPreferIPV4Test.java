@@ -83,7 +83,7 @@ public class TcpResourceAddressFactorySpiPreferIPV4Test {
         TcpResourceAddress loopbackResourceAddress = factory.newResourceAddress("tcp://[@" + networkInterface + "]:8000");
 
         // assert resource address does not contain IPv6
-        assertFalse(loopbackResourceAddress.toString().contains("[0:0:0:0:0:0:0:1]"));
+        assertFalse(loopbackResourceAddress.toString().contains("0:0:0:0:0:0:0:1"));
     }
 
     @Test
@@ -93,8 +93,8 @@ public class TcpResourceAddressFactorySpiPreferIPV4Test {
 
         TcpResourceAddress loopbackResourceAddress = factory.newResourceAddress("tcp://[@" + networkInterface + "]:8000");
 
-        System.out.println(loopbackResourceAddress + " " + loopbackResourceAddress.toString() + " " + loopbackResourceAddress.toString().contains("[0:0:0:0:0:0:0:1]"));
+        System.out.println("AAIICCII" + loopbackResourceAddress + " " + loopbackResourceAddress.toString() + " " + loopbackResourceAddress.toString().contains("0:0:0:0:0:0:0:1"));
         // assert resource address contains IPv6
-        assertTrue(loopbackResourceAddress.toString().contains("[0:0:0:0:0:0:0:1]"));
+        assertTrue(loopbackResourceAddress.toString().contains("0:0:0:0:0:0:0:1"));
     }
 }
