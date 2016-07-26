@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.kaazing.gateway.security.AuthenticationContext;
-import org.kaazing.gateway.server.config.nov2015.AuthenticationType;
+import org.kaazing.gateway.server.config.june2016.AuthenticationType;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
