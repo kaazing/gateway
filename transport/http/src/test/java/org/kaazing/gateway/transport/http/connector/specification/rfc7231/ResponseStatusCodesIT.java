@@ -18,8 +18,6 @@ package org.kaazing.gateway.transport.http.connector.specification.rfc7231;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 
-import java.net.URI;
-import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.future.ConnectFuture;
@@ -31,7 +29,6 @@ import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -40,7 +37,6 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
 import org.kaazing.gateway.transport.http.HttpConnectorRule;
-import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
@@ -87,7 +83,8 @@ public class ResponseStatusCodesIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8080/index.html", handler, new ConnectSessionInitializer());
+        ConnectFuture connectFuture =
+                connector.connect("http://localhost:8080/index.html", handler, new ConnectSessionInitializer());
         connectFuture.getSession();
         assertTrue(closed.await(2, SECONDS));
 

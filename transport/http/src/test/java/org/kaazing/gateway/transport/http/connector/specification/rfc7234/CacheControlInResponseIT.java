@@ -89,7 +89,7 @@ public class CacheControlInResponseIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializer implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -100,7 +100,7 @@ public class CacheControlInResponseIT {
             connectSession.addWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, "max-age=600");
         }
     }
-    
+
     @Test
     @Specification({"max-age.stale.response.conditional.request.304/response"})
     public void shouldReceiveNotModifiedWhenCachedResponseIsStaleForConditionalRequestWithMaxAge() throws Exception {
@@ -145,7 +145,7 @@ public class CacheControlInResponseIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"max-age.stale.response.unconditional.request.200/response"})
     public void shouldReceiveOKWhenCachedResponseIsStaleForUnconditionalRequestWithMaxAge() throws Exception {
@@ -190,7 +190,7 @@ public class CacheControlInResponseIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"must-revalidate.conditional.request.304/response"})
     public void shouldReceiveNotModifiedWhenCachedResponseIsStaleForConditionalRequestWithMustRevalidate() throws Exception {
@@ -235,7 +235,7 @@ public class CacheControlInResponseIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"must-revalidate.unconditional.request.200/response"})
     public void shouldReceiveOKWhenCachedResponseIsStaleForUnconditionalRequestWithMustRevalidate() throws Exception {
@@ -280,7 +280,7 @@ public class CacheControlInResponseIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"no-cache.conditional.request.304/response"})
     public void shouldReceiveNotModifiedWithNoCacheForConditionalRequest() throws Exception {
@@ -325,7 +325,7 @@ public class CacheControlInResponseIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"no-cache.unconditional.request.200/response"})
     public void shouldReceiveOKWithNoCacheForUnconditionalRequest() throws Exception {
@@ -370,7 +370,7 @@ public class CacheControlInResponseIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"no-transform/response"})
     public void shouldReceiveUntransformedCachedResponse() throws Exception {
@@ -397,7 +397,7 @@ public class CacheControlInResponseIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"private.fresh.response.from.cache/response"})
     public void shouldReceiveCachedResponseWithPrivateWhenCachedResponseIsFresh() throws Exception {
@@ -424,7 +424,7 @@ public class CacheControlInResponseIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"private.stale.response.conditional.request.304/response"})
     public void shouldReceiveNotModifiedWhenCachedResponseIsStaleForConditionalRequestWithPrivate() throws Exception {
@@ -469,7 +469,7 @@ public class CacheControlInResponseIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"private.stale.response.unconditional.request.200/response"})
     public void shouldReceiveOKWhenCachedResponseIsStaleForUnconditionalRequestWithPrivate() throws Exception {
@@ -514,7 +514,7 @@ public class CacheControlInResponseIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"proxy-revalidate.conditional.request.304/response"})
     public void shouldReceiveNotModifiedWhenCachedResponseIsStaleForConditionalRequestWithProxyRevalidate() throws Exception {
@@ -559,7 +559,7 @@ public class CacheControlInResponseIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"proxy-revalidate.unconditional.request.200/response"})
     public void shouldReceiveOKWhenCachedResponseIsStaleForUnconditionalRequestWithProxyRevalidate() throws Exception {
@@ -604,7 +604,7 @@ public class CacheControlInResponseIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"public.fresh.response.from.cache/response"})
     public void shouldReceiveCachedResponseWithPublicWhenCachedResponseIsFresh() throws Exception {
@@ -631,7 +631,7 @@ public class CacheControlInResponseIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"public.stale.response.conditional.request.304/response"})
     public void shouldReceiveNotModifiedWhenCachedResponseIsStaleForConditionalRequestWithPublic() throws Exception {
@@ -676,7 +676,7 @@ public class CacheControlInResponseIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"public.stale.response.unconditional.request.200/response"})
     public void shouldReceiveOKWhenCachedResponseIsStaleForUnconditionalRequestWithPublic() throws Exception {
@@ -721,7 +721,7 @@ public class CacheControlInResponseIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"s-maxage.fresh.response.from.cache/response"})
     public void shouldReceiveCachedResponseWithSharedMaxAgeWhenCachedResponseIsFresh() throws Exception {
@@ -748,7 +748,7 @@ public class CacheControlInResponseIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"s-maxage.stale.response.conditional.request.304/response"})
     public void shouldReceiveNotModifiedWhenCachedResponseIsStaleForConditionalRequestWithSharedMaxAge() throws Exception {
@@ -793,7 +793,7 @@ public class CacheControlInResponseIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"s-maxage.stale.response.unconditional.request.200/response"})
     public void shouldReceiveOKWhenCachedResponseIsStaleForUnconditionalRequestWithSharedMaxAge() throws Exception {
@@ -838,7 +838,7 @@ public class CacheControlInResponseIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"must-revalidate.504/response"})
     public void shouldRespondToMustRevalidateHeaderWith504() throws Exception {
@@ -865,7 +865,7 @@ public class CacheControlInResponseIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"no-cache.with.fields/response"})
     public void shouldSucceedWithNoCacheHeaderWithFields() throws Exception {
@@ -910,7 +910,7 @@ public class CacheControlInResponseIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"private.with.fields/response"})
     public void shouldSucceedWithPrivateHeaderWithFields() throws Exception {
@@ -937,7 +937,7 @@ public class CacheControlInResponseIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"proxy-revalidate.504/response"})
     public void shouldRespondToProxyRevalidateWith504() throws Exception {

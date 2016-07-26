@@ -29,7 +29,6 @@ import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -504,7 +503,7 @@ public class ExpiresIT {
             connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
         }
     }
-    
+
     private static class ConnectSessionInitializer2 implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {

@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.http.connector.specification.rfc7234;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 
-import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.future.ConnectFuture;
@@ -30,7 +29,6 @@ import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -109,7 +107,7 @@ public class PragmaIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"no-cache.unconditional.request.200/response"})
     public void shouldReceiveOKWithNoCacheForUnconditionalRequest() throws Exception {
@@ -154,7 +152,7 @@ public class PragmaIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"no-cache.with.cache-control.no-cache/response"})
     public void shouldReceiveOKForNoCacheWithUnconditionalRequestWhenCachedResponseHasCacheControlNoCache() throws Exception {
@@ -208,7 +206,7 @@ public class PragmaIT {
             connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
         }
     }
-    
+
     private static class ConnectSessionInitializer2 implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -218,7 +216,7 @@ public class PragmaIT {
             connectSession.addWriteHeader("Pragma", "no-cache");
         }
     }
-    
+
     private static class ConnectSessionInitializer3 implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {

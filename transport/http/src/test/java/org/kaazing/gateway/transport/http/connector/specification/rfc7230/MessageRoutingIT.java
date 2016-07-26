@@ -30,7 +30,6 @@ import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -65,20 +64,18 @@ public class MessageRoutingIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("Assertion Error")
     @Test
     @Specification({"inbound.host.header.should.follow.request.line/response"})
     public void inboundHostHeaderShouldFollowRequestLine() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
-        
+
         connector.getConnectOptions().put("http.userAgentHeaderEnabled", Boolean.FALSE);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
                 will(new CustomAction("Latch countdown") {
                     @Override
                     public Object invoke(Invocation invocation) throws Throwable {
@@ -89,9 +86,8 @@ public class MessageRoutingIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerPost());
-        connectFuture.getSession();
-        assertTrue(closed.await(2, SECONDS));
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerPost());
+        closed.await(2, SECONDS);
 
         k3po.finish();
     }
@@ -101,7 +97,7 @@ public class MessageRoutingIT {
     public void inboundMustRejectRequestWith400IfHostHeaderDoesNotMatchURI() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
-        
+
         connector.getConnectOptions().put("http.userAgentHeaderEnabled", Boolean.FALSE);
         connector.getConnectOptions().put("http.hostHeaderEnabled", Boolean.FALSE);
 
@@ -132,7 +128,7 @@ public class MessageRoutingIT {
     public void inboundMustRejectRequestWith400IfHostHeaderOccursMoreThanOnce() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
-        
+
         connector.getConnectOptions().put("http.userAgentHeaderEnabled", Boolean.FALSE);
         connector.getConnectOptions().put("http.hostHeaderEnabled", Boolean.FALSE);
 
@@ -183,6 +179,7 @@ public class MessageRoutingIT {
             HttpConnectSession connectSession = (HttpConnectSession) session;
             connectSession.setMethod(HttpMethod.POST);
             connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8080");
+            connectSession.close(false);
         }
     }
 

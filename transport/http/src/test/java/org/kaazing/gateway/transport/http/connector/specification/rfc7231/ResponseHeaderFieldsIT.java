@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.http.connector.specification.rfc7231;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 
@@ -31,7 +30,6 @@ import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -66,34 +64,10 @@ public class ResponseHeaderFieldsIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("Doesn't recognize PATCH http method")
-    @Test
-    @Specification({"allow.lists.resource.methods/response"})
-    public void allowHeaderInformsMethodsAssociatedWithResource() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        ConnectFuture connectFuture = connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerResourceMethods());
-        connectFuture.getSession();
-        assertTrue(closed.await(2, SECONDS));
-
-        k3po.finish();
-    }
+    /*
+     * @Specification({"allow.lists.resource.methods/response"}) public void
+     * allowHeaderInformsMethodsAssociatedWithResource() throws Exception {
+     */
 
     @Test
     @Specification({"server.header.lists.software.used.by.server/response"})
@@ -116,7 +90,8 @@ public class ResponseHeaderFieldsIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerServerHeader());
+        ConnectFuture connectFuture =
+                connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerServerHeader());
         connectFuture.getSession();
         assertTrue(closed.await(2, SECONDS));
 
@@ -135,14 +110,4 @@ public class ResponseHeaderFieldsIT {
         }
     }
 
-    private static class ConnectSessionInitializerResourceMethods implements IoSessionInitializer<ConnectFuture> {
-        @Override
-        public void initializeSession(IoSession session, ConnectFuture future) {
-            HttpConnectSession connectSession = (HttpConnectSession) session;
-            connectSession.setMethod(HttpMethod.GET);
-            connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(7));
-            ByteBuffer bytes = ByteBuffer.wrap("content".getBytes());
-            connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
-        }
-    }
 }

@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.http.connector.specification.rfc7232;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 
@@ -31,7 +30,6 @@ import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -67,276 +65,54 @@ public class IfNoneMatchIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po).around(timeoutRule);
 
-    @Ignore("Multiple Etags")
-    @Test
-    @Specification({"multiple.etags.delete.status.400/response"})
-    public void shouldResultInBadRequestResponseWithDeleteAndMutipleETags() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
+    /*
+     * Server-side test
+     * 
+     * @Specification({"multiple.etags.delete.status.400/response"}) public void
+     * shouldResultInBadRequestResponseWithDeleteAndMutipleETags() throws Exception {
+     */
 
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
+    /*
+     * Server-side test
+     * 
+     * @Specification({"multiple.etags.get.status.200/response"}) public void
+     * shouldResultInOKResponseWithGetAndMutipleETags() throws Exception {
+     */
 
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerDelete());
-        assertTrue(closed.await(2, SECONDS));
+    /*
+     * Server-side test
+     * 
+     * @Specification({"multiple.etags.head.status.200/response"}) public void
+     * shouldResultInOKResponseWithHeadAndMutipleETags() throws Exception {
+     */
 
-        k3po.finish();
-    }
+    /*
+     * Server-side test
+     * 
+     * @Specification({"multiple.etags.post.status.400/response"}) public void
+     * shouldResultInBadRequestResponseWithPostAndMutipleETags() throws Exception {
+     */
 
-    private static class ConnectSessionInitializerDelete implements IoSessionInitializer<ConnectFuture> {
-        @Override
-        public void initializeSession(IoSession session, ConnectFuture future) {
-            HttpConnectSession connectSession = (HttpConnectSession) session;
-            connectSession.setMethod(HttpMethod.DELETE);
-            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "r2d2xxxx");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag1");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag2");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(7));
-            ByteBuffer bytes = ByteBuffer.wrap("content".getBytes());
-            connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
-        }
-    }
+    /*
+     * Server-side test
+     * 
+     * @Specification({"multiple.etags.put.status.400/response"}) public void
+     * shouldResultInBadRequestResponseWithPutAndMutipleETags() throws Exception {
+     */
 
-    @Ignore("multiple etags")
-    @Test
-    @Specification({"multiple.etags.get.status.200/response"})
-    public void shouldResultInOKResponseWithGetAndMutipleETags() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
+    /*
+     * Server-side test
+     * 
+     * @Specification({"multiple.etags.get.status.304/response"}) public void
+     * shouldResultInNotModifiedResponseWithGetAndMutipleETags() throws Exception {
+     */
 
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerGet());
-        assertTrue(closed.await(2, SECONDS));
-
-        k3po.finish();
-    }
-
-    private static class ConnectSessionInitializerGet implements IoSessionInitializer<ConnectFuture> {
-        @Override
-        public void initializeSession(IoSession session, ConnectFuture future) {
-            HttpConnectSession connectSession = (HttpConnectSession) session;
-            connectSession.setMethod(HttpMethod.GET);
-            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag1");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag2");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag3");
-        }
-    }
-
-    @Ignore("Multiple etags")
-    @Test
-    @Specification({"multiple.etags.head.status.200/response"})
-    public void shouldResultInOKResponseWithHeadAndMutipleETags() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerHead());
-        assertTrue(closed.await(2, SECONDS));
-
-        k3po.finish();
-    }
-
-    private static class ConnectSessionInitializerHead implements IoSessionInitializer<ConnectFuture> {
-        @Override
-        public void initializeSession(IoSession session, ConnectFuture future) {
-            HttpConnectSession connectSession = (HttpConnectSession) session;
-            connectSession.setMethod(HttpMethod.HEAD);
-            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag1");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag2");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag3");
-        }
-    }
-
-    @Ignore("Multiple etags")
-    @Test
-    @Specification({"multiple.etags.post.status.400/response"})
-    public void shouldResultInBadRequestResponseWithPostAndMutipleETags() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
-        assertTrue(closed.await(2, SECONDS));
-
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPost());
-
-        k3po.finish();
-    }
-
-    private static class ConnectSessionInitializerPost implements IoSessionInitializer<ConnectFuture> {
-        @Override
-        public void initializeSession(IoSession session, ConnectFuture future) {
-            HttpConnectSession connectSession = (HttpConnectSession) session;
-            connectSession.setMethod(HttpMethod.POST);
-            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "r2d2xxxx");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag1");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag2");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(7));
-            ByteBuffer bytes = ByteBuffer.wrap("content".getBytes());
-            connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
-        }
-    }
-
-    @Ignore("Multiple etags")
-    @Test
-    @Specification({"multiple.etags.put.status.400/response"})
-    public void shouldResultInBadRequestResponseWithPutAndMutipleETags() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
-        assertTrue(closed.await(2, SECONDS));
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPut());
-
-        k3po.finish();
-    }
-
-    private static class ConnectSessionInitializerPut implements IoSessionInitializer<ConnectFuture> {
-        @Override
-        public void initializeSession(IoSession session, ConnectFuture future) {
-            HttpConnectSession connectSession = (HttpConnectSession) session;
-            connectSession.setMethod(HttpMethod.PUT);
-            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "r2d2xxxx");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag1");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "tag2");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(7));
-            ByteBuffer bytes = ByteBuffer.wrap("content".getBytes());
-            connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
-        }
-    }
-
-    @Ignore("Multiple etags")
-    @Test
-    @Specification({"multiple.etags.get.status.304/response"})
-    public void shouldResultInNotModifiedResponseWithGetAndMutipleETags() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
-        assertTrue(closed.await(2, SECONDS));
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerGet());
-
-        k3po.finish();
-    }
-
-    @Ignore("multiple etags")
-    @Test
-    @Specification({"multiple.etags.head.status.304/response"})
-    public void shouldResultInNotModifiedResponseWithHeadAndMutipleETags() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializer());
-        assertTrue(closed.await(2, SECONDS));
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerHead());
-
-        k3po.finish();
-    }
+    /*
+     * Server-side test
+     * 
+     * @Specification({"multiple.etags.head.status.304/response"}) public void
+     * shouldResultInNotModifiedResponseWithHeadAndMutipleETags() throws Exception {
+     */
 
     @Test
     @Specification({"single.etag.delete.status.400/response"})
@@ -381,7 +157,7 @@ public class IfNoneMatchIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerDeleteSingle implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -420,7 +196,7 @@ public class IfNoneMatchIT {
         assertTrue(closed.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerGetSingle implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -430,7 +206,7 @@ public class IfNoneMatchIT {
             connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "\"unmatched-tag\"");
         }
     }
-    
+
     private static class ConnectSessionInitializerGetSingle2 implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -521,7 +297,7 @@ public class IfNoneMatchIT {
             connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "\"unmatched-tag\"");
         }
     }
-    
+
     private static class ConnectSessionInitializerHeadSingle2 implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -619,7 +395,7 @@ public class IfNoneMatchIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPostSingle implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -676,7 +452,7 @@ public class IfNoneMatchIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPutSingle implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -716,7 +492,7 @@ public class IfNoneMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerDeleteWildcard implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -756,7 +532,7 @@ public class IfNoneMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerGetWildcard implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -793,7 +569,7 @@ public class IfNoneMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerHeadWildcard implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -804,7 +580,6 @@ public class IfNoneMatchIT {
         }
     }
 
-    @Ignore("TODO")
     @Test
     @Specification({"wildcard.post.status.412/response"})
     public void shouldResultInPreconditionFailedResponseWithPostAndWildcard() throws Exception {
@@ -831,7 +606,7 @@ public class IfNoneMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPostWildcard implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -871,7 +646,7 @@ public class IfNoneMatchIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPutWildcard implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {

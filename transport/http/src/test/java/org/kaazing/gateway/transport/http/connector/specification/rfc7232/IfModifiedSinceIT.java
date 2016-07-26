@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.http.connector.specification.rfc7232;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 
@@ -31,7 +30,6 @@ import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -123,7 +121,6 @@ public class IfModifiedSinceIT {
         }
     }
 
-    @Ignore("Swapped order?")
     @Test
     @Specification({"condition.failed.head.status.304/response"})
     public void shouldResultInNotModifiedResponseWithHeadAndConditionFailed() throws Exception {
@@ -145,8 +142,25 @@ public class IfModifiedSinceIT {
             }
         });
         connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializer());
-        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerHead());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerHead());
+        assertTrue(closed2.await(2, SECONDS));
 
         k3po.finish();
     }
@@ -205,7 +219,7 @@ public class IfModifiedSinceIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerGetSuccess implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -216,7 +230,6 @@ public class IfModifiedSinceIT {
         }
     }
 
-    @Ignore("Swapped order?")
     @Test
     @Specification({"condition.passed.head.status.200/response"})
     public void shouldResultInOKResponseWithHeadAndConditionPassed() throws Exception {
@@ -239,8 +252,25 @@ public class IfModifiedSinceIT {
         });
 
         connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializer());
-        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerHeadSuccess());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerHeadSuccess());
+        assertTrue(closed2.await(2, SECONDS));
 
         k3po.finish();
     }
@@ -419,7 +449,7 @@ public class IfModifiedSinceIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerGetNoneMatch implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -475,7 +505,7 @@ public class IfModifiedSinceIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerHeadNoneMatch implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -513,7 +543,7 @@ public class IfModifiedSinceIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerGetDate implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -523,7 +553,7 @@ public class IfModifiedSinceIT {
             connectSession.addWriteHeader(HttpHeaders.HEADER_IF_MODIFIED_SINCE, "Mon, 1 Jan 2015 01:23:45 GMT");
         }
     }
-    
+
     private static class ConnectSessionInitializerHeadDate implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {

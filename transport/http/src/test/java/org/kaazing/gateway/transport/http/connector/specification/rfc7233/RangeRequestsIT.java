@@ -30,7 +30,6 @@ import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -59,8 +58,7 @@ public class RangeRequestsIT {
 
     private final TestRule trace = new MethodExecutionTrace();
     private TestRule contextRule = ITUtil.toTestRule(context);
-    private final K3poRule k3po =
-            new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7233/range.requests");
+    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7233/range.requests");
     private final TestRule timeoutRule = new DisableOnDebug(new Timeout(5, SECONDS));
 
     @Rule
@@ -92,7 +90,7 @@ public class RangeRequestsIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"unsatisfactory.range.gives.416/response"})
     public void shouldGive416IfRangeIsNotSatisfactory() throws Exception {
@@ -119,7 +117,7 @@ public class RangeRequestsIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"ignore.if-range.without.range.header/response"})
     public void serverIgnoresIfRangeRequestWithoutRangeHeader() throws Exception {
@@ -146,7 +144,7 @@ public class RangeRequestsIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"partial.range.request/response"})
     public void partialRangeRequest() throws Exception {
@@ -186,7 +184,7 @@ public class RangeRequestsIT {
             connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
         }
     }
-    
+
     private static class ConnectSessionInitializerPost implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {

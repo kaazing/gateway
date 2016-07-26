@@ -30,7 +30,6 @@ import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -59,8 +58,7 @@ public class ValidatorsIT {
 
     private final TestRule trace = new MethodExecutionTrace();
     private TestRule contextRule = ITUtil.toTestRule(context);
-    private final K3poRule k3po =
-            new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7232/validators");
+    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7232/validators");
     private final TestRule timeoutRule = new DisableOnDebug(new Timeout(5, SECONDS));
 
     @Rule
@@ -92,7 +90,7 @@ public class ValidatorsIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"last.modified.in.head/response"})
     public void shouldReceiveLastModifiedInHeadResponse() throws Exception {
@@ -119,7 +117,7 @@ public class ValidatorsIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerHead implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -128,7 +126,7 @@ public class ValidatorsIT {
             connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
         }
     }
-    
+
     @Test
     @Specification({"last.modified.in.post/response"})
     public void shouldReceiveLastModifiedInPostResponse() throws Exception {
@@ -155,7 +153,7 @@ public class ValidatorsIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPost implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -167,7 +165,7 @@ public class ValidatorsIT {
             connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
         }
     }
-    
+
     @Test
     @Specification({"last.modified.in.put/response"})
     public void shouldReceiveLastModifiedInPutResponse() throws Exception {
@@ -194,7 +192,7 @@ public class ValidatorsIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPut implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -206,7 +204,7 @@ public class ValidatorsIT {
             connectSession.write(connectSession.getBufferAllocator().wrap(bytes));
         }
     }
-    
+
     @Test
     @Specification({"last.modified.with.strong.etag.in.get/response"})
     public void shouldReceiveLastModifiedAndStrongETagInGetResponse() throws Exception {
@@ -233,7 +231,7 @@ public class ValidatorsIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"last.modified.with.strong.etag.in.head/response"})
     public void shouldReceiveLastModifiedAndStrongETagInHeadResponse() throws Exception {
@@ -260,7 +258,7 @@ public class ValidatorsIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"last.modified.with.strong.etag.in.post/response"})
     public void shouldReceiveLastModifiedAndStrongETagInPostResponse() throws Exception {
@@ -287,7 +285,7 @@ public class ValidatorsIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"last.modified.with.strong.etag.in.put/response"})
     public void shouldReceiveLastModifiedAndStrongETagInPutResponse() throws Exception {
@@ -314,7 +312,7 @@ public class ValidatorsIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"last.modified.with.weak.etag.in.get/response"})
     public void shouldReceiveLastModifiedAndWeakETagInGetResponse() throws Exception {
@@ -341,7 +339,7 @@ public class ValidatorsIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"last.modified.with.weak.etag.in.head/response"})
     public void shouldReceiveLastModifiedAndWeakETagInHeadResponse() throws Exception {
@@ -368,7 +366,7 @@ public class ValidatorsIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"last.modified.with.weak.etag.in.post/response"})
     public void shouldReceiveLastModifiedAndWeakETagInPostResponse() throws Exception {
@@ -395,7 +393,7 @@ public class ValidatorsIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"last.modified.with.weak.etag.in.put/response"})
     public void shouldReceiveLastModifiedAndWeakETagInPutResponse() throws Exception {
@@ -422,7 +420,7 @@ public class ValidatorsIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"strong.etag.in.get/response"})
     public void shouldReceiveStrongETagInGetResponse() throws Exception {
@@ -449,7 +447,7 @@ public class ValidatorsIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"strong.etag.in.head/response"})
     public void shouldReceiveStrongETagInHeadResponse() throws Exception {
@@ -476,7 +474,7 @@ public class ValidatorsIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"strong.etag.in.post/response"})
     public void shouldReceiveStrongETagInPostResponse() throws Exception {
@@ -503,7 +501,7 @@ public class ValidatorsIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"strong.etag.in.put/response"})
     public void shouldReceiveStrongETagInPutResponse() throws Exception {
@@ -530,7 +528,7 @@ public class ValidatorsIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"weak.etag.in.get/response"})
     public void shouldReceiveWeakETagInGetResponse() throws Exception {
@@ -557,7 +555,7 @@ public class ValidatorsIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"weak.etag.in.head/response"})
     public void shouldReceiveWeakETagInHeadResponse() throws Exception {
@@ -584,7 +582,7 @@ public class ValidatorsIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"weak.etag.in.post/response"})
     public void shouldReceiveWeakETagInPostResponse() throws Exception {
@@ -611,7 +609,7 @@ public class ValidatorsIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"weak.etag.in.put/response"})
     public void shouldReceiveWeakETagInPutResponse() throws Exception {
@@ -638,7 +636,7 @@ public class ValidatorsIT {
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializer implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {

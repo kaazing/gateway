@@ -30,7 +30,6 @@ import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -103,12 +102,12 @@ public class IfUnmodifiedSinceIT {
                 });
             }
         });
-        
+
         connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerDelete());
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerDelete implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -165,7 +164,7 @@ public class IfUnmodifiedSinceIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPost implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -222,7 +221,7 @@ public class IfUnmodifiedSinceIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPut implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -414,7 +413,7 @@ public class IfUnmodifiedSinceIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerGet implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -424,7 +423,7 @@ public class IfUnmodifiedSinceIT {
             connectSession.addWriteHeader(HttpHeaders.HEADER_IF_UNMODIFIED_SINCE, "Thu, 1 Jan 2015 01:23:45 GMT");
         }
     }
-    
+
     private static class ConnectSessionInitializerHead implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -523,7 +522,6 @@ public class IfUnmodifiedSinceIT {
         k3po.finish();
     }
 
-    @Ignore("ERROR IN SPEC TEST - DELETE INSTEAD OF POST")
     @Test
     @Specification({"ignored.with.post.and.invalid.http.date/response"})
     public void shouldIgnoreIfUnmodifiedSinceHeaderWithInvalidDateInPost() throws Exception {
@@ -563,7 +561,7 @@ public class IfUnmodifiedSinceIT {
                 });
             }
         });
-        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPost());
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerDelete());
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
@@ -655,7 +653,7 @@ public class IfUnmodifiedSinceIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerDeleteMatch implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -713,7 +711,7 @@ public class IfUnmodifiedSinceIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPostMatch implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -771,7 +769,7 @@ public class IfUnmodifiedSinceIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerPutMatch implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {

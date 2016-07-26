@@ -30,7 +30,6 @@ import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -212,43 +211,11 @@ public class RequestMethodsIT {
         k3po.finish();
     }
 
-    @Ignore("How to set invalid method")
-    @Test
-    @Specification({"405/response"})
-    public void serverMustRespondWith405ToNotAllowedMethods() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer405());
-        connectFuture.getSession();
-        assertTrue(closed.await(2, SECONDS));
-
-        k3po.finish();
-    }
-
-    private static class ConnectSessionInitializer405 implements IoSessionInitializer<ConnectFuture> {
-        @Override
-        public void initializeSession(IoSession session, ConnectFuture future) {
-            HttpConnectSession connectSession = (HttpConnectSession) session;
-            connectSession.setMethod(HttpMethod.BAD_METHOD);
-        }
-    }
+    /*
+     * Server-side test
+     * 
+     * @Specification({"405/response"}) public void serverMustRespondWith405ToNotAllowedMethods() throws Exception {
+     */
 
     private static class ConnectSessionInitializerPost implements IoSessionInitializer<ConnectFuture> {
         @Override

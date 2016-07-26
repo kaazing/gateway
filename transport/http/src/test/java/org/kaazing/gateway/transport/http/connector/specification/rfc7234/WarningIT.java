@@ -30,7 +30,6 @@ import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -91,7 +90,7 @@ public class WarningIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"110.response.stale.from.cache/response"})
     public void shouldReceiveResponseWithStaleHeader() throws Exception {
@@ -136,7 +135,7 @@ public class WarningIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"111.revalidation.failed.from.cache/response"})
     public void shouldReceiveResponseWithRevalidateHeader() throws Exception {
@@ -181,7 +180,7 @@ public class WarningIT {
         assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"112.disconnected.operation.from.cache/response"})
     public void shouldReceiveResponseWithDisconnectedHeader() throws Exception {
@@ -208,7 +207,7 @@ public class WarningIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"113.heuristic.expiration.from.cache/response"})
     public void shouldReceiveResponseWithHeuristicHeader() throws Exception {
@@ -235,7 +234,7 @@ public class WarningIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"214.transformation.applied.from.cache/response"})
     public void shouldReceiveResponseWithTransformationHeader() throws Exception {
@@ -262,7 +261,7 @@ public class WarningIT {
 
         k3po.finish();
     }
-    
+
     @Test
     @Specification({"299.misc.persistent.warning/response"})
     public void shouldReceiveResponseWithMiscPersistentWarning() throws Exception {
@@ -298,7 +297,7 @@ public class WarningIT {
             connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
         }
     }
-    
+
     private static class ConnectSessionInitializer2 implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -308,7 +307,7 @@ public class WarningIT {
             connectSession.addWriteHeader(HttpHeaders.HEADER_IF_MODIFIED_SINCE, "Mon, 1 Jan 2015 01:23:45 GMT");
         }
     }
-    
+
     private static class ConnectSessionInitializer3 implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
@@ -318,7 +317,7 @@ public class WarningIT {
             connectSession.addWriteHeader(HttpHeaders.HEADER_IF_NONE_MATCH, "r2d2xxxx");
         }
     }
-    
+
     private static class ConnectSessionInitializerPost implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {

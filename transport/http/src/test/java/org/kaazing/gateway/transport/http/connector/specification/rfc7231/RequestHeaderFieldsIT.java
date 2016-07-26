@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.http.connector.specification.rfc7231;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 
@@ -31,7 +30,6 @@ import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -87,7 +85,8 @@ public class RequestHeaderFieldsIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerPost417());
+        ConnectFuture connectFuture =
+                connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerPost417());
         connectFuture.getSession();
         assertTrue(closed.await(2, SECONDS));
 
@@ -115,7 +114,8 @@ public class RequestHeaderFieldsIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerTraceDecrementMaxForwards());
+        ConnectFuture connectFuture = connector.connect("http://localhost:8000/resource", handler,
+                new ConnectSessionInitializerTraceDecrementMaxForwards());
         connectFuture.getSession();
         assertTrue(closed.await(2, SECONDS));
 
@@ -143,13 +143,14 @@ public class RequestHeaderFieldsIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerPostMaxForward());
+        ConnectFuture connectFuture =
+                connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerPostMaxForward());
         connectFuture.getSession();
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
-    
+
     private static class ConnectSessionInitializerTraceDecrementMaxForwards implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
