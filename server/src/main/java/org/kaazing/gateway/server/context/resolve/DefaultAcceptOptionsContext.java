@@ -52,6 +52,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DefaultAcceptOptionsContext extends DefaultOptionsContext implements AcceptOptionsContext {
+    private static final String WS_HANDSHAKE_TIMEOUT = "ws.handshake.timeout";
+
+    private static final String HTTP_HANDSHAKE_TIMEOUT = "http.handshake.timeout";
+
+    private static final String SSL_HANDSHAKE_TIMEOUT = "ssl.handshake.timeout";
+
+    private static final String TCP_HANDSHAKE_TIMEOUT = "tcp.handshake.timeout";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultAcceptOptionsContext.class);
 
     /**
@@ -100,16 +108,16 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
     }
 
     private void checkHandshakeTimeoutEnabled(Map<String, String> options) {
-        if (options.containsKey("tcp.handshake.timeout") || options.containsKey("ssl.handshake.timeout")
-                || options.containsKey("http.handshake.timeout") || options.containsKey("ws.handshake.timeout")) {
+        if (options.containsKey(TCP_HANDSHAKE_TIMEOUT) || options.containsKey(SSL_HANDSHAKE_TIMEOUT)
+                || options.containsKey(HTTP_HANDSHAKE_TIMEOUT) || options.containsKey(WS_HANDSHAKE_TIMEOUT)) {
             EarlyAccessFeatures.PROTOCOL_HANDSHAKE_TIMEOUT.assertEnabled(configuration, LOGGER);
         }
 
         if (configuration != null && !EarlyAccessFeatures.PROTOCOL_HANDSHAKE_TIMEOUT.isEnabled(configuration)) {
-            options.put("tcp.handshake.timeout", "0");
-            options.put("ssl.handshake.timeout", "0");
-            options.put("http.handshake.timeout", "0");
-            options.put("ws.handshake.timeout", "0");
+            options.put(TCP_HANDSHAKE_TIMEOUT, "0");
+            options.put(SSL_HANDSHAKE_TIMEOUT, "0");
+            options.put(HTTP_HANDSHAKE_TIMEOUT, "0");
+            options.put(WS_HANDSHAKE_TIMEOUT, "0");
         }
     }
 
@@ -233,10 +241,10 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
             result.put(SSL_TRANSPORT, sslTransport);
         }
 
-        result.put("tcp.handshake.timeout", getHandshakeTimeout(optionsCopy.remove("tcp.handshake.timeout")));
-        result.put("ssl.handshake.timeout", getHandshakeTimeout(optionsCopy.remove("ssl.handshake.timeout")));
-        result.put("http.handshake.timeout", getHandshakeTimeout(optionsCopy.remove("http.handshake.timeout")));
-        result.put("ws.handshake.timeout", getHandshakeTimeout(optionsCopy.remove("ws.handshake.timeout")));
+        result.put(TCP_HANDSHAKE_TIMEOUT, getHandshakeTimeout(optionsCopy.remove(TCP_HANDSHAKE_TIMEOUT)));
+        result.put(SSL_HANDSHAKE_TIMEOUT, getHandshakeTimeout(optionsCopy.remove(SSL_HANDSHAKE_TIMEOUT)));
+        result.put(HTTP_HANDSHAKE_TIMEOUT, getHandshakeTimeout(optionsCopy.remove(HTTP_HANDSHAKE_TIMEOUT)));
+        result.put(WS_HANDSHAKE_TIMEOUT, getHandshakeTimeout(optionsCopy.remove(WS_HANDSHAKE_TIMEOUT)));
 
         String httpTransport = getTransportURI("http.transport", optionsCopy.remove("http.transport"));
         if (httpTransport != null) {

@@ -15,11 +15,13 @@
  */
 package org.kaazing.gateway.transport.http;
 
+import static java.lang.Math.min;
 import static java.lang.String.format;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.EnumSet.allOf;
 import static java.util.EnumSet.complementOf;
 import static java.util.EnumSet.of;
+import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
@@ -43,7 +45,6 @@ import static org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolH
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter.PROTOCOL_HTTP_1_1;
 import static org.kaazing.gateway.transport.http.resource.HttpDynamicResourceFactory.newHttpDynamicResourceFactory;
 import static org.kaazing.gateway.util.InternalSystemProperty.HTTPXE_SPECIFICATION;
-import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -54,8 +55,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.Resource;
 import javax.security.auth.Subject;
@@ -92,11 +91,10 @@ import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBuffer;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBufferAllocator;
+import org.kaazing.gateway.transport.http.bridge.filter.HttpHandshakeFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpNextAddressFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolDecoderException;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpSerializeRequestsFilter;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpStartHandshakeTimerFilter;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpStopHandshakeTimerFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
 import org.kaazing.gateway.transport.http.resource.HttpDynamicResource;
 import org.kaazing.gateway.transport.http.resource.HttpDynamicResourceFactory;
@@ -283,7 +281,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         final Long handshakeTimeout = address.getOption(HANDSHAKE_TIMEOUT);
         if (handshakeTimeout != null) {
             Long newMappedValue = handshakeTimeoutByTransportAddress.computeIfPresent(transportAddress, (key, value) -> {
-                Long handshakeTimeoutValue = Math.min(handshakeTimeout, value);
+                Long handshakeTimeoutValue = min(handshakeTimeout, value);
                 setHandshakeTimeoutValueForAlternate(transportAddress, handshakeTimeoutValue);
                 return handshakeTimeoutValue;
             });
@@ -564,14 +562,6 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         SocketAddress localAddress = session.getLocalAddress();
 
         ResourceAddress transportAddress = LOCAL_ADDRESS.get(session);
-        ScheduledExecutorService taskExecutor = Executors.newScheduledThreadPool(1);
-
-        Long handshakeTimeout =
-                handshakeTimeoutByTransportAddress.get(transportAddress) != null ? handshakeTimeoutByTransportAddress
-                        .get(transportAddress) : DEFAULT_HTTP_HANDSHAKE_TIMEOUT_MILLIS;
-        if (handshakeTimeout > 0) {
-            chain.addLast("httpHandshakeTimeoutStartTimer", new HttpStartHandshakeTimerFilter(logger, handshakeTimeout, taskExecutor));
-        }
 
         String nextProtocol = null;
         if (localAddress instanceof ResourceAddress) {
@@ -614,9 +604,12 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 break;
             }
         }
-
+        Long handshakeTimeout =
+                handshakeTimeoutByTransportAddress.get(transportAddress) != null ? handshakeTimeoutByTransportAddress
+                        .get(transportAddress) : DEFAULT_HTTP_HANDSHAKE_TIMEOUT_MILLIS;
         if (handshakeTimeout > 0) {
-            chain.addLast("httpHandshakeTimeoutStopTimer", new HttpStopHandshakeTimerFilter(taskExecutor));
+            chain.addLast("httpHandshakeTimeout",
+                    new HttpHandshakeFilter(logger, handshakeTimeout, schedulerProvider.getScheduler("httpHandshakeFilter", false)));
         }
     }
 

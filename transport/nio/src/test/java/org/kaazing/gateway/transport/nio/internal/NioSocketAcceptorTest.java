@@ -205,7 +205,7 @@ public class NioSocketAcceptorTest {
         Map<String, Object> options = new HashMap<>();
         options.put(TCP_MAXIMUM_OUTBOUND_RATE, 0xFFFFFFFEL);
         options.put(NEXT_PROTOCOL, "test-protocol");
-        ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
+        ResourceAddressFactory addressFactory = newResourceAddressFactory();
         ResourceAddress bindAddress = addressFactory.newResourceAddress(bindURI, options);
 
         context.checking(new Expectations() {
@@ -219,6 +219,7 @@ public class NioSocketAcceptorTest {
         configuration.setProperty("maximum.outbound.rate", "10000");
         acceptor = new NioSocketAcceptor(configuration, extensionFactory);
         acceptor.setResourceAddressFactory(newResourceAddressFactory());
+        acceptor.setSchedulerProvider(schedulerProvider);
 
         final IoSession[] sessions = new IoSession[1];
         acceptor.bind(bindAddress, handler, new BridgeSessionInitializer<IoFuture>() {
@@ -301,6 +302,7 @@ public class NioSocketAcceptorTest {
         configuration.setProperty("maximum.outbound.rate", "10000");
         acceptor = new NioSocketAcceptor(configuration, extensionFactory);
         acceptor.setResourceAddressFactory(newResourceAddressFactory());
+        acceptor.setSchedulerProvider(schedulerProvider);
 
         final IoSession[] sessions = new IoSession[1];
         acceptor.bind(bindAddress, handler, new BridgeSessionInitializer<IoFuture>() {
@@ -443,6 +445,7 @@ public class NioSocketAcceptorTest {
 
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         acceptor.setResourceAddressFactory(addressFactory);
+        acceptor.setSchedulerProvider(schedulerProvider);
         String bindURI = format("tcp://localhost:%d", bindPort);
         Map<String,Object> opts = new HashMap<>();
         opts.put(NEXT_PROTOCOL, "test-protocol");
@@ -537,6 +540,7 @@ public class NioSocketAcceptorTest {
         configuration.setProperty(PROCESSOR_COUNT, Integer.toString(NB_WORKERS));
         acceptor = new NioSocketAcceptor(configuration);
         acceptor.setResourceAddressFactory(newResourceAddressFactory());
+        acceptor.setSchedulerProvider(schedulerProvider);
         final CountDownLatch clientsConnected = new CountDownLatch(NB_WORKERS);
 
         ResourceAddressFactory resourceAddressFactory = ResourceAddressFactory.newResourceAddressFactory();

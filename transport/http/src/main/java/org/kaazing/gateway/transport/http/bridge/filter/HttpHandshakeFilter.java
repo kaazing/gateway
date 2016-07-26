@@ -16,6 +16,7 @@
 package org.kaazing.gateway.transport.http.bridge.filter;
 
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
@@ -28,13 +29,14 @@ import org.slf4j.Logger;
  * Closes the connection if the http handshake is not successful in the given amount of time
  *
  */
-public class HttpStartHandshakeTimerFilter extends IoFilterAdapter<IoSessionEx> {
+public class HttpHandshakeFilter extends IoFilterAdapter<IoSessionEx> {
 
     private final Logger logger;
     private final Long handshakeTimeout;
     private ScheduledExecutorService taskExecutor;
+    ScheduledFuture<?> scheduledFuture;
 
-    public HttpStartHandshakeTimerFilter(Logger logger, Long handshakeTimeout, ScheduledExecutorService taskExecutor) {
+    public HttpHandshakeFilter(Logger logger, Long handshakeTimeout, ScheduledExecutorService taskExecutor) {
         this.logger = logger;
         this.handshakeTimeout = handshakeTimeout;
         this.taskExecutor = taskExecutor;
@@ -48,7 +50,7 @@ public class HttpStartHandshakeTimerFilter extends IoFilterAdapter<IoSessionEx> 
                     session));
         }
 
-        taskExecutor.schedule(() -> {
+        scheduledFuture = taskExecutor.schedule(() -> {
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format(
                         "Closing http session %s because handshake timeout of %d milliseconds is exceeded", session,
@@ -56,5 +58,11 @@ public class HttpStartHandshakeTimerFilter extends IoFilterAdapter<IoSessionEx> 
             }
             session.close(true);
          }, handshakeTimeout, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    protected void doSessionOpened(NextFilter nextFilter, IoSessionEx session) throws Exception {
+        scheduledFuture.cancel(true);
+        nextFilter.sessionOpened(session);
     }
 }

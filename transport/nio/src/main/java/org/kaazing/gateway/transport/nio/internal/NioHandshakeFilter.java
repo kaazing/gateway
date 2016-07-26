@@ -15,8 +15,8 @@
  */
 package org.kaazing.gateway.transport.nio.internal;
 
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
@@ -34,11 +34,12 @@ public class NioHandshakeFilter extends IoFilterAdapter<IoSessionEx> {
     private final Logger logger;
     private final Long handshakeTimeout;
     private ScheduledExecutorService taskExecutor;
+    private ScheduledFuture<?> scheduledFuture;
 
-    public NioHandshakeFilter(Logger logger, Long handshakeTimeout) {
+    public NioHandshakeFilter(Logger logger, Long handshakeTimeout, ScheduledExecutorService taskExecutor) {
         this.logger = logger;
         this.handshakeTimeout = handshakeTimeout;
-        taskExecutor = Executors.newScheduledThreadPool(1);
+        this.taskExecutor = taskExecutor;
     }
 
     @Override
@@ -49,7 +50,7 @@ public class NioHandshakeFilter extends IoFilterAdapter<IoSessionEx> {
                     session));
         }
 
-        taskExecutor.schedule(() -> {
+        scheduledFuture = taskExecutor.schedule(() -> {
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format("Closing tcp session %s because handshake timeout of %d milliseconds is exceeded",
                         session, handshakeTimeout));
@@ -60,7 +61,7 @@ public class NioHandshakeFilter extends IoFilterAdapter<IoSessionEx> {
 
     @Override
     protected void doMessageReceived(NextFilter nextFilter, IoSessionEx session, Object message) throws Exception {
-        taskExecutor.shutdownNow();
+        scheduledFuture.cancel(true);
         // auto-remove after receiving the first message and shutting down the task executor
         IoFilterChain filterChain = session.getFilterChain();
         filterChain.remove(this);

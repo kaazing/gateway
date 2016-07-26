@@ -21,10 +21,10 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_URI;
+import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.HANDSHAKE_TIMEOUT;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.BridgeSession.NEXT_PROTOCOL_KEY;
 import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
-import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.HANDSHAKE_TIMEOUT;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -97,6 +97,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
 
     private IoAcceptorEx acceptor;
     private ScheduledExecutorService unbindScheduler;
+    private volatile ScheduledExecutorService taskExecutor;
     private boolean skipIPv6Addresses = false;
 
     protected ResourceAddressFactory resourceAddressFactory;
@@ -217,7 +218,8 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
                     localAddress.getOption(HANDSHAKE_TIMEOUT) != null ? localAddress.getOption(HANDSHAKE_TIMEOUT).longValue()
                             : DEFAULT_TCP_HANDSHAKE_TIMEOUT_MILLIS;
             if (handshakeTimeout > 0) {
-                session.getFilterChain().addLast("tcpHandshakeTimeout", new NioHandshakeFilter(logger, handshakeTimeout));
+                session.getFilterChain().addLast("tcpHandshakeTimeout",
+                        new NioHandshakeFilter(logger, handshakeTimeout, taskExecutor));
             }
 
             SocketAddress remoteSocketAddress = session.getRemoteAddress();
@@ -277,6 +279,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
 
     @Resource(name = "schedulerProvider")
     public final void setSchedulerProvider(SchedulerProvider provider) {
+        taskExecutor = provider.getScheduler("tcpHandshakeTimeout", false);
         unbindScheduler = provider.getScheduler(this + "_unbind", true);
     }
 
