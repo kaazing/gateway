@@ -75,19 +75,17 @@ public class AuthorizationIT {
     private TestRule contextRule = ITUtil.toTestRule(context1);
     private final TestRule trace = new MethodExecutionTrace();
     private final K3poRule robot = new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7235");
-     private final TestRule timeoutRule = new DisableOnDebug(new Timeout(10, SECONDS));
+     private final TestRule timeoutRule = new DisableOnDebug(new Timeout(5, SECONDS));
 
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).around(robot).around(timeoutRule);
 
-    @Ignore("Error with multiple requests.")
     @Test
     @Specification("framework/invalid.then.valid.credentials/request")
     public void authorizedInvalidThenValidCredentials() throws Exception {
         authorizationStart();
     }
 
-    @Ignore("Error with multiple requests.")
     @Test
     @Specification("framework/missing.then.valid.credentials/request")
     public void authorizedMissingThenValidCredentials() throws Exception {
@@ -108,21 +106,20 @@ public class AuthorizationIT {
      * @Test public void forbiddenTest() throws Exception { robot.finish(); }
      */
 
-    @Ignore("Error with multiple requests.")
     @Test
     @Specification("framework/partial.then.valid.credentials/request")
     public void unauthorizedInvalidUsernameValidPassword() throws Exception {
         authorizationStart();
     }
 
-    @Ignore("Error with multiple requests.")
+    @Ignore("Timeout but correct result")
     @Test
     @Specification("status/multiple.requests.with.invalid.credentials/request")
     public void unauthorizedMultipleInvalidRequests() throws Exception {
         authorizationStart();
     }
 
-    @Ignore("Error with multiple requests.")
+    @Ignore("Timeout but correct result")
     @Test
     @Specification("headers/invalid.user/request")
     public void unauthorizedUnknownUser() throws Exception {
@@ -142,7 +139,7 @@ public class AuthorizationIT {
         
         context.checking(new Expectations() {
             {
-                oneOf(configuration).getAppConfigurationEntry(REALM_NAME);
+                allowing(configuration).getAppConfigurationEntry(REALM_NAME);
 
                 final String basicLoginModuleName = "org.kaazing.gateway.transport.http.acceptor.specification.rfc7235.BasicLoginModule";
                 final HashMap<String, Object> basicOptions = new HashMap<>();
@@ -165,7 +162,7 @@ public class AuthorizationIT {
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
                 session.setStatus(HttpStatus.SUCCESS_OK);
-                session.close(true);
+                session.close(false);
             }
         };
         acceptor.bind("http://localhost:8000/resource", acceptHandler);
