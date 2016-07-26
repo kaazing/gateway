@@ -195,7 +195,7 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
         super.setInternalInterestOps(interestOps);
     }
 
-    public void setWorker(NioWorker newWorker) {
+    public void setWorker(AbstractNioWorker newWorker) {
         if (newWorker == null) {
             if (worker == null) {
                 throw new IllegalStateException("Cannot deregister more than once without re-register");

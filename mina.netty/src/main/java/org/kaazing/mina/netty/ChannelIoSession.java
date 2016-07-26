@@ -23,6 +23,7 @@ import org.apache.mina.core.service.TransportMetadata;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelConfig;
 
+import org.jboss.netty.channel.socket.nio.AbstractNioWorker;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.AbstractIoSessionEx;
@@ -117,6 +118,19 @@ public class ChannelIoSession<C extends ChannelConfig> extends AbstractIoSession
 
     void setClosedReceived() {
         closedReceived = true;
+    }
+
+    public static final class WorkerExecutor implements Executor {
+        public final AbstractNioWorker worker;
+
+        public WorkerExecutor(AbstractNioWorker worker) {
+            this.worker = worker;
+        }
+
+        @Override
+        public void execute(Runnable command) {
+            worker.executeInIoThread(command, /* alwaysAsync */ true);
+        }
     }
 
 }

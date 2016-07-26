@@ -60,6 +60,23 @@ class NioDatagramChannelIoSession extends ChannelIoSession<DatagramChannelConfig
         getFilterChain().addLast("udp#idle", IDLE_FILTER);
     }
 
+    @Override
+    protected void setIoAlignment0(Thread ioThread, Executor ioExecutor) {
+        NioChildDatagramChannel channel = (NioChildDatagramChannel) getChannel();       // TODO it may be NioDatagramChannel
+        if (ioExecutor == NO_EXECUTOR) {
+            channel.setWorker(null);
+        }
+        else if (isClosedReceived()) {
+            // Process the closed event now that realignment is complete
+            // We must not register the channel with the worker since it is closed
+            getProcessor().remove(this);
+        }
+        else {
+            AbstractNioWorker newWorker = ((WorkerExecutor) ioExecutor).worker;
+            channel.setWorker(newWorker);
+        }
+    }
+
     private static Executor asExecutor(AbstractNioWorker worker) {
         WorkerExecutor executor = (WorkerExecutor) CURRENT_WORKER.get();
         if (executor == null) {
@@ -83,20 +100,6 @@ class NioDatagramChannelIoSession extends ChannelIoSession<DatagramChannelConfig
         assert aligned : format("Current thread %s does not match I/O thread %s", currentThread(), ioThread[0]);
         return aligned;
     }
-
-    private static final class WorkerExecutor implements Executor {
-        private final AbstractNioWorker worker;
-
-        WorkerExecutor(AbstractNioWorker worker) {
-            this.worker = worker;
-        }
-
-        @Override
-        public void execute(Runnable command) {
-            worker.executeInIoThread(command, /* alwaysAsync */ true);
-        }
-    }
-
 
     private static class NioDatagramIdleFilter extends IoFilterAdapter {
 
