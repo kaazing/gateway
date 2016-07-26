@@ -68,19 +68,10 @@ public class NioChildDatagramChannel extends AbstractNioChannel<DatagramChannel>
     private final NioDatagramChannelConfig config;
     private Map<InetAddress, List<MembershipKey>> memberships;
 
-    NioChildDatagramChannel(final ChannelFactory factory,
-                       final ChannelPipeline pipeline, final ChannelSink sink,
-                       final NioDatagramWorker worker, InternetProtocolFamily family) {
-        super(null, factory, pipeline, sink, worker, openNonBlockingChannel(family));
-        config = new DefaultNioDatagramChannelConfig(channel);
-
-        fireChannelOpen(this);
-    }
-
     // mina.netty change - creates a child channel for a parent channel
     NioChildDatagramChannel(Channel parent, final ChannelFactory factory,
                        final ChannelPipeline pipeline, final ChannelSink sink,
-                       final NioChildDatagramWorker worker, InternetProtocolFamily family) {
+                       final AbstractNioWorker worker, InternetProtocolFamily family) {
         super(parent, factory, pipeline, sink, worker, openNonBlockingChannel(family));
         config = new DefaultNioDatagramChannelConfig(channel);
     }
@@ -119,10 +110,10 @@ public class NioChildDatagramChannel extends AbstractNioChannel<DatagramChannel>
         }
     }
 
-    @Override
-    public NioChildDatagramWorker getWorker() {
-        return (NioChildDatagramWorker) super.getWorker();
-    }
+//    @Override
+//    public NioChildDatagramWorker getWorker() {
+//        return (NioChildDatagramWorker) super.getWorker();
+//    }
 
     public boolean isBound() {
         return isOpen() && channel.socket().isBound();

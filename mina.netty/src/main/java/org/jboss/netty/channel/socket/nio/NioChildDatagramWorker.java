@@ -35,15 +35,8 @@ import org.jboss.netty.buffer.ChannelBufferFactory;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelException;
 import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.ReceiveBufferSizePredictor;
-import uk.co.real_logic.agrona.DirectBuffer;
-import uk.co.real_logic.agrona.concurrent.AtomicBuffer;
-import uk.co.real_logic.agrona.concurrent.BackoffIdleStrategy;
-import uk.co.real_logic.agrona.concurrent.IdleStrategy;
-import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
-import uk.co.real_logic.agrona.concurrent.ringbuffer.OneToOneRingBuffer;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -53,9 +46,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
 import static org.jboss.netty.channel.Channels.fireChannelConnected;
@@ -66,7 +57,6 @@ import static org.jboss.netty.channel.Channels.fireExceptionCaughtLater;
 import static org.jboss.netty.channel.Channels.fireMessageReceived;
 import static org.jboss.netty.channel.Channels.fireWriteComplete;
 import static org.jboss.netty.channel.Channels.succeededFuture;
-import static uk.co.real_logic.agrona.concurrent.ringbuffer.RingBufferDescriptor.TRAILER_LENGTH;
 
 /**
  * A class responsible for registering channels with {@link Selector}.
@@ -76,10 +66,6 @@ public class NioChildDatagramWorker extends AbstractNioWorker {
 
     private final SocketReceiveBufferAllocator bufferAllocator = new SocketReceiveBufferAllocator();
 
-    private final OneToOneRingBuffer ringBuffer;
-    private final Map<Integer, Channel> childChannels;
-    private final AtomicBuffer atomicBuffer = new UnsafeBuffer(new byte[0]);
-
     /**
      * Sole constructor.
      *
@@ -88,37 +74,11 @@ public class NioChildDatagramWorker extends AbstractNioWorker {
      */
     NioChildDatagramWorker(final Executor executor) {
         super(executor);
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect((16 * 1024) + TRAILER_LENGTH);
-        ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(byteBuffer));
-        childChannels = new ConcurrentHashMap<>();
     }
 
-    public void messageReceived(NioChildDatagramChannel childChannel, Object message) {
-        assert childChannel.getId() >= 0;
 
-        ChannelBuffer buf = (ChannelBuffer) message;
-        ByteBuffer byteBuffer = buf.toByteBuffer();
-        atomicBuffer.wrap(byteBuffer);
-        ringBuffer.write(childChannel.getId(), atomicBuffer, 0, atomicBuffer.capacity());
-    }
 
-    public void register(NioChildDatagramChannel childChannel) {
-        //executeInIoThread(() -> { doRegister(childChannel); });
-        doRegister(childChannel);
-    }
 
-    private void doRegister(NioChildDatagramChannel childChannel) {
-        childChannels.put(childChannel.getId(), childChannel);
-    }
-
-    public void deregister(NioChildDatagramChannel childChannel) {
-        //executeInIoThread(() -> { doDeregister(childChannel); });
-        doDeregister(childChannel);
-    }
-
-    private void doDeregister(NioChildDatagramChannel childChannel) {
-        childChannels.remove(childChannel.getId());
-    }
 
     @Override
     protected boolean read(final SelectionKey key) {
@@ -310,7 +270,6 @@ public class NioChildDatagramWorker extends AbstractNioWorker {
         long writtenBytes = 0;
 
         final SocketSendBufferPool sendBufferPool = this.sendBufferPool;
-        System.out.println("JITU NioChildDatagramWorker#write0");
         final DatagramChannel ch = ((NioDatagramChannel) channel).getDatagramChannel();
         final Queue<MessageEvent> writeBuffer = channel.writeBufferQueue;
         final int writeSpinCount = channel.getConfig().getWriteSpinCount();
@@ -410,27 +369,5 @@ public class NioChildDatagramWorker extends AbstractNioWorker {
         fireWriteComplete(channel, writtenBytes);
     }
 
-    @Override
-    protected void process(Selector selector) throws IOException {
-        if (ringBuffer == null) {
-            return;
-        }
-        int workCount = ringBuffer.read(this::handleRead);
-        IdleStrategy idleStrategy = new BackoffIdleStrategy(50, 50, 10000, 20000);
-        idleStrategy.idle(workCount);
-    }
 
-    private void handleRead(int msgTypeId, DirectBuffer buffer, int index, int length) {
-        Channel childChannel = childChannels.get(msgTypeId);
-        if (childChannel != null) {
-            final ChannelBufferFactory bufferFactory = childChannel.getConfig().getBufferFactory();
-
-            ByteBuffer byteBuffer = ByteBuffer.allocateDirect(1024); // TODO: use SocketReceiveBufferFactory
-            buffer.getBytes(index, byteBuffer, length);
-            byteBuffer.flip();
-
-            ChannelBuffer channelBuffer = bufferFactory.getBuffer(byteBuffer);
-            Channels.fireMessageReceived(childChannel, channelBuffer);
-        }
-    }
 }

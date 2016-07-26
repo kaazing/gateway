@@ -42,8 +42,10 @@ import static org.jboss.netty.channel.Channels.fireExceptionCaught;
 import static org.jboss.netty.channel.Channels.fireExceptionCaughtLater;
 import static org.jboss.netty.channel.Channels.fireWriteCompleteLater;
 import static org.jboss.netty.channel.Channels.succeededFuture;
+import static uk.co.real_logic.agrona.concurrent.ringbuffer.RingBufferDescriptor.TRAILER_LENGTH;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
@@ -54,13 +56,18 @@ import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBufferFactory;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.socket.Worker;
 import org.jboss.netty.channel.socket.nio.SocketSendBufferPool.SendBuffer;
@@ -68,18 +75,34 @@ import org.jboss.netty.util.ThreadNameDeterminer;
 import org.jboss.netty.util.ThreadRenamingRunnable;
 
 import org.kaazing.mina.netty.channel.DefaultWriteCompletionEventEx;
+import uk.co.real_logic.agrona.DirectBuffer;
+import uk.co.real_logic.agrona.concurrent.AtomicBuffer;
+import uk.co.real_logic.agrona.concurrent.BackoffIdleStrategy;
+import uk.co.real_logic.agrona.concurrent.IdleStrategy;
+import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
+import uk.co.real_logic.agrona.concurrent.ringbuffer.OneToOneRingBuffer;
 
 public abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
 
     protected final SocketSendBufferPool sendBufferPool = new SocketSendBufferPool();
     private final DefaultWriteCompletionEventEx writeCompletionEvent = new DefaultWriteCompletionEventEx();
 
+    private final OneToOneRingBuffer ringBuffer;
+    private final Map<Integer, Channel> childChannels;
+    private final AtomicBuffer atomicBuffer = new UnsafeBuffer(new byte[0]);
+
     AbstractNioWorker(Executor executor) {
         super(executor);
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect((16 * 1024) + TRAILER_LENGTH);
+        ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(byteBuffer));
+        childChannels = new ConcurrentHashMap<>();
     }
 
     AbstractNioWorker(Executor executor, ThreadNameDeterminer determiner) {
         super(executor, determiner);
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect((16 * 1024) + TRAILER_LENGTH);
+        ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(byteBuffer));
+        childChannels = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -617,5 +640,57 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
                 }
             }
         });
+    }
+
+    public void register(NioChildDatagramChannel childChannel) {    // TODO no datagram specific
+        registerTask(() -> {
+            childChannels.put(childChannel.getId(), childChannel);
+        });
+    }
+
+    public void deregister(NioChildDatagramChannel childChannel) {
+        registerTask(() -> {
+            childChannels.remove(childChannel.getId());
+        });
+    }
+
+    public void messageReceived(NioChildDatagramChannel childChannel, Object message) {
+        assert childChannel.getId() >= 0;
+
+        ChannelBuffer buf = (ChannelBuffer) message;
+        ByteBuffer byteBuffer = buf.toByteBuffer();
+        atomicBuffer.wrap(byteBuffer);
+        ringBuffer.write(childChannel.getId(), atomicBuffer, 0, atomicBuffer.capacity());
+    }
+
+    protected void processRead() throws IOException {
+        if (ringBuffer == null) {
+            return;
+        }
+        int workCount = ringBuffer.read(this::handleRead);
+        IdleStrategy idleStrategy = new BackoffIdleStrategy(50, 50, 10000, 20000);
+        idleStrategy.idle(workCount);
+    }
+
+    private void handleRead(int msgTypeId, DirectBuffer buffer, int index, int length) {
+        Channel childChannel = childChannels.get(msgTypeId);
+        if (childChannel == null) {
+            processTaskQueue();
+            childChannel = childChannels.get(msgTypeId);
+        }
+
+        if (childChannel != null) {
+            final ChannelBufferFactory bufferFactory = childChannel.getConfig().getBufferFactory();
+
+            ByteBuffer byteBuffer = ByteBuffer.allocateDirect(1024); // TODO: use SocketReceiveBufferFactory
+            buffer.getBytes(index, byteBuffer, length);
+            byteBuffer.flip();
+
+            ChannelBuffer channelBuffer = bufferFactory.getBuffer(byteBuffer);
+
+            Channels.fireMessageReceived(childChannel, channelBuffer);
+        } else {
+            System.out.println("JITU dropping the message " + buffer);
+        }
     }
 }

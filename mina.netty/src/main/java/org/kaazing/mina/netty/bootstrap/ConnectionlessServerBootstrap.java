@@ -27,8 +27,8 @@ import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.ServerChannelFactory;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.socket.nio.AbstractNioWorker;
 import org.jboss.netty.channel.socket.nio.NioChildDatagramChannel;
-import org.jboss.netty.channel.socket.nio.NioChildDatagramWorker;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 import org.kaazing.mina.netty.IoAcceptorChannelHandler;
@@ -125,13 +125,8 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
             Channel channel = e.getChannel();
             NioChildDatagramChannel childChannel = getChildChannel(channel, e.getRemoteAddress());
 
-            NioChildDatagramWorker childWorker = childChannel.getWorker();
+            AbstractNioWorker childWorker = childChannel.getWorker();
             childWorker.messageReceived(childChannel, e.getMessage());
-
-//            // deliver message received to child channel pipeline
-//            childChannel.getWorker().executeInIoThread(
-//                    () -> fireMessageReceived(childChannel, e.getMessage())
-//            );
         }
 
         @Override

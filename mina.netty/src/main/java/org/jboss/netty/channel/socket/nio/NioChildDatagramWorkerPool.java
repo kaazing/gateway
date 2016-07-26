@@ -38,14 +38,14 @@ import java.util.concurrent.Executor;
  *
  *
  */
-public class NioChildDatagramWorkerPool extends AbstractNioWorkerPool<NioChildDatagramWorker> {
+public class NioChildDatagramWorkerPool extends AbstractNioWorkerPool<AbstractNioWorker> {
 
     public NioChildDatagramWorkerPool(Executor executor, int workerCount) {
         super(executor, workerCount);
     }
 
     @Override
-    protected NioChildDatagramWorker newWorker(Executor executor) {
+    protected AbstractNioWorker newWorker(Executor executor) {
         return new NioChildDatagramWorker(executor);
     }
 }

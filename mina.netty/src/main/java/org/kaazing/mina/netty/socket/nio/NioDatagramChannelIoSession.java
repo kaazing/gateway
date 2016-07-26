@@ -73,7 +73,9 @@ class NioDatagramChannelIoSession extends ChannelIoSession<DatagramChannelConfig
         }
         else {
             AbstractNioWorker newWorker = ((WorkerExecutor) ioExecutor).worker;
+            channel.getWorker().deregister(channel);
             channel.setWorker(newWorker);
+            newWorker.register(channel);
         }
     }
 

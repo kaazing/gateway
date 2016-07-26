@@ -97,7 +97,7 @@ public class NioDatagramChannelFactory implements DatagramChannelFactory {
     private final NioDatagramPipelineSink sink;
     private final NioChildDatagramPipelineSink childSink;
     private final WorkerPool<NioDatagramWorker> workerPool;
-    private final WorkerPool<NioChildDatagramWorker> childPool;
+    private final WorkerPool<AbstractNioWorker> childPool;
     private final InternetProtocolFamily family;
     private boolean releasePool;
 
