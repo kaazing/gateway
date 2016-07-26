@@ -54,6 +54,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,7 @@ import org.jboss.netty.util.ThreadRenamingRunnable;
 
 import org.kaazing.mina.netty.channel.DefaultWriteCompletionEventEx;
 import uk.co.real_logic.agrona.DirectBuffer;
+import uk.co.real_logic.agrona.collections.Int2ObjectHashMap;
 import uk.co.real_logic.agrona.concurrent.AtomicBuffer;
 import uk.co.real_logic.agrona.concurrent.BackoffIdleStrategy;
 import uk.co.real_logic.agrona.concurrent.IdleStrategy;
@@ -88,21 +90,18 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
     private final DefaultWriteCompletionEventEx writeCompletionEvent = new DefaultWriteCompletionEventEx();
 
     private final OneToOneRingBuffer ringBuffer;
-    private final Map<Integer, Channel> childChannels;
+    private final Int2ObjectHashMap<Channel> childChannels;
     private final AtomicBuffer atomicBuffer = new UnsafeBuffer(new byte[0]);
 
     AbstractNioWorker(Executor executor) {
-        super(executor);
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect((16 * 1024) + TRAILER_LENGTH);
-        ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(byteBuffer));
-        childChannels = new ConcurrentHashMap<>();
+        this(executor, null);
     }
 
     AbstractNioWorker(Executor executor, ThreadNameDeterminer determiner) {
         super(executor, determiner);
         ByteBuffer byteBuffer = ByteBuffer.allocateDirect((16 * 1024) + TRAILER_LENGTH);
         ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(byteBuffer));
-        childChannels = new ConcurrentHashMap<>();
+        childChannels = new Int2ObjectHashMap<>();
     }
 
     @Override
@@ -644,13 +643,13 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
 
     public void register(NioChildDatagramChannel childChannel) {    // TODO no datagram specific
         registerTask(() -> {
-            childChannels.put(childChannel.getId(), childChannel);
+            childChannels.put(childChannel.getId().intValue(), childChannel);
         });
     }
 
     public void deregister(NioChildDatagramChannel childChannel) {
         registerTask(() -> {
-            childChannels.remove(childChannel.getId());
+            childChannels.remove(childChannel.getId().intValue());
         });
     }
 
@@ -689,8 +688,6 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
             ChannelBuffer channelBuffer = bufferFactory.getBuffer(byteBuffer);
 
             Channels.fireMessageReceived(childChannel, channelBuffer);
-        } else {
-            System.out.println("JITU dropping the message " + buffer);
         }
     }
 }

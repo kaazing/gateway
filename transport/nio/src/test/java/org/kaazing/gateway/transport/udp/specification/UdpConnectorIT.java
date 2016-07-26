@@ -172,27 +172,28 @@ public class UdpConnectorIT {
         k3po.finish();
     }
 
-    @Test
-    @Specification("client.close/server")
-    public void clientClose() throws Exception {
-        CountDownLatch closed = new CountDownLatch(1);
-
-        k3po.start();
-        k3po.awaitBarrier("BOUND");
-        connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
-            @Override
-            protected void doSessionOpened(IoSessionEx session) {
-                writeStringMessageToSession("client data", session);
-            }
-            @Override
-            protected void doSessionClosed(IoSessionEx session) {
-                closed.countDown();
-            }
-        });
-        k3po.finish();
-
-        closed.await(5,  SECONDS);
-    }
+//    @Test
+//    @Specification("client.close/server")
+//    @Ignore("no idle timeout on client side. so there isn't way to trigger closed event other than session.close()")
+//    public void clientClose() throws Exception {
+//        CountDownLatch closed = new CountDownLatch(1);
+//
+//        k3po.start();
+//        k3po.awaitBarrier("BOUND");
+//        connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
+//            @Override
+//            protected void doSessionOpened(IoSessionEx session) {
+//                writeStringMessageToSession("client data", session);
+//            }
+//            @Override
+//            protected void doSessionClosed(IoSessionEx session) {
+//                closed.countDown();
+//            }
+//        });
+//        k3po.finish();
+//
+//        closed.await(5,  SECONDS);
+//    }
 
     @Test
     @Specification("client.close/server")
