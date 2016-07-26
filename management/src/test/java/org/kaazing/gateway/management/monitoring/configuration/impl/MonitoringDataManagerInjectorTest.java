@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManager;
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManagerInjector;
 
-@Ignore("doesn't work with latest Agrona")
+@Ignore("doesn't work with latest Agrona 0.4.12")
 public class MonitoringDataManagerInjectorTest {
 
     private static final String AGRONA_ENABLED = "org.kaazing.gateway.management.AGRONA_ENABLED";

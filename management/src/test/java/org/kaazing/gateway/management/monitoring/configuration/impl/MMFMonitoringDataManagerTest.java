@@ -25,7 +25,7 @@ import org.kaazing.gateway.management.monitoring.entity.manager.impl.ServiceCoun
 import org.kaazing.gateway.management.monitoring.service.MonitoredService;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
-@Ignore("doesn't with the latest Agrona")
+@Ignore("doesn't work with the latest Agrona 0.4.12")
 public class MMFMonitoringDataManagerTest {
     private static final String MONITORING_FILE = "monitor";
 

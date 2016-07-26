@@ -29,7 +29,7 @@ import org.kaazing.gateway.service.MonitoringEntityFactory;
 /**
  * Unit test for AgronaLongMonitoringCounter
  */
-@Ignore("doesn't work with latest Agrona")
+@Ignore("doesn't work with latest Agrona 0.4.12")
 public class AgronaLongMonitoringCounterTest {
 
     private MonitoringEntityFactory monitoringEntityFactory;

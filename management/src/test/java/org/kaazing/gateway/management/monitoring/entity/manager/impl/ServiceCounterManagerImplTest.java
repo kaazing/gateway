@@ -24,7 +24,7 @@ import org.kaazing.gateway.management.monitoring.configuration.impl.MMFMonitorin
 import org.kaazing.gateway.management.monitoring.entity.manager.ServiceCounterManager;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
-@Ignore("doesn't work with latest Agrona")
+@Ignore("doesn't work with latest Agrona 0.4.12")
 public class ServiceCounterManagerImplTest {
 
     @Test
