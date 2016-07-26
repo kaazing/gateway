@@ -57,22 +57,6 @@ public class NioDatagramAcceptor extends AbstractNioAcceptor {
 	    NioDatagramChannelIoAcceptor acceptor = new NioDatagramChannelIoAcceptor(config);
         acceptor.setIoSessionInitializer(initializer);
 
-        // TODO: move the following (WITHOUT the sessionCreated override) back up to AbstractNioAcceptor.init once we stop using
-        //       Mina's NioDatagramAcceptor. We'll pass the initializer directly into NioDatagramChannelIoAcceptor
-	    //       (to ensure it gets executed before sessionCreated is called on the filter chain).
-        acceptor.setHandler(new BridgeAcceptHandler(this) {
-            @Override
-            public void sessionCreated(IoSession session) throws Exception {
-                LoggingFilter.addIfNeeded(logger, session, getTransportName());
-
-                if (initializer != null) {
-                    initializer.initializeSession(session, null);
-                }
-                super.sessionCreated(session);
-            }
-        });
-
-
         String readBufferSize = configuration.getProperty("org.kaazing.gateway.transport.udp.READ_BUFFER_SIZE");
         if (readBufferSize != null) {
             acceptor.getSessionConfig().setReadBufferSize(Integer.parseInt(readBufferSize));
