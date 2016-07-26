@@ -169,7 +169,7 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Issue# 309: Missing Sec-WebSocket-Extensions header in the handshake request; currently has comma separated which is not support in K3po yet")
+    @Ignore("K3po issue# 53: Simplify matching syntax for comma-separated list HTTP headers; currently has comma separated which is not support in K3po yet")
     @Specification({
         "request.header.sec.websocket.protocol/handshake.response"
         })
@@ -192,7 +192,6 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Issue# 309: Missing Sec-WebSocket-Extensions header in the handshake request")
     @Specification({
         "request.header.sec.websocket.extensions/handshake.response"
         })
@@ -215,7 +214,6 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Issue# 309: Missing Sec-WebSocket-Extensions header in the handshake request")
     @Specification({
         "response.header.sec.websocket.extensions.partial.agreement/handshake.response"
         })
@@ -238,7 +236,6 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Issue #309: Missing Sec-WebSocket-Extensions header in the handshake request")
     @Specification({
         "response.header.sec.websocket.extensions.reordered/handshake.response"
         })
@@ -394,8 +391,6 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Issues# 309, 314: Missing Sec-WebSocket-Extensions header in the handshake request. connectFuture.isConnected()"
-            + "must return false as the negotiated extension does not match the supported extensions.")
     @Specification({
         "response.header.sec.websocket.extensions.not.negotiated/handshake.response" })
     public void shouldFailConnectionWhenResponseHeaderSecWebSocketExtensionsNotNegotiated() throws Exception {

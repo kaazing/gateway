@@ -53,7 +53,7 @@ public class ExtensionHeaderBuilder implements ExtensionHeader {
         // Look for any parameters in the given token
         int idx = extension.indexOf(';');
         if (idx == -1) {
-            this.extensionToken = extension;
+            this.extensionToken = extension.trim();
 
         } else {
             String[] elts = extension.split(";");
