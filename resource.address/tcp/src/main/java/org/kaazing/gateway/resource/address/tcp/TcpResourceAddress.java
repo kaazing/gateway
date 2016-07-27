@@ -27,41 +27,45 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceOption;
 
 public final class TcpResourceAddress extends ResourceAddress {
-	
-	private static final long serialVersionUID = 1L;
 
-	static final String TRANSPORT_NAME = "tcp";
-	
-	public static final ResourceOption<InetSocketAddress> BIND_ADDRESS = new TcpBindAddressOption();
-	public static final ResourceOption<Long> MAXIMUM_OUTBOUND_RATE = new TcpMaximumOutboundRateOption();
+    private static final long serialVersionUID = 1L;
 
-	private static final long MAXIMUM_OUTBOUND_RATE_DEFAULT = 0xFFFFFFFFL;
-	
-	private InetSocketAddress bindAddress;
-	private long maximumOutboundRate = MAXIMUM_OUTBOUND_RATE.defaultValue();
+    static final String TRANSPORT_NAME = "tcp";
 
-	TcpResourceAddress(ResourceAddressFactorySpi factory, String original, URI resource) {
-		super(factory, original, resource);
-	}
+    public static final ResourceOption<InetSocketAddress> BIND_ADDRESS = new TcpBindAddressOption();
+    public static final ResourceOption<Long> MAXIMUM_OUTBOUND_RATE = new TcpMaximumOutboundRateOption();
+    public static final ResourceOption<Long> HANDSHAKE_TIMEOUT = new HandshakeTimeoutOption();
 
-	@Override
-	@SuppressWarnings("unchecked")
+    private static final long MAXIMUM_OUTBOUND_RATE_DEFAULT = 0xFFFFFFFFL;
+
+    private InetSocketAddress bindAddress;
+    private long maximumOutboundRate = MAXIMUM_OUTBOUND_RATE.defaultValue();
+    private Long handshakeTimeout = HANDSHAKE_TIMEOUT.defaultValue();
+
+    TcpResourceAddress(ResourceAddressFactorySpi factory, String original, URI resource) {
+        super(factory, original, resource);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
     protected <V> V getOption0(ResourceOption<V> option) {
         if (option instanceof TcpResourceOption) {
-            TcpResourceOption tcpOption = (TcpResourceOption)option;
+            TcpResourceOption tcpOption = (TcpResourceOption) option;
             switch (tcpOption.kind) {
                 case BIND_ADDRESS:
                     return (V) bindAddress;
                 case MAXIMUM_OUTBOUND_RATE:
                     return (V) valueOf(maximumOutboundRate);
+                case HANDSHAKE_TIMEOUT:
+                    return (V) handshakeTimeout;
             }
         }
-		
-		return super.getOption0(option);
-	}
+
+        return super.getOption0(option);
+    }
 
     @Override
-	protected <V> void setOption0(ResourceOption<V> option, V value) {
+    protected <V> void setOption0(ResourceOption<V> option, V value) {
         if (option instanceof TcpResourceOption) {
             TcpResourceOption tcpOption = (TcpResourceOption) option;
             switch (tcpOption.kind) {
@@ -71,40 +75,51 @@ public final class TcpResourceAddress extends ResourceAddress {
                 case MAXIMUM_OUTBOUND_RATE:
                     maximumOutboundRate = (Long) value;
                     return;
+                case HANDSHAKE_TIMEOUT:
+                    handshakeTimeout = (Long) value;
+                    return;
             }
         }
 
         super.setOption0(option, value);
-	}
-	
-	static class TcpResourceOption<T> extends ResourceOption<T> {
+    }
 
-		enum Kind { BIND_ADDRESS, MAXIMUM_OUTBOUND_RATE }
-		
-		static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
+    static class TcpResourceOption<T> extends ResourceOption<T> {
 
-		private final Kind kind;
-		
+        enum Kind {
+            BIND_ADDRESS, MAXIMUM_OUTBOUND_RATE, HANDSHAKE_TIMEOUT
+        }
+
+        static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
+
+        private final Kind kind;
+
         private TcpResourceOption(Kind kind, String name) {
             this(kind, name, null);
         }
-        
-		private TcpResourceOption(Kind kind, String name, T defaultValue) {
-			super(OPTION_NAMES, name, defaultValue);
-			this.kind = kind;
-		}
-	}
-	
-	private static final class TcpBindAddressOption extends TcpResourceOption<InetSocketAddress> {
-		private TcpBindAddressOption() {
-			super(Kind.BIND_ADDRESS, "bind");
-		}
-	}
-	
-	private static final class TcpMaximumOutboundRateOption extends TcpResourceOption<Long> {
-		private TcpMaximumOutboundRateOption() {
-			super(Kind.MAXIMUM_OUTBOUND_RATE, "maximumOutboundRate", MAXIMUM_OUTBOUND_RATE_DEFAULT);
-		}
-	}
-	
+
+        private TcpResourceOption(Kind kind, String name, T defaultValue) {
+            super(OPTION_NAMES, name, defaultValue);
+            this.kind = kind;
+        }
+    }
+
+    private static final class TcpBindAddressOption extends TcpResourceOption<InetSocketAddress> {
+        private TcpBindAddressOption() {
+            super(Kind.BIND_ADDRESS, "bind");
+        }
+    }
+
+    private static final class TcpMaximumOutboundRateOption extends TcpResourceOption<Long> {
+        private TcpMaximumOutboundRateOption() {
+            super(Kind.MAXIMUM_OUTBOUND_RATE, "maximumOutboundRate", MAXIMUM_OUTBOUND_RATE_DEFAULT);
+        }
+    }
+
+    private static final class HandshakeTimeoutOption extends TcpResourceOption<Long> {
+        private HandshakeTimeoutOption() {
+            super(Kind.HANDSHAKE_TIMEOUT, "handshake.timeout");
+        }
+    }
+
 }
