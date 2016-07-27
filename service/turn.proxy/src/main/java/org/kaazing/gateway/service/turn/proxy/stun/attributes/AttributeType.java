@@ -15,9 +15,13 @@ public enum AttributeType {
     ERROR_CODE("ERROR-CODE",                    (short) 0x0009),
     UNKNOWN_ATTRIBUTES("UNKNOWN-ATTRIBUTES",    (short) 0x000A),
     RESERVED7("was REFLECTED-FROM",             (short) 0x000B),
+    XOR_PEER_ADDRESS("XOR-PEER-ADDRESS",        (short) 0x0012),
     REALM("REALM",                              (short) 0x0014),
     NONCE("NONCE",                              (short) 0x0015),
+    XOR_RELAY_ADDRESS("XOR-PEER-ADDRESS",       (short) 0x0016),
+    EVEN_PORT("EVEN-PORT",                      (short) 0x0018),
     XOR_MAPPED_ADDRESS("XOR-MAPPED-ADDRESS",    (short) 0x0020),
+    RESERVATION_TOKEN("RESERVATION-TOKEN",      (short) 0x0022),
     SOFTWARE("SOFTWARE",                        (short) 0x8022),
     ALTERNATE_SERVER("ALTERNATE-SERVER",        (short) 0x8023),
     FINGERPRINT("FINGERPRINT",                  (short) 0x8028);
@@ -61,6 +65,8 @@ public enum AttributeType {
             return MESSAGE_INTEGRITY;
         case 0x0009:
             return ERROR_CODE;
+        case 0x0012:
+            return XOR_PEER_ADDRESS;
         case 0x000A:
             return UNKNOWN_ATTRIBUTES;
         case 0x000B:
@@ -69,8 +75,14 @@ public enum AttributeType {
             return REALM;
         case 0x0015:
             return NONCE;
+        case 0x0016:
+            return XOR_RELAY_ADDRESS;
+        case 0x0018:
+            return EVEN_PORT;
         case 0x0020:
             return XOR_MAPPED_ADDRESS;
+        case 0x0022:
+            return RESERVATION_TOKEN;
         case 0x8022:
             return SOFTWARE;
         case 0x8023:
