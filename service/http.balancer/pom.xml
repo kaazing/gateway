@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.1.3-RC001</version>
+        <version>5.2.0-RC001</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>gateway.service.http.balancer</artifactId>
