@@ -12,17 +12,25 @@ public class AttributeTest {
     
     @Test
     public void mappedAddressIpv4(){
-//        short type = MAPPED_ADDRESS.getType();
-//        short length = 4 + (32 / 4);
-//        ByteBuffer buf = ByteBuffer.allocate(4 + length);
-//        byte[] value = new byte[]{0x12};
-//        StunMessageAttribute attr = StunMessageAttribute.Factory.get(type, length, value);
-//        Assert.assertEquals(attr.getLength(), length);
-//        Assert.assertEquals(attr.getType(), type);
-//        hmm = new byte[]{0x01};
-//        Assert.assertEquals(attr.getVariable(), value);
-//        attr.get
-//        
+        short type = MAPPED_ADDRESS.getType();
+        short length = 4 + (32 / 4);
+        ByteBuffer buf = ByteBuffer.allocate(4 + length);
+        byte[] value = new byte[]{0x12};
+        StunMessageAttribute attr = StunMessageAttribute.Factory.get(type, length, value);
+        Assert.assertEquals(attr.getLength(), length);
+        Assert.assertEquals(attr.getType(), type);
+        // not this byte array compare is not correct, figure some way out to  compare (via API or loop)
+        Assert.assertEquals(attr.getVariable(), value);
+        
+        MappedAddressAttribute mappedAddressAttribute = (MappedAddressAttribute) attr;
+        mappedAddressAttribute.setAddress(address);
+        mappedAddressAttribute.setPort(port);
+        
+        Assert.assertEquals(attr.getLength(), length);
+        Assert.assertEquals(attr.getType(), type);
+        // not this byte array compare is not correct, figure some way out to  compare (via API or loop)
+        Assert.assertEquals(attr.getVariable(), value);
+
     }
     
     @Test
@@ -88,5 +96,56 @@ public class AttributeTest {
     @Test
     public void fingerprint(){
         Assume.assumeTrue("Not implemented", true);
+    }
+
+    @Test
+    public void channelNumber(){
+        Assume.assumeTrue("Not implemented", true);
+    }
+
+    @Test
+    public void lifetime(){
+        Assume.assumeTrue("Not implemented", true);
+    }
+    
+    @Test
+    public void xorPeerAddressIPv4(){
+    }
+
+    @Test
+    public void xorPeerAddressIPv6(){
+    }
+    
+    
+    @Test
+    public void data(){
+        Assume.assumeTrue("Not implemented", true);
+    }
+    @Test
+    public void xorRelayAddressIPv4(){
+    }
+
+    @Test
+    public void xorRelayAddressIPv6(){
+    }
+
+    @Test
+    public void evenPort(){
+    }
+    
+    @Test
+    public void requestedTransport(){
+        // note to DPW want to check so we can enforce it
+        
+    }
+    
+    @Test
+    public void dontFragment(){
+        Assume.assumeTrue("Not implemented", true);
+    }
+    
+    @Test
+    public void reservationToken(){
+        
     }
 }
