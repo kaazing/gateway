@@ -464,6 +464,8 @@ public class AttributeTest {
         Assert.assertEquals(rt.getLength(), length);
         Assert.assertEquals(rt.getType(), type);
         Assert.assertTrue(Arrays.equals(rt.getVariable(), token));
+
+        Assert.assertTrue(Arrays.equals(rt.getToken(), token));
     }
 }
 

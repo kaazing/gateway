@@ -23,4 +23,8 @@ public class ReservationToken extends Attribute {
         return token;
     }
 
+    public byte[] getToken() {
+        return token;
+    }
+
 }
