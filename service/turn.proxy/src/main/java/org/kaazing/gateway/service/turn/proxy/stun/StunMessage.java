@@ -2,6 +2,10 @@ package org.kaazing.gateway.service.turn.proxy.stun;
 
 import java.util.List;
 
+/**
+ * Stun Message as defined in https://tools.ietf.org/html/rfc5389#section-6.
+ *
+ */
 public class StunMessage {
 
     private final StunMessageClass messageClass;

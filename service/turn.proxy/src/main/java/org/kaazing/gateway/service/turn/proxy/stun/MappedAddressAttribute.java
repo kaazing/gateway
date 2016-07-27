@@ -1,5 +1,7 @@
 package org.kaazing.gateway.service.turn.proxy.stun;
 
+import java.nio.ByteBuffer;
+
 public class MappedAddressAttribute extends AddressAttribute {
 
     public MappedAddressAttribute(byte[] variable) {
@@ -8,7 +10,17 @@ public class MappedAddressAttribute extends AddressAttribute {
 
     @Override
     public short getType() {
-        return StunMessageAttribute.Type.MAPPED_ADDRESS.getType();
+        return StunMessageAttributeType.MAPPED_ADDRESS.getType();
+    }
+
+    @Override
+    public byte[] getVariable() {
+        ByteBuffer byteBuffer = ByteBuffer.allocate((getFamily() == Family.IPV4) ? 8 : 36);
+        byteBuffer.put((byte) 0x00);
+        byteBuffer.put(getFamily().getEncoding());
+        byteBuffer.putShort((short) getPort());
+        byteBuffer.put(getAddress());
+        return byteBuffer.array();
     }
 
 }
