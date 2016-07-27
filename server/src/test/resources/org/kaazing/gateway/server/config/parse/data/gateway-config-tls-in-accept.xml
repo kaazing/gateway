@@ -33,7 +33,6 @@
   <service> <!-- KG-10018 test case -->
     <name>proxy</name>
     <accept>tls://localhost:8001</accept>
-    <!--<connect>ws://localhost:8001</connect>-->
     <type>echo</type>
   </service>
 
