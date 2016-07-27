@@ -58,6 +58,7 @@ import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.UpgradeFuture;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpPostUpgradeFilter;
@@ -527,7 +528,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
         }
 
         private void doUpgrade(final HttpConnectSession httpSession) {
-            String upgradeHeader = httpSession.getReadHeader("Upgrade");
+            String upgradeHeader = httpSession.getReadHeader(HttpHeaders.HEADER_UPGRADE);
             if (upgradeHeader == null) {
                 logger.info("WebSocket connection failed: No Upgrade: websocket response header");
                 wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: No Upgrade header"));
@@ -550,6 +551,13 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 logger.warn(String.format("WebSocket upgrade failed: Invalid Sec-WebSocket-Accept header. " +
                         "Sec-WebSocket-key=%s, Sec-WebSocket-Accept=%s", key, wsAcceptHeader));
                 wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: Invalid Sec-WebSocket-Accept header"));
+                return;
+            }
+
+            String connectionHeader = httpSession.getReadHeader(HttpHeaders.HEADER_CONNECTION);
+            if (connectionHeader == null || !connectionHeader.equalsIgnoreCase("Upgrade")) {
+                logger.info("WebSocket connection failed: No Connection: websocket response header");
+                wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: No Connection header"));
                 return;
             }
 

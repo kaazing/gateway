@@ -23,7 +23,6 @@ import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -54,7 +53,6 @@ public class MaskingIT {
             .around(contextRule);
 
     @Test
-    @Ignore("Issue# 308: WsnConnector does not reject a masked text or binary frame from the server")
     @Specification({
         "server.send.masked.text/handshake.response.and.frame" })
     public void shouldFailWebSocketConnectionWhenServerSendsMaskWithTextFrame() throws Exception {
@@ -64,8 +62,6 @@ public class MaskingIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                // TODO: remove the following line when #308 is fixed
-                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(hasRemaining(125)));
             }
         });
 
@@ -77,8 +73,7 @@ public class MaskingIT {
     }
 
     @Test
-    @Ignore("Issue# 308: WsnConnector does not reject a masked text or binary frame from the server")
-    @Specification({
+     @Specification({
         "server.send.masked.binary/handshake.response.and.frame" })
     public void shouldFailWebSocketConnectionWhenServerSendsMaskWithBinaryFrame() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
@@ -87,8 +82,6 @@ public class MaskingIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                // TODO: remove the following line when #308 is fixed
-                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(hasRemaining(125)));
             }
         });
 

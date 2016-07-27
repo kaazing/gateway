@@ -15,11 +15,12 @@
  */
 package org.kaazing.gateway.server.test.config;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 public class NestedServicePropertiesConfiguration implements
         Configuration<SuppressibleNestedServicePropertiesConfiguration> {
@@ -28,8 +29,7 @@ public class NestedServicePropertiesConfiguration implements
     private final SuppressibleNestedServicePropertiesConfiguration _configuration;
     private final Map<String, Suppressible<String>> suppressibleSimpleProperties = new HashMap<>();
     private final Map<String, String> simpleProperties = Suppressibles.unsuppressibleMap(suppressibleSimpleProperties);
-    private final Stack<NestedServicePropertiesConfiguration> nestedServiceProperties =
-            new Stack<>();
+    private final List<NestedServicePropertiesConfiguration> nestedServiceProperties = new ArrayList<>();
 
     public NestedServicePropertiesConfiguration(String configElementName) {
         this.configElementName = configElementName;
@@ -47,6 +47,10 @@ public class NestedServicePropertiesConfiguration implements
 
     public Collection<NestedServicePropertiesConfiguration> getNestedProperties() {
         return nestedServiceProperties;
+    }
+
+    public void addNestedProperties(NestedServicePropertiesConfiguration configuration) {
+        nestedServiceProperties.add(configuration);
     }
 
     public String getConfigElementName() {

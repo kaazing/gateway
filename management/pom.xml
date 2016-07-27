@@ -45,7 +45,7 @@
             <artifactId>snmp4j-agent</artifactId>
             <version>1.4.3</version>
         </dependency>
-        
+
         </dependencies>
     </dependencyManagement>
 
@@ -267,12 +267,7 @@
                     <execution>
                         <configuration>
                             <argLine>@{failsafeArgLine}</argLine>
-                            <skipTests>${skipITs}</skipTests>
                         </configuration>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>

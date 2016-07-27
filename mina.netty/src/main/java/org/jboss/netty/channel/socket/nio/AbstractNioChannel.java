@@ -174,6 +174,16 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
     @Override
     public abstract NioChannelConfig getConfig();
 
+    @Override
+    protected int getInternalInterestOps() {
+        return super.getInternalInterestOps();
+    }
+
+    @Override
+    protected void setInternalInterestOps(int interestOps) {
+        super.setInternalInterestOps(interestOps);
+    }
+
     public void setWorker(NioWorker newWorker) {
         if (newWorker == null) {
             if (worker == null) {
@@ -192,7 +202,7 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
     }
 
     void setRawInterestOpsNow(int interestOps) {
-        setInterestOpsNow(interestOps);
+        this.setInternalInterestOps(interestOps);
     }
 
     @Override
