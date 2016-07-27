@@ -16,14 +16,11 @@
 
 package org.kaazing.gateway.server.config.parse.translate;
 
-import org.kaazing.gateway.server.config.parse.translate.june2016.RemoveRequireUser;
+import org.kaazing.gateway.server.config.parse.translate.june2016.RemoveRealmVisitor;
 
 public class June2016Validator extends GatewayConfigTranslatorPipeline {
 
     public June2016Validator() {
         super();
-        
-        // Set the namespace
-        addTranslator(new RemoveRequireUser());   
     }
 }

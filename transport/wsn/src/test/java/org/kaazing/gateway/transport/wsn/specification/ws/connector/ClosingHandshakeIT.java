@@ -151,7 +151,6 @@ public class ClosingHandshakeIT {
     }
 
     @Test
-    @Ignore("Issue# 307: Gateway sends back the invalid UTF8 payload/reason instead of just sending the CLOSE code 1002")
     @Specification({
         "server.send.close.frame.with.code.1000.and.invalid.utf8.reason/handshake.response.and.frame" })
     public void shouldFailWebSocketConnectionWhenServerSendCloseFrameWithCode1000AndInvalidUTF8Reason() throws Exception {
