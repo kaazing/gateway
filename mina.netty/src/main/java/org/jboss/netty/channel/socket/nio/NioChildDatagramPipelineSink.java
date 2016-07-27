@@ -47,9 +47,9 @@ import java.net.SocketAddress;
  */
 class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
 
-    private final WorkerPool<AbstractNioWorker> workerPool;
+    private final WorkerPool<NioWorker> workerPool;
 
-    NioChildDatagramPipelineSink(final WorkerPool<AbstractNioWorker> workerPool) {
+    NioChildDatagramPipelineSink(final WorkerPool<NioWorker> workerPool) {
         this.workerPool = workerPool;
     }
 
