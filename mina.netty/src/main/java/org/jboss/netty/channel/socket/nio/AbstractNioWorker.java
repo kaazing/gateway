@@ -73,6 +73,8 @@ import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.ReceiveBufferSizePredictor;
 import org.jboss.netty.channel.socket.Worker;
 import org.jboss.netty.channel.socket.nio.SocketSendBufferPool.SendBuffer;
+import org.jboss.netty.logging.InternalLogger;
+import org.jboss.netty.logging.InternalLoggerFactory;
 import org.jboss.netty.util.ThreadNameDeterminer;
 import org.jboss.netty.util.ThreadRenamingRunnable;
 
@@ -86,6 +88,7 @@ import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 import uk.co.real_logic.agrona.concurrent.ringbuffer.OneToOneRingBuffer;
 
 public abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
+    private static final InternalLogger LOGGER = InternalLoggerFactory.getInstance(AbstractNioWorker.class);
 
     protected final SocketReceiveBufferAllocator recvBufferPool = new SocketReceiveBufferAllocator();
     protected final SocketSendBufferPool sendBufferPool = new SocketSendBufferPool();
@@ -94,6 +97,7 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
     private final OneToOneRingBuffer ringBuffer;
     private final Int2ObjectHashMap<Channel> childChannels;
     private final AtomicBuffer atomicBuffer = new UnsafeBuffer(new byte[0]);
+    private final IdleStrategy idleStrategy = new BackoffIdleStrategy(50, 50, 10000, 20000);
 
     AbstractNioWorker(Executor executor) {
         this(executor, null);
@@ -656,13 +660,17 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
         });
     }
 
-    public void messageReceived(NioChildDatagramChannel childChannel, Object message) {
-        assert childChannel.getId() >= 0;
+    public void messageReceived(AbstractNioChannel<?> channel, Object message) {
+        assert channel.getId() >= 0;
 
         ChannelBuffer buf = (ChannelBuffer) message;
         ByteBuffer byteBuffer = buf.toByteBuffer();
         atomicBuffer.wrap(byteBuffer);
-        ringBuffer.write(childChannel.getId(), atomicBuffer, 0, atomicBuffer.capacity());
+        // If there is no space in the ring buffer,  the message would be dropped (ok for UDP)
+        boolean written = ringBuffer.write(channel.getId(), atomicBuffer, 0, atomicBuffer.capacity());
+        if (LOGGER.isDebugEnabled() && !written) {
+            LOGGER.debug(String.format("Message %s for channel %s is not written to ring buffer", message, channel));
+        }
     }
 
     protected void processRead() throws IOException {
@@ -670,13 +678,15 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
             return;
         }
         int workCount = ringBuffer.read(this::handleRead);
-        IdleStrategy idleStrategy = new BackoffIdleStrategy(50, 50, 10000, 20000);
+
         idleStrategy.idle(workCount);
     }
 
     private void handleRead(int msgTypeId, DirectBuffer buffer, int index, int length) {
         Channel childChannel = childChannels.get(msgTypeId);
         if (childChannel == null) {
+            // register task may still be in the task queue, so this gives the register task a chance
+            // to complete rather than effectively dropping the UDP packet.
             processTaskQueue();
             childChannel = childChannels.get(msgTypeId);
         }
@@ -690,6 +700,8 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
             ChannelBuffer channelBuffer = bufferFactory.getBuffer(byteBuffer);
 
             Channels.fireMessageReceived(childChannel, channelBuffer);
+        } else if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(String.format("There is no channel %s found, so dropping message %s", msgTypeId, buffer));
         }
     }
 }
