@@ -8,7 +8,7 @@ public class XorMappedAddress extends Address {
     public XorMappedAddress(byte[] variable) {
         super(variable);
         setPort(xorWithMagicCookie((short) getPort()));
-        setAddress(xorWithMagicCookie(variable));
+        setAddress(xorWithMagicCookie(getAddress()));
     }
 
     @Override
@@ -18,11 +18,12 @@ public class XorMappedAddress extends Address {
 
     @Override
     public byte[] getVariable() {
-        ByteBuffer byteBuffer = ByteBuffer.allocate((getFamily() == Family.IPV4) ? 8 : 36);
+        ByteBuffer byteBuffer = ByteBuffer.allocate((getFamily() == Family.IPV4) ? 4 + 32/8 : 4 + 128/8);
         byteBuffer.put((byte) 0x00);
         byteBuffer.put(getFamily().getEncoding());
         byteBuffer.putShort(xorWithMagicCookie((short) getPort()));
         byteBuffer.put(xorWithMagicCookie(getAddress()));
+        
         return byteBuffer.array();
     }
 
@@ -31,9 +32,10 @@ public class XorMappedAddress extends Address {
     }
 
     byte[] xorWithMagicCookie(byte[] bytes) {
-        for (int i = 0; i < bytes.length; i++) {
-            bytes[i] = (byte) (bytes[i] ^ MAGIC_COOKIE[i % 4]);
+        byte[] temp = bytes.clone();
+        for (int i = 0; i < temp.length; i++) {
+            temp[i] = (byte) (temp[i] ^ MAGIC_COOKIE[i % 4]);
         }
-        return bytes;
+        return temp;
     }
 }

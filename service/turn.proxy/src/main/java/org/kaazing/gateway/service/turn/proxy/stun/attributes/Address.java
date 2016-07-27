@@ -36,11 +36,11 @@ public abstract class Address extends Attribute {
 
     public Address(byte[] variable) {
         this.family = Family.fromValue(variable[1]);
-        this.setPort(((variable[2] << 8) & 0xff) + variable[3]);
+        this.setPort(((variable[2] << 8)) + (variable[3] & 0xff));
         if (this.family == Family.IPV4) {
             this.address = Arrays.copyOfRange(variable, 4, 8);
         } else if (this.family == Family.IPV6) {
-            this.address = Arrays.copyOfRange(variable, 4, 16);
+            this.address = Arrays.copyOfRange(variable, 4, 20);
         }
     }
 
@@ -57,9 +57,9 @@ public abstract class Address extends Attribute {
     }
 
     public void setAddress(byte[] address) {
-        if (address.length == 4) {
+        if (address.length == 32 / 8) {
             family = IPV4;
-        } else if (address.length == 8) {
+        } else if (address.length == 128 / 8) {
             family = IPV6;
         } else {
             throw new InvalidAttributeException("Address is neither IPv4 or IPv6");
@@ -70,16 +70,16 @@ public abstract class Address extends Attribute {
     @Override
     public short getLength() {
         if (this.getFamily() == IPV4) {
-            return 12;
+            return 8;
         } else {
-            return 36;
+            return 20;
         }
     }
 
     public Family getFamily() {
-        if (address.length == 4) {
+        if (address.length == 32/8) {
             return IPV4;
-        } else if (address.length == 16) {
+        } else if (address.length == 128/8) {
             return IPV6;
         }
         throw new InvalidAttributeException("Address is not of IPv4 or IPv6 family");

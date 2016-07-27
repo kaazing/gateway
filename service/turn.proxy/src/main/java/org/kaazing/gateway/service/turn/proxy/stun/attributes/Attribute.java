@@ -12,6 +12,8 @@ public abstract class Attribute {
             switch (AttributeType.valueOf(type)) {
             case MAPPED_ADDRESS:
                 return new MappedAddress(value);
+            case XOR_MAPPED_ADDRESS:
+                return new XorMappedAddress(value);
             default:
                 return new Noop((short) type, length, value);
             }

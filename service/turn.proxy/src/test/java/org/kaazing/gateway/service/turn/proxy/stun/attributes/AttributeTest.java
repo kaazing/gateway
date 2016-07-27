@@ -1,8 +1,13 @@
 package org.kaazing.gateway.service.turn.proxy.stun.attributes;
 
 import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType.MAPPED_ADDRESS;
+import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType.XOR_MAPPED_ADDRESS;
 
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import org.junit.Assert;
 import org.junit.Assume;
@@ -13,30 +18,78 @@ public class AttributeTest {
     @Test
     public void mappedAddressIpv4(){
         short type = MAPPED_ADDRESS.getType();
-        short length = 4 + (32 / 4);
-        ByteBuffer buf = ByteBuffer.allocate(4 + length);
-        byte[] value = new byte[]{0x12};
-        Attribute attr = Attribute.Factory.get(type, length, value);
+        short length = 4 + (32 / 8);
+        ByteBuffer buf = ByteBuffer.allocate(length);
+        byte[] addressLocal = new byte[] { 0x7f, 0x00, 0x00, 0x01};
+        buf.put(0, (byte) 0x00);
+        buf.put(1, (byte) 0x01);
+        buf.putShort(2, (short) 8080);
+        buf.put(4, addressLocal[0]);
+        buf.put(5, addressLocal[1]);
+        buf.put(6, addressLocal[2]);
+        buf.put(7, addressLocal[3]);
+        Attribute attr = Attribute.Factory.get(type, length, buf.array());
         Assert.assertEquals(attr.getLength(), length);
         Assert.assertEquals(attr.getType(), type);
-        // not this byte array compare is not correct, figure some way out to  compare (via API or loop)
-        Assert.assertEquals(attr.getVariable(), value);
+        Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
         
         MappedAddress mappedAddressAttribute = (MappedAddress) attr;
+        byte[] address = {-1, -1, -1, -1};
         mappedAddressAttribute.setAddress(address);
-        mappedAddressAttribute.setPort(port);
+        mappedAddressAttribute.setPort(8000);
         
+        byte[] newValue = new byte[] {0x00, 0x01, 0x1f, 0x40, -1, -1, -1, -1};
         Assert.assertEquals(attr.getLength(), length);
         Assert.assertEquals(attr.getType(), type);
-        // not this byte array compare is not correct, figure some way out to  compare (via API or loop)
-        Assert.assertEquals(attr.getVariable(), value);
+        Assert.assertTrue(Arrays.equals(attr.getVariable(), newValue));
 
     }
     
     @Test
     public void mappedAddressIpv6(){
-        Assert.assertEquals(new byte[]{0x01}, new byte[]{0x01});
+        short type = MAPPED_ADDRESS.getType();
+        short length = 4 + (128 / 8);
+        InetAddress ip = null;
+        try{
+            ip = Inet6Address.getByName("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        byte[] address = ip.getAddress();
+        ByteBuffer buf = ByteBuffer.allocate(length);
+        buf.put(0, (byte) 0x00);
+        buf.put(1, (byte) 0x02);
+        buf.putShort(2, (short) 8080);
+        for(int i = 0; i < address.length; i++) {
+            buf.put(i + 4, address[i]);
+        }
+        Attribute attr = Attribute.Factory.get(type, length, buf.array());
+        Assert.assertEquals(attr.getLength(), length);
+        Assert.assertEquals(attr.getType(), type);
+        Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
         
+        MappedAddress mappedAddressAttribute = (MappedAddress) attr;
+        try{
+            ip = Inet6Address.getByName("5555:5555:5555:5555:5555:5555:5555:5555");
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        address = ip.getAddress();
+        mappedAddressAttribute.setAddress(address);
+        mappedAddressAttribute.setPort(8000);
+        
+        ByteBuffer newValue = ByteBuffer.allocate(length);
+        newValue.put(0, (byte) 0x00);
+        newValue.put(1, (byte) 0x02);
+        newValue.putShort(2, (short) 8000);
+        for(int i = 0; i < address.length; i++) {
+            newValue.put(i + 4, address[i]);
+        }
+
+        Assert.assertEquals(attr.getLength(), length);
+        Assert.assertEquals(attr.getType(), type);
+        Assert.assertTrue(Arrays.equals(attr.getVariable(), newValue.array()));
+
     }
 
     @Test
@@ -76,12 +129,80 @@ public class AttributeTest {
     
     @Test
     public void xorMappedAddressIpv4(){
+        short type = XOR_MAPPED_ADDRESS.getType();
+        short length = 4 + (32 / 8);
+        ByteBuffer buf = ByteBuffer.allocate(length);
+        byte[] addressLocal = new byte[] { 0x7f, 0x00, 0x00, 0x01};
+        buf.put(0, (byte) 0x00);
+        buf.put(1, (byte) 0x01);
+        buf.putShort(2, (short) 8080);
+        buf.put(4, addressLocal[0]);
+        buf.put(5, addressLocal[1]);
+        buf.put(6, addressLocal[2]);
+        buf.put(7, addressLocal[3]);
+        Attribute attr = Attribute.Factory.get(type, length, buf.array());
+        Assert.assertEquals(attr.getLength(), length);
+        Assert.assertEquals(attr.getType(), type);
+        Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
         
+        XorMappedAddress xorMappedAddressAttribute = (XorMappedAddress) attr;
+        Assert.assertEquals(xorMappedAddressAttribute.getPort(), 0x3e82);
+        Assert.assertTrue(Arrays.equals(xorMappedAddressAttribute.getAddress(), new byte[] {0x5e, 0x12, (byte) 0xa4, 0x43}));
+        
+        byte[] address = {-1, -1, -1, -1};
+        xorMappedAddressAttribute.setPort(xorMappedAddressAttribute.xorWithMagicCookie((short) 8000));
+        xorMappedAddressAttribute.setAddress(xorMappedAddressAttribute.xorWithMagicCookie(address));
+        
+        byte[] newValue = new byte[] {0x00, 0x01, 0x1f, 0x40, -1, -1, -1, -1};
+        Assert.assertEquals(xorMappedAddressAttribute.getLength(), length);
+        Assert.assertEquals(xorMappedAddressAttribute.getType(), type);
+        Assert.assertTrue(Arrays.equals(xorMappedAddressAttribute.getVariable(), newValue));
     }
     
     @Test
     public void xorMappedAddressIpv6(){
+        short type = XOR_MAPPED_ADDRESS.getType();
+        short length = 4 + (128 / 8);
+        InetAddress ip = null;
+        try{
+            ip = Inet6Address.getByName("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        byte[] address = ip.getAddress();
+        ByteBuffer buf = ByteBuffer.allocate(length);
+        buf.put(0, (byte) 0x00);
+        buf.put(1, (byte) 0x02);
+        buf.putShort(2, (short) 8080);
+        for(int i = 0; i < address.length; i++) {
+            buf.put(i + 4, address[i]);
+        }
+        Attribute attr = Attribute.Factory.get(type, length, buf.array());
+        Assert.assertEquals(attr.getLength(), length);
+        Assert.assertEquals(attr.getType(), type);
+        Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
         
+        XorMappedAddress xorMappedAddressAttribute = (XorMappedAddress) attr;
+        try{
+            ip = Inet6Address.getByName("5555:5555:5555:5555:5555:5555:5555:5555");
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        address = ip.getAddress();
+        xorMappedAddressAttribute.setAddress(xorMappedAddressAttribute.xorWithMagicCookie(address));
+        xorMappedAddressAttribute.setPort(xorMappedAddressAttribute.xorWithMagicCookie((short) 8000));
+        
+        ByteBuffer newValue = ByteBuffer.allocate(length);
+        newValue.put(0, (byte) 0x00);
+        newValue.put(1, (byte) 0x02);
+        newValue.putShort(2, (short) 8000);
+        for(int i = 0; i < address.length; i++) {
+            newValue.put(i + 4, address[i]);
+        }
+
+        Assert.assertEquals(attr.getLength(), length);
+        Assert.assertEquals(attr.getType(), type);
+        Assert.assertTrue(Arrays.equals(xorMappedAddressAttribute.getVariable(), newValue.array()));
     }
     
     @Test
