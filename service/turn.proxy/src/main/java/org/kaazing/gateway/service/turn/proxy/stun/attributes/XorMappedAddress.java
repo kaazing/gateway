@@ -1,8 +1,8 @@
-package org.kaazing.gateway.service.turn.proxy.stun;
+package org.kaazing.gateway.service.turn.proxy.stun.attributes;
 
 import java.nio.ByteBuffer;
 
-public class XorMappedAddress extends AddressAttribute {
+public class XorMappedAddress extends Address {
     private static final byte[] MAGIC_COOKIE = new byte[]{(byte) 0x21, (byte) 0x12, (byte) 0xA4, (byte) 0x42};
 
     public XorMappedAddress(byte[] variable) {
@@ -13,7 +13,7 @@ public class XorMappedAddress extends AddressAttribute {
 
     @Override
     public short getType() {
-        return StunMessageAttributeType.XOR_MAPPED_ADDRESS.getType();
+        return AttributeType.XOR_MAPPED_ADDRESS.getType();
     }
 
     @Override

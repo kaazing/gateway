@@ -1,11 +1,11 @@
-package org.kaazing.gateway.service.turn.proxy.stun;
+package org.kaazing.gateway.service.turn.proxy.stun.attributes;
 
-import static org.kaazing.gateway.service.turn.proxy.stun.AddressAttribute.Family.IPV4;
-import static org.kaazing.gateway.service.turn.proxy.stun.AddressAttribute.Family.IPV6;
+import static org.kaazing.gateway.service.turn.proxy.stun.attributes.Address.Family.IPV4;
+import static org.kaazing.gateway.service.turn.proxy.stun.attributes.Address.Family.IPV6;
 
 import java.util.Arrays;
 
-public abstract class AddressAttribute extends StunMessageAttribute {
+public abstract class Address extends Attribute {
 
     protected byte[] address;
     protected int port;
@@ -30,11 +30,11 @@ public abstract class AddressAttribute extends StunMessageAttribute {
             } else if (b == 0x02) {
                 return IPV6;
             }
-            throw new InvalidStunAttributeException("No address family for: " + b);
+            throw new InvalidAttributeException("No address family for: " + b);
         }
     }
 
-    public AddressAttribute(byte[] variable) {
+    public Address(byte[] variable) {
         this.family = Family.fromValue(variable[1]);
         this.setPort(((variable[2] << 8) & 0xff) + variable[3]);
         if (this.family == Family.IPV4) {
@@ -62,7 +62,7 @@ public abstract class AddressAttribute extends StunMessageAttribute {
         } else if (address.length == 8) {
             family = IPV6;
         } else {
-            throw new InvalidStunAttributeException("Address is neither IPv4 or IPv6");
+            throw new InvalidAttributeException("Address is neither IPv4 or IPv6");
         }
         this.address = address;
     }
@@ -82,7 +82,7 @@ public abstract class AddressAttribute extends StunMessageAttribute {
         } else if (address.length == 16) {
             return IPV6;
         }
-        throw new InvalidStunAttributeException("Address is not of IPv4 or IPv6 family");
+        throw new InvalidAttributeException("Address is not of IPv4 or IPv6 family");
     }
 
 }

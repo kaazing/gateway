@@ -2,6 +2,8 @@ package org.kaazing.gateway.service.turn.proxy.stun;
 
 import java.util.List;
 
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
+
 /**
  * Stun Message as defined in https://tools.ietf.org/html/rfc5389#section-6.
  *
@@ -11,12 +13,12 @@ public class StunMessage {
     private final StunMessageClass messageClass;
     private final StunMessageMethod method;
     private final byte[] transactionId;
-    private final List<StunMessageAttribute> attributes;
+    private final List<Attribute> attributes;
     public static final int MAGIC_COOKIE = 0x2112A442;
     private static final int PADDED_TO = 4;
 
     public StunMessage(StunMessageClass messageClass, StunMessageMethod method, byte[] transactionId,
-            List<StunMessageAttribute> attributes) {
+            List<Attribute> attributes) {
         this.messageClass = messageClass;
         this.method = method;
         this.transactionId = transactionId;
@@ -33,7 +35,7 @@ public class StunMessage {
 
     public short getMessageLength() {
         short length = 0;
-        for (StunMessageAttribute attribute : attributes) {
+        for (Attribute attribute : attributes) {
             length += 4;
             length += attributePaddedLength(attribute.getLength());
         }
@@ -44,7 +46,7 @@ public class StunMessage {
         return transactionId;
     }
 
-    public List<StunMessageAttribute> getAttributes() {
+    public List<Attribute> getAttributes() {
         return attributes;
     }
 

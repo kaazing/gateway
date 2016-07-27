@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
 
         buf.put(stunMessage.getTransactionId());
 
-        for (StunMessageAttribute attribute : stunMessage.getAttributes()) {
+        for (Attribute attribute : stunMessage.getAttributes()) {
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Encoding STUN attribute: " + attribute);
             }

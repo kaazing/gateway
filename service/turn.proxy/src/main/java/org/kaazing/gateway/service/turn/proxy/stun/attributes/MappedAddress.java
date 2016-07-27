@@ -1,16 +1,16 @@
-package org.kaazing.gateway.service.turn.proxy.stun;
+package org.kaazing.gateway.service.turn.proxy.stun.attributes;
 
 import java.nio.ByteBuffer;
 
-public class MappedAddressAttribute extends AddressAttribute {
+public class MappedAddress extends Address {
 
-    public MappedAddressAttribute(byte[] variable) {
+    public MappedAddress(byte[] variable) {
         super(variable);
     }
 
     @Override
     public short getType() {
-        return StunMessageAttributeType.MAPPED_ADDRESS.getType();
+        return AttributeType.MAPPED_ADDRESS.getType();
     }
 
     @Override

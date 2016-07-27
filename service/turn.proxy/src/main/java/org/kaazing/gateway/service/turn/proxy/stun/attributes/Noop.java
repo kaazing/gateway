@@ -1,12 +1,12 @@
-package org.kaazing.gateway.service.turn.proxy.stun;
+package org.kaazing.gateway.service.turn.proxy.stun.attributes;
 
-public class NoopAttribute extends StunMessageAttribute {
+public class Noop extends Attribute {
 
     private final short type;
     private final short length;
     private final byte[] variable;
 
-    public NoopAttribute(short type, short length, byte[] variable) {
+    public Noop(short type, short length, byte[] variable) {
         this.type = type;
         this.length = length;
         this.variable = variable;

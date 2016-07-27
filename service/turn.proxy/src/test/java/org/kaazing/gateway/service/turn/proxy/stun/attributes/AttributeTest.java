@@ -1,6 +1,6 @@
-package org.kaazing.gateway.service.turn.proxy.stun;
+package org.kaazing.gateway.service.turn.proxy.stun.attributes;
 
-import static org.kaazing.gateway.service.turn.proxy.stun.StunMessageAttributeType.MAPPED_ADDRESS;
+import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType.MAPPED_ADDRESS;
 
 import java.nio.ByteBuffer;
 
@@ -16,13 +16,13 @@ public class AttributeTest {
         short length = 4 + (32 / 4);
         ByteBuffer buf = ByteBuffer.allocate(4 + length);
         byte[] value = new byte[]{0x12};
-        StunMessageAttribute attr = StunMessageAttribute.Factory.get(type, length, value);
+        Attribute attr = Attribute.Factory.get(type, length, value);
         Assert.assertEquals(attr.getLength(), length);
         Assert.assertEquals(attr.getType(), type);
         // not this byte array compare is not correct, figure some way out to  compare (via API or loop)
         Assert.assertEquals(attr.getVariable(), value);
         
-        MappedAddressAttribute mappedAddressAttribute = (MappedAddressAttribute) attr;
+        MappedAddress mappedAddressAttribute = (MappedAddress) attr;
         mappedAddressAttribute.setAddress(address);
         mappedAddressAttribute.setPort(port);
         
@@ -51,6 +51,7 @@ public class AttributeTest {
     
     @Test
     public void messageIntegrity(){
+        
     }
     
     @Test

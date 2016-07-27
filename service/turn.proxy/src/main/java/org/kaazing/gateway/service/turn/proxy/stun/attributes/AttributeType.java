@@ -1,6 +1,6 @@
-package org.kaazing.gateway.service.turn.proxy.stun;
+package org.kaazing.gateway.service.turn.proxy.stun.attributes;
 
-public enum StunMessageAttributeType {
+public enum AttributeType {
     // @formatter:off
     UNKNOWN("UNKNOWN",                          (short) -0x001),
     RESERVED0("Reserved",                       (short) 0x0000),
@@ -26,7 +26,7 @@ public enum StunMessageAttributeType {
     private final String name;
     private short hexCode;
 
-    StunMessageAttributeType(String name, short type) {
+    AttributeType(String name, short type) {
         this.name = name;
         this.hexCode = type;
     }
@@ -39,7 +39,7 @@ public enum StunMessageAttributeType {
         return hexCode;
     }
 
-    public static StunMessageAttributeType valueOf(int type) {
+    public static AttributeType valueOf(int type) {
         switch (type) {
         case 0x0000:
             return RESERVED0;
@@ -78,9 +78,9 @@ public enum StunMessageAttributeType {
         case 0x8028:
             return FINGERPRINT;
         default:
-            StunMessageAttributeType result = StunMessageAttributeType.UNKNOWN;
+            AttributeType result = AttributeType.UNKNOWN;
             result.setType((short) type);
-            return StunMessageAttributeType.UNKNOWN;
+            return AttributeType.UNKNOWN;
         }
     }
 

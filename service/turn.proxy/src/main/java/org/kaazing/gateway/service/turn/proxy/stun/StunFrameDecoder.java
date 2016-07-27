@@ -10,6 +10,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.kaazing.gateway.service.turn.proxy.TurnProxyHandler;
 import org.kaazing.gateway.service.turn.proxy.TurnSessionState;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.filter.codec.CumulativeProtocolDecoderEx;
@@ -60,7 +61,7 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
             return false;
         }
 
-        List<StunMessageAttribute> attributes = decodeAttributes(in, messageLength);
+        List<Attribute> attributes = decodeAttributes(in, messageLength);
 
         StunMessage stunMessage = new StunMessage(messageClass, method, transactionId, attributes);
         in.mark();
@@ -68,8 +69,8 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
         return true;
     }
 
-    private List<StunMessageAttribute> decodeAttributes(IoBufferEx in, short remaining) {
-        List<StunMessageAttribute> stunMessageAttributes = new ArrayList<>();
+    private List<Attribute> decodeAttributes(IoBufferEx in, short remaining) {
+        List<Attribute> stunMessageAttributes = new ArrayList<>();
         // Any attribute type MAY appear more than once in a STUN message.
         // Unless specified otherwise, the order of appearance is significant:
         // only the first occurrence needs to be processed by a receiver, and
@@ -82,7 +83,7 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
             // get variable
             byte[] variable = new byte[length];
             in.get(variable);
-            stunMessageAttributes.add(StunMessageAttribute.Factory.get(type, length, variable));
+            stunMessageAttributes.add(Attribute.Factory.get(type, length, variable));
             remaining -= length;
 
             // remove padding
