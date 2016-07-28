@@ -4,6 +4,7 @@ import static org.kaazing.gateway.service.turn.proxy.stun.StunAttributeFactory.C
 
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeVisitor;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.EvenPort;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.Fingerprint;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.InvalidAttributeException;
@@ -42,30 +43,45 @@ public class StunAttributeFactory {
         case RESERVATION_TOKEN:
             return new ReservationToken(value);
         case MESSAGE_INTEGRITY:
-            if (credentialType == SHORT_TERM) {
-                return new MessageIntegrity(value);
-            } else {
-                throw new InvalidAttributeException("Longterm credential message integrity is not implemented");
-            }
+            return new MessageIntegrity(value);
         case FINGERPRINT:
             return new Fingerprint(value);
         default:
-            return new Attribute() {
-                @Override
-                public short getType() {
-                    return (short) type;
-                }
-
-                @Override
-                public short getLength() {
-                    return length;
-                }
-
-                @Override
-                public byte[] getVariable() {
-                    return value;
-                }
-            };
+            // TODO: consider hard failing if white list of attributes is not allowed
+            return new ProxyNoopAttribute((short) type, (short) length, value);
         }
     }
+}
+
+/**
+ * When we pass Attribute through proxy without modifying or needing to understand it 
+ *
+ */
+class ProxyNoopAttribute extends Attribute {
+
+    private final short type;
+    private final short length;
+    private final byte[] value;
+
+    public ProxyNoopAttribute(short type, short length, byte[] value) {
+        this.type = type;
+        this.length = length;
+        this.value = value;
+    }
+
+    @Override
+    public short getType() {
+        return (short) type;
+    }
+
+    @Override
+    public short getLength() {
+        return length;
+    }
+
+    @Override
+    public byte[] getVariable() {
+        return value;
+    }
+
 }

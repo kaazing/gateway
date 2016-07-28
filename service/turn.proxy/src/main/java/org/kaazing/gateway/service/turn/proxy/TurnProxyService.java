@@ -18,10 +18,10 @@ package org.kaazing.gateway.service.turn.proxy;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.proxy.AbstractProxyService;
 
-public class TurnProxyService extends AbstractProxyService<TurnProxyHandler>{
+public class TurnProxyService extends AbstractProxyService<TurnProxyAcceptHandler>{
 
     public static final String SERVICE_TYPE = "turn.proxy";
-    private final TurnProxyHandler turnProxyHandler = new TurnProxyHandler();
+    private final TurnProxyAcceptHandler turnProxyHandler = new TurnProxyAcceptHandler();
 
     @Override
     public String getType() {
@@ -29,7 +29,7 @@ public class TurnProxyService extends AbstractProxyService<TurnProxyHandler>{
     }
 
     @Override
-    protected TurnProxyHandler createHandler() {
+    protected TurnProxyAcceptHandler createHandler() {
         return turnProxyHandler;
     }
     

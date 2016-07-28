@@ -126,10 +126,6 @@ public class AttributeTest {
 
     @Test
     public void messageIntegrity() {
-        // We will need short term and long term, probably do two class implementations.
-        // Factory will take a config
-        // example: "user:realm:pass"
-        // hash: "0x8493fbc53ba582fb4c044c456bdc40eb"
         short type = MESSAGE_INTEGRITY.getType();
         short length = 16;
         byte[] key = new byte[]{(byte) 0x84, (byte) 0x93, (byte) 0xfb, (byte) 0xc5, (byte) 0x3b, (byte) 0xa5, (byte) 0x82,
@@ -144,8 +140,6 @@ public class AttributeTest {
         Assert.assertEquals(mesInteg.getLength(), length);
         Assert.assertEquals(mesInteg.getType(), type);
         Assert.assertTrue(Arrays.equals(mesInteg.getVariable(), key));
-
-        // TODO: Decoding of the key. @MessageIntegrity
     }
 
     @Test
@@ -241,8 +235,6 @@ public class AttributeTest {
         Assert.assertEquals(fingerprint.getLength(), length);
         Assert.assertEquals(fingerprint.getType(), type);
         Assert.assertTrue(Arrays.equals(fingerprint.getVariable(), buf.array()));
-
-        // TODO: Decoding of the key. Writing a message to get a fingerprint to test. Or just a dumby fingerprint.
     }
 
     @Test
@@ -376,7 +368,9 @@ public class AttributeTest {
 
     @Test
     public void requestedTransport() {
-        // TODO: note to DPW want to check so we can enforce it
+        // TODO: We should implement this and enforce UDP for now.
+        // https://tools.ietf.org/html/rfc5766#section-14.7
+        Assume.assumeTrue("Not implemented", true);
     }
 
     @Test

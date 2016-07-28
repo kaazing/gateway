@@ -15,15 +15,15 @@
  */
 package org.kaazing.gateway.service.turn.proxy.stun;
 
-import static org.kaazing.gateway.service.turn.proxy.stun.StunMessage.MAGIC_COOKIE;
-import static org.kaazing.gateway.service.turn.proxy.stun.StunMessage.attributePaddedLength;
+import static org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage.MAGIC_COOKIE;
+import static org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage.attributePaddedLength;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
-import org.kaazing.gateway.service.turn.proxy.TurnProxyHandler;
+import org.kaazing.gateway.service.turn.proxy.TurnProxyAcceptHandler;
 import org.kaazing.gateway.service.turn.proxy.TurnSessionState;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -43,7 +43,7 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
 
     @Override
     protected boolean doDecode(IoSession session, IoBufferEx in, ProtocolDecoderOutput out) throws Exception {
-        if (session.getAttribute(TurnProxyHandler.TURN_STATE_KEY) == TurnSessionState.ALLOCATED) {
+        if (session.getAttribute(TurnProxyAcceptHandler.TURN_STATE_KEY) == TurnSessionState.ALLOCATED) {
             // No need to decode once allocated
             out.write(in.duplicate());
             in.position(in.limit());
@@ -80,7 +80,7 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
 
         List<Attribute> attributes = decodeAttributes(in, messageLength);
 
-        StunMessage stunMessage = new StunMessage(messageClass, method, transactionId, attributes);
+        StunProxyMessage stunMessage = new StunProxyMessage(messageClass, method, transactionId, attributes);
         in.mark();
         out.write(stunMessage);
         return true;

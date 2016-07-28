@@ -23,7 +23,7 @@ import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
  * Stun Message as defined in https://tools.ietf.org/html/rfc5389#section-6.
  *
  */
-public class StunMessage {
+public class StunProxyMessage {
 
     private final StunMessageClass messageClass;
     private final StunMessageMethod method;
@@ -31,8 +31,9 @@ public class StunMessage {
     private final List<Attribute> attributes;
     public static final int MAGIC_COOKIE = 0x2112A442;
     private static final int PADDED_TO = 4;
+    private boolean modified = false;
 
-    public StunMessage(StunMessageClass messageClass, StunMessageMethod method, byte[] transactionId,
+    public StunProxyMessage(StunMessageClass messageClass, StunMessageMethod method, byte[] transactionId,
             List<Attribute> attributes) {
         this.messageClass = messageClass;
         this.method = method;
@@ -72,5 +73,21 @@ public class StunMessage {
 
     public static int attributePaddedLength(int length) {
         return ((length + PADDED_TO - 1) / PADDED_TO) * PADDED_TO;
+    }
+
+    /**
+     * Has the proxy modified the message.
+     * @return
+     */
+    public boolean isModified() {
+        return modified;
+    }
+
+    /**
+     * Set whether the proxy has modified the message;
+     * @param modified
+     */
+    public void setModified(boolean modified) {
+        this.modified = modified;
     }
 }

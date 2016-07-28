@@ -36,14 +36,14 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
 
     @Override
     public void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception {
-        if (!(message instanceof StunMessage)) {
+        if (!(message instanceof StunProxyMessage)) {
             // easiest way to avoid race condition where decoder is removed on the filter chain prior to encoder
             out.write(message);
         }
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Encoding STUN message: " + message);
         }
-        StunMessage stunMessage = (StunMessage) message;
+        StunProxyMessage stunMessage = (StunProxyMessage) message;
         ByteBuffer buf = allocator.allocate(20 + stunMessage.getMessageLength());
 
         short messageMethod = stunMessage.getMethod().getValue();
@@ -52,7 +52,7 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
 
         buf.putShort(stunMessage.getMessageLength());
 
-        buf.putInt(StunMessage.MAGIC_COOKIE);
+        buf.putInt(StunProxyMessage.MAGIC_COOKIE);
 
         buf.put(stunMessage.getTransactionId());
 
@@ -65,7 +65,7 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
             buf.putShort(length);
             byte[] variable = attribute.getVariable();
             buf.put(variable);
-            for (int i = length; i < StunMessage.attributePaddedLength(length); i++) {
+            for (int i = length; i < StunProxyMessage.attributePaddedLength(length); i++) {
                 buf.put((byte) 0x00);
             }
 

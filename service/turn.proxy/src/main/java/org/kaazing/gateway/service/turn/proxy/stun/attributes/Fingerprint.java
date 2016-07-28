@@ -17,8 +17,6 @@ package org.kaazing.gateway.service.turn.proxy.stun.attributes;
 
 import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType.FINGERPRINT;
 
-import org.kaazing.gateway.service.turn.proxy.stun.StunMessage;
-
 public class Fingerprint extends Attribute {
 
     protected byte[] value;
@@ -27,7 +25,6 @@ public class Fingerprint extends Attribute {
 
     public Fingerprint(byte[] key) {
         this.value = key;
-        // TODO: decoding of the key
     }
 
     @Override
@@ -43,10 +40,6 @@ public class Fingerprint extends Attribute {
     @Override
     public byte[] getVariable() {
         return value;
-    }
-
-    public void computeVariable(StunMessage message) {
-        // TODO update the variable
     }
 
 }

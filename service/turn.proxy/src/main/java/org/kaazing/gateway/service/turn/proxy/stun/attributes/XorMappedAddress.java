@@ -43,5 +43,4 @@ public class XorMappedAddress extends AbstractAddress {
         return byteBuffer.array();
     }
 
-
 }

@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.service.turn.proxy;
 
+import java.util.List;
+
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
@@ -23,20 +25,29 @@ import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.proxy.AbstractProxyAcceptHandler;
 import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
 import org.kaazing.gateway.service.turn.proxy.stun.StunCodecFilter;
-import org.kaazing.gateway.service.turn.proxy.stun.StunMessage;
-import org.kaazing.gateway.service.turn.proxy.stun.StunMessageClass;
-import org.kaazing.gateway.service.turn.proxy.stun.StunMessageMethod;
+import org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeVisitor;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.EvenPort;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.Fingerprint;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.MappedAddress;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.MessageIntegrity;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.ReservationToken;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorMappedAddress;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorPeerAddress;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorRelayAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TurnProxyHandler extends AbstractProxyAcceptHandler {
+public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TurnProxyHandler.class);
+    static final Logger LOGGER = LoggerFactory.getLogger(TurnProxyAcceptHandler.class);
     public static final String TURN_STATE_KEY = "turn-state";
 
     private String connectURI;
 
-    public TurnProxyHandler() {
+    public TurnProxyAcceptHandler() {
         super();
     }
 
@@ -46,7 +57,7 @@ public class TurnProxyHandler extends AbstractProxyAcceptHandler {
 
     @Override
     protected AbstractProxyHandler createConnectHandler() {
-        return new ConnectHandler();
+        return new TurnProxyConnectHandler(this);
     }
 
     @Override
@@ -69,24 +80,61 @@ public class TurnProxyHandler extends AbstractProxyAcceptHandler {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Recieved message [%s] from [%s] ", message, session);
         }
-        super.messageReceived(session, message);
-    }
-
-    class ConnectHandler extends AbstractProxyHandler {
-
-        @Override
-        public void messageReceived(IoSession session, Object message) {
-            if (session.getAttribute(TURN_STATE_KEY) != TurnSessionState.ALLOCATED && message instanceof StunMessage) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Recieved message [%s] from [%s] ", message, session);
-                }
-                StunMessage stunMessage = (StunMessage) message;
-                if (stunMessage.getMethod() == StunMessageMethod.ALLOCATE
-                        && stunMessage.getMessageClass() == StunMessageClass.RESPONSE) {
-                    session.setAttribute(TURN_STATE_KEY, TurnSessionState.ALLOCATED);
-                }
+        // TODO for efficiency change from loop to perhaps map or set:
+        if (message instanceof StunProxyMessage) {
+            StunProxyMessage stunProxyMessage = (StunProxyMessage) message;
+            for (Attribute attr : stunProxyMessage.getAttributes()) {
+                    attr.accept(new AcceptHandlerMessageReceivedVisitor());
             }
             super.messageReceived(session, message);
+        }
+    }
+
+    private final class AcceptHandlerMessageReceivedVisitor implements AttributeVisitor {
+        @Override
+        public void visit(MappedAddress mappedAddress) {
+            
+        }
+
+        @Override
+        public void visit(XorMappedAddress xorMappedAddress) {
+            
+        }
+
+        @Override
+        public void visit(XorRelayAddress xorRelayAddress) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void visit(XorPeerAddress xorPeerAddress) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void visit(ReservationToken reservationToken) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void visit(MessageIntegrity messageIntegrity) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void visit(Fingerprint fingerprint) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void visit(EvenPort evenPort) {
+            // TODO Auto-generated method stub
+            
         }
     }
 
