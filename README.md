@@ -38,7 +38,7 @@ See Kaazing Gateway on [Docker Hub](https://registry.hub.docker.com/u/kaazing/ga
 
 ## Requirements for building the project
 * Java 8 JDK or higher
-* Apache Maven 3.2.3 or higher, with the recommended settings:
+* Apache Maven 3.0.5 or higher, with the recommended settings:
 
   `MAVEN_OPTS="-Xms768m -Xmx768m -XX:MaxPermSize=768m"`
 
