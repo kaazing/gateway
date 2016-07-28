@@ -17,6 +17,8 @@ package org.kaazing.gateway.service.turn.proxy.stun.attributes;
 
 import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType.MESSAGE_INTEGRITY;
 
+import org.kaazing.gateway.service.turn.proxy.stun.StunMessage;
+
 public class MessageIntegrity extends Attribute {
 
     private String username;
@@ -54,6 +56,10 @@ public class MessageIntegrity extends Attribute {
     
     public String getPassword() {
         return password;
+    }
+    
+    public void computeVariable(StunMessage message){
+        // TODO update the varialbe
     }
 
 }

@@ -15,10 +15,13 @@
  */
 package org.kaazing.gateway.service.turn.proxy.stun;
 
+import static org.kaazing.gateway.service.turn.proxy.stun.StunAttributeFactory.CredentialType.SHORT_TERM;
+
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
+import org.kaazing.gateway.service.turn.proxy.stun.StunAttributeFactory.CredentialType;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
@@ -30,6 +33,11 @@ public class StunCodecFilter extends ProtocolCodecFilter {
     }
     
     private static class TurnCodecFactory implements ProtocolCodecFactory{
+
+        /**
+         * Always will be short term credentials, TODO init properly here
+         */
+        private StunAttributeFactory stunAttributeFactory = new StunAttributeFactory(SHORT_TERM);
 
         @Override
         public ProtocolEncoder getEncoder(IoSession session) throws Exception {
@@ -43,7 +51,7 @@ public class StunCodecFilter extends ProtocolCodecFilter {
         public ProtocolDecoder getDecoder(IoSession session) throws Exception {
             IoSessionEx sessionEx = (IoSessionEx) session;
             IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
-            return new StunFrameDecoder(allocator);
+            return new StunFrameDecoder(stunAttributeFactory, allocator);
         }
         
     }

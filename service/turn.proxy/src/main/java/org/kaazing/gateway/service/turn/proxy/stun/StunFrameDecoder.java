@@ -34,9 +34,11 @@ import org.slf4j.LoggerFactory;
 
 public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
     private static final Logger LOGGER = LoggerFactory.getLogger("service.turn.proxy");
+    private final StunAttributeFactory stunAttributeFactory;
 
-    public StunFrameDecoder(IoBufferAllocatorEx<?> allocator) {
+    public StunFrameDecoder(StunAttributeFactory stunAttributeFactory, IoBufferAllocatorEx<?> allocator) {
         super(allocator);
+        this.stunAttributeFactory = stunAttributeFactory;
     }
 
     @Override
@@ -98,7 +100,7 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
             // get variable
             byte[] variable = new byte[length];
             in.get(variable);
-            stunMessageAttributes.add(StunAttributeFactory.get(type, length, variable));
+            stunMessageAttributes.add(stunAttributeFactory.get(type, length, variable));
             remaining -= length;
 
             // remove padding

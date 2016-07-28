@@ -37,10 +37,13 @@ import org.kaazing.gateway.service.turn.proxy.stun.StunAttributeFactory;
 
 public class AttributeTest {
 
+    // TODO no longer static Attribute factory
+    
     @BeforeClass
     public void init(){
         // Move address to private and init here
         // TODO addresses
+        
     }
 
     @Test
@@ -123,7 +126,7 @@ public class AttributeTest {
 
     @Test
     public void noopAttribute() {
-
+        // TODO with any random not implemented attribute (or create your own)
     }
 
     @Test
@@ -133,6 +136,8 @@ public class AttributeTest {
 
     @Test
     public void messageIntegrity() {
+        // We will need short term and long term, probably do two class implementations.  
+        // Factory will take a config 
         // example: "user:realm:pass"
         // hash: "0x8493fbc53ba582fb4c044c456bdc40eb"
         short type = MESSAGE_INTEGRITY.getType();
@@ -255,7 +260,7 @@ public class AttributeTest {
 
     @Test
     public void fingerprint() {
-
+        // Need to implement
     }
 
     @Test
