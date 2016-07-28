@@ -1,13 +1,9 @@
 package org.kaazing.gateway.service.turn.proxy.stun;
 
-import static org.kaazing.gateway.service.turn.proxy.stun.StunAttributeFactory.CredentialType.SHORT_TERM;
-
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeVisitor;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.EvenPort;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.Fingerprint;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.InvalidAttributeException;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.MappedAddress;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.MessageIntegrity;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.ReservationToken;

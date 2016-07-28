@@ -80,62 +80,14 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Recieved message [%s] from [%s] ", message, session);
         }
-        // TODO for efficiency change from loop to perhaps map or set:
+        // TODO for efficiency consider using map, set, or visitor pattern.
         if (message instanceof StunProxyMessage) {
             StunProxyMessage stunProxyMessage = (StunProxyMessage) message;
             for (Attribute attr : stunProxyMessage.getAttributes()) {
-                    attr.accept(new AcceptHandlerMessageReceivedVisitor());
             }
             super.messageReceived(session, message);
         }
-    }
 
-    private final class AcceptHandlerMessageReceivedVisitor implements AttributeVisitor {
-        @Override
-        public void visit(MappedAddress mappedAddress) {
-            
-        }
-
-        @Override
-        public void visit(XorMappedAddress xorMappedAddress) {
-            
-        }
-
-        @Override
-        public void visit(XorRelayAddress xorRelayAddress) {
-            // TODO Auto-generated method stub
-            
-        }
-
-        @Override
-        public void visit(XorPeerAddress xorPeerAddress) {
-            // TODO Auto-generated method stub
-            
-        }
-
-        @Override
-        public void visit(ReservationToken reservationToken) {
-            // TODO Auto-generated method stub
-            
-        }
-
-        @Override
-        public void visit(MessageIntegrity messageIntegrity) {
-            // TODO Auto-generated method stub
-            
-        }
-
-        @Override
-        public void visit(Fingerprint fingerprint) {
-            // TODO Auto-generated method stub
-            
-        }
-
-        @Override
-        public void visit(EvenPort evenPort) {
-            // TODO Auto-generated method stub
-            
-        }
     }
 
     /*
