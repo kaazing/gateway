@@ -1,45 +1,36 @@
+/**
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.kaazing.gateway.service.turn.proxy.stun.attributes;
 
+/**
+ * Stun Attribute.
+ *
+ */
 public abstract class Attribute {
 
-    public static class Factory {
-
-        private Factory() {
-            super();
-        }
-
-        public static Attribute get(int type, short length, byte[] value) {
-            switch (AttributeType.valueOf(type)) {
-            case MAPPED_ADDRESS:
-                return new MappedAddress(value);
-            case XOR_MAPPED_ADDRESS:
-                return new XorMappedAddress(value);
-            case XOR_PEER_ADDRESS:
-                return new XorPeerAddress(value);
-            case XOR_RELAY_ADDRESS:
-                return new XorRelayAddress(value);
-            case EVEN_PORT:
-                return new EvenPort(value);
-            case RESERVATION_TOKEN:
-                return new ReservationToken(value);
-            case MESSAGE_INTEGRITY:
-                return new MessageIntegrity(value);
-            default:
-                return new Noop((short) type, length, value);
-            }
-        }
-    }
-
     public abstract short getType();
+
+    public abstract short getLength();
+
+    public abstract byte[] getVariable();
 
     @Override
     public String toString() {
         int type = getType();
         return String.format("%s", AttributeType.valueOf(type));
     }
-
-    public abstract short getLength();
-
-    public abstract byte[] getVariable();
 
 }

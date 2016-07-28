@@ -1,9 +1,25 @@
+/**
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.kaazing.gateway.service.turn.proxy.stun.attributes;
+
+import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType.XOR_MAPPED_ADDRESS;
 
 import java.nio.ByteBuffer;
 
-public class XorMappedAddress extends Address {
-    private static final byte[] MAGIC_COOKIE = new byte[]{(byte) 0x21, (byte) 0x12, (byte) 0xA4, (byte) 0x42};
+public class XorMappedAddress extends AbstractAddress {
 
     public XorMappedAddress(byte[] variable) {
         super(variable);
@@ -13,7 +29,7 @@ public class XorMappedAddress extends Address {
 
     @Override
     public short getType() {
-        return AttributeType.XOR_MAPPED_ADDRESS.getType();
+        return XOR_MAPPED_ADDRESS.getType();
     }
 
     @Override
@@ -27,15 +43,5 @@ public class XorMappedAddress extends Address {
         return byteBuffer.array();
     }
 
-    short xorWithMagicCookie(short s) {
-        return (short) (s ^ 0x2112);
-    }
 
-    byte[] xorWithMagicCookie(byte[] bytes) {
-        byte[] temp = bytes.clone();
-        for (int i = 0; i < temp.length; i++) {
-            temp[i] = (byte) (temp[i] ^ MAGIC_COOKIE[i % 4]);
-        }
-        return temp;
-    }
 }
