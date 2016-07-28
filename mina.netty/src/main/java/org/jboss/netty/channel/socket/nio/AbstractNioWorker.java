@@ -54,13 +54,10 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
@@ -70,7 +67,6 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.ReceiveBufferSizePredictor;
 import org.jboss.netty.channel.socket.Worker;
 import org.jboss.netty.channel.socket.nio.SocketSendBufferPool.SendBuffer;
 import org.jboss.netty.logging.InternalLogger;
@@ -95,7 +91,7 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
     private final DefaultWriteCompletionEventEx writeCompletionEvent = new DefaultWriteCompletionEventEx();
 
     private final OneToOneRingBuffer ringBuffer;
-    private final Int2ObjectHashMap<Channel> childChannels;
+    private final Int2ObjectHashMap<Channel> channels;
     private final AtomicBuffer atomicBuffer = new UnsafeBuffer(new byte[0]);
     private final IdleStrategy idleStrategy = new BackoffIdleStrategy(50, 50, 10000, 20000);
 
@@ -107,7 +103,7 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
         super(executor, determiner);
         ByteBuffer byteBuffer = ByteBuffer.allocateDirect((16 * 1024) + TRAILER_LENGTH);
         ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(byteBuffer));
-        childChannels = new Int2ObjectHashMap<>();
+        channels = new Int2ObjectHashMap<>();
     }
 
     @Override
@@ -600,12 +596,14 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
      */
     protected abstract boolean read(SelectionKey k);
 
-    void deregister(final AbstractNioChannel<?> channel) {
+    public void deregister(final AbstractNioChannel<?> channel) {
         // avoid modifying selected keys from process(select)
         // use processTasks instead
         registerTask(new Runnable() {
             @Override
             public void run() {
+                channels.remove(channel.getId().intValue());
+
                 SelectionKey key = channel.channel.keyFor(selector);
                 if (key != null) {
                     key.cancel();
@@ -625,7 +623,7 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
         });
     }
 
-    void register(final AbstractNioChannel<?> channel) {
+    public void register(final AbstractNioChannel<?> channel) {
         // avoid modifying selected keys from process(select)
         // use processTasks instead
         registerTask(new Runnable() {
@@ -633,6 +631,10 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
             @Override
             public void run() {
                 try {
+                    channels.put(channel.getId().intValue(), channel);
+
+                    // TODO some channels no need to register with selector
+
                     // ensure channel.writeSuspended cannot remain true due to race
                     // note: setOpWrite is a no-op before selectionKey is registered w/ selector
                     int rawInterestOps = channel.getRawInterestOps();
@@ -645,18 +647,6 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
                     close(channel, succeededFuture(channel));
                 }
             }
-        });
-    }
-
-    public void register(NioChildDatagramChannel childChannel) {    // TODO no datagram specific
-        registerTask(() -> {
-            childChannels.put(childChannel.getId().intValue(), childChannel);
-        });
-    }
-
-    public void deregister(NioChildDatagramChannel childChannel) {
-        registerTask(() -> {
-            childChannels.remove(childChannel.getId().intValue());
         });
     }
 
@@ -683,12 +673,12 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
     }
 
     private void handleRead(int msgTypeId, DirectBuffer buffer, int index, int length) {
-        Channel childChannel = childChannels.get(msgTypeId);
+        Channel childChannel = channels.get(msgTypeId);
         if (childChannel == null) {
             // register task may still be in the task queue, so this gives the register task a chance
             // to complete rather than effectively dropping the UDP packet.
             processTaskQueue();
-            childChannel = childChannels.get(msgTypeId);
+            childChannel = channels.get(msgTypeId);
         }
 
         if (childChannel != null) {
