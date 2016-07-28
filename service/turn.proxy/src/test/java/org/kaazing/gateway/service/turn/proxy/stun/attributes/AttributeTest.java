@@ -25,18 +25,27 @@ import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeTy
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import org.junit.Assert;
 import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kaazing.gateway.service.turn.proxy.stun.StunAttributeFactory;
 
 public class AttributeTest {
 
+    @BeforeClass
+    public void init(){
+        // Move address to private and init here
+        // TODO addresses
+    }
+
     @Test
     public void mappedAddressIpv4() {
+        // Construct Attribute
         short type = MAPPED_ADDRESS.getType();
         short length = 4 + (32 / 8);
         ByteBuffer buf = ByteBuffer.allocate(length);
@@ -48,16 +57,24 @@ public class AttributeTest {
         buf.put(5, addressLocal[1]);
         buf.put(6, addressLocal[2]);
         buf.put(7, addressLocal[3]);
+        
+        // Assert constructed
         Attribute attr = StunAttributeFactory.get(type, length, buf.array());
         Assert.assertEquals(attr.getLength(), length);
         Assert.assertEquals(attr.getType(), type);
         Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
 
+        // Test Mapped Attribute setters
         MappedAddress mappedAddressAttribute = (MappedAddress) attr;
         byte[] address = {-1, -1, -1, -1};
         mappedAddressAttribute.setAddress(address);
         mappedAddressAttribute.setPort(8000);
 
+        // Assert Mapped Attribute Characteristics ok
+        // TODO assert getters specific to mapped attribute
+        mappedAddressAttribute.getAddress();
+        
+        // Assert Attribute ok
         byte[] newValue = new byte[]{0x00, 0x01, 0x1f, 0x40, -1, -1, -1, -1};
         Assert.assertEquals(attr.getLength(), length);
         Assert.assertEquals(attr.getType(), type);
@@ -66,15 +83,11 @@ public class AttributeTest {
     }
 
     @Test
-    public void mappedAddressIpv6() {
+    public void mappedAddressIpv6() throws UnknownHostException {
         short type = MAPPED_ADDRESS.getType();
         short length = 4 + (128 / 8);
         InetAddress ip = null;
-        try {
-            ip = Inet6Address.getByName("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        ip = Inet6Address.getByName("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
         byte[] address = ip.getAddress();
         ByteBuffer buf = ByteBuffer.allocate(length);
         buf.put(0, (byte) 0x00);
@@ -89,11 +102,7 @@ public class AttributeTest {
         Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
 
         MappedAddress mappedAddressAttribute = (MappedAddress) attr;
-        try {
-            ip = Inet6Address.getByName("5555:5555:5555:5555:5555:5555:5555:5555");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        ip = Inet6Address.getByName("5555:5555:5555:5555:5555:5555:5555:5555");
         address = ip.getAddress();
         mappedAddressAttribute.setAddress(address);
         mappedAddressAttribute.setPort(8000);
@@ -114,7 +123,7 @@ public class AttributeTest {
 
     @Test
     public void noopAttribute() {
-        // TODO, Kaazing NOOP Attribute which catches all unimplemented
+
     }
 
     @Test
@@ -200,16 +209,10 @@ public class AttributeTest {
     }
 
     @Test
-    public void xorMappedAddressIpv6() {
+    public void xorMappedAddressIpv6() throws UnknownHostException {
         short type = XOR_MAPPED_ADDRESS.getType();
         short length = 4 + (128 / 8);
-        InetAddress ip = null;
-        try {
-            ip = Inet6Address.getByName("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        byte[] address = ip.getAddress();
+        byte[] address = Inet6Address.getByName("2001:0db8:85a3:0000:0000:8a2e:0370:7334").getAddress();
         ByteBuffer buf = ByteBuffer.allocate(length);
         buf.put(0, (byte) 0x00);
         buf.put(1, (byte) 0x02);
@@ -223,12 +226,7 @@ public class AttributeTest {
         Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
 
         XorMappedAddress xorMappedAddressAttribute = (XorMappedAddress) attr;
-        try {
-            ip = Inet6Address.getByName("5555:5555:5555:5555:5555:5555:5555:5555");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        address = ip.getAddress();
+        address = Inet6Address.getByName("5555:5555:5555:5555:5555:5555:5555:5555").getAddress();
         xorMappedAddressAttribute.setAddress(xorMappedAddressAttribute.xorWithMagicCookie(address));
         xorMappedAddressAttribute.setPort(xorMappedAddressAttribute.xorWithMagicCookie((short) 8000));
 
@@ -303,15 +301,11 @@ public class AttributeTest {
     }
 
     @Test
-    public void xorPeerAddressIPv6() {
+    public void xorPeerAddressIPv6() throws UnknownHostException {
         short type = XOR_PEER_ADDRESS.getType();
         short length = 4 + (128 / 8);
         InetAddress ip = null;
-        try {
-            ip = Inet6Address.getByName("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        ip = Inet6Address.getByName("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
         byte[] address = ip.getAddress();
         ByteBuffer buf = ByteBuffer.allocate(length);
         buf.put(0, (byte) 0x00);
@@ -326,11 +320,7 @@ public class AttributeTest {
         Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
 
         XorPeerAddress xorPeerAddressAttribute = (XorPeerAddress) attr;
-        try {
-            ip = Inet6Address.getByName("5555:5555:5555:5555:5555:5555:5555:5555");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        ip = Inet6Address.getByName("5555:5555:5555:5555:5555:5555:5555:5555");
         address = ip.getAddress();
         xorPeerAddressAttribute.setAddress(xorPeerAddressAttribute.xorWithMagicCookie(address));
         xorPeerAddressAttribute.setPort(xorPeerAddressAttribute.xorWithMagicCookie((short) 8000));
@@ -386,15 +376,11 @@ public class AttributeTest {
     }
 
     @Test
-    public void xorRelayAddressIPv6() {
+    public void xorRelayAddressIPv6() throws UnknownHostException {
         short type = XOR_RELAY_ADDRESS.getType();
         short length = 4 + (128 / 8);
         InetAddress ip = null;
-        try {
-            ip = Inet6Address.getByName("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        ip = Inet6Address.getByName("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
         byte[] address = ip.getAddress();
         ByteBuffer buf = ByteBuffer.allocate(length);
         buf.put(0, (byte) 0x00);
@@ -409,11 +395,7 @@ public class AttributeTest {
         Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
 
         XorRelayAddress xorRelayAddressAttribute = (XorRelayAddress) attr;
-        try {
-            ip = Inet6Address.getByName("5555:5555:5555:5555:5555:5555:5555:5555");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        ip = Inet6Address.getByName("5555:5555:5555:5555:5555:5555:5555:5555");
         address = ip.getAddress();
         xorRelayAddressAttribute.setAddress(xorRelayAddressAttribute.xorWithMagicCookie(address));
         xorRelayAddressAttribute.setPort(xorRelayAddressAttribute.xorWithMagicCookie((short) 8000));
