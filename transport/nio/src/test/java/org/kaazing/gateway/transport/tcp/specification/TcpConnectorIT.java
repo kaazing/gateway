@@ -166,7 +166,6 @@ public class TcpConnectorIT {
         k3po.finish();
     }
 
-    @Ignore("https://github.com/kaazing/tickets/issues/538")
     @Test
     @Specification({
         "server.close/server"
