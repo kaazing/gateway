@@ -15,10 +15,19 @@
  */
 package org.kaazing.gateway.service.turn.rest;
 
-public interface TurnRestCredentials {
-
-    public String getUsername();
+public final class TurnRestJSONResponse {
     
-    public char[] getPassword();
-
+    private TurnRestJSONResponse() {   
+    }
+    
+    public static String createResponse(String username, char[] password, String ttl, String uris) {
+        String response = "";
+        if (username != null && password != null) {
+            response = "{\"username\":\"" + username + "\",\"password\":\"" 
+                    + String.valueOf(password) + "\",";
+        }
+        response = response + "\"ttl\":" + ttl + ",\"uris\":[" + uris + "]}";
+        return response;
+    }
+    
 }

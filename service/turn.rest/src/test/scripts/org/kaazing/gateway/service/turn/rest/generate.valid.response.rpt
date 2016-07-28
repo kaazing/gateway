@@ -20,18 +20,15 @@ connected
 write method "GET"
 write version "HTTP/1.1"
 write header host
+write header "Max-Age" "86400"
 write parameter "service" "turn"
-write parameter "username" "mbzrxpgjys"
+write header "Authorization" "Basic dXNlcm5hbWU6" 
 write notify BARRIER
 
 read await BARRIER
-read status "200" "OK"
 read version "HTTP/1.1"
 read header "Content-Type" "application/json"
 read header "Content-Length" /.*/
-
-# Confirm that credentials response has been received.
-read /.*/
 
 close
 closed

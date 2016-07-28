@@ -15,17 +15,12 @@
  */
 package org.kaazing.gateway.service.turn.rest;
 
-import java.util.List;
-
-import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceFactory;
-import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class TurnRestServiceTest {
@@ -40,40 +35,4 @@ public class TurnRestServiceTest {
         Assert.assertNotNull("Failed to create TURN REST Service", service);
     }
     
-    @Test
-    public void initializesCredentialGenerator() throws Exception {
-        final ServiceContext serviceContext = mockery.mock(ServiceContext.class);
-        final ServiceProperties properties = mockery.mock(ServiceProperties.class, "properties");
-        final List<ServiceProperties> optionsList = mockery.mock(List.class, "optionsList");
-        final ServiceProperties options = mockery.mock(ServiceProperties.class, "options");
-        final List<ServiceProperties> urisList = mockery.mock(List.class, "urisList");
-        final ServiceProperties uris = mockery.mock(ServiceProperties.class, "uris");
-        
-        mockery.checking(new Expectations() {
-            {
-                allowing(serviceContext).getProperties();
-                will(returnValue(properties));
-                allowing(properties).get(with("generate.credentials"));
-                will(returnValue("class:org.kaazing.gateway.service.turn.rest.TestCredentialGenerator"));
-                allowing(properties).getNested(with("options"));
-                will(returnValue(optionsList));
-                allowing(optionsList).get(with(0));
-                will(returnValue(options));
-                allowing(options).get(with("secret"));
-                will(returnValue(new String()));
-                allowing(options).get(with("symbol"));
-                will(returnValue(new String()));
-                allowing(options).getNested(with("uris"));
-                will(returnValue(urisList));
-                allowing(urisList).get(with(0));
-                will(returnValue(uris));
-                allowing(uris).get(with("uri"));
-                will(returnValue(new String()));
-            }
-        });
-        
-        TurnRestService service = (TurnRestService)ServiceFactory.newServiceFactory().newService("turn.rest");
-        service.init(serviceContext);
-        mockery.assertIsSatisfied();
-    }
 }

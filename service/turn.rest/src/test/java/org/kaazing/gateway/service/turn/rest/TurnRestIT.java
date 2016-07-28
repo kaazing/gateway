@@ -17,37 +17,71 @@ package org.kaazing.gateway.service.turn.rest;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
+import java.io.FileInputStream;
+import java.security.KeyStore;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class TurnRestIT {
-
     private static final String ACCEPT_URL = "http://localhost:8000/";
 
     private final K3poRule robot = new K3poRule();
 
     private final GatewayRule gateway = new GatewayRule() {
         {
+            KeyStore keyStore = null;
+            char[] password = "ab987c".toCharArray();
+            try {
+                FileInputStream fileInStr = new FileInputStream(System.getProperty("user.dir")
+                        + "/target/truststore/keystore.db");
+                keyStore = KeyStore.getInstance("JCEKS");
+                keyStore.load(fileInStr, "ab987c".toCharArray());
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
             // @formatter:off
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
                             .accept(ACCEPT_URL)
                             .type("turn.rest")
-                            .property("generate.credentials", "class:" + TestCredentialGenerator.class.getName())
+                            .realmName("turn")
+                                .authorization()
+                                .requireRole("username")
+                            .done()
+                            .property(EarlyAccessFeatures.TURN_REST_SERVICE.getPropertyName(), "true")
+                            .property("generate.credentials", "class:" + TestCredentialsGenerator.class.getName())
+                            .nestedProperty("uris")
+                                .property("uri", "uri1")
+                                .property("uri", "uri2")
+                                .property("uri", "uri3")
+                            .done()
                             .nestedProperty("options")
-                                .property("secret", "secret")
-                                .property("symbol", ":")
-                                .nestedProperty("uris")
-                                    .property("uri", "uri1")
-                                    .property("uri", "uri2")
-                                    .property("uri", "uri3")
+                                .property("credentials.ttl", "43200")
+                                .property("key.alias", "localhost")
+                                .property("username.separator", ":")
+                            .done()
+                        .done()
+                        .security()
+                            .keyStore(keyStore)
+                            .keyStorePassword(password)
+                            .realm()
+                                .name("turn")
+                                .description("TURN REST Login Module Test")
+                                .httpChallengeScheme("Basic")
+                                .loginModule()
+                                    .type("class:" + TestLoginModule.class.getName())
+                                    .success("requisite")
+                                    .option("roles", "username")
                                 .done()
                             .done()
                         .done()
@@ -56,10 +90,10 @@ public class TurnRestIT {
             init(configuration);
         }
     };
-    
+
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
-
+    
     @Specification("generate.valid.response")
     @Test
     public void generateValidResponse() throws Exception {
@@ -68,7 +102,7 @@ public class TurnRestIT {
     
     @Specification("invalid.service.parameter")
     @Test
-    public void testInvalidServiceParameter() throws Exception {
+    public void closeOnInvalidServiceParameter() throws Exception {
         robot.finish();
     }
 }

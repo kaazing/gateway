@@ -16,6 +16,9 @@
 package org.kaazing.gateway.service.turn.rest;
 
 import java.nio.charset.StandardCharsets;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.util.Arrays;
 
 import javax.security.auth.Subject;
 
@@ -26,19 +29,21 @@ import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpVersion;
-import org.kaazing.gateway.transport.ws.util.WsUtils;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 
 class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
     
     private ServiceProperties options;
-    private TurnRestCredentialGenerator credentialGenerator;
+    private KeyStore keystore;
+    private TurnRestCredentialsGenerator credentialGenerator;
+    private String uris;
 
-    TurnRestServiceHandler(TurnRestCredentialGenerator credentialGenerator, ServiceProperties options) {
-        this.credentialGenerator = credentialGenerator;
+    TurnRestServiceHandler(ServiceProperties options, KeyStore keystore, TurnRestCredentialsGenerator credentialGenerator, String uris) {
         this.options = options;
-        credentialGenerator.init(options);
+        this.keystore = keystore;
+        this.credentialGenerator = credentialGenerator;
+        this.uris = uris;
     }
 
     @Override
@@ -46,6 +51,10 @@ class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
         HttpMethod method = session.getMethod();
         String service = session.getParameter("service");
         
+        String ttl = options.get("credentials.ttl");
+        Certificate alias = keystore.getCertificate(options.get("key.alias"));
+        char separator = options.get("username.separator").charAt(0);
+                
         if (method != HttpMethod.GET) {
             session.setStatus(HttpStatus.CLIENT_METHOD_NOT_ALLOWED);
             session.close(false);
@@ -56,52 +65,41 @@ class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
             throw new IllegalArgumentException("Unsupported/invalid service: " + service);
         }
 
-        String parameterUsername = session.getParameter("username");
+        session.setVersion(HttpVersion.HTTP_1_1);
+        session.setWriteHeader(HttpHeaders.HEADER_CONTENT_TYPE, "application/json");
+        
         Subject subject = session.getSubject();
         
-        setResponseHeaders(session, parameterUsername, subject);
+        if (ttl == null) {
+            ttl = session.getParameter("Max-Age");
+        }
+
+        TurnRestCredentials credentials = null;
+        if (credentialGenerator != null) {
+            credentialGenerator.setCredentialsTTL(ttl);
+            credentialGenerator.setKeyAlias(alias);
+            credentialGenerator.setUsernameSeparator(separator);
+            credentials = credentialGenerator.generate(subject);
+        }
         
-        TurnRestCredentials response = credentialGenerator.generateCredentials(parameterUsername, subject);
-        String responseString = response.getResponseString(); 
-        CharSequence responseChars = responseString;
+        String username = credentials.getUsername();
+        char[] password = credentials.getPassword();
+        String response = TurnRestJSONResponse.createResponse(username, password, ttl, this.uris); 
+        CharSequence responseChars = response;
+        Arrays.fill(password, '0');
         
         // get io buffer for file
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        IoBufferEx out = allocator.wrap(allocator.allocate(responseString.length())).setAutoExpander(allocator);
-        out.put(responseString.getBytes());
+        IoBufferEx out = allocator.wrap(allocator.allocate(response.length())).setAutoExpander(allocator);
+        out.put(response.getBytes());
         out.putString(responseChars, StandardCharsets.UTF_8.newEncoder());
-
+       
         // add content length
         session.setWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, Integer.toString(out.remaining()));
 
         // write buffer and close session
         session.write(out);    
         session.close(false);
-    }
-    
-    /**
-     * 
-     * @param session username passed in as HTTP parameter if present, null otherwise
-     * @param parameterUsername
-     */
-    private void setResponseHeaders(HttpAcceptSession session, String parameterUsername, Subject subject) {
-        if (parameterUsername != null) {
-            session.setStatus(HttpStatus.SUCCESS_OK);
-        } else if (subject != null) {
-            String wsKey = session.getReadHeader("Sec-WebSocket-Key");
-            String wsAccept = WsUtils.acceptHash(wsKey);
-            
-            session.setStatus(HttpStatus.INFO_SWITCHING_PROTOCOLS);
-            session.setWriteHeader(HttpHeaders.HEADER_CONNECTION, "Upgrade");
-            session.setWriteHeader("Sec-WebSocket-Accept", wsAccept);
-            session.setWriteHeader("Server", "Kaazing Gateway");
-            session.setWriteHeader(HttpHeaders.HEADER_UPGRADE, "websocket");
-        } else {
-            session.close(false);
-            throw new IllegalArgumentException("Missing username parameter or Subject");
-        }
-        session.setVersion(HttpVersion.HTTP_1_1);
-        session.setWriteHeader(HttpHeaders.HEADER_CONTENT_TYPE, "application/json");
     }
     
 }

@@ -15,24 +15,36 @@
  */
 package org.kaazing.gateway.service.turn.rest;
 
+import java.security.cert.Certificate;
+
 import javax.security.auth.Subject;
 
-import org.kaazing.gateway.service.ServiceProperties;
-
-public interface TurnRestCredentialGenerator {
+public interface TurnRestCredentialsGenerator {
     
     /**
      * 
-     * @param options nested property containing a shared secret key, timestamp/username
-     * separator to be used in the generated username, etc.  
+     * @param ttl the time in seconds for which the credentials are valid
      */
-    public void init(ServiceProperties options);
+    public void setCredentialsTTL(String ttl);
+    
+    /**
+     * 
+     * @param alias the name of the certificate containing the shared
+     * secret key
+     */
+    public void setKeyAlias(Certificate alias);
+    
+    /**
+     * 
+     * @param separator character in the generated username separating
+     * the expiration timestamp from the Subject username
+     */
+    public void setUsernameSeparator(char separator);
 
     /**
      * 
-     * @param parameterUsername username passed in as HTTP parameter if present, null otherwise 
      * @param subject Subject representing the currently logged in user
      * @return TurnRestCredentials object 
      */
-    public TurnRestCredentials generateCredentials(String parameterUsername, Subject subject);
+    public TurnRestCredentials generate(Subject subject);
 }

@@ -15,21 +15,14 @@
  */
 package org.kaazing.gateway.service.turn.rest;
 
-public class TestCredentials implements TurnRestCredentials {
+public class DefaultTurnRestCredentials implements TurnRestCredentials {
 
     private String username;
-    private String password;
-    private long ttl;
-    private String uris;
-    private String responseString;
+    private char[] password;
     
-    TestCredentials(String username, String password, long ttl, String uris) {
+    DefaultTurnRestCredentials(String username, char[] password) {
         this.username = username;
         this.password = password;
-        this.ttl = ttl;
-        this.uris = uris;
-        this.responseString = "{\"username\":\"" + this.username + "\",\"password\":\"" 
-                + this.password + "\",\"ttl\":" + ttl + ",\"uris\":[" + this.uris + "]}";
     }
     
     @Override
@@ -38,23 +31,8 @@ public class TestCredentials implements TurnRestCredentials {
     }
 
     @Override
-    public String getPassword() {
+    public char[] getPassword() {
         return this.password;
-    }
-
-    @Override
-    public long getTTL() {
-        return this.ttl;
-    }
-
-    @Override
-    public String getURIs() {
-        return this.uris;
-    }
-
-    @Override
-    public String getResponseString() {
-        return this.responseString;
     }
 
 }
