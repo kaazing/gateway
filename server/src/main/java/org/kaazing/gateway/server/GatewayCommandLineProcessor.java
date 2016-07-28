@@ -45,8 +45,6 @@ public class GatewayCommandLineProcessor {
 
     private static final String HELP_ARG = "help";
 
-    private static final String SCRIPT_ARG = "script-arg";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(GatewayCommandLineProcessor.class);
 
     private HelpFormatter helpFormatter;
@@ -132,21 +130,18 @@ public class GatewayCommandLineProcessor {
         // since this argument is internal, we shouldn't be using it
         for (Object o : options.getOptions()) {
             Option o1 = (Option) o;
-            
-            if (!o1.getLongOpt().equals(SCRIPT_ARG)) {
-                all_opt.addOption(o1);
-            } 
+            all_opt.addOption(o1);
         }
 
         // also, get the file that has documentation for the values parsed in the launching script
-        File helpScript = getScriptedOptsFile(cmd);
+        File helpScript = getScriptedOptsFile();
         appendScriptedOptions(helpScript, all_opt);
         helpFormatter.printHelp("gateway.start", all_opt, true);
     }
 
-    private File getScriptedOptsFile(CommandLine cmd) {
+    private File getScriptedOptsFile() {
         File helpScript = null;
-        String helpScriptPath = cmd.getOptionValue(SCRIPT_ARG);
+        String helpScriptPath = System.getenv("SCRIPTED_ARGS");
 
         if (helpScriptPath != null) {
             helpScript = new File(helpScriptPath);
@@ -172,7 +167,6 @@ public class GatewayCommandLineProcessor {
             }
 
         } catch (IOException e) {
-            System.out.println("hex");
             // if this try catch block fails, don't do anything
             // it will only mean that we cannot show the "scripted args"
             LOGGER.debug("Exception when trying  to get scripted arguments", e);
@@ -183,7 +177,6 @@ public class GatewayCommandLineProcessor {
         Options options = new Options();
         options.addOption(null, CONFIG_ARG, true, "path to gateway configuration file");
         options.addOption(null, HELP_ARG, false, "print the help text");
-        options.addOption(null, SCRIPT_ARG, true, "path with further arguments parsed by the launch script");
         return options;
     }
 }
