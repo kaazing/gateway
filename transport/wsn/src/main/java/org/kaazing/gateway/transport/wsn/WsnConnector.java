@@ -538,6 +538,17 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 return;
             }
 
+            String connectionHeader = httpSession.getReadHeader("Connection");
+            if (connectionHeader == null) {
+                logger.info("WebSocket connection failed: No Connection: websocket response header");
+                wsnConnectFuture.setException(new Exception("WebSocket Connection Failed: No Connection header"));
+                return;
+            } else if (!connectionHeader.equalsIgnoreCase("Upgrade")) {
+                logger.info(format("WebSocket connection failed: Invalid Upgrade: %s response header", connectionHeader));
+                wsnConnectFuture.setException(new Exception("WebSocket Connection Failed: Invalid Connection header"));
+                return;
+            }
+
             String wsAcceptHeader = httpSession.getReadHeader("Sec-WebSocket-Accept");
             if (wsAcceptHeader == null) {
                 logger.info("WebSocket connection failed: missing Sec-WebSocket-Accept response header, does not comply with RFC 6455 - use connect options or another protocol");

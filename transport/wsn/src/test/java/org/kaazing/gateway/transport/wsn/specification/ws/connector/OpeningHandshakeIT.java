@@ -261,8 +261,6 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Issue# 310: Connection header set to invalid value in the handshake response. "
-            + " connectFuture.isConnected() must return false")
     @Specification({
         "response.header.connection.not.upgrade/handshake.response" })
     public void shouldFailConnectionWhenResponseHeaderConnectionNotUpgrade() throws Exception {
