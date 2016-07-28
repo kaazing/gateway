@@ -5,6 +5,7 @@ import static org.kaazing.gateway.service.turn.proxy.stun.StunAttributeFactory.C
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.EvenPort;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.Fingerprint;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.InvalidAttributeException;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.MappedAddress;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.MessageIntegrity;
@@ -46,6 +47,8 @@ public class StunAttributeFactory {
             } else {
                 throw new InvalidAttributeException("Longterm credential message integrity is not implemented");
             }
+        case FINGERPRINT:
+            return new Fingerprint(value);
         default:
             return new Attribute() {
                 @Override

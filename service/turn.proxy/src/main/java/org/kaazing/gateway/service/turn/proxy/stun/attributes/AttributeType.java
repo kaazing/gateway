@@ -102,11 +102,11 @@ public enum AttributeType {
             return XOR_MAPPED_ADDRESS;
         case 0x0022:
             return RESERVATION_TOKEN;
-        case 0x8022:
+        case (short)0x8022:
             return SOFTWARE;
-        case 0x8023:
+        case (short)0x8023:
             return ALTERNATE_SERVER;
-        case 0x8028:
+        case (short)0x8028:
             return FINGERPRINT;
         default:
             AttributeType result = AttributeType.UNKNOWN;
