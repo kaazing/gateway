@@ -49,14 +49,14 @@ public class StunAttributeFactory {
             return new XorPeerAddress(value);
         case XOR_RELAY_ADDRESS:
             return new XorRelayAddress(value);
-        case EVEN_PORT:
-            return new EvenPort(value);
-        case RESERVATION_TOKEN:
-            return new ReservationToken(value);
-        case MESSAGE_INTEGRITY:
-            return new MessageIntegrity(value);
-        case FINGERPRINT:
-            return new Fingerprint(value);
+//        case EVEN_PORT:
+//            return new EvenPort(value);
+//        case RESERVATION_TOKEN:
+//            return new ReservationToken(value);
+//        case MESSAGE_INTEGRITY:
+//            return new MessageIntegrity(value);
+//        case FINGERPRINT:
+//            return new Fingerprint(value);
         default:
             // TODO: consider hard failing if white list of attributes is not allowed
             return new ProxyNoopAttribute((short) type, (short) length, value);

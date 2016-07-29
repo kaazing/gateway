@@ -33,7 +33,7 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 public class AllocationsIT {
 
     private final K3poRule k3po = new K3poRule()
-            .setScriptRoot("org/kaazing/specification/turn/peer.connection")
+            .setScriptRoot("org/kaazing/specification/turn/allocations")
             .scriptProperty("acceptURI 'tcp://localhost:3479'");
 
     private final GatewayRule gateway = new GatewayRule() {
