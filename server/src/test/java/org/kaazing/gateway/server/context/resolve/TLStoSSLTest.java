@@ -151,7 +151,7 @@ public class TLStoSSLTest {
     @Test
     public void parseAndResolveTLSConnectOptions() throws Exception {
         configFile = createTempFileFromResource(
-                "org/kaazing/gateway/server/config/parse/data/gateway-config-tls-accept-options.xml");
+                "org/kaazing/gateway/server/config/parse/data/gateway-config-tls-connect-options.xml");
         GatewayConfigDocument doc = parser.parse(configFile);
         Assert.assertNotNull(doc);
         resolver.resolve(doc);
