@@ -21,6 +21,7 @@ import static org.kaazing.gateway.transport.ws.WsMessage.Kind.TEXT;
 
 import java.nio.ByteBuffer;
 
+import org.apache.mina.core.service.IoConnector;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
@@ -76,6 +77,7 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
 
         byte maskAndPayloadLenByte = in.get();
         boolean masked = (maskAndPayloadLenByte & 0x80) != 0;
+        validateMaskingAllowed(session, masked);
         int payloadLenByte = maskAndPayloadLenByte & 0x7f;
 
         // calculate actual payload length by checking if there is
@@ -314,6 +316,17 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
             WsCloseMessage.validateCloseCode(statusCode);
         } catch (IllegalArgumentException ie) {
             throw new ProtocolDecoderException("Invalid close code: " + statusCode);
+        }
+    }
+
+    /**
+     * Checks if the gateway is acting as a client in a websocket connection
+     * with a server that just sent a masked frame (non-compliant with RFC 6455),
+     * in order to be able to terminate the connection.
+     */
+    private static void validateMaskingAllowed(IoSession session, boolean masked) throws ProtocolDecoderException {
+        if (masked && session.getService() instanceof IoConnector) {
+            throw new ProtocolDecoderException("Received masked frame from server.");
         }
     }
 
