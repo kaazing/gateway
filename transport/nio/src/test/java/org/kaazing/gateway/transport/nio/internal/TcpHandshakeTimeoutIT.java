@@ -17,7 +17,6 @@ package org.kaazing.gateway.transport.nio.internal;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.rules.RuleChain.outerRule;
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_IDLE_TIMEOUT;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -34,12 +33,11 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.session.IoSessionEx;
 
 
-public class TcpIdleTimeoutIT {
+public class TcpHandshakeTimeoutIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/tcp/rfc793");
 
-    private TcpAcceptorRule acceptor =
-            new TcpAcceptorRule().addConfigurationProperty(TCP_IDLE_TIMEOUT.getPropertyName(), "5");
+    private TcpAcceptorRule acceptor = new TcpAcceptorRule();
 
     private TestRule timeout = new DisableOnDebug(new Timeout(15, SECONDS));
 

@@ -16,16 +16,6 @@
 package org.kaazing.gateway.server.context.resolve;
 
 import org.kaazing.gateway.server.config.june2016.ServiceConnectOptionsType;
-import org.kaazing.gateway.service.ConnectOptionsContext;
-import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -39,12 +29,21 @@ import static org.kaazing.gateway.service.TransportOptionNames.SSL_WANT_CLIENT_A
 import static org.kaazing.gateway.service.TransportOptionNames.TCP_TRANSPORT;
 import static org.kaazing.gateway.service.TransportOptionNames.WS_PROTOCOL_VERSION;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.kaazing.gateway.service.ConnectOptionsContext;
+import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class DefaultConnectOptionsContext extends DefaultOptionsContext implements ConnectOptionsContext {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultConnectOptionsContext.class);
 
     private final Map<String, String> options;  // unmodifiable map
-
     public DefaultConnectOptionsContext() {
         this.options = Collections.emptyMap();
     }
@@ -76,6 +75,12 @@ public class DefaultConnectOptionsContext extends DefaultOptionsContext implemen
 
         long wsInactivityTimeout = getWsInactivityTimeout(wsInactivityTimeoutStr);
         result.put("ws.inactivityTimeout", wsInactivityTimeout);
+
+        result.put("tcp.handshake.timeout", getHandshakeTimeout(optionsCopy.remove("tcp.handshake.timeout")));
+        result.put("ssl.handshake.timeout", getHandshakeTimeout(optionsCopy.remove("ssl.handshake.timeout")));
+        result.put("http.handshake.timeout", getHandshakeTimeout(optionsCopy.remove("http.handshake.timeout")));
+        result.put("ws.handshake.timeout", getHandshakeTimeout(optionsCopy.remove("ws.handshake.timeout")));
+
 
         int httpKeepaliveTimeout = getHttpKeepaliveTimeout(httpKeepaliveTimeoutStr);
         result.put("http[http/1.1].keepAliveTimeout", httpKeepaliveTimeout);

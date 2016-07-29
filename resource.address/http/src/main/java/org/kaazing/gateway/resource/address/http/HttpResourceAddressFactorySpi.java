@@ -44,6 +44,7 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.SERV
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.SERVICE_DOMAIN;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.TEMP_DIRECTORY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.TRANSPORT_NAME;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.HANDSHAKE_TIMEOUT;
 
 import java.io.File;
 import java.net.URI;
@@ -253,6 +254,11 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
                 options.setOption(IDENTITY_RESOLVER, httpIdentityResolver);
             }
         }
+
+        Object handshakeTimeout = optionsByName.remove(HANDSHAKE_TIMEOUT.name());
+        if (handshakeTimeout != null) {
+            options.setOption(HANDSHAKE_TIMEOUT, handshakeTimeout instanceof String ? Long.parseLong((String) handshakeTimeout): (Long) handshakeTimeout);
+        }
     }
 
     @Override
@@ -347,6 +353,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
                  address.setIdentityResolver(IDENTITY_RESOLVER, httpIdentityResolver);
              }
         }
+        address.setOption0(HANDSHAKE_TIMEOUT, options.getOption(HANDSHAKE_TIMEOUT));
     }
 
 }

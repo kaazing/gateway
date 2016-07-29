@@ -1264,6 +1264,18 @@
             <element name="http.transport" maxOccurs="1" minOccurs="0" type="anyURI">
                 <annotation/>
             </element>
+            <element name="tcp.handshake.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString">
+                <annotation/>
+            </element>
+            <element name="ssl.handshake.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString">
+                <annotation/>
+            </element>
+            <element name="http.handshake.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString">
+                <annotation/>
+            </element>
+            <element name="ws.handshake.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString">
+                <annotation/>
+            </element>
             <element name="udp.interface" maxOccurs="1" minOccurs="0" type="anyURI">
                 <annotation>
                     <documentation>Specifies an interface to use for udp so that the multicast traffic can be constrained to a
@@ -1359,6 +1371,18 @@
                         the gateway can open.
                     </documentation>
                 </annotation>
+            </element>
+            <element name="tcp.handshake.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString">
+                <annotation/>
+            </element>
+            <element name="ssl.handshake.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString">
+                <annotation/>
+            </element>
+            <element name="http.handshake.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString">
+                <annotation/>
+            </element>
+            <element name="ws.handshake.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString">
+                <annotation/>
             </element>
             <element name="udp.interface" maxOccurs="1" minOccurs="0" type="anyURI">
                 <annotation>

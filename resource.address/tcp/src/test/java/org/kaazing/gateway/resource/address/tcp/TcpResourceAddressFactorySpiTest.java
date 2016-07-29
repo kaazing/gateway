@@ -29,6 +29,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.BIND_ADDRESS;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.MAXIMUM_OUTBOUND_RATE;
+import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.HANDSHAKE_TIMEOUT;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -75,6 +76,7 @@ public class TcpResourceAddressFactorySpiTest {
         options = new HashMap<>();
         options.put("tcp.nextProtocol", "custom");
         options.put("tcp.maximumOutboundRate", 534L);
+        options.put("tcp.handshake.timeout", 20000L);
         options.put("tcp.qualifier", "random");
         options.put("tcp.bind", new InetSocketAddress(2222));
     }
@@ -145,6 +147,7 @@ public class TcpResourceAddressFactorySpiTest {
         assertEquals("random", address.getOption(QUALIFIER));
         assertEquals(new InetSocketAddress(2222), address.getOption(BIND_ADDRESS));
         assertEquals(534L, address.getOption(MAXIMUM_OUTBOUND_RATE).longValue());
+        assertEquals(20000, address.getOption(HANDSHAKE_TIMEOUT).longValue());
     }
 
     @Test

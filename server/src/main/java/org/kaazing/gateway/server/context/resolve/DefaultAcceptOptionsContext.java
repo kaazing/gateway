@@ -16,7 +16,8 @@
 package org.kaazing.gateway.server.context.resolve;
 
 import static java.lang.String.format;
-import static java.util.concurrent.TimeUnit.*;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.buildURIAsString;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getAuthority;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getFragment;
@@ -42,13 +43,23 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.kaazing.gateway.server.config.june2016.ServiceAcceptOptionsType;
 import org.kaazing.gateway.service.AcceptOptionsContext;
+import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DefaultAcceptOptionsContext extends DefaultOptionsContext implements AcceptOptionsContext {
+    private static final String WS_HANDSHAKE_TIMEOUT = "ws.handshake.timeout";
+
+    private static final String HTTP_HANDSHAKE_TIMEOUT = "http.handshake.timeout";
+
+    private static final String SSL_HANDSHAKE_TIMEOUT = "ssl.handshake.timeout";
+
+    private static final String TCP_HANDSHAKE_TIMEOUT = "tcp.handshake.timeout";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultAcceptOptionsContext.class);
 
     /**
@@ -66,14 +77,18 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
 
     private final Map<String, String> binds;        // gets modified by balancer service
     private final Map<String, String> options;      // unmodifiable map without bind options like tcp.bind etc
+    private Properties configuration;
 
     public DefaultAcceptOptionsContext() {
         this.binds = new HashMap<>();
         this.options = Collections.emptyMap();
     }
 
-    public DefaultAcceptOptionsContext(ServiceAcceptOptionsType acceptOptions, ServiceAcceptOptionsType defaultOptions) {
+    public DefaultAcceptOptionsContext(ServiceAcceptOptionsType acceptOptions, ServiceAcceptOptionsType defaultOptions, Properties configuration) {
         Map<String, String> options = parseAcceptOptionsType(acceptOptions);
+
+        this.configuration = configuration;
+        checkHandshakeTimeoutEnabled(options);
         parseAcceptOptionsType(defaultOptions).entrySet()
                 .stream()
                 .forEach(e -> options.putIfAbsent(e.getKey(), e.getValue()));
@@ -91,6 +106,21 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
 
         this.options = Collections.unmodifiableMap(options);
     }
+
+    private void checkHandshakeTimeoutEnabled(Map<String, String> options) {
+        if (options.containsKey(TCP_HANDSHAKE_TIMEOUT) || options.containsKey(SSL_HANDSHAKE_TIMEOUT)
+                || options.containsKey(HTTP_HANDSHAKE_TIMEOUT) || options.containsKey(WS_HANDSHAKE_TIMEOUT)) {
+            EarlyAccessFeatures.PROTOCOL_HANDSHAKE_TIMEOUT.assertEnabled(configuration, LOGGER);
+        }
+
+        if (configuration != null && !EarlyAccessFeatures.PROTOCOL_HANDSHAKE_TIMEOUT.isEnabled(configuration)) {
+            options.put(TCP_HANDSHAKE_TIMEOUT, "0");
+            options.put(SSL_HANDSHAKE_TIMEOUT, "0");
+            options.put(HTTP_HANDSHAKE_TIMEOUT, "0");
+            options.put(WS_HANDSHAKE_TIMEOUT, "0");
+        }
+    }
+
 
     @Override
     public Map<String, String> getBinds() {
@@ -211,6 +241,11 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
             result.put(SSL_TRANSPORT, sslTransport);
         }
 
+        result.put(TCP_HANDSHAKE_TIMEOUT, getHandshakeTimeout(optionsCopy.remove(TCP_HANDSHAKE_TIMEOUT)));
+        result.put(SSL_HANDSHAKE_TIMEOUT, getHandshakeTimeout(optionsCopy.remove(SSL_HANDSHAKE_TIMEOUT)));
+        result.put(HTTP_HANDSHAKE_TIMEOUT, getHandshakeTimeout(optionsCopy.remove(HTTP_HANDSHAKE_TIMEOUT)));
+        result.put(WS_HANDSHAKE_TIMEOUT, getHandshakeTimeout(optionsCopy.remove(WS_HANDSHAKE_TIMEOUT)));
+
         String httpTransport = getTransportURI("http.transport", optionsCopy.remove("http.transport"));
         if (httpTransport != null) {
             result.put("http[http/1.1].transport", httpTransport);
@@ -253,5 +288,4 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
     private Map<String, String> parseAcceptOptionsType(ServiceAcceptOptionsType acceptOptionsType) {
         return acceptOptionsType != null ? parseOptions(acceptOptionsType.getDomNode()) : new HashMap<>();
     }
-
 }

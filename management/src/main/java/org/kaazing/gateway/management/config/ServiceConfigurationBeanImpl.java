@@ -189,6 +189,26 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                         jsonOptions.put("http.transport", httpTransport);
                     }
 
+                    Long tcpHandshakeTimeout = (Long) acceptOptions.remove("tcp.handshake.timeout");
+                    if (tcpHandshakeTimeout != null) {
+                        jsonOptions.put("tcp.handshake.timeout", tcpHandshakeTimeout);
+                    }
+
+                    Long sslHandshakeTimeout = (Long) acceptOptions.remove("ssl.handshake.timeout");
+                    if (sslHandshakeTimeout != null) {
+                        jsonOptions.put("ssl.handshake.timeout", sslHandshakeTimeout);
+                    }
+
+                    Long httpHandshakeTimeout = (Long) acceptOptions.remove("http.handshake.timeout");
+                    if (httpHandshakeTimeout != null) {
+                        jsonOptions.put("http.handshake.timeout", httpHandshakeTimeout);
+                    }
+
+                    Long wsHandshakeTimeout = (Long) acceptOptions.remove("ws.handshake.timeout");
+                    if (wsHandshakeTimeout != null) {
+                        jsonOptions.put("ws.handshake.timeout", wsHandshakeTimeout);
+                    }
+
                     long tcpMaxOutboundRate = (Long) acceptOptions.remove("tcp.maximumOutboundRate");
                     jsonOptions.put("tcp.maximum.outbound.rate", tcpMaxOutboundRate);
 
@@ -324,6 +344,26 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                         } else {
                             jsonOptions.put("http.keepalive", "enabled");
                         }
+                    }
+
+                    Long tcpHandshakeTimeout = (Long) connectOptions.remove("tcp.handshake.timeout");
+                    if (tcpHandshakeTimeout != null) {
+                        jsonOptions.put("tcp.handshake.timeout", tcpHandshakeTimeout);
+                    }
+
+                    Long sslHandshakeTimeout = (Long) connectOptions.remove("ssl.handshake.timeout");
+                    if (sslHandshakeTimeout != null) {
+                        jsonOptions.put("ssl.handshake.timeout", sslHandshakeTimeout);
+                    }
+
+                    Long httpHandshakeTimeout = (Long) connectOptions.remove("http.handshake.timeout");
+                    if (httpHandshakeTimeout != null) {
+                        jsonOptions.put("http.handshake.timeout", httpHandshakeTimeout);
+                    }
+
+                    Long wsHandshakeTimeout = (Long) connectOptions.remove("ws.handshake.timeout");
+                    if (wsHandshakeTimeout != null) {
+                        jsonOptions.put("ws.handshake.timeout", wsHandshakeTimeout);
                     }
 
                     for (Entry<String, Object> entry : connectOptions.entrySet()) {

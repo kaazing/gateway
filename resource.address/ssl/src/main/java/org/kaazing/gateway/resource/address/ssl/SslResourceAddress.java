@@ -40,7 +40,11 @@ public final class SslResourceAddress extends ResourceAddress {
     public static final ResourceOption<Boolean> NEED_CLIENT_AUTH = new SslNeedClientAuthOption();
     public static final ResourceOption<KeySelector> KEY_SELECTOR = new SslKeySelectorOption();
     public static final ResourceOption<String[]> PROTOCOLS = new SslProtocolsOption();
+    public static final ResourceOption<Long> HANDSHAKE_TIMEOUT = new HandshakeTimeoutOption();
 
+    private static final long HANDSHAKE_TIMEOUT_MILLIS_DEFAULT = 10000;
+
+    private Long handshakeTimeout = HANDSHAKE_TIMEOUT.defaultValue();
     private String[] ciphers;
     private String[] protocols;
     private boolean encryption = true;  // default
@@ -70,6 +74,8 @@ public final class SslResourceAddress extends ResourceAddress {
                     return (V) keySelector;
                 case PROTOCOLS:
                     return (V) protocols;
+                case HANDSHAKE_TIMEOUT:
+                    return (V) Long.valueOf(handshakeTimeout);
             }
         }
 		
@@ -99,6 +105,9 @@ public final class SslResourceAddress extends ResourceAddress {
                 case PROTOCOLS:
                     protocols = (String[]) value;
                     return;
+                case HANDSHAKE_TIMEOUT:
+                    handshakeTimeout = (Long) value;
+                    return;
             }
         }
 
@@ -108,7 +117,7 @@ public final class SslResourceAddress extends ResourceAddress {
 	static class SslResourceOption<T> extends ResourceOption<T> {
 
 	    protected enum Kind { CIPHERS, ENCRYPTION, WANT_CLIENT_AUTH,
-                                    NEED_CLIENT_AUTH, KEY_SELECTOR, PROTOCOLS }
+                                    NEED_CLIENT_AUTH, KEY_SELECTOR, PROTOCOLS, HANDSHAKE_TIMEOUT }
 		
 		private static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
 
@@ -157,6 +166,12 @@ public final class SslResourceAddress extends ResourceAddress {
     private static final class SslProtocolsOption extends SslResourceOption<String[]> {
         private SslProtocolsOption() {
             super(Kind.PROTOCOLS, "protocols");
+        }
+    }
+
+    private static final class HandshakeTimeoutOption extends SslResourceOption<Long> {
+        private HandshakeTimeoutOption() {
+            super(Kind.HANDSHAKE_TIMEOUT, "handshake.timeout", HANDSHAKE_TIMEOUT_MILLIS_DEFAULT);
         }
     }
 }

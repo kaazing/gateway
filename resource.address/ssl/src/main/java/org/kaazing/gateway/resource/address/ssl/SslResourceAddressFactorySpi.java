@@ -24,6 +24,7 @@ import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.NEED_C
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.TRANSPORT_NAME;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.WANT_CLIENT_AUTH;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.HANDSHAKE_TIMEOUT;
 
 import java.net.URI;
 import java.util.Map;
@@ -99,6 +100,11 @@ public class SslResourceAddressFactorySpi extends ResourceAddressFactorySpi<SslR
             options.setOption(PROTOCOLS, protocols);
         }
 
+        Long handshakeTimeout = (Long) optionsByName.remove(HANDSHAKE_TIMEOUT.name());
+        if (handshakeTimeout != null) {
+            options.setOption(HANDSHAKE_TIMEOUT, handshakeTimeout);
+        }
+
     }
     
     @Override
@@ -133,6 +139,7 @@ public class SslResourceAddressFactorySpi extends ResourceAddressFactorySpi<SslR
         address.setOption0(NEED_CLIENT_AUTH, options.getOption(NEED_CLIENT_AUTH));
         address.setOption0(KEY_SELECTOR, options.getOption(KEY_SELECTOR));
         address.setOption0(PROTOCOLS, options.getOption(PROTOCOLS));
+        address.setOption0(HANDSHAKE_TIMEOUT, options.getOption(HANDSHAKE_TIMEOUT));
     }
 
 }
