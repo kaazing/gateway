@@ -15,8 +15,6 @@
  */
 package org.kaazing.gateway.service.turn.proxy;
 
-import java.util.List;
-
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
@@ -27,13 +25,7 @@ import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
 import org.kaazing.gateway.service.turn.proxy.stun.StunCodecFilter;
 import org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeVisitor;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.EvenPort;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.Fingerprint;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.MappedAddress;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.MessageIntegrity;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.ReservationToken;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorMappedAddress;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorPeerAddress;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorRelayAddress;
@@ -64,6 +56,8 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
     public void sessionCreated(IoSession acceptSession) {
         acceptSession.setAttribute(TURN_STATE_KEY, TurnSessionState.NOT_CONNECTED);
         acceptSession.getFilterChain().addLast("STUN_CODEC", new StunCodecFilter());
+        // TODO
+        // session.getFilterChain().addLast("STUN_MESSAGE_INTEGRITY_CHECK", new StunMessageIntegrityFilter());
         super.sessionCreated(acceptSession);
     }
 
@@ -80,10 +74,15 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Recieved message [%s] from [%s] ", message, session);
         }
-        // TODO for efficiency consider using map, set, or visitor pattern.
+        // For efficiency consider using map, set, or visitor pattern.
         if (message instanceof StunProxyMessage) {
             StunProxyMessage stunProxyMessage = (StunProxyMessage) message;
             for (Attribute attr : stunProxyMessage.getAttributes()) {
+                if (attr instanceof MappedAddress || attr instanceof XorMappedAddress) {
+                    // TODO
+                } else if (attr instanceof XorPeerAddress || attr instanceof XorRelayAddress) {
+                    // TODO
+                }
             }
             super.messageReceived(session, message);
         }
@@ -98,6 +97,8 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
             session.getFilterChain().addLast("STUN_CODEC", new StunCodecFilter());
+            // TODO
+            // session.getFilterChain().addLast("STUN_MESSAGE_INTEGRITY_CHECK", new StunMessageIntegrityFilter());
         }
 
     }

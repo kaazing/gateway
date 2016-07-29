@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.proxy;
+package org.kaazing.gateway.service.turn.proxy;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
