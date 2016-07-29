@@ -51,7 +51,8 @@ public enum NioSystemProperty {
     // TCP_IDLE_TIMEOUT will kill the session if nothing is written or read at nio level.
     // Note, the idle usage is using the mina netty idle timeout which may be set
     // by higher layers. Logic for this is in NioIdleFilter
-    TCP_IDLE_TIMEOUT("org.kaazing.gateway.server.transport.tcp.IDLE_TIMEOUT", Integer.toString(0));
+    TCP_IDLE_TIMEOUT("org.kaazing.gateway.server.transport.tcp.IDLE_TIMEOUT", Integer.toString(0)),
+    UDP_IDLE_TIMEOUT("org.kaazing.gateway.server.transport.udp.IDLE_TIMEOUT", "60");
 
     private final String name;
     private final String defaultValue;
