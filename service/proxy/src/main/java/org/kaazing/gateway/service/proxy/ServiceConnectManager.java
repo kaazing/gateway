@@ -165,23 +165,17 @@ public final class ServiceConnectManager {
         int remainder = preparedConnectionCount % workers.length;
         for (Worker worker : workers) {
             final int count = remainder-- > 0 ? minCountPerThread + 1 : minCountPerThread;
-            FutureTask<ConnectionPool> startConnectionPoolTask = new FutureTask<>(new Callable<ConnectionPool>() {
-
-                @Override
-                public ConnectionPool call() {
-                    ConnectionPool currentPool = connectionPool.get();
-                    if (currentPool == null) {
-                        // the first time the pool is started is needs to be created, subsequent times it should just be started
-                        // without re-creating.
-                        currentPool = new ConnectionPool(serviceCtx, connectHandler, connectURI, heartbeatFilter,
-                                connectListener, count, true);
-                        connectionPool.set(currentPool);
-                    }
-                    currentPool.start();
-                    return currentPool;
+            Runnable startConnectionPoolTask = () -> {
+                ConnectionPool currentPool = connectionPool.get();
+                if (currentPool == null) {
+                    // the first time the pool is started is needs to be created, subsequent times it should just be started
+                    // without re-creating.
+                    currentPool = new ConnectionPool(serviceCtx, connectHandler, connectURI, heartbeatFilter,
+                            connectListener, count, true);
+                    connectionPool.set(currentPool);
                 }
-
-            });
+                currentPool.start();
+            };
             worker.executeInIoThread(startConnectionPoolTask);
         }
     }
