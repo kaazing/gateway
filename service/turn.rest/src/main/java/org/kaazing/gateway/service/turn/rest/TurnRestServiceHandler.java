@@ -50,11 +50,11 @@ class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
     protected void doSessionOpened(HttpAcceptSession session) throws Exception {        
         HttpMethod method = session.getMethod();
         String service = session.getParameter("service");
-        
+      
         String ttl = options.get("credentials.ttl");
         Certificate alias = keystore.getCertificate(options.get("key.alias"));
         char separator = options.get("username.separator").charAt(0);
-                
+         
         if (method != HttpMethod.GET) {
             session.setStatus(HttpStatus.CLIENT_METHOD_NOT_ALLOWED);
             session.close(false);
@@ -64,29 +64,34 @@ class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
             session.close(false);
             throw new IllegalArgumentException("Unsupported/invalid service: " + service);
         }
-
+        
         session.setVersion(HttpVersion.HTTP_1_1);
         session.setWriteHeader(HttpHeaders.HEADER_CONTENT_TYPE, "application/json");
-        
+ 
         Subject subject = session.getSubject();
         
         if (ttl == null) {
             ttl = session.getParameter("Max-Age");
         }
-
+       
         TurnRestCredentials credentials = null;
+        String username = null;
+        char[] password = null;
         if (credentialGenerator != null) {
             credentialGenerator.setCredentialsTTL(ttl);
             credentialGenerator.setKeyAlias(alias);
             credentialGenerator.setUsernameSeparator(separator);
             credentials = credentialGenerator.generate(subject);
+            username = credentials.getUsername();
+            password = credentials.getPassword();
         }
-        
-        String username = credentials.getUsername();
-        char[] password = credentials.getPassword();
+     
         String response = TurnRestJSONResponse.createResponse(username, password, ttl, this.uris); 
         CharSequence responseChars = response;
-        Arrays.fill(password, '0');
+        
+        if (password != null) {
+            Arrays.fill(password, '0');
+        }
         
         // get io buffer for file
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();

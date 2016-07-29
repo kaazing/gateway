@@ -21,9 +21,9 @@ public final class TurnRestJSONResponse {
     }
     
     public static String createResponse(String username, char[] password, String ttl, String uris) {
-        String response = "";
+        String response = "{";
         if (username != null && password != null) {
-            response = "{\"username\":\"" + username + "\",\"password\":\"" 
+            response = "\"username\":\"" + username + "\",\"password\":\"" 
                     + String.valueOf(password) + "\",";
         }
         response = response + "\"ttl\":" + ttl + ",\"uris\":[" + uris + "]}";
