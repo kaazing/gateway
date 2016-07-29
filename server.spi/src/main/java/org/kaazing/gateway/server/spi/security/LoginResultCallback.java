@@ -29,7 +29,7 @@ import javax.security.auth.callback.Callback;
  */
 public class LoginResultCallback implements Callback {
 
-    private AtomicReference<LoginResult> loginResult = new AtomicReference<>();
+    private AtomicReference<LoginResult> loginResult = new AtomicReference<LoginResult>();
 
         public LoginResultCallback() {
             super();

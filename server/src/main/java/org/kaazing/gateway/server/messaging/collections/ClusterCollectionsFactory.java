@@ -15,16 +15,12 @@
  */
 package org.kaazing.gateway.server.messaging.collections;
 
-import com.hazelcast.core.AtomicNumber;
-import com.hazelcast.core.EntryListener;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IList;
-import com.hazelcast.core.ILock;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.IQueue;
-import com.hazelcast.core.ITopic;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
-import org.kaazing.gateway.util.AtomicCounter;
+
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+import com.hazelcast.map.listener.MapListener;
+
 
 public class ClusterCollectionsFactory implements CollectionsFactory {
 
@@ -36,68 +32,16 @@ public class ClusterCollectionsFactory implements CollectionsFactory {
     }
 
     @Override
-    public <E> IList<E> getList(String name) {
-        return cluster.getList(name);
-    }
-
-    @Override
     public <K, V> IMap<K, V> getMap(String name) {
         return cluster.getMap(name);
     }
 
     @Override
-    public <E> IQueue<E> getQueue(String name) {
-        return cluster.getQueue(name);
-    }
-
-    @Override
-    public <E> ITopic<E> getTopic(String name) {
-        return cluster.getTopic(name);
-    }
-
-    @Override
-    public ILock getLock(Object obj) {
-        return cluster.getLock(obj);
-    }
-
-    @Override
-    public <K, V> void addEntryListener(EntryListener<K, V> listener, String name) {
+    public <K, V> void addEntryListener(MapListener listener, String name) {
         IMap<K, V> map = cluster.getMap(name);
         if (map != null) {
             map.addEntryListener(listener, true);
         }
     }
 
-    @Override
-    public AtomicCounter getAtomicCounter(String name) {
-        return new ClusterAtomicCounter(cluster.getAtomicNumber(name));
-    }
-
-    private final class ClusterAtomicCounter implements AtomicCounter {
-        private AtomicNumber atomicNumber;
-
-        private ClusterAtomicCounter(AtomicNumber number) {
-            atomicNumber = number;
-        }
-
-        @Override
-        public long get() {
-            return atomicNumber.get();
-        }
-
-        @Override
-        public long incrementAndGet() {
-            return atomicNumber.incrementAndGet();
-        }
-
-        @Override
-        public long decrementAndGet() {
-            return atomicNumber.decrementAndGet();
-        }
-
-        @Override
-        public boolean compareAndSet(long expect, long update) {
-            return atomicNumber.compareAndSet(expect, update);
-        }
-    }
 }

@@ -15,27 +15,13 @@
  */
 package org.kaazing.gateway.service.messaging.collections;
 
-import com.hazelcast.core.EntryListener;
-import com.hazelcast.core.IList;
-import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.IQueue;
-import com.hazelcast.core.ITopic;
-import org.kaazing.gateway.util.AtomicCounter;
+import com.hazelcast.map.listener.MapListener;
 
 public interface CollectionsFactory {
 
     <K, V> IMap<K, V> getMap(String name);
 
-    <E> IQueue<E> getQueue(String name);
+    <K, V> void addEntryListener(MapListener listener, String name);
 
-    <E> IList<E> getList(String name);
-
-    <E> ITopic<E> getTopic(String name);
-
-    ILock getLock(Object obj);
-
-    <K, V> void addEntryListener(EntryListener<K, V> listener, String name);
-
-    AtomicCounter getAtomicCounter(String name);
 }

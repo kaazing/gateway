@@ -42,14 +42,11 @@ import org.kaazing.gateway.service.cluster.ClusterContext;
 import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
-import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
 public class DefaultClusterContextTest {
 
     public static final String BALANCER_MAP_NAME = "balancerMap";
     public static final String MEMBERID_BALANCER_MAP_NAME = "memberIdBalancerMap";
-
-    SchedulerProvider schedulerProvider;
 
     DefaultClusterContext clusterContext1;
     DefaultClusterContext clusterContext2;
@@ -121,14 +118,12 @@ public class DefaultClusterContextTest {
 
     @Before
     public void setUp() throws Exception {
-        schedulerProvider = new SchedulerProvider();
         memberTracker1 = new ClusterMemberTracker();
         memberTracker2 = new ClusterMemberTracker();
     }
 
     @After
     public void tearDown() throws Exception {
-        schedulerProvider.shutdownNow();
         memberTracker1.clear();
         memberTracker2.clear();
     }
@@ -145,13 +140,11 @@ public class DefaultClusterContextTest {
             clusterContext1 = new DefaultClusterContext(clusterName,
                     accepts,
                     connects,
-                    schedulerProvider,
                     null);
 
             clusterContext2 = new DefaultClusterContext(clusterName,
                     connects,
                     accepts,
-                    schedulerProvider,
                     null);
 
             clusterContext1.addMembershipEventListener(memberTracker1);
@@ -169,6 +162,7 @@ public class DefaultClusterContextTest {
             assertEquals("Expected local member port to be same as used to construct the cluster",
                     member1.getPort(),
                     clusterContext1.getLocalMember().getPort());
+            clusterContext2.start();
         } finally {
             clusterContext1.dispose();
         }
@@ -189,7 +183,6 @@ public class DefaultClusterContextTest {
             clusterContext1 = new DefaultClusterContext(clusterName,
                     acceptsMember1,
                     connectsMember1,
-                    schedulerProvider,
                     null);
 
             List<MemberId> acceptsMember2 = Collections.singletonList(acceptMember2);
@@ -197,7 +190,6 @@ public class DefaultClusterContextTest {
             clusterContext2 = new DefaultClusterContext(clusterName,
                     acceptsMember2,
                     connectsMember2,
-                    schedulerProvider,
                     null);
 
             clusterContext1.addMembershipEventListener(memberTracker1);
@@ -242,7 +234,7 @@ public class DefaultClusterContextTest {
         }
     }
 
-    @Test
+    @Test(timeout=Integer.MAX_VALUE)
     public void shouldSeeBalancerStateAfterClusterMembersLeave() throws Exception {
         DefaultClusterContext clusterContext1 = null;
         DefaultClusterContext clusterContext2 = null;
@@ -267,25 +259,21 @@ public class DefaultClusterContextTest {
             clusterContext1 = new DefaultClusterContext(clusterName,
                     accepts1,
                     connects1,
-                    schedulerProvider,
                     null);
 
             clusterContext2 = new DefaultClusterContext(clusterName,
                     accepts2,
                     connects2,
-                    schedulerProvider,
                     null);
 
             clusterContext3 = new DefaultClusterContext(clusterName,
                     accepts3,
                     connects3,
-                    schedulerProvider,
                     null);
 
             clusterContext4 = new DefaultClusterContext(clusterName,
                     accepts4,
                     connects4,
-                    schedulerProvider,
                     null);
 
             startClusterContext(clusterContext1);
@@ -321,13 +309,11 @@ public class DefaultClusterContextTest {
             clusterContext1 = new DefaultClusterContext(clusterName,
                     accepts1,
                     connects1,
-                    schedulerProvider,
                     null);
 
             clusterContext2 = new DefaultClusterContext(clusterName,
                     accepts2,
                     connects2,
-                    schedulerProvider,
                     null);
 
             startClusterContext(clusterContext1);
@@ -399,6 +385,7 @@ public class DefaultClusterContextTest {
 
     private void addToClusterState(CollectionsFactory factory, MemberId memberId, int nodeId) {
         Map<String, Set<String>> sharedBalancerMap = factory.getMap(BALANCER_MAP_NAME);
+        System.out.println(sharedBalancerMap.hashCode());
         Map<MemberId, Map<String, List<String>>> memberIdBalancerMap = factory.getMap(MEMBERID_BALANCER_MAP_NAME);
         String balanceURI = "ws://www.example.com:8080/path";
         String targetURI = format("ws://node%d.example.com:8080/path", nodeId);
@@ -408,12 +395,13 @@ public class DefaultClusterContextTest {
         }
         currentTargets.add(targetURI);
         sharedBalancerMap.put(balanceURI, currentTargets);
-
+        System.out.println("sharedBalancerMap.size(): " + sharedBalancerMap.size());
         List<String> myTargets = new ArrayList<>();
         myTargets.add(targetURI);
         Map<String, List<String>> myBalanceTargets = new HashMap<>();
         myBalanceTargets.put(balanceURI, myTargets);
         memberIdBalancerMap.put(memberId, myBalanceTargets);
+
     }
 
     private void validateClusterState(ClusterContext... clusterContext) {
@@ -474,6 +462,7 @@ public class DefaultClusterContextTest {
 
     private boolean validateSharedBalancer(CollectionsFactory factory, Set<String> balanceTargets) {
         Map<String, Set<String>> sharedBalancerMap = factory.getMap(BALANCER_MAP_NAME);
+        System.out.println(sharedBalancerMap.size());
 
         Set<String> currentBalanceTargets = sharedBalancerMap.get("ws://www.example.com:8080/path");
         return (currentBalanceTargets != null) && currentBalanceTargets.containsAll(balanceTargets);

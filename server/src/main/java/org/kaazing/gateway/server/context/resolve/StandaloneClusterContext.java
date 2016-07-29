@@ -15,8 +15,6 @@
  */
 package org.kaazing.gateway.server.context.resolve;
 
-import com.hazelcast.core.IdGenerator;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,34 +23,30 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.kaazing.gateway.server.messaging.buffer.MemoryMessageBufferFactory;
 import org.kaazing.gateway.service.cluster.BalancerMapListener;
 import org.kaazing.gateway.service.cluster.ClusterConnectOptionsContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
 import org.kaazing.gateway.service.cluster.InstanceKeyListener;
 import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
-import org.kaazing.gateway.service.cluster.ReceiveListener;
-import org.kaazing.gateway.service.cluster.SendListener;
-import org.kaazing.gateway.service.messaging.buffer.MessageBufferFactory;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 import org.kaazing.gateway.service.messaging.collections.MemoryCollectionsFactory;
 import org.kaazing.gateway.util.Utils;
 
+import com.hazelcast.core.IdGenerator;
+
 /**
  * This class is the standalone case where the current node is itself the master this does not have any high availability
- * functionality. The only supported method for now is the Map.
+ * functionality. The only supported method for now is the Map. Does not need to support listeners of any kind.
  */
 public class StandaloneClusterContext implements ClusterContext {
 
-    private final MessageBufferFactory messageBufferFactory;
     private final CollectionsFactory collectionsFactory;
     private final ConcurrentMap<Object, Lock> locks;
     private final ConcurrentMap<String, IdGeneratorImpl> idGenerators;
     private final String localInstanceKey = Utils.randomHexString(16);
 
     public StandaloneClusterContext() {
-        this.messageBufferFactory = new MemoryMessageBufferFactory();
         this.collectionsFactory = new MemoryCollectionsFactory();
         this.locks = new ConcurrentHashMap<>();
         this.idGenerators = new ConcurrentHashMap<>();
@@ -86,16 +80,6 @@ public class StandaloneClusterContext implements ClusterContext {
     @Override
     public void removeBalancerMapListener(BalancerMapListener balancerMapListener) {
         // this is a no-op
-    }
-
-    @Override
-    public void addReceiveQueue(String name) {
-        throw new UnsupportedOperationException("addReceiveQueue");
-    }
-
-    @Override
-    public void addReceiveTopic(String name) {
-        throw new UnsupportedOperationException("addReceiveTopic");
     }
 
     @Override
@@ -140,11 +124,6 @@ public class StandaloneClusterContext implements ClusterContext {
     }
 
     @Override
-    public MessageBufferFactory getMessageBufferFactory() {
-        return messageBufferFactory;
-    }
-
-    @Override
     public MemberId getLocalMember() {
         return new MemberId("tcp", "standalone", 0);
     }
@@ -166,36 +145,6 @@ public class StandaloneClusterContext implements ClusterContext {
             }
         }
         return lock;
-    }
-
-    @Override
-    public <T> void removeReceiver(Class<T> type) {
-        throw new UnsupportedOperationException("removeReceiver");
-    }
-
-    @Override
-    public <T> T send(Object msg, MemberId member) throws Exception {
-        throw new UnsupportedOperationException("send");
-    }
-
-    @Override
-    public <T> T send(Object msg, String name) throws Exception {
-        throw new UnsupportedOperationException("send");
-    }
-
-    @Override
-    public void send(Object msg, SendListener listener, MemberId member) {
-        throw new UnsupportedOperationException("send");
-    }
-
-    @Override
-    public void send(Object msg, SendListener listener, String name) {
-        throw new UnsupportedOperationException("send");
-    }
-
-    @Override
-    public <T> void setReceiver(Class<T> type, ReceiveListener<T> receiveListener) {
-        throw new UnsupportedOperationException("setReceiver");
     }
 
     @Override
@@ -249,13 +198,21 @@ public class StandaloneClusterContext implements ClusterContext {
         }
 
         @Override
-        public Object getId() {
-            return this.name;
+        public String getPartitionKey() {
+            // TODO Auto-generated method stub
+            return null;
         }
 
         @Override
-        public InstanceType getInstanceType() {
-            return InstanceType.ID_GENERATOR;
+        public String getServiceName() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public boolean init(long paramLong) {
+            // TODO Auto-generated method stub
+            return false;
         }
     }
 }

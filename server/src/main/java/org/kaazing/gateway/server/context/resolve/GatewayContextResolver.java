@@ -226,7 +226,7 @@ public class GatewayContextResolver {
         DefaultServiceDefaultsContext serviceDefaultsContext = resolveServiceDefaults(serviceDefaults);
         // Map<String, DefaultSessionContext> sessionContexts = resolveSessions(sessionConfigs, securityContext, realmsContext);
         SchedulerProvider schedulerProvider = new SchedulerProvider(configuration);
-        ClusterContext clusterContext = resolveCluster(clusterConfig, schedulerProvider);
+        ClusterContext clusterContext = resolveCluster(clusterConfig);
         ServiceRegistry servicesByURI = new ServiceRegistry();
         Map<String, Object> dependencyContexts = resolveDependencyContext();
         ResourceAddressFactory resourceAddressFactory = resolveResourceAddressFactories();
@@ -774,8 +774,7 @@ public class GatewayContextResolver {
         return uri;
     }
 
-    private ClusterContext resolveCluster(ClusterType clusterConfig,
-                                          SchedulerProvider schedulerProvider) {
+    private ClusterContext resolveCluster(ClusterType clusterConfig) {
         if (clusterConfig == null) {
             return new StandaloneClusterContext();
         }
@@ -810,7 +809,6 @@ public class GatewayContextResolver {
         return new DefaultClusterContext(clusterConfig.getName(),
                 accepts,
                 connects,
-                schedulerProvider,
                 connectOptionsContext);
     }
 

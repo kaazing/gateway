@@ -19,9 +19,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
-import com.hazelcast.core.IdGenerator;
-import org.kaazing.gateway.service.messaging.buffer.MessageBufferFactory;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
+
+import com.hazelcast.core.IdGenerator;
 
 public interface ClusterContext {
 
@@ -48,16 +48,6 @@ public interface ClusterContext {
     Lock getLock(Object obj);
     IdGenerator getIdGenerator(String name);
 
-    // cluster messaging
-    void addReceiveTopic(String name);
-    void addReceiveQueue(String name);
-    <T> T send(Object msg, MemberId member) throws Exception;
-    <T> T send(Object msg, String name) throws Exception;
-    void send(Object msg, final SendListener listener, MemberId member);
-    void send(Object msg, final SendListener listener, String name);
-    <T> void setReceiver(Class<T> type, ReceiveListener<T> receiveListener);
-    <T> void removeReceiver(Class<T> type);
-
     // event listener
     void addMembershipEventListener(MembershipEventListener eventListener);
     void removeMembershipEventListener(MembershipEventListener eventListener);
@@ -70,7 +60,6 @@ public interface ClusterContext {
     void addBalancerMapListener(BalancerMapListener balancerMapListener);
     void removeBalancerMapListener(BalancerMapListener balancerMapListener);
 
-    MessageBufferFactory getMessageBufferFactory();
     CollectionsFactory getCollectionsFactory();
 
     void logClusterState();
