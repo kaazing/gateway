@@ -178,6 +178,18 @@
             <artifactId>gateway.service.echo</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-cloud</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -267,7 +279,12 @@
                     <execution>
                         <configuration>
                             <argLine>@{failsafeArgLine}</argLine>
+                            <skipTests>${skipITs}</skipTests>
                         </configuration>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

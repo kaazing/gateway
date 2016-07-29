@@ -63,4 +63,9 @@ public class GL {
     public static String identity(Object obj) {
         return obj.getClass().getSimpleName() + "@" + obj.hashCode();
     }
+    
+    public static boolean isTraceEnabled(String module){
+       return LoggerFactory.getLogger(module).isTraceEnabled();
+        
+    }
 }

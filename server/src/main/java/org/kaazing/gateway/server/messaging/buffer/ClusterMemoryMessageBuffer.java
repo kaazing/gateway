@@ -17,9 +17,12 @@ package org.kaazing.gateway.server.messaging.buffer;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ITopic;
+import com.hazelcast.core.Message;
 import com.hazelcast.core.MessageListener;
+
 import java.io.IOException;
 import java.io.Serializable;
+
 import org.kaazing.gateway.service.messaging.MessagingMessage;
 import org.kaazing.gateway.service.messaging.buffer.MessageBuffer;
 import org.kaazing.gateway.service.messaging.buffer.MessageBufferEntry;
@@ -67,15 +70,15 @@ public class ClusterMemoryMessageBuffer implements MessageBuffer, Serializable {
         topic = cluster.getTopic(topicName);
         topic.addMessageListener(new MessageListener<MessageBufferEntry>() {
             @Override
-            public void onMessage(MessageBufferEntry entry) {
+            public void onMessage(Message<MessageBufferEntry>  entry) {
                 if (entry == null) {
                     GL.debug("messaing", "Received null entry");
                     return;
                 }
-                int id = entry.getId();
+                int id = entry.getMessageObject().getId();
                 if (id > buffer.getYoungestId()) {
                     GL.debug("messaging", "Received message entry {}", entry);
-                    buffer.set(id, entry.getMessage());
+                    buffer.set(id, entry.getMessageObject().getMessage());
                 }
             }
         });

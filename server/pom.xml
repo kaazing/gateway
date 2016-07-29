@@ -250,6 +250,18 @@
             <classifier>keystore</classifier>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-cloud</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

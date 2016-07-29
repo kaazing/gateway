@@ -15,8 +15,6 @@
  */
 package org.kaazing.gateway.server.context.resolve;
 
-import com.hazelcast.core.IdGenerator;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,6 +36,8 @@ import org.kaazing.gateway.service.messaging.buffer.MessageBufferFactory;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 import org.kaazing.gateway.service.messaging.collections.MemoryCollectionsFactory;
 import org.kaazing.gateway.util.Utils;
+
+import com.hazelcast.core.IdGenerator;
 
 /**
  * This class is the standalone case where the current node is itself the master this does not have any high availability
@@ -156,11 +156,11 @@ public class StandaloneClusterContext implements ClusterContext {
     }
 
     @Override
-    public Lock getLock(Object obj) {
-        Lock lock = locks.get(obj);
+    public Lock getLock(String name) {
+        Lock lock = locks.get(name);
         if (lock == null) {
             lock = new ReentrantLock();
-            Lock oldLock = locks.putIfAbsent(obj, lock);
+            Lock oldLock = locks.putIfAbsent(name, lock);
             if (oldLock != null) {
                 lock = oldLock;
             }
@@ -204,6 +204,7 @@ public class StandaloneClusterContext implements ClusterContext {
 
     @Override
     public void dispose() {
+        MemoryCollectionsFactory.getHazelcastInstance().getLifecycleService().shutdown();
     }
 
     @Override
@@ -249,13 +250,21 @@ public class StandaloneClusterContext implements ClusterContext {
         }
 
         @Override
-        public Object getId() {
-            return this.name;
+        public String getPartitionKey() {
+            // TODO Auto-generated method stub
+            return null;
         }
 
         @Override
-        public InstanceType getInstanceType() {
-            return InstanceType.ID_GENERATOR;
+        public String getServiceName() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public boolean init(long paramLong) {
+            // TODO Auto-generated method stub
+            return false;
         }
     }
 }
