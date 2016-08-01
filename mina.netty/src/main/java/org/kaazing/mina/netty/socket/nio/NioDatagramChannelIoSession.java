@@ -15,49 +15,82 @@
  */
 package org.kaazing.mina.netty.socket.nio;
 
-import static java.lang.String.format;
-import static java.lang.Thread.currentThread;
-
-import java.util.concurrent.Executor;
-
+import org.apache.mina.core.filterchain.IoFilter;
+import org.apache.mina.core.filterchain.IoFilterAdapter;
+import org.apache.mina.core.session.IdleStatus;
+import org.apache.mina.core.session.IoSession;
 import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.socket.DatagramChannelConfig;
+import org.jboss.netty.channel.socket.nio.AbstractNioWorker;
+import org.jboss.netty.channel.socket.nio.NioChildDatagramChannel;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
-import org.jboss.netty.channel.socket.nio.NioDatagramWorker;
-
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.netty.ChannelIoService;
 import org.kaazing.mina.netty.ChannelIoSession;
 import org.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
-import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.Executor;
+
+import static java.lang.String.format;
+import static java.lang.Thread.currentThread;
 
 /**
  * This session is always used in conjunction with an NioDatagramChannel, which necessarily has an associated worker.
  * It forces all operations of the session to be done in the worker thread (using worker.executeIntoThread if a call
  * is made in another thread).
  */
-public class NioDatagramChannelIoSession extends ChannelIoSession<DatagramChannelConfig> {
+class NioDatagramChannelIoSession extends ChannelIoSession<DatagramChannelConfig> {
 
-    private static final ThreadLocal<WorkerExecutor> WORKER_EXECUTOR = new VicariousThreadLocal<>();
+    private static final IoFilter IDLE_FILTER = new NioDatagramIdleFilter();
+    private static final Logger LOGGER = LoggerFactory.getLogger(NioDatagramChannelIoSession.class);
 
-    public NioDatagramChannelIoSession(ChannelIoService service,
+    NioDatagramChannelIoSession(ChannelIoService service,
             IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor, NioDatagramChannel channel) {
         super(service, processor, channel, new DefaultDatagramChannelIoSessionConfig(),
                 currentThread(), asExecutor(channel.getWorker()));
+        getFilterChain().addLast("udp#idle", IDLE_FILTER);
     }
 
-    private static Executor asExecutor(NioDatagramWorker worker) {
-        assert isInIoThread(worker) : "Session created from non-I/O thread";
-        WorkerExecutor executor = WORKER_EXECUTOR.get();
+    NioDatagramChannelIoSession(ChannelIoService service,
+                                IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor, NioChildDatagramChannel channel) {
+        super(service, processor, channel, new DefaultDatagramChannelIoSessionConfig(),
+                currentThread(), asExecutor(channel.getWorker()));
+        getFilterChain().addLast("udp#idle", IDLE_FILTER);
+    }
+
+    @Override
+    protected void setIoAlignment0(Thread ioThread, Executor ioExecutor) {
+        NioChildDatagramChannel channel = (NioChildDatagramChannel) getChannel();       // TODO it may be NioDatagramChannel
+        if (ioExecutor == NO_EXECUTOR) {
+            channel.setWorker(null);
+        }
+        else if (isClosedReceived()) {
+            // Process the closed event now that realignment is complete
+            // We must not register the channel with the worker since it is closed
+            getProcessor().remove(this);
+        }
+        else {
+            AbstractNioWorker newWorker = ((WorkerExecutor) ioExecutor).worker;
+            channel.getWorker().deregister(channel);
+            channel.setWorker(newWorker);
+            newWorker.register(channel);
+        }
+    }
+
+    private static Executor asExecutor(AbstractNioWorker worker) {
+        WorkerExecutor executor = (WorkerExecutor) CURRENT_WORKER.get();
         if (executor == null) {
+            assert isInIoThread(worker) : "Session created from non-I/O thread";
             executor = new WorkerExecutor(worker);
-            WORKER_EXECUTOR.set(executor);
+            CURRENT_WORKER.set(executor);
         }
         assert executor.worker == worker : "Worker does not match I/O thread";
         return executor;
     }
 
-    private static boolean isInIoThread(NioDatagramWorker worker) {
+    private static boolean isInIoThread(AbstractNioWorker worker) {
         final Thread[] ioThread = new Thread[]{null};
         worker.executeInIoThread(new Runnable() {
             @Override
@@ -70,17 +103,17 @@ public class NioDatagramChannelIoSession extends ChannelIoSession<DatagramChanne
         return aligned;
     }
 
-    private static final class WorkerExecutor implements Executor {
-        private final NioDatagramWorker worker;
-
-        WorkerExecutor(NioDatagramWorker worker) {
-            this.worker = worker;
-        }
+    private static class NioDatagramIdleFilter extends IoFilterAdapter {
 
         @Override
-        public void execute(Runnable command) {
-            worker.executeInIoThread(command, /* alwaysAsync */ true);
+        public void sessionIdle(NextFilter nextFilter, IoSession session, IdleStatus status) throws Exception {
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace(String.format("Closing udp session %s since it is idle", session));
+            }
+
+            session.close(false);
         }
+
     }
 
 }

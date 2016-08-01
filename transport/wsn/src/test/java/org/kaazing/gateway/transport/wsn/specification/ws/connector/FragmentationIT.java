@@ -30,7 +30,6 @@ import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -65,7 +64,6 @@ public class FragmentationIT {
             .around(contextRule);
 
     @Test
-    @Ignore("Issue# 306: IllegalArgumentException: message is empty. Forgot to call flip")
     @Specification({
         "server.echo.binary.payload.length.0.fragmented.with.injected.ping.pong/handshake.response.and.frames" })
     public void shouldEchoServerSendBinaryFrameWithEmptyPayloadFragmentedAndInjectedPingPong() throws Exception {
@@ -296,7 +294,6 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("Issue# 306: IllegalArgumentException: message is empty. Forgot to call flip")
     @Specification({
         "server.echo.text.payload.length.0.fragmented/handshake.response.and.frames"
         })
@@ -344,7 +341,6 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("Issue# 306: IllegalArgumentException: message is empty. Forgot to call flip")
     @Specification({
         "server.echo.text.payload.length.0.fragmented.with.injected.ping.pong/handshake.response.and.frames"
         })

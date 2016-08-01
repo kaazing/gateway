@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>community</artifactId>
-        <version>2.20</version>
+        <version>2.21</version>
     </parent>
 
     <artifactId>gateway</artifactId>
@@ -32,7 +32,7 @@
         <jdom.version>1.1</jdom.version>
         <jmock.version>2.6.0</jmock.version>
         <slf4j.log4j.version>1.7.21</slf4j.log4j.version>
-        <agrona.version>0.4.2</agrona.version>
+        <agrona.version>0.4.12</agrona.version>
         <enforcer.skip>true</enforcer.skip>
         <!-- Try to avoid huge heap size on Travis builds -->
         <failsafeArgLine>-Xmx1024m</failsafeArgLine>
@@ -197,12 +197,24 @@
             <dependency>
                 <groupId>org.kaazing</groupId>
                 <artifactId>gateway.truststore</artifactId>
-                <version>[1.0.0.0,1.1.0.0)</version>
+                <version>1.0.0.81</version>
                 <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>org.kaazing</groupId>
                 <artifactId>specification.http</artifactId>
+                <version>${k3po.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>specification.tcp</artifactId>
+                <version>${k3po.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>specification.udp</artifactId>
                 <version>${k3po.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -223,18 +235,8 @@
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <configuration>
                         <argLine>@{failsafeArgLine}</argLine>
-                        <skipTests>${skipITs}</skipTests>
-                        <!-- workaround to get the total(unit and integration) number of tests in the sonar dashboard -->
                         <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
                     </configuration>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>integration-test</goal>
-                                <goal>verify</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -409,6 +411,11 @@
                     <dependency>
                         <groupId>org.kaazing</groupId>
                         <artifactId>specification.tcp</artifactId>
+                        <version>${k3po.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.kaazing</groupId>
+                        <artifactId>specification.udp</artifactId>
                         <version>${k3po.version}</version>
                     </dependency>
                     <dependency>

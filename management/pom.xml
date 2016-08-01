@@ -33,7 +33,7 @@
             <artifactId>sigar.dist</artifactId>
             <classifier>distribution</classifier>
             <type>zip</type>
-            <version>[1.0.0.0,1.1.0.0)</version>
+            <version>1.0.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
@@ -169,7 +169,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.test.ca</artifactId>
-            <version>[1.0.0.0,1.1.0.0)</version>
+            <version>1.0.0.24</version>
             <classifier>keystore</classifier>
             <scope>test</scope>
         </dependency>
@@ -267,12 +267,7 @@
                     <execution>
                         <configuration>
                             <argLine>@{failsafeArgLine}</argLine>
-                            <skipTests>${skipITs}</skipTests>
                         </configuration>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>

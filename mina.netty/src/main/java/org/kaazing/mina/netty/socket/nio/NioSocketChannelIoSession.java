@@ -21,6 +21,7 @@ import static java.lang.Thread.currentThread;
 import java.util.concurrent.Executor;
 
 import org.jboss.netty.channel.ChannelConfig;
+import org.jboss.netty.channel.socket.nio.AbstractNioWorker;
 import org.jboss.netty.channel.socket.nio.NioSocketChannel;
 import org.jboss.netty.channel.socket.nio.NioSocketChannelConfig;
 import org.jboss.netty.channel.socket.nio.NioWorker;
@@ -54,7 +55,7 @@ public class NioSocketChannelIoSession extends ChannelIoSession<NioSocketChannel
             getProcessor().remove(this);
         }
         else {
-            NioWorker newWorker = ((WorkerExecutor) ioExecutor).worker;
+            AbstractNioWorker newWorker = ((WorkerExecutor) ioExecutor).worker;
             channel.setWorker(newWorker);
         }
     }
@@ -81,19 +82,6 @@ public class NioSocketChannelIoSession extends ChannelIoSession<NioSocketChannel
         boolean aligned = ioThread[0] == currentThread();
         assert aligned : format("Current thread %s does not match I/O thread %s", currentThread(), ioThread[0]);
         return aligned;
-    }
-
-    private static final class WorkerExecutor implements Executor {
-        private final NioWorker worker;
-
-        WorkerExecutor(NioWorker worker) {
-            this.worker = worker;
-        }
-
-        @Override
-        public void execute(Runnable command) {
-            worker.executeInIoThread(command, /* alwaysAsync */ true);
-        }
     }
 
 }
