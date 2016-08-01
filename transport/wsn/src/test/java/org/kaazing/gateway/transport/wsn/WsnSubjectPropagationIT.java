@@ -180,30 +180,30 @@ public class WsnSubjectPropagationIT {
         }
 
         @Override
-        public void init(ServiceContext serviceContext)  {
+        public void init(ServiceContext serviceContext) throws Exception {
             this.serviceContext = serviceContext;
             handler = new SubjectServiceHandler();
         }
 
         @Override
-        public void start()  {
+        public void start() throws Exception {
             serviceContext.bind(serviceContext.getAccepts(), handler);
         }
 
         @Override
-        public void stop()  {
+        public void stop() throws Exception {
             // TODO Auto-generated method stub
 
         }
 
         @Override
-        public void quiesce()  {
+        public void quiesce() throws Exception {
             // TODO Auto-generated method stub
 
         }
 
         @Override
-        public void destroy()  {
+        public void destroy() throws Exception {
             // TODO Auto-generated method stub
 
         }

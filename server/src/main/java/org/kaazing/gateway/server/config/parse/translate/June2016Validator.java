@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.server;
 
-/**
- * Exception raised when an attempt is made to launch a Gateway that is already running.
- */
-public class GatewayAlreadyRunningException extends Exception {
+package org.kaazing.gateway.server.config.parse.translate;
 
-    // Auto-generated
-    //
-    private static final long serialVersionUID = 901385335928386515L;
+import org.kaazing.gateway.server.config.parse.translate.june2016.RemoveRealmVisitor;
 
-    public GatewayAlreadyRunningException(String message) {
-        super(message);
+public class June2016Validator extends GatewayConfigTranslatorPipeline {
+
+    public June2016Validator() {
+        super();
     }
 }

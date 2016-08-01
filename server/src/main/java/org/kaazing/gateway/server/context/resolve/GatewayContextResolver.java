@@ -26,13 +26,11 @@ import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getUserInfo;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,22 +63,22 @@ import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.config.SchemeConfig;
 import org.kaazing.gateway.server.config.parse.DefaultSchemeConfig;
-import org.kaazing.gateway.server.config.nov2015.AuthenticationType;
-import org.kaazing.gateway.server.config.nov2015.AuthorizationConstraintType;
-import org.kaazing.gateway.server.config.nov2015.ClusterConnectOptionsType;
-import org.kaazing.gateway.server.config.nov2015.ClusterType;
-import org.kaazing.gateway.server.config.nov2015.CrossSiteConstraintType;
-import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument;
-import org.kaazing.gateway.server.config.nov2015.LoginModuleOptionsType;
-import org.kaazing.gateway.server.config.nov2015.LoginModuleType;
-import org.kaazing.gateway.server.config.nov2015.MimeMappingType;
-import org.kaazing.gateway.server.config.nov2015.RealmType;
-import org.kaazing.gateway.server.config.nov2015.SecurityType;
-import org.kaazing.gateway.server.config.nov2015.ServiceAcceptOptionsType;
-import org.kaazing.gateway.server.config.nov2015.ServiceConnectOptionsType;
-import org.kaazing.gateway.server.config.nov2015.ServiceDefaultsType;
-import org.kaazing.gateway.server.config.nov2015.ServicePropertiesType;
-import org.kaazing.gateway.server.config.nov2015.ServiceType;
+import org.kaazing.gateway.server.config.june2016.AuthenticationType;
+import org.kaazing.gateway.server.config.june2016.AuthorizationConstraintType;
+import org.kaazing.gateway.server.config.june2016.ClusterConnectOptionsType;
+import org.kaazing.gateway.server.config.june2016.ClusterType;
+import org.kaazing.gateway.server.config.june2016.CrossSiteConstraintType;
+import org.kaazing.gateway.server.config.june2016.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.june2016.LoginModuleOptionsType;
+import org.kaazing.gateway.server.config.june2016.LoginModuleType;
+import org.kaazing.gateway.server.config.june2016.MimeMappingType;
+import org.kaazing.gateway.server.config.june2016.RealmType;
+import org.kaazing.gateway.server.config.june2016.SecurityType;
+import org.kaazing.gateway.server.config.june2016.ServiceAcceptOptionsType;
+import org.kaazing.gateway.server.config.june2016.ServiceConnectOptionsType;
+import org.kaazing.gateway.server.config.june2016.ServiceDefaultsType;
+import org.kaazing.gateway.server.config.june2016.ServicePropertiesType;
+import org.kaazing.gateway.server.config.june2016.ServiceType;
 import org.kaazing.gateway.server.context.DependencyContext;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.service.ServiceRegistry;
@@ -206,12 +204,12 @@ public class GatewayContextResolver {
         this.transportContextsByName = new HashMap<>();
     }
 
-    public GatewayContext resolve(GatewayConfigDocument gatewayConfigDoc) throws InstantiationException, IllegalAccessException, URISyntaxException, GeneralSecurityException, IOException
-             {
+    public GatewayContext resolve(GatewayConfigDocument gatewayConfigDoc)
+            throws Exception {
         return resolve(gatewayConfigDoc, System.getProperties());
     }
 
-    public GatewayContext resolve(GatewayConfigDocument gatewayConfigDoc, Properties configuration) throws InstantiationException, IllegalAccessException, URISyntaxException, GeneralSecurityException, IOException {
+    public GatewayContext resolve(GatewayConfigDocument gatewayConfigDoc, Properties configuration) throws Exception {
         GatewayConfigDocument.GatewayConfig gatewayConfig = gatewayConfigDoc.getGatewayConfig();
         Collection<? extends SchemeConfig> schemeConfigs = new LinkedList<>();
         SecurityType[] securityConfigs = gatewayConfig.getSecurityArray();
@@ -294,8 +292,8 @@ public class GatewayContextResolver {
     private Map<String, DefaultSchemeContext> resolveSchemes(Collection<? extends ServiceContext> serviceContexts,
                                                              Collection<? extends SchemeConfig> schemeConfigs,
                                                              Properties configuration,
-                                                             ResourceAddressFactory resourceAddressFactory) throws URISyntaxException
-             {
+                                                             ResourceAddressFactory resourceAddressFactory)
+            throws Exception {
 
         // load the default scheme information based on service accepts
         Set<String> schemeNames = new HashSet<>();
@@ -348,6 +346,9 @@ public class GatewayContextResolver {
 
         // Always add tcp
         schemeNames.add("tcp");
+
+        // Always add udp
+        schemeNames.add("udp");
 
         // override default scheme configuration
         for (SchemeConfig schemeConfig : schemeConfigs) {
@@ -442,8 +443,8 @@ public class GatewayContextResolver {
                                                        TransportFactory transportFactory,
                                                        ServiceFactory serviceFactory,
                                                        ResourceAddressFactory resourceAddressFactory,
-                                                       ServiceDefaultsType serviceDefaults) throws InstantiationException, IllegalAccessException, URISyntaxException
-            {
+                                                       ServiceDefaultsType serviceDefaults)
+            throws Exception {
 
 //        Map<String, Class<? extends Service>> serviceClasses = new HashMap<String, Class<? extends Service>>();
         Collection<ServiceContext> serviceContexts = new HashSet<>();
@@ -518,6 +519,16 @@ public class GatewayContextResolver {
             Collection<String> requireRolesCollection = new LinkedList<>();
             for (AuthorizationConstraintType authConstraint : serviceConfig.getAuthorizationConstraintArray()) {
                 Collections.addAll(requireRolesCollection, authConstraint.getRequireRoleArray());
+            }
+            RealmContext realmContext = null;
+            String name = serviceConfig.getRealmName();
+            if (serviceConfig.isSetRealmName()) {
+                realmContext = realmsContext.getRealmContext(name);
+                if (realmContext != null && !name.equals("auth-required")) {
+                    if (requireRolesCollection.isEmpty()) {
+                        Collections.addAll(requireRolesCollection, "*");
+                    }
+                }
             }
             String[] requireRoles = requireRolesCollection.toArray(new String[requireRolesCollection.size()]);
 
@@ -1137,7 +1148,7 @@ public class GatewayContextResolver {
         return null;
     }
 
-    private Map<String, DefaultTransportContext> resolveTransports(TransportFactory transportFactory)  {
+    private Map<String, DefaultTransportContext> resolveTransports(TransportFactory transportFactory) throws Exception {
         for (String transportName : transportFactory.getTransportNames()) {
             Transport transport = transportFactory.getTransport(transportName);
             DefaultTransportContext transportContext =
