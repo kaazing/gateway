@@ -78,7 +78,8 @@ write [0x00] [0x15] [0x00] [0x20]
 write ${nonce}
 #Attribute Message-Integrity
 write [0x00] [0x08] [0x00] [0x10]
-write ${turn:messageDigestMD5Encoding(${messageIntegrityClient})}
+write ${turn:generateTransactionId()}
+write ${turn:messageDigestMD5Encoding("joe:example.com:welcome")}
 
 #200 response w/ mapped address
 #STUN Header
@@ -108,7 +109,7 @@ write ${transactionID}
 #Attribute XOR-Peer-Address
 write [0x00] [0x12] [0x00] [0x08]
 write [0xff] [0x01] ${turn:portXOR(8001)} #port 8001
-write ${turn:ipXOR(${peerAddressClient})}
+write ${turn:ipXOR("192.0.2.1")}
 #Attribute Username
 write [0x00] [0x06] [0x00] [0x03]
 write "joe" [0x00]
@@ -120,7 +121,7 @@ write [0x00] [0x15] [0x00] [0x20]
 write ${nonce}
 #Attribute Message-Integrity
 write [0x00] [0x08] [0x00] [0x10]
-write ${turn:messageDigestMD5Encoding(${messageIntegrityClient})}
+write ${turn:messageDigestMD5Encoding("joe:example.com:welcome")}
 
 #success
 read [0x01] [0x08] [0x00] [0x14]
@@ -141,7 +142,7 @@ write [0x40] [0x00] [0x00] [0x00]
 #Attribute XOR-Peer-Address
 write [0x00] [0x12] [0x00] [0x08]
 write [0xff] [0x01] ${turn:portXOR(8001)} #port 8001
-write ${turn:ipXOR(${peerAddressClient})}
+write ${turn:ipXOR("192.0.2.1")}
 #Attribute Username
 write [0x00] [0x06] [0x00] [0x03]
 write "joe" [0x00]
@@ -153,7 +154,7 @@ write [0x00] [0x15] [0x00] [0x20]
 write ${nonce}
 #Attribute Message-Integrity
 write [0x00] [0x08] [0x00] [0x10]
-write ${turn:messageDigestMD5Encoding(${messageIntegrityClient})}
+write ${turn:messageDigestMD5Encoding("joe:example.com:welcome")}
 
 #success
 read [0x01] [0x09] [0x00] [0x14]
@@ -162,5 +163,3 @@ read ${transactionID}
 #attribute Message-Integrity
 read [0x00] [0x08] [0x00] ${length}
 read ${messageDigest}
-
-

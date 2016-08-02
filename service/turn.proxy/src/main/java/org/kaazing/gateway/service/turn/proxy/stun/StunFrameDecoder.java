@@ -18,6 +18,7 @@ package org.kaazing.gateway.service.turn.proxy.stun;
 import static org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage.MAGIC_COOKIE;
 import static org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage.attributePaddedLength;
 
+import java.nio.BufferUnderflowException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.kaazing.gateway.service.turn.proxy.TurnProxyAcceptHandler;
 import org.kaazing.gateway.service.turn.proxy.TurnSessionState;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.ErrorCode;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.filter.codec.CumulativeProtocolDecoderEx;
@@ -78,11 +80,24 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
             return false;
         }
 
-        List<Attribute> attributes = decodeAttributes(in, messageLength);
-
-        StunProxyMessage stunMessage = new StunProxyMessage(messageClass, method, transactionId, attributes);
-        in.mark();
-        out.write(stunMessage);
+        try {
+            List<Attribute> attributes = decodeAttributes(in, messageLength);
+            StunProxyMessage stunMessage = new StunProxyMessage(messageClass, method, transactionId, attributes);
+            in.mark();
+            out.write(stunMessage);
+        } catch (BufferUnderflowException e) {
+            LOGGER.warn("Could not decode attributes: " + e.getMessage());
+            List<Attribute> errors = new ArrayList<>(1);
+            ErrorCode errorCode = new ErrorCode();
+            errorCode.setErrorCode(400);
+            errorCode.setErrMsg("Bad Request");
+            errors.add(errorCode);
+            StunProxyMessage stunMessage = new StunProxyMessage(StunMessageClass.ERROR, StunMessageMethod.ALLOCATE, transactionId, errors);
+            LOGGER.warn("replying with error message: " + stunMessage);
+            session.write(stunMessage);
+            in.mark();
+            return true; // TODO check return value should be true
+        }
         return true;
     }
 

@@ -23,6 +23,7 @@ import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.proxy.AbstractProxyAcceptHandler;
 import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
 import org.kaazing.gateway.service.turn.proxy.stun.StunCodecFilter;
+import org.kaazing.gateway.service.turn.proxy.stun.StunMessageClass;
 import org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.MappedAddress;
@@ -72,7 +73,7 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
     @Override
     public void messageReceived(IoSession session, Object message) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Recieved message [%s] from [%s] ", message, session);
+            LOGGER.debug(String.format("Received message [%s] from [%s]", message, session));
         }
         // For efficiency consider using map, set, or visitor pattern.
         if (message instanceof StunProxyMessage) {
@@ -82,11 +83,12 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
                     // TODO
                 } else if (attr instanceof XorPeerAddress || attr instanceof XorRelayAddress) {
                     // TODO
+
                 }
             }
             super.messageReceived(session, message);
-        }
 
+        }
     }
 
     /*

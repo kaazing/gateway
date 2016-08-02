@@ -105,8 +105,8 @@ public class AllocationsIT {
      */
     @Test
     @Specification({
-        "incorrect.length.given/request",
-        "incorrect.length.given/response" })
+            "incorrect.attribute.length.with.error.message.length/request",
+            "incorrect.attribute.length.with.error.message.length/no.response"})
     public void shouldGive400WithIncorrectLength() throws Exception {
         k3po.finish();
     }
@@ -149,8 +149,8 @@ public class AllocationsIT {
      */
     @Test
     @Specification({
-        "extra.bytes.responds.420/request",
-        "extra.bytes.responds.420/response" })
+        "unknown.attribute.responds.420/request",
+        "unknown.attribute.responds.420/response" })
     public void shouldRespond420ToExtraBytes() throws Exception {
         k3po.finish();
     }

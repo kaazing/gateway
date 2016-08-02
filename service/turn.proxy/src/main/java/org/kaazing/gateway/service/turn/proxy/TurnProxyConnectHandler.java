@@ -20,8 +20,12 @@ import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
 import org.kaazing.gateway.service.turn.proxy.stun.StunMessageClass;
 import org.kaazing.gateway.service.turn.proxy.stun.StunMessageMethod;
 import org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class TurnProxyConnectHandler extends AbstractProxyHandler {
+
+    static final Logger LOGGER = LoggerFactory.getLogger(TurnProxyConnectHandler.class);
 
     private final TurnProxyAcceptHandler acceptHandler;
 
@@ -35,8 +39,8 @@ class TurnProxyConnectHandler extends AbstractProxyHandler {
     @Override
     public void messageReceived(IoSession session, Object message) {
         if (session.getAttribute(TurnProxyAcceptHandler.TURN_STATE_KEY) != TurnSessionState.ALLOCATED && message instanceof StunProxyMessage) {
-            if (TurnProxyAcceptHandler.LOGGER.isDebugEnabled()) {
-                TurnProxyAcceptHandler.LOGGER.debug("Recieved message [%s] from [%s] ", message, session);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(String.format("Received message [%s] from [%s] ", message, session));
             }
             StunProxyMessage stunMessage = (StunProxyMessage) message;
             if (stunMessage.getMethod() == StunMessageMethod.ALLOCATE
