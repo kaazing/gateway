@@ -347,6 +347,9 @@ public class GatewayContextResolver {
         // Always add tcp
         schemeNames.add("tcp");
 
+        // Always add udp
+        schemeNames.add("udp");
+
         // override default scheme configuration
         for (SchemeConfig schemeConfig : schemeConfigs) {
             String schemeName = schemeConfig.getName();

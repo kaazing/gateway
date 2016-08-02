@@ -11,7 +11,7 @@
 
     <artifactId>gateway</artifactId>
     <name>Kaazing Gateway</name>
-    <version>5.2.0-RC002</version>
+    <version>develop-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <url>https://github.com/kaazing/gateway</url>
@@ -28,11 +28,11 @@
         <maven.compiler.testSource>1.8</maven.compiler.testSource>
         <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
         <hazelcast.version>1.9.4.8</hazelcast.version>
-        <k3po.version>3.0.0-alpha-34</k3po.version>
+        <k3po.version>3.0.0-alpha-37</k3po.version>
         <jdom.version>1.1</jdom.version>
         <jmock.version>2.6.0</jmock.version>
         <slf4j.log4j.version>1.7.21</slf4j.log4j.version>
-        <agrona.version>0.4.2</agrona.version>
+        <agrona.version>0.4.12</agrona.version>
         <enforcer.skip>true</enforcer.skip>
         <!-- Try to avoid huge heap size on Travis builds -->
         <failsafeArgLine>-Xmx1024m</failsafeArgLine>
@@ -204,6 +204,18 @@
             <dependency>
                 <groupId>org.kaazing</groupId>
                 <artifactId>specification.http</artifactId>
+                <version>${k3po.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>specification.tcp</artifactId>
+                <version>${k3po.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>specification.udp</artifactId>
                 <version>${k3po.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -400,6 +412,11 @@
                     <dependency>
                         <groupId>org.kaazing</groupId>
                         <artifactId>specification.tcp</artifactId>
+                        <version>${k3po.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.kaazing</groupId>
+                        <artifactId>specification.udp</artifactId>
                         <version>${k3po.version}</version>
                     </dependency>
                     <dependency>
