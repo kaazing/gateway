@@ -37,7 +37,7 @@ public enum AttributeType {
     XOR_PEER_ADDRESS("XOR-PEER-ADDRESS",        (short) 0x0012),
     REALM("REALM",                              (short) 0x0014),
     NONCE("NONCE",                              (short) 0x0015),
-    XOR_RELAY_ADDRESS("XOR-PEER-ADDRESS",       (short) 0x0016),
+    XOR_RELAY_ADDRESS("XOR-RELAYED-ADDRESS",    (short) 0x0016),
     EVEN_PORT("EVEN-PORT",                      (short) 0x0018),
     XOR_MAPPED_ADDRESS("XOR-MAPPED-ADDRESS",    (short) 0x0020),
     RESERVATION_TOKEN("RESERVATION-TOKEN",      (short) 0x0022),

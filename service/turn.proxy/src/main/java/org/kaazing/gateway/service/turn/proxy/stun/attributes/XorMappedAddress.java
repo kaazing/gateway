@@ -17,9 +17,14 @@ package org.kaazing.gateway.service.turn.proxy.stun.attributes;
 
 import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType.XOR_MAPPED_ADDRESS;
 
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 public class XorMappedAddress extends AbstractAddress {
+
+    public XorMappedAddress(InetSocketAddress address) {
+        super(address);
+    }
 
     public XorMappedAddress(byte[] variable) {
         super(variable);

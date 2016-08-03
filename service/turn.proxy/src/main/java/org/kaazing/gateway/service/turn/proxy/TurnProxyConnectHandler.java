@@ -20,8 +20,19 @@ import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
 import org.kaazing.gateway.service.turn.proxy.stun.StunMessageClass;
 import org.kaazing.gateway.service.turn.proxy.stun.StunMessageMethod;
 import org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.*;
+import org.kaazing.k3po.lang.el.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 class TurnProxyConnectHandler extends AbstractProxyHandler {
 
@@ -46,6 +57,28 @@ class TurnProxyConnectHandler extends AbstractProxyHandler {
             if (stunMessage.getMethod() == StunMessageMethod.ALLOCATE
                     && stunMessage.getMessageClass() == StunMessageClass.RESPONSE) {
                 session.setAttribute(TurnProxyAcceptHandler.TURN_STATE_KEY, TurnSessionState.ALLOCATED);
+
+
+
+
+                // TODO here we should override the mapped address and the relay address
+                // mapped address -> get the acceptor session ip and port
+                //                   could also used a configured value
+                AttachedSessionManager attachedSessionManager = getAttachedSessionManager(session);
+                IoSession acceptSession = attachedSessionManager.getAttachedSession();
+                LOGGER.debug(acceptSession.getRemoteAddress().toString());
+                if (acceptSession.getRemoteAddress() instanceof InetSocketAddress) {
+                    InetSocketAddress acceptAddress = (InetSocketAddress) acceptSession.getRemoteAddress();
+                    for (int i = 0; i < stunMessage.getAttributes().size(); i++) {
+                        Attribute attribute = stunMessage.getAttributes().get(i);
+                        if (attribute instanceof MappedAddress) {
+                            stunMessage.getAttributes().set(i, new MappedAddress(acceptAddress));
+                        } else if (attribute instanceof XorMappedAddress) {
+                            stunMessage.getAttributes().set(i, new XorMappedAddress(acceptAddress));
+                        }
+                    }
+                }
+                // relay address -> the proxy's address and port ???
             }
         }
         super.messageReceived(session, message);

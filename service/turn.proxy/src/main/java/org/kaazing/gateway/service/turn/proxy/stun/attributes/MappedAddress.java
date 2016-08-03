@@ -17,12 +17,17 @@ package org.kaazing.gateway.service.turn.proxy.stun.attributes;
 
 import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType.MAPPED_ADDRESS;
 
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 /**
  * Stun Mapped Address attribute as defined in https://tools.ietf.org/html/rfc5389#section-15.1
  */
 public class MappedAddress extends AbstractAddress {
+
+    public MappedAddress(InetSocketAddress address) {
+        super(address);
+    }
 
     public MappedAddress(byte[] variable) {
         super(variable);

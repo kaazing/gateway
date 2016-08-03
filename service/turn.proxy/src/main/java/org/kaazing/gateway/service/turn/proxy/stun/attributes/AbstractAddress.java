@@ -18,6 +18,7 @@ package org.kaazing.gateway.service.turn.proxy.stun.attributes;
 import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AbstractAddress.Family.IPV4;
 import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AbstractAddress.Family.IPV6;
 
+import java.net.*;
 import java.util.Arrays;
 
 /**
@@ -53,6 +54,19 @@ public abstract class AbstractAddress extends Attribute {
             }
             throw new InvalidAttributeException("No address family for: " + b);
         }
+    }
+
+    public AbstractAddress(InetSocketAddress address) {
+        InetAddress inetAddress = address.getAddress();
+        if (inetAddress instanceof Inet4Address) {
+            this.family = IPV4;
+        } else if (inetAddress instanceof Inet6Address) {
+            this.family = IPV6;
+        } else {
+            throw new InvalidAttributeException("No address family for: " + inetAddress.getClass());
+        }
+        this.setPort(address.getPort());
+        this.address = inetAddress.getAddress();
     }
 
     public AbstractAddress(byte[] variable) {
@@ -116,5 +130,15 @@ public abstract class AbstractAddress extends Attribute {
             temp[i] = (byte) (temp[i] ^ MAGIC_COOKIE[i % 4]);
         }
         return temp;
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return String.format("%s - %s:%s", super.toString(), InetAddress.getByAddress(getAddress()), getPort());
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return super.toString();
     }
 }
