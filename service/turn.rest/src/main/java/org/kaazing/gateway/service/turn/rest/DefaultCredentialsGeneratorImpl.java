@@ -23,10 +23,10 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.Subject;
 
-public class TestCredentialsGenerator implements TurnRestCredentialsGenerator {
+public class DefaultCredentialsGeneratorImpl implements TurnRestCredentialsGenerator {
 
     public static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
-    
+
     private long ttl;
     private Certificate alias;
     private char separator;
@@ -44,33 +44,31 @@ public class TestCredentialsGenerator implements TurnRestCredentialsGenerator {
     @Override
     public void setUsernameSeparator(char separator) {
         this.separator = separator;
-    }    
-    
+    }
+
     @Override
     public TurnRestCredentials generate(Subject subject) {
         String username;
         char[] password;
 
         long unixTime = Instant.now().getEpochSecond() + ttl;
-        
-        try {    
+
+        try {
             username = unixTime + Character.toString(this.separator) + subject.getPrincipals().iterator().next().getName();
         } catch (Exception e) {
-            throw new IllegalArgumentException("Missing Subject");
+            throw new IllegalArgumentException("Missing Subject", e);
         }
-          
+
         try {
             Mac hmacSHA1 = Mac.getInstance(HMAC_SHA1_ALGORITHM);
             SecretKeySpec signingKey = new SecretKeySpec(this.alias.getPublicKey().getEncoded(), HMAC_SHA1_ALGORITHM);
             hmacSHA1.init(signingKey);
             password = Base64.getEncoder().encodeToString(hmacSHA1.doFinal(username.getBytes())).toCharArray();
         } catch (Exception e) {
-            throw new RuntimeException("Password formation failed");  
+            throw new TurnServiceException("Password formation failed", e);
         }
-  
-        DefaultTurnRestCredentials credentials = new DefaultTurnRestCredentials(username, password);
-        return credentials;
+
+        return new DefaultTurnRestCredentials(username, password);
     }
 
 }
-

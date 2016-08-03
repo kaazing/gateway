@@ -15,19 +15,19 @@
  */
 package org.kaazing.gateway.service.turn.rest;
 
+import java.text.MessageFormat;
+
 public final class TurnRestJSONResponse {
-    
-    private TurnRestJSONResponse() {   
+
+    private TurnRestJSONResponse() {
     }
-    
+
     public static String createResponse(String username, char[] password, String ttl, String uris) {
-        String response = "{";
+        String response = "";
         if (username != null && password != null) {
-            response = "\"username\":\"" + username + "\",\"password\":\"" 
-                    + String.valueOf(password) + "\",";
+            response = MessageFormat.format("\"username\":\"{0}\",\"password\":\"{1}\",", username, new String(password));
         }
-        response = response + "\"ttl\":" + ttl + ",\"uris\":[" + uris + "]}";
+        response = MessageFormat.format("'{'{0}\"ttl\":{1},\"uris\":[{2}]'}'", response, ttl, uris);
         return response;
     }
-    
 }

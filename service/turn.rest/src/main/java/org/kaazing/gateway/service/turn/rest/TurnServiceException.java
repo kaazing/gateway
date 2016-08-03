@@ -15,24 +15,15 @@
  */
 package org.kaazing.gateway.service.turn.rest;
 
-import java.util.Collection;
-import java.util.Collections;
+public class TurnServiceException extends RuntimeException {
 
-import org.kaazing.gateway.service.Service;
-import org.kaazing.gateway.service.ServiceFactorySpi;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -2542024439819718984L;
 
-public class TurnRestServiceFactorySpi extends ServiceFactorySpi {
-
-    @Override
-    public Collection<String> getServiceTypes() {
-        return Collections.singletonList("turn.rest");
+    public TurnServiceException(String message, Exception cause) {
+        super(message, cause);
     }
 
-    @Override
-    public Service newService(String serviceType) {
-        if (!"turn.rest".equals(serviceType)) {
-            throw new IllegalArgumentException("Wrong service type. Expected 'turn.rest' but got "+serviceType);
-        }
-        return new TurnRestService();
-    }
 }

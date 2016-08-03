@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.service.turn.rest;
 
-import static org.kaazing.gateway.service.ServiceProperties.LIST_SEPARATOR;
 
 import java.security.KeyStore;
 import java.util.Properties;
@@ -28,6 +27,7 @@ import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
+import static org.kaazing.gateway.service.util.ServiceUtils.LIST_SEPARATOR;
 
 /**
  * Gateway service of type "turn.rest".
@@ -40,9 +40,6 @@ public class TurnRestService implements Service {
     private ServiceContext serviceContext;
     private SecurityContext securityContext;
     private Properties configuration;
-
-    public TurnRestService() {
-    }
 
     @Resource(name = "securityContext")
     public void setSecurityContext(SecurityContext securityContext) {
@@ -75,26 +72,28 @@ public class TurnRestService implements Service {
         String uris = u.toString();
         
         String credentialGeneratorClassName = properties.get("generate.credentials");
-        TurnRestCredentialsGenerator credentialGeneratorInstance = null;
-        if (credentialGeneratorClassName != null) {
-            Class<? extends TurnRestCredentialsGenerator> credentialGeneratorClass;
-            if (credentialGeneratorClassName.startsWith(CLASS_PREFIX)) {
-                String className = credentialGeneratorClassName.substring(CLASS_PREFIX.length());
-                try {
-                    Class<?> clazz = Class.forName(className);
-                    if (!TurnRestCredentialsGenerator.class.isAssignableFrom(clazz)) {
-                        throw new IllegalArgumentException("Invalid credential generator class: " + className);
-                    }
-                    credentialGeneratorClass = (Class<? extends TurnRestCredentialsGenerator>) clazz;
-                    credentialGeneratorInstance = credentialGeneratorClass.newInstance();
-                } catch (ClassNotFoundException e) {
-                    throw new IllegalArgumentException("Unknown credential generator class: " + className);
-                }
-            } else {
-                throw new IllegalArgumentException("Class name must have \"class:\" prefix.");
-            }
+        TurnRestCredentialsGenerator credentialGeneratorInstance;
+        if (credentialGeneratorClassName == null) {
+            return;
+        }
+        Class<? extends TurnRestCredentialsGenerator> credentialGeneratorClass;
+        if (!credentialGeneratorClassName.startsWith(CLASS_PREFIX)) {
+            throw new IllegalArgumentException("Class name must have \"class:\" prefix.");
         }
         
+        String className = credentialGeneratorClassName.substring(CLASS_PREFIX.length());
+
+        try {
+            Class<?> clazz = Class.forName(className);
+            if (!TurnRestCredentialsGenerator.class.isAssignableFrom(clazz)) {
+                throw new IllegalArgumentException("Invalid credential generator class: " + className);
+            }
+            credentialGeneratorClass = (Class<? extends TurnRestCredentialsGenerator>) clazz;
+            credentialGeneratorInstance = credentialGeneratorClass.newInstance();
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException("Unknown credential generator class: " + className, e);
+        }
+
         handler = new TurnRestServiceHandler(options, keystore, credentialGeneratorInstance, uris);
     }
 
@@ -123,5 +122,6 @@ public class TurnRestService implements Service {
 
     @Override
     public void destroy() throws Exception {
+        // nothing to do when closing TurnRestService
     }
 }

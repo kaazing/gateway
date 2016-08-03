@@ -24,7 +24,7 @@ import static org.kaazing.gateway.resource.address.uri.URIUtils.getPort;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getQuery;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getUserInfo;
-import static org.kaazing.gateway.service.ServiceProperties.LIST_SEPARATOR;
+import static org.kaazing.gateway.service.util.ServiceUtils.LIST_SEPARATOR;
 
 import java.io.File;
 import java.lang.reflect.Method;

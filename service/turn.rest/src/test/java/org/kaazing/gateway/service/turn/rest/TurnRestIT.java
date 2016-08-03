@@ -59,7 +59,7 @@ public class TurnRestIT {
                                 .requireRole("username")
                             .done()
                             .property(EarlyAccessFeatures.TURN_REST_SERVICE.getPropertyName(), "true")
-                            .property("generate.credentials", "class:" + TestCredentialsGenerator.class.getName())
+                            .property("generate.credentials", "class:" + DefaultCredentialsGeneratorImpl.class.getName())
                             .nestedProperty("uris")
                                 .property("uri", "uri1")
                                 .property("uri", "uri2")

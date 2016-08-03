@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.service.turn.rest;
 
-import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.util.Arrays;
@@ -33,13 +32,14 @@ import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 
 class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
-    
+
     private ServiceProperties options;
     private KeyStore keystore;
     private TurnRestCredentialsGenerator credentialGenerator;
     private String uris;
 
-    TurnRestServiceHandler(ServiceProperties options, KeyStore keystore, TurnRestCredentialsGenerator credentialGenerator, String uris) {
+    TurnRestServiceHandler(ServiceProperties options, KeyStore keystore, TurnRestCredentialsGenerator credentialGenerator,
+            String uris) {
         this.options = options;
         this.keystore = keystore;
         this.credentialGenerator = credentialGenerator;
@@ -47,64 +47,62 @@ class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
     }
 
     @Override
-    protected void doSessionOpened(HttpAcceptSession session) throws Exception {        
+    protected void doSessionOpened(HttpAcceptSession session) throws Exception {
         HttpMethod method = session.getMethod();
         String service = session.getParameter("service");
-      
+
         String ttl = options.get("credentials.ttl");
         Certificate alias = keystore.getCertificate(options.get("key.alias"));
         char separator = options.get("username.separator").charAt(0);
-         
-        if (method != HttpMethod.GET) {
+
+        if (method != HttpMethod.POST) {
             session.setStatus(HttpStatus.CLIENT_METHOD_NOT_ALLOWED);
             session.close(false);
-            throw new IllegalArgumentException("HTTP method not allowed: " + method);        
-        } else if (!service.equals("turn")) {
+            throw new IllegalArgumentException("HTTP method not allowed: " + method);
+        } else if (!"turn".equals(service)) {
             session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
             session.close(false);
             throw new IllegalArgumentException("Unsupported/invalid service: " + service);
         }
-        
+
         session.setVersion(HttpVersion.HTTP_1_1);
         session.setWriteHeader(HttpHeaders.HEADER_CONTENT_TYPE, "application/json");
- 
-        Subject subject = session.getSubject();
-        
+
         if (ttl == null) {
             ttl = session.getParameter("Max-Age");
         }
-       
-        TurnRestCredentials credentials = null;
+
         String username = null;
         char[] password = null;
         if (credentialGenerator != null) {
             credentialGenerator.setCredentialsTTL(ttl);
             credentialGenerator.setKeyAlias(alias);
             credentialGenerator.setUsernameSeparator(separator);
-            credentials = credentialGenerator.generate(subject);
+
+            Subject subject = session.getSubject();
+            TurnRestCredentials credentials = credentialGenerator.generate(subject);
             username = credentials.getUsername();
             password = credentials.getPassword();
         }
-     
-        String response = TurnRestJSONResponse.createResponse(username, password, ttl, this.uris); 
-        CharSequence responseChars = response;
-        
+
+        String response = TurnRestJSONResponse.createResponse(username, password, ttl, this.uris);
+
         if (password != null) {
             Arrays.fill(password, '0');
         }
-        
+
         // get io buffer for file
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
         IoBufferEx out = allocator.wrap(allocator.allocate(response.length())).setAutoExpander(allocator);
         out.put(response.getBytes());
-        out.putString(responseChars, StandardCharsets.UTF_8.newEncoder());
-       
+        out.flip();
         // add content length
         session.setWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, Integer.toString(out.remaining()));
+        session.setWriteHeader(HttpHeaders.HEADER_MAX_AGE, ttl);
 
         // write buffer and close session
-        session.write(out);    
+        session.write(out);
         session.close(false);
     }
-    
+
 }

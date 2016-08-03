@@ -44,7 +44,7 @@ import java.util.List;
  */
 public interface ServiceProperties {
 
-    public static final String LIST_SEPARATOR = ",";
+
     
     String get(String name);
 
