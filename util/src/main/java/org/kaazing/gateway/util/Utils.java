@@ -624,19 +624,47 @@ public final class Utils {
 
             try {
                 if (SECONDS_UNITS.contains(unit.toLowerCase())) {
-                    result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.SECONDS));
+                    if (providedMultiplier < 1) {
+                    	result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.SECONDS));
+                    } else {
+                    	result = (long) (outputUnit.convert((long)providedMultiplier, TimeUnit.SECONDS));
+                    }
                 } else if (MILLISECONDS_UNITS.contains(unit.toLowerCase())) {
-                	result = (long) (outputUnit.convert((long)providedMultiplier, TimeUnit.MILLISECONDS));
+                    if (providedMultiplier < 1) {
+                    	result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.MILLISECONDS));
+                    } else {
+                    	result = (long) (outputUnit.convert((long)providedMultiplier, TimeUnit.MILLISECONDS));
+                    }
                 } else if (MINUTES_UNITS.contains(unit.toLowerCase())) {
-                    result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.MINUTES));
+                    if (providedMultiplier < 1) {
+                    	result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.MINUTES));
+                    } else {
+                    	result = (long) (outputUnit.convert((long)providedMultiplier, TimeUnit.MINUTES));
+                    }
                 } else if (HOURS_UNITS.contains(unit.toLowerCase())) {
-                    result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.HOURS));
+                    if (providedMultiplier < 1) {
+                    	result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.HOURS));
+                    } else {
+                    	result = (long) (outputUnit.convert((long)providedMultiplier, TimeUnit.HOURS));
+                    }
                 } else if (DAYS_UNITS.contains(unit.toLowerCase())) {
-                    result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.DAYS));
+                    if (providedMultiplier < 1) {
+                    	result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.DAYS));
+                    } else {
+                    	result = (long) (outputUnit.convert((long)providedMultiplier, TimeUnit.DAYS));
+                    }
                 } else if (WEEKS_UNITS.contains(unit.toLowerCase())) {
-                    result = (long) (providedMultiplier * outputUnit.convert(NO_OF_DAYS_IN_A_WEEK * result, TimeUnit.DAYS));
+                    if (providedMultiplier < 1) {
+                    	result = (long) (providedMultiplier * outputUnit.convert(NO_OF_DAYS_IN_A_WEEK * result, TimeUnit.DAYS));
+                    } else {
+                    	result = (long) (outputUnit.convert(NO_OF_DAYS_IN_A_WEEK * (long)providedMultiplier, TimeUnit.DAYS));
+                    }
                 } else if (YEARS_UNITS.contains(unit.toLowerCase())) {
-                    result = (long) (providedMultiplier * outputUnit.convert(NO_OF_DAYS_IN_A_YEAR * result, TimeUnit.DAYS));
+                    if (providedMultiplier < 1) {
+                    	result = (long) (providedMultiplier * outputUnit.convert(NO_OF_DAYS_IN_A_YEAR * result, TimeUnit.DAYS));
+                    } else {
+                    	result = (long) (outputUnit.convert(NO_OF_DAYS_IN_A_YEAR * (long)providedMultiplier, TimeUnit.DAYS));
+                    }
                 }
                 if (result < 0) {
                     throw new NumberFormatException("Expected a non-negative time interval, received \""
