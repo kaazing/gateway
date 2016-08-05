@@ -177,18 +177,28 @@ public class ParseTimeIntervalTest {
 
     @Test
     public void testCastSeconds() throws Exception {
-        assertEquals(31536000, Utils.parseTimeInterval("31536000s", TimeUnit.SECONDS, 0));
+    	assertEquals(31536000, Utils.parseTimeInterval("31536000s", TimeUnit.SECONDS, 0));
         assertEquals(525600, Utils.parseTimeInterval("31536000s", TimeUnit.MINUTES, 0));
         assertEquals(8760, Utils.parseTimeInterval("31536000s", TimeUnit.HOURS, 0));
         assertEquals(NO_OF_DAYS_IN_A_YEAR, Utils.parseTimeInterval("31536000s", TimeUnit.DAYS, 0));
+        assertEquals(0, Utils.parseTimeInterval("1s", TimeUnit.MINUTES, 0));
+        assertEquals(0, Utils.parseTimeInterval("3599s", TimeUnit.HOURS, 0));
     }
 
     @Test
-    public void testCastYears() throws Exception {
-        assertEquals(31536000, Utils.parseTimeInterval("1year", TimeUnit.SECONDS, 0));
-        assertEquals(525600, Utils.parseTimeInterval("1year", TimeUnit.MINUTES, 0));
-        assertEquals(8760, Utils.parseTimeInterval("1year", TimeUnit.HOURS, 0));
-        assertEquals(NO_OF_DAYS_IN_A_YEAR, Utils.parseTimeInterval("1year", TimeUnit.DAYS, 0));
+    public void testCastHours() throws Exception {
+        assertEquals(3600, Utils.parseTimeInterval("1h", TimeUnit.SECONDS, 0));
+        assertEquals(60, Utils.parseTimeInterval("1h", TimeUnit.MINUTES, 0));
+        assertEquals(1, Utils.parseTimeInterval("1h", TimeUnit.HOURS, 0));
+        assertEquals(0, Utils.parseTimeInterval("1h", TimeUnit.DAYS, 0));
+    }
+
+    @Test
+    public void testCastDays() throws Exception {
+        assertEquals(86400, Utils.parseTimeInterval("1d", TimeUnit.SECONDS, 0));
+        assertEquals(1440, Utils.parseTimeInterval("1d", TimeUnit.MINUTES, 0));
+        assertEquals(24, Utils.parseTimeInterval("1d", TimeUnit.HOURS, 0));
+        assertEquals(1, Utils.parseTimeInterval("1d", TimeUnit.DAYS, 0));
     }
 
     @Test
@@ -197,6 +207,14 @@ public class ParseTimeIntervalTest {
         assertEquals(10080, Utils.parseTimeInterval("1week", TimeUnit.MINUTES, 0));
         assertEquals(168, Utils.parseTimeInterval("1week", TimeUnit.HOURS, 0));
         assertEquals(NO_OF_DAYS_IN_A_WEEK, Utils.parseTimeInterval("1week", TimeUnit.DAYS, 0));
+    }
+
+    @Test
+    public void testCastYears() throws Exception {
+        assertEquals(31536000, Utils.parseTimeInterval("1year", TimeUnit.SECONDS, 0));
+        assertEquals(525600, Utils.parseTimeInterval("1year", TimeUnit.MINUTES, 0));
+        assertEquals(8760, Utils.parseTimeInterval("1year", TimeUnit.HOURS, 0));
+        assertEquals(NO_OF_DAYS_IN_A_YEAR, Utils.parseTimeInterval("1year", TimeUnit.DAYS, 0));
     }
 
     @Test
