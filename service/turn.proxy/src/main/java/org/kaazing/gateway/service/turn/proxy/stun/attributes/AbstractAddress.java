@@ -1,12 +1,12 @@
 /**
  * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,8 +23,20 @@ import java.util.Arrays;
 
 /**
  * Abstract address based attribute class for other Address attributes to extend.
- *
+ * Support XOR encoded fields as defined here: https://tools.ietf.org/html/rfc5389#section-15.2
+   Excerpt:
+        X-Port is computed by taking the mapped port in host byte order,
+        XOR'ing it with the most significant 16 bits of the magic cookie, and
+        then the converting the result to network byte order.  If the IP
+        address family is IPv4, X-Address is computed by taking the mapped IP
+        address in host byte order, XOR'ing it with the magic cookie, and
+        converting the result to network byte order.  If the IP address
+        family is IPv6, X-Address is computed by taking the mapped IP address
+        in host byte order, XOR'ing it with the concatenation of the magic
+        cookie and the 96-bit transaction ID, and converting the result to
+        network byte order.
  */
+
 public abstract class AbstractAddress extends Attribute {
 
     private static final byte[] MAGIC_COOKIE = new byte[]{(byte) 0x21, (byte) 0x12, (byte) 0xA4, (byte) 0x42};
@@ -32,18 +44,25 @@ public abstract class AbstractAddress extends Attribute {
     protected byte[] address;
     protected int port;
     private Family family;
+    private byte[] transactionId;
 
     enum Family {
-        IPV4((byte) 0x01), IPV6((byte) 0x02);
+        IPV4((byte) 0x01, 4), IPV6((byte) 0x02, 16);
 
         private final byte encoding;
+        private final int length;
 
-        Family(byte encoding) {
+        Family(byte encoding, int length) {
             this.encoding = encoding;
+            this.length = length;
         }
 
         byte getEncoding() {
             return encoding;
+        }
+
+        public int getLength() {
+            return length;
         }
 
         public static Family fromValue(byte b) {
@@ -69,13 +88,27 @@ public abstract class AbstractAddress extends Attribute {
         this.address = inetAddress.getAddress();
     }
 
+    public AbstractAddress(InetSocketAddress address, byte[] transactionId) {
+        this(address);
+        if (transactionId.length == IPV6.length - MAGIC_COOKIE.length) {
+            this.transactionId = transactionId;
+        } else {
+            throw new InvalidAttributeException("Invalid length for transactionId: " + transactionId.length);
+        }
+    }
+
     public AbstractAddress(byte[] variable) {
         this.family = Family.fromValue(variable[1]);
         this.setPort(((variable[2] << 8)) + (variable[3] & 0xff));
-        if (this.family == Family.IPV4) {
-            this.address = Arrays.copyOfRange(variable, 4, 8);
-        } else if (this.family == Family.IPV6) {
-            this.address = Arrays.copyOfRange(variable, 4, 20);
+        this.address = Arrays.copyOfRange(variable, 4, 4 + this.family.length);
+    }
+
+    public AbstractAddress(byte[] variable, byte[] transactionId) {
+        this(variable);
+        if (transactionId.length == IPV6.length - MAGIC_COOKIE.length) {
+            this.transactionId = transactionId;
+        } else {
+            throw new InvalidAttributeException("Invalid length for transactionId: " + transactionId.length);
         }
     }
 
@@ -92,9 +125,9 @@ public abstract class AbstractAddress extends Attribute {
     }
 
     public void setAddress(byte[] address) {
-        if (address.length == 32 / 8) {
+        if (address.length == IPV4.length) {
             family = IPV4;
-        } else if (address.length == 128 / 8) {
+        } else if (address.length == IPV6.length) {
             family = IPV6;
         } else {
             throw new InvalidAttributeException("Address is neither IPv4 or IPv6");
@@ -104,17 +137,13 @@ public abstract class AbstractAddress extends Attribute {
 
     @Override
     public short getLength() {
-        if (this.getFamily() == IPV4) {
-            return 8;
-        } else {
-            return 20;
-        }
+        return (short) (this.family.length + 4);
     }
 
     public Family getFamily() {
-        if (address.length == 32 / 8) {
+        if (address.length == IPV4.length) {
             return IPV4;
-        } else if (address.length == 128 / 8) {
+        } else if (address.length == IPV6.length) {
             return IPV6;
         }
         throw new InvalidAttributeException("Address is not of IPv4 or IPv6 family");
@@ -126,16 +155,35 @@ public abstract class AbstractAddress extends Attribute {
 
     protected byte[] xorWithMagicCookie(byte[] bytes) {
         byte[] temp = bytes.clone();
-        for (int i = 0; i < temp.length; i++) {
-            temp[i] = (byte) (temp[i] ^ MAGIC_COOKIE[i % 4]);
+        if (this.family.equals(Family.IPV4) && temp.length == IPV4.length) {
+            for (int i = 0; i < temp.length; i++) {
+                temp[i] = (byte) (temp[i] ^ MAGIC_COOKIE[i]);
+            }
+        } else if (this.family.equals(Family.IPV6) && temp.length == IPV6.length) {
+            byte[] xor = new byte[IPV6.length];
+            System.arraycopy(MAGIC_COOKIE, 0, xor, 0, MAGIC_COOKIE.length);
+            System.arraycopy(transactionId, 0, xor, MAGIC_COOKIE.length, IPV6.length - MAGIC_COOKIE.length);
+            for (int i = 0; i < temp.length; i++) {
+                temp[i] = (byte) (temp[i] ^ xor[i]);
+            }
+        } else {
+            throw new InvalidAttributeException("Cannot xor given byte array, incorrect length: " + temp.length);
         }
+
         return temp;
     }
 
     @Override
     public String toString() {
         try {
-            return String.format("%s - %s:%s", super.toString(), InetAddress.getByAddress(getAddress()), getPort());
+            StringBuilder sb = new StringBuilder();
+            for (byte b : getVariable()) {
+                sb.append(String.format("%02X ", b));
+            }
+            return String.format(
+                    "%s - %s:%s - %s",
+                    super.toString(), InetAddress.getByAddress(getAddress()), getPort(), sb.toString()
+            );
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }

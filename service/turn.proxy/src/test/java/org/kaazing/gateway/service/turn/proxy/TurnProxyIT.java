@@ -48,8 +48,10 @@ public class TurnProxyIT {
                             .accept("tcp://localhost:3478")
                             .connect("tcp://localhost:3479")
                             .type("turn.proxy")
+                            .property("mapped.address", "192.0.2.15:8080")
+
+                            // TODO relay adress override
 //                            .property("relay.address.mask", propertyValue)
-//                            .property("mapped.address", propertyValue)
                         .done()
                     .done();
             // @formatter:on
@@ -61,10 +63,14 @@ public class TurnProxyIT {
     public final TestRule chain = outerRule(gateway).around(k3po).around(timeout);
 
     @Test
-    @Specification({"default.turn.protocol.test/request", "default.turn.protocol.test/response"})
+    @Specification({
+        "default.turn.protocol.test/request",
+        "default.turn.protocol.test/response"
+    })
     public void shouldPassWithDefaultTurnProtocolTest() throws Exception {
-        // TODO
         k3po.finish();
     }
+
+    // TODO create also a test for IPv6
 
 }

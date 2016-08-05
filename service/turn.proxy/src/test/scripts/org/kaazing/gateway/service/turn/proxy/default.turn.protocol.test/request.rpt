@@ -78,7 +78,6 @@ write [0x00] [0x15] [0x00] [0x20]
 write ${nonce}
 #Attribute Message-Integrity
 write [0x00] [0x08] [0x00] [0x10]
-write ${turn:generateTransactionId()}
 write ${turn:messageDigestMD5Encoding("joe:example.com:welcome")}
 
 #200 response w/ mapped address
@@ -91,11 +90,11 @@ read [0x00] [0x0d] [0x00] [0x04]
 read [0x00] [0x00] [0x0c] [0x08]
 #Attribute XOR-Relayed-Address
 read [0x00] [0x16] [0x00] [0x08]
-read [0xff] [0x01] ${turn:portXOR(8080)} #port 8080
+read [0x00] [0x01] ${turn:portXOR(8080)} #port 8080
 read ([0..4]:relay_address)
 #Attribute XOR-Mapped-Address
 read [0x00] [0x20] [0x00] [0x08]
-read [0xff] [0x01] ${turn:portXOR(8080)} #port 8080
+read [0x00] [0x01] ${turn:portXOR(8080)} #port 8080
 read ([0..4]:mapped_address)
 #Attribute Message-Integrity
 read [0x00] [0x08] [0x00] (byte:length)
@@ -108,8 +107,11 @@ write [0x21] [0x12] [0xa4] [0x42] #Magic Cookie
 write ${transactionID}
 #Attribute XOR-Peer-Address
 write [0x00] [0x12] [0x00] [0x08]
-write [0xff] [0x01] ${turn:portXOR(8001)} #port 8001
-write ${turn:ipXOR("192.0.2.1")}
+
+# unmodified peer address
+write [0x00] [0x01] ${turn:portXOR(8001)} #port 8001
+write ${turn:ipXOR("192.0.2.16")}
+
 #Attribute Username
 write [0x00] [0x06] [0x00] [0x03]
 write "joe" [0x00]
@@ -120,7 +122,7 @@ write ${realm} [0x00]
 write [0x00] [0x15] [0x00] [0x20]
 write ${nonce}
 #Attribute Message-Integrity
-write [0x00] [0x08] [0x00] [0x10]
+write [0x00] [0x08] [0x00] ${length}
 write ${turn:messageDigestMD5Encoding("joe:example.com:welcome")}
 
 #success

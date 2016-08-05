@@ -15,16 +15,9 @@
  */
 package org.kaazing.gateway.service.turn.proxy.stun;
 
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.EvenPort;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.Fingerprint;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.MappedAddress;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.MessageIntegrity;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.ReservationToken;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorMappedAddress;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorPeerAddress;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorRelayAddress;
+import com.ibm.icu.text.StringPrep;
+import com.ibm.icu.text.StringPrepParseException;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.*;
 
 public class StunAttributeFactory {
 
@@ -37,18 +30,24 @@ public class StunAttributeFactory {
     public StunAttributeFactory(CredentialType credentialType) {
         super();
         this.credentialType = credentialType;
+
+        try {
+            StringPrep.getInstance(StringPrep.RFC4013_SASLPREP).prepare("", StringPrep.DEFAULT);
+        } catch (StringPrepParseException e) {
+            e.printStackTrace();
+        }
     }
 
-    public Attribute get(int type, short length, byte[] value) {
+    public Attribute get(int type, short length, byte[] value, byte[] transactionId) {
         switch (AttributeType.valueOf(type)) {
         case MAPPED_ADDRESS:
             return new MappedAddress(value);
         case XOR_MAPPED_ADDRESS:
-            return new XorMappedAddress(value);
+            return new XorMappedAddress(value, transactionId);
         case XOR_PEER_ADDRESS:
-            return new XorPeerAddress(value);
+            return new XorPeerAddress(value, transactionId);
         case XOR_RELAY_ADDRESS:
-            return new XorRelayAddress(value);
+            return new XorRelayAddress(value, transactionId);
 //        case EVEN_PORT:
 //            return new EvenPort(value);
 //        case RESERVATION_TOKEN:
@@ -64,35 +63,3 @@ public class StunAttributeFactory {
     }
 }
 
-/**
- * When we pass Attribute through proxy without modifying or needing to understand it 
- *
- */
-class ProxyNoopAttribute extends Attribute {
-
-    private final short type;
-    private final short length;
-    private final byte[] value;
-
-    public ProxyNoopAttribute(short type, short length, byte[] value) {
-        this.type = type;
-        this.length = length;
-        this.value = value;
-    }
-
-    @Override
-    public short getType() {
-        return (short) type;
-    }
-
-    @Override
-    public short getLength() {
-        return length;
-    }
-
-    @Override
-    public byte[] getVariable() {
-        return value;
-    }
-
-}

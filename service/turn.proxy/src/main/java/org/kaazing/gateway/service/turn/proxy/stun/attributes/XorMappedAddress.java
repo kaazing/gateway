@@ -22,12 +22,12 @@ import java.nio.ByteBuffer;
 
 public class XorMappedAddress extends AbstractAddress {
 
-    public XorMappedAddress(InetSocketAddress address) {
-        super(address);
+    public XorMappedAddress(InetSocketAddress address, byte[] transactionId) {
+        super(address, transactionId);
     }
 
-    public XorMappedAddress(byte[] variable) {
-        super(variable);
+    public XorMappedAddress(byte[] variable, byte[] transactionId) {
+        super(variable, transactionId);
         setPort(xorWithMagicCookie((short) getPort()));
         setAddress(xorWithMagicCookie(getAddress()));
     }
@@ -43,9 +43,15 @@ public class XorMappedAddress extends AbstractAddress {
         byteBuffer.put((byte) 0x00);
         byteBuffer.put(getFamily().getEncoding());
         byteBuffer.putShort(xorWithMagicCookie((short) getPort()));
+
         byteBuffer.put(xorWithMagicCookie(getAddress()));
         
         return byteBuffer.array();
     }
 
+    @Override
+    protected byte[] xorWithMagicCookie(byte[] bytes) {
+
+        return super.xorWithMagicCookie(bytes);
+    }
 }

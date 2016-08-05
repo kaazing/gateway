@@ -81,7 +81,7 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
         }
 
         try {
-            List<Attribute> attributes = decodeAttributes(in, messageLength);
+            List<Attribute> attributes = decodeAttributes(in, messageLength, transactionId);
             StunProxyMessage stunMessage = new StunProxyMessage(messageClass, method, transactionId, attributes);
             in.mark();
             out.write(stunMessage);
@@ -101,7 +101,7 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
         return true;
     }
 
-    private List<Attribute> decodeAttributes(IoBufferEx in, short remaining) {
+    private List<Attribute> decodeAttributes(IoBufferEx in, short remaining, byte[] transactionId) {
         List<Attribute> stunMessageAttributes = new ArrayList<>();
         // Any attribute type MAY appear more than once in a STUN message.
         // Unless specified otherwise, the order of appearance is significant:
@@ -115,7 +115,7 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
             // get variable
             byte[] variable = new byte[length];
             in.get(variable);
-            stunMessageAttributes.add(stunAttributeFactory.get(type, length, variable));
+            stunMessageAttributes.add(stunAttributeFactory.get(type, length, variable, transactionId));
             remaining -= length;
 
             // remove padding
@@ -130,7 +130,7 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
     private void validateIsStun(short leadingBitsAndMessageType) {
         int leadingBytes = (leadingBitsAndMessageType & 0xC00);
         if (0 != leadingBytes) {
-            throw new IllegalArgumentException("Illegal leading bytes in STUN message: " + leadingBytes);
+            throw new IllegalArgumentException(String.format("Illegal leading bytes in STUN message: %02X from: %04X", leadingBytes, leadingBitsAndMessageType));
         }
     }
 

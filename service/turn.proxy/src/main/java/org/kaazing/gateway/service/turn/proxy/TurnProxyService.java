@@ -15,12 +15,15 @@
  */
 package org.kaazing.gateway.service.turn.proxy;
 
+import org.apache.mina.core.session.AttributeKey;
 import org.kaazing.gateway.service.ServiceContext;
+import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
 import org.kaazing.gateway.service.proxy.AbstractProxyService;
 
 public class TurnProxyService extends AbstractProxyService<TurnProxyAcceptHandler>{
 
     public static final String SERVICE_TYPE = "turn.proxy";
+    public static final AttributeKey FIXED_MAPPED_ADDRESS_KEY = new AttributeKey(TurnProxyService.class, "fixedMappedAddress");
     private final TurnProxyAcceptHandler turnProxyHandler = new TurnProxyAcceptHandler();
 
     @Override

@@ -17,12 +17,17 @@ package org.kaazing.gateway.service.turn.proxy.stun.attributes;
 
 import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType.XOR_PEER_ADDRESS;
 
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 public class XorPeerAddress extends AbstractAddress {
 
-    public XorPeerAddress(byte[] variable) {
-        super(variable);
+    public XorPeerAddress(InetSocketAddress address, byte[] transactionId) {
+        super(address, transactionId);
+    }
+
+    public XorPeerAddress(byte[] variable, byte[] transactionId) {
+        super(variable, transactionId);
         setPort(xorWithMagicCookie((short) getPort()));
         setAddress(xorWithMagicCookie(getAddress()));
     }

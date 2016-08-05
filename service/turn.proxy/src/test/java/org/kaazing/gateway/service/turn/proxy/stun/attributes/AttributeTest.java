@@ -31,11 +31,10 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import org.junit.*;
 import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.kaazing.gateway.service.turn.proxy.stun.StunAttributeFactory;
+import org.kaazing.test.util.*;
 
 public class AttributeTest {
 
@@ -58,7 +57,7 @@ public class AttributeTest {
         ByteBuffer buf = constructBytesAddress((byte) 0x01, (short) 8080, IPV4_ADDR_1);
 
         // Assert constructed
-        Attribute attr = factory.get(type, length, buf.array());
+        Attribute attr = factory.get(type, length, buf.array(), null);
         Assert.assertEquals(attr.getLength(), length);
         Assert.assertEquals(attr.getType(), type);
         Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
@@ -86,7 +85,7 @@ public class AttributeTest {
         short length = 4 + (128 / 8);
         ByteBuffer buf = constructBytesAddress((byte) 0x02, (short) 8080, IPV6_ADDR_1);
 
-        Attribute attr = factory.get(type, length, buf.array());
+        Attribute attr = factory.get(type, length, buf.array(), null);
         Assert.assertEquals(attr.getLength(), length);
         Assert.assertEquals(attr.getType(), type);
         Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
@@ -112,7 +111,7 @@ public class AttributeTest {
         short length = 8;
         ByteBuffer buf = ByteBuffer.allocate(length);
 
-        Attribute attr = factory.get(type, length, buf.array());
+        Attribute attr = factory.get(type, length, buf.array(), null);
         Assert.assertEquals(attr.getLength(), length);
         Assert.assertEquals(attr.getType(), type);
         Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
@@ -131,15 +130,12 @@ public class AttributeTest {
         byte[] key = new byte[]{(byte) 0x84, (byte) 0x93, (byte) 0xfb, (byte) 0xc5, (byte) 0x3b, (byte) 0xa5, (byte) 0x82,
                 (byte) 0xfb, (byte) 0x4c, (byte) 0x04, (byte) 0x4c, (byte) 0x45, (byte) 0x6b, (byte) 0xdc, (byte) 0x40,
                 (byte) 0xeb};
-        Attribute attr = factory.get(type, length, key);
+        Attribute attr = factory.get(type, length, key, null);
         Assert.assertEquals(attr.getLength(), length);
         Assert.assertEquals(attr.getType(), type);
         Assert.assertTrue(Arrays.equals(attr.getVariable(), key));
 
-        MessageIntegrity mesInteg = (MessageIntegrity) attr;
-        Assert.assertEquals(mesInteg.getLength(), length);
-        Assert.assertEquals(mesInteg.getType(), type);
-        Assert.assertTrue(Arrays.equals(mesInteg.getVariable(), key));
+        Assert.assertTrue(attr instanceof ProxyNoopAttribute);
     }
 
     @Test
@@ -168,7 +164,7 @@ public class AttributeTest {
         short length = 4 + (32 / 8);
         ByteBuffer buf = constructBytesAddress((byte) 0x01, (short) 8080, IPV4_ADDR_1);
 
-        Attribute attr = factory.get(type, length, buf.array());
+        Attribute attr = factory.get(type, length, buf.array(), new byte[]{1,2,3,4,5,6,7,8,9,10,11,12});
         Assert.assertEquals(attr.getLength(), length);
         Assert.assertEquals(attr.getType(), type);
         Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
@@ -193,7 +189,7 @@ public class AttributeTest {
         short length = 4 + (128 / 8);
         ByteBuffer buf = constructBytesAddress((byte) 0x02, (short) 8080, IPV6_ADDR_1);
 
-        Attribute attr = factory.get(type, length, buf.array());
+        Attribute attr = factory.get(type, length, buf.array(), new byte[]{1,2,3,4,5,6,7,8,9,10,11,12});
         Assert.assertEquals(attr.getLength(), length);
         Assert.assertEquals(attr.getType(), type);
         Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
@@ -225,16 +221,12 @@ public class AttributeTest {
         short length = 16;
         ByteBuffer buf = ByteBuffer.allocate(length);
 
-        Attribute attr = factory.get(type, length, buf.array());
+        Attribute attr = factory.get(type, length, buf.array(), null);
         Assert.assertEquals(attr.getLength(), length);
         Assert.assertEquals(attr.getType(), type);
         Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
 
-        Fingerprint fingerprint = (Fingerprint) attr;
-
-        Assert.assertEquals(fingerprint.getLength(), length);
-        Assert.assertEquals(fingerprint.getType(), type);
-        Assert.assertTrue(Arrays.equals(fingerprint.getVariable(), buf.array()));
+        Assert.assertTrue(attr instanceof ProxyNoopAttribute);
     }
 
     @Test
@@ -253,7 +245,7 @@ public class AttributeTest {
         short length = 4 + (32 / 8);
         ByteBuffer buf = constructBytesAddress((byte) 0x01, (short) 8080, IPV4_ADDR_1);
 
-        Attribute attr = factory.get(type, length, buf.array());
+        Attribute attr = factory.get(type, length, buf.array(), new byte[]{1,2,3,4,5,6,7,8,9,10,11,12});
         Assert.assertEquals(attr.getLength(), length);
         Assert.assertEquals(attr.getType(), type);
         Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
@@ -278,7 +270,7 @@ public class AttributeTest {
         short length = 4 + (128 / 8);
         ByteBuffer buf = constructBytesAddress((byte) 0x02, (short) 8080, IPV6_ADDR_1);
 
-        Attribute attr = factory.get(type, length, buf.array());
+        Attribute attr = factory.get(type, length, buf.array(), new byte[]{1,2,3,4,5,6,7,8,9,10,11,12});
         Assert.assertEquals(attr.getLength(), length);
         Assert.assertEquals(attr.getType(), type);
         Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
@@ -304,7 +296,7 @@ public class AttributeTest {
         short length = 4 + (32 / 8);
         ByteBuffer buf = constructBytesAddress((byte) 0x01, (short) 8080, IPV4_ADDR_1);
 
-        Attribute attr = factory.get(type, length, buf.array());
+        Attribute attr = factory.get(type, length, buf.array(), new byte[]{0,0,0,0,0,0,0,0,0,0,0,0});
         Assert.assertEquals(attr.getLength(), length);
         Assert.assertEquals(attr.getType(), type);
         Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
@@ -329,7 +321,7 @@ public class AttributeTest {
         short length = 4 + (128 / 8);
         ByteBuffer buf = constructBytesAddress((byte) 0x02, (short) 8080, IPV6_ADDR_1);
 
-        Attribute attr = factory.get(type, length, buf.array());
+        Attribute attr = factory.get(type, length, buf.array(), new byte[]{1,2,3,4,5,6,7,8,9,10,11,12});
         Assert.assertEquals(attr.getLength(), length);
         Assert.assertEquals(attr.getType(), type);
         Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
@@ -352,18 +344,20 @@ public class AttributeTest {
         byte[] data = new byte[4];
         data[0] = (byte) 0x00;
 
-        Attribute attr = factory.get(type, length, data);
+        Attribute attr = factory.get(type, length, data, null);
         Assert.assertEquals(attr.getLength(), length);
         Assert.assertEquals(attr.getType(), type);
         Assert.assertTrue(Arrays.equals(attr.getVariable(), data));
 
-        EvenPort ep = (EvenPort) attr;
-        Assert.assertFalse(ep.getReserveNextHigherPort());
-        ep.setReserveNextHigherPort(true);
-        data[0] = (byte) 0x80;
-        Assert.assertEquals(ep.getLength(), length);
-        Assert.assertEquals(ep.getType(), type);
-        Assert.assertTrue(Arrays.equals(ep.getVariable(), data));
+        Assert.assertTrue(attr instanceof ProxyNoopAttribute);
+//
+//        EvenPort ep = (EvenPort) attr;
+//        Assert.assertFalse(ep.getReserveNextHigherPort());
+//        ep.setReserveNextHigherPort(true);
+//        data[0] = (byte) 0x80;
+//        Assert.assertEquals(ep.getLength(), length);
+//        Assert.assertEquals(ep.getType(), type);
+//        Assert.assertTrue(Arrays.equals(ep.getVariable(), data));
     }
 
     @Test
@@ -383,17 +377,12 @@ public class AttributeTest {
         short type = RESERVATION_TOKEN.getType();
         short length = 8;
         byte[] token = new byte[]{0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
-        Attribute attr = factory.get(type, length, token);
+        Attribute attr = factory.get(type, length, token, null);
         Assert.assertEquals(attr.getLength(), length);
         Assert.assertEquals(attr.getType(), type);
         Assert.assertTrue(Arrays.equals(attr.getVariable(), token));
 
-        ReservationToken rt = (ReservationToken) attr;
-        Assert.assertEquals(rt.getLength(), length);
-        Assert.assertEquals(rt.getType(), type);
-        Assert.assertTrue(Arrays.equals(rt.getVariable(), token));
-
-        Assert.assertTrue(Arrays.equals(rt.getToken(), token));
+        Assert.assertTrue(attr instanceof ProxyNoopAttribute);
     }
 
     private ByteBuffer constructBytesAddress(byte family, short port, byte[] address) {

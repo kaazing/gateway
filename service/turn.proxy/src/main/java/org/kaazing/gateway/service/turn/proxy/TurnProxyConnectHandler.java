@@ -20,19 +20,15 @@ import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
 import org.kaazing.gateway.service.turn.proxy.stun.StunMessageClass;
 import org.kaazing.gateway.service.turn.proxy.stun.StunMessageMethod;
 import org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.*;
-import org.kaazing.k3po.lang.el.Function;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.MappedAddress;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorMappedAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+
+import static org.kaazing.gateway.service.turn.proxy.TurnProxyService.FIXED_MAPPED_ADDRESS_KEY;
 
 class TurnProxyConnectHandler extends AbstractProxyHandler {
 
@@ -58,23 +54,34 @@ class TurnProxyConnectHandler extends AbstractProxyHandler {
                     && stunMessage.getMessageClass() == StunMessageClass.RESPONSE) {
                 session.setAttribute(TurnProxyAcceptHandler.TURN_STATE_KEY, TurnSessionState.ALLOCATED);
 
-
-
-
                 // TODO here we should override the mapped address and the relay address
                 // mapped address -> get the acceptor session ip and port
                 //                   could also used a configured value
-                AttachedSessionManager attachedSessionManager = getAttachedSessionManager(session);
-                IoSession acceptSession = attachedSessionManager.getAttachedSession();
-                LOGGER.debug(acceptSession.getRemoteAddress().toString());
-                if (acceptSession.getRemoteAddress() instanceof InetSocketAddress) {
-                    InetSocketAddress acceptAddress = (InetSocketAddress) acceptSession.getRemoteAddress();
+                // TODO use an instance variable since the config will not change from one session to another
+                InetSocketAddress acceptAddress = null;
+                String fixedMappedAddress = (String) session.getAttribute(FIXED_MAPPED_ADDRESS_KEY);
+                if (fixedMappedAddress != null) {
+                    int i = fixedMappedAddress.lastIndexOf(":");
+                     acceptAddress = new InetSocketAddress(fixedMappedAddress.substring(0, i), Integer.parseInt(fixedMappedAddress.substring(i+1, fixedMappedAddress.length())));
+                }
+
+                if (acceptAddress == null) {
+                    AttachedSessionManager attachedSessionManager = getAttachedSessionManager(session);
+                    IoSession acceptSession = attachedSessionManager.getAttachedSession();
+                    LOGGER.debug(acceptSession.getRemoteAddress().toString());
+                    if (acceptSession.getRemoteAddress() instanceof InetSocketAddress) {
+                        acceptAddress = (InetSocketAddress) acceptSession.getRemoteAddress();
+                    }
+                }
+
+                LOGGER.debug("Will override mapped-address or xor-mapped-address with: " + acceptAddress.toString());
+                if (acceptAddress != null) {
                     for (int i = 0; i < stunMessage.getAttributes().size(); i++) {
                         Attribute attribute = stunMessage.getAttributes().get(i);
                         if (attribute instanceof MappedAddress) {
                             stunMessage.getAttributes().set(i, new MappedAddress(acceptAddress));
                         } else if (attribute instanceof XorMappedAddress) {
-                            stunMessage.getAttributes().set(i, new XorMappedAddress(acceptAddress));
+                            stunMessage.getAttributes().set(i, new XorMappedAddress(acceptAddress, stunMessage.getTransactionId()));
                         }
                     }
                 }

@@ -45,6 +45,11 @@
             <artifactId>gateway.util</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.ibm.icu</groupId>
+            <artifactId>icu4j</artifactId>
+            <version>57.1</version>
+        </dependency>
 
         <!-- test dependencies -->
         <dependency>

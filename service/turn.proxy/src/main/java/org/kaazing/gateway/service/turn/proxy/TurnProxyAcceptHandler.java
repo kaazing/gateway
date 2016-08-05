@@ -17,13 +17,14 @@ package org.kaazing.gateway.service.turn.proxy;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
+import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.service.ServiceContext;
+import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.service.proxy.AbstractProxyAcceptHandler;
 import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
 import org.kaazing.gateway.service.turn.proxy.stun.StunCodecFilter;
-import org.kaazing.gateway.service.turn.proxy.stun.StunMessageClass;
 import org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.MappedAddress;
@@ -33,18 +34,23 @@ import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorRelayAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.kaazing.gateway.service.turn.proxy.TurnProxyService.FIXED_MAPPED_ADDRESS_KEY;
+
 public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
 
     static final Logger LOGGER = LoggerFactory.getLogger(TurnProxyAcceptHandler.class);
     public static final String TURN_STATE_KEY = "turn-state";
 
     private String connectURI;
+    private String fixedMappedAddress;
 
     public TurnProxyAcceptHandler() {
         super();
     }
 
     public void init(ServiceContext serviceContext) {
+        ServiceProperties properties = serviceContext.getProperties();
+        fixedMappedAddress = properties.get("mapped.address");
         connectURI = serviceContext.getConnects().iterator().next();
     }
 
@@ -124,6 +130,7 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
                 if (acceptSession == null || acceptSession.isClosing()) {
                     connectSession.close(true);
                 } else {
+                    connectSession.setAttribute(FIXED_MAPPED_ADDRESS_KEY, fixedMappedAddress);
                     AttachedSessionManager attachedSessionManager = attachSessions(acceptSession, connectSession);
                     flushQueuedMessages(acceptSession, attachedSessionManager);
                 }
