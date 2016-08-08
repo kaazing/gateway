@@ -112,6 +112,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
     public static final TypedAttributeKey<Boolean> HTTPXE_SPEC_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "httpxeSpec");
     static final TypedAttributeKey<DefaultHttpSession> SESSION_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "session");
+	public static final AttributeKey BALANCEES_KEY = new AttributeKey(HttpAcceptor.class, "balancees");
 
     private final Map<String, Set<HttpAcceptFilter>> acceptFiltersByProtocol;
     private final Set<HttpAcceptFilter> allAcceptFilters;

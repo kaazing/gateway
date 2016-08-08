@@ -1,5 +1,58 @@
 # Change Log
 
+## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
+
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.1.2...HEAD)
+
+**Fixed bugs:**
+
+- RFC 7232: Directory Service responds with 200 OK when If-Modified-Since matches Last-Modified from previous response [\#383](https://github.com/kaazing/gateway/issues/383)
+- WSN Connector: Missing `Connection` header in handshake response should not result in a successful connection [\#311](https://github.com/kaazing/gateway/issues/311)
+- WsnConnector does not reject a masked text or binary frame from the server [\#308](https://github.com/kaazing/gateway/issues/308)
+- WSN Connector: Gateway sends back invalid UTF-8 reason instead of just the CLOSE code 1002 [\#307](https://github.com/kaazing/gateway/issues/307)
+
+**Merged pull requests:**
+
+- Updated license for log4j-config [\#650](https://github.com/kaazing/gateway/pull/650) ([vishalsatish](https://github.com/vishalsatish))
+- reject masked frames sent by the server in a websocket connection [\#647](https://github.com/kaazing/gateway/pull/647) ([danibusu](https://github.com/danibusu))
+- Add checks for invalid UTF-8 reason on Close frame [\#641](https://github.com/kaazing/gateway/pull/641) ([DoruM](https://github.com/DoruM))
+
+## [5.1.2](https://github.com/kaazing/gateway/tree/5.1.2) (2016-07-20)
+[Full Changelog](https://github.com/kaazing/gateway/compare/1.1.1...5.1.2)
+
+**Fixed bugs:**
+
+- AcceptUriComparedToBalanceUriVisitor is comparing URIs prior to parameters being replaced, causing NPE that throws Parse Exception [\#612](https://github.com/kaazing/gateway/issues/612)
+- WSN Connector: Invalid value for the `Upgrade` header in handshake response must not result in a successful connection [\#312](https://github.com/kaazing/gateway/issues/312)
+- WsebAcceptorTest.shouldBindAWsAddress timeouts [\#287](https://github.com/kaazing/gateway/issues/287)
+
+**Closed issues:**
+
+- Command center requires to relogin every time the page is refereshed [\#321](https://github.com/kaazing/gateway/issues/321)
+- WsnInactivityTimeoutIT.shouldInactivityTimeoutWithPingPongExtensionAndExtendedHandshakePort80\(\) failing [\#300](https://github.com/kaazing/gateway/issues/300)
+
+**Merged pull requests:**
+
+- Revert "Pokemon exceptions" [\#645](https://github.com/kaazing/gateway/pull/645) ([dpwspoon](https://github.com/dpwspoon))
+- Un-suspended successful test case [\#642](https://github.com/kaazing/gateway/pull/642) ([DoruM](https://github.com/DoruM))
+- Checking if 'Connection' header is present when Gateway connects as a client [\#635](https://github.com/kaazing/gateway/pull/635) ([DoruM](https://github.com/DoruM))
+- Remove realm with no authorization constraint / login module passes [\#634](https://github.com/kaazing/gateway/pull/634) ([justinma246](https://github.com/justinma246))
+- RFC 7232: Directory Service responds with 200 OK when If-Modified-Since [\#633](https://github.com/kaazing/gateway/pull/633) ([DoruM](https://github.com/DoruM))
+- Revert "Login Module fix" [\#632](https://github.com/kaazing/gateway/pull/632) ([dpwspoon](https://github.com/dpwspoon))
+- Pokemon exceptions [\#631](https://github.com/kaazing/gateway/pull/631) ([DoruM](https://github.com/DoruM))
+- Remove overriding values in child poms for failsafe plugin [\#629](https://github.com/kaazing/gateway/pull/629) ([justinma246](https://github.com/justinma246))
+- Login Module fix [\#628](https://github.com/kaazing/gateway/pull/628) ([justinma246](https://github.com/justinma246))
+- Revert "Login Module passes when there is a realm and login module" [\#627](https://github.com/kaazing/gateway/pull/627) ([jitsni](https://github.com/jitsni))
+- PR for issue \#615: Remove all but hostname must match gateway-config.xml balancer check [\#623](https://github.com/kaazing/gateway/pull/623) ([msalavastru](https://github.com/msalavastru))
+- Adding get/setInternalInterestOps\(\) methods to AbstractNioChannel [\#621](https://github.com/kaazing/gateway/pull/621) ([jitsni](https://github.com/jitsni))
+- Checking for correct java version in scripts [\#620](https://github.com/kaazing/gateway/pull/620) ([justinma246](https://github.com/justinma246))
+- SNMP and sessionServiceType no longer supported [\#618](https://github.com/kaazing/gateway/pull/618) ([justinma246](https://github.com/justinma246))
+- Http connector follow redirect for maximum.redirects, also http acceptor send 302 for wsn and wsx [\#611](https://github.com/kaazing/gateway/pull/611) ([dpwspoon](https://github.com/dpwspoon))
+- Login Module passes when there is a realm and login module [\#604](https://github.com/kaazing/gateway/pull/604) ([justinma246](https://github.com/justinma246))
+
+## [1.1.1](https://github.com/kaazing/gateway/tree/1.1.1) (2016-06-27)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.1.1...1.1.1)
+
 ## [5.1.1](https://github.com/kaazing/gateway/tree/5.1.1) (2016-06-27)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.1.0...5.1.1)
 

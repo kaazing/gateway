@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.1.2</version>
+        <version>5.2.0</version>
     </parent>
 
     <artifactId>gateway.management</artifactId>
@@ -45,7 +45,7 @@
             <artifactId>snmp4j-agent</artifactId>
             <version>1.4.3</version>
         </dependency>
-        
+
         </dependencies>
     </dependencyManagement>
 
@@ -267,12 +267,7 @@
                     <execution>
                         <configuration>
                             <argLine>@{failsafeArgLine}</argLine>
-                            <skipTests>${skipITs}</skipTests>
                         </configuration>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>
