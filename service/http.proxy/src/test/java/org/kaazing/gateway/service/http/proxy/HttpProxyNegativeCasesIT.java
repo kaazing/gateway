@@ -16,15 +16,18 @@
 
 package org.kaazing.gateway.service.http.proxy;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.junit.runners.Parameterized;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
@@ -40,7 +43,6 @@ public class HttpProxyNegativeCasesIT {
                         .accept("http://localhost:8110")
                         .connect("http://localhost:8080")
                         .type("http.proxy")
-                        .connectOption("http.keepalive", "disabled")
                     .done()
                 .done();
         // @formatter:on
@@ -64,6 +66,7 @@ public class HttpProxyNegativeCasesIT {
         robot.finish();
     }
 
+
     @Specification("http.proxy.content.without.content.length.header")
     @Test
     public void sendContentWithoutContentLengthHeader() throws Exception {
@@ -82,12 +85,6 @@ public class HttpProxyNegativeCasesIT {
         robot.finish();
     }
 
-    @Specification("http.proxy.close.connection.reconnect")
-    @Test
-    public void cutConnectionHalfWayThoughAndReconnect() throws Exception {
-        robot.finish();
-    }
-
     @Specification("http.proxy.no.method.is.send")
     @Test
     public void noMethodIsSend() throws Exception {
@@ -103,12 +100,6 @@ public class HttpProxyNegativeCasesIT {
     @Specification("http.proxy.multiple.half.complete.requests")
     @Test
     public void sendMultipleHalfCompleteRequests() throws Exception {
-        robot.finish();
-    }
-
-    @Specification("http.proxy.empty.header")
-    @Test
-    public void EmptyHeaderShouldBeRejected() throws Exception {
         robot.finish();
     }
 
