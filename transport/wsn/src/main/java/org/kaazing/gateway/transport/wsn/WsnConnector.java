@@ -538,13 +538,13 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 return;
             }
 
-            String connectionHeader = httpSession.getReadHeader("Connection");
-            if (connectionHeader == null) {
+            String httpConnectionHeader = httpSession.getReadHeader("Connection");
+            if (httpConnectionHeader == null) {
                 logger.info("WebSocket connection failed: No Connection: websocket response header");
                 wsnConnectFuture.setException(new Exception("WebSocket Connection Failed: No Connection header"));
                 return;
-            } else if (!connectionHeader.equalsIgnoreCase("Upgrade")) {
-                logger.info(format("WebSocket connection failed: Invalid Upgrade: %s response header", connectionHeader));
+            } else if (!httpConnectionHeader.equalsIgnoreCase("Upgrade")) {
+                logger.info(format("WebSocket connection failed: Invalid Upgrade: %s response header", httpConnectionHeader));
                 wsnConnectFuture.setException(new Exception("WebSocket Connection Failed: Invalid Connection header"));
                 return;
             }
