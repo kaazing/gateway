@@ -16,18 +16,17 @@
 
 package org.kaazing.gateway.service.http.proxy;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-import org.junit.runners.Parameterized;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-import java.util.Arrays;
-import java.util.List;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
@@ -39,6 +38,7 @@ public class HttpProxyNegativeCasesIT {
         // @formatter:off
         GatewayConfiguration configuration =
                 new GatewayConfigurationBuilder()
+                    .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
                     .service()
                         .accept("http://localhost:8110")
                         .connect("http://localhost:8080")
@@ -67,12 +67,14 @@ public class HttpProxyNegativeCasesIT {
     }
 
 
+    @Ignore // https://github.com/kaazing/tickets/issues/664
     @Specification("http.proxy.content.without.content.length.header")
     @Test
     public void sendContentWithoutContentLengthHeader() throws Exception {
         robot.finish();
     }
 
+    @Ignore // https://github.com/kaazing/tickets/issues/631
     @Specification("http.proxy.payload.no.match.content.length.smaller")
     @Test
     public void sendPayloadWithContentLengthSmaller() throws Exception {

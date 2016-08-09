@@ -22,6 +22,7 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
@@ -29,13 +30,13 @@ import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 public class HttpProxyAuthenticationIT {
 
-//    private final K3poRule robot = new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7235");
     private final K3poRule robot = new K3poRule();
 
     private final GatewayRule gateway = new GatewayRule() {{
         // @formatter:off
         GatewayConfiguration configuration =
                 new GatewayConfigurationBuilder()
+                    .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
                     .service()
                         .accept("http://localhost:8110")
                         .connect("http://localhost:8080")

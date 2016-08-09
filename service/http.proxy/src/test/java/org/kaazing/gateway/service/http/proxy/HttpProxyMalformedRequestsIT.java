@@ -23,6 +23,7 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
@@ -36,6 +37,7 @@ public class HttpProxyMalformedRequestsIT {
         // @formatter:off
         GatewayConfiguration configuration =
                 new GatewayConfigurationBuilder()
+                    .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
                     .service()
                         .accept("http://localhost:8110")
                         .connect("http://localhost:8080")
@@ -52,7 +54,6 @@ public class HttpProxyMalformedRequestsIT {
     public TestRule chain = createRuleChain(gateway, robot);
 
 
-    //TODO fix ignored test cases
     @Ignore // connection not accepted if "host" header is missing, was expecting 400 error
     @Specification("http.proxy.malformed.missing.host.identifier")
     @Test
@@ -85,8 +86,7 @@ public class HttpProxyMalformedRequestsIT {
         robot.finish();
     }
 
-    @Ignore // actual: read "Host: localhost:8080" "\r\n"
-            // expected:#read "Host: anotherhost:8080" "\r\n"
+    @Ignore // https://github.com/kaazing/tickets/issues/629
     @Specification("http.proxy.malformed.hostname.not.match.uri")
     @Test
     public void hostnameDoesNotMatchUri() throws Exception {
