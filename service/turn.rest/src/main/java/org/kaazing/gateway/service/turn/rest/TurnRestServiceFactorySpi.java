@@ -13,17 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.server.test.config;
+package org.kaazing.gateway.service.turn.rest;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Collection;
+import java.util.Collections;
 
-public abstract class SuppressibleNestedServicePropertiesConfiguration implements SuppressibleConfiguration {
+import org.kaazing.gateway.service.Service;
+import org.kaazing.gateway.service.ServiceFactorySpi;
 
-    public abstract String getConfigElementType();
+public class TurnRestServiceFactorySpi extends ServiceFactorySpi {
 
-    public abstract void addSimpleProperty(String key, Suppressible<String> value);
+    @Override
+    public Collection<String> getServiceTypes() {
+        return Collections.singletonList("turn.rest");
+    }
 
-    public abstract Map<String, Suppressible<List<String>>> getSimpleProperties();
-
+    @Override
+    public Service newService(String serviceType) {
+        assert "turn.rest".equals(serviceType);
+        return new TurnRestService();
+    }
 }

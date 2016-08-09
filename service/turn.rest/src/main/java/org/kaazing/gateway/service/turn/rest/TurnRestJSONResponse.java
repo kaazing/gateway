@@ -13,17 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.server.test.config;
+package org.kaazing.gateway.service.turn.rest;
 
-import java.util.List;
-import java.util.Map;
-
-public abstract class SuppressibleNestedServicePropertiesConfiguration implements SuppressibleConfiguration {
-
-    public abstract String getConfigElementType();
-
-    public abstract void addSimpleProperty(String key, Suppressible<String> value);
-
-    public abstract Map<String, Suppressible<List<String>>> getSimpleProperties();
-
+public final class TurnRestJSONResponse {
+    
+    private TurnRestJSONResponse() {   
+    }
+    
+    public static String createResponse(String username, char[] password, String ttl, String uris) {
+        String response = "{";
+        if (username != null && password != null) {
+            response = "\"username\":\"" + username + "\",\"password\":\"" 
+                    + String.valueOf(password) + "\",";
+        }
+        response = response + "\"ttl\":" + ttl + ",\"uris\":[" + uris + "]}";
+        return response;
+    }
+    
 }

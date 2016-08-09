@@ -24,6 +24,7 @@ import static org.kaazing.gateway.resource.address.uri.URIUtils.getPort;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getQuery;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getUserInfo;
+import static org.kaazing.gateway.service.ServiceProperties.LIST_SEPARATOR;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -62,7 +63,6 @@ import org.kaazing.gateway.security.auth.TimeoutLoginModule;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.config.SchemeConfig;
-import org.kaazing.gateway.server.config.parse.DefaultSchemeConfig;
 import org.kaazing.gateway.server.config.june2016.AuthenticationType;
 import org.kaazing.gateway.server.config.june2016.AuthorizationConstraintType;
 import org.kaazing.gateway.server.config.june2016.ClusterConnectOptionsType;
@@ -79,6 +79,7 @@ import org.kaazing.gateway.server.config.june2016.ServiceConnectOptionsType;
 import org.kaazing.gateway.server.config.june2016.ServiceDefaultsType;
 import org.kaazing.gateway.server.config.june2016.ServicePropertiesType;
 import org.kaazing.gateway.server.config.june2016.ServiceType;
+import org.kaazing.gateway.server.config.parse.DefaultSchemeConfig;
 import org.kaazing.gateway.server.context.DependencyContext;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.service.ServiceRegistry;
@@ -99,7 +100,6 @@ import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.aws.AwsUtils;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
-import org.kaazing.gateway.util.ssl.SslCipherSuites;
 import org.slf4j.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -735,7 +735,15 @@ public class GatewayContextResolver {
                     }
                 }
                 if (isSimpleProperty) {
-                    properties.put(node.getLocalName(), nodeValue);
+                    // TODO; consider going to dynamically typed objects
+                    // (i.e. allowing Object as properties value)
+                    // For now if we see a property that is a list, we convert to comma separated list
+                    String existingValue = properties.get(node.getLocalName());
+                    if (existingValue == null) {
+                        properties.put(node.getLocalName(), nodeValue);
+                    } else {
+                        properties.put(node.getLocalName(), existingValue + LIST_SEPARATOR + nodeValue);
+                    }
                 }
             }
         }

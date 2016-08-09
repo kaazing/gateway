@@ -13,17 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.server.test.config;
+package org.kaazing.gateway.service.turn.rest;
 
-import java.util.List;
-import java.util.Map;
+public class DefaultTurnRestCredentials implements TurnRestCredentials {
 
-public abstract class SuppressibleNestedServicePropertiesConfiguration implements SuppressibleConfiguration {
+    private String username;
+    private char[] password;
+    
+    DefaultTurnRestCredentials(String username, char[] password) {
+        this.username = username;
+        this.password = password;
+    }
+    
+    @Override
+    public String getUsername() {
+        return this.username;
+    }
 
-    public abstract String getConfigElementType();
-
-    public abstract void addSimpleProperty(String key, Suppressible<String> value);
-
-    public abstract Map<String, Suppressible<List<String>>> getSimpleProperties();
+    @Override
+    public char[] getPassword() {
+        return this.password;
+    }
 
 }
