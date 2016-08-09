@@ -33,6 +33,8 @@ public class StunProxyMessage {
     private static final int PADDED_TO = 4;
     private boolean modified = false;
 
+    public static final int HEADER_BYTES = 20;
+
     public StunProxyMessage(StunMessageClass messageClass, StunMessageMethod method, byte[] transactionId,
             List<Attribute> attributes) {
         this.messageClass = messageClass;

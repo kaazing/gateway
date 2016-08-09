@@ -17,22 +17,22 @@ package org.kaazing.gateway.service.turn.proxy;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
-import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.kaazing.gateway.security.SecurityContext;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.service.proxy.AbstractProxyAcceptHandler;
 import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
 import org.kaazing.gateway.service.turn.proxy.stun.StunCodecFilter;
 import org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.MappedAddress;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorMappedAddress;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorPeerAddress;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorRelayAddress;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.security.KeyStoreException;
+import java.security.cert.Certificate;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.kaazing.gateway.service.turn.proxy.TurnProxyService.FIXED_MAPPED_ADDRESS_KEY;
 
@@ -44,13 +44,18 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
     private String connectURI;
     private String fixedMappedAddress;
 
+    private Certificate sharedSecret;
+
+    private ConcurrentHashMap<String, String> currentTransactions = new ConcurrentHashMap<>();
+
     public TurnProxyAcceptHandler() {
         super();
     }
 
-    public void init(ServiceContext serviceContext) {
+    public void init(ServiceContext serviceContext, SecurityContext securityContext) throws KeyStoreException {
         ServiceProperties properties = serviceContext.getProperties();
         fixedMappedAddress = properties.get("mapped.address");
+        sharedSecret = securityContext.getKeyStore().getCertificate(properties.get("key.alias"));
         connectURI = serviceContext.getConnects().iterator().next();
     }
 
@@ -62,7 +67,7 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
     @Override
     public void sessionCreated(IoSession acceptSession) {
         acceptSession.setAttribute(TURN_STATE_KEY, TurnSessionState.NOT_CONNECTED);
-        acceptSession.getFilterChain().addLast("STUN_CODEC", new StunCodecFilter());
+        acceptSession.getFilterChain().addLast("STUN_CODEC", new StunCodecFilter(currentTransactions, sharedSecret));
         // TODO
         // session.getFilterChain().addLast("STUN_MESSAGE_INTEGRITY_CHECK", new StunMessageIntegrityFilter());
         super.sessionCreated(acceptSession);
@@ -85,15 +90,11 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
         if (message instanceof StunProxyMessage) {
             StunProxyMessage stunProxyMessage = (StunProxyMessage) message;
             for (Attribute attr : stunProxyMessage.getAttributes()) {
-                if (attr instanceof MappedAddress || attr instanceof XorMappedAddress) {
-                    // TODO
-                } else if (attr instanceof XorPeerAddress || attr instanceof XorRelayAddress) {
-                    // TODO
-
+                if (attr instanceof Username) {
+                    currentTransactions.putIfAbsent(new String(stunProxyMessage.getTransactionId()), ((Username)attr).getUsername());
                 }
             }
             super.messageReceived(session, message);
-
         }
     }
 
@@ -104,7 +105,7 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
 
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
-            session.getFilterChain().addLast("STUN_CODEC", new StunCodecFilter());
+            session.getFilterChain().addLast("STUN_CODEC", new StunCodecFilter(currentTransactions, sharedSecret));
             // TODO
             // session.getFilterChain().addLast("STUN_MESSAGE_INTEGRITY_CHECK", new StunMessageIntegrityFilter());
         }

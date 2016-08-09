@@ -135,7 +135,7 @@ public class AttributeTest {
         Assert.assertEquals(attr.getType(), type);
         Assert.assertTrue(Arrays.equals(attr.getVariable(), key));
 
-        Assert.assertTrue(attr instanceof ProxyNoopAttribute);
+        Assert.assertTrue(attr instanceof MessageIntegrity);
     }
 
     @Test

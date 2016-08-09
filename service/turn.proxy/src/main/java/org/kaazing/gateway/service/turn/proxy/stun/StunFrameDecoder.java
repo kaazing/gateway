@@ -115,7 +115,9 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
             // get variable
             byte[] variable = new byte[length];
             in.get(variable);
-            stunMessageAttributes.add(stunAttributeFactory.get(type, length, variable, transactionId));
+            Attribute attribute = stunAttributeFactory.get(type, length, variable, transactionId);
+            LOGGER.trace("Decoded STUN attribute: " + attribute);
+            stunMessageAttributes.add(attribute);
             remaining -= length;
 
             // remove padding

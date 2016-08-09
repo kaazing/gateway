@@ -25,13 +25,25 @@ import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
 
+import java.security.cert.Certificate;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class StunCodecFilter extends ProtocolCodecFilter {
 
-    public StunCodecFilter(){
-        super(new TurnCodecFactory());
+    public StunCodecFilter(ConcurrentHashMap<String, String> currentTransactions, Certificate sharedSecret){
+        super(new TurnCodecFactory(currentTransactions, sharedSecret));
     }
     
     private static class TurnCodecFactory implements ProtocolCodecFactory{
+
+        private final ConcurrentHashMap<String, String> currentTransactions;
+        private final Certificate sharedSecret;
+
+        public TurnCodecFactory(ConcurrentHashMap<String, String> currentTransactions, Certificate sharedSecret) {
+            this.currentTransactions = currentTransactions;
+            this.sharedSecret = sharedSecret;
+        }
+
 
         /**
          * Always will be short term credentials, TODO init properly here
@@ -43,7 +55,7 @@ public class StunCodecFilter extends ProtocolCodecFilter {
             IoSessionEx sessionEx = (IoSessionEx) session;
             IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
 
-            return new StunFrameEncoder(allocator);
+            return new StunFrameEncoder(allocator, currentTransactions, sharedSecret);
         }
 
         @Override

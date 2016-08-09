@@ -15,35 +15,47 @@
  */
 package org.kaazing.gateway.service.turn.proxy.stun.attributes;
 
+import java.nio.charset.Charset;
+
+import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType.USERNAME;
+
 /**
- * When we pass Attribute through proxy without modifying or needing to understand it
+ * STUN USERNAME attribute as described in https://tools.ietf.org/html/rfc5389#section-15.3.
  *
  */
-public class ProxyNoopAttribute extends Attribute {
 
-    private final short type;
-    private final short length;
-    private final byte[] value;
+public class Username extends Attribute {
 
-    public ProxyNoopAttribute(short type, short length, byte[] value) {
-        this.type = type;
-        this.length = length;
-        this.value = value;
+    private String username;
+    private static Charset UTF8 = Charset.forName("UTF-8");
+
+    public void setUsername(String username) {
+        if (username.length() > 512) {
+            throw new InvalidAttributeException("Username MUST be at most 512 characters");
+        }
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public Username(byte[] value) {
+        username = new String(value, UTF8);
     }
 
     @Override
     public short getType() {
-        return (short) type;
+        return USERNAME.getType();
     }
 
     @Override
     public short getLength() {
-        return length;
+        return (short) (username.getBytes(UTF8).length);
     }
 
     @Override
     public byte[] getVariable() {
-        return value;
+        return username.getBytes(UTF8);
     }
-
 }

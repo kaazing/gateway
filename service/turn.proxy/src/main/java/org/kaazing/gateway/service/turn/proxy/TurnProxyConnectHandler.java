@@ -80,8 +80,10 @@ class TurnProxyConnectHandler extends AbstractProxyHandler {
                         Attribute attribute = stunMessage.getAttributes().get(i);
                         if (attribute instanceof MappedAddress) {
                             stunMessage.getAttributes().set(i, new MappedAddress(acceptAddress));
+                            stunMessage.setModified(true);
                         } else if (attribute instanceof XorMappedAddress) {
                             stunMessage.getAttributes().set(i, new XorMappedAddress(acceptAddress, stunMessage.getTransactionId()));
+                            stunMessage.setModified(true);
                         }
                     }
                 }

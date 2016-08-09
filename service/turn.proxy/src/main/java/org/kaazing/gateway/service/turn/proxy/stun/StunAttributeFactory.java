@@ -15,8 +15,6 @@
  */
 package org.kaazing.gateway.service.turn.proxy.stun;
 
-import com.ibm.icu.text.StringPrep;
-import com.ibm.icu.text.StringPrepParseException;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.*;
 
 public class StunAttributeFactory {
@@ -30,16 +28,12 @@ public class StunAttributeFactory {
     public StunAttributeFactory(CredentialType credentialType) {
         super();
         this.credentialType = credentialType;
-
-        try {
-            StringPrep.getInstance(StringPrep.RFC4013_SASLPREP).prepare("", StringPrep.DEFAULT);
-        } catch (StringPrepParseException e) {
-            e.printStackTrace();
-        }
     }
 
     public Attribute get(int type, short length, byte[] value, byte[] transactionId) {
-        switch (AttributeType.valueOf(type)) {
+    switch (AttributeType.valueOf(type)) {
+        case USERNAME:
+            return new Username(value);
         case MAPPED_ADDRESS:
             return new MappedAddress(value);
         case XOR_MAPPED_ADDRESS:
@@ -52,8 +46,8 @@ public class StunAttributeFactory {
 //            return new EvenPort(value);
 //        case RESERVATION_TOKEN:
 //            return new ReservationToken(value);
-//        case MESSAGE_INTEGRITY:
-//            return new MessageIntegrity(value);
+        case MESSAGE_INTEGRITY:
+            return new MessageIntegrity(value);
 //        case FINGERPRINT:
 //            return new Fingerprint(value);
         default:

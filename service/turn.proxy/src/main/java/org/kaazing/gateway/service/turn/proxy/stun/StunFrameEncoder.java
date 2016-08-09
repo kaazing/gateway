@@ -16,22 +16,56 @@
 package org.kaazing.gateway.service.turn.proxy.stun;
 
 import java.nio.ByteBuffer;
+import java.security.cert.Certificate;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.MessageIntegrity;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import static org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage.attributePaddedLength;
+
+
+/*
+   https://tools.ietf.org/html/rfc5389#section-15.4
+
+   Based on the rules above, the hash used to construct MESSAGE-
+   INTEGRITY includes the length field from the STUN message header.
+   Prior to performing the hash, the MESSAGE-INTEGRITY attribute MUST be
+   inserted into the message (with dummy content).  The length MUST then
+   be set to point to the length of the message up to, and including,
+   the MESSAGE-INTEGRITY attribute itself, but excluding any attributes
+   after it.  Once the computation is performed, the value of the
+   MESSAGE-INTEGRITY attribute can be filled in, and the value of the
+   length in the STUN header can be set to its correct value -- the
+   length of the entire message.  Similarly, when validating the
+   MESSAGE-INTEGRITY, the length field should be adjusted to point to
+   the end of the MESSAGE-INTEGRITY attribute prior to calculating the
+   HMAC.  Such adjustment is necessary when attributes, such as
+   FINGERPRINT, appear after MESSAGE-INTEGRITY.
+ */
+
 public class StunFrameEncoder extends ProtocolEncoderAdapter {
 
     private final IoBufferAllocatorEx<?> allocator;
+    private final ConcurrentHashMap<String, String> currentTransactions;
+    private final Certificate sharedSecret;
+
     private static final Logger LOGGER = LoggerFactory.getLogger("service.turn.proxy");
 
-    public StunFrameEncoder(IoBufferAllocatorEx<?> allocator) {
+
+    public StunFrameEncoder(IoBufferAllocatorEx<?> allocator, ConcurrentHashMap<String, String> currentTransactions, Certificate sharedSecret) {
         this.allocator = allocator;
+        this.currentTransactions = currentTransactions;
+        this.sharedSecret = sharedSecret;
     }
 
     @Override
@@ -40,23 +74,52 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
             // easiest way to avoid race condition where decoder is removed on the filter chain prior to encoder
             out.write(message);
         }
+        LOGGER.debug("Session is of type: " + session.getClass().getCanonicalName());
+
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Encoding STUN message: " + message);
         }
         StunProxyMessage stunMessage = (StunProxyMessage) message;
-        ByteBuffer buf = allocator.allocate(20 + stunMessage.getMessageLength());
+
+        String username = null;
+        if (((StunProxyMessage) message).getMessageClass().equals(StunMessageClass.RESPONSE) ||
+            ((StunProxyMessage) message).getMessageClass().equals(StunMessageClass.ERROR)) {
+            username = currentTransactions.remove(new String(stunMessage.getTransactionId()));
+            if (stunMessage.isModified() && username == null) {
+                LOGGER.warn("Stun message is modified but MESSAGE-INTEGRITY attribute will not be recalculated.");
+            }
+        }
+
+        ByteBuffer buf = allocator.allocate(StunProxyMessage.HEADER_BYTES + stunMessage.getMessageLength());
 
         short messageMethod = stunMessage.getMethod().getValue();
         short messageClass = stunMessage.getMessageClass().getValue();
         buf.putShort((short) (messageMethod | messageClass));
-
         buf.putShort(stunMessage.getMessageLength());
-
         buf.putInt(StunProxyMessage.MAGIC_COOKIE);
-
         buf.put(stunMessage.getTransactionId());
 
+        int lengthSoFar = 0;
+
         for (Attribute attribute : stunMessage.getAttributes()) {
+            lengthSoFar += 4 + attributePaddedLength(attribute.getLength());
+            if (attribute instanceof MessageIntegrity &&
+                stunMessage.isModified() && username != null) {
+                LOGGER.debug("Message is modified will override MESSAGE-INTEGRITY");
+                // order counts when here we can safely recreate the message integrity
+                // overwrite message length and use the current buffer content, secret and password
+                buf.putShort(2, (short)lengthSoFar);
+                Mac hmac = Mac.getInstance("HmacSHA1");
+                SecretKeySpec signingKey = new SecretKeySpec(sharedSecret.getPublicKey().getEncoded(), "HmacSHA1");
+                hmac.init(signingKey);
+
+
+                signingKey = new SecretKeySpec(hmac.doFinal(username.getBytes()), "HmacSHA1");
+                hmac.init(signingKey);
+                attribute = new MessageIntegrity(hmac.doFinal(buf.array()));
+                buf.putShort(2, stunMessage.getMessageLength());
+            }
+
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Encoding STUN attribute: " + attribute);
             }
@@ -65,7 +128,7 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
             buf.putShort(length);
             byte[] variable = attribute.getVariable();
             buf.put(variable);
-            for (int i = length; i < StunProxyMessage.attributePaddedLength(length); i++) {
+            for (int i = length; i < attributePaddedLength(length); i++) {
                 buf.put((byte) 0x00);
             }
 
