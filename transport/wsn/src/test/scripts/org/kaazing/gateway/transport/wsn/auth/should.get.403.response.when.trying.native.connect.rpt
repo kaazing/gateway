@@ -31,23 +31,4 @@ write "Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits, x-w
 write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.146 Safari/537.36\r\n"
 write "\r\n"
 
-read "HTTP/1.1 403 Web Socket Protocol Handshake\r\n"
-read "Access-Control-Allow-Credentials: true\r\n"
-read "Access-Control-Allow-Headers: content-type\r\n"
-read "Access-Control-Allow-Headers: authorization\r\n"
-read "Access-Control-Allow-Headers: x-websocket-extensions\r\n"
-read "Access-Control-Allow-Headers: x-websocket-version\r\n"
-read "Access-Control-Allow-Headers: x-websocket-protocol\r\n"
-read "Access-Control-Allow-Origin: null\r\n"
-read "Connection: Upgrade\r\n"
-read "Content-Type: text/html\r\n"
-read /Date: .*\r\n/
-read "Sec-WebSocket-Accept: j/v8jXhQPNm5ABvoBf/WdimQulw=\r\n"
-read "Server: Kaazing Gateway\r\n"
-read "Upgrade: websocket\r\n"
-read "Content-Length: 81\r\n"
-read "\r\n"
-read "<html><head></head><body><h1>403 Web Socket Protocol Handshake</h1></body></html>"
-
-close
-closed
+read "HTTP/1.1 403 Forbidden\r\n"

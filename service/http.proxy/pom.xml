@@ -32,6 +32,11 @@
             <artifactId>gateway.service.proxy</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- test dependencies -->
         <dependency>

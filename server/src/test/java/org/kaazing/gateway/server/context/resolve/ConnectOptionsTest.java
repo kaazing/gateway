@@ -34,8 +34,8 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
-import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument;
-import org.kaazing.gateway.server.config.nov2015.ServiceConnectOptionsType;
+import org.kaazing.gateway.server.config.june2016.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.june2016.ServiceConnectOptionsType;
 import org.kaazing.gateway.service.ConnectOptionsContext;
 import org.kaazing.gateway.service.TransportOptionNames;
 
@@ -74,6 +74,14 @@ public class ConnectOptionsTest {
     public void testHttpTransportOption() throws Exception {
         expectSuccess("http.transport", "tcp://127.0.0.1:80", "http[http/1.1].transport", "tcp://127.0.0.1:80");
         expectSuccess("http.transport", "tcp://127.0.0.1:80", "http.transport", null);
+    }
+
+    @Test
+    public void testWsInactivityTimeout() throws Exception {
+        expectSuccess("ws.inactivity.timeout", "60", "ws.inactivityTimeout", 60000L, "http[http/1.1].keepAliveTimeout", 60);
+        expectSuccess("ws.inactivity.timeout", "60s", "ws.inactivityTimeout", 60000L, "http[http/1.1].keepAliveTimeout", 60);
+        //https://github.com/kaazing/gateway/issues/595
+        //expectSuccess("ws.inactivity.timeout", "60000ms", "ws.inactivityTimeout", 60000L, "http[http/1.1].keepAliveTimeout", 60);
     }
 
     @Test @Ignore

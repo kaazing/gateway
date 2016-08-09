@@ -15,276 +15,136 @@
  */
 package org.kaazing.gateway.server.context.resolve;
 
-import static java.lang.String.format;
-import static org.kaazing.gateway.service.TransportOptionNames.HTTP_KEEP_ALIVE;
-import static org.kaazing.gateway.service.TransportOptionNames.HTTP_KEEP_ALIVE_TIMEOUT_KEY;
-import static org.kaazing.gateway.service.TransportOptionNames.INACTIVITY_TIMEOUT;
-import static org.kaazing.gateway.service.TransportOptionNames.PIPE_TRANSPORT;
-import static org.kaazing.gateway.service.TransportOptionNames.SSL_CIPHERS;
-import static org.kaazing.gateway.service.TransportOptionNames.SSL_ENCRYPTION_ENABLED;
-import static org.kaazing.gateway.service.TransportOptionNames.SSL_PROTOCOLS;
-import static org.kaazing.gateway.service.TransportOptionNames.SSL_TRANSPORT;
-import static org.kaazing.gateway.service.TransportOptionNames.TCP_TRANSPORT;
-import static org.kaazing.gateway.service.TransportOptionNames.WS_PROTOCOL_VERSION;
-
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
-
-import org.kaazing.gateway.resource.address.uri.URIUtils;
-import org.kaazing.gateway.server.config.nov2015.ServiceConnectOptionsType;
+import org.kaazing.gateway.server.config.june2016.ServiceConnectOptionsType;
 import org.kaazing.gateway.service.ConnectOptionsContext;
-import org.kaazing.gateway.util.Utils;
-import org.kaazing.gateway.util.ssl.SslCipherSuites;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-public class DefaultConnectOptionsContext implements ConnectOptionsContext {
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-    private static final Logger logger = LoggerFactory.getLogger(DefaultConnectOptionsContext.class);
+import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.kaazing.gateway.service.TransportOptionNames.PIPE_TRANSPORT;
+import static org.kaazing.gateway.service.TransportOptionNames.SSL_CIPHERS;
+import static org.kaazing.gateway.service.TransportOptionNames.SSL_ENCRYPTION_ENABLED;
+import static org.kaazing.gateway.service.TransportOptionNames.SSL_NEED_CLIENT_AUTH;
+import static org.kaazing.gateway.service.TransportOptionNames.SSL_PROTOCOLS;
+import static org.kaazing.gateway.service.TransportOptionNames.SSL_TRANSPORT;
+import static org.kaazing.gateway.service.TransportOptionNames.SSL_WANT_CLIENT_AUTH;
+import static org.kaazing.gateway.service.TransportOptionNames.TCP_TRANSPORT;
+import static org.kaazing.gateway.service.TransportOptionNames.WS_PROTOCOL_VERSION;
 
-    private static final long DEFAULT_WS_INACTIVITY_TIMEOUT_MILLIS = 0L;
-    private static final int DEFAULT_HTTP_KEEPALIVE_TIMEOUT = 30; //seconds
+public class DefaultConnectOptionsContext extends DefaultOptionsContext implements ConnectOptionsContext {
 
-    private Map<String, String> options;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultConnectOptionsContext.class);
+
+    private final Map<String, String> options;  // unmodifiable map
 
     public DefaultConnectOptionsContext() {
-        this.options = new HashMap<>();
+        this.options = Collections.emptyMap();
     }
 
     public DefaultConnectOptionsContext(ServiceConnectOptionsType connectOptions, ServiceConnectOptionsType defaultOptions) {
-        this();
-
-        parseConnectOptionsType(connectOptions, defaultOptions);
-    }
-
-    @Override
-    public void setOptions(Map<String, String> options) {
-        this.options = options;
-    }
-
-    @Override
-    public void setDefaultOptions(Map<String, String> defaultOptions) {
-        if (options == null) {
-            options = defaultOptions;
-        } else if (defaultOptions != null) {
-            for (Entry<String, String> entry : defaultOptions.entrySet()) {
-                if (!options.containsKey(entry.getKey())) {
-                    options.put(entry.getKey(), entry.getValue());
-                }
-            }
-        }
+        Map<String, String> options = parseConnectOptionsType(connectOptions);
+        parseConnectOptionsType(defaultOptions).entrySet()
+                .stream()
+                .forEach(e -> options.putIfAbsent(e.getKey(), e.getValue()));
+        this.options = Collections.unmodifiableMap(options);
     }
 
     @Override
     public Map<String, Object> asOptionsMap() {
+        Map<String, String> optionsCopy = new HashMap<>(options);
+
         Map<String, Object> result = new LinkedHashMap<>();
 
-        result.put(SSL_CIPHERS, getSslCiphers());
-        result.put(SSL_PROTOCOLS, getSslProtocols());
-        result.put(WS_PROTOCOL_VERSION, getWebSocketWireProtocol());
-        result.put(INACTIVITY_TIMEOUT, getWsInactivityTimeout());
+        WebSocketWireProtocol wsVersion = getWebSocketWireProtocol(optionsCopy.remove("ws.version"));
+        result.put(WS_PROTOCOL_VERSION, wsVersion);
 
-        result.put(PIPE_TRANSPORT, getTransportURI("pipe.transport"));
-        result.put(TCP_TRANSPORT, getTransportURI("tcp.transport"));
-        result.put(SSL_TRANSPORT, getTransportURI("ssl.transport"));
-        result.put("http[http/1.1].transport", getTransportURI("http.transport"));
-        result.put("http.transport", null);
+        String wsInactivityTimeoutStr = optionsCopy.remove("ws.inactivity.timeout");
+        String httpKeepaliveTimeoutStr = optionsCopy.remove("http.keepalive.timeout");
+        // ws.inactivity.timeout is used for http.keepalive.timeout so that connections
+        // are kept alive in wse case
+        if (wsInactivityTimeoutStr != null && httpKeepaliveTimeoutStr == null) {
+            httpKeepaliveTimeoutStr = wsInactivityTimeoutStr;
+        }
 
-        result.put(SSL_ENCRYPTION_ENABLED, isSslEncryptionEnabled());
-        result.put("udp.interface", getUdpInterface());
+        long wsInactivityTimeout = getWsInactivityTimeout(wsInactivityTimeoutStr);
+        result.put("ws.inactivityTimeout", wsInactivityTimeout);
 
-        result.put(HTTP_KEEP_ALIVE_TIMEOUT_KEY, getHttpKeepaliveTimeout());
-        result.put(HTTP_KEEP_ALIVE, isHttpKeepaliveEnabled());
-        Integer keepaliveConnections = getHttpKeepaliveConnections();
+        int httpKeepaliveTimeout = getHttpKeepaliveTimeout(httpKeepaliveTimeoutStr);
+        result.put("http[http/1.1].keepAliveTimeout", httpKeepaliveTimeout);
+        if (wsInactivityTimeoutStr != null &&
+                MILLISECONDS.convert(httpKeepaliveTimeout, SECONDS) < wsInactivityTimeout) {
+            LOGGER.warn("http.keealive.timeout={} should be greater than ws.inactivity.timeout={}",
+                    wsInactivityTimeoutStr, httpKeepaliveTimeoutStr);
+        }
+
+        boolean keepAlive = isHttpKeepaliveEnabled(optionsCopy.remove("http.keepalive"));
+        result.put("http[http/1.1].keepAlive", keepAlive);
+
+        Integer keepaliveConnections = getHttpKeepaliveConnections(optionsCopy.remove("http.keepalive.connections"));
         if (keepaliveConnections != null) {
-            result.put("http.keepalive.connections", keepaliveConnections);
+            result.put("http[http/1.1].keepalive.connections", keepaliveConnections);
+        }
+
+        String[] sslCiphers = getSslCiphers(optionsCopy.remove("ssl.ciphers"));
+        if (sslCiphers != null) {
+            result.put(SSL_CIPHERS, sslCiphers);
+        }
+
+        String[] sslProtocols = getSslProtocols(optionsCopy.remove("ssl.protocols"));
+        if (sslProtocols != null) {
+            result.put(SSL_PROTOCOLS, sslProtocols);
+        }
+
+        boolean sslEncryptionEnabled = isSslEncryptionEnabled(optionsCopy.remove("ssl.encryption"));
+        result.put(SSL_ENCRYPTION_ENABLED, sslEncryptionEnabled);
+
+        String sslVerifyClientValue = optionsCopy.remove("ssl.verify-client");
+        boolean[] clientAuth = getVerifyClientProperties(sslVerifyClientValue);
+        result.put(SSL_WANT_CLIENT_AUTH, clientAuth[0]);
+        result.put(SSL_NEED_CLIENT_AUTH, clientAuth[1]);
+
+        String pipeTransport = getTransportURI("pipe.transport", optionsCopy.remove("pipe.transport"));
+        if (pipeTransport != null) {
+            result.put(PIPE_TRANSPORT, pipeTransport);
+        }
+
+        String tcpTransport = getTransportURI("tcp.transport", optionsCopy.remove("tcp.transport"));
+        if (tcpTransport != null) {
+            result.put(TCP_TRANSPORT, tcpTransport);
+        }
+
+        String sslTransport = getTransportURI("ssl.transport", optionsCopy.remove("ssl.transport"));
+        if (sslTransport != null) {
+            result.put(SSL_TRANSPORT, sslTransport);
+        }
+
+        String httpTransport = getTransportURI("http.transport", optionsCopy.remove("http.transport"));
+        if (httpTransport != null) {
+            result.put("http[http/1.1].transport", httpTransport);
         }
 
         // for now just put in the rest of the options as strings
-        for (Entry<String, String> entry : options.entrySet()) {
-            String key = entry.getKey();
-            if (!result.containsKey(key)) {
-                // Special check for *.transport which should be validated as a URI
-                if (key.endsWith(".transport")) {
-                    try {
-                        // Exception will be thrown in an invalid *.transport format provided
-                        // (including Network Interface syntax)
-                        URIUtils.getHost(entry.getValue());
-                        // if successful, put value in map
-                        result.put(key, entry.getValue());
-                    } catch (IllegalArgumentException ex) {
-                        if (logger.isInfoEnabled()) {
-                            logger.info(String.format("Skipping option %s, expected valid URI but recieved: %s",
-                                    key, entry.getValue()));
-                        }
-                    }
-                } else {
-                    result.put(key, entry.getValue());
-                }
-            }
+        result.putAll(optionsCopy);
+
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace(format("Connect options map = %s", result));
         }
 
         return result;
     }
 
-    private String getUdpInterface() {
-        return options.get("udp.interface");
+    private Map<String, String> parseConnectOptionsType(ServiceConnectOptionsType connectOptionsType) {
+        return connectOptionsType != null
+                ? parseOptions(connectOptionsType.getDomNode())
+                : new HashMap<>();
     }
 
-    private WebSocketWireProtocol getWebSocketWireProtocol() {
-        WebSocketWireProtocol protocol = WebSocketWireProtocol.RFC_6455;
-        String wsVersion = options.get("ws.version");
-        if ("draft-75".equals(wsVersion)) {
-            protocol = WebSocketWireProtocol.HIXIE_75;
-        }
-        return protocol;
-    }
-
-    private String[] getSslCiphers() {
-        String sslCiphersStr = options.get("ssl.ciphers");
-        if (sslCiphersStr != null) {
-            return SslCipherSuites.resolveCSV(sslCiphersStr);
-        }
-        return null;
-    }
-
-    private String[] getSslProtocols() {
-        String sslProtocolsStr = options.get("ssl.protocols");
-        if (sslProtocolsStr != null) {
-            return resolveProtocols(sslProtocolsStr);
-        }
-        return null;
-    }
-
-    private long getWsInactivityTimeout() {
-        long wsInactivityTimeout = DEFAULT_WS_INACTIVITY_TIMEOUT_MILLIS;
-        String wsInactivityTimeoutValue = options.get("ws.inactivity.timeout");
-        if (wsInactivityTimeoutValue != null) {
-            long val = Utils.parseTimeInterval(wsInactivityTimeoutValue, TimeUnit.MILLISECONDS);
-            if (val > 0) {
-                wsInactivityTimeout = val;
-            }
-        }
-        return wsInactivityTimeout;
-    }
-
-    private String getTransportURI(String transportKey) {
-        String transportURI = null;
-        String transport = options.get(transportKey);
-        if (transport != null) {
-            transportURI = transport;
-            if (!URIUtils.isAbsolute(transportURI)) {
-                throw new IllegalArgumentException(format(
-                        "%s must contain an absolute URI, not \"%s\"", transportKey, transport));
-            }
-        }
-
-        return transportURI;
-    }
-
-    private boolean isSslEncryptionEnabled() {
-        boolean sslEncryptionEnabled = true;
-        String sslEncryptionEnabledValue = options.get("ssl.encryption");
-        if (sslEncryptionEnabledValue != null) {
-            sslEncryptionEnabled = !sslEncryptionEnabledValue.equalsIgnoreCase("disabled");
-        }
-        return sslEncryptionEnabled;
-    }
-
-    private Integer getHttpKeepaliveTimeout() {
-        int httpKeepaliveTimeout = DEFAULT_HTTP_KEEPALIVE_TIMEOUT;
-        String timeoutValue = options.get("http.keepalive.timeout");
-        if (timeoutValue != null) {
-            long val = Utils.parseTimeInterval(timeoutValue, TimeUnit.SECONDS);
-            if (val > 0) {
-                httpKeepaliveTimeout = (int) val;
-            }
-        }
-
-        return httpKeepaliveTimeout;
-    }
-
-    private Integer getHttpKeepaliveConnections() {
-        Integer maxConnections = null;
-        String connectionsValue = options.get("http.keepalive.connections");
-        if (connectionsValue != null) {
-            int val = Integer.parseInt(connectionsValue);
-            if (val > 0) {
-                maxConnections = val;
-            } else {
-                String msg = String.format("http.keepalive.connections = %s must be > 0", connectionsValue);
-                throw new IllegalArgumentException(msg);
-            }
-        }
-
-        return maxConnections;
-    }
-
-    private boolean isHttpKeepaliveEnabled() {
-        boolean httpKeepaliveEnabled = true;
-        String httpKeepaliveEnabledValue = options.get("http.keepalive");
-        if (httpKeepaliveEnabledValue != null) {
-            httpKeepaliveEnabled = !httpKeepaliveEnabledValue.equalsIgnoreCase("disabled");
-        }
-
-        return httpKeepaliveEnabled;
-    }
-
-    // We return a String array here, rather than a list, because the
-    // javax.net.ssl.SSLEngine.setEnabledProtocols() method wants a
-    // String array.
-    public static String[] resolveProtocols(String csv) {
-        if (csv != null && !csv.equals("")) {
-            return csv.split(",");
-        } else {
-            return null;
-        }
-    }
-
-    private void parseConnectOptionsType(ServiceConnectOptionsType connectOptionsType,
-                                         ServiceConnectOptionsType defaultOptionsType) {
-        if (connectOptionsType != null) {
-            Map<String, String> connectOptionsMap = new HashMap<>();
-            parseOptions(connectOptionsType.getDomNode(), connectOptionsMap);
-            setOptions(connectOptionsMap);
-        }
-
-        if (defaultOptionsType != null) {
-            Map<String, String> defaultConnectOptionsMap = new HashMap<>();
-            parseOptions(defaultOptionsType.getDomNode(), defaultConnectOptionsMap);
-            setDefaultOptions(defaultConnectOptionsMap);
-        }
-    }
-
-    private void parseOptions(Node parent, Map<String, String> optionsMap) {
-        NodeList childNodes = parent.getChildNodes();
-        for (int i = 0; i < childNodes.getLength(); i++) {
-            Node node = childNodes.item(i);
-            if (Node.ELEMENT_NODE == node.getNodeType()) {
-                NodeList content = node.getChildNodes();
-                String nodeValue = "";
-                for (int j = 0; j < content.getLength(); j++) {
-                    Node child = content.item(j);
-                    if (child != null) {
-                        if (child.getNodeType() == Node.TEXT_NODE) {
-                            // GatewayConfigParser skips white space so we don't need to trim. We concatenate in case
-                            // the parser coughs up text content as more than one Text node.
-                            String fragment = child.getNodeValue();
-                            if (fragment != null) {
-                                nodeValue = nodeValue + fragment;
-                            }
-                        }
-                        // Skip over other node types
-                    }
-                }
-                optionsMap.put(node.getLocalName(), nodeValue);
-            }
-        }
-    }
 }

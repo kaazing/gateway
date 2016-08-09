@@ -18,7 +18,12 @@ package org.kaazing.gateway.service.http.directory;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,6 +41,23 @@ public class HttpDirectoryServiceIT {
     private static final String ASTRISK_ORIGIN_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8002/";
     private static final String KEEPALIVE_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8003/keepAlive";
     private static final String NO_SERVER_HEADER = "http://localhost:8004/";
+    private static final String DIRECTORY_SERVICE_NO_SLASH = "http://localhost:8005/";
+    private static final String DIRECTORY_SERVICE_DOT_SLASH = "http://localhost:8006/";
+    private static final String DIRECTORY_SERVICE_NO_PATH = "http://localhost:8007/";
+    private static final String DIRECTORY_SERVICE_WRONG_PATH = "http://localhost:8008/";
+    private static final String DIRECTORY_SERVICE_SYMLINK_INSIDE_FILE_FOLLOW = "http://localhost:8011/";
+    private static final String DIRECTORY_SERVICE_SYMLINK_INSIDE_FILE_RESTRICTED = "http://localhost:8012/";
+    private static final String DIRECTORY_SERVICE_SYMLINK_OUTSIDE_FILE_FOLLOW = "http://localhost:8015/";
+    private static final String DIRECTORY_SERVICE_SYMLINK_OUTSIDE_FILE_RESTRICTED = "http://localhost:8016/";
+
+    private static final String BASE_DIR = "src/test/webapp/";
+    private static final String LINK_INSIDE_FILE = "/public/indexSymInside.html";
+    private static final String TARGET_INSIDE_FILE = "/public/insideDir/index.html";
+    private static final String LINK_OUTSIDE_FILE = "/public/indexSymOutside.html";
+    private static final String TARGET_OUTSIDE_FILE = "/outsideDir/index.html";
+
+    private static Path fileSymPathOutside = null;
+    private static Path fileSymPathInside = null;
 
     private final K3poRule robot = new K3poRule();
 
@@ -82,6 +104,57 @@ public class HttpDirectoryServiceIT {
                             .property("welcome-file", "index.html")
                             .crossOrigin().allowOrigin("*").done()
                         .done()
+                        .service()
+                            .accept(DIRECTORY_SERVICE_NO_SLASH)
+                            .type("directory")
+                            .property("directory", "public")
+                            .property("welcome-file", "index.html")
+                        .done()
+                        .service()
+                            .accept(DIRECTORY_SERVICE_DOT_SLASH)
+                            .type("directory")
+                            .property("directory", "./public")
+                            .property("welcome-file", "index.html")
+                        .done()
+                        .service()
+                            .accept(DIRECTORY_SERVICE_NO_PATH)
+                            .type("directory")
+                            .property("directory", "")
+                            .property("welcome-file", "index.html")
+                        .done()
+                        .service()
+                            .accept(DIRECTORY_SERVICE_WRONG_PATH)
+                            .type("directory")
+                            .property("directory", ".public")
+                            .property("welcome-file", "index.html")
+                        .done()
+                        .service()
+                            .accept(DIRECTORY_SERVICE_SYMLINK_INSIDE_FILE_FOLLOW)
+                            .type("directory")
+                            .property("directory", "/public/")
+                            .property("welcome-file", "indexSymInside.html")
+                            .property("symbolic-links", "follow")
+                        .done()
+                        .service()
+                            .accept(DIRECTORY_SERVICE_SYMLINK_INSIDE_FILE_RESTRICTED)
+                            .type("directory")
+                            .property("directory", "/public/")
+                            .property("welcome-file", "indexSymInside.html")
+                            .property("symbolic-links", "restricted")
+                        .done()
+                        .service()
+                            .accept(DIRECTORY_SERVICE_SYMLINK_OUTSIDE_FILE_FOLLOW)
+                            .type("directory")
+                            .property("directory", "/public/")
+                            .property("welcome-file", "indexSymOutside.html")
+                            .property("symbolic-links", "follow")
+                        .done()
+                        .service()
+                            .accept(DIRECTORY_SERVICE_SYMLINK_OUTSIDE_FILE_RESTRICTED)
+                            .type("directory")
+                            .property("directory", "/public/")
+                            .property("welcome-file", "indexSymOutside.html")
+                        .done()
                     .done();
             // @formatter:on
             init(configuration);
@@ -90,6 +163,34 @@ public class HttpDirectoryServiceIT {
 
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
+
+    @BeforeClass
+    public static void createResourcesBefore() {
+        fileSymPathInside = createSymlinkResources(LINK_INSIDE_FILE, TARGET_INSIDE_FILE);
+        fileSymPathOutside = createSymlinkResources(LINK_OUTSIDE_FILE, TARGET_OUTSIDE_FILE);
+    }
+
+    private static Path createSymlinkResources(String linkPath, String targetPath) {
+        try {
+            Path newLink = new File(BASE_DIR, linkPath).getCanonicalFile().toPath();
+            Path target = new File(BASE_DIR, targetPath).getCanonicalFile().toPath();
+            return Files.createSymbolicLink(newLink, target);
+        } catch (FileAlreadyExistsException existsException) {
+            return new File(existsException.getFile()).toPath();
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    @AfterClass
+    public static void cleanResourcesAfter() {
+        try {
+            Files.delete(fileSymPathOutside);
+            Files.delete(fileSymPathInside);
+        } catch (Exception x) {
+            //no op
+        }
+    }
 
     @Specification("get.index.check.status.code.200")
     @Test
@@ -345,6 +446,54 @@ public class HttpDirectoryServiceIT {
     @Specification("origin/allowed.header")
     @Test
     public void testAllowedHeaderConstraintSet() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("directory.no.slash.code.200")
+    @Test
+    public void shouldFindResourceWithNoSlashInDirectory() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("directory.dot.slash.code.200")
+    @Test
+    public void shouldFindResourceWithDotSlashInDirectory() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("directory.no.path.code.200")
+    @Test
+    public void shouldFindRootWithNoPathInDirectory() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("directory.wrong.path.code.404")
+    @Test
+    public void shouldNotFindResourceWithWrongPathInDirectory() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("directory.service.symlink.follow.inside.file")
+    @Test
+    public void shouldFollowSymLinksInsideBaseFolder() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("directory.service.symlink.restricted.inside.file")
+    @Test
+    public void shouldFollowSymLinksIfRestrictedInsideBaseFolder() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("directory.service.symlink.follow.outside.file")
+    @Test
+    public void shouldFollowSymLinksOutsideBaseFolder() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("directory.service.symlink.restricted.outside.file")
+    @Test
+    public void shouldNotFollowSymLinksIfRestrictedOutsideBaseFolder() throws Exception {
         robot.finish();
     }
 

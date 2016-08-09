@@ -32,6 +32,7 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class HttpProxySecureTest {
@@ -50,6 +51,7 @@ public class HttpProxySecureTest {
         // @formatter:off
         GatewayConfiguration configuration =
                 new GatewayConfigurationBuilder()
+                    .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
                     .service()
                         .accept("https://localhost:8110")
                         .connect("https://localhost:8080")

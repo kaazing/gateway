@@ -36,8 +36,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParserException;
-import org.kaazing.gateway.server.config.nov2015.GatewayConfigDocument;
-import org.kaazing.gateway.server.config.nov2015.ServiceAcceptOptionsType;
+import org.kaazing.gateway.server.config.june2016.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.june2016.ServiceAcceptOptionsType;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.TransportOptionNames;
 
@@ -72,14 +72,12 @@ public class AcceptOptionsTest {
     }
 
     @Test
-    @Ignore("XSD no longer validates accept-options types")
     public void testSslCiphersOption() throws Exception {
         expectSuccess("ssl.ciphers", "  FOO,BAR ", "ssl.ciphers", new String[]{"FOO", "BAR"});
         expectParseFailure("ssl.ciphers", "FOO, BAR");
     }
 
     @Test
-    @Ignore("XSD no longer validates accept-options types")
     public void testHttpKeepAliveTimeoutOption() throws Exception {
         // expect default if 0 is specified
         expectSuccess("http.keepalive.timeout", "0 minutes", "http[http/1.1].keepAliveTimeout", 30);
@@ -87,7 +85,7 @@ public class AcceptOptionsTest {
         expectSuccess("http.keepalive.timeout", "10 seconds", "http[http/1.1].keepAliveTimeout", 10);
         expectSuccess("http.keepalive.timeout", "10 minutes", "http[http/1.1].keepAliveTimeout", 600);
         expectSuccess("http.keepalive.timeout", "0.5 minutes", "http[http/1.1].keepAliveTimeout", 30);
-        expectSuccess("http.keepalive.timeout", "", "http[http/1.1].keepAliveTimeout", 30);
+        //expectSuccess("http.keepalive.timeout", "", "http[http/1.1].keepAliveTimeout", 30);
 
         expectParseFailure("http.keepalive.timeout", "-1 seconds");
         expectParseFailure("http.keepalive.timeout", "abc");
@@ -132,6 +130,15 @@ public class AcceptOptionsTest {
         expectParseFailure("tcp.maximum.outbound.rate", "");
         expectParseFailure("tcp.maximum.outbound.rate", null);
     }
+
+    @Test
+    public void testWsInactivityTimeout() throws Exception {
+        expectSuccess("ws.inactivity.timeout", "60", "ws.inactivityTimeout", 60000L, "http[http/1.1].keepAliveTimeout", 60);
+        expectSuccess("ws.inactivity.timeout", "60s", "ws.inactivityTimeout", 60000L, "http[http/1.1].keepAliveTimeout", 60);
+        //https://github.com/kaazing/gateway/issues/595
+        //expectSuccess("ws.inactivity.timeout", "60000ms", "ws.inactivityTimeout", 60000L, "http[http/1.1].keepAliveTimeout", 60);
+    }
+
 
     @Test
     public void testTcpBindOption() throws Exception {

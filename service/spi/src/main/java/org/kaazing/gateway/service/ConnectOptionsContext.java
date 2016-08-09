@@ -18,19 +18,6 @@ package org.kaazing.gateway.service;
 import java.util.Map;
 
 public interface ConnectOptionsContext {
-    /**
-     * Set the map of options on the ConnectOptionsContext.  The options are String key/value pairs.
-     * @param options the map of String key/value pairs to set on the ConnectOptionsContext
-     */
-    void setOptions(Map<String, String> options);
-
-    /**
-     * Set the map of default options on the ConnectOptionsContext.  The options are String key/value pairs.
-     * If the given default option does not exist in the option map it is added.  Any options already set
-     * are left untouched.
-     * @param defaultOptions the map of String key/value pairs to set as the default options on the ConnectOptionsContext
-     */
-    void setDefaultOptions(Map<String, String> defaultOptions);
 
     Map<String, Object> asOptionsMap();
 }

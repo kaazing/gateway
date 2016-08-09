@@ -37,6 +37,16 @@ if "%GATEWAY_OPTS%" == "" (
     set GATEWAY_OPTS=-Xmx512m
 )
 
+rem You can opt into using early access features by setting the value 
+rem of the GATEWAY_FEATURES environment variable to a comma separated 
+rem list of features to enable before calling this script.
+rem The script itself should not be changed.
+set FEATURE_OPTS= 
+if not "%GATEWAY_FEATURES%" == "" (
+   echo Enabling early access features: %GATEWAY_FEATURES%
+   set FEATURE_OPTS=-Dfeature.%GATEWAY_FEATURES:,= -Dfeature.%
+)
+
 rem Create the classpath.
 
 rem Add a directory for management support
@@ -48,5 +58,17 @@ if "%GATEWAY_IDENTIFIER%" NEQ "" (
     set GW_ID="-Dorg.kaazing.gateway.server.GATEWAY_IDENTIFIER=%GATEWAY_IDENTIFIER%"
 )
 
+rem Checking java version
+java -version 1>nul 2>nul || (
+    echo "Java is not installed. Cannot start the Gateway."
+    exit /b 2
+)
+for /f eol^=J^ tokens^=2-5^ delims^=.-_^" %%j in ('java -fullversion 2^>^&1') do set "jver=%%j%%k"
+
+if %jver% LSS 18 (
+  echo "Java 8 or higher must be installed to start the Gateway."
+  exit /b 1
+)
+
 rem Startup the gateway
-java %GATEWAY_OPTS% %GW_ID% -Djava.library.path="%JAVA_LIBRARY_PATH%" -XX:+HeapDumpOnOutOfMemoryError -cp "%GW_HOME%\lib\*" org.kaazing.gateway.server.WindowsMain %*
+java %FEATURE_OPTS% %GATEWAY_OPTS% %GW_ID% -Djava.library.path="%JAVA_LIBRARY_PATH%" -XX:+HeapDumpOnOutOfMemoryError -cp "%GW_HOME%\lib\*" org.kaazing.gateway.server.WindowsMain %*

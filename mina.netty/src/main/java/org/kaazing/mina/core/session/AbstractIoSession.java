@@ -17,11 +17,7 @@ package org.kaazing.mina.core.session;
 
 import static java.lang.String.format;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.SocketAddress;
-import java.nio.channels.FileChannel;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.Set;
@@ -30,7 +26,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.file.DefaultFileRegion;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.DefaultCloseFuture;
@@ -53,7 +48,6 @@ import org.apache.mina.core.write.WriteRequestQueue;
 import org.apache.mina.core.write.WriteTimeoutException;
 import org.apache.mina.core.write.WriteToClosedSessionException;
 import org.apache.mina.util.CircularQueue;
-import org.apache.mina.util.ExceptionMonitor;
 
 import org.kaazing.mina.core.future.DefaultWriteFutureEx;
 import org.kaazing.mina.core.future.WriteFutureEx;
@@ -64,20 +58,23 @@ import org.kaazing.mina.core.write.WriteRequestEx;
  * Base implementation of {@link IoSession}.
  */
 /* This has the following differences from the version in Mina 2.0.0-RC1:
- * 1. For efficiency reasons, do not update service statistics in the increaseReadBytes through
- *    decreaseScheduledWriteMessages methods
- * 2. getScheduledWriteBytes and getScheduledWriteMessages are no longer final
- * 3. Remove synchronization from poll method
- * 4. Note that this version does NOT have the guards in the increaseReadBufferSize and decreaseReadBufferSize methods
- *    that we added in our patched Mina version ("2.0.0-RC1g"): if (AbstractIoSessionConfig.ENABLE_BUFFER_SIZE)
- * 5. Change suspendRead/resumeRead and suspendWrite/resumeWrite to be atomic integer based (requires balanced calls)
- * 6. Do not always pass suspend/resumeWrite through to the processor, but still support them (for now) because used
- *    by the Gateway codebase
- * 7. Eliminate warnings by adding SuppressWarnings annotations where necessary
- * 8. Change closeOnFlush to call new method "protected abstract void doCloseOnFlush" so it can be
- *    overridden in AbstractIoSessionEx. Make CLOSE_REQUEST protected instead of private.
- * 9. Make lastIdleTimeFor..., lastReadTime and lastWriteTime volatile to allow multithreaded access (e.g. in
- *    DefaultIoSessionIdleTracker).
+ *  1. For efficiency reasons, do not update service statistics in the increaseReadBytes through
+ *     decreaseScheduledWriteMessages methods
+ *  2. getScheduledWriteBytes and getScheduledWriteMessages are no longer final
+ *  3. Remove synchronization from poll method
+ *  4. Note that this version does NOT have the guards in the increaseReadBufferSize and decreaseReadBufferSize methods
+ *     that we added in our patched Mina version ("2.0.0-RC1g"): if (AbstractIoSessionConfig.ENABLE_BUFFER_SIZE)
+ *  5. Change suspendRead/resumeRead and suspendWrite/resumeWrite to be atomic integer based (requires balanced calls)
+ *  6. Do not always pass suspend/resumeWrite through to the processor, but still support them (for now) because used
+ *     by the Gateway codebase
+ *  7. Eliminate warnings by adding SuppressWarnings annotations where necessary
+ *  8. Change closeOnFlush to call new method "protected abstract void doCloseOnFlush" so it can be
+ *     overridden in AbstractIoSessionEx. Make CLOSE_REQUEST protected instead of private.
+ *  9. Make lastIdleTimeFor..., lastReadTime and lastWriteTime volatile to allow multithreaded access (e.g. in
+ *     DefaultIoSessionIdleTracker).
+ * 10. Modify write(Object, SocketAddress) method in order to:
+ *       - remove logic for writing messages of File and FileChannel types
+ *       - allow writing of empty payload messages 
  */
 public abstract class AbstractIoSession implements IoSession, IoAlignment {
 
@@ -419,29 +416,6 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
             return future;
         }
 
-        FileChannel openedFileChannel = null;
-
-        // TODO: remove this code as soon as we use InputStream
-        // instead of Object for the message.
-        try {
-            if (message instanceof IoBuffer
-                    && !((IoBuffer) message).hasRemaining()) {
-                // Nothing to write : probably an error in the user code
-                throw new IllegalArgumentException(
-                "message is empty. Forgot to call flip()?");
-            } else if (message instanceof FileChannel) {
-                FileChannel fileChannel = (FileChannel) message;
-                message = new DefaultFileRegion(fileChannel, 0, fileChannel.size());
-            } else if (message instanceof File) {
-                File file = (File) message;
-                openedFileChannel = new FileInputStream(file).getChannel();
-                message = new DefaultFileRegion(openedFileChannel, 0, openedFileChannel.size());
-            }
-        } catch (IOException e) {
-            ExceptionMonitor.getInstance().exceptionCaught(e);
-            return DefaultWriteFutureEx.newNotWrittenFuture(this, e);
-        }
-
         // Now, we can write the message. First, create a future
         WriteRequestEx writeRequest = nextWriteRequest(message, remoteAddress);
         WriteFutureEx writeFuture = writeRequest.getFuture();
@@ -449,23 +423,6 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
         // Then, get the chain and inject the WriteRequest into it
         IoFilterChain filterChain = getFilterChain();
         filterChain.fireFilterWrite(writeRequest);
-
-        // TODO : This is not our business ! The caller has created a FileChannel,
-        // he has to close it !
-        if (openedFileChannel != null) {
-            // If we opened a FileChannel, it needs to be closed when the write has completed
-            final FileChannel finalChannel = openedFileChannel;
-            writeFuture.addListener(new IoFutureListener<WriteFuture>() {
-                @Override
-                public void operationComplete(WriteFuture future) {
-                    try {
-                        finalChannel.close();
-                    } catch (IOException e) {
-                        ExceptionMonitor.getInstance().exceptionCaught(e);
-                    }
-                }
-            });
-        }
 
         // Return the WriteFuture.
         return writeFuture;
