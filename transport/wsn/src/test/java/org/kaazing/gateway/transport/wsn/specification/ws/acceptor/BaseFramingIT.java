@@ -17,7 +17,6 @@ package org.kaazing.gateway.transport.wsn.specification.ws.acceptor;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -56,8 +55,6 @@ public class BaseFramingIT {
     public TestRule chain = createRuleChain(gateway, k3po);
 
     @Test
-    @Ignore("Error: expected 'read [0x82 0x00]', actual 'Disconnected', Not echoing 0 length payload, "
-            + "Bug filed: Gateway #254 `WSN Transport Bug : shouldEchoBinaryFrameWithPayloadLength0`")
     @Specification({
         "echo.binary.payload.length.0/handshake.request.and.frame"
         })
@@ -114,8 +111,6 @@ public class BaseFramingIT {
     }
 
     @Test
-    @Ignore("Error: expected 'read [0x82 0x00]', actual 'Disconnected', Not echoing 0 length payload"
-            + "Bug filed: Gateway #254 `WSN Transport Bug : shouldEchoTextFrameWithPayloadLength0`")
     @Specification({
         "echo.text.payload.length.0/handshake.request.and.frame"
         })

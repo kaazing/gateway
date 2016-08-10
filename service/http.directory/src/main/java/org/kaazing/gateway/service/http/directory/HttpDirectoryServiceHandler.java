@@ -18,6 +18,8 @@ package org.kaazing.gateway.service.http.directory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -30,6 +32,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.kaazing.gateway.service.ServiceContext;
+import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.service.http.directory.cachecontrol.CacheControlHandler;
 import org.kaazing.gateway.service.http.directory.cachecontrol.PatternCacheControl;
 import org.kaazing.gateway.service.http.directory.cachecontrol.PatternMatcherUtils;
@@ -57,6 +60,8 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
     private static final DateFormat RFC822_FORMAT_PATTERN =
             new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);
+    private static final String SYMLINK_RESTRICTED = "restricted";
+
     static {
         RFC822_FORMAT_PATTERN.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
@@ -141,7 +146,6 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
         // construct file reference from configured base directory
         File requestFile = new File(baseDir, "/" + pathInfo);
-
         // check if this is a directory reference
         if (requestFile.isDirectory()) {
             String requestPath = session.getRequestURI().getPath();
@@ -160,6 +164,7 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
         // if file is not under baseDir report an access denied error and close session
         boolean underBaseDir = false;
         File baseDirCannonical = baseDir.getCanonicalFile();
+
         for (File candidate = requestFile.getCanonicalFile(); candidate != null; candidate = candidate.getParentFile()) {
             if (candidate.equals(baseDirCannonical)) {
                 underBaseDir = true;
@@ -213,6 +218,22 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
             return;
         }
 
+        ServiceProperties properties = serviceContext.getProperties();
+        String followSymlink = properties.get("symbolic-links");
+        if (followSymlink == null) {
+            followSymlink = SYMLINK_RESTRICTED;
+        }
+
+        if (Files.isSymbolicLink(requestFile.toPath())) {
+            Path targetPath = Files.readSymbolicLink(requestFile.toPath());
+            boolean symLinkUnderBaseDir = targetPath.startsWith(baseDirCannonical.getPath());
+            if (SYMLINK_RESTRICTED.equals(followSymlink) && !symLinkUnderBaseDir) {
+                reportError(session, HttpStatus.CLIENT_NOT_FOUND);
+                session.close(false);
+                return;
+            }
+        }
+
         String requestPath = requestFile.getPath().replaceAll("\\\\", "/");
         addCacheControl(session, requestFile, requestPath);
 
@@ -222,6 +243,7 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
         if (!modified) {
             // file has not been modified so set status and close session
             session.setWriteHeader("ETag", etag);
+            session.setWriteHeader("Last-Modified", RFC822_FORMAT_PATTERN.format(requestFile.lastModified()));
             session.setStatus(HttpStatus.REDIRECT_NOT_MODIFIED);
             session.close(false);
             return;

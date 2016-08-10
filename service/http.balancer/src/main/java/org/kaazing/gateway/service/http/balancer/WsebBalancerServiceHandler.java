@@ -105,8 +105,6 @@ class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
             }
             String balanceeQuery = requestURI.getQuery();
 
-            // GL.warn("ha", "Selected Balancee Query String: {}", balanceeQuery);
-
             selectedBalanceeURI = buildURIAsString(balanceeScheme, getAuthority(selectedBalanceeURI), balanceePath, balanceeQuery, null);
 
             session.setStatus(HttpStatus.REDIRECT_FOUND /* 302 */);

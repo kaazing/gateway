@@ -1,2 +1,1 @@
-org.kaazing.gateway.management.snmp.SnmpManagementServiceFactorySpi
 org.kaazing.gateway.management.jmx.JmxManagementServiceFactorySpi

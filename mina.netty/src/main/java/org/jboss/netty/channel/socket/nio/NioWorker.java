@@ -60,8 +60,6 @@ import org.kaazing.mina.netty.config.InternalSystemProperty;
 
 public class NioWorker extends AbstractNioWorker {
 
-    private final SocketReceiveBufferAllocator recvBufferPool = new SocketReceiveBufferAllocator();
-
     // Avoid static variables to facilitate unit tests
     private final long MAXIMUM_PROCESS_TASKS_TIME_MILLIS
     = MAXIMUM_PROCESS_TASKS_TIME.getLongProperty(System.getProperties());

@@ -1367,6 +1367,11 @@
                     </documentation>
                 </annotation>
             </element>
+            <element name="http.maximum.redirects" maxOccurs="1" minOccurs="0" type="nonNegativeInteger">
+                <annotation>
+                    <documentation>The maximum redirects http connector follows</documentation>
+                </annotation>
+            </element>
         </all>
     </complexType>
 
@@ -1402,6 +1407,16 @@
                     <element maxOccurs="1" minOccurs="0"
                              name="error-pages-directory" type="gateway:CollapsedString">
                         <annotation/>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0"
+                             name="symbolic-links">
+                        <simpleType>
+                            <restriction base="string">
+                                <enumeration value="follow"/>
+                                <enumeration value="restricted"/>
+                                <whiteSpace value="collapse"></whiteSpace>
+                            </restriction>
+                        </simpleType>
                     </element>
                     <element name="options" minOccurs="0"
                              maxOccurs="1">
