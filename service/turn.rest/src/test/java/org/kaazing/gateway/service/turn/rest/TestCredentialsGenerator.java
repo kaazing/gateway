@@ -67,7 +67,7 @@ public class TestCredentialsGenerator implements TurnRestCredentialsGenerator {
             throw new RuntimeException("Password formation failed");  
         }
   
-        DefaultTurnRestCredentials credentials = new DefaultTurnRestCredentials(username, password);
+        TurnRestCredentials credentials = new TurnRestCredentials(username, password);
         return credentials;
     }
 

@@ -15,10 +15,22 @@
  */
 package org.kaazing.gateway.service.turn.rest;
 
-public interface TurnRestCredentials {
+public class TurnRestCredentials {
 
-    public String getUsername();
+    private String username;
+    private char[] password;
     
-    public char[] getPassword();
+    TurnRestCredentials(String username, char[] password) {
+        this.username = username;
+        this.password = password;
+    }
+
+    public String getUsername() {
+        return this.username;
+    }
+
+    public char[] getPassword() {
+        return this.password;
+    }
 
 }

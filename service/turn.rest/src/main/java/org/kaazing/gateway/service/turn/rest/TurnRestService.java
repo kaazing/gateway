@@ -21,6 +21,7 @@ import static org.kaazing.gateway.service.util.ServiceUtils.LIST_SEPARATOR;
 import java.util.Properties;
 
 import javax.annotation.Resource;
+import javax.naming.ConfigurationException;
 
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.security.SecurityContext;
@@ -75,7 +76,7 @@ public class TurnRestService implements Service {
         String credentialGeneratorClassName = properties.get("generate.credentials");
         TurnRestCredentialsGenerator credentialGeneratorInstance;
         if (credentialGeneratorClassName == null) {
-            return;
+            throw new ConfigurationException("No credential generator specified");
         }
         Class<? extends TurnRestCredentialsGenerator> credentialGeneratorClass;
         if (!credentialGeneratorClassName.startsWith(CLASS_PREFIX)) {

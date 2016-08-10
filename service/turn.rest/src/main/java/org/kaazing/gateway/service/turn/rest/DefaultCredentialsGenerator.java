@@ -22,7 +22,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.Subject;
 
-public class DefaultCredentialsGeneratorImpl implements TurnRestCredentialsGenerator {
+public class DefaultCredentialsGenerator implements TurnRestCredentialsGenerator {
 
     public static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
 
@@ -67,7 +67,7 @@ public class DefaultCredentialsGeneratorImpl implements TurnRestCredentialsGener
             throw new TurnServiceException("Password formation failed", e);
         }
 
-        return new DefaultTurnRestCredentials(username, password);
+        return new TurnRestCredentials(username, password);
     }
 
 }
