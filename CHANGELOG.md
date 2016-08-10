@@ -1,5 +1,15 @@
 # Change Log
 
+## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
+
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.0...HEAD)
+
+**Merged pull requests:**
+
+- HTTP Proxy Issue 648 [\#672](https://github.com/kaazing/gateway/pull/672) ([a-zuckut](https://github.com/a-zuckut))
+- Remove copyright info from log4j xml/properties files [\#668](https://github.com/kaazing/gateway/pull/668) ([ahousing](https://github.com/ahousing))
+- Fix for issue 310: WSN Connector: Connection should fail when the value of the  header in handshake response is not  \#310 [\#665](https://github.com/kaazing/gateway/pull/665) ([vmaraloiu](https://github.com/vmaraloiu))
+
 ## [5.2.0](https://github.com/kaazing/gateway/tree/5.2.0) (2016-08-08)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.1.2...5.2.0)
 
@@ -44,6 +54,10 @@
 - AcceptUriComparedToBalanceUriVisitor is comparing URIs prior to parameters being replaced, causing NPE that throws Parse Exception [\#612](https://github.com/kaazing/gateway/issues/612)
 - WSN Connector: Invalid value for the `Upgrade` header in handshake response must not result in a successful connection [\#312](https://github.com/kaazing/gateway/issues/312)
 - WsebAcceptorTest.shouldBindAWsAddress timeouts [\#287](https://github.com/kaazing/gateway/issues/287)
+
+**Closed issues:**
+
+- WsnInactivityTimeoutIT.shouldInactivityTimeoutWithPingPongExtensionAndExtendedHandshakePort80\(\) failing [\#300](https://github.com/kaazing/gateway/issues/300)
 
 **Merged pull requests:**
 
