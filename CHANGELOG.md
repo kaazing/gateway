@@ -47,7 +47,6 @@
 
 **Closed issues:**
 
-- Command center requires to relogin every time the page is refereshed [\#321](https://github.com/kaazing/gateway/issues/321)
 - WsnInactivityTimeoutIT.shouldInactivityTimeoutWithPingPongExtensionAndExtendedHandshakePort80\(\) failing [\#300](https://github.com/kaazing/gateway/issues/300)
 
 **Merged pull requests:**
