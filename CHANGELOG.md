@@ -45,10 +45,6 @@
 - WSN Connector: Invalid value for the `Upgrade` header in handshake response must not result in a successful connection [\#312](https://github.com/kaazing/gateway/issues/312)
 - WsebAcceptorTest.shouldBindAWsAddress timeouts [\#287](https://github.com/kaazing/gateway/issues/287)
 
-**Closed issues:**
-
-- WsnInactivityTimeoutIT.shouldInactivityTimeoutWithPingPongExtensionAndExtendedHandshakePort80\(\) failing [\#300](https://github.com/kaazing/gateway/issues/300)
-
 **Merged pull requests:**
 
 - Revert "Pokemon exceptions" [\#645](https://github.com/kaazing/gateway/pull/645) ([dpwspoon](https://github.com/dpwspoon))
