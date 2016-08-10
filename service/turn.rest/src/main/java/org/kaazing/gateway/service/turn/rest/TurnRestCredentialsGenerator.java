@@ -17,15 +17,21 @@ package org.kaazing.gateway.service.turn.rest;
 
 import javax.security.auth.Subject;
 
+/**
+ * Describes a class which can generate short term credentials 
+ *
+ */
 public interface TurnRestCredentialsGenerator {
     
     /**
+     * Sets the amount of time in which the credentials are available
      * 
      * @param ttl the time in seconds for which the credentials are valid
      */
     public void setCredentialsTTL(String ttl);
     
     /**
+     * Sets the shared key. In this context, the key is shared between this service and the TURN server
      * 
      * @param alias the name of the certificate containing the shared
      * secret key
@@ -33,6 +39,7 @@ public interface TurnRestCredentialsGenerator {
     public void setSharedKey(String sharedKey);
     
     /**
+     * The separator used in the user name between the time stamp when credentials are no longer active, and the actual username.
      * 
      * @param separator character in the generated username separating
      * the expiration timestamp from the Subject username
@@ -40,6 +47,7 @@ public interface TurnRestCredentialsGenerator {
     public void setUsernameSeparator(char separator);
 
     /**
+     * Generates short term Turn credentials for the currently logged user
      * 
      * @param subject Subject representing the currently logged in user
      * @return TurnRestCredentials object 

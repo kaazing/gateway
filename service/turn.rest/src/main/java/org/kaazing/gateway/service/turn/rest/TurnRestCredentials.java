@@ -15,20 +15,37 @@
  */
 package org.kaazing.gateway.service.turn.rest;
 
+/**
+ * Short term credentials for authenticating to a TURN server
+ *
+ */
 public class TurnRestCredentials {
 
     private String username;
     private char[] password;
     
+    /**
+     * Properties are only set via constructor
+     * @param username - The user name used for authentication
+     * @param password - The password used for authentication
+     */
     TurnRestCredentials(String username, char[] password) {
         this.username = username;
         this.password = password;
     }
 
+    /**
+     * Retrieves the user name used for authentication
+     * @return
+     */
     public String getUsername() {
         return this.username;
     }
 
+    /**
+     * Retrieves the password used for authentication
+     * @return
+     */
     public char[] getPassword() {
         return this.password;
     }

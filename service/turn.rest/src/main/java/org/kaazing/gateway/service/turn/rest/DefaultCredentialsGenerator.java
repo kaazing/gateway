@@ -22,6 +22,11 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.Subject;
 
+/**
+ * Default implementation of the TurnRestCredentialsGenerator
+ * It contains a standard implementation of the short term credentials 
+ * as described in <a href='https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00'>draft-uberti-behave-turn-rest-00</a> 
+ */
 public class DefaultCredentialsGenerator implements TurnRestCredentialsGenerator {
 
     public static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
@@ -30,21 +35,39 @@ public class DefaultCredentialsGenerator implements TurnRestCredentialsGenerator
     private String sharedKey;
     private char separator;
 
+    /**
+     * @see org.kaazing.gateway.service.turn.rest.TurnRestCredentialsGenerator#setCredentialsTTL(java.lang.String)
+     */
     @Override
     public void setCredentialsTTL(String ttl) {
         this.ttl = Long.valueOf(ttl);
     }
 
+
+    /**
+     * @see org.kaazing.gateway.service.turn.rest.TurnRestCredentialsGenerator#setSharedKey(java.lang.String)
+     */
     @Override
     public void setSharedKey(String sharedKey) {
         this.sharedKey = sharedKey;
     }
 
+    /**
+     * @see org.kaazing.gateway.service.turn.rest.TurnRestCredentialsGenerator#setUsernameSeparator(char)
+     */
     @Override
     public void setUsernameSeparator(char separator) {
         this.separator = separator;
     }
 
+    /**
+     * Generate TurnCredentials using the default algorithm, for generating them.
+     * The algorithm will generate the short term user name and the password using the algorithm described in 
+     * <a href='https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00'>draft-uberti-behave-turn-rest-00</a>
+     * <p>
+     * The user name is generated based on the authenticated user's name.
+     * @see org.kaazing.gateway.service.turn.rest.TurnRestCredentialsGenerator#generate(javax.security.auth.Subject)
+     */
     @Override
     public TurnRestCredentials generate(Subject subject) {
         String username;

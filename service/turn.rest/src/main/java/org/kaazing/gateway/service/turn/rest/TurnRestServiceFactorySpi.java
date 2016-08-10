@@ -31,7 +31,7 @@ public class TurnRestServiceFactorySpi extends ServiceFactorySpi {
     @Override
     public Service newService(String serviceType) {
         if (!"turn.rest".equals(serviceType)) {
-            throw new IllegalArgumentException("Wrong service type. Expected 'turn.rest' but got "+serviceType);
+            throw new IllegalArgumentException("Wrong service type. Expected 'turn.rest' but got: '"+serviceType+"'");
         }
         return new TurnRestService();
     }
