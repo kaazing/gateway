@@ -61,7 +61,7 @@ public class WsCodecFilter extends ProtocolCodecFilter {
             IoSessionEx sessionEx = (IoSessionEx) session;
             IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
 
-            return new WsFrameDecoder(allocator, wsMaxMessageSize);
+            return new WsFrameDecoder(allocator, wsMaxMessageSize, !maskSends);
         }
     }
 }
