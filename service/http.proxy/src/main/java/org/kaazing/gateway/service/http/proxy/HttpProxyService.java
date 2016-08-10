@@ -25,6 +25,7 @@ import javax.annotation.Resource;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.proxy.AbstractProxyService;
+import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 
 /**
  * Http proxy service
@@ -42,6 +43,7 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
 
     @Override
     public void init(ServiceContext serviceContext) throws Exception {
+        EarlyAccessFeatures.HTTP_PROXY_SERVICE.assertEnabled(configuration, serviceContext.getLogger());
         super.init(serviceContext);
         Collection<String> connectURIs = serviceContext.getConnects();
         if (connectURIs == null || connectURIs.isEmpty()) {
