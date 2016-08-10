@@ -71,6 +71,10 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>uk.co.real-logic</groupId>
+            <artifactId>Agrona</artifactId>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>[4.10,5.0)</version>
