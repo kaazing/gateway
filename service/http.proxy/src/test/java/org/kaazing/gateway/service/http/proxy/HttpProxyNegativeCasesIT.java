@@ -49,10 +49,8 @@ public class HttpProxyNegativeCasesIT {
         init(configuration);
     }};
 
-
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
-
 
     @Specification("http.proxy.http.1.0.request")
     @Test
@@ -65,7 +63,6 @@ public class HttpProxyNegativeCasesIT {
     public void sendHttp_2_0_Request() throws Exception {
         robot.finish();
     }
-
 
     @Ignore // https://github.com/kaazing/tickets/issues/664
     @Specification("http.proxy.content.without.content.length.header")

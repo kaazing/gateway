@@ -14,6 +14,10 @@
 # limitations under the License.
 #
 
+#
+# client
+#
+
 connect tcp://localhost:8110
 connected
 
@@ -24,10 +28,13 @@ write "\r\n"
 
 read "HTTP/1.1 400"
 
+#
+# server
+#
+
 accept tcp://localhost:8080
 accepted
 connected
-
 
 read "GET / HTTP/1.1" "\r\n"
 read /Via: 1.1 kaazing-.+/ "\r\n"

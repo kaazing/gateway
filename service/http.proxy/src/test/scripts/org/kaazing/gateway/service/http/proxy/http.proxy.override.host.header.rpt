@@ -14,6 +14,10 @@
 # limitations under the License.
 #
 
+#
+# client
+#
+
 connect http://localhost:8110/
 connected
 
@@ -29,15 +33,18 @@ write close
 read status "200" "OK"
 read version "HTTP/1.1"
 read header "Content-Type" "text/html"
-read header "Content-Length" "12"
+read header "Content-Length" "13"
 read "Hello world\r\n"
 read closed
 
 close
 closed
 
+#
+# server
+#
 
-accept http://httpbin.org/
+accept http://localhost:8080/
 accepted
 connected
 
@@ -45,7 +52,7 @@ read method "GET"
 read parameter "name" "value"
 read header "Via" /1.1 kaazing-.+/
 read header "User-Agent" "curl/7.37.1"
-read header "Host" "httpbin.org"
+read header "Host" "localhost:8080"
 read header "Accept" "*/*"
 read closed
 

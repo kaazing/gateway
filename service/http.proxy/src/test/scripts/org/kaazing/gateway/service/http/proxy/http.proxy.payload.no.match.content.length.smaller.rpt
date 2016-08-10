@@ -14,6 +14,10 @@
 # limitations under the License.
 #
 
+#
+# client
+#
+
 connect tcp://localhost:8110
 connected
 
@@ -33,7 +37,7 @@ close
 closed
 
 #
-# Origin server
+# server
 #
 
 accept tcp://localhost:8080
@@ -56,11 +60,8 @@ read "Accept: application/xhtml+xml\r\n"
 read "Accept: application/xml;q=0.8\r\n"
 read "Accept: image/webp\r\n"
 read "Accept: */*;q=0.8\r\n"
-
 read "\r\n"
 
-# Packet length 204 bytes
-# wait 993371
 write "HTTP/1.1 200 OK\r\n"
 write "Access-Control-Allow-Credentials: true\r\n"
 write "Access-Control-Allow-Origin: *\r\n"
@@ -70,8 +71,6 @@ write "Date: Fri, 01 Jul 2016 15:49:44 GMT\r\n"
 write "Server: nginx\r\n"
 write "\r\n"
 
-# Packet length 128 bytes
-# wait 965
 write [0x60 0x7A 0x8E 0x98 0x18 0xA8 0xFC 0x7C 0xE6 0xC7 0x5B 0x48 0x52 0xC4 0x21 0x85 0x52 0x5C 0x7D 0xDC 0x20 0x91 0x90 0x63]
 
 # gateway(sender) closes the connection

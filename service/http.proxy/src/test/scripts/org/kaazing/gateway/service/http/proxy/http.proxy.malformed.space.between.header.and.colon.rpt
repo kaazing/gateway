@@ -14,6 +14,10 @@
 # limitations under the License.
 #
 
+#
+# client
+#
+
 connect tcp://localhost:8110
 connected
 
@@ -22,22 +26,9 @@ write "Host: localhost:8110" "\r\n"
 write "Invalid : curl/7.37.1\r\n"
 write "\r\n"
 
-read "HTTP/1.1 400 Bad Request\r\n"
+
+#
+# server
+#
 
 accept tcp://localhost:8080
-accepted
-connected
-
-read "GET / HTTP/1.1\r\n"
-read /Via: 1.1 kaazing-.+/ "\r\n"
-read "User-Agent: Kaazing Gateway\r\n"
-read "Invalid : curl/7.37.1\r\n"
-read "Host: localhost:8080\r\n"
-read "Connection: close\r\n"
-read "\r\n"
-
-write "HTTP/1.1 400 Bad Request\r\n"
-write "\r\n"
-
-close
-closed

@@ -14,7 +14,9 @@
 # limitations under the License.
 #
 
-# curl 7.37.1 <---> Gateway <---> tomcat 8.0.1
+#
+# client
+#
 
 connect tcp://localhost:8110
 connected
@@ -35,8 +37,9 @@ read "\r\n"
 
 close
 closed
+
 #
-# tomcat server
+# server
 #
 
 accept tcp://localhost:8080

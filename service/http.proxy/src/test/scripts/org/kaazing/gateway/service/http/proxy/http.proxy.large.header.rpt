@@ -14,8 +14,12 @@
 # limitations under the License.
 #
 
+#
+# client
+#
+
 # for 8043 and more the test will fail
-property largeHeaderData ${http:randomAscii(8000)}
+property largeHeaderData ${http:randomAscii(8040)}
 
 connect http://localhost:8110/
 connected
@@ -39,6 +43,10 @@ read closed
 
 close
 closed
+
+#
+# server
+#
 
 accept http://localhost:8080/
 accepted

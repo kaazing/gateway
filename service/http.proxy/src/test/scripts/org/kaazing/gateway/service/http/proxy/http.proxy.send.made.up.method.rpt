@@ -14,11 +14,13 @@
 # limitations under the License.
 #
 
+#
+# client
+#
+
 connect tcp://localhost:8110
 connected
 
-# Packet length 383 bytes
-# wait 0
 write "MODIFIED_GET /get HTTP/1.1\r\n"
 write "Host: localhost:8110\r\n"
 write "Connection: keep-alive\r\n"
@@ -28,5 +30,12 @@ write "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,
 write "Accept-Encoding: gzip, deflate, sdch\r\n"
 write "Accept-Language: en-US,en;q=0.8\r\n"
 write "\r\n"
+
+close
+closed
+
+#
+# server
+#
 
 accept tcp://localhost:8080

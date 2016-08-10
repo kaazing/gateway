@@ -47,7 +47,6 @@ public class HttpProxyAuthenticationIT {
         init(configuration);
     }};
 
-
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
@@ -124,7 +123,7 @@ public class HttpProxyAuthenticationIT {
     }
 
     @Test
-    @Specification("auth/http.proxy.auth.authentication.digest")
+    @Specification("auth/http.proxy.auth.authentication.basic")
     public void authenticationBasic() throws Exception {
         robot.finish();
     }

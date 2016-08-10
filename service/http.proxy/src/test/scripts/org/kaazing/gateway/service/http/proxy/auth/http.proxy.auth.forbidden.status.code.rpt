@@ -14,10 +14,13 @@
 # limitations under the License.
 #
 
-# curl 7.37.1 <---> Gateway <---> tomcat 8.0.1
+#
+# client
+#
 
 property invalidCredentials ${http:loginBase64Encoder("admin:admin")}
 property authHeader ${http:append("Basic ", invalidCredentials)}
+
 connect http://localhost:8110/resource
 connected
 
@@ -27,13 +30,13 @@ write close
 
 read status "403" "Forbidden"
 
+close
+closed
 
 #
-# tomcat server
+# server
 #
 
-property invalidCredentials ${http:loginBase64Encoder("admin:admin")}
-property authHeader ${http:append("Basic ", invalidCredentials)}
 accept http://localhost:8080/resource
 accepted
 connected
@@ -43,4 +46,4 @@ read header "Authorization" ${authHeader}
 read closed
 
 write status "403" "Forbidden"
-write flush
+write close

@@ -49,7 +49,6 @@ public class HttpProxyParametersIT {
         init(configuration);
     }};
 
-
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 

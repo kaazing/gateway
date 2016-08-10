@@ -14,12 +14,15 @@
 # limitations under the License.
 #
 
-# curl 7.37.1 <---> Gateway <---> tomcat 8.0.1
+#
+# client
+#
 
 property invalidCredentials ${http:loginBase64Encoder("baduser:badpass")}
 property invalidAuthHeader ${http:append("Basic ", invalidCredentials)}
 property credentials ${http:loginBase64Encoder("joe:welcome")}
 property authHeader ${http:append("Basic ", credentials)}
+
 connect http://localhost:8110/resource
 connected
 
@@ -41,14 +44,13 @@ write flush
 
 read status "200" "OK"
 
+close
+closed
+
 #
-# tomcat server
+# server
 #
 
-property invalidCredentials ${http:loginBase64Encoder("baduser:badpass")}
-property invalidAuthHeader ${http:append("Basic ", invalidCredentials)}
-property credentials ${http:loginBase64Encoder("joe:welcome")}
-property authHeader ${http:append("Basic ", credentials)}
 accept http://localhost:8080/resource
 accepted
 connected
@@ -67,4 +69,4 @@ read method "GET"
 read header "Proxy-Authorization" ${authHeader}
 
 write status "200" "OK"
-write flush
+write close

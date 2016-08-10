@@ -14,14 +14,13 @@
 # limitations under the License.
 #
 
-# curl 7.37.1 <---> Gateway <---> tomcat 8.0.1
+#
+# client
+#
 
 connect tcp://localhost:8110
 connected
 
-
-# Packet length 408 bytes
-# wait 0
 write "GET /digest-auth/auth/user/passwd HTTP/1.1\r\n"
 write "Host: localhost:8110\r\n"
 write "Connection: keep-alive\r\n"
@@ -32,9 +31,6 @@ write "Accept-Encoding: gzip, deflate, sdch\r\n"
 write "Accept-Language: en-US,en;q=0.8\r\n"
 write "\r\n"
 
-
-# Packet length 493 bytes
-# wait 649582
 read "HTTP/1.1 401 UNAUTHORIZED\r\n"
 read "Access-Control-Allow-Credentials: true\r\n"
 read "Access-Control-Allow-Origin: *\r\n"
@@ -49,9 +45,6 @@ read "WWW-Authenticate: realm=\"me@kennethreitz.com\"\r\n"
 read "WWW-Authenticate: qop=auth\r\n"
 read "\r\n"
 
-
-# Packet length 612 bytes
-# wait 8626758
 write "GET /digest-auth/auth/user/passwd HTTP/1.1\r\n"
 write "Host: localhost:8110\r\n"
 write "Connection: keep-alive\r\n"
@@ -66,17 +59,17 @@ write "\r\n"
 
 read status "200" "OK"
 
+close
+closed
+
 #
-# tomcat server
+# server
 #
 
 accept tcp://localhost:8080
 accepted
 connected
 
-
-# Packet length 408 bytes
-# wait 0
 read "GET /digest-auth/auth/user/passwd HTTP/1.1\r\n"
 read /Via: 1.1 kaazing-.+/ "\r\n"
 read "User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36\r\n"
@@ -94,9 +87,6 @@ read "Accept: image/webp\r\n"
 read "Accept: */*;q=0.8\r\n"
 read "\r\n"
 
-
-# Packet length 493 bytes
-# wait 649582
 write "HTTP/1.1 401 UNAUTHORIZED\r\n"
 write "Access-Control-Allow-Credentials: true\r\n"
 write "Access-Control-Allow-Origin: *\r\n"
@@ -111,9 +101,6 @@ write "WWW-Authenticate: realm=\"me@kennethreitz.com\"\r\n"
 write "WWW-Authenticate: qop=auth\r\n"
 write "\r\n"
 
-
-# Packet length 612 bytes
-# wait 8626758
 read "GET /digest-auth/auth/user/passwd HTTP/1.1\r\n"
 read /Via: 1.1 kaazing-.+/ "\r\n"
 read "User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36\r\n"
@@ -134,4 +121,4 @@ read "Accept: */*;q=0.8\r\n"
 read "\r\n"
 
 write status "200" "OK"
-write flush
+write close

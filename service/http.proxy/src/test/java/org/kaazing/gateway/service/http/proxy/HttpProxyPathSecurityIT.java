@@ -48,7 +48,6 @@ public class HttpProxyPathSecurityIT {
         init(configuration);
     }};
 
-
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 

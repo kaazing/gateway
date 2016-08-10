@@ -14,8 +14,13 @@
 # limitations under the License.
 #
 
+#
+# client
+#
+
 connect http://localhost:8110/intermediary
 connected
+
 write method "POST"
 write header host
 write header content-length
@@ -23,10 +28,14 @@ write "This is some data"
 write close
 read status "504" "Gateway Timeout"
 
+#
+# server
+#
 
 accept tcp://localhost:8080
 accepted
 connected
+
 read "POST" /.*\r\n/
 read /Via: 1.1 kaazing-.+/ "\r\n"
 read /User-Agent:.+/ "\r\n"

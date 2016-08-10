@@ -14,23 +14,25 @@
 # limitations under the License.
 #
 
+#
+# client
+#
+
 connect tcp://localhost:8110
 connected
 
 write "GET HTTP/1.1\r\n"
 write "Host: localhost:8080" "\r\n"
 write "\r\n"
-read "HTTP/1.1 400 Bad Request\r\n"
-
-accept tcp://localhost:8080
-accepted
-connected
-
-read "GET HTTP/1.1\r\n"
-
-write "HTTP/1.1 400 Bad Request\r\n"
-write "Server: k3po\r\n"
-write "\r\n"
+#read "HTTP/1.1 400 Bad Request\r\n"
 
 close
+closed
+
+#
+# server
+#
+
+accept tcp://localhost:8080
+
 closed

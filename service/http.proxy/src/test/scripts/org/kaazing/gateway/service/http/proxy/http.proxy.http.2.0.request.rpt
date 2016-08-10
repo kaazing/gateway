@@ -14,11 +14,13 @@
 # limitations under the License.
 #
 
+#
+# client
+#
+
 connect tcp://localhost:8110
 connected
 
-# Packet length 383 bytes
-# wait 0
 write "GET /get HTTP/2.0\r\n"
 write "Host: localhost:8110\r\n"
 write "User-Agent: Mozilla/5.0\r\n"
@@ -26,5 +28,9 @@ write "Connection: keep-alive\r\n"
 write "\r\n"
 
 read "HTTP/1.1 400 Bad Request"
+
+#
+# server
+#
 
 accept tcp://localhost:8080

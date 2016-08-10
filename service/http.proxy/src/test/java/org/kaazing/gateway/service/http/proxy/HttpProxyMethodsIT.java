@@ -31,7 +31,6 @@ import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 public class HttpProxyMethodsIT {
 
-    //    private final K3poRule robot = new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7235");
     private final K3poRule robot = new K3poRule();
 
     private final GatewayRule gateway = new GatewayRule() {{

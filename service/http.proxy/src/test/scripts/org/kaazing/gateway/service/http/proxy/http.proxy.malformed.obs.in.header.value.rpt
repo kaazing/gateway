@@ -14,6 +14,10 @@
 # limitations under the License.
 #
 
+#
+# client
+#
+
 connect tcp://localhost:8110
 connected
 
@@ -24,7 +28,9 @@ write "\r\n"
 
 read "HTTP/1.1 400 Bad Request\r\n"
 
-
+#
+# server
+#
 
 accept tcp://localhost:8080
 accepted

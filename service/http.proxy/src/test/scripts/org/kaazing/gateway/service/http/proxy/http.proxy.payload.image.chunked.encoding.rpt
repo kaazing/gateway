@@ -14,6 +14,10 @@
 # limitations under the License.
 #
 
+#
+# client
+#
+
 connect tcp://localhost:8110
 connected
 
@@ -27,8 +31,6 @@ write "Accept-Encoding: gzip, deflate, sdch\r\n"
 write "Accept-Language: en-US,en;q=0.8\r\n"
 write "\r\n"
 
-# Packet length 192 bytes
-# wait 1771116
 read "HTTP/1.1 200 OK\r\n"
 read "Access-Control-Allow-Credentials: true\r\n"
 read "Access-Control-Allow-Origin: *\r\n"
@@ -38,8 +40,6 @@ read "Date: Fri, 01 Jul 2016 12:53:34 GMT\r\n"
 read "Server: nginx\r\n"
 read "\r\n"
 
-# Packet length 1460 bytes
-# wait 2928
 read "RIFF@)"
 read [0x00 0x00]
 read "WEBPVP8X\n"
@@ -69,7 +69,7 @@ close
 closed
 
 #
-# Origin server
+# server
 #
 
 accept tcp://localhost:8080
@@ -95,8 +95,6 @@ read "Accept: */*;q=0.8\r\n"
 
 read "\r\n"
 
-# Packet length 192 bytes
-# wait 1771116
 write "HTTP/1.1 200 OK\r\n"
 write "Access-Control-Allow-Credentials: true\r\n"
 write "Access-Control-Allow-Origin: *\r\n"
@@ -106,8 +104,6 @@ write "Date: Fri, 01 Jul 2016 12:53:34 GMT\r\n"
 write "Server: nginx\r\n"
 write "\r\n"
 
-# Packet length 1460 bytes
-# wait 2928
 write "RIFF@)"
 write [0x00 0x00]
 write "WEBPVP8X\n"

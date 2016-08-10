@@ -32,7 +32,6 @@ import static org.kaazing.test.util.ITUtil.createRuleChain;
 public class HttpProxyMalformedRequestsIT {
 
     private final K3poRule robot = new K3poRule();
-
     private final GatewayRule gateway = new GatewayRule() {{
         // @formatter:off
         GatewayConfiguration configuration =
@@ -49,10 +48,8 @@ public class HttpProxyMalformedRequestsIT {
         init(configuration);
     }};
 
-
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
-
 
     @Ignore // connection not accepted if "host" header is missing, was expecting 400 error
     @Specification("http.proxy.malformed.missing.host.identifier")

@@ -14,6 +14,10 @@
 # limitations under the License.
 #
 
+#
+# client
+#
+
 connect http://localhost:8110/../
 connected
 
@@ -28,4 +32,13 @@ write close
 
 read status "404" "Not Found"
 
+close
+closed
+
+#
+# server
+#
+
 accept http://localhost:8080/
+
+closed

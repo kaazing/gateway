@@ -14,6 +14,10 @@
 # limitations under the License.
 #
 
+#
+# client
+#
+
 connect http://localhost:8110/a
 connected
 
@@ -26,6 +30,13 @@ read header "some" "header"
 read header "Content-Length" "7"
 read "content"
 read closed
+
+close
+closed
+
+#
+# server
+#
 
 accept tcp://localhost:8080
 accepted
@@ -43,3 +54,5 @@ write "some: header\r\n"
 write "Content-Length: 7\r\n"
 write "\r\n"
 write "content"
+
+closed

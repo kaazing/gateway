@@ -14,6 +14,9 @@
 # limitations under the License.
 #
 
+#
+# client
+#
 
 connect tcp://localhost:8110
 connected
@@ -29,7 +32,7 @@ write "\r\n"
 
 read "HTTP/1.1 200 OK\r\n"
 read "Accept-Ranges: bytes\r\n"
-read "Content-Encoding: gzip\r\n"
+#read "Content-Encoding: gzip\r\n"
 read "Content-Type: text/html\r\n"
 read "Date: Wed, 04 Mar 2015 02:26:37 GMT\r\n"
 read "ETag: W/\"13837-1391066078000\"\r\n"
@@ -62,7 +65,7 @@ close
 closed
 
 #
-# Origin server
+# server
 #
 
 accept tcp://localhost:8080

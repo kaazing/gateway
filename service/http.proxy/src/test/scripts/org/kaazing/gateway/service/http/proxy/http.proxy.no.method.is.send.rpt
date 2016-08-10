@@ -14,11 +14,12 @@
 # limitations under the License.
 #
 
+#
+# client
+#
+
 connect tcp://localhost:8110
 connected
-
-# Packet length 383 bytes
-# wait 0
 
 #write "GET /get HTTP/1.1\r\n"
 write "Host: localhost:8110\r\n"
@@ -31,5 +32,9 @@ write "Accept-Language: en-US,en;q=0.8\r\n"
 write "\r\n"
 
 read "HTTP/1.1 501 Not Implemented\r"
+
+#
+# server
+#
 
 accept tcp://localhost:8080
