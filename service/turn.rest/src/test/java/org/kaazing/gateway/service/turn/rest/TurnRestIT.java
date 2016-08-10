@@ -67,7 +67,7 @@ public class TurnRestIT {
                             .done()
                             .nestedProperty("options")
                                 .property("credentials.ttl", "43200")
-                                .property("key.alias", "localhost")
+                                .property("shared.secret", "logen")
                                 .property("username.separator", ":")
                             .done()
                         .done()

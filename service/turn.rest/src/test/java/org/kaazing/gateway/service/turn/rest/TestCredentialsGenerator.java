@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.service.turn.rest;
 
-import java.security.cert.Certificate;
 import java.time.Instant;
 import java.util.Base64;
 
@@ -28,7 +27,7 @@ public class TestCredentialsGenerator implements TurnRestCredentialsGenerator {
     public static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
     
     private long ttl;
-    private Certificate alias;
+    private String sharedKey;
     private char separator;
 
     @Override
@@ -37,8 +36,8 @@ public class TestCredentialsGenerator implements TurnRestCredentialsGenerator {
     }
 
     @Override
-    public void setKeyAlias(Certificate alias) {
-        this.alias = alias;
+    public void setSharedKey(String sharedKey) {
+        this.sharedKey = sharedKey;
     }
 
     @Override
@@ -61,7 +60,7 @@ public class TestCredentialsGenerator implements TurnRestCredentialsGenerator {
           
         try {
             Mac hmacSHA1 = Mac.getInstance(HMAC_SHA1_ALGORITHM);
-            SecretKeySpec signingKey = new SecretKeySpec(this.alias.getPublicKey().getEncoded(), HMAC_SHA1_ALGORITHM);
+            SecretKeySpec signingKey = new SecretKeySpec(this.sharedKey.getBytes(), HMAC_SHA1_ALGORITHM);
             hmacSHA1.init(signingKey);
             password = Base64.getEncoder().encodeToString(hmacSHA1.doFinal(username.getBytes())).toCharArray();
         } catch (Exception e) {

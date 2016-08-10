@@ -15,8 +15,6 @@
  */
 package org.kaazing.gateway.service.turn.rest;
 
-import java.security.KeyStore;
-import java.security.cert.Certificate;
 import java.util.Arrays;
 
 import javax.security.auth.Subject;
@@ -34,14 +32,12 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
     private ServiceProperties options;
-    private KeyStore keystore;
     private TurnRestCredentialsGenerator credentialGenerator;
     private String uris;
 
-    TurnRestServiceHandler(ServiceProperties options, KeyStore keystore, TurnRestCredentialsGenerator credentialGenerator,
+    TurnRestServiceHandler(ServiceProperties options, TurnRestCredentialsGenerator credentialGenerator,
             String uris) {
         this.options = options;
-        this.keystore = keystore;
         this.credentialGenerator = credentialGenerator;
         this.uris = uris;
     }
@@ -52,10 +48,10 @@ class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
         String service = session.getParameter("service");
 
         String ttl = options.get("credentials.ttl");
-        Certificate alias = keystore.getCertificate(options.get("key.alias"));
+        String sharedKey = options.get("shared.key");
         char separator = options.get("username.separator").charAt(0);
 
-        if (method != HttpMethod.POST) {
+        if (method != HttpMethod.GET) {
             session.setStatus(HttpStatus.CLIENT_METHOD_NOT_ALLOWED);
             session.close(false);
             throw new IllegalArgumentException("HTTP method not allowed: " + method);
@@ -76,7 +72,7 @@ class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
         char[] password = null;
         if (credentialGenerator != null) {
             credentialGenerator.setCredentialsTTL(ttl);
-            credentialGenerator.setKeyAlias(alias);
+            credentialGenerator.setSharedKey(sharedKey);
             credentialGenerator.setUsernameSeparator(separator);
 
             Subject subject = session.getSubject();

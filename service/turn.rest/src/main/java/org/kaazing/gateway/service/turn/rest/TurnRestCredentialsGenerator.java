@@ -15,8 +15,6 @@
  */
 package org.kaazing.gateway.service.turn.rest;
 
-import java.security.cert.Certificate;
-
 import javax.security.auth.Subject;
 
 public interface TurnRestCredentialsGenerator {
@@ -32,7 +30,7 @@ public interface TurnRestCredentialsGenerator {
      * @param alias the name of the certificate containing the shared
      * secret key
      */
-    public void setKeyAlias(Certificate alias);
+    public void setSharedKey(String sharedKey);
     
     /**
      * 

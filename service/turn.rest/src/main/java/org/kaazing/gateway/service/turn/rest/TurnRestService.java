@@ -16,7 +16,8 @@
 package org.kaazing.gateway.service.turn.rest;
 
 
-import java.security.KeyStore;
+import static org.kaazing.gateway.service.util.ServiceUtils.LIST_SEPARATOR;
+
 import java.util.Properties;
 
 import javax.annotation.Resource;
@@ -27,7 +28,6 @@ import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
-import static org.kaazing.gateway.service.util.ServiceUtils.LIST_SEPARATOR;
 
 /**
  * Gateway service of type "turn.rest".
@@ -38,6 +38,7 @@ public class TurnRestService implements Service {
     
     private TurnRestServiceHandler handler;
     private ServiceContext serviceContext;
+    @SuppressWarnings("unused")
     private SecurityContext securityContext;
     private Properties configuration;
 
@@ -51,12 +52,12 @@ public class TurnRestService implements Service {
         return "turn.rest";
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void init(ServiceContext serviceContext) throws Exception {
         this.serviceContext = serviceContext;
         ServiceProperties properties = serviceContext.getProperties();
-        KeyStore keystore = securityContext.getKeyStore();
-        
+
         this.configuration = new Properties();
         String propertyName = EarlyAccessFeatures.TURN_REST_SERVICE.getPropertyName();
         this.configuration.setProperty(propertyName, properties.get(propertyName));
@@ -94,7 +95,7 @@ public class TurnRestService implements Service {
             throw new IllegalArgumentException("Unknown credential generator class: " + className, e);
         }
 
-        handler = new TurnRestServiceHandler(options, keystore, credentialGeneratorInstance, uris);
+        handler = new TurnRestServiceHandler(options, credentialGeneratorInstance, uris);
     }
 
     @Override
