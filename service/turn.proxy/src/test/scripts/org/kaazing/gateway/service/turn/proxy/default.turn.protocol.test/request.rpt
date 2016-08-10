@@ -54,7 +54,7 @@ read ([0..32]:nonce)
 
 ##Allocation request (w/ cred)
 #STUN Message type | Message Length (***CONFIRM***)
-write [0x00] [0x03] [0x00] [0x64]
+write [0x00] [0x03] [0x00] [0x68]
 #Magic Cookie
 write [0x21] [0x12] [0xa4] [0x42]
 #Transaction ID
@@ -77,12 +77,12 @@ write ${realm} [0x00]
 write [0x00] [0x15] [0x00] [0x20]
 write ${nonce}
 #Attribute Message-Integrity
-write [0x00] [0x08] [0x00] [0x10]
-write ${turn:messageDigestMD5Encoding("joe:example.com:welcome")}
+write [0x00] [0x08] [0x00] [0x14]
+write [0x01] [0x02] [0x03] [0x04] ${turn:messageDigestMD5Encoding("joe:example.com:welcome")}
 
 #200 response w/ mapped address
 #STUN Header
-read [0x01] [0x03] [0x00] [0x34]
+read [0x01] [0x03] [0x00] [0x38]
 read [0x21] [0x12] [0xa4] [0x42]
 read ${transactionID}
 #Attribute Lifetime
@@ -95,7 +95,7 @@ read ([0..4]:relay_address)
 #Attribute XOR-Mapped-Address
 read [0x00] [0x20] [0x00] [0x08]
 read [0x00] [0x01] ${turn:portXOR(8080)} #port 8080
-read ([0..4]:mapped_address)
+read [0xE1] [0x12] [0xA6] [0x4D]
 #Attribute Message-Integrity
 read [0x00] [0x08] [0x00] (byte:length)
 read ([0..${length}]:messageDigest)
@@ -123,7 +123,7 @@ write [0x00] [0x15] [0x00] [0x20]
 write ${nonce}
 #Attribute Message-Integrity
 write [0x00] [0x08] [0x00] ${length}
-write ${turn:messageDigestMD5Encoding("joe:example.com:welcome")}
+write [0x01] [0x02] [0x03] [0x04] ${turn:messageDigestMD5Encoding("joe:example.com:welcome")}
 
 #success
 read [0x01] [0x08] [0x00] [0x14]
@@ -135,7 +135,7 @@ read ${messageDigest}
 
 #binds to peer
 #STUN Header
-write [0x00] [0x09] [0x00] [0x64] #Type|Length
+write [0x00] [0x09] [0x00] [0x68] #Type|Length
 write [0x21] [0x12] [0xa4] [0x42] #Magic Cookie
 write ${transactionID}
 #Attribute Channel-Number
@@ -155,11 +155,11 @@ write ${realm} [0x00]
 write [0x00] [0x15] [0x00] [0x20]
 write ${nonce}
 #Attribute Message-Integrity
-write [0x00] [0x08] [0x00] [0x10]
-write ${turn:messageDigestMD5Encoding("joe:example.com:welcome")}
+write [0x00] [0x08] [0x00] [0x14]
+write [0x01] [0x02] [0x03] [0x04] ${turn:messageDigestMD5Encoding("joe:example.com:welcome")}
 
 #success
-read [0x01] [0x09] [0x00] [0x14]
+read [0x01] [0x09] [0x00] [0x18]
 read [0x21] [0x12] [0xa4] [0x42]
 read ${transactionID}
 #attribute Message-Integrity

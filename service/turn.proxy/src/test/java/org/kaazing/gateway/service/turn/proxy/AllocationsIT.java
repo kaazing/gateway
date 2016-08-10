@@ -17,6 +17,7 @@ package org.kaazing.gateway.service.turn.proxy;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -26,6 +27,9 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+
+import java.io.FileInputStream;
+import java.security.KeyStore;
 
 /**
  * Test to validate behavior as specified in <a href="https://tools.ietf.org/html/rfc5766">RFC 5766: TURN</a> through TCP.
@@ -38,16 +42,35 @@ public class AllocationsIT {
 
     private final GatewayRule gateway = new GatewayRule() {
         {
+            KeyStore keyStore = null;
+            char[] password = "ab987c".toCharArray();
+            try {
+                FileInputStream fileInStr = new FileInputStream(System.getProperty("user.dir")
+                        + "/target/truststore/keystore.db");
+                keyStore = KeyStore.getInstance("JCEKS");
+                keyStore.load(fileInStr, "ab987c".toCharArray());
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
             // @formatter:off
             GatewayConfiguration configuration =
-                    new GatewayConfigurationBuilder()
-                        .property(EarlyAccessFeatures.TURN_PROXY.getPropertyName(), "true")
-                        .service()
-                            .accept("tcp://localhost:3478")
-                            .connect("tcp://localhost:3479")
-                            .type("turn.proxy")
-                        .done()
-                    .done();
+                new GatewayConfigurationBuilder()
+                    .property(EarlyAccessFeatures.TURN_PROXY.getPropertyName(), "true")
+                    .service()
+                        .accept("tcp://localhost:3478")
+                        .connect("tcp://localhost:3479")
+                        .type("turn.proxy")
+                        .property("mapped.address", "192.0.2.15:8080")
+                        .property("key.alias", "localhost")
+                            // TODO relay adress override
+                            //.property("relay.address.mask", propertyValue)
+                    .done()
+                    .security()
+                        .keyStore(keyStore)
+                        .keyStorePassword(password)
+                    .done()
+                .done();
             // @formatter:on
             init(configuration);
         }
@@ -118,6 +141,7 @@ public class AllocationsIT {
     @Specification({
         "incorrect.length.given/request",
         "incorrect.length.given/response" })
+    @Ignore("No script in specification")
     public void shouldGive401IfDirectlyGivesCredentials() throws Exception {
         k3po.finish();
     }

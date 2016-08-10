@@ -27,6 +27,9 @@ import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
+import java.io.FileInputStream;
+import java.security.KeyStore;
+
 public class PeerConnectionIT {
 
     private final K3poRule k3po = new K3poRule()
@@ -35,16 +38,35 @@ public class PeerConnectionIT {
 
     private final GatewayRule gateway = new GatewayRule() {
         {
+            KeyStore keyStore = null;
+            char[] password = "ab987c".toCharArray();
+            try {
+                FileInputStream fileInStr = new FileInputStream(System.getProperty("user.dir")
+                        + "/target/truststore/keystore.db");
+                keyStore = KeyStore.getInstance("JCEKS");
+                keyStore.load(fileInStr, "ab987c".toCharArray());
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
             // @formatter:off
             GatewayConfiguration configuration =
-                    new GatewayConfigurationBuilder()
-                        .property(EarlyAccessFeatures.TURN_PROXY.getPropertyName(), "true")
-                        .service()
-                            .accept("tcp://localhost:3478")
-                            .connect("tcp://localhost:3479")
-                            .type("turn.proxy")
-                        .done()
-                    .done();
+                new GatewayConfigurationBuilder()
+                    .property(EarlyAccessFeatures.TURN_PROXY.getPropertyName(), "true")
+                    .service()
+                        .accept("tcp://localhost:3478")
+                        .connect("tcp://localhost:3479")
+                        .type("turn.proxy")
+                        .property("mapped.address", "192.0.2.15:8080")
+                        .property("key.alias", "localhost")
+                        // TODO relay adress override
+                        //.property("relay.address.mask", propertyValue)
+                    .done()
+                    .security()
+                        .keyStore(keyStore)
+                        .keyStorePassword(password)
+                    .done()
+                .done();
             // @formatter:on
             init(configuration);
         }

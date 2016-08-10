@@ -55,7 +55,9 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
     public void init(ServiceContext serviceContext, SecurityContext securityContext) throws KeyStoreException {
         ServiceProperties properties = serviceContext.getProperties();
         fixedMappedAddress = properties.get("mapped.address");
-        sharedSecret = securityContext.getKeyStore().getCertificate(properties.get("key.alias"));
+        if (properties.get("key.alias") != null) {
+            sharedSecret = securityContext.getKeyStore().getCertificate(properties.get("key.alias"));
+        }
         connectURI = serviceContext.getConnects().iterator().next();
     }
 

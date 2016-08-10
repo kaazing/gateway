@@ -99,10 +99,9 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
         buf.putInt(StunProxyMessage.MAGIC_COOKIE);
         buf.put(stunMessage.getTransactionId());
 
-        int lengthSoFar = 0;
+        int lengthSoFar = StunProxyMessage.HEADER_BYTES;
 
         for (Attribute attribute : stunMessage.getAttributes()) {
-            lengthSoFar += 4 + attributePaddedLength(attribute.getLength());
             if (attribute instanceof MessageIntegrity &&
                 stunMessage.isModified() && username != null) {
                 LOGGER.debug("Message is modified will override MESSAGE-INTEGRITY");
@@ -118,6 +117,8 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
                 hmac.init(signingKey);
                 attribute = new MessageIntegrity(hmac.doFinal(buf.array()));
                 buf.putShort(2, stunMessage.getMessageLength());
+            } else {
+                lengthSoFar += 4 + attributePaddedLength(attribute.getLength());
             }
 
             if (LOGGER.isTraceEnabled()) {

@@ -32,11 +32,20 @@ public class MessageIntegrity extends Attribute {
 
     @Override
     public short getLength() {
-        return 16;
+        return 20;
     }
 
     @Override
     public byte[] getVariable() {
         return value;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : getVariable()) {
+            sb.append(String.format("%02X ", b));
+        }
+        return String.format("%s - %s", super.toString(), sb.toString());
     }
 }
