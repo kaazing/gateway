@@ -261,8 +261,6 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Issue# 310: Connection header set to invalid value in the handshake response. "
-            + " connectFuture.isConnected() must return false")
     @Specification({
         "response.header.connection.not.upgrade/handshake.response" })
     public void shouldFailConnectionWhenResponseHeaderConnectionNotUpgrade() throws Exception {
@@ -285,9 +283,7 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Issue# 311: Missing Connection header in handshake response. connectFuture.isConnected() must return false")
-    @Specification({
-        "response.header.connection.missing/handshake.response" })
+    @Specification({"response.header.connection.missing/handshake.response"})
     public void shouldFailConnectionWhenResponseHeaderConnectionMissing() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 
@@ -308,8 +304,6 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Issue# 312: Upgrade header set to invalid value in the handshake response."
-            + " connectFuture.isConnected() must return false")
     @Specification({
         "response.header.upgrade.not.websocket/handshake.response" })
     public void shouldFailConnectionWhenResponseHeaderUpgradeNotWebSocket() throws Exception {

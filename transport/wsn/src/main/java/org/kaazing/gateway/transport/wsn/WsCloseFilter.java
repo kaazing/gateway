@@ -19,6 +19,7 @@ import static java.lang.String.format;
 import static org.kaazing.gateway.transport.wsn.WsnSession.SESSION_KEY;
 import static org.kaazing.gateway.util.InternalSystemProperty.WS_CLOSE_TIMEOUT;
 
+import java.nio.ByteBuffer;
 import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -35,6 +36,7 @@ import org.kaazing.gateway.transport.ws.WsCloseMessage;
 import org.kaazing.gateway.transport.ws.WsFilterAdapter;
 import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.util.WSMessageTooLongException;
+import org.kaazing.gateway.util.Utf8Util;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
 import org.kaazing.mina.core.future.DefaultWriteFutureEx;
@@ -153,6 +155,8 @@ public class WsCloseFilter
                                    final IoSession session,
                                    final WsCloseMessage wsClose)
         throws Exception {
+        ByteBuffer reason = wsClose.getReason();
+        int status = wsClose.getStatus();
 
         if (receivedCloseFrame.compareAndSet(false, true)) {
             if (logger != null &&
@@ -162,7 +166,14 @@ public class WsCloseFilter
 
             if (sentCloseFrame.get() == false) {
                 // Echo the CLOSE frame back, and close the session.
-                WsCloseMessage wsCloseResponse = new WsCloseMessage(wsClose.getStatus(), wsClose.getReason());
+                WsCloseMessage wsCloseResponse = new WsCloseMessage(status, reason);
+
+                // if the message has invalid UTF-8 reason, just send back 1002 - protocol error
+                if (status == WsCloseMessage.NORMAL_CLOSE.getStatus()) {
+                    if (!Utf8Util.validBytesUTF8(reason, reason.position(), reason.limit())) {
+                        wsCloseResponse = WsCloseMessage.PROTOCOL_ERROR;
+                    }
+                }
                 WriteFutureEx writeFuture = new DefaultWriteFutureEx(session);
                 WriteRequestEx writeRequest = new DefaultWriteRequestEx(wsCloseResponse, writeFuture);
 

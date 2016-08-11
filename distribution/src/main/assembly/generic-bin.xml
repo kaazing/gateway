@@ -103,6 +103,7 @@
         <include>commons-cli:commons-cli</include>
         <include>org.json:json</include>
         <include>org.apache.maven.shared:maven-shared-utils</include>
+        <include>net.sf.opencsv:opencsv</include>
       </includes>
     </dependencySet>
 

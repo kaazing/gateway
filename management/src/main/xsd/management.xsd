@@ -17,9 +17,9 @@
 
 -->
 <schema elementFormDefault="qualified"
-        targetNamespace="http://xmlns.kaazing.org/2015/11/gateway"
+        targetNamespace="http://xmlns.kaazing.org/2016/06/gateway"
         xmlns="http://www.w3.org/2001/XMLSchema"
-        xmlns:gateway="http://xmlns.kaazing.org/2015/11/gateway">
+        xmlns:gateway="http://xmlns.kaazing.org/2016/06/gateway">
     <annotation>
         <documentation>Configuration for the Kaazing gateway Management service
             extensions.
@@ -77,57 +77,6 @@
                     <element maxOccurs="unbounded" minOccurs="0"
                              name="authorization-constraint"
                              type="gateway:AuthorizationConstraintType"/>
-
-                    <element maxOccurs="unbounded" minOccurs="0"
-                             name="cross-site-constraint"
-                             type="gateway:CrossSiteConstraintType"/>
-                </sequence>
-            </restriction>
-        </complexContent>
-    </complexType>
-
-    <complexType name="management.snmpServiceType">
-        <annotation>
-            <documentation>This type of service is used to expose the
-                SNMP management service.
-            </documentation>
-        </annotation>
-
-        <complexContent>
-            <restriction base="gateway:ServiceType">
-                <sequence>
-                    <element maxOccurs="1" minOccurs="1" name="name"
-                             type="gateway:CollapsedString"/>
-
-                    <element maxOccurs="1" minOccurs="0" name="description"
-                             type="gateway:CollapsedString"/>
-
-                    <element maxOccurs="unbounded" minOccurs="0" name="accept"
-                             type="anyURI"/>
-
-                    <!-- connect is not supported for SNMP -->
-
-                    <element fixed="management.snmp" maxOccurs="1" minOccurs="1" name="type" type="gateway:CollapsedString"/>
-
-                    <element maxOccurs="1" minOccurs="0" name="properties"
-                             type="gateway:ServicePropertiesType"/>
-
-                    <element maxOccurs="1" minOccurs="0" name="accept-options"
-                             type="gateway:ServiceAcceptOptionsType"/>
-
-                    <element maxOccurs="1" minOccurs="0"
-                             name="realm-name"
-                             type="gateway:CollapsedString">
-                        <annotation>
-                            <documentation>The name of the security realm used for
-                                authentication or * to indicate any valid
-                                user.
-                            </documentation>
-                        </annotation>
-                    </element>
-
-                    <element maxOccurs="unbounded" minOccurs="0"
-                             name="authorization-constraint" type="gateway:AuthorizationConstraintType"/>
 
                     <element maxOccurs="unbounded" minOccurs="0"
                              name="cross-site-constraint"

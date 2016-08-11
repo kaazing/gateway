@@ -82,7 +82,6 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("Gateway throws error when trying to send empty payload")
     @Specification({
         "client.echo.text.payload.length.0.fragmented/handshake.request.and.frames"
         })
@@ -93,7 +92,6 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("Gateway throws error when trying to send empty payload")
     @Specification({
         "client.echo.text.payload.length.0.fragmented.with.injected.ping.pong/handshake.request.and.frames"
         })
@@ -165,7 +163,6 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("Gateway throws error when trying to send empty payload")
     @Specification({
         "client.echo.binary.payload.length.0.fragmented/handshake.request.and.frames"
         })
@@ -176,7 +173,6 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("Gateway throws error when trying to send empty payload")
     @Specification({
         "client.echo.binary.payload.length.0.fragmented.with.injected.ping.pong/handshake.request.and.frames"
         })
