@@ -26,7 +26,7 @@ import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-public class HttpProxyLongHeader {
+public class HttpProxyLongHeaderIT {
 
     private final K3poRule robot = new K3poRule();
 

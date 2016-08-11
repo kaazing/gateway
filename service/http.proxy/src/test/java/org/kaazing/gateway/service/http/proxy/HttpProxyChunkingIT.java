@@ -64,13 +64,13 @@ public class HttpProxyChunkingIT {
         robot.finish();
     }
 
-    @Specification("http.proxy.payload.image.chunked.encoding")
+    @Specification("http.proxy.payload.image.encoding")
     @Test
     public void imageChunkedEncoding() throws Exception {
         robot.finish();
     }
 
-    @Specification("http.proxy.payload.binary.chunked.encoding")
+    @Specification("http.proxy.payload.binary.encoding")
     @Test
     public void binaryDataChunkedEncoding() throws Exception {
         robot.finish();
