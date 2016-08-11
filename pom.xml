@@ -36,6 +36,7 @@
         <enforcer.skip>true</enforcer.skip>
         <!-- Try to avoid huge heap size on Travis builds -->
         <failsafeArgLine>-Xmx1024m</failsafeArgLine>
+        <opencsv.version>2.3</opencsv.version>
     </properties>
 
     <modules>
