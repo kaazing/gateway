@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -147,6 +148,17 @@ class DefaultOptionsContext {
             }
         }
         return tcpMaximumOutboundRate;
+    }
+
+    static Long getHandshakeTimeout(String handshakeTimeoutValue) {
+        Long handshakeTimeout = null;
+        if (handshakeTimeoutValue != null) {
+            long val = Utils.parseTimeInterval(handshakeTimeoutValue, TimeUnit.MILLISECONDS);
+            if (val >= 0) {
+                handshakeTimeout = val;
+            }
+        }
+        return handshakeTimeout;
     }
 
     static boolean[] getVerifyClientProperties(String sslVerifyClientValue) {

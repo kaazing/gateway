@@ -119,6 +119,16 @@ public class ServiceDefaultsConfigurationBeanImpl implements ServiceDefaultsConf
                     jsonOptions.put("http.transport", httpTransport);
                 }
 
+                Long tcpHandshakeTimeout = (Long) acceptOptions.remove("tcp.handshake.timeout");
+                if (tcpHandshakeTimeout != null) {
+                    jsonOptions.put("tcp.handshake.timeout", tcpHandshakeTimeout);
+                }
+
+                Long httpHandshakeTimeout = (Long) acceptOptions.remove("http.handshake.timeout");
+                if (httpHandshakeTimeout != null) {
+                    jsonOptions.put("http.handshake.timeout", httpHandshakeTimeout);
+                }
+
                 long tcpMaxOutboundRate = (Long) acceptOptions.remove("tcp.maximumOutboundRate");
                 jsonOptions.put("tcp.maximum.outbound.rate", tcpMaxOutboundRate);
 
@@ -194,6 +204,16 @@ public class ServiceDefaultsConfigurationBeanImpl implements ServiceDefaultsConf
                 String httpTransport = (String) connectOptions.remove("http.transport");
                 if (httpTransport != null) {
                     jsonOptions.put("http.transport", httpTransport);
+                }
+
+                Long tcpHandshakeTimeout = (Long) connectOptions.remove("tcp.handshake.timeout");
+                if (tcpHandshakeTimeout != null) {
+                    jsonOptions.put("tcp.handshake.timeout", tcpHandshakeTimeout);
+                }
+
+                Long httpHandshakeTimeout = (Long) connectOptions.remove("http.handshake.timeout");
+                if (httpHandshakeTimeout != null) {
+                    jsonOptions.put("http.handshake.timeout", httpHandshakeTimeout);
                 }
 
                 for (Entry<String, Object> entry : connectOptions.entrySet()) {

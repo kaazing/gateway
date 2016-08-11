@@ -15,19 +15,23 @@
  */
 package org.kaazing.gateway.transport.http;
 
+import static java.lang.Math.min;
 import static java.lang.String.format;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.EnumSet.allOf;
 import static java.util.EnumSet.complementOf;
 import static java.util.EnumSet.of;
+import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.BALANCE_ORIGINS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.GATEWAY_ORIGIN_SECURITY;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.HANDSHAKE_TIMEOUT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.ORIGIN_SECURITY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.TEMP_DIRECTORY;
+import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.http.HttpAcceptFilter.CONDITIONAL_WRAPPED_RESPONSE;
 import static org.kaazing.gateway.transport.http.HttpAcceptFilter.CONTENT_LENGTH_ADJUSTMENT;
 import static org.kaazing.gateway.transport.http.HttpAcceptFilter.ELEVATE_EMULATED_REQUEST;
@@ -87,6 +91,7 @@ import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBuffer;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBufferAllocator;
+import org.kaazing.gateway.transport.http.bridge.filter.HttpHandshakeFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpNextAddressFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolDecoderException;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpSerializeRequestsFilter;
@@ -114,8 +119,11 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
     static final TypedAttributeKey<DefaultHttpSession> SESSION_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "session");
 	public static final AttributeKey BALANCEES_KEY = new AttributeKey(HttpAcceptor.class, "balancees");
 
+    private static final long DEFAULT_HTTP_HANDSHAKE_TIMEOUT_MILLIS = 10000;
+
     private final Map<String, Set<HttpAcceptFilter>> acceptFiltersByProtocol;
     private final Set<HttpAcceptFilter> allAcceptFilters;
+    private Map<ResourceAddress, Long> handshakeTimeoutByTransportAddress = new HashMap<>();
 
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory addressFactory;
@@ -212,6 +220,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 options.setOption(ORIGIN_SECURITY, bindAddress.getOption(ORIGIN_SECURITY));
                 options.setOption(GATEWAY_ORIGIN_SECURITY, bindAddress.getOption(GATEWAY_ORIGIN_SECURITY));
                 options.setOption(BALANCE_ORIGINS, bindAddress.getOption(BALANCE_ORIGINS));
+                options.setOption(HANDSHAKE_TIMEOUT, bindAddress.getOption(HANDSHAKE_TIMEOUT));
                 return addressFactory.newResourceAddress(resourcesURI, options);
             }
 
@@ -269,6 +278,19 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         //
         final ResourceAddress transportAddress = address.getTransport();
 
+        final Long handshakeTimeout = address.getOption(HANDSHAKE_TIMEOUT);
+        if (handshakeTimeout != null) {
+            Long newMappedValue = handshakeTimeoutByTransportAddress.computeIfPresent(transportAddress, (key, value) -> {
+                Long handshakeTimeoutValue = min(handshakeTimeout, value);
+                setHandshakeTimeoutValueForAlternate(transportAddress, handshakeTimeoutValue);
+                return handshakeTimeoutValue;
+            });
+            if (newMappedValue == null) {
+                handshakeTimeoutByTransportAddress.put(transportAddress, handshakeTimeout);
+                setHandshakeTimeoutValueForAlternate(transportAddress, handshakeTimeout);
+            }
+        }
+
         final URI transportURI = transportAddress.getResource();
 
         final Protocol transportProtocol = bridgeServiceFactory.getTransportFactory().getProtocol(transportURI.getScheme());
@@ -282,6 +304,12 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         acceptor.bind(transportAddress, bridgeHandler, sessionInitializer);
     }
 
+    private void setHandshakeTimeoutValueForAlternate(final ResourceAddress transportAddress, Long handshakeTimeout) {
+        if(transportAddress.hasOption(ALTERNATE)) {
+            handshakeTimeoutByTransportAddress.put(transportAddress.getOption(ALTERNATE), handshakeTimeout);
+        }
+    }
+
     @Override
     protected UnbindFuture unbindInternal(ResourceAddress address, IoHandler handler, BridgeSessionInitializer<? extends IoFuture> initializer) {
         if (logger.isTraceEnabled()) {
@@ -291,7 +319,6 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         BridgeAcceptor acceptor = bridgeServiceFactory.newBridgeAcceptor(transport);
         return acceptor.unbind(transport);
     }
-
 
     private final IoHandler httpResourcesHandler = new IoHandlerAdapter<HttpAcceptSession>() {
 
@@ -530,9 +557,11 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
     @Override
     public void addBridgeFilters(IoFilterChain chain) {
-        IoSession transport = chain.getSession();
+        IoSession session = chain.getSession();
 
-        SocketAddress localAddress = transport.getLocalAddress();
+        SocketAddress localAddress = session.getLocalAddress();
+
+        ResourceAddress transportAddress = LOCAL_ADDRESS.get(session);
 
         String nextProtocol = null;
         if (localAddress instanceof ResourceAddress) {
@@ -574,6 +603,13 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 chain.addLast(acceptFilter.filterName(), acceptFilter.filter());
                 break;
             }
+        }
+        Long handshakeTimeout =
+                handshakeTimeoutByTransportAddress.get(transportAddress) != null ? handshakeTimeoutByTransportAddress
+                        .get(transportAddress) : DEFAULT_HTTP_HANDSHAKE_TIMEOUT_MILLIS;
+        if (handshakeTimeout > 0) {
+            chain.addLast("httpHandshakeTimeout",
+                    new HttpHandshakeFilter(logger, handshakeTimeout, schedulerProvider.getScheduler("httpHandshakeFilter", false)));
         }
     }
 

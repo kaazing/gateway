@@ -41,6 +41,7 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REAL
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_NAME;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REQUIRED_ROLES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.SERVER_HEADER_ENABLED;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.HANDSHAKE_TIMEOUT;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -95,6 +96,7 @@ public class HttpResourceAddressFactorySpiTest {
         options.put("http.realmAuthenticationCookieNames",new String[] {"c1", "c2"});
         options.put("http.loginContextFactory", loginContextFactory);
         options.put("http.serverHeaderEnabled", Boolean.FALSE);
+        options.put("http.handshake.timeout", 20000L);
 
     }
 
@@ -162,6 +164,7 @@ public class HttpResourceAddressFactorySpiTest {
         assertArrayEquals(new String[]{"c1", "c2"}, address.getOption(REALM_AUTHENTICATION_COOKIE_NAMES));
         assertEquals(loginContextFactory, address.getOption(LOGIN_CONTEXT_FACTORY));
         assertFalse(address.getOption(SERVER_HEADER_ENABLED));
+        assertEquals(20000, address.getOption(HANDSHAKE_TIMEOUT).longValue());
     }
 
     @Test

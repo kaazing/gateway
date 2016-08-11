@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.junit.Assert;
@@ -40,6 +41,7 @@ import org.kaazing.gateway.server.config.june2016.GatewayConfigDocument;
 import org.kaazing.gateway.server.config.june2016.ServiceAcceptOptionsType;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.TransportOptionNames;
+import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 
 /**
  * Unit tests for resolving gateway-config.xml.
@@ -49,10 +51,12 @@ public class AcceptOptionsTest {
 
     private static GatewayConfigParser parser;
     private static GatewayContextResolver resolver;
+    private static Properties configuration;
 
     @BeforeClass
     public static void init() {
         parser = new GatewayConfigParser();
+        configuration = new Properties();
 
         try {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -90,6 +94,37 @@ public class AcceptOptionsTest {
         expectParseFailure("http.keepalive.timeout", "-1 seconds");
         expectParseFailure("http.keepalive.timeout", "abc");
         expectParseFailure("http.keepalive.timeout", null);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testHandshakeTimeoutOptionNotEnabled() throws Exception {
+        String[] handshakeOptions = {"tcp.handshake.timeout", "http.handshake.timeout"};
+        for (String optionName : handshakeOptions) {
+            expectSuccess(optionName, "0 minutes", optionName, 0L);
+        }
+    }
+
+    @Test
+    public void testHandshakeTimeoutOption() throws Exception {
+        String[] handshakeOptions = {"tcp.handshake.timeout", "http.handshake.timeout"};
+
+        try {
+            configuration.setProperty(EarlyAccessFeatures.PROTOCOL_HANDSHAKE_TIMEOUT.getPropertyName(), "true");
+
+            for (String optionName : handshakeOptions) {
+                expectSuccess(optionName, "0 minutes", optionName, 0L);
+                expectSuccess(optionName, "10 seconds", optionName, 10000L);
+                expectSuccess(optionName, "10 minutes", optionName, 600000L);
+                expectSuccess(optionName, "0.5 minutes", optionName, 30000L);
+
+                expectParseFailure(optionName, "-1 seconds");
+                expectParseFailure(optionName, "abc");
+                expectParseFailure(optionName, null);
+            }
+        }
+        finally {
+            configuration.remove(EarlyAccessFeatures.PROTOCOL_HANDSHAKE_TIMEOUT.getPropertyName());
+        }
     }
 
     @Test
@@ -302,7 +337,7 @@ public class AcceptOptionsTest {
         ServiceAcceptOptionsType serviceAcceptOptionsType = doc.getGatewayConfig().getServiceArray(0).getAcceptOptions();
         AcceptOptionsContext acceptOptionsContext;
         try {
-            acceptOptionsContext = new DefaultAcceptOptionsContext(serviceAcceptOptionsType, null);
+            acceptOptionsContext = new DefaultAcceptOptionsContext(serviceAcceptOptionsType, null, configuration);
 
         } catch (Exception e) {
             if (e instanceof RuntimeException &&
