@@ -21,12 +21,14 @@
 connect http://localhost:8110/a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a/../a
 connected
 
+
 write method "GET"
 write parameter "name" "value"
 write version "HTTP/1.1"
 write header "User-Agent" "curl/7.37.1"
 write header host
 write header "Accept" "*/*"
+write close
 
 close
 closed
@@ -39,5 +41,13 @@ accept http://localhost:8080/a
 accepted
 connected
 
-read ""
+read method "GET"
+read parameter "name" "value"
+read header "Via" /1.1 kaazing-.+/
+read header "User-Agent" "curl/7.37.1"
+read header "Host" "localhost:8080"
+read header "Accept" "*/*"
+read closed
+
+close
 closed
