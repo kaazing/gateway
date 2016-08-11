@@ -16,8 +16,10 @@
 package org.kaazing.gateway.service.turn.proxy.stun;
 
 import java.nio.ByteBuffer;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
@@ -55,14 +57,15 @@ import static org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage.attri
 
 public class StunFrameEncoder extends ProtocolEncoderAdapter {
 
+    public static final String HMAC_SHA_1 = "HmacSHA1";
     private final IoBufferAllocatorEx<?> allocator;
-    private final ConcurrentHashMap<String, String> currentTransactions;
+    private final ConcurrentMap<String, String> currentTransactions;
     private final Certificate sharedSecret;
 
     private static final Logger LOGGER = LoggerFactory.getLogger("service.turn.proxy");
 
 
-    public StunFrameEncoder(IoBufferAllocatorEx<?> allocator, ConcurrentHashMap<String, String> currentTransactions, Certificate sharedSecret) {
+    public StunFrameEncoder(IoBufferAllocatorEx<?> allocator, ConcurrentMap<String, String> currentTransactions, Certificate sharedSecret) {
         this.allocator = allocator;
         this.currentTransactions = currentTransactions;
         this.sharedSecret = sharedSecret;
@@ -74,13 +77,10 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
             // easiest way to avoid race condition where decoder is removed on the filter chain prior to encoder
             out.write(message);
         }
-        LOGGER.debug("Session is of type: " + session.getClass().getCanonicalName());
-
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Encoding STUN message: " + message);
         }
         StunProxyMessage stunMessage = (StunProxyMessage) message;
-
         String username = null;
         if (((StunProxyMessage) message).getMessageClass().equals(StunMessageClass.RESPONSE) ||
             ((StunProxyMessage) message).getMessageClass().equals(StunMessageClass.ERROR)) {
@@ -89,38 +89,30 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
                 LOGGER.warn("Stun message is modified but MESSAGE-INTEGRITY attribute will not be recalculated.");
             }
         }
-
         ByteBuffer buf = allocator.allocate(StunProxyMessage.HEADER_BYTES + stunMessage.getMessageLength());
-
         short messageMethod = stunMessage.getMethod().getValue();
         short messageClass = stunMessage.getMessageClass().getValue();
         buf.putShort((short) (messageMethod | messageClass));
         buf.putShort(stunMessage.getMessageLength());
         buf.putInt(StunProxyMessage.MAGIC_COOKIE);
         buf.put(stunMessage.getTransactionId());
+        encodeAttributes(stunMessage, username, buf);
+        buf.flip();
+        out.write(allocator.wrap(buf));
+    }
 
+    private void encodeAttributes(StunProxyMessage stunMessage, String username, ByteBuffer buf) throws NoSuchAlgorithmException, InvalidKeyException {
         int lengthSoFar = StunProxyMessage.HEADER_BYTES;
-
         for (Attribute attribute : stunMessage.getAttributes()) {
             if (attribute instanceof MessageIntegrity &&
                 stunMessage.isModified() && username != null) {
                 LOGGER.debug("Message is modified will override MESSAGE-INTEGRITY");
                 // order counts when here we can safely recreate the message integrity
                 // overwrite message length and use the current buffer content, secret and password
-                buf.putShort(2, (short)lengthSoFar);
-                Mac hmac = Mac.getInstance("HmacSHA1");
-                SecretKeySpec signingKey = new SecretKeySpec(sharedSecret.getPublicKey().getEncoded(), "HmacSHA1");
-                hmac.init(signingKey);
-
-
-                signingKey = new SecretKeySpec(hmac.doFinal(username.getBytes()), "HmacSHA1");
-                hmac.init(signingKey);
-                attribute = new MessageIntegrity(hmac.doFinal(buf.array()));
-                buf.putShort(2, stunMessage.getMessageLength());
+                attribute = overrideMessageIntegrity(stunMessage, username, buf, (short) lengthSoFar);
             } else {
                 lengthSoFar += 4 + attributePaddedLength(attribute.getLength());
             }
-
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Encoding STUN attribute: " + attribute);
             }
@@ -132,11 +124,19 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
             for (int i = length; i < attributePaddedLength(length); i++) {
                 buf.put((byte) 0x00);
             }
-
         }
-
-        buf.flip();
-        out.write(allocator.wrap(buf));
     }
 
+    private Attribute overrideMessageIntegrity(StunProxyMessage stunMessage, String username, ByteBuffer buf, short lengthSoFar) throws NoSuchAlgorithmException, InvalidKeyException {
+        Attribute attribute;
+        buf.putShort(2, lengthSoFar);
+        Mac hmac = Mac.getInstance(HMAC_SHA_1);
+        SecretKeySpec signingKey = new SecretKeySpec(sharedSecret.getPublicKey().getEncoded(), HMAC_SHA_1);
+        hmac.init(signingKey);
+        signingKey = new SecretKeySpec(hmac.doFinal(username.getBytes()), HMAC_SHA_1);
+        hmac.init(signingKey);
+        attribute = new MessageIntegrity(hmac.doFinal(buf.array()));
+        buf.putShort(2, stunMessage.getMessageLength());
+        return attribute;
+    }
 }
