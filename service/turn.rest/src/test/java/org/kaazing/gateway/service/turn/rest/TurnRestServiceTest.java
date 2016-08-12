@@ -21,6 +21,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.kaazing.gateway.service.ServiceFactory;
+import org.kaazing.gateway.service.turn.rest.internal.TurnRestService;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class TurnRestServiceTest {

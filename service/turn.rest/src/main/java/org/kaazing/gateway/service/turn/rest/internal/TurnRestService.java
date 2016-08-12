@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.turn.rest;
+package org.kaazing.gateway.service.turn.rest.internal;
 
 
 import static org.kaazing.gateway.service.util.ServiceUtils.LIST_SEPARATOR;
 
+import java.io.File;
+import java.security.Key;
+import java.security.KeyStore;
 import java.util.Properties;
 
 import javax.annotation.Resource;
@@ -28,7 +31,9 @@ import org.kaazing.gateway.security.SecurityContext;
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
+import org.kaazing.gateway.service.turn.rest.TurnRestCredentialsGenerator;
 import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
+import org.kaazing.gateway.util.turn.TurnUtils;
 
 /**
  * Gateway service of type "turn.rest".
@@ -39,7 +44,6 @@ public class TurnRestService implements Service {
     
     private TurnRestServiceHandler handler;
     private ServiceContext serviceContext;
-    @SuppressWarnings("unused")
     private SecurityContext securityContext;
     private Properties configuration;
 
@@ -53,26 +57,62 @@ public class TurnRestService implements Service {
         return "turn.rest";
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void init(ServiceContext serviceContext) throws Exception {
         this.serviceContext = serviceContext;
+
+        EarlyAccessFeatures.TURN_REST_SERVICE.assertEnabled(getConfiguration(), serviceContext.getLogger());
         ServiceProperties properties = serviceContext.getProperties();
 
-        this.configuration = new Properties();
-        String propertyName = EarlyAccessFeatures.TURN_REST_SERVICE.getPropertyName();
-        this.configuration.setProperty(propertyName, properties.get(propertyName));
-        EarlyAccessFeatures.TURN_REST_SERVICE.assertEnabled(configuration, serviceContext.getLogger());
-        
+        String uris = getTurnURIs(properties);
+        TurnRestCredentialsGenerator credentialGeneratorInstance = setUpCredentialsGenerator(properties);
+
         ServiceProperties options = properties.getNested("options").get(0);
-        
+        String ttl = options.get("credentials.ttl");
+
+        handler = new TurnRestServiceHandler(ttl, credentialGeneratorInstance, uris);
+    }
+
+    private TurnRestCredentialsGenerator setUpCredentialsGenerator(ServiceProperties properties)
+            throws ConfigurationException, InstantiationException, IllegalAccessException {
+        TurnRestCredentialsGenerator credentialGeneratorInstance = resolveCredentialsGenerator(properties);
+
+        ServiceProperties options = properties.getNested("options").get(0);
+        Key sharedSecret = resolveSharedSecret(properties);
+        String algorithm = properties.get("key.algorithm");
+        char separator = options.get("username.separator").charAt(0);
+
+        credentialGeneratorInstance.setAlgorithm(algorithm);
+        credentialGeneratorInstance.setSharedSecret(sharedSecret);
+        credentialGeneratorInstance.setUsernameSeparator(separator);
+        return credentialGeneratorInstance;
+    }
+
+    private String getTurnURIs(ServiceProperties properties) {
         StringBuilder u = new StringBuilder();
         for (String uri: properties.getNested("uris").get(0).get("uri").split(LIST_SEPARATOR)) {
             u.append("\"").append(uri).append("\",");
         }
         u.setLength(u.length() - 1);
-        String uris = u.toString();
-        
+        return u.toString();
+    }
+
+    private Key resolveSharedSecret(ServiceProperties properties) {
+        Key sharedSecret;
+        KeyStore ks = securityContext.getKeyStore();
+        String pwFile = properties.get("key.password-file"); 
+        String alias = properties.get("key.alias");
+        if (pwFile == null || "".equals(pwFile)) {
+            sharedSecret = TurnUtils.getSharedSecret(ks, alias, securityContext.getKeyStorePassword());
+        } else {
+            sharedSecret = TurnUtils.getSharedSecret(ks, alias, new File(pwFile));
+        }
+        return sharedSecret;
+    }
+
+    @SuppressWarnings("unchecked")
+    private TurnRestCredentialsGenerator resolveCredentialsGenerator(ServiceProperties properties)
+            throws ConfigurationException, InstantiationException, IllegalAccessException {
         String credentialGeneratorClassName = properties.get("generate.credentials");
         TurnRestCredentialsGenerator credentialGeneratorInstance;
         if (credentialGeneratorClassName == null) {
@@ -82,7 +122,7 @@ public class TurnRestService implements Service {
         if (!credentialGeneratorClassName.startsWith(CLASS_PREFIX)) {
             throw new IllegalArgumentException("Class name must have \"class:\" prefix.");
         }
-        
+
         String className = credentialGeneratorClassName.substring(CLASS_PREFIX.length());
 
         try {
@@ -95,8 +135,7 @@ public class TurnRestService implements Service {
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException("Unknown credential generator class: " + className, e);
         }
-
-        handler = new TurnRestServiceHandler(options, credentialGeneratorInstance, uris);
+        return credentialGeneratorInstance;
     }
 
     @Override
@@ -125,5 +164,14 @@ public class TurnRestService implements Service {
     @Override
     public void destroy() throws Exception {
         // nothing to do when closing TurnRestService
+    }
+
+    public Properties getConfiguration() {
+        return configuration;
+    }
+
+    @Resource(name = "configuration")
+    public void setConfiguration(Properties configuration) {
+        this.configuration = configuration;
     }
 }

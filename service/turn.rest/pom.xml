@@ -113,11 +113,6 @@
             <configuration>
               <attach>true</attach>
               <includeDependencySources>false</includeDependencySources>
-              <sourceFileIncludes>
-                <include>DefaultCredentialsGenerator.java</include>
-                <include>TurnRestCredentialsGenerator.java</include>
-                <include>TurnRestCredentials.java</include>
-              </sourceFileIncludes>
               <sourcepath>src/main/java/org/kaazing/gateway/service/turn/rest</sourcepath>
               <windowtitle>All Classes - API Documentation</windowtitle>
               <doctitle>"All Classes - API Documentation"</doctitle>

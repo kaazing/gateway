@@ -1554,7 +1554,15 @@
 		<complexContent>
 			<restriction base="gateway:ServicePropertiesType">
 				<all>
-					<element maxOccurs="1" minOccurs="0" name="feature.turn.rest"
+					<element maxOccurs="1" minOccurs="0" name="key.alias"
+						type="gateway:CollapsedString">
+						<annotation />
+					</element>
+					<element maxOccurs="1" minOccurs="0" name="key.password-file"
+						type="gateway:CollapsedString">
+						<annotation />
+					</element>
+					<element maxOccurs="1" minOccurs="0" name="key.algorithm"
 						type="gateway:CollapsedString">
 						<annotation />
 					</element>
@@ -1562,10 +1570,6 @@
 						<complexType>
 							<all>
 								<element maxOccurs="1" minOccurs="0" name="credentials.ttl"
-									type="gateway:CollapsedString">
-									<annotation />
-								</element>
-								<element maxOccurs="1" minOccurs="0" name="shared.key"
 									type="gateway:CollapsedString">
 									<annotation />
 								</element>

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.turn.rest;
+package org.kaazing.gateway.service.turn.rest.internal;
 
 import java.util.Collection;
 import java.util.Collections;

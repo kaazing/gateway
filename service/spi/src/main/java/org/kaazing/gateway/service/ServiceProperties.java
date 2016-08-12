@@ -44,8 +44,6 @@ import java.util.List;
  */
 public interface ServiceProperties {
 
-
-    
     String get(String name);
 
     /**

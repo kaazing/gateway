@@ -15,6 +15,7 @@
  */
 package org.kaazing.gateway.service.turn.rest;
 
+import java.security.Key;
 import java.time.Instant;
 import java.util.Base64;
 
@@ -27,7 +28,7 @@ public class TestCredentialsGenerator implements TurnRestCredentialsGenerator {
     public static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
     
     private long ttl;
-    private String sharedKey;
+    private Key sharedSecret;
     private char separator;
 
     @Override
@@ -36,8 +37,8 @@ public class TestCredentialsGenerator implements TurnRestCredentialsGenerator {
     }
 
     @Override
-    public void setSharedKey(String sharedKey) {
-        this.sharedKey = sharedKey;
+    public void setSharedSecret(Key sharedSecret) {
+        this.sharedSecret = sharedSecret;
     }
 
     @Override
@@ -57,10 +58,13 @@ public class TestCredentialsGenerator implements TurnRestCredentialsGenerator {
         } catch (Exception e) {
             throw new IllegalArgumentException("Missing Subject");
         }
-          
+
+        byte[] key = sharedSecret.getEncoded();
+
         try {
+            // Only HMAC_SHA1_ALGORITHM is supported in TestCredentialsGenerator
             Mac hmacSHA1 = Mac.getInstance(HMAC_SHA1_ALGORITHM);
-            SecretKeySpec signingKey = new SecretKeySpec(this.sharedKey.getBytes(), HMAC_SHA1_ALGORITHM);
+            SecretKeySpec signingKey = new SecretKeySpec(key, HMAC_SHA1_ALGORITHM);
             hmacSHA1.init(signingKey);
             password = Base64.getEncoder().encodeToString(hmacSHA1.doFinal(username.getBytes())).toCharArray();
         } catch (Exception e) {
@@ -69,6 +73,11 @@ public class TestCredentialsGenerator implements TurnRestCredentialsGenerator {
   
         TurnRestCredentials credentials = new TurnRestCredentials(username, password);
         return credentials;
+    }
+
+    @Override
+    public void setAlgorithm(String algorithm) {
+        
     }
 
 }

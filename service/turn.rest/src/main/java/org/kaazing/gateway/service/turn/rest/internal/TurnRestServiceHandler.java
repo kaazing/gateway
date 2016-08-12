@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.turn.rest;
+package org.kaazing.gateway.service.turn.rest.internal;
 
+import java.security.Key;
 import java.util.Arrays;
 
 import javax.security.auth.Subject;
 
 import org.kaazing.gateway.service.ServiceProperties;
+import org.kaazing.gateway.service.turn.rest.TurnRestCredentials;
+import org.kaazing.gateway.service.turn.rest.TurnRestCredentialsGenerator;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpHeaders;
@@ -31,25 +34,25 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 
 class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
-    private ServiceProperties options;
     private TurnRestCredentialsGenerator credentialGenerator;
     private String uris;
 
-    TurnRestServiceHandler(ServiceProperties options, TurnRestCredentialsGenerator credentialGenerator,
+    private String ttl;
+
+    TurnRestServiceHandler(String ttl, TurnRestCredentialsGenerator credentialGenerator,
             String uris) {
-        this.options = options;
+
+        this.ttl = ttl;
         this.credentialGenerator = credentialGenerator;
         this.uris = uris;
+
     }
 
     @Override
     protected void doSessionOpened(HttpAcceptSession session) throws Exception {
         HttpMethod method = session.getMethod();
         String service = session.getParameter("service");
-
-        String ttl = options.get("credentials.ttl");
-        String sharedKey = options.get("shared.key");
-        char separator = options.get("username.separator").charAt(0);
+        String ttl;
 
         if (method != HttpMethod.GET) {
             session.setStatus(HttpStatus.CLIENT_METHOD_NOT_ALLOWED);
@@ -64,18 +67,17 @@ class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
         session.setVersion(HttpVersion.HTTP_1_1);
         session.setWriteHeader(HttpHeaders.HEADER_CONTENT_TYPE, "application/json");
 
-        if (ttl == null) {
+        if (null == this.ttl) {
             ttl = session.getParameter("Max-Age");
+        } else {
+            ttl = this.ttl;
         }
 
         String username = null;
         char[] password = null;
         if (credentialGenerator != null) {
-            credentialGenerator.setCredentialsTTL(ttl);
-            credentialGenerator.setSharedKey(sharedKey);
-            credentialGenerator.setUsernameSeparator(separator);
-
             Subject subject = session.getSubject();
+            credentialGenerator.setCredentialsTTL(ttl);
             TurnRestCredentials credentials = credentialGenerator.generate(subject);
             username = credentials.getUsername();
             password = credentials.getPassword();

@@ -15,10 +15,16 @@
  */
 package org.kaazing.gateway.service.turn.rest;
 
+import static java.nio.charset.Charset.forName;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.security.KeyStore;
+
+import javax.crypto.spec.SecretKeySpec;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,12 +44,20 @@ public class TurnRestIT {
     private final GatewayRule gateway = new GatewayRule() {
         {
             KeyStore keyStore = null;
+            File turnPasswordFile = null;
             char[] password = "ab987c".toCharArray();
             try {
-                FileInputStream fileInStr = new FileInputStream(System.getProperty("user.dir")
-                        + "/target/truststore/keystore.db");
+                FileInputStream fileInStr =
+                        new FileInputStream(System.getProperty("user.dir") + "/target/truststore/keystore.db");
                 keyStore = KeyStore.getInstance("JCEKS");
                 keyStore.load(fileInStr, "ab987c".toCharArray());
+                keyStore.setKeyEntry("turn.shared.secret",
+                        new SecretKeySpec("turnAuthenticationSharedSecret".getBytes(forName("UTF-8")), "PBEWithMD5AndDES"),
+                        "1234567".toCharArray(), null);
+                turnPasswordFile = new File(System.getProperty("user.dir") + "/target/truststore/turnstore.db");
+                try (BufferedWriter bw = new BufferedWriter(new FileWriter(turnPasswordFile))) {
+                    bw.write("1234567");
+                }
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -51,6 +65,7 @@ public class TurnRestIT {
             // @formatter:off
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
+                        .property(EarlyAccessFeatures.TURN_REST_SERVICE.getPropertyName(), "true")
                         .service()
                             .accept(ACCEPT_URL)
                             .type("turn.rest")
@@ -58,8 +73,11 @@ public class TurnRestIT {
                                 .authorization()
                                 .requireRole("username")
                             .done()
-                            .property(EarlyAccessFeatures.TURN_REST_SERVICE.getPropertyName(), "true")
+
                             .property("generate.credentials", "class:" + DefaultCredentialsGenerator.class.getName())
+                            .property("key.alias", "turn.shared.secret")
+                            .property("key.password-file", turnPasswordFile.getPath())
+                            .property("key.algorithm", "HmacSHA1")
                             .nestedProperty("uris")
                                 .property("uri", "uri1")
                                 .property("uri", "uri2")
@@ -67,7 +85,6 @@ public class TurnRestIT {
                             .done()
                             .nestedProperty("options")
                                 .property("credentials.ttl", "43200")
-                                .property("shared.secret", "logen")
                                 .property("username.separator", ":")
                             .done()
                         .done()

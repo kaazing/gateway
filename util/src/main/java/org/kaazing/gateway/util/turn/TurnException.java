@@ -13,21 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.turn.rest;
+package org.kaazing.gateway.util.turn;
 
-import java.text.MessageFormat;
+public class TurnException extends RuntimeException {
 
-public final class TurnRestJSONResponse {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -2542024439819718984L;
 
-    private TurnRestJSONResponse() {
+    public TurnException(String message, Exception cause) {
+        super(message, cause);
     }
 
-    public static String createResponse(String username, char[] password, String ttl, String uris) {
-        String response = "";
-        if (username != null && password != null) {
-            response = MessageFormat.format("\"username\":\"{0}\",\"password\":\"{1}\",", username, new String(password));
-        }
-        response = MessageFormat.format("'{'{0}\"ttl\":{1},\"uris\":[{2}]'}'", response, ttl, uris);
-        return response;
-    }
 }

@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.service.turn.rest;
 
+import java.security.Key;
+
 import javax.security.auth.Subject;
 
 /**
@@ -31,13 +33,19 @@ public interface TurnRestCredentialsGenerator {
     public void setCredentialsTTL(String ttl);
     
     /**
+     * Sets the algorithm. In this context, the algorithm is used for generating message authenticity
+     * 
+     * @param algorithm the name of the algorithm. e.g.: HmacSHA1
+     */
+    public void setAlgorithm(String algorithm);
+
+    /**
      * Sets the shared key. In this context, the key is shared between this service and the TURN server
      * 
-     * @param alias the name of the certificate containing the shared
+     * @param sharedSecret the name of the certificate containing the shared
      * secret key
      */
-    public void setSharedKey(String sharedKey);
-    
+    public void setSharedSecret(Key sharedSecret);
     /**
      * The separator used in the user name between the time stamp when credentials are no longer active, and the actual username.
      * 
