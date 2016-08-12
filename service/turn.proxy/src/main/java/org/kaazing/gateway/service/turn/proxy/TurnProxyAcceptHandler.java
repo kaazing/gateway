@@ -34,15 +34,12 @@ import java.security.KeyStoreException;
 import java.security.cert.Certificate;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.kaazing.gateway.service.turn.proxy.TurnProxyService.FIXED_MAPPED_ADDRESS_KEY;
-
 public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
 
     static final Logger LOGGER = LoggerFactory.getLogger(TurnProxyAcceptHandler.class);
     public static final String TURN_STATE_KEY = "turn-state";
 
     private String connectURI;
-    private String fixedMappedAddress;
 
     private Certificate sharedSecret;
 
@@ -54,7 +51,10 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
 
     public void init(ServiceContext serviceContext, SecurityContext securityContext) throws KeyStoreException {
         ServiceProperties properties = serviceContext.getProperties();
-        fixedMappedAddress = properties.get("mapped.address");
+        String fixedMappedAddress = properties.get("mapped.address");
+        if (fixedMappedAddress != null) {
+            ((TurnProxyConnectHandler)getConnectHandler()).setFixedMappedAddress(fixedMappedAddress);
+        }
         if (properties.get("key.alias") != null) {
             sharedSecret = securityContext.getKeyStore().getCertificate(properties.get("key.alias"));
         }
@@ -63,15 +63,13 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
 
     @Override
     protected AbstractProxyHandler createConnectHandler() {
-        return new TurnProxyConnectHandler(this);
+        return new TurnProxyConnectHandler();
     }
 
     @Override
     public void sessionCreated(IoSession acceptSession) {
         acceptSession.setAttribute(TURN_STATE_KEY, TurnSessionState.NOT_CONNECTED);
         acceptSession.getFilterChain().addLast("STUN_CODEC", new StunCodecFilter(currentTransactions, sharedSecret));
-        // TODO
-        // session.getFilterChain().addLast("STUN_MESSAGE_INTEGRITY_CHECK", new StunMessageIntegrityFilter());
         super.sessionCreated(acceptSession);
     }
 
@@ -93,7 +91,7 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
             StunProxyMessage stunProxyMessage = (StunProxyMessage) message;
             for (Attribute attr : stunProxyMessage.getAttributes()) {
                 if (attr instanceof Username) {
-                    currentTransactions.putIfAbsent(new String(stunProxyMessage.getTransactionId()), ((Username)attr).getUsername());
+                    currentTransactions.putIfAbsent(new String(stunProxyMessage.getTransactionId()), ((Username) attr).getUsername());
                 }
             }
             super.messageReceived(session, message);
@@ -108,10 +106,7 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
             session.getFilterChain().addLast("STUN_CODEC", new StunCodecFilter(currentTransactions, sharedSecret));
-            // TODO
-            // session.getFilterChain().addLast("STUN_MESSAGE_INTEGRITY_CHECK", new StunMessageIntegrityFilter());
         }
-
     }
 
     private class ConnectListener implements IoFutureListener<ConnectFuture> {
@@ -133,7 +128,6 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
                 if (acceptSession == null || acceptSession.isClosing()) {
                     connectSession.close(true);
                 } else {
-                    connectSession.setAttribute(FIXED_MAPPED_ADDRESS_KEY, fixedMappedAddress);
                     AttachedSessionManager attachedSessionManager = attachSessions(acceptSession, connectSession);
                     flushQueuedMessages(acceptSession, attachedSessionManager);
                 }
@@ -143,5 +137,4 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
             }
         }
     }
-
 }

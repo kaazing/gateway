@@ -38,7 +38,7 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
     private static final Logger LOGGER = LoggerFactory.getLogger("service.turn.proxy");
     private final StunAttributeFactory stunAttributeFactory;
 
-    public StunFrameDecoder(StunAttributeFactory stunAttributeFactory, IoBufferAllocatorEx<?> allocator) {
+    public StunFrameDecoder(IoBufferAllocatorEx<?> allocator, StunAttributeFactory stunAttributeFactory) {
         super(allocator);
         this.stunAttributeFactory = stunAttributeFactory;
     }
@@ -75,29 +75,42 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
         byte[] transactionId = new byte[12];
         in.get(transactionId);
 
+        List<Attribute> attributes = new ArrayList<>();
         if (in.remaining() < messageLength) {
+            LOGGER.warn(String.format("Message has %d bytes remaining, which is less than declared length of: %d", in.remaining(), messageLength));
             in.reset();
             return false;
+        } else if (in.remaining() == 0) {
+            /*
+                https://tools.ietf.org/html/rfc5389#section-15
+                After the STUN header are zero or more attributes.  Each attribute
+                MUST be TLV encoded, with a 16-bit type, 16-bit length, and value.
+                Each STUN attribute MUST end on a 32-bit boundary.  As mentioned
+                above, all fields in an attribute are transmitted most significant
+                bit first.
+             */
+            LOGGER.debug("Message does not contain any attributes");
+        } else {
+            try {
+                attributes = decodeAttributes(in, messageLength, transactionId);
+            } catch (BufferUnderflowException e) {
+                LOGGER.warn("Could not decode attributes", e);
+                List<Attribute> errors = new ArrayList<>(1);
+                ErrorCode errorCode = new ErrorCode();
+                errorCode.setErrorCode(400);
+                errorCode.setErrMsg("Bad Request");
+                errors.add(errorCode);
+                StunProxyMessage stunMessage = new StunProxyMessage(StunMessageClass.ERROR, StunMessageMethod.ALLOCATE, transactionId, errors);
+                LOGGER.warn("replying with error message: " + stunMessage);
+                session.write(stunMessage);
+                in.mark();
+                return true;
+            }
         }
+        StunProxyMessage stunMessage = new StunProxyMessage(messageClass, method, transactionId, attributes);
+        in.mark();
+        out.write(stunMessage);
 
-        try {
-            List<Attribute> attributes = decodeAttributes(in, messageLength, transactionId);
-            StunProxyMessage stunMessage = new StunProxyMessage(messageClass, method, transactionId, attributes);
-            in.mark();
-            out.write(stunMessage);
-        } catch (BufferUnderflowException e) {
-            LOGGER.warn("Could not decode attributes: " + e.getMessage());
-            List<Attribute> errors = new ArrayList<>(1);
-            ErrorCode errorCode = new ErrorCode();
-            errorCode.setErrorCode(400);
-            errorCode.setErrMsg("Bad Request");
-            errors.add(errorCode);
-            StunProxyMessage stunMessage = new StunProxyMessage(StunMessageClass.ERROR, StunMessageMethod.ALLOCATE, transactionId, errors);
-            LOGGER.warn("replying with error message: " + stunMessage);
-            session.write(stunMessage);
-            in.mark();
-            return true; // TODO check return value should be true
-        }
         return true;
     }
 
@@ -130,7 +143,7 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
     }
 
     private void validateIsStun(short leadingBitsAndMessageType) {
-        int leadingBytes = (leadingBitsAndMessageType & 0xC00);
+        int leadingBytes = leadingBitsAndMessageType & 0xC00;
         if (0 != leadingBytes) {
             throw new IllegalArgumentException(String.format("Illegal leading bytes in STUN message: %02X from: %04X", leadingBytes, leadingBitsAndMessageType));
         }

@@ -26,33 +26,26 @@ public class StunAttributeFactory {
     private final CredentialType credentialType;
 
     public StunAttributeFactory(CredentialType credentialType) {
-        super();
         this.credentialType = credentialType;
     }
 
     public Attribute get(int type, short length, byte[] value, byte[] transactionId) {
-    switch (AttributeType.valueOf(type)) {
-        case USERNAME:
-            return new Username(value);
-        case MAPPED_ADDRESS:
-            return new MappedAddress(value);
-        case XOR_MAPPED_ADDRESS:
-            return new XorMappedAddress(value, transactionId);
-        case XOR_PEER_ADDRESS:
-            return new XorPeerAddress(value, transactionId);
-        case XOR_RELAY_ADDRESS:
-            return new XorRelayAddress(value, transactionId);
-//        case EVEN_PORT:
-//            return new EvenPort(value);
-//        case RESERVATION_TOKEN:
-//            return new ReservationToken(value);
-        case MESSAGE_INTEGRITY:
-            return new MessageIntegrity(value);
-//        case FINGERPRINT:
-//            return new Fingerprint(value);
-        default:
-            // TODO: consider hard failing if white list of attributes is not allowed
-            return new ProxyNoopAttribute((short) type, (short) length, value);
+        switch (AttributeType.valueOf(type)) {
+            case USERNAME:
+                return new Username(value);
+            case MAPPED_ADDRESS:
+                return new MappedAddress(value);
+            case XOR_MAPPED_ADDRESS:
+                return new XorMappedAddress(value, transactionId);
+            case XOR_PEER_ADDRESS:
+                return new XorPeerAddress(value, transactionId);
+            case XOR_RELAY_ADDRESS:
+                return new XorRelayAddress(value, transactionId);
+            case MESSAGE_INTEGRITY:
+                return new MessageIntegrity(value, credentialType);
+            default:
+                // TODO: consider hard failing if white list of attributes is not allowed
+                return new ProxyNoopAttribute((short) type, (short) length, value);
         }
     }
 }

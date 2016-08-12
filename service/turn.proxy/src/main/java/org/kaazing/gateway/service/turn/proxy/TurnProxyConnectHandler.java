@@ -28,68 +28,70 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 
-import static org.kaazing.gateway.service.turn.proxy.TurnProxyService.FIXED_MAPPED_ADDRESS_KEY;
-
 class TurnProxyConnectHandler extends AbstractProxyHandler {
 
     static final Logger LOGGER = LoggerFactory.getLogger(TurnProxyConnectHandler.class);
+    private String fixedMappedAddress;
 
-    private final TurnProxyAcceptHandler acceptHandler;
-
-    /**
-     * @param turnProxyAcceptHandler
-     */
-    TurnProxyConnectHandler(TurnProxyAcceptHandler turnProxyAcceptHandler) {
-        acceptHandler = turnProxyAcceptHandler;
+    public void setFixedMappedAddress(String fixedMappedAddress) {
+        this.fixedMappedAddress = fixedMappedAddress;
     }
 
     @Override
     public void messageReceived(IoSession session, Object message) {
         if (session.getAttribute(TurnProxyAcceptHandler.TURN_STATE_KEY) != TurnSessionState.ALLOCATED && message instanceof StunProxyMessage) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(String.format("Received message [%s] from [%s] ", message, session));
-            }
+            LOGGER.debug(String.format("Received message [%s] from [%s] ", message, session));
             StunProxyMessage stunMessage = (StunProxyMessage) message;
-            if (stunMessage.getMethod() == StunMessageMethod.ALLOCATE
-                    && stunMessage.getMessageClass() == StunMessageClass.RESPONSE) {
+            if (stunMessage.getMethod() == StunMessageMethod.ALLOCATE &&
+                stunMessage.getMessageClass() == StunMessageClass.RESPONSE) {
                 session.setAttribute(TurnProxyAcceptHandler.TURN_STATE_KEY, TurnSessionState.ALLOCATED);
-
-                // TODO here we should override the mapped address and the relay address
-                // mapped address -> get the acceptor session ip and port
-                //                   could also used a configured value
-                // TODO use an instance variable since the config will not change from one session to another
-                InetSocketAddress acceptAddress = null;
-                String fixedMappedAddress = (String) session.getAttribute(FIXED_MAPPED_ADDRESS_KEY);
-                if (fixedMappedAddress != null) {
-                    int i = fixedMappedAddress.lastIndexOf(":");
-                     acceptAddress = new InetSocketAddress(fixedMappedAddress.substring(0, i), Integer.parseInt(fixedMappedAddress.substring(i+1, fixedMappedAddress.length())));
-                }
-
-                if (acceptAddress == null) {
-                    AttachedSessionManager attachedSessionManager = getAttachedSessionManager(session);
-                    IoSession acceptSession = attachedSessionManager.getAttachedSession();
-                    LOGGER.debug(acceptSession.getRemoteAddress().toString());
-                    if (acceptSession.getRemoteAddress() instanceof InetSocketAddress) {
-                        acceptAddress = (InetSocketAddress) acceptSession.getRemoteAddress();
-                    }
-                }
-
-                LOGGER.debug("Will override mapped-address or xor-mapped-address with: " + acceptAddress.toString());
+                // TODO here we should override the relay address
+                // relay address -> the proxy's address and port ?
+                InetSocketAddress acceptAddress = getMappedAddress(session);
                 if (acceptAddress != null) {
-                    for (int i = 0; i < stunMessage.getAttributes().size(); i++) {
-                        Attribute attribute = stunMessage.getAttributes().get(i);
-                        if (attribute instanceof MappedAddress) {
-                            stunMessage.getAttributes().set(i, new MappedAddress(acceptAddress));
-                            stunMessage.setModified(true);
-                        } else if (attribute instanceof XorMappedAddress) {
-                            stunMessage.getAttributes().set(i, new XorMappedAddress(acceptAddress, stunMessage.getTransactionId()));
-                            stunMessage.setModified(true);
-                        }
-                    }
+                    LOGGER.debug(String.format("Will override mapped-address or xor-mapped-address with %s: ", acceptAddress.toString()));
+                    overrideMappedAddress(stunMessage, acceptAddress);
                 }
-                // relay address -> the proxy's address and port ???
             }
         }
         super.messageReceived(session, message);
+    }
+
+
+    private void overrideMappedAddress(StunProxyMessage stunMessage, InetSocketAddress acceptAddress) {
+        for (int i = 0; i < stunMessage.getAttributes().size(); i++) {
+            Attribute attribute = stunMessage.getAttributes().get(i);
+            if (attribute instanceof MappedAddress) {
+                stunMessage.getAttributes().set(i, new MappedAddress(acceptAddress));
+                stunMessage.setModified(true);
+            } else if (attribute instanceof XorMappedAddress) {
+                stunMessage.getAttributes().set(i, new XorMappedAddress(acceptAddress, stunMessage.getTransactionId()));
+                stunMessage.setModified(true);
+            }
+        }
+    }
+
+
+    private InetSocketAddress getMappedAddress(IoSession session) {
+        InetSocketAddress acceptAddress = null;
+
+        if (fixedMappedAddress != null) {
+            int i = fixedMappedAddress.lastIndexOf(':');
+            acceptAddress = new InetSocketAddress(
+                fixedMappedAddress.substring(0, i),
+                Integer.parseInt(fixedMappedAddress.substring(i + 1, fixedMappedAddress.length()))
+            );
+        } else {
+            AttachedSessionManager attachedSessionManager = getAttachedSessionManager(session);
+            IoSession acceptSession = attachedSessionManager.getAttachedSession();
+            LOGGER.debug(
+                String.format("Extracting remote address and port from accept session: %s",
+                acceptSession.getRemoteAddress().toString())
+            );
+            if (acceptSession.getRemoteAddress() instanceof InetSocketAddress) {
+                acceptAddress = (InetSocketAddress) acceptSession.getRemoteAddress();
+            }
+        }
+        return acceptAddress;
     }
 }

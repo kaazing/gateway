@@ -85,7 +85,7 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
         if (((StunProxyMessage) message).getMessageClass().equals(StunMessageClass.RESPONSE) ||
             ((StunProxyMessage) message).getMessageClass().equals(StunMessageClass.ERROR)) {
             username = currentTransactions.remove(new String(stunMessage.getTransactionId()));
-            if (stunMessage.isModified() && username == null) {
+            if (stunMessage.isModified() && (username == null || sharedSecret ==null)) {
                 LOGGER.warn("Stun message is modified but MESSAGE-INTEGRITY attribute will not be recalculated.");
             }
         }
@@ -105,7 +105,7 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
         int lengthSoFar = StunProxyMessage.HEADER_BYTES;
         for (Attribute attribute : stunMessage.getAttributes()) {
             if (attribute instanceof MessageIntegrity &&
-                stunMessage.isModified() && username != null) {
+                stunMessage.isModified() && username != null && sharedSecret != null) {
                 LOGGER.debug("Message is modified will override MESSAGE-INTEGRITY");
                 // order counts when here we can safely recreate the message integrity
                 // overwrite message length and use the current buffer content, secret and password
@@ -135,7 +135,7 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
         hmac.init(signingKey);
         signingKey = new SecretKeySpec(hmac.doFinal(username.getBytes()), HMAC_SHA_1);
         hmac.init(signingKey);
-        attribute = new MessageIntegrity(hmac.doFinal(buf.array()));
+        attribute = new MessageIntegrity(hmac.doFinal(buf.array()), StunAttributeFactory.CredentialType.SHORT_TERM);
         buf.putShort(2, stunMessage.getMessageLength());
         return attribute;
     }

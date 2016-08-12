@@ -126,10 +126,10 @@ public class AttributeTest {
     @Test
     public void messageIntegrity() {
         short type = MESSAGE_INTEGRITY.getType();
-        short length = 16;
+        short length = 20;
         byte[] key = new byte[]{(byte) 0x84, (byte) 0x93, (byte) 0xfb, (byte) 0xc5, (byte) 0x3b, (byte) 0xa5, (byte) 0x82,
                 (byte) 0xfb, (byte) 0x4c, (byte) 0x04, (byte) 0x4c, (byte) 0x45, (byte) 0x6b, (byte) 0xdc, (byte) 0x40,
-                (byte) 0xeb};
+                (byte) 0xeb, (byte) 0x45, (byte) 0xf2, (byte) 0x97};
         Attribute attr = factory.get(type, length, key, null);
         Assert.assertEquals(attr.getLength(), length);
         Assert.assertEquals(attr.getType(), type);

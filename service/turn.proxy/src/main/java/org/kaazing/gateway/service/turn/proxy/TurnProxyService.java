@@ -15,20 +15,25 @@
  */
 package org.kaazing.gateway.service.turn.proxy;
 
-import org.apache.mina.core.session.AttributeKey;
 import org.kaazing.gateway.security.SecurityContext;
 import org.kaazing.gateway.service.ServiceContext;
-import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
 import org.kaazing.gateway.service.proxy.AbstractProxyService;
+import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 
 import javax.annotation.Resource;
+import java.util.Properties;
 
 public class TurnProxyService extends AbstractProxyService<TurnProxyAcceptHandler> {
 
     public static final String SERVICE_TYPE = "turn.proxy";
-    public static final AttributeKey FIXED_MAPPED_ADDRESS_KEY = new AttributeKey(TurnProxyService.class, "mappedAddress");
     private final TurnProxyAcceptHandler turnProxyHandler = new TurnProxyAcceptHandler();
     private SecurityContext securityContext;
+    private Properties configuration;
+
+    @Resource(name = "configuration")
+    public void setConfiguration(Properties configuration) {
+        this.configuration = configuration;
+    }
 
     @Resource(name = "securityContext")
     public void setSecurityContext(SecurityContext securityContext) {
@@ -47,8 +52,8 @@ public class TurnProxyService extends AbstractProxyService<TurnProxyAcceptHandle
 
     @Override
     public void init(ServiceContext serviceCtx) throws Exception {
+        EarlyAccessFeatures.TURN_PROXY.assertEnabled(configuration, serviceCtx.getLogger());
         turnProxyHandler.init(serviceCtx, securityContext);
         super.init(serviceCtx);
     }
-
 }
