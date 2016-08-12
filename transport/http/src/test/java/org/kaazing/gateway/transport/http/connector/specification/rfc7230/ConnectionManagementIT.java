@@ -214,7 +214,7 @@ public class ConnectionManagementIT {
         k3po.finish();
     }
 
-    @Ignore("Doesn't Accept a second connection.")
+    @Ignore("Issue: https://github.com/kaazing/gateway/issues/678")
     @Test
     @Specification({"client.must.not.reuse.tcp.connection.when.receives.connection.close/response"})
     public void clientMustNotReuseTcpConnectionWhenReceivesConnectionClose() throws Exception {
