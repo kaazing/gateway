@@ -151,8 +151,6 @@ public class RequestMethodsIT {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
-        connector.getConnectOptions().put("http.hostHeaderEnabled", Boolean.FALSE);
-
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));

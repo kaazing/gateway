@@ -101,6 +101,7 @@ public class MessageFormatIT {
         connector.getConnectOptions().put("http.userAgentHeaderEnabled", Boolean.FALSE);
         connector.getConnectOptions().put("http.hostHeaderEnabled", Boolean.FALSE);
 
+
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
@@ -183,7 +184,6 @@ public class MessageFormatIT {
         final CountDownLatch closed = new CountDownLatch(1);
 
         connector.getConnectOptions().put("http.userAgentHeaderEnabled", Boolean.FALSE);
-        connector.getConnectOptions().put("http.hostHeaderEnabled", Boolean.FALSE);
 
         context.checking(new Expectations() {
             {
@@ -240,7 +240,6 @@ public class MessageFormatIT {
         final CountDownLatch closed = new CountDownLatch(1);
 
         connector.getConnectOptions().put("http.userAgentHeaderEnabled", Boolean.FALSE);
-        connector.getConnectOptions().put("http.hostHeaderEnabled", Boolean.FALSE);
 
         context.checking(new Expectations() {
             {
@@ -270,7 +269,6 @@ public class MessageFormatIT {
         final CountDownLatch closed = new CountDownLatch(1);
 
         connector.getConnectOptions().put("http.userAgentHeaderEnabled", Boolean.FALSE);
-        connector.getConnectOptions().put("http.hostHeaderEnabled", Boolean.FALSE);
 
         context.checking(new Expectations() {
             {
@@ -488,7 +486,6 @@ public class MessageFormatIT {
         final CountDownLatch closed = new CountDownLatch(1);
 
         connector.getConnectOptions().put("http.userAgentHeaderEnabled", Boolean.FALSE);
-        connector.getConnectOptions().put("http.hostHeaderEnabled", Boolean.FALSE);
 
         context.checking(new Expectations() {
             {
