@@ -85,8 +85,7 @@ public class ArchitectureIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -139,8 +138,7 @@ public class ArchitectureIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -167,8 +165,7 @@ public class ArchitectureIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -195,8 +192,7 @@ public class ArchitectureIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -252,8 +248,7 @@ public class ArchitectureIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -283,10 +278,7 @@ public class ArchitectureIT {
             }
         });
 
-        connector.getConnectOptions();
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerErroredURI());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerErroredURI());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();

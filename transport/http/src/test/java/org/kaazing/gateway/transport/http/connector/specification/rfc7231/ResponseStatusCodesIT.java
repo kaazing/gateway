@@ -83,9 +83,7 @@ public class ResponseStatusCodesIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8080/index.html", handler, new ConnectSessionInitializer());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/index.html", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();

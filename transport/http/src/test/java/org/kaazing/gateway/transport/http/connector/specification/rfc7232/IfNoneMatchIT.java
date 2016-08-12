@@ -65,55 +65,6 @@ public class IfNoneMatchIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po).around(timeoutRule);
 
-    /*
-     * Server-side test
-     * 
-     * @Specification({"multiple.etags.delete.status.400/response"}) public void
-     * shouldResultInBadRequestResponseWithDeleteAndMutipleETags() throws Exception {
-     */
-
-    /*
-     * Server-side test
-     * 
-     * @Specification({"multiple.etags.get.status.200/response"}) public void
-     * shouldResultInOKResponseWithGetAndMutipleETags() throws Exception {
-     */
-
-    /*
-     * Server-side test
-     * 
-     * @Specification({"multiple.etags.head.status.200/response"}) public void
-     * shouldResultInOKResponseWithHeadAndMutipleETags() throws Exception {
-     */
-
-    /*
-     * Server-side test
-     * 
-     * @Specification({"multiple.etags.post.status.400/response"}) public void
-     * shouldResultInBadRequestResponseWithPostAndMutipleETags() throws Exception {
-     */
-
-    /*
-     * Server-side test
-     * 
-     * @Specification({"multiple.etags.put.status.400/response"}) public void
-     * shouldResultInBadRequestResponseWithPutAndMutipleETags() throws Exception {
-     */
-
-    /*
-     * Server-side test
-     * 
-     * @Specification({"multiple.etags.get.status.304/response"}) public void
-     * shouldResultInNotModifiedResponseWithGetAndMutipleETags() throws Exception {
-     */
-
-    /*
-     * Server-side test
-     * 
-     * @Specification({"multiple.etags.head.status.304/response"}) public void
-     * shouldResultInNotModifiedResponseWithHeadAndMutipleETags() throws Exception {
-     */
-
     @Test
     @Specification({"single.etag.delete.status.400/response"})
     public void shouldResultBadRequestResponseWithDeleteAndSingleETag() throws Exception {

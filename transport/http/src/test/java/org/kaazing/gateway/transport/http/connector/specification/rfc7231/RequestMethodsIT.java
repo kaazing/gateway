@@ -85,9 +85,7 @@ public class RequestMethodsIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer501());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer501());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -114,9 +112,7 @@ public class RequestMethodsIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerGet());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerGet());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -143,9 +139,7 @@ public class RequestMethodsIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerHead());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerHead());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -174,9 +168,7 @@ public class RequestMethodsIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerPost());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerPost());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -203,9 +195,7 @@ public class RequestMethodsIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerPut());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerPut());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();

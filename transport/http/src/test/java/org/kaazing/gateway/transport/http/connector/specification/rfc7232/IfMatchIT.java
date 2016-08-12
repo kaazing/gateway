@@ -356,41 +356,6 @@ public class IfMatchIT {
         }
     }
 
-    /*
-     * Server-side test
-     * 
-     * @Specification({"unexpected.etags.delete.status.412/response"}) public void
-     * shouldCausePreconditionFailedWithDeleteAndNoMatchingETagsInTheList() throws Exception {
-     */
-
-    /*
-     * Server-side test
-     * 
-     * @Specification({"unexpected.etags.get.status.200/response"}) public void
-     * shouldIgnoreIfMatchHeaderWithGetAndNoMatchingETagsInTheList() throws Exception {
-     */
-
-    /*
-     * Server-side test
-     * 
-     * @Specification({"unexpected.etags.head.status.200/response"}) public void
-     * shouldIgnoreIfMatchHeaderWithHeadAndNoMatchingETagsInTheList() throws Exception {
-     */
-
-    /*
-     * Server-side test
-     * 
-     * @Specification({"unexpected.etags.post.status.412/response"}) public void
-     * shouldCausePreconditionFailedWithPostAndNoMatchingETagsInTheList() throws Exception {
-     */
-
-    /*
-     * Server-side test
-     * 
-     * @Specification({"unexpected.etags.put.status.412/response"}) public void
-     * shouldCausePreconditionFailedWithPutAndNoMatchingETagsInTheList() throws Exception {
-     */
-
     @Test
     @Specification({"strong.etag.delete.status.200/response"})
     public void shouldSucceedWithDeleteAndMatchingStrongETag() throws Exception {
@@ -731,9 +696,7 @@ public class IfMatchIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8000/index.html", handler,
-                new ConnectSessionInitializerGetStrongUnmatched());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerGetStrongUnmatched());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -769,9 +732,7 @@ public class IfMatchIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8000/index.html", handler,
-                new ConnectSessionInitializerHeadStrongUnmatched());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerHeadStrongUnmatched());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -807,9 +768,7 @@ public class IfMatchIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8000/index.html", handler,
-                new ConnectSessionInitializerPostStrongUnmatched());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerPostStrongUnmatched());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -848,9 +807,7 @@ public class IfMatchIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8000/index.html", handler,
-                new ConnectSessionInitializerPutStrongUnmatched());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerPutStrongUnmatched());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -889,9 +846,7 @@ public class IfMatchIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerDeleteWeak());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerDeleteWeak());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -930,9 +885,7 @@ public class IfMatchIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerGetWeak());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerGetWeak());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -968,9 +921,7 @@ public class IfMatchIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerHeadWeak());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerHeadWeak());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -1006,9 +957,7 @@ public class IfMatchIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerPostWeak());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerPostWeak());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -1047,9 +996,7 @@ public class IfMatchIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerPutWeak());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/index.html", handler, new ConnectSessionInitializerPutWeak());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -1127,9 +1074,7 @@ public class IfMatchIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerGetWildcard());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerGetWildcard());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -1165,9 +1110,7 @@ public class IfMatchIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerHeadWildcard());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerHeadWildcard());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -1203,9 +1146,7 @@ public class IfMatchIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPostWildcard());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPostWildcard());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -1244,9 +1185,7 @@ public class IfMatchIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPutWildcard());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/index.html/", handler, new ConnectSessionInitializerPutWildcard());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();

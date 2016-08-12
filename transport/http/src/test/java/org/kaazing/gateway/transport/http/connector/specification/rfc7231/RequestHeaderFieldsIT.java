@@ -85,9 +85,7 @@ public class RequestHeaderFieldsIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerPost417());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerPost417());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -114,9 +112,7 @@ public class RequestHeaderFieldsIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8000/resource", handler,
-                new ConnectSessionInitializerTraceDecrementMaxForwards());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerTraceDecrementMaxForwards());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -143,9 +139,7 @@ public class RequestHeaderFieldsIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerPostMaxForward());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerPostMaxForward());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();

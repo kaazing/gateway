@@ -64,11 +64,6 @@ public class ResponseHeaderFieldsIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po).around(timeoutRule);
 
-    /*
-     * @Specification({"allow.lists.resource.methods/response"}) public void
-     * allowHeaderInformsMethodsAssociatedWithResource() throws Exception {
-     */
-
     @Test
     @Specification({"server.header.lists.software.used.by.server/response"})
     public void serverHeaderContainsInformationAboutSoftwareUsedByServer() throws Exception {
@@ -90,9 +85,7 @@ public class ResponseHeaderFieldsIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerServerHeader());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializerServerHeader());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();

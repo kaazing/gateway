@@ -88,9 +88,7 @@ public class ConnectionManagementIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetConnectionClose());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetConnectionClose());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -120,9 +118,7 @@ public class ConnectionManagementIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetHost());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetHost());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -193,20 +189,6 @@ public class ConnectionManagementIT {
         k3po.finish();
     }
 
-    /*
-     * Server related tests - pipelining not supported client side.
-     * 
-     * @Specification({"server.should.accept.http.pipelining/response"}) public void serverShouldAcceptHttpPipelining()
-     * throws Exception {
-     */
-
-    /*
-     * Server related tests - pipelining not supported client side.
-     * 
-     * @Specification({"client.with.pipelining.must.not.retry.pipelining.immediately.after.failure/response"}) public
-     * void clientWithPipeliningMustNotRetryPipeliningImmediatelyAfterFailure() throws Exception {
-     */
-
     @Test
     @Specification({"server.must.close.its.half.of.connection.after.sending.response.if.it.receives.a.close/response"})
     public void serverMustCloseItsHalfOfConnectionAfterSendingResponseIfItReceivesAClose() throws Exception {
@@ -242,9 +224,9 @@ public class ConnectionManagementIT {
         final CountDownLatch closed = new CountDownLatch(1);
         context.checking(new Expectations() {
             {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                allowing(handler).sessionCreated(with(any(IoSessionEx.class)));
+                allowing(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
                 will(new CustomAction("Latch countdown") {
                     @Override
                     public Object invoke(Invocation invocation) throws Throwable {
@@ -254,7 +236,7 @@ public class ConnectionManagementIT {
                 });
             }
         });
-        connector.connect("http://localhost:8080/path1", handler, new ConnectSessionInitializerGetConnectionLength1());
+        connector.connect("http://localhost:8080/path", handler, new ConnectSessionInitializerGetConnectionLength1());
         closed.await(2, SECONDS);
         final CountDownLatch closed2 = new CountDownLatch(1);
         context.checking(new Expectations() {
@@ -298,9 +280,7 @@ public class ConnectionManagementIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetUpgrade());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetUpgrade());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -353,9 +333,7 @@ public class ConnectionManagementIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetUpgradeCap());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetUpgradeCap());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();

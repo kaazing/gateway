@@ -116,9 +116,7 @@ public class MessageFormatIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetUriChange());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetUriChange());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -145,19 +143,11 @@ public class MessageFormatIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
-
-    /*
-     * Server-side test.
-     * 
-     * @Specification({"inbound.should.reject.request.with.whitespace.between.start.line.and.first.header/response"})
-     * public void inboundShouldRejectRequestWithWhitespaceBetweenStartLineAndFirstHeader() throws Exception {
-     */
 
     @Test
     @Specification({"request.must.start.with.request.line/response"})
@@ -180,26 +170,11 @@ public class MessageFormatIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
-
-    /*
-     * Server-side test
-     * 
-     * @Specification({"inbound.should.reject.invalid.request.line/response"}) public void
-     * inboundShouldRejectInvalidRequestLine() throws Exception {
-     */
-
-    /*
-     * Server-side test
-     * 
-     * @Specification({"server.should.send.501.to.unimplemented.methods/response"}) public void
-     * serverShouldSend501ToUnImplementedMethods() throws Exception {
-     */
 
     @Test
     @Specification({"server.should.send.414.to.request.with.too.long.a.request/response"})
@@ -225,9 +200,7 @@ public class MessageFormatIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetLongRequest());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetLongRequest());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -254,19 +227,11 @@ public class MessageFormatIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
-
-    /*
-     * Server-side test
-     * 
-     * @Specification({"server.must.reject.header.with.space.between.header.name.and.colon/response"}) public void
-     * serverMustRejectHeaderWithSpaceBetweenHeaderNameAndColon() throws Exception {
-     */
 
     @Test
     @Specification({"server.should.reject.obs.in.header.value/response"})
@@ -292,9 +257,7 @@ public class MessageFormatIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerOBSInHeader());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerOBSInHeader());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -324,9 +287,7 @@ public class MessageFormatIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerOBSInHeader());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerOBSInHeader());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -379,9 +340,7 @@ public class MessageFormatIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerTransferEncoding());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerTransferEncoding());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -435,9 +394,7 @@ public class MessageFormatIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerPostNoContent());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerPostNoContent());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -464,9 +421,7 @@ public class MessageFormatIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerPostNoContent());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerPostNoContent());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -493,8 +448,7 @@ public class MessageFormatIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerHead());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerHead());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -521,9 +475,7 @@ public class MessageFormatIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerHead());
-        connectFuture.getSession(); // if you get the IoSession and close it, it errors (IoSession is null)
-        // works if you don't getSession
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerHead());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
@@ -553,20 +505,11 @@ public class MessageFormatIT {
             }
         });
 
-        ConnectFuture connectFuture =
-                connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerPostErrored());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerPostErrored());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
-
-    /*
-     * Server-side test.
-     * 
-     * @Specification({"robust.server.should.allow.extra.CRLF.after.request.line/response"}) public void
-     * robustServerShouldAllowExtraCRLFAfterRequestLine() throws Exception {
-     */
 
     @Test
     @Specification({"non.http.request.to.http.server.should.be.responded.to.with.400/response"})
@@ -589,8 +532,7 @@ public class MessageFormatIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
-        connectFuture.getSession();
+        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
