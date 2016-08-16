@@ -78,7 +78,7 @@ read ([0..${length}]:messageDigest)
 
 #200 response w/ mapped address
 #STUN Header
-write [0x01] [0x03] [0x00] [0x38] #Type|Length
+write [0x01] [0x03] [0x00] [0x40] #Type|Length
 write [0x21] [0x12] [0xa4] [0x42] #Magic Cookie
 write ${transactionID}
 #Attribute Lifetime
@@ -95,6 +95,9 @@ write ${turn:ipXOR("192.0.2.16")}
 #Attribute Message-Integrity
 write [0x00] [0x08] [0x00] ${length}
 write [0x01] [0x02] [0x03] [0x04] ${turn:messageDigestMD5Encoding("joe:example.com:welcome")}
+#Attribute Fingerprint - dummy content
+write [0x80] [0x28] [0x00] [0x04]
+write [0x00] [0x00] [0x00] [0x00]
 
 #creates permissions for peer
 read [0x00] [0x08] [0x00] [0x60]

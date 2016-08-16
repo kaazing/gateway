@@ -26,6 +26,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.Fingerprint;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.MessageIntegrity;
 import org.kaazing.gateway.util.turn.TurnUtils;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -112,13 +113,19 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
         for (Attribute attribute : stunMessage.getAttributes()) {
             if (attribute instanceof MessageIntegrity &&
                 stunMessage.isModified() && username != null && sharedSecret != null) {
-                LOGGER.debug("Message is modified will override MESSAGE-INTEGRITY");
+                LOGGER.debug("Message is modified will override attribute MESSAGE-INTEGRITY");
                 // order counts when here we can safely recreate the message integrity
                 // overwrite message length and use the current buffer content, secret and password
                 buf.putShort(2, (short) lengthSoFar);
                 attribute = overrideMessageIntegrity(username, buf);
                 buf.putShort(2, stunMessage.getMessageLength());
+            } else if (attribute instanceof Fingerprint && stunMessage.isModified()) {
+                LOGGER.debug("Message is modified will override atribute FINGERPRINT");
+                // message length already at total value
+                attribute = new Fingerprint();
+                ((Fingerprint) attribute).calculate(buf.array());
             }
+
             lengthSoFar += 4 + attributePaddedLength(attribute.getLength());
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Encoding STUN attribute: " + attribute);

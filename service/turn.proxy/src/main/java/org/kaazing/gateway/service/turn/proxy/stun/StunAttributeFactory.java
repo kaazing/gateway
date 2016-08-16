@@ -43,6 +43,8 @@ public class StunAttributeFactory {
                 return new XorRelayAddress(value, transactionId);
             case MESSAGE_INTEGRITY:
                 return new MessageIntegrity(value, credentialType);
+            case FINGERPRINT:
+                return new Fingerprint(value);
             default:
                 // TODO: consider hard failing if white list of attributes is not allowed
                 return new ProxyNoopAttribute((short) type, (short) length, value);

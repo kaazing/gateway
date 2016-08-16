@@ -226,7 +226,7 @@ public class AttributeTest {
         Assert.assertEquals(attr.getType(), type);
         Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
 
-        Assert.assertTrue(attr instanceof ProxyNoopAttribute);
+        Assert.assertTrue(attr instanceof Fingerprint);
     }
 
     @Test
