@@ -15,6 +15,7 @@
  */
 package org.kaazing.gateway.service.turn.proxy;
 
+import static java.nio.charset.Charset.forName;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.rules.RuleChain.outerRule;
 
@@ -30,7 +31,11 @@ import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
+import javax.crypto.spec.SecretKeySpec;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.security.KeyStore;
 
 public class TurnProxyIT {
@@ -48,9 +53,15 @@ public class TurnProxyIT {
             char[] password = "ab987c".toCharArray();
             try {
                 FileInputStream fileInStr = new FileInputStream(System.getProperty("user.dir")
-                        + "/target/truststore/keystore.db");
+                    + "/target/truststore/keystore.db");
                 keyStore = KeyStore.getInstance("JCEKS");
                 keyStore.load(fileInStr, "ab987c".toCharArray());
+                keyStore.setKeyEntry(
+                    "turn.shared.secret",
+                    new SecretKeySpec("turnAuthenticationSharedSecret".getBytes(forName("UTF-8")), "PBEWithMD5AndDES"),
+                    password,
+                    null
+                );
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -64,7 +75,8 @@ public class TurnProxyIT {
                         .connect("tcp://localhost:3479")
                         .type("turn.proxy")
                             .property("mapped.address", "192.0.2.15:8080")
-                            .property("key.alias", "localhost")
+                        .property("key.alias", "turn.shared.secret")
+                        .property("key.algorithm", "HmacMD5")
                             // TODO relay adress override
                             //.property("relay.address.mask", propertyValue)
                     .done()

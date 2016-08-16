@@ -33,6 +33,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class TurnUtils {
 
+    public static final String HMAC_SHA_1 = "HmacSHA1";
+
     private TurnUtils() {
         // utility class should hide constructor
     }
@@ -55,7 +57,7 @@ public class TurnUtils {
         }
     }
 
-    public static byte[] getPassword(String username, Key sharedSecret, String algorithm) {
+    public static char[] getPassword(String username, Key sharedSecret, String algorithm) {
         byte[] key = sharedSecret.getEncoded();
         Mac hmac;
         try {
@@ -66,13 +68,7 @@ public class TurnUtils {
             throw new TurnException("Unable to generate password", e);
         }
 
-
-        return hmac.doFinal(username.getBytes());
-    }
-
-    public static char[] getBase64EncodedPassword(String username, Key sharedSecret, String algorithm) {
-        byte[] password = getPassword(username, sharedSecret, algorithm);
-        return Base64.getEncoder().encodeToString(password).toCharArray();
+        return Base64.getEncoder().encodeToString(hmac.doFinal(username.getBytes())).toCharArray();
     }
 
     private static char[] loadKeyStorePassword(File location) throws IOException {

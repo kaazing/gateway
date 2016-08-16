@@ -22,6 +22,7 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
 
+import java.security.Key;
 import java.security.cert.Certificate;
 import java.util.concurrent.ConcurrentMap;
 
@@ -29,25 +30,27 @@ import static org.kaazing.gateway.service.turn.proxy.stun.StunAttributeFactory.C
 
 public class StunCodecFilter extends ProtocolCodecFilter {
 
-    public StunCodecFilter(ConcurrentMap<String, String> currentTransactions, Certificate sharedSecret){
-        super(new TurnCodecFactory(currentTransactions, sharedSecret));
+    public StunCodecFilter(ConcurrentMap<String, String> currentTransactions, Key sharedSecret, String keyAlgorithm){
+        super(new TurnCodecFactory(currentTransactions, sharedSecret, keyAlgorithm));
     }
     
     private static class TurnCodecFactory implements ProtocolCodecFactory {
 
         private final ConcurrentMap<String, String> currentTransactions;
-        private final Certificate sharedSecret;
+        private final Key sharedSecret;
+        private final String keyAlgorithm;
         private StunAttributeFactory stunAttributeFactory = new StunAttributeFactory(SHORT_TERM);
 
-        public TurnCodecFactory(ConcurrentMap<String, String> currentTransactions, Certificate sharedSecret) {
+        public TurnCodecFactory(ConcurrentMap<String, String> currentTransactions, Key sharedSecret, String keyAlgorithm) {
             this.currentTransactions = currentTransactions;
             this.sharedSecret = sharedSecret;
+            this.keyAlgorithm = keyAlgorithm;
         }
 
         @Override
         public ProtocolEncoder getEncoder(IoSession session) throws Exception {
             IoSessionEx sessionEx = (IoSessionEx) session;
-            return new StunFrameEncoder(sessionEx.getBufferAllocator(), currentTransactions, sharedSecret);
+            return new StunFrameEncoder(sessionEx.getBufferAllocator(), currentTransactions, sharedSecret, keyAlgorithm);
         }
 
         @Override

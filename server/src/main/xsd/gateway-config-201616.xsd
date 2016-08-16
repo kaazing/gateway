@@ -1565,8 +1565,26 @@
         <complexContent>
             <restriction base="gateway:ServicePropertiesType">
                 <all>
-                    <element maxOccurs="1" minOccurs="0" name="key.alias" type="gateway:CollapsedString">
-                        <annotation />
+                    <element maxOccurs="1" minOccurs="1" name="key.alias" type="gateway:CollapsedString">
+                        <annotation>
+                            <documentation>The alias in the certificate containing the shared secret</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="key.password-file" type="gateway:CollapsedString">
+                        <annotation>
+                            <documentation>
+                                The password protecting the shared secret. If missing the keystore's password will be
+                                used.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="key.algorithm" type="gateway:CollapsedString">
+                        <annotation>
+                            <documentation>
+                                The algorithm used for the HMAC computation of the password using the username and the
+                                shared secret. If missing the default value is HmacSHA1.
+                            </documentation>
+                        </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="mapped.address" type="gateway:CollapsedString">
                         <annotation />
