@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
 
     static final Logger LOGGER = LoggerFactory.getLogger(TurnProxyAcceptHandler.class);
-    public static final String TURN_STATE_KEY = "turn-state";
     public static final String TURN_SESSION_TRANSACTION_MAP = "turn-session-transactions-map";
 
     // Configuration properties
@@ -85,7 +84,6 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
 
     @Override
     public void sessionCreated(IoSession acceptSession) {
-        acceptSession.setAttribute(TURN_STATE_KEY, TurnSessionState.NOT_CONNECTED);
         acceptSession.setAttribute(TURN_SESSION_TRANSACTION_MAP, new HashMap<>());
         acceptSession.getFilterChain().addLast("STUN_CODEC", new StunCodecFilter(sharedSecret, keyAlgorithm));
         super.sessionCreated(acceptSession);

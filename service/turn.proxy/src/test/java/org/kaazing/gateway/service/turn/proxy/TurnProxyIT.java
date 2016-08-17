@@ -19,6 +19,11 @@ import static java.nio.charset.Charset.forName;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.rules.RuleChain.outerRule;
 
+import java.io.FileInputStream;
+import java.security.KeyStore;
+
+import javax.crypto.spec.SecretKeySpec;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -30,13 +35,6 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-
-import javax.crypto.spec.SecretKeySpec;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.security.KeyStore;
 
 public class TurnProxyIT {
 

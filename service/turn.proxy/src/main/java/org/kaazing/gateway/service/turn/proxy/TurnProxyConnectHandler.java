@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.service.turn.proxy;
 
+import java.net.InetSocketAddress;
+
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
 import org.kaazing.gateway.service.turn.proxy.stun.StunMessageClass;
@@ -25,8 +27,6 @@ import org.kaazing.gateway.service.turn.proxy.stun.attributes.MappedAddress;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorMappedAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.InetSocketAddress;
 
 class TurnProxyConnectHandler extends AbstractProxyHandler {
 
@@ -39,12 +39,11 @@ class TurnProxyConnectHandler extends AbstractProxyHandler {
 
     @Override
     public void messageReceived(IoSession session, Object message) {
-        if (session.getAttribute(TurnProxyAcceptHandler.TURN_STATE_KEY) != TurnSessionState.ALLOCATED && message instanceof StunProxyMessage) {
+        if (message instanceof StunProxyMessage) {
             LOGGER.debug(String.format("Received message [%s] from [%s] ", message, session));
             StunProxyMessage stunMessage = (StunProxyMessage) message;
             if (stunMessage.getMethod() == StunMessageMethod.ALLOCATE &&
                 stunMessage.getMessageClass() == StunMessageClass.RESPONSE) {
-                session.setAttribute(TurnProxyAcceptHandler.TURN_STATE_KEY, TurnSessionState.ALLOCATED);
                 // TODO here we should override the relay address
                 // relay address -> the proxy's address and port ?
                 InetSocketAddress acceptAddress = getMappedAddress(session);
