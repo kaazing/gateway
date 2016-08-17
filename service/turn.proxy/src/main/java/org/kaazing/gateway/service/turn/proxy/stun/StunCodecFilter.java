@@ -15,6 +15,12 @@
  */
 package org.kaazing.gateway.service.turn.proxy.stun;
 
+import static org.kaazing.gateway.service.turn.proxy.TurnProxyAcceptHandler.TURN_SESSION_TRANSACTION_MAP;
+import static org.kaazing.gateway.service.turn.proxy.stun.StunAttributeFactory.CredentialType.SHORT_TERM;
+
+import java.security.Key;
+import java.util.Map;
+
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
@@ -22,35 +28,29 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
 
-import java.security.Key;
-import java.security.cert.Certificate;
-import java.util.concurrent.ConcurrentMap;
-
-import static org.kaazing.gateway.service.turn.proxy.stun.StunAttributeFactory.CredentialType.SHORT_TERM;
-
 public class StunCodecFilter extends ProtocolCodecFilter {
 
-    public StunCodecFilter(ConcurrentMap<String, String> currentTransactions, Key sharedSecret, String keyAlgorithm){
-        super(new TurnCodecFactory(currentTransactions, sharedSecret, keyAlgorithm));
+    public StunCodecFilter(Key sharedSecret, String keyAlgorithm) {
+        super(new TurnCodecFactory(sharedSecret, keyAlgorithm));
     }
-    
+
     private static class TurnCodecFactory implements ProtocolCodecFactory {
 
-        private final ConcurrentMap<String, String> currentTransactions;
         private final Key sharedSecret;
         private final String keyAlgorithm;
         private StunAttributeFactory stunAttributeFactory = new StunAttributeFactory(SHORT_TERM);
 
-        public TurnCodecFactory(ConcurrentMap<String, String> currentTransactions, Key sharedSecret, String keyAlgorithm) {
-            this.currentTransactions = currentTransactions;
+        public TurnCodecFactory(Key sharedSecret, String keyAlgorithm) {
             this.sharedSecret = sharedSecret;
             this.keyAlgorithm = keyAlgorithm;
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public ProtocolEncoder getEncoder(IoSession session) throws Exception {
             IoSessionEx sessionEx = (IoSessionEx) session;
-            return new StunFrameEncoder(sessionEx.getBufferAllocator(), currentTransactions, sharedSecret, keyAlgorithm);
+            return new StunFrameEncoder(sessionEx.getBufferAllocator(),
+                    (Map<String, String>) session.getAttribute(TURN_SESSION_TRANSACTION_MAP), sharedSecret, keyAlgorithm);
         }
 
         @Override

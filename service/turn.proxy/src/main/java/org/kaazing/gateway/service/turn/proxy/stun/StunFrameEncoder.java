@@ -15,12 +15,19 @@
  */
 package org.kaazing.gateway.service.turn.proxy.stun;
 
+import static org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage.attributePaddedLength;
+import static org.kaazing.gateway.util.turn.TurnUtils.HMAC_SHA_1;
+
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Map;
+
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
@@ -32,13 +39,6 @@ import org.kaazing.gateway.util.turn.TurnUtils;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
-import static org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage.attributePaddedLength;
-import static org.kaazing.gateway.util.turn.TurnUtils.HMAC_SHA_1;
 
 
 /*
@@ -63,14 +63,14 @@ import static org.kaazing.gateway.util.turn.TurnUtils.HMAC_SHA_1;
 public class StunFrameEncoder extends ProtocolEncoderAdapter {
 
     private final IoBufferAllocatorEx<?> allocator;
-    private final ConcurrentMap<String, String> currentTransactions;
+    private final Map<String, String> currentTransactions;
     private final Key sharedSecret;
     private final String keyAlgorithm;
 
     private static final Logger LOGGER = LoggerFactory.getLogger("service.turn.proxy");
 
 
-    public StunFrameEncoder(IoBufferAllocatorEx<?> aloc, ConcurrentMap<String, String> currentTrx, Key ss, String keyAlg) {
+    public StunFrameEncoder(IoBufferAllocatorEx<?> aloc, Map<String, String> currentTrx, Key ss, String keyAlg) {
         this.allocator = aloc;
         this.currentTransactions = currentTrx;
         this.sharedSecret = ss;
