@@ -64,14 +64,14 @@ public class HttpProxyNegativeCasesIT {
         robot.finish();
     }
 
-    @Ignore // https://github.com/kaazing/tickets/issues/664
+    @Ignore("https://github.com/kaazing/tickets/issues/664")
     @Specification("http.proxy.content.without.content.length.header")
     @Test
     public void sendContentWithoutContentLengthHeader() throws Exception {
         robot.finish();
     }
 
-    @Ignore // https://github.com/kaazing/tickets/issues/631
+    @Ignore("https://github.com/kaazing/tickets/issues/631")
     @Specification("http.proxy.payload.no.match.content.length.smaller")
     @Test
     public void sendPayloadWithContentLengthSmaller() throws Exception {

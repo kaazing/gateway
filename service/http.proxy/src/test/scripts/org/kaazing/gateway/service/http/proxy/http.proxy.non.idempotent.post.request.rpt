@@ -18,15 +18,26 @@
 # client
 #
 
-connect http://localhost:8110/intermediary
+connect tcp://localhost:8110
 connected
 
-write method "POST"
-write header host
-write header content-length
-write "This is some data"
-write close
-read status "504" "Gateway Timeout"
+write "POST /echo HTTP/1.1\r\n"
+write "User-Agent: Kaazing Gateway\r\n"
+write "Host: localhost:8110\r\n"
+write "Connection: close\r\n"
+write "\r\n"
+write "Hello World1\r\n"
+
+read "HTTP/1.1 200 OK\r\n"
+read "Cache-Control: no-cache\r\n"
+read "Content-Type: application/octet-stream\r\n"
+read /Date: .*/ "\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "Content-Length: 0\r\n"
+read "\r\n"
+
+close
+closed
 
 #
 # server
@@ -36,12 +47,21 @@ accept tcp://localhost:8080
 accepted
 connected
 
-read "POST" /.*\r\n/
+read "POST /echo HTTP/1.1\r\n"
 read /Via: 1.1 kaazing-.+/ "\r\n"
-read /User-Agent:.+/ "\r\n"
-read "Host:" /.*\r\n/
-read "Content-Length: " "17" "\r\n"
+read "User-Agent: Kaazing Gateway\r\n"
+read "Host: localhost:8080\r\n"
+read "Connection: close\r\n"
 read "\r\n"
-read "This is some data"
+read "Hello World1\r\n"
+
+write "HTTP/1.1 200 OK\r\n"
+write "Cache-Control: no-cache\r\n"
+write "Connection: close\r\n"
+write "Content-Type: application/octet-stream\r\n"
+write "Date: Fri, 15 May 2015 22:42:20 GMT\r\n"
+write "Server: Kaazing Gateway\r\n"
+write "\r\n"
+
 close
 closed

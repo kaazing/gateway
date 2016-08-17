@@ -58,7 +58,7 @@ public class HttpProxyParametersIT {
         robot.finish();
     }
 
-    @Ignore // https://github.com/kaazing/tickets/issues/630
+    @Ignore("https://github.com/kaazing/tickets/issues/630")
     @Specification("http.proxy.parameter.wse.specific")
     @Test
     public void sendParameterWseSpecific() throws Exception {

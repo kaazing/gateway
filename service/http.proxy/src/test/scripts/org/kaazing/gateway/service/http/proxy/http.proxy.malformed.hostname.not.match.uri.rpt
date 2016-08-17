@@ -38,11 +38,10 @@ accept tcp://localhost:8080
 accepted
 connected
 
-#read "GET http://localhost:8080 HTTP/1.1\r\n"
 read "GET / HTTP/1.1\r\n"
 read /Via: 1.1 kaazing-.+/ "\r\n"
 read "User-Agent: Kaazing Gateway\r\n"
-#read "Host: anotherhost:8080" "\r\n"
+read "Host: anotherhost:8080" "\r\n"
 read "Host: localhost:8080" "\r\n"
 read "Connection: close\r\n"
 read "\r\n"

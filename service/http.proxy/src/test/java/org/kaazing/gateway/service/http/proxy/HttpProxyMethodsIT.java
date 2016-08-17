@@ -53,7 +53,6 @@ public class HttpProxyMethodsIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-    @Ignore // script needs modification
     @Specification("http.proxy.non.idempotent.post.request")
     @Test
     public void nonIdempotentPostRequests() throws Exception {

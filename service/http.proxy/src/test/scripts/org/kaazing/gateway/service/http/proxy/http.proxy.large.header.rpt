@@ -25,7 +25,6 @@ connect http://localhost:8110/
 connected
 
 write method "GET"
-#write parameter "name" "value"
 write version "HTTP/1.1"
 
 write header "X-ExtraHeader" ${largeHeaderData}

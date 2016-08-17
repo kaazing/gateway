@@ -51,14 +51,12 @@ public class HttpProxyMalformedRequestsIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-    @Ignore // connection not accepted if "host" header is missing, was expecting 400 error
     @Specification("http.proxy.malformed.missing.host.identifier")
     @Test
     public void missingHostIdentifier() throws Exception {
         robot.finish();
     }
 
-    @Ignore // read "GET /" instead of "read "GET http://username:password@localhost:8080/"
     @Specification("http.proxy.malformed.user.info.on.uri")
     @Test
     public void userInfoOnUri() throws Exception {
@@ -83,21 +81,19 @@ public class HttpProxyMalformedRequestsIT {
         robot.finish();
     }
 
-    @Ignore // https://github.com/kaazing/tickets/issues/629
+    @Ignore("https://github.com/kaazing/tickets/issues/629")
     @Specification("http.proxy.malformed.hostname.not.match.uri")
     @Test
     public void hostnameDoesNotMatchUri() throws Exception {
         robot.finish();
     }
 
-    @Ignore // stuck at the read of the second host
     @Specification("http.proxy.malformed.multiple.host.headers")
     @Test
     public void multipleHostHeaders() throws Exception {
         robot.finish();
     }
 
-    @Ignore // connection not established for bad header
     @Specification("http.proxy.malformed.obs.in.header.value")
     @Test
     public void obsInHeaderValue() throws Exception {

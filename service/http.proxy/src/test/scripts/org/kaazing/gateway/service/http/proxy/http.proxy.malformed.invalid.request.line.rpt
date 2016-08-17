@@ -24,7 +24,6 @@ connected
 write "GET HTTP/1.1\r\n"
 write "Host: localhost:8080" "\r\n"
 write "\r\n"
-#read "HTTP/1.1 400 Bad Request\r\n"
 
 close
 closed
@@ -34,5 +33,3 @@ closed
 #
 
 accept tcp://localhost:8080
-
-closed

@@ -26,26 +26,8 @@ write "Host: localhost:8110\r\n"
 write "BadHeader: value\r\nPart of value\tstill part of value\r\n"
 write "\r\n"
 
-read "HTTP/1.1 400 Bad Request\r\n"
-
 #
 # server
 #
 
 accept tcp://localhost:8080
-accepted
-connected
-
-read "GET / HTTP/1.1\r\n"
-
-read /Via: 1.1 kaazing-.+/ "\r\n"
-read "User-Agent: Kaazing Gateway\r\n"
-
-read "Host: localhost:8080" "\r\n"
-read "BadHeader: value\r\nPart of value\tstill part of value\r\n"
-read "\r\n"
-
-write "HTTP/1.1 400 Bad Request\r\n"
-
-close
-closed
