@@ -71,6 +71,7 @@ public class HttpProxyMethodsIT {
         robot.finish();
     }
 
+    @Ignore("https://github.com/kaazing/tickets/issues/697")
     @Specification("http.proxy.put.request")
     @Test
     public void httpProxyPutRequest() throws Exception {

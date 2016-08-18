@@ -28,11 +28,7 @@ write "Connection: keep-alive\r\n"
 write "Upgrade-Insecure-Requests: 1\r\n"
 write "\r\n"
 
-read "HTTP/1.1 200 OK\r\n"
-read /Date: .*/ "\r\n"
-read "Server: Kaazing Gateway\r\n"
-read "Connection: keep-alive\r\n"
-read "\r\n"
+read status "200" /.*/
 
 write "PUT /hello.htm HTTP/1.1"
 write "User-Agent: Mozilla/5.0\r\n"
@@ -40,11 +36,7 @@ write "Host: localhost:8080\r\n"
 write "Connection: close\r\n"
 write "\r\n"
 
-read "HTTP/1.1 200 OK\r\n"
-read /Date: .*/ "\r\n"
-read "Server: Kaazing Gateway\r\n"
-read "Connection: keep-alive\r\n"
-read "\r\n"
+read status "200" /.*/
 
 closed
 
@@ -64,11 +56,7 @@ read "Host: localhost:8080\r\n"
 read "Connection: close\r\n"
 read "\r\n"
 
-write "HTTP/1.1 200 OK\r\n"
-write "Connection: keep-alive\r\n"
-write "Date: Fri, 15 May 2015 22:42:20 GMT\r\n"
-write "Server: Kaazing Gateway\r\n"
-write "\r\n"
+write status "200" "OK"
 
 read "PUT /hello.htm HTTP/1.1"
 read "Host: localhost:8110\r\n"
@@ -76,11 +64,7 @@ read "User-Agent: Mozilla/5.0\r\n"
 read "Connection: keep-alive\r\n"
 read "\r\n"
 
-write "HTTP/1.1 200 OK\r\n"
-write "Connection: keep-alive\r\n"
-write "Date: Fri, 15 May 2015 22:42:20 GMT\r\n"
-write "Server: Kaazing Gateway\r\n"
-write "\r\n"
+write status "200" "OK"
 
 close
 closed
