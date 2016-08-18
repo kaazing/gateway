@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.server.test.config;
+package org.kaazing.gateway.util.turn;
 
-import java.util.List;
-import java.util.Map;
+public class TurnException extends RuntimeException {
 
-public abstract class SuppressibleNestedServicePropertiesConfiguration implements SuppressibleConfiguration {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -2542024439819718984L;
 
-    public abstract String getConfigElementType();
-
-    public abstract void addSimpleProperty(String key, Suppressible<String> value);
-
-    public abstract Map<String, Suppressible<List<String>>> getSimpleProperties();
+    public TurnException(String message, Exception cause) {
+        super(message, cause);
+    }
 
 }
