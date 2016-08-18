@@ -57,7 +57,9 @@ public enum StunMessageMethod {
         case 0x009:
             return CHANNEL_BIND;
         default:
-            throw new IllegalStateException("No such STUN method from: " + method);
+            throw new IllegalStateException(
+                String.format("No such STUN method from: 0x%02X", method)
+            );
         }
     }
 

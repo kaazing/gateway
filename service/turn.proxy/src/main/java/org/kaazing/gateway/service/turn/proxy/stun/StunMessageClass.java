@@ -41,7 +41,9 @@ public enum StunMessageClass {
         case 0x110:
             return ERROR;
         default:
-            throw new IllegalStateException("No such STUN class from: " + leadingBitesAndMessageType);
+            throw new IllegalStateException(
+                String.format("No such STUN class from: 0x%02X", leadingBitesAndMessageType)
+            );
         }
     }
 

@@ -45,7 +45,6 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
     // Configuration properties
     public static final String PROPERTY_MAPPED_ADDRESS = "mapped.address";
     public static final String PROPERTY_KEY_ALIAS = "key.alias";
-    public static final String PROPERTY_KEY_PASS_FILE = "key.password-file";
     public static final String PROPERTY_KEY_ALGORITHM = "key.algorithm";
 
     private String connectURI;

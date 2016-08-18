@@ -93,7 +93,7 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
             username = currentTransactions.remove(Base64.getEncoder().encodeToString(stunMessage.getTransactionId()));
             LOGGER.trace(String.format("Removed username %s from transactions map", username));
             if (stunMessage.isModified() && (username == null || sharedSecret ==null)) {
-                LOGGER.warn("Stun message is modified but MESSAGE-INTEGRITY attribute will not be recalculated.");
+                LOGGER.warn("STUN message is modified but MESSAGE-INTEGRITY attribute can not be recalculated because username and/or shared secret is not available");
             }
         }
         ByteBuffer buf = allocator.allocate(StunProxyMessage.HEADER_BYTES + stunMessage.getMessageLength());
