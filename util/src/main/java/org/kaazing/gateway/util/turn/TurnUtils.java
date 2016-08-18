@@ -15,10 +15,6 @@
  */
 package org.kaazing.gateway.util.turn;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyStore;
@@ -38,16 +34,6 @@ public class TurnUtils {
         // utility class should hide constructor
     }
 
-    public static Key getSharedSecret(KeyStore ks, String alias, File pwFile) {
-        char[] password;
-        try {
-            password = loadKeyStorePassword(pwFile);
-        } catch (IOException e) {
-            throw new TurnException("Unable to load password from file: " + pwFile, e);
-        }
-        return getSharedSecret(ks, alias, password);
-    }
-
     public static Key getSharedSecret(KeyStore ks, String alias, char[] password) {
         try {
             return ks.getKey(alias, password);
@@ -56,7 +42,16 @@ public class TurnUtils {
         }
     }
 
-    public static char[] getPassword(String username, Key sharedSecret, String algorithm) {
+    /**
+     * This function generates the secret key based on the procedure described in
+     *  https://tools.ietf.org/html/draft-uberti-rtcweb-turn-rest-00#section-2.2
+     * 
+     * @param username - the username of the API 
+     * @param sharedSecret - the shared secret used by the TURN server as well
+     * @param algorithm - the algorithm. COTURN only supports HmacSHA1 as of 2016/08/18
+     * @return - the actual password
+     */
+    public static char[] generatePassword(String username, Key sharedSecret, String algorithm) {
         byte[] key = sharedSecret.getEncoded();
         Mac hmac;
         try {
@@ -68,12 +63,5 @@ public class TurnUtils {
         }
 
         return Base64.getEncoder().encodeToString(hmac.doFinal(username.getBytes())).toCharArray();
-    }
-
-    private static char[] loadKeyStorePassword(File location) throws IOException {
-        try (BufferedReader in = new BufferedReader(new FileReader(location))) {
-            String line = in.readLine();
-            return line.toCharArray();
-        }
     }
 }

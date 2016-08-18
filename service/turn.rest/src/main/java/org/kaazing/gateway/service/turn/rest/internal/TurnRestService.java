@@ -18,7 +18,6 @@ package org.kaazing.gateway.service.turn.rest.internal;
 
 import static org.kaazing.gateway.service.util.ServiceUtils.LIST_SEPARATOR;
 
-import java.io.File;
 import java.security.Key;
 import java.security.KeyStore;
 import java.util.Properties;
@@ -39,15 +38,16 @@ import org.kaazing.gateway.util.turn.TurnUtils;
  * Gateway service of type "turn.rest".
  */
 public class TurnRestService implements Service {
-    
+
     private static final String CLASS_PREFIX = "class:";
-    
+
     private TurnRestServiceHandler handler;
     private ServiceContext serviceContext;
     private SecurityContext securityContext;
     private Properties configuration;
 
-    @Resource(name = "securityContext")
+    @Resource(
+            name = "securityContext")
     public void setSecurityContext(SecurityContext securityContext) {
         this.securityContext = securityContext;
     }
@@ -90,7 +90,7 @@ public class TurnRestService implements Service {
 
     private String getTurnURIs(ServiceProperties properties) {
         StringBuilder u = new StringBuilder();
-        for (String uri: properties.getNested("uris").get(0).get("uri").split(LIST_SEPARATOR)) {
+        for (String uri : properties.getNested("uris").get(0).get("uri").split(LIST_SEPARATOR)) {
             u.append("\"").append(uri).append("\",");
         }
         u.setLength(u.length() - 1);
@@ -98,16 +98,9 @@ public class TurnRestService implements Service {
     }
 
     private Key resolveSharedSecret(ServiceProperties properties) {
-        Key sharedSecret;
         KeyStore ks = securityContext.getKeyStore();
-        String pwFile = properties.get("key.password-file"); 
         String alias = properties.get("key.alias");
-        if (pwFile == null || "".equals(pwFile)) {
-            sharedSecret = TurnUtils.getSharedSecret(ks, alias, securityContext.getKeyStorePassword());
-        } else {
-            sharedSecret = TurnUtils.getSharedSecret(ks, alias, new File(pwFile));
-        }
-        return sharedSecret;
+        return TurnUtils.getSharedSecret(ks, alias, securityContext.getKeyStorePassword());
     }
 
     @SuppressWarnings("unchecked")

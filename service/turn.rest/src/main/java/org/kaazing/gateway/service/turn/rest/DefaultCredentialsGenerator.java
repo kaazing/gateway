@@ -29,8 +29,6 @@ import org.kaazing.gateway.util.turn.TurnUtils;
  */
 public class DefaultCredentialsGenerator implements TurnRestCredentialsGenerator {
 
-    public static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
-    
     private long ttl;
     private Key sharedSecret;
     private char separator;
@@ -55,8 +53,8 @@ public class DefaultCredentialsGenerator implements TurnRestCredentialsGenerator
     @Override
     public void setUsernameSeparator(char separator) {
         this.separator = separator;
-    }    
-    
+    }
+
     @Override
     public TurnRestCredentials generate(Subject subject) {
         String username;
@@ -66,7 +64,7 @@ public class DefaultCredentialsGenerator implements TurnRestCredentialsGenerator
         username = unixTime + Character.toString(this.separator) + subject.getPrincipals().iterator().next().getName();
 
 
-        password = TurnUtils.getPassword(username, sharedSecret, algorithm);
+        password = TurnUtils.generatePassword(username, sharedSecret, algorithm);
         return  new TurnRestCredentials(username, password);
     }
 
