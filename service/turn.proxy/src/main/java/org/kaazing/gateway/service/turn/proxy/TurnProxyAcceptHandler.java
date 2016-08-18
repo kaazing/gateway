@@ -15,6 +15,12 @@
  */
 package org.kaazing.gateway.service.turn.proxy;
 
+import java.security.Key;
+import java.security.KeyStoreException;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
@@ -26,21 +32,15 @@ import org.kaazing.gateway.service.proxy.AbstractProxyAcceptHandler;
 import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
 import org.kaazing.gateway.service.turn.proxy.stun.StunCodecFilter;
 import org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage;
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.*;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.Username;
 import org.kaazing.gateway.util.turn.TurnUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.security.Key;
-import java.security.KeyStoreException;
-import java.util.Base64;
-import java.util.concurrent.ConcurrentHashMap;
-
 public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
 
     static final Logger LOGGER = LoggerFactory.getLogger(TurnProxyAcceptHandler.class);
-    public static final String TURN_STATE_KEY = "turn-state";
+    public static final String TURN_SESSION_TRANSACTION_MAP = "turn-session-transactions-map";
 
     // Configuration properties
     public static final String PROPERTY_MAPPED_ADDRESS = "mapped.address";
@@ -51,8 +51,6 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
     private String connectURI;
     private Key sharedSecret;
     private String keyAlgorithm;
-
-    private ConcurrentHashMap<String, String> currentTransactions = new ConcurrentHashMap<>();
 
     public TurnProxyAcceptHandler() {
         super();
@@ -75,17 +73,8 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
     }
 
     private void initSharedSecret(SecurityContext securityContext, ServiceProperties properties) {
-        if (properties.get(PROPERTY_KEY_PASS_FILE) == null) {
-            sharedSecret = TurnUtils.getSharedSecret(securityContext.getKeyStore(), properties.get(PROPERTY_KEY_ALIAS), securityContext.getKeyStorePassword());
-        } else {
-            File pwFile = new File(properties.get(PROPERTY_KEY_PASS_FILE));
-            if (!pwFile.isAbsolute()) {
-                throw new TurnProxyException(
-                        String.format("Only absolute files supported for %s, got: %s", PROPERTY_KEY_PASS_FILE, pwFile.getPath())
-                );
-            }
-            sharedSecret = TurnUtils.getSharedSecret(securityContext.getKeyStore(), properties.get(PROPERTY_KEY_ALIAS), pwFile);
-        }
+        sharedSecret = TurnUtils.getSharedSecret(securityContext.getKeyStore(), properties.get(PROPERTY_KEY_ALIAS),
+                securityContext.getKeyStorePassword());
     }
 
     @Override
@@ -95,14 +84,14 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
 
     @Override
     public void sessionCreated(IoSession acceptSession) {
-        acceptSession.setAttribute(TURN_STATE_KEY, TurnSessionState.NOT_CONNECTED);
-        acceptSession.getFilterChain().addLast("STUN_CODEC", new StunCodecFilter(currentTransactions, sharedSecret, keyAlgorithm));
+        acceptSession.setAttribute(TURN_SESSION_TRANSACTION_MAP, new HashMap<>());
+        acceptSession.getFilterChain().addLast("STUN_CODEC", new StunCodecFilter(sharedSecret, keyAlgorithm));
         super.sessionCreated(acceptSession);
     }
 
     @Override
     public void sessionOpened(IoSession acceptSession) {
-        ConnectSessionInitializer sessionInitializer = new ConnectSessionInitializer();
+        ConnectSessionInitializer sessionInitializer = new ConnectSessionInitializer(acceptSession);
         ConnectFuture connectFuture = getServiceContext().connect(connectURI, getConnectHandler(), sessionInitializer);
         connectFuture.addListener(new ConnectListener(acceptSession));
         super.sessionOpened(acceptSession);
@@ -121,7 +110,9 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
                     String transactionId = Base64.getEncoder().encodeToString(stunProxyMessage.getTransactionId());
                     String username = ((Username) attr).getUsername();
                     LOGGER.trace(String.format("Storing username in transactionsMap %s -> %s", transactionId, username));
-                    currentTransactions.putIfAbsent(transactionId, username);
+                    @SuppressWarnings("unchecked")
+                    Map<String, String> currentTransactions = (Map<String, String>) session.getAttribute(TURN_SESSION_TRANSACTION_MAP);
+                    currentTransactions.put(transactionId, username);
                 }
             );
             super.messageReceived(session, message);
@@ -133,9 +124,16 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
      */
     class ConnectSessionInitializer implements IoSessionInitializer<ConnectFuture> {
 
+        private IoSession acceptSession;
+
+        public ConnectSessionInitializer(IoSession acceptSession) {
+            this.acceptSession = acceptSession;
+        }
+
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
-            session.getFilterChain().addLast("STUN_CODEC", new StunCodecFilter(currentTransactions, sharedSecret, keyAlgorithm));
+            session.setAttribute(TURN_SESSION_TRANSACTION_MAP, acceptSession.getAttribute(TURN_SESSION_TRANSACTION_MAP));
+            session.getFilterChain().addLast("STUN_CODEC", new StunCodecFilter(sharedSecret, keyAlgorithm));
         }
     }
 

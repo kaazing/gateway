@@ -24,8 +24,6 @@ import java.util.List;
 
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
-import org.kaazing.gateway.service.turn.proxy.TurnProxyAcceptHandler;
-import org.kaazing.gateway.service.turn.proxy.TurnSessionState;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.ErrorCode;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -45,12 +43,6 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
 
     @Override
     protected boolean doDecode(IoSession session, IoBufferEx in, ProtocolDecoderOutput out) throws Exception {
-        if (session.getAttribute(TurnProxyAcceptHandler.TURN_STATE_KEY) == TurnSessionState.ALLOCATED) {
-            // No need to decode once allocated
-            out.write(in.duplicate());
-            in.position(in.limit());
-            return true;
-        }
 
         LOGGER.trace("Decoding STUN message: " + in);
         if (in.remaining() < 20) {
@@ -77,7 +69,10 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
 
         List<Attribute> attributes = new ArrayList<>();
         if (in.remaining() < messageLength) {
-            LOGGER.warn(String.format("Message has %d bytes remaining, which is less than declared length of: %d", in.remaining(), messageLength));
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace(String.format("Message has %d bytes remaining, which is less than declared length of: %d",
+                        in.remaining(), messageLength));
+            }
             in.reset();
             return false;
         } else if (in.remaining() == 0) {
