@@ -27,7 +27,6 @@ import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -67,7 +66,6 @@ public class BaseFramingIT {
             .around(contextRule);
 
     @Test
-    @Ignore("Issue# 306: IllegalArgumentException: message is empty. Forgot to call flip")
     @Specification({
         "echo.binary.payload.length.0/handshake.response.and.frame"
         })
@@ -316,7 +314,6 @@ public class BaseFramingIT {
     }
 
     @Test
-    @Ignore("Issue# 306: IllegalArgumentException: message is empty. Forgot to call flip")
     @Specification({
         "echo.text.payload.length.0/handshake.response.and.frame"
         })

@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.2.0</version>
+        <version>5.2.1</version>
     </parent>
 
     <artifactId>gateway.server.spi</artifactId>
@@ -51,7 +51,7 @@
                             <windowtitle>All Classes - API Documentation</windowtitle>
                             <doctitle>"All Classes - API Documentation"</doctitle>
                             <bottom>
-                                <![CDATA[Copyright &copy; 2014 Kaazing Licensed under Apache 2.0.]]>
+                                <![CDATA[Copyright &copy; 2014-2016 Kaazing Licensed under Apache 2.0.]]>
                             </bottom>
                         </configuration>
                     </execution>

@@ -2,23 +2,52 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.1.2...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.0...HEAD)
+
+**Merged pull requests:**
+
+- HTTP Proxy Issue 648 [\#672](https://github.com/kaazing/gateway/pull/672) ([a-zuckut](https://github.com/a-zuckut))
+- Remove copyright info from log4j xml/properties files [\#668](https://github.com/kaazing/gateway/pull/668) ([ahousing](https://github.com/ahousing))
+- Fix for issue 310: WSN Connector: Connection should fail when the value of the  header in handshake response is not  \#310 [\#665](https://github.com/kaazing/gateway/pull/665) ([vmaraloiu](https://github.com/vmaraloiu))
+
+## [5.2.0](https://github.com/kaazing/gateway/tree/5.2.0) (2016-08-08)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.1.2...5.2.0)
 
 **Fixed bugs:**
 
+- Gateway Not Specification Compliant to Invalid Headers [\#637](https://github.com/kaazing/gateway/issues/637)
 - RFC 7232: Directory Service responds with 200 OK when If-Modified-Since matches Last-Modified from previous response [\#383](https://github.com/kaazing/gateway/issues/383)
 - WSN Connector: Missing `Connection` header in handshake response should not result in a successful connection [\#311](https://github.com/kaazing/gateway/issues/311)
 - WsnConnector does not reject a masked text or binary frame from the server [\#308](https://github.com/kaazing/gateway/issues/308)
 - WSN Connector: Gateway sends back invalid UTF-8 reason instead of just the CLOSE code 1002 [\#307](https://github.com/kaazing/gateway/issues/307)
+- WSN Connector, WSE connector: IllegalArgumentException is thrown when sending a frame with empty payload [\#306](https://github.com/kaazing/gateway/issues/306)
+- WSN Transport Bug : shouldEchoBinaryFrameWithPayloadLength0 and shouldEchoTextFrameWithPayloadLength0 [\#254](https://github.com/kaazing/gateway/issues/254)
+
+**Closed issues:**
+
+- Remove all but hostname must match gateway-config.xml balancer check [\#615](https://github.com/kaazing/gateway/issues/615)
 
 **Merged pull requests:**
 
+- reset all changes made by the revert commit\(https://github.com/kaazin… [\#671](https://github.com/kaazing/gateway/pull/671) ([AdrianCozma](https://github.com/AdrianCozma))
+- reset version to develop-SNAPSHOT, it was changed during a revert on … [\#670](https://github.com/kaazing/gateway/pull/670) ([AdrianCozma](https://github.com/AdrianCozma))
+- Implemented the new \<symbolic-link\> property for the Directory Service [\#669](https://github.com/kaazing/gateway/pull/669) ([msalavastru](https://github.com/msalavastru))
+- Update copyright stored in server.?pi/pom.xml [\#667](https://github.com/kaazing/gateway/pull/667) ([ahousing](https://github.com/ahousing))
+- Removing http transport dependency in proxy service [\#666](https://github.com/kaazing/gateway/pull/666) ([jitsni](https://github.com/jitsni))
+- Corrected namespace for management.xsd [\#664](https://github.com/kaazing/gateway/pull/664) ([DoruM](https://github.com/DoruM))
+- Revert "Corrected namespace for management.xsd" [\#663](https://github.com/kaazing/gateway/pull/663) ([AdrianCozma](https://github.com/AdrianCozma))
+- Corrected namespace for management.xsd [\#662](https://github.com/kaazing/gateway/pull/662) ([DoruM](https://github.com/DoruM))
+- Corrected namespace for management.xsd [\#659](https://github.com/kaazing/gateway/pull/659) ([DoruM](https://github.com/DoruM))
+- Disable TcpConnectorIT.shouldHandleServerClose [\#654](https://github.com/kaazing/gateway/pull/654) ([ahousing](https://github.com/ahousing))
+- Added validation for empty space after HTTP header field name [\#652](https://github.com/kaazing/gateway/pull/652) ([DoruM](https://github.com/DoruM))
 - Updated license for log4j-config [\#650](https://github.com/kaazing/gateway/pull/650) ([vishalsatish](https://github.com/vishalsatish))
 - reject masked frames sent by the server in a websocket connection [\#647](https://github.com/kaazing/gateway/pull/647) ([danibusu](https://github.com/danibusu))
+- Udp impl using netty [\#646](https://github.com/kaazing/gateway/pull/646) ([jitsni](https://github.com/jitsni))
 - Add checks for invalid UTF-8 reason on Close frame [\#641](https://github.com/kaazing/gateway/pull/641) ([DoruM](https://github.com/DoruM))
+- \[Work in progress\] add support for sending empty payload frame \(gateway issue \#254\) [\#640](https://github.com/kaazing/gateway/pull/640) ([danibusu](https://github.com/danibusu))
 
 ## [5.1.2](https://github.com/kaazing/gateway/tree/5.1.2) (2016-07-20)
-[Full Changelog](https://github.com/kaazing/gateway/compare/1.1.1...5.1.2)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.1.1...5.1.2)
 
 **Fixed bugs:**
 
@@ -28,7 +57,6 @@
 
 **Closed issues:**
 
-- Command center requires to relogin every time the page is refereshed [\#321](https://github.com/kaazing/gateway/issues/321)
 - WsnInactivityTimeoutIT.shouldInactivityTimeoutWithPingPongExtensionAndExtendedHandshakePort80\(\) failing [\#300](https://github.com/kaazing/gateway/issues/300)
 
 **Merged pull requests:**
@@ -49,9 +77,6 @@
 - SNMP and sessionServiceType no longer supported [\#618](https://github.com/kaazing/gateway/pull/618) ([justinma246](https://github.com/justinma246))
 - Http connector follow redirect for maximum.redirects, also http acceptor send 302 for wsn and wsx [\#611](https://github.com/kaazing/gateway/pull/611) ([dpwspoon](https://github.com/dpwspoon))
 - Login Module passes when there is a realm and login module [\#604](https://github.com/kaazing/gateway/pull/604) ([justinma246](https://github.com/justinma246))
-
-## [1.1.1](https://github.com/kaazing/gateway/tree/1.1.1) (2016-06-27)
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.1.1...1.1.1)
 
 ## [5.1.1](https://github.com/kaazing/gateway/tree/5.1.1) (2016-06-27)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.1.0...5.1.1)
@@ -787,7 +812,7 @@
 - Added timeout back into WsnConnectorTest [\#86](https://github.com/kaazing/gateway/pull/86) ([dpwspoon](https://github.com/dpwspoon))
 
 ## [5.0.1.21](https://github.com/kaazing/gateway/tree/5.0.1.21) (2015-04-03)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.1.20...5.0.1.21)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.20...5.0.1.21)
 
 **Fixed bugs:**
 
@@ -805,8 +830,8 @@
 - Wseb sequencing [\#82](https://github.com/kaazing/gateway/pull/82) ([jitsni](https://github.com/jitsni))
 - Added exec to linux startup script [\#81](https://github.com/kaazing/gateway/pull/81) ([dpwspoon](https://github.com/dpwspoon))
 
-## [gateway.distribution-5.0.1.20](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.1.20) (2015-03-26)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.1.19...gateway.distribution-5.0.1.20)
+## [5.0.1.20](https://github.com/kaazing/gateway/tree/5.0.1.20) (2015-03-26)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.19...5.0.1.20)
 
 **Fixed bugs:**
 
@@ -856,18 +881,18 @@
 - Add a Gitter chat badge to README.md [\#21](https://github.com/kaazing/gateway/pull/21) ([gitter-badger](https://github.com/gitter-badger))
 - Fixed README nits [\#19](https://github.com/kaazing/gateway/pull/19) ([vjwang](https://github.com/vjwang))
 
-## [gateway.distribution-5.0.1.19](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.1.19) (2015-01-09)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.1.18...gateway.distribution-5.0.1.19)
+## [5.0.1.19](https://github.com/kaazing/gateway/tree/5.0.1.19) (2015-01-09)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.18...5.0.1.19)
 
-## [gateway.distribution-5.0.1.18](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.1.18) (2014-12-20)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.1.17...gateway.distribution-5.0.1.18)
+## [5.0.1.18](https://github.com/kaazing/gateway/tree/5.0.1.18) (2014-12-20)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.17...5.0.1.18)
 
 **Merged pull requests:**
 
 - Got rid of copyright in pom because they are not auto updated from licen... [\#25](https://github.com/kaazing/gateway/pull/25) ([dpwspoon](https://github.com/dpwspoon))
 
-## [gateway.distribution-5.0.1.17](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.1.17) (2014-12-18)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.1.16...gateway.distribution-5.0.1.17)
+## [5.0.1.17](https://github.com/kaazing/gateway/tree/5.0.1.17) (2014-12-18)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.16...5.0.1.17)
 
 **Closed issues:**
 
@@ -878,20 +903,20 @@
 - Apply fix for http://jira.codehaus.org/browse/MASSEMBLY-728  [\#24](https://github.com/kaazing/gateway/pull/24) ([nowucca](https://github.com/nowucca))
 - Updated project to appendAssemblyId false so that artifacts don't need v... [\#22](https://github.com/kaazing/gateway/pull/22) ([dpwspoon](https://github.com/dpwspoon))
 
-## [gateway.distribution-5.0.1.16](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.1.16) (2014-12-17)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.1.15...gateway.distribution-5.0.1.16)
+## [5.0.1.16](https://github.com/kaazing/gateway/tree/5.0.1.16) (2014-12-17)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.15...5.0.1.16)
 
-## [gateway.distribution-5.0.1.15](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.1.15) (2014-12-17)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.1.14...gateway.distribution-5.0.1.15)
+## [5.0.1.15](https://github.com/kaazing/gateway/tree/5.0.1.15) (2014-12-17)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.14...5.0.1.15)
 
-## [gateway.distribution-5.0.1.14](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.1.14) (2014-12-16)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.0.16...gateway.distribution-5.0.1.14)
+## [5.0.1.14](https://github.com/kaazing/gateway/tree/5.0.1.14) (2014-12-16)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.0.16...5.0.1.14)
 
-## [gateway.distribution-5.0.0.16](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.0.16) (2014-12-16)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.0.15...gateway.distribution-5.0.0.16)
+## [5.0.0.16](https://github.com/kaazing/gateway/tree/5.0.0.16) (2014-12-16)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.0.15...5.0.0.16)
 
-## [gateway.distribution-5.0.0.15](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.0.15) (2014-12-12)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.0.14...gateway.distribution-5.0.0.15)
+## [5.0.0.15](https://github.com/kaazing/gateway/tree/5.0.0.15) (2014-12-12)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.0.14...5.0.0.15)
 
 **Merged pull requests:**
 
@@ -899,31 +924,31 @@
 - Changed filenames and port \# [\#16](https://github.com/kaazing/gateway/pull/16) ([vjwang](https://github.com/vjwang))
 - Updated naming and content [\#13](https://github.com/kaazing/gateway/pull/13) ([vjwang](https://github.com/vjwang))
 
-## [gateway.distribution-5.0.0.14](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.0.14) (2014-12-11)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.0.13...gateway.distribution-5.0.0.14)
+## [5.0.0.14](https://github.com/kaazing/gateway/tree/5.0.0.14) (2014-12-11)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.0.13...5.0.0.14)
 
 **Merged pull requests:**
 
 - KG-13558:  Add an echo service, update the 'It Works' page to connect to... [\#11](https://github.com/kaazing/gateway/pull/11) ([krismcqueen](https://github.com/krismcqueen))
 - Updated project to use kaazing sigar dist [\#7](https://github.com/kaazing/gateway/pull/7) ([dpwspoon](https://github.com/dpwspoon))
 
-## [gateway.distribution-5.0.0.13](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.0.13) (2014-12-10)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.0.12...gateway.distribution-5.0.0.13)
+## [5.0.0.13](https://github.com/kaazing/gateway/tree/5.0.0.13) (2014-12-10)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.0.12...5.0.0.13)
 
-## [gateway.distribution-5.0.0.12](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.0.12) (2014-12-10)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.0.11...gateway.distribution-5.0.0.12)
+## [5.0.0.12](https://github.com/kaazing/gateway/tree/5.0.0.12) (2014-12-10)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.0.11...5.0.0.12)
 
 **Merged pull requests:**
 
 - Updated name of bower-maven-plugin [\#6](https://github.com/kaazing/gateway/pull/6) ([dpwspoon](https://github.com/dpwspoon))
 
-## [gateway.distribution-5.0.0.11](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.0.11) (2014-12-04)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.0.10...gateway.distribution-5.0.0.11)
+## [5.0.0.11](https://github.com/kaazing/gateway/tree/5.0.0.11) (2014-12-04)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.0.10...5.0.0.11)
 
-## [gateway.distribution-5.0.0.10](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.0.10) (2014-12-04)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.0.9...gateway.distribution-5.0.0.10)
+## [5.0.0.10](https://github.com/kaazing/gateway/tree/5.0.0.10) (2014-12-04)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.0.9...5.0.0.10)
 
-## [gateway.distribution-5.0.0.9](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.0.9) (2014-12-04)
+## [5.0.0.9](https://github.com/kaazing/gateway/tree/5.0.0.9) (2014-12-04)
 **Merged pull requests:**
 
 - Updated project to use bower-dependency-maven-plugin to get bower compon... [\#5](https://github.com/kaazing/gateway/pull/5) ([dpwspoon](https://github.com/dpwspoon))

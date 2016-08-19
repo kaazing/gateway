@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.2.0</version>
+        <version>5.2.1</version>
     </parent>
     <artifactId>mina.netty</artifactId>
     <packaging>jar</packaging>
@@ -69,6 +69,10 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.co.real-logic</groupId>
+            <artifactId>Agrona</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
