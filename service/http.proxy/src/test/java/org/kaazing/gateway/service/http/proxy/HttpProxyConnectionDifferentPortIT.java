@@ -61,10 +61,9 @@ public class HttpProxyConnectionDifferentPortIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, k3po);
 
-
     @Test
-	@Specification("http.proxy.multiple.services.different.port")
-    public void httppath() throws Exception {
+	@Specification("http.proxy.send.wrong.host.header")
+    public void httpTwoServicesSendAnotherHostHeader() throws Exception {
         k3po.finish();
     }
 

@@ -64,12 +64,10 @@ public class HttpProxyDeleteAndInvalidBytesIT {
         k3po.finish();
     }
 
-    @Ignore
     @Test
     @Specification("http.proxy.Idempotent.delete")
     public void idempotentDelete() throws Exception {
         k3po.finish();
     }
-
 
 }
