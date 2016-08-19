@@ -31,6 +31,7 @@ import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.service.proxy.AbstractProxyAcceptHandler;
 import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
 import org.kaazing.gateway.service.turn.proxy.stun.StunCodecFilter;
+import org.kaazing.gateway.service.turn.proxy.stun.StunMaskAddressFilter;
 import org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.Username;
 import org.kaazing.gateway.util.turn.TurnUtils;
@@ -44,6 +45,7 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
 
     // Configuration properties
     public static final String PROPERTY_MAPPED_ADDRESS = "mapped.address";
+    public static final String PROPERTY_MASK_ADDRESS = "mask.address";
     public static final String PROPERTY_KEY_ALIAS = "key.alias";
     public static final String PROPERTY_KEY_ALGORITHM = "key.algorithm";
 
@@ -85,6 +87,7 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
     public void sessionCreated(IoSession acceptSession) {
         acceptSession.setAttribute(TURN_SESSION_TRANSACTION_MAP, new HashMap<>());
         acceptSession.getFilterChain().addLast("STUN_CODEC", new StunCodecFilter(sharedSecret, keyAlgorithm));
+        acceptSession.getFilterChain().addLast("STUN_MASK", new StunMaskAddressFilter());
         super.sessionCreated(acceptSession);
     }
 

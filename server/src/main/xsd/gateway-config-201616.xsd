@@ -1695,7 +1695,28 @@
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="mapped.address" type="gateway:CollapsedString">
-                        <annotation />
+                        <annotation>
+                            <documentation>
+                                Address and port that will override MAPPED-ADDRESS attribute and xored with the magic
+                                cookie the attribute XOR-MAPPED-ADDRESS.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="mask.address" type="gateway:CollapsedString">
+                        <annotation>
+                            <documentation>
+                                If defined, will be used to mask the outgoing XOR-RELAYED-ADDRESS and unmask the
+                                XOR-PEER-ADDRESS in order to protect the Turn server's IP addresses from exposure.
+
+                                Format: "%d.%d.%d.%d:%d"
+
+                                Address is IPv4:PORT the mask will be performed by XOR-ing each byte of the expression with
+                                each byte of the address. The port will be xored with the last value (after colon).
+
+                                Address is IPv6:PORT the mask will be repeated 4 times and each byte of the expression will be
+                                xored with each bye of the address. The port will be xored with the last value (after colon).
+                            </documentation>
+                        </annotation>
                     </element>
                 </all>
             </restriction>
