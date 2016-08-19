@@ -476,12 +476,14 @@ public class Gateway {
         }
     }
 
-    private void appendSimpleProperties(Map<String, String> properties, Node domNode, Document ownerDocument) {
-        for (Entry<String, String> property : properties.entrySet()) {
-            Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(), property.getKey());
-            Text newTextNode = ownerDocument.createTextNode(property.getValue());
-            newElement.appendChild(newTextNode);
-            domNode.appendChild(newElement);
+    private void appendSimpleProperties(Map<String, List<String>> properties, Node domNode, Document ownerDocument) {
+        for (Entry<String, List<String>> property : properties.entrySet()) {
+            for (String p : property.getValue()) {    
+                Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(), property.getKey());
+                Text newTextNode = ownerDocument.createTextNode(p);
+                newElement.appendChild(newTextNode);
+                domNode.appendChild(newElement);
+            }
         }
     }
 

@@ -177,6 +177,7 @@
         </choice>
     </complexType>
 
+
     <complexType name="SecurityType">
         <sequence>
             <element maxOccurs="1" minOccurs="0" name="keystore"
@@ -332,6 +333,7 @@
                      type="gateway:LoginModuleType"/>
         </sequence>
     </complexType>
+
 
     <group name="CustomAuthenticationTokenGroup">
         <sequence>
@@ -1106,6 +1108,67 @@
         </complexContent>
     </complexType>
 
+    <complexType name="turn.restServiceType">
+        <annotation>
+            <documentation>This service provides REST authentication to a TURN server.</documentation>
+        </annotation>
+
+        <complexContent>
+            <restriction base="gateway:ServiceType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1"
+                             name="name"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="description"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="unbounded" minOccurs="1"
+                             name="accept"
+                             type="anyURI"/>
+
+                    <!-- connect is not supported for echo -->
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="balance"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="notify"
+                             type="anyURI"/>
+
+                    <element fixed="turn.rest" maxOccurs="1" minOccurs="1"
+                             name="type"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="properties"
+                             type="gateway:turn.restServicePropertiesType"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="accept-options"
+                             type="gateway:ServiceAcceptOptionsType" />
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="realm-name"
+                             type="gateway:CollapsedString" />
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="authorization-constraint"
+                             type="gateway:AuthorizationConstraintType"/>
+
+                    <!-- mime-mapping is not supported for balancer -->
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="cross-site-constraint"
+                             type="gateway:CrossSiteConstraintType"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+
     <complexType name="turn.proxyServiceType">
         <annotation>
             <documentation>This service implements a proxy for STUN/TURN protcols.</documentation>
@@ -1552,6 +1615,51 @@
                         <annotation/>
                     </element>
                 </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="turn.restServicePropertiesType">
+        <complexContent>
+            <restriction base="gateway:ServicePropertiesType">
+                <all>
+                    <element maxOccurs="1" minOccurs="0" name="key.alias"
+                        type="gateway:CollapsedString">
+                        <annotation />
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="key.algorithm"
+                        type="gateway:CollapsedString">
+                        <annotation />
+                    </element>
+                    <element maxOccurs="1" minOccurs="1" name="options">
+                        <complexType>
+                            <all>
+                                <element maxOccurs="1" minOccurs="0" name="credentials.ttl"
+                                    type="gateway:CollapsedString">
+                                    <annotation />
+                                </element>
+                                <element maxOccurs="1" minOccurs="0" name="username.separator"
+                                    type="gateway:CollapsedString">
+                                    <annotation />
+                                </element>
+                            </all>
+                        </complexType>
+                    </element>
+                    <element maxOccurs="1" minOccurs="1" name="uris">
+                        <complexType>
+                            <sequence>
+                                <element maxOccurs="unbounded" minOccurs="1" name="uri"
+                                    type="gateway:CollapsedString">
+                                    <annotation />
+                                </element>
+                            </sequence>
+                        </complexType>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="generate.credentials"
+                        type="gateway:CollapsedString">
+                        <annotation />
+                    </element>
+                </all>
             </restriction>
         </complexContent>
     </complexType>

@@ -142,7 +142,7 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
     }
 
     private Attribute overrideMessageIntegrity(String username, ByteBuffer buf) throws NoSuchAlgorithmException, InvalidKeyException {
-        char[] password = TurnUtils.getPassword(username, sharedSecret, keyAlgorithm);
+        char[] password = TurnUtils.generatePassword(username, sharedSecret, keyAlgorithm);
         Mac hMac = Mac.getInstance(HMAC_SHA_1);
         SecretKey signingKey = new SecretKeySpec(new String(password).getBytes(), HMAC_SHA_1);
         hMac.init(signingKey);

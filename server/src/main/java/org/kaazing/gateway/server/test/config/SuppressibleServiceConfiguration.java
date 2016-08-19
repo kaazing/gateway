@@ -15,6 +15,7 @@
  */
 package org.kaazing.gateway.server.test.config;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -72,7 +73,7 @@ public abstract class SuppressibleServiceConfiguration implements SuppressibleCo
 
 
     // properties
-    public abstract Map<String, Suppressible<String>> getProperties();
+    public abstract Map<String, Suppressible<List<String>>> getProperties();
 
     public abstract void addProperty(String key, Suppressible<String> value);
 
