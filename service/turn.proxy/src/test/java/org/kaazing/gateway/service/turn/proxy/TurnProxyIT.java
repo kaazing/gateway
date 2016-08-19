@@ -41,7 +41,6 @@ public class TurnProxyIT {
     private final K3poRule k3po = new K3poRule()
             .setScriptRoot("org/kaazing/gateway/service/turn/proxy")
             .scriptProperty("acceptURI 'tcp://localhost:3479'");
-    ;
 
     private final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
 
