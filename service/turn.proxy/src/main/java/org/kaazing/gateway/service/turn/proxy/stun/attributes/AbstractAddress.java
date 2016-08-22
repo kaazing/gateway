@@ -46,7 +46,7 @@ public abstract class AbstractAddress extends Attribute {
     private Family family;
     private byte[] transactionId;
 
-    enum Family {
+    public enum Family {
         IPV4((byte) 0x01, 4), IPV6((byte) 0x02, 16);
 
         private final byte encoding;

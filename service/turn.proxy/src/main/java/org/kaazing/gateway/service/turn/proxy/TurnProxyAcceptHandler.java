@@ -15,8 +15,8 @@
  */
 package org.kaazing.gateway.service.turn.proxy;
 
+import java.net.InetSocketAddress;
 import java.security.Key;
-import java.security.KeyStoreException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,12 +52,19 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
     private String connectURI;
     private Key sharedSecret;
     private String keyAlgorithm;
+    private InetSocketAddress mask;
 
     public TurnProxyAcceptHandler() {
         super();
     }
 
-    public void init(ServiceContext serviceContext, SecurityContext securityContext) throws KeyStoreException {
+    /**
+     * Applies the configuration settings to the handler and the composed objects.
+     *
+     * @param serviceContext Configuration holder
+     * @param securityContext Security configuration holder
+     */
+    public void init(ServiceContext serviceContext, SecurityContext securityContext) {
         ServiceProperties properties = serviceContext.getProperties();
         String fixedMappedAddress = properties.get(PROPERTY_MAPPED_ADDRESS);
         if (fixedMappedAddress != null) {
@@ -66,16 +73,20 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
         if (properties.get(PROPERTY_KEY_ALIAS) == null) {
             throw new TurnProxyException("Missing mandatory configuration property: key.alias");
         }
-        initSharedSecret(securityContext, properties);
+        sharedSecret = TurnUtils.getSharedSecret(securityContext.getKeyStore(), properties.get(PROPERTY_KEY_ALIAS),
+                securityContext.getKeyStorePassword());
         if ((keyAlgorithm = properties.get(PROPERTY_KEY_ALGORITHM)) == null) {
             keyAlgorithm = TurnUtils.HMAC_SHA_1;
         }
         connectURI = serviceContext.getConnects().iterator().next();
-    }
-
-    private void initSharedSecret(SecurityContext securityContext, ServiceProperties properties) {
-        sharedSecret = TurnUtils.getSharedSecret(securityContext.getKeyStore(), properties.get(PROPERTY_KEY_ALIAS),
-                securityContext.getKeyStorePassword());
+        String maskProperty;
+        if ((maskProperty = properties.get(PROPERTY_MASK_ADDRESS)) != null) {
+            int i = maskProperty.lastIndexOf(':');
+            mask = new InetSocketAddress(
+                maskProperty.substring(0, i),
+                Integer.parseInt(maskProperty.substring(i + 1, maskProperty.length()))
+            );
+        }
     }
 
     @Override
@@ -87,7 +98,9 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
     public void sessionCreated(IoSession acceptSession) {
         acceptSession.setAttribute(TURN_SESSION_TRANSACTION_MAP, new HashMap<>());
         acceptSession.getFilterChain().addLast("STUN_CODEC", new StunCodecFilter(sharedSecret, keyAlgorithm));
-        acceptSession.getFilterChain().addLast("STUN_MASK", new StunMaskAddressFilter());
+        if (mask != null) {
+            acceptSession.getFilterChain().addLast("STUN_MASK", new StunMaskAddressFilter(mask, StunMaskAddressFilter.Orientation.INCOMING));
+        }
         super.sessionCreated(acceptSession);
     }
 
@@ -136,6 +149,9 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
         public void initializeSession(IoSession session, ConnectFuture future) {
             session.setAttribute(TURN_SESSION_TRANSACTION_MAP, acceptSession.getAttribute(TURN_SESSION_TRANSACTION_MAP));
             session.getFilterChain().addLast("STUN_CODEC", new StunCodecFilter(sharedSecret, keyAlgorithm));
+            if (mask != null) {
+                session.getFilterChain().addLast("STUN_MASK", new StunMaskAddressFilter(mask, StunMaskAddressFilter.Orientation.OUTGOING));
+            }
         }
     }
 

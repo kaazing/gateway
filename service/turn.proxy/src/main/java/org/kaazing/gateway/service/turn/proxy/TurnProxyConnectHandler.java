@@ -44,8 +44,6 @@ class TurnProxyConnectHandler extends AbstractProxyHandler {
             StunProxyMessage stunMessage = (StunProxyMessage) message;
             if (stunMessage.getMethod() == StunMessageMethod.ALLOCATE &&
                 stunMessage.getMessageClass() == StunMessageClass.RESPONSE) {
-                // TODO here we should override the relay address
-                // relay address -> the proxy's address and port ?
                 InetSocketAddress acceptAddress = getMappedAddress(session);
                 if (acceptAddress != null) {
                     LOGGER.debug(String.format("Will override mapped-address or xor-mapped-address with %s: ", acceptAddress.toString()));

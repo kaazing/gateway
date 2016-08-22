@@ -15,25 +15,98 @@
  */
 package org.kaazing.gateway.service.turn.proxy.stun;
 
+import java.net.InetSocketAddress;
 
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.session.IoSession;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.AbstractAddress;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorPeerAddress;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorRelayAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
-
 public class StunMaskAddressFilter extends IoFilterAdapter {
 
-    private InetSocketAddress mask;
 
     static final Logger LOGGER = LoggerFactory.getLogger(StunMaskAddressFilter.class);
+
+    private final byte[] ipv4Mask;
+    private final byte[] ipv6Mask;
+    private final int portMask;
+    private final Orientation orientation;
+    private final Orientation.AddressVisitor maskVisitor = new MaskVisitor();
+
+    public enum Orientation {
+        INCOMING {
+            @Override
+            public void visitAddress(StunProxyMessage stunProxyMessage, AddressVisitor visitor) {
+                LOGGER.debug("INCOMING stun proxy message, unmasking XOR-PEER-ADDRESS");
+                stunProxyMessage.getAttributes()
+                    .stream()
+                    .filter(attribute -> attribute instanceof XorPeerAddress)
+                    .forEach(attribute -> {
+                        visitor.visit((AbstractAddress) attribute);
+                        stunProxyMessage.setModified(true);
+                    });
+            }
+        },
+        OUTGOING {
+            @Override
+            public void visitAddress(StunProxyMessage stunProxyMessage, AddressVisitor visitor) {
+                LOGGER.debug("OUTGOING stun proxy message, masking XOR-RELAY-ADDRESS");
+                stunProxyMessage.getAttributes()
+                    .stream()
+                    .filter(attribute -> attribute instanceof XorRelayAddress)
+                    .forEach(attribute -> {
+                        visitor.visit((AbstractAddress) attribute);
+                        stunProxyMessage.setModified(true);
+                    });
+            }
+        };
+
+        public abstract void visitAddress(StunProxyMessage stunProxyMessage, AddressVisitor visitor);
+
+        @FunctionalInterface
+        public interface AddressVisitor {
+            void visit(AbstractAddress address);
+        }
+    }
+
+    public StunMaskAddressFilter(InetSocketAddress mask, Orientation orientation) {
+        ipv4Mask = mask.getAddress().getAddress();
+        ipv6Mask = new byte[16];
+        for (byte i = 0; i < 4; i++) {
+            System.arraycopy(ipv4Mask, 0, ipv6Mask, i * ipv4Mask.length, ipv4Mask.length);
+        }
+        portMask = mask.getPort();
+        this.orientation = orientation;
+    }
 
     @Override
     public void messageReceived(NextFilter nextFilter, IoSession session, Object message) throws Exception {
         if (message instanceof StunProxyMessage) {
-            LOGGER.debug("Got stun proxy message: " + message.toString());
+            orientation.visitAddress((StunProxyMessage) message, maskVisitor);
         }
         super.messageReceived(nextFilter, session, message);
+    }
+
+    private class MaskVisitor implements Orientation.AddressVisitor {
+
+        @Override
+        public void visit(AbstractAddress address) {
+            LOGGER.debug("Address before masking is: " + address);
+            address.setPort((short) (address.getPort() ^ portMask));
+            byte[] mask = ipv4Mask;
+            if (address.getFamily().equals(AbstractAddress.Family.IPV6)) {
+                mask = ipv6Mask;
+            }
+            byte[] tmp = new byte[mask.length];
+            byte[] add = address.getAddress();
+            for (int i = 0; i < mask.length; i++) {
+                tmp[i] = (byte) (add[i] ^ mask[i]);
+            }
+            address.setAddress(tmp);
+            LOGGER.debug("Address after masking is: " + address);
+        }
     }
 }
