@@ -15,8 +15,6 @@
  */
 package org.kaazing.gateway.service.turn.proxy.stun;
 
-import java.net.InetSocketAddress;
-
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.AbstractAddress;
@@ -26,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class StunMaskAddressFilter extends IoFilterAdapter {
-
 
     static final Logger LOGGER = LoggerFactory.getLogger(StunMaskAddressFilter.class);
 
@@ -72,14 +69,43 @@ public class StunMaskAddressFilter extends IoFilterAdapter {
         }
     }
 
-    public StunMaskAddressFilter(InetSocketAddress mask, Orientation orientation) {
-        ipv4Mask = mask.getAddress().getAddress();
+    public StunMaskAddressFilter(Long mask, Orientation orientation) {
+        ipv4Mask = new byte[4];
+        long maskKey = mask;
+        for (int i = 3; i >= 0; i--) {
+            ipv4Mask[i] = (byte)(maskKey & 0xFF);
+            maskKey >>= 8;
+        }
         ipv6Mask = new byte[16];
         for (byte i = 0; i < 4; i++) {
             System.arraycopy(ipv4Mask, 0, ipv6Mask, i * ipv4Mask.length, ipv4Mask.length);
         }
-        portMask = mask.getPort();
+        portMask = (int) (mask & 0xFFFF);
         this.orientation = orientation;
+        if (LOGGER.isDebugEnabled()) {
+            logMasks();
+        }
+    }
+
+    private void logMasks() {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : ipv4Mask) {
+            sb.append(String.format("%02X ", b));
+        }
+        String ipv4MaskStr = sb.toString();
+        sb = new StringBuilder();
+        for (byte b : ipv6Mask) {
+            sb.append(String.format("%02X ", b));
+        }
+        String ipv6MaskStr = sb.toString();
+        LOGGER.debug(
+            String.format("Initialized filter with ipv4Mask: %s, ipv6Mask: %s, portMask: %02X %02X",
+                ipv4MaskStr,
+                ipv6MaskStr,
+                portMask & 0xFF,
+                (portMask >> 8 ) & 0xFF
+            )
+        );
     }
 
     @Override

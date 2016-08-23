@@ -28,13 +28,23 @@ import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorMappedAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.kaazing.gateway.service.turn.proxy.TurnProxyAcceptHandler.PROPERTY_AUTO_MAPPED_ADDRESS;
+
 class TurnProxyConnectHandler extends AbstractProxyHandler {
 
     static final Logger LOGGER = LoggerFactory.getLogger(TurnProxyConnectHandler.class);
     private String fixedMappedAddress;
+    private InetSocketAddress fixAddr;
 
     public void setFixedMappedAddress(String fixedMappedAddress) {
         this.fixedMappedAddress = fixedMappedAddress;
+        if (!PROPERTY_AUTO_MAPPED_ADDRESS.equals(fixedMappedAddress) && fixedMappedAddress != null) {
+            int i = fixedMappedAddress.lastIndexOf(':');
+            fixAddr = new InetSocketAddress(
+                    fixedMappedAddress.substring(0, i),
+                    Integer.parseInt(fixedMappedAddress.substring(i + 1, fixedMappedAddress.length()))
+            );
+        }
     }
 
     @Override
@@ -46,8 +56,10 @@ class TurnProxyConnectHandler extends AbstractProxyHandler {
                 stunMessage.getMessageClass() == StunMessageClass.RESPONSE) {
                 InetSocketAddress acceptAddress = getMappedAddress(session);
                 if (acceptAddress != null) {
-                    LOGGER.debug(String.format("Will override mapped-address or xor-mapped-address with %s: ", acceptAddress.toString()));
+                    LOGGER.debug(String.format("Will override mapped-address or xor-mapped-address with: %s", acceptAddress.toString()));
                     overrideMappedAddress(stunMessage, acceptAddress);
+                } else {
+                    LOGGER.debug("Will not override mapped-address or xor-mapped-address");
                 }
             }
         }
@@ -70,25 +82,19 @@ class TurnProxyConnectHandler extends AbstractProxyHandler {
 
 
     private InetSocketAddress getMappedAddress(IoSession session) {
-        InetSocketAddress acceptAddress = null;
-
-        if (fixedMappedAddress != null) {
-            int i = fixedMappedAddress.lastIndexOf(':');
-            acceptAddress = new InetSocketAddress(
-                fixedMappedAddress.substring(0, i),
-                Integer.parseInt(fixedMappedAddress.substring(i + 1, fixedMappedAddress.length()))
-            );
-        } else {
+        if (PROPERTY_AUTO_MAPPED_ADDRESS.equals(fixedMappedAddress)) {
             AttachedSessionManager attachedSessionManager = getAttachedSessionManager(session);
             IoSession acceptSession = attachedSessionManager.getAttachedSession();
             LOGGER.debug(
                 String.format("Extracting remote address and port from accept session: %s",
-                acceptSession.getRemoteAddress().toString())
+                    acceptSession.getRemoteAddress().toString())
             );
             if (acceptSession.getRemoteAddress() instanceof InetSocketAddress) {
-                acceptAddress = (InetSocketAddress) acceptSession.getRemoteAddress();
+                return (InetSocketAddress) acceptSession.getRemoteAddress();
+            } else {
+                LOGGER.debug("Remote address is not of type InetSocketAddress.");
             }
         }
-        return acceptAddress;
+        return fixAddr;
     }
 }

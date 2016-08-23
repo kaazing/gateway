@@ -71,11 +71,9 @@ public class TurnProxyIT {
                         .accept("tcp://localhost:3478")
                         .connect("tcp://localhost:3479")
                         .type("turn.proxy")
-                            .property("mapped.address", "192.0.2.15:8080")
+                        .property("mapped.address", "192.0.2.15:8080")
                         .property("key.alias", "turn.shared.secret")
                         .property("key.algorithm", "HmacMD5")
-                            // TODO relay adress override
-                            //.property("relay.address.mask", propertyValue)
                     .done()
                     .security()
                         .keyStore(keyStore)
@@ -100,5 +98,6 @@ public class TurnProxyIT {
     }
 
     // TODO create also a test for IPv6
+    // TODO create test for AUTO mask
 
 }

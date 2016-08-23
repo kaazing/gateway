@@ -15,12 +15,21 @@
  */
 package org.kaazing.gateway.service.turn.proxy.stun;
 
-import org.kaazing.gateway.service.turn.proxy.stun.attributes.*;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.Fingerprint;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.MappedAddress;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.MessageIntegrity;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.ProxyNoopAttribute;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.Username;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorMappedAddress;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorPeerAddress;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorRelayAddress;
 
 public class StunAttributeFactory {
 
     public enum CredentialType {
-        SHORT_TERM, LONG_TERM;
+        SHORT_TERM, LONG_TERM
     }
 
     private final CredentialType credentialType;
@@ -47,8 +56,7 @@ public class StunAttributeFactory {
                 return new Fingerprint(value);
             default:
                 // TODO: consider hard failing if white list of attributes is not allowed
-                return new ProxyNoopAttribute((short) type, (short) length, value);
+                return new ProxyNoopAttribute((short) type, length, value);
         }
     }
 }
-

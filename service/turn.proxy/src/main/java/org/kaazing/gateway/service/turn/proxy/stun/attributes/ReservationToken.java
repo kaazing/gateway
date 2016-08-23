@@ -19,7 +19,7 @@ import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeTy
 
 public class ReservationToken extends Attribute {
 
-    byte[] token;
+    final byte[] token;
 
     public ReservationToken(byte[] value) {
         this.token = value;

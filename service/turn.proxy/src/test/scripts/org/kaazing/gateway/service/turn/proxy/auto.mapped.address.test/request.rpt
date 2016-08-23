@@ -15,8 +15,42 @@
 #
 
 property connectURI "tcp://localhost:3478"
+property peerAddressClient "192.0.2.1"
+property messageIntegrityClient "joe:example.com:welcome"
+
 connect ${connectURI}
 connected
+
+##Allocation request
+#STUN Message type | Message Length (***CONFIRM***)
+write [0x00] [0x03] [0x00] [0x14]
+#Magic Cookie (fixed required value 0x2112A442)
+write [0x21] [0x12] [0xa4] [0x42]
+#Transaction ID
+write ${turn:generateTransactionId()}
+#Attribute Lifetime
+write [0x00] [0x0d] [0x00] [0x04]
+write [0x00] [0x00] [0x0e] [0x10] #3600 seconds
+#Attribute Requested Transport (Type|Length|Value)
+write [0x00] [0x19] [0x00] [0x01]
+write [0x11] [0x00] [0x00] [0x00] #UDP is 17
+#Attribute Don't Fragment (Type|Length|Value)
+write [0x00] [0x1a] [0x00] [0x00]
+
+#401 Allocation error response
+read [0x01] [0x13] [0x00] [0x48]
+read [0x21] [0x12] [0xa4] [0x42]
+read ([0..12]:transactionID)
+#Attributes
+read [0x00] [0x09] [0x00] [0x10]
+read [0x00] [0x00] [0x04] [0x01]
+read "Unauthorized"
+#Attributes
+read [0x00] [0x14] [0x00] [0x0b]
+read ([0..11]:realm) [0x00]
+#Attributes
+read [0x00] [0x15] [0x00] [0x20]
+read ([0..32]:nonce)
 
 ##Allocation request (w/ cred)
 #STUN Message type | Message Length (***CONFIRM***)
@@ -56,12 +90,14 @@ read [0x00] [0x0d] [0x00] [0x04]
 read [0x00] [0x00] [0x0c] [0x08]
 #Attribute XOR-Relayed-Address
 read [0x00] [0x16] [0x00] [0x08]
-read [0x00] [0x01] [0x3F] [0x83]
-read [0x5F] [0x13] [0xA5] [0x42]
+read [0x00] [0x01]
+read [0..2]
+read ([0..4]:relay_address)
 #Attribute XOR-Mapped-Address
 read [0x00] [0x20] [0x00] [0x08]
-read [0x00] [0x01] ${turn:portXOR(8080)} #port 8080
-read [0xE1] [0x12] [0xA6] [0x4D]
+read [0x00] [0x01]
+read [0..2]
+read [0..4]
 #Attribute Message-Integrity
 read [0x00] [0x08] [0x00] (byte:length)
 read ([0..${length}]:messageDigest)
@@ -76,9 +112,11 @@ write [0x21] [0x12] [0xa4] [0x42] #Magic Cookie
 write ${transactionID}
 #Attribute XOR-Peer-Address
 write [0x00] [0x12] [0x00] [0x08]
-# Modified peer address
-write [0x00] [0x01] ${turn:portXOR(7744)} # Masked port 8001
-write ${turn:ipXOR("127.0.0.1")}
+
+# unmodified peer address
+write [0x00] [0x01] ${turn:portXOR(8001)} #port 8001
+write ${turn:ipXOR("192.0.2.16")}
+
 #Attribute Username
 write [0x00] [0x06] [0x00] [0x03]
 write "joe" [0x00]
@@ -98,7 +136,7 @@ read [0x21] [0x12] [0xa4] [0x42]
 read ${transactionID}
 #attribute Message-Integrity
 read [0x00] [0x08] [0x00] ${length}
-read ([0..${length}]:messageDigest)
+read ${messageDigest}
 
 #binds to peer
 #STUN Header
@@ -110,9 +148,8 @@ write [0x00] [0x0c] [0x00] [0x02]
 write [0x40] [0x00] [0x00] [0x00]
 #Attribute XOR-Peer-Address
 write [0x00] [0x12] [0x00] [0x08]
-# Modified peer address
-write [0x00] [0x01] ${turn:portXOR(7744)} # Masked port 8001
-write ${turn:ipXOR("127.0.0.1")}
+write [0xff] [0x01] ${turn:portXOR(8001)} #port 8001
+write ${turn:ipXOR("192.0.2.1")}
 #Attribute Username
 write [0x00] [0x06] [0x00] [0x03]
 write "joe" [0x00]

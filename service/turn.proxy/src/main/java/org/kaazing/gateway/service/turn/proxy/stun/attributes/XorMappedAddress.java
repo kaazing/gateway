@@ -43,15 +43,7 @@ public class XorMappedAddress extends AbstractAddress {
         byteBuffer.put((byte) 0x00);
         byteBuffer.put(getFamily().getEncoding());
         byteBuffer.putShort(xorWithMagicCookie((short) getPort()));
-
         byteBuffer.put(xorWithMagicCookie(getAddress()));
-        
         return byteBuffer.array();
-    }
-
-    @Override
-    protected byte[] xorWithMagicCookie(byte[] bytes) {
-
-        return super.xorWithMagicCookie(bytes);
     }
 }

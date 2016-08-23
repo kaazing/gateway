@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.service.turn.proxy;
 
-import java.net.InetSocketAddress;
 import java.security.Key;
 import java.util.Base64;
 import java.util.HashMap;
@@ -45,14 +44,15 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
 
     // Configuration properties
     public static final String PROPERTY_MAPPED_ADDRESS = "mapped.address";
-    public static final String PROPERTY_MASK_ADDRESS = "mask.address";
+    public static final String PROPERTY_AUTO_MAPPED_ADDRESS = "AUTO";
+    public static final String PROPERTY_MASK_ADDRESS = "masking.key";
     public static final String PROPERTY_KEY_ALIAS = "key.alias";
     public static final String PROPERTY_KEY_ALGORITHM = "key.algorithm";
 
     private String connectURI;
     private Key sharedSecret;
     private String keyAlgorithm;
-    private InetSocketAddress mask;
+    private Long mask;
 
     public TurnProxyAcceptHandler() {
         super();
@@ -65,27 +65,30 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
      * @param securityContext Security configuration holder
      */
     public void init(ServiceContext serviceContext, SecurityContext securityContext) {
-        ServiceProperties properties = serviceContext.getProperties();
-        String fixedMappedAddress = properties.get(PROPERTY_MAPPED_ADDRESS);
-        if (fixedMappedAddress != null) {
-            ((TurnProxyConnectHandler)getConnectHandler()).setFixedMappedAddress(fixedMappedAddress);
-        }
-        if (properties.get(PROPERTY_KEY_ALIAS) == null) {
-            throw new TurnProxyException("Missing mandatory configuration property: key.alias");
-        }
-        sharedSecret = TurnUtils.getSharedSecret(securityContext.getKeyStore(), properties.get(PROPERTY_KEY_ALIAS),
-                securityContext.getKeyStorePassword());
-        if ((keyAlgorithm = properties.get(PROPERTY_KEY_ALGORITHM)) == null) {
-            keyAlgorithm = TurnUtils.HMAC_SHA_1;
-        }
         connectURI = serviceContext.getConnects().iterator().next();
+
+        boolean keyAliasRequired = false;
+        ServiceProperties properties = serviceContext.getProperties();
+        String mappedAddress = properties.get(PROPERTY_MAPPED_ADDRESS);
+        if (mappedAddress != null) {
+            ((TurnProxyConnectHandler)getConnectHandler()).setFixedMappedAddress(mappedAddress);
+            keyAliasRequired = true;
+        }
+
         String maskProperty;
         if ((maskProperty = properties.get(PROPERTY_MASK_ADDRESS)) != null) {
-            int i = maskProperty.lastIndexOf(':');
-            mask = new InetSocketAddress(
-                maskProperty.substring(0, i),
-                Integer.parseInt(maskProperty.substring(i + 1, maskProperty.length()))
-            );
+            mask =  Long.decode(maskProperty);
+            keyAliasRequired = true;
+        }
+
+        if (properties.get(PROPERTY_KEY_ALIAS) != null) {
+            sharedSecret = TurnUtils.getSharedSecret(securityContext.getKeyStore(), properties.get(PROPERTY_KEY_ALIAS),
+                    securityContext.getKeyStorePassword());
+            if ((keyAlgorithm = properties.get(PROPERTY_KEY_ALGORITHM)) == null) {
+                keyAlgorithm = TurnUtils.HMAC_SHA_1;
+            }
+        } else if (keyAliasRequired) {
+            throw new TurnProxyException("Missing configuration property 'key.alias' required by 'mapped.address' or 'masking.key'.");
         }
     }
 
@@ -139,7 +142,7 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
      */
     class ConnectSessionInitializer implements IoSessionInitializer<ConnectFuture> {
 
-        private IoSession acceptSession;
+        private final IoSession acceptSession;
 
         public ConnectSessionInitializer(IoSession acceptSession) {
             this.acceptSession = acceptSession;

@@ -15,6 +15,15 @@
  */
 package org.kaazing.gateway.service.turn.proxy;
 
+import static java.nio.charset.Charset.forName;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.rules.RuleChain.outerRule;
+
+import java.io.FileInputStream;
+import java.security.KeyStore;
+
+import javax.crypto.spec.SecretKeySpec;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -27,15 +36,7 @@ import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-import javax.crypto.spec.SecretKeySpec;
-import java.io.FileInputStream;
-import java.security.KeyStore;
-
-import static java.nio.charset.Charset.forName;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.rules.RuleChain.outerRule;
-
-public class MaskingIT {
+public class MappedAutoIT {
 
     private final K3poRule k3po = new K3poRule()
             .setScriptRoot("org/kaazing/gateway/service/turn/proxy")
@@ -49,14 +50,14 @@ public class MaskingIT {
             char[] password = "ab987c".toCharArray();
             try {
                 FileInputStream fileInStr = new FileInputStream(System.getProperty("user.dir")
-                        + "/target/truststore/keystore.db");
+                    + "/target/truststore/keystore.db");
                 keyStore = KeyStore.getInstance("JCEKS");
                 keyStore.load(fileInStr, "ab987c".toCharArray());
                 keyStore.setKeyEntry(
-                        "turn.shared.secret",
-                        new SecretKeySpec("turnAuthenticationSharedSecret".getBytes(forName("UTF-8")), "PBEWithMD5AndDES"),
-                        password,
-                        null
+                    "turn.shared.secret",
+                    new SecretKeySpec("turnAuthenticationSharedSecret".getBytes(forName("UTF-8")), "PBEWithMD5AndDES"),
+                    password,
+                    null
                 );
             }
             catch (Exception e) {
@@ -70,10 +71,8 @@ public class MaskingIT {
                         .accept("tcp://localhost:3478")
                         .connect("tcp://localhost:3479")
                         .type("turn.proxy")
-                        .property("mapped.address", "192.0.2.15:8080")
-                        .property("masking.key", "0x1010101")
+                        .property("mapped.address", "AUTO")
                         .property("key.alias", "turn.shared.secret")
-                        .property("key.algorithm", "HmacMD5")
                     .done()
                     .security()
                         .keyStore(keyStore)
@@ -90,13 +89,14 @@ public class MaskingIT {
 
     @Test
     @Specification({
-            "mask.relay.peer.address/request",
-            "mask.relay.peer.address/response"
+            "auto.mapped.address.test/request",
+            "auto.mapped.address.test/response"
     })
     public void shouldPassWithDefaultTurnProtocolTest() throws Exception {
         k3po.finish();
     }
 
     // TODO create also a test for IPv6
+    // TODO create test for AUTO mask
 
 }
