@@ -71,6 +71,8 @@
         <include>org.kaazing:gateway.service.http.proxy</include>
         <include>org.kaazing:gateway.service.amqp</include>
         <include>org.kaazing:gateway.service.update.check</include>
+        <include>org.kaazing:gateway.service.turn.rest</include>
+        <include>org.kaazing:gateway.service.turn.proxy</include>
 
         <!-- auth jars  -->
         <include>org.kaazing:gateway.security</include>
@@ -103,6 +105,7 @@
         <include>commons-cli:commons-cli</include>
         <include>org.json:json</include>
         <include>org.apache.maven.shared:maven-shared-utils</include>
+        <include>net.sf.opencsv:opencsv</include>
       </includes>
     </dependencySet>
 

@@ -20,7 +20,8 @@ import org.kaazing.gateway.util.Utils;
 
 public class ServiceUtils {
 
-
+    public static final String LIST_SEPARATOR = ",";
+    
     public static String getRequiredProperty(ServiceProperties properties, String propertyName) {
         String propertyValue = properties.get(propertyName);
         if (propertyValue == null) {
