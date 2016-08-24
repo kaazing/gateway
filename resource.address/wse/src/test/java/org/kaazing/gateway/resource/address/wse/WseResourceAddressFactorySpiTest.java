@@ -61,7 +61,7 @@ public class WseResourceAddressFactorySpiTest {
         options.put("ws.qualifier", "random");
         options.put("ws.codecRequired", FALSE);
         options.put("ws.lightweight", TRUE);
-        options.put("ws.extensions", asList("x-kaazing-alpha", "x-kaazing-beta"));
+        options.put("ws.extensions", asList("x-kaazing-alpha", "x-kaazing-beta", "x-kaazing-ping-pong"));
         options.put("ws.maxMessageSize", 1024);
         options.put("ws.inactivityTimeout", SECONDS.toMillis(5));
         options.put("ws.supportedProtocols", new String[] { "amqp/0.91", "amqp/1.0" });
@@ -114,6 +114,7 @@ public class WseResourceAddressFactorySpiTest {
         assertNull(address.getOption(TRANSPORT));
         assertFalse(address.getOption(CODEC_REQUIRED));
         assertTrue(address.getOption(LIGHTWEIGHT));
+        // should remove x-kaazing-ping-pong
         assertEquals(asList("x-kaazing-alpha", "x-kaazing-beta"), address.getOption(EXTENSIONS));
         assertEquals(1024, address.getOption(MAX_MESSAGE_SIZE).intValue());
         assertEquals(SECONDS.toMillis(5), address.getOption(INACTIVITY_TIMEOUT).longValue());

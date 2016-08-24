@@ -15,9 +15,13 @@
  */
 package org.kaazing.gateway.resource.address.wse;
 
-
 import static org.kaazing.gateway.resource.address.ResourceFactories.changeSchemeOnly;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.SUPPORTED_PROTOCOLS;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS;
 
 import org.kaazing.gateway.resource.address.ResourceFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
@@ -29,7 +33,7 @@ public class WseResourceAddressFactorySpi extends WsResourceAddressFactorySpi {
     public static final String SCHEME_NAME = "wse";
 
     static final String PROTOCOL_NAME = "wse/1.0";
-    
+
     private static final ResourceFactory TRANSPORT_FACTORY = changeSchemeOnly("http");
 
     @Override
@@ -51,7 +55,9 @@ public class WseResourceAddressFactorySpi extends WsResourceAddressFactorySpi {
     protected void setOptions(WsResourceAddress address, ResourceOptions options, Object qualifier) {
 
         // WSE never should negotiate or support x-kaazing-handshake protocol
-        options.setOption(SUPPORTED_PROTOCOLS, removeStringArrayElement(options.getOption(SUPPORTED_PROTOCOLS), "x-kaazing-handshake"));
+        options.setOption(SUPPORTED_PROTOCOLS,
+                removeStringArrayElement(options.getOption(SUPPORTED_PROTOCOLS), "x-kaazing-handshake"));
+        options.setOption(EXTENSIONS, removeStringListElement(options.getOption(EXTENSIONS), "x-kaazing-ping-pong"));
         super.setOptions(address, options, qualifier);
     }
 
@@ -73,11 +79,21 @@ public class WseResourceAddressFactorySpi extends WsResourceAddressFactorySpi {
         }
 
         if (index != -1) {
-            String[] result = new String[option.length-1];
+            String[] result = new String[option.length - 1];
             System.arraycopy(option, 0, result, 0, index);
             System.arraycopy(option, index + 1, result, index, option.length - (index + 1));
             return result;
         }
         return option;
+    }
+
+    static List<String> removeStringListElement(List<String> option, String remove) {
+        List<String> result = option;
+        if (option.contains(remove)) {
+            result = new ArrayList<>(result);
+            result.remove(remove);
+        }
+
+        return result;
     }
 }
