@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.service.turn.rest.internal;
 
-
 import static org.kaazing.gateway.service.util.ServiceUtils.LIST_SEPARATOR;
 
 import java.security.Key;
@@ -40,6 +39,9 @@ import org.kaazing.gateway.util.turn.TurnUtils;
 public class TurnRestService implements Service {
 
     private static final String CLASS_PREFIX = "class:";
+    private static final char DEFAULT_USER_SEPARATOR = ':';
+    private static final String DEFAULT_CREDENTIALS_TTL = "86400";
+    private static final String DEFAULT_KEY_ALGORITHM = "HmacSHA1";
 
     private TurnRestServiceHandler handler;
     private ServiceContext serviceContext;
@@ -67,8 +69,7 @@ public class TurnRestService implements Service {
         String uris = getTurnURIs(properties);
         TurnRestCredentialsGenerator credentialGeneratorInstance = setUpCredentialsGenerator(properties);
 
-        ServiceProperties options = properties.getNested("options").get(0);
-        String ttl = options.get("credentials.ttl");
+        String ttl = properties.get("credentials.ttl") != null ? properties.get("credentials.ttl") : DEFAULT_CREDENTIALS_TTL;
 
         handler = new TurnRestServiceHandler(ttl, credentialGeneratorInstance, uris);
     }
@@ -77,10 +78,10 @@ public class TurnRestService implements Service {
             throws ConfigurationException, InstantiationException, IllegalAccessException {
         TurnRestCredentialsGenerator credentialGeneratorInstance = resolveCredentialsGenerator(properties);
 
-        ServiceProperties options = properties.getNested("options").get(0);
         Key sharedSecret = resolveSharedSecret(properties);
-        String algorithm = properties.get("key.algorithm");
-        char separator = options.get("username.separator").charAt(0);
+        String algorithm = properties.get("key.algorithm") != null ? properties.get("key.algorithm") : DEFAULT_KEY_ALGORITHM;
+        char separator = properties.get("username.separator") != null ? properties.get("username.separator").charAt(0)
+                        : DEFAULT_USER_SEPARATOR;
 
         credentialGeneratorInstance.setAlgorithm(algorithm);
         credentialGeneratorInstance.setSharedSecret(sharedSecret);
@@ -90,7 +91,7 @@ public class TurnRestService implements Service {
 
     private String getTurnURIs(ServiceProperties properties) {
         StringBuilder u = new StringBuilder();
-        for (String uri : properties.getNested("uris").get(0).get("uri").split(LIST_SEPARATOR)) {
+        for (String uri : properties.get("url").split(LIST_SEPARATOR)) {
             u.append("\"").append(uri).append("\",");
         }
         u.setLength(u.length() - 1);
@@ -106,7 +107,7 @@ public class TurnRestService implements Service {
     @SuppressWarnings("unchecked")
     private TurnRestCredentialsGenerator resolveCredentialsGenerator(ServiceProperties properties)
             throws ConfigurationException, InstantiationException, IllegalAccessException {
-        String credentialGeneratorClassName = properties.get("generate.credentials");
+        String credentialGeneratorClassName = properties.get("credentials.generator");
         TurnRestCredentialsGenerator credentialGeneratorInstance;
         if (credentialGeneratorClassName == null) {
             throw new ConfigurationException("No credential generator specified");

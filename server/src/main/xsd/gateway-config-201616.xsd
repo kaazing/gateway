@@ -1622,8 +1622,8 @@
     <complexType name="turn.restServicePropertiesType">
         <complexContent>
             <restriction base="gateway:ServicePropertiesType">
-                <all>
-                    <element maxOccurs="1" minOccurs="0" name="key.alias"
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1" name="key.alias"
                         type="gateway:CollapsedString">
                         <annotation />
                     </element>
@@ -1631,35 +1631,23 @@
                         type="gateway:CollapsedString">
                         <annotation />
                     </element>
-                    <element maxOccurs="1" minOccurs="1" name="options">
-                        <complexType>
-                            <all>
-                                <element maxOccurs="1" minOccurs="0" name="credentials.ttl"
-                                    type="gateway:CollapsedString">
-                                    <annotation />
-                                </element>
-                                <element maxOccurs="1" minOccurs="0" name="username.separator"
-                                    type="gateway:CollapsedString">
-                                    <annotation />
-                                </element>
-                            </all>
-                        </complexType>
+                    <element maxOccurs="1" minOccurs="1" name="credentials.generator"
+                         type="gateway:CollapsedString">
+                        <annotation />
                     </element>
-                    <element maxOccurs="1" minOccurs="1" name="uris">
-                        <complexType>
-                            <sequence>
-                                <element maxOccurs="unbounded" minOccurs="1" name="uri"
-                                    type="gateway:CollapsedString">
-                                    <annotation />
-                                </element>
-                            </sequence>
-                        </complexType>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0" name="generate.credentials"
+                    <element maxOccurs="1" minOccurs="0" name="credentials.ttl"
                         type="gateway:CollapsedString">
                         <annotation />
                     </element>
-                </all>
+                    <element maxOccurs="1" minOccurs="0" name="username.separator"
+                        type="gateway:CollapsedString">
+                        <annotation />
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="1" name="url"
+                        type="gateway:CollapsedString">
+                        <annotation />
+                    </element>
+                </sequence>
             </restriction>
         </complexContent>
     </complexType>

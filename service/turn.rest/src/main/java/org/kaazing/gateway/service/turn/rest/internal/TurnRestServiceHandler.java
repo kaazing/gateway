@@ -15,12 +15,10 @@
  */
 package org.kaazing.gateway.service.turn.rest.internal;
 
-import java.security.Key;
 import java.util.Arrays;
 
 import javax.security.auth.Subject;
 
-import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.service.turn.rest.TurnRestCredentials;
 import org.kaazing.gateway.service.turn.rest.TurnRestCredentialsGenerator;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
@@ -29,6 +27,7 @@ import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpVersion;
+import org.kaazing.gateway.util.turn.TurnException;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 
@@ -77,6 +76,9 @@ class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
         char[] password = null;
         if (credentialGenerator != null) {
             Subject subject = session.getSubject();
+            if (subject == null) {
+                throw new TurnException("Subject is null");
+            }
             credentialGenerator.setCredentialsTTL(ttl);
             TurnRestCredentials credentials = credentialGenerator.generate(subject);
             username = credentials.getUsername();
