@@ -21,7 +21,7 @@ import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeTy
 
 public class MessageIntegrity extends Attribute {
 
-    protected byte[] value;
+    protected final byte[] value;
 
     @SuppressWarnings("For now only supporting short term credentials")
     private final StunAttributeFactory.CredentialType credentialType;

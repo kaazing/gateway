@@ -18,8 +18,16 @@ package org.kaazing.gateway.service.turn.proxy.stun.attributes;
 import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AbstractAddress.Family.IPV4;
 import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AbstractAddress.Family.IPV6;
 
-import java.net.*;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.Arrays;
+
+import org.kaazing.gateway.service.turn.proxy.stun.StunMaskAddressFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract address based attribute class for other Address attributes to extend.
@@ -39,6 +47,8 @@ import java.util.Arrays;
 
 public abstract class AbstractAddress extends Attribute {
 
+    static final Logger LOGGER = LoggerFactory.getLogger(StunMaskAddressFilter.class);
+
     private static final byte[] MAGIC_COOKIE = new byte[]{(byte) 0x21, (byte) 0x12, (byte) 0xA4, (byte) 0x42};
 
     protected byte[] address;
@@ -46,7 +56,7 @@ public abstract class AbstractAddress extends Attribute {
     private Family family;
     private byte[] transactionId;
 
-    enum Family {
+    public enum Family {
         IPV4((byte) 0x01, 4), IPV6((byte) 0x02, 16);
 
         private final byte encoding;
@@ -99,7 +109,7 @@ public abstract class AbstractAddress extends Attribute {
 
     public AbstractAddress(byte[] variable) {
         this.family = Family.fromValue(variable[1]);
-        this.setPort(((variable[2] << 8)) + (variable[3] & 0xff));
+        this.setPort((variable[2] << 8) + (variable[3] & 0xff));
         this.address = Arrays.copyOfRange(variable, 4, 4 + this.family.length);
     }
 
@@ -185,7 +195,7 @@ public abstract class AbstractAddress extends Attribute {
                     super.toString(), InetAddress.getByAddress(getAddress()), getPort(), sb.toString()
             );
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            LOGGER.debug("Unable to transform address to string, using default implementation", e);
         }
         return super.toString();
     }

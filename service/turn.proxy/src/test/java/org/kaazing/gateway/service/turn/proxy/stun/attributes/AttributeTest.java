@@ -31,10 +31,11 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import org.junit.*;
 import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.kaazing.gateway.service.turn.proxy.stun.StunAttributeFactory;
-import org.kaazing.test.util.*;
 
 public class AttributeTest {
 
@@ -76,7 +77,6 @@ public class AttributeTest {
         // Assert Attribute ok
         Assert.assertEquals(mappedAddressAttribute.getLength(), length);
         Assert.assertEquals(mappedAddressAttribute.getAddress(), IPV4_ADDR_2);
-
     }
 
     @Test
@@ -101,7 +101,6 @@ public class AttributeTest {
 
         Assert.assertEquals(mappedAddressAttribute.getLength(), length);
         Assert.assertEquals(mappedAddressAttribute.getAddress(), IPV6_ADDR_2);
-
     }
 
     @Test
@@ -115,7 +114,6 @@ public class AttributeTest {
         Assert.assertEquals(attr.getLength(), length);
         Assert.assertEquals(attr.getType(), type);
         Assert.assertTrue(Arrays.equals(attr.getVariable(), buf.array()));
-
     }
 
     @Test
