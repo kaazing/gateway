@@ -79,7 +79,7 @@ public class StunProxyMessage {
 
     /**
      * Has the proxy modified the message.
-     * @return
+     * @return True if the message has been modified by the proxy service by calling the setter.
      */
     public boolean isModified() {
         return modified;
@@ -87,7 +87,7 @@ public class StunProxyMessage {
 
     /**
      * Set whether the proxy has modified the message;
-     * @param modified
+     * @param modified Can also set value false to unmark the message as modified.
      */
     public void setModified(boolean modified) {
         this.modified = modified;

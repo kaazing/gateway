@@ -61,7 +61,6 @@ public class ErrorCode extends Attribute {
         byteBuffer.putShort((short) (errorCode / 100));
         byteBuffer.put((byte) (errorCode % 100));
         byteBuffer.put(errMsg.getBytes(Charset.forName("UTF-8")));
-        // byteBuffer.put((byte) 0x00);
         return byteBuffer.array();
     }
 }
