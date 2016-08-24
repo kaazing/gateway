@@ -94,7 +94,7 @@ public class TextIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
+        ConnectFuture connectFuture = connector.connect("wse://localhost:8080/path?query", null, handler);
         assertTrue("Connect failed", connectFuture.await(5,  SECONDS));
 
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
@@ -126,7 +126,7 @@ public class TextIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
+        ConnectFuture connectFuture = connector.connect("wse://localhost:8080/path?query", null, handler);
         assertTrue("Connect failed", connectFuture.await(5,  SECONDS));
 
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
@@ -158,7 +158,7 @@ public class TextIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
+        ConnectFuture connectFuture = connector.connect("wse://localhost:8080/path?query", null, handler);
         assertTrue("Connect failed", connectFuture.await(5,  SECONDS));
 
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
@@ -190,7 +190,7 @@ public class TextIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
+        ConnectFuture connectFuture = connector.connect("wse://localhost:8080/path?query", null, handler);
         assertTrue("Connect failed", connectFuture.await(5,  SECONDS));
 
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
@@ -222,7 +222,7 @@ public class TextIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
+        ConnectFuture connectFuture = connector.connect("wse://localhost:8080/path?query", null, handler);
         assertTrue("Connect failed", connectFuture.await(5,  SECONDS));
 
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();

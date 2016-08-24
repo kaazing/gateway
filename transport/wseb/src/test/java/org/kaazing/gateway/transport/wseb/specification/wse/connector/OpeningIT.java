@@ -89,7 +89,7 @@ public class OpeningIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
+        connector.connect("wse://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
     }
 
@@ -118,7 +118,33 @@ public class OpeningIT {
         connectOptions.put("supportedProtocols", new String[]{"primary", "secondary"});
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
-                        "ws://localhost:8080/path?query",
+                        "wse://localhost:8080/path?query",
+                        connectOptions);
+
+        connector.connect(connectAddress, handler).getSession();
+        k3po.finish();
+    }
+
+    @Test
+    @Specification({ "connection.established.no.websocket.extensions/handshake.response" })
+    public void shouldEstablishConnectionWithNoXWebSocketExtensions()
+            throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                // No close handshake so IOException may occur depending on timing of k3po closing connections
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+        Map<String, Object> connectOptions = new HashMap<>();
+        connectOptions.put("extensions", Arrays.asList("x-kaazing-ping-pong"));
+        final ResourceAddress connectAddress =
+                ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
+                        "wse://localhost:8080/path?query",
                         connectOptions);
 
         connector.connect(connectAddress, handler).getSession();
@@ -143,7 +169,7 @@ public class OpeningIT {
         connectOptions.put("extensions", Arrays.asList("primary", "secondary"));
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
-                        "ws://localhost:8080/path?query",
+                        "wse://localhost:8080/path?query",
                         connectOptions);
 
         connector.connect(connectAddress, handler).getSession();
@@ -170,7 +196,7 @@ public class OpeningIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
+        connector.connect("wse://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
     }
 
@@ -188,7 +214,7 @@ public class OpeningIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
+        connector.connect("wse://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
     }
 
@@ -262,7 +288,7 @@ public class OpeningIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
+        IoSession session = connector.connect("wse://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
         MemoryAppender.assertMessagesLogged(Collections.singletonList("response.*status.*"), EMPTY_STRING_SET, null, false);
@@ -281,7 +307,7 @@ public class OpeningIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
+        IoSession session = connector.connect("wse://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
         MemoryAppender.assertMessagesLogged(Collections.singletonList("response.*content.*type"), EMPTY_STRING_SET, null, false);
@@ -300,7 +326,7 @@ public class OpeningIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
+        IoSession session = connector.connect("wse://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
         MemoryAppender.assertMessagesLogged(Collections.singletonList("response.*content.*type"), EMPTY_STRING_SET, null, false);
@@ -324,7 +350,7 @@ public class OpeningIT {
         connectOptions.put("supportedProtocols", new String[]{"secondary"});
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
-                        "ws://localhost:8080/path?query",
+                        "wse://localhost:8080/path?query",
                         connectOptions);
 
         IoSession session = connector.connect(connectAddress, handler).getSession();
@@ -351,7 +377,7 @@ public class OpeningIT {
         connectOptions.put("extensions", Collections.singletonList("primary, secondary"));
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
-                        "ws://localhost:8080/path?query",
+                        "wse://localhost:8080/path?query",
                         connectOptions);
 
         IoSession session = connector.connect(connectAddress, handler).getSession();
@@ -374,7 +400,7 @@ public class OpeningIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
+        IoSession session = connector.connect("wse://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
         MemoryAppender.assertMessagesLogged(Collections.singletonList("invalid response"), EMPTY_STRING_SET, null, false);
@@ -398,7 +424,7 @@ public class OpeningIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
+        IoSession session = connector.connect("wse://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
         MemoryAppender.assertMessagesLogged(Collections.singletonList("upstream"), EMPTY_STRING_SET, null, false);
@@ -417,7 +443,7 @@ public class OpeningIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
+        IoSession session = connector.connect("wse://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
         MemoryAppender.assertMessagesLogged(Collections.singletonList("upstream"), EMPTY_STRING_SET, null, false);
@@ -440,7 +466,7 @@ public class OpeningIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
+        IoSession session = connector.connect("wse://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
         MemoryAppender.assertMessagesLogged(Collections.singletonList("upstream"), EMPTY_STRING_SET, null, false);
@@ -459,7 +485,7 @@ public class OpeningIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
+        IoSession session = connector.connect("wse://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
         MemoryAppender.assertMessagesLogged(Collections.singletonList("upstream"), EMPTY_STRING_SET, null, false);
@@ -478,7 +504,7 @@ public class OpeningIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
+        IoSession session = connector.connect("wse://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
         MemoryAppender.assertMessagesLogged(Collections.singletonList("upstream"), EMPTY_STRING_SET, null, false);
@@ -498,7 +524,7 @@ public class OpeningIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
+        IoSession session = connector.connect("wse://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
         MemoryAppender.assertMessagesLogged(Collections.singletonList("downstream"), EMPTY_STRING_SET, null, false);
@@ -518,7 +544,7 @@ public class OpeningIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
+        IoSession session = connector.connect("wse://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
         MemoryAppender.assertMessagesLogged(Collections.singletonList("downstream"), EMPTY_STRING_SET, null, false);
@@ -538,7 +564,7 @@ public class OpeningIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
+        IoSession session = connector.connect("wse://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
         MemoryAppender.assertMessagesLogged(Collections.singletonList("downstream"), EMPTY_STRING_SET, null, false);
