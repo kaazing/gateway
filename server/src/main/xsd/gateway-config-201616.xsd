@@ -1636,7 +1636,7 @@
                         <annotation />
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="credentials.ttl"
-                        type="gateway:CollapsedString">
+                        type="gateway:TimeIntervalString">
                         <annotation />
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="username.separator"

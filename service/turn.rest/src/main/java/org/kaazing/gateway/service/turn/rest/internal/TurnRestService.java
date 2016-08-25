@@ -20,6 +20,7 @@ import static org.kaazing.gateway.service.util.ServiceUtils.LIST_SEPARATOR;
 import java.security.Key;
 import java.security.KeyStore;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 import javax.naming.ConfigurationException;
@@ -30,6 +31,7 @@ import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.service.turn.rest.TurnRestCredentialsGenerator;
+import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.gateway.util.turn.TurnUtils;
 
@@ -48,8 +50,7 @@ public class TurnRestService implements Service {
     private SecurityContext securityContext;
     private Properties configuration;
 
-    @Resource(
-            name = "securityContext")
+    @Resource(name = "securityContext")
     public void setSecurityContext(SecurityContext securityContext) {
         this.securityContext = securityContext;
     }
@@ -66,12 +67,12 @@ public class TurnRestService implements Service {
         EarlyAccessFeatures.TURN_REST_SERVICE.assertEnabled(getConfiguration(), serviceContext.getLogger());
         ServiceProperties properties = serviceContext.getProperties();
 
-        String uris = getTurnURIs(properties);
+        String urls = getTurnURLs(properties);
         TurnRestCredentialsGenerator credentialGeneratorInstance = setUpCredentialsGenerator(properties);
 
         String ttl = properties.get("credentials.ttl") != null ? properties.get("credentials.ttl") : DEFAULT_CREDENTIALS_TTL;
-
-        handler = new TurnRestServiceHandler(ttl, credentialGeneratorInstance, uris);
+        handler = new TurnRestServiceHandler(Long.toString(Utils.parseTimeInterval(ttl, TimeUnit.SECONDS, 0)),
+                        credentialGeneratorInstance, urls);
     }
 
     private TurnRestCredentialsGenerator setUpCredentialsGenerator(ServiceProperties properties)
@@ -89,10 +90,10 @@ public class TurnRestService implements Service {
         return credentialGeneratorInstance;
     }
 
-    private String getTurnURIs(ServiceProperties properties) {
+    private String getTurnURLs(ServiceProperties properties) {
         StringBuilder u = new StringBuilder();
-        for (String uri : properties.get("url").split(LIST_SEPARATOR)) {
-            u.append("\"").append(uri).append("\",");
+        for (String url : properties.get("url").split(LIST_SEPARATOR)) {
+            u.append("\"").append(url).append("\",");
         }
         u.setLength(u.length() - 1);
         return u.toString();
