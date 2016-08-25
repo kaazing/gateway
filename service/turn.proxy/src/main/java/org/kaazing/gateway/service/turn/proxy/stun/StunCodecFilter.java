@@ -38,7 +38,7 @@ public class StunCodecFilter extends ProtocolCodecFilter {
 
         private final Key sharedSecret;
         private final String keyAlgorithm;
-        private StunAttributeFactory stunAttributeFactory = new StunAttributeFactory(SHORT_TERM);
+        private final StunAttributeFactory stunAttributeFactory = new StunAttributeFactory(SHORT_TERM);
 
         public TurnCodecFactory(Key sharedSecret, String keyAlgorithm) {
             this.sharedSecret = sharedSecret;

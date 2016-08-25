@@ -1673,17 +1673,9 @@
         <complexContent>
             <restriction base="gateway:ServicePropertiesType">
                 <all>
-                    <element maxOccurs="1" minOccurs="1" name="key.alias" type="gateway:CollapsedString">
+                    <element maxOccurs="1" minOccurs="0" name="key.alias" type="gateway:CollapsedString">
                         <annotation>
                             <documentation>The alias in the certificate containing the shared secret</documentation>
-                        </annotation>
-                    </element>
-                    <element maxOccurs="1" minOccurs="0" name="key.password-file" type="gateway:CollapsedString">
-                        <annotation>
-                            <documentation>
-                                The password protecting the shared secret. If missing the keystore's password will be
-                                used.
-                            </documentation>
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="key.algorithm" type="gateway:CollapsedString">
@@ -1695,7 +1687,35 @@
                         </annotation>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="mapped.address" type="gateway:CollapsedString">
-                        <annotation />
+                        <annotation>
+                            <documentation>
+                                Address and port that will override MAPPED-ADDRESS attribute and xored with the magic
+                                cookie the attribute XOR-MAPPED-ADDRESS.
+
+                                The address can also be extracted from the source ip and port. For this, use the value
+                                'AUTO' in this property.
+
+                                Makes key.alias property mandatory.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="masking.key" type="gateway:CollapsedString">
+                        <annotation>
+                            <documentation>
+                                If defined, will be used to mask the outgoing XOR-RELAYED-ADDRESS and unmask the
+                                XOR-PEER-ADDRESS in order to protect the Turn server's IP addresses from exposure.
+
+                                Format: "0x%08X"
+
+                                Address is IPv4:PORT the mask will be performed by XOR-ing each byte of the expression with
+                                each byte of the address. For IPv6:PORT the mask will be repeated 4 times and each byte
+                                of the resulting expression will be xored with each bye of the address.
+
+                                The port will be xored with the first two bytes.
+
+                                Makes key.alias property mandatory.
+                            </documentation>
+                        </annotation>
                     </element>
                 </all>
             </restriction>

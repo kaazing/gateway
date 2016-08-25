@@ -36,7 +36,7 @@ import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-public class TurnProxyIT {
+public class MappedAutoIT {
 
     private final K3poRule k3po = new K3poRule()
             .setScriptRoot("org/kaazing/gateway/service/turn/proxy")
@@ -71,9 +71,8 @@ public class TurnProxyIT {
                         .accept("tcp://localhost:3478")
                         .connect("tcp://localhost:3479")
                         .type("turn.proxy")
-                        .property("mapped.address", "192.0.2.15:8080")
+                        .property("mapped.address", "AUTO")
                         .property("key.alias", "turn.shared.secret")
-                        .property("key.algorithm", "HmacMD5")
                     .done()
                     .security()
                         .keyStore(keyStore)
@@ -90,8 +89,8 @@ public class TurnProxyIT {
 
     @Test
     @Specification({
-            "default.turn.protocol.test/request",
-            "default.turn.protocol.test/response"
+            "auto.mapped.address.test/request",
+            "auto.mapped.address.test/response"
     })
     public void shouldPassWithDefaultTurnProtocolTest() throws Exception {
         k3po.finish();

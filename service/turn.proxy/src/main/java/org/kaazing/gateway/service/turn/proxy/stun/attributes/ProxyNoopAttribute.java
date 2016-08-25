@@ -33,7 +33,7 @@ public class ProxyNoopAttribute extends Attribute {
 
     @Override
     public short getType() {
-        return (short) type;
+        return type;
     }
 
     @Override
