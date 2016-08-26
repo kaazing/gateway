@@ -15,12 +15,12 @@
  */
 package org.kaazing.gateway.service.turn.rest.internal;
 
-
 import static org.kaazing.gateway.service.util.ServiceUtils.LIST_SEPARATOR;
 
 import java.security.Key;
 import java.security.KeyStore;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 import javax.naming.ConfigurationException;
@@ -31,6 +31,7 @@ import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.service.turn.rest.TurnRestCredentialsGenerator;
+import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.gateway.util.turn.TurnUtils;
 
@@ -40,14 +41,16 @@ import org.kaazing.gateway.util.turn.TurnUtils;
 public class TurnRestService implements Service {
 
     private static final String CLASS_PREFIX = "class:";
+    private static final char DEFAULT_USER_SEPARATOR = ':';
+    private static final String DEFAULT_CREDENTIALS_TTL = "86400";
+    private static final String DEFAULT_KEY_ALGORITHM = "HmacSHA1";
 
     private TurnRestServiceHandler handler;
     private ServiceContext serviceContext;
     private SecurityContext securityContext;
     private Properties configuration;
 
-    @Resource(
-            name = "securityContext")
+    @Resource(name = "securityContext")
     public void setSecurityContext(SecurityContext securityContext) {
         this.securityContext = securityContext;
     }
@@ -64,23 +67,22 @@ public class TurnRestService implements Service {
         EarlyAccessFeatures.TURN_REST_SERVICE.assertEnabled(getConfiguration(), serviceContext.getLogger());
         ServiceProperties properties = serviceContext.getProperties();
 
-        String uris = getTurnURIs(properties);
+        String urls = getTurnURLs(properties);
         TurnRestCredentialsGenerator credentialGeneratorInstance = setUpCredentialsGenerator(properties);
 
-        ServiceProperties options = properties.getNested("options").get(0);
-        String ttl = options.get("credentials.ttl");
-
-        handler = new TurnRestServiceHandler(ttl, credentialGeneratorInstance, uris);
+        String ttl = properties.get("credentials.ttl") != null ? properties.get("credentials.ttl") : DEFAULT_CREDENTIALS_TTL;
+        handler = new TurnRestServiceHandler(Long.toString(Utils.parseTimeInterval(ttl, TimeUnit.SECONDS, 0)),
+                        credentialGeneratorInstance, urls);
     }
 
     private TurnRestCredentialsGenerator setUpCredentialsGenerator(ServiceProperties properties)
             throws ConfigurationException, InstantiationException, IllegalAccessException {
         TurnRestCredentialsGenerator credentialGeneratorInstance = resolveCredentialsGenerator(properties);
 
-        ServiceProperties options = properties.getNested("options").get(0);
         Key sharedSecret = resolveSharedSecret(properties);
-        String algorithm = properties.get("key.algorithm");
-        char separator = options.get("username.separator").charAt(0);
+        String algorithm = properties.get("key.algorithm") != null ? properties.get("key.algorithm") : DEFAULT_KEY_ALGORITHM;
+        char separator = properties.get("username.separator") != null ? properties.get("username.separator").charAt(0)
+                        : DEFAULT_USER_SEPARATOR;
 
         credentialGeneratorInstance.setAlgorithm(algorithm);
         credentialGeneratorInstance.setSharedSecret(sharedSecret);
@@ -88,10 +90,10 @@ public class TurnRestService implements Service {
         return credentialGeneratorInstance;
     }
 
-    private String getTurnURIs(ServiceProperties properties) {
+    private String getTurnURLs(ServiceProperties properties) {
         StringBuilder u = new StringBuilder();
-        for (String uri : properties.getNested("uris").get(0).get("uri").split(LIST_SEPARATOR)) {
-            u.append("\"").append(uri).append("\",");
+        for (String url : properties.get("url").split(LIST_SEPARATOR)) {
+            u.append("\"").append(url).append("\",");
         }
         u.setLength(u.length() - 1);
         return u.toString();
@@ -106,7 +108,7 @@ public class TurnRestService implements Service {
     @SuppressWarnings("unchecked")
     private TurnRestCredentialsGenerator resolveCredentialsGenerator(ServiceProperties properties)
             throws ConfigurationException, InstantiationException, IllegalAccessException {
-        String credentialGeneratorClassName = properties.get("generate.credentials");
+        String credentialGeneratorClassName = properties.get("credentials.generator");
         TurnRestCredentialsGenerator credentialGeneratorInstance;
         if (credentialGeneratorClassName == null) {
             throw new ConfigurationException("No credential generator specified");

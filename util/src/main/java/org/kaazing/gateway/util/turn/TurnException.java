@@ -17,13 +17,14 @@ package org.kaazing.gateway.util.turn;
 
 public class TurnException extends RuntimeException {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -2542024439819718984L;
 
     public TurnException(String message, Exception cause) {
         super(message, cause);
+    }
+
+    public TurnException(String message) {
+        super(message);
     }
 
 }
