@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.2.0-RC002</version>
+        <version>develop-SNAPSHOT</version>
     </parent>
 
     <artifactId>gateway.distribution</artifactId>
@@ -108,6 +108,10 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.service.update.check.management</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.service.turn.proxy</artifactId>
         </dependency>
 
         <!-- transport dependencies -->
@@ -212,6 +216,10 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.wse</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.service.turn.rest</artifactId>
         </dependency>
     </dependencies>
 

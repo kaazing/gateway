@@ -15,6 +15,7 @@
  */
 package org.kaazing.gateway.server.test.config;
 
+import java.util.List;
 import java.util.Map;
 
 public abstract class SuppressibleNestedServicePropertiesConfiguration implements SuppressibleConfiguration {
@@ -23,6 +24,6 @@ public abstract class SuppressibleNestedServicePropertiesConfiguration implement
 
     public abstract void addSimpleProperty(String key, Suppressible<String> value);
 
-    public abstract Map<String, Suppressible<String>> getSimpleProperties();
+    public abstract Map<String, Suppressible<List<String>>> getSimpleProperties();
 
 }

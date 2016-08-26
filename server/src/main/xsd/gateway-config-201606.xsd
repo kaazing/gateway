@@ -364,7 +364,6 @@
         </sequence>
     </group>
 
-
     <complexType name="fileLoginModuleType">
         <complexContent>
             <restriction base="gateway:LoginModuleType">
@@ -1109,6 +1108,136 @@
         </complexContent>
     </complexType>
 
+    <complexType name="turn.restServiceType">
+        <annotation>
+            <documentation>This service provides REST authentication to a TURN server.</documentation>
+        </annotation>
+
+        <complexContent>
+            <restriction base="gateway:ServiceType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1"
+                             name="name"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="description"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="unbounded" minOccurs="1"
+                             name="accept"
+                             type="anyURI"/>
+
+                    <!-- connect is not supported for echo -->
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="balance"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="notify"
+                             type="anyURI"/>
+
+                    <element fixed="turn.rest" maxOccurs="1" minOccurs="1"
+                             name="type"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="properties"
+                             type="gateway:turn.restServicePropertiesType"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="accept-options"
+                             type="gateway:ServiceAcceptOptionsType" />
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="realm-name"
+                             type="gateway:CollapsedString" />
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="authorization-constraint"
+                             type="gateway:AuthorizationConstraintType"/>
+
+                    <!-- mime-mapping is not supported for balancer -->
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="cross-site-constraint"
+                             type="gateway:CrossSiteConstraintType"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+
+    <complexType name="turn.proxyServiceType">
+        <annotation>
+            <documentation>This service implements a proxy for STUN/TURN protcols.</documentation>
+        </annotation>
+
+        <complexContent>
+            <restriction base="gateway:ServiceType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1"
+                             name="name"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="description"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="unbounded" minOccurs="1"
+                             name="accept"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="1"
+                             name="connect"
+                             type="anyURI"/>
+
+                    <!-- TODO is this supported ? -->
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="balance"
+                             type="anyURI"/>
+
+                    <!-- TODO is this supported ? -->
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="notify"
+                             type="anyURI"/>
+
+                    <element fixed="turn.proxy" maxOccurs="1" minOccurs="1"
+                             name="type"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="properties"
+                             type="gateway:turn.proxyServicePropertiesType"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="accept-options"
+                             type="gateway:ServiceAcceptOptionsType" />
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="connect-options"
+                             type="gateway:ServiceConnectOptionsType" />
+
+                    <!-- TODO is this supported ? -->
+                    <element maxOccurs="1" minOccurs="0"
+                             name="realm-name"
+                             type="gateway:CollapsedString" />
+
+                    <!-- TODO is this supported ? -->
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="authorization-constraint"
+                             type="gateway:AuthorizationConstraintType"/>
+
+                    <!-- TODO is this supported ? -->
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="cross-site-constraint"
+                             type="gateway:CrossSiteConstraintType"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
     <complexType name="PropertiesType">
         <sequence>
             <element maxOccurs="unbounded" minOccurs="1" name="property"
@@ -1559,6 +1688,97 @@
                         <annotation/>
                     </element>
                 </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="turn.restServicePropertiesType">
+        <complexContent>
+            <restriction base="gateway:ServicePropertiesType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1" name="key.alias"
+                        type="gateway:CollapsedString">
+                        <annotation />
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="key.algorithm"
+                        type="gateway:CollapsedString">
+                        <annotation />
+                    </element>
+                    <element maxOccurs="1" minOccurs="1" name="credentials.generator"
+                         type="gateway:CollapsedString">
+                        <annotation />
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="credentials.ttl"
+                        type="gateway:TimeIntervalString">
+                        <annotation />
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="username.separator"
+                        type="gateway:CollapsedString">
+                        <annotation />
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="1" name="url"
+                        type="gateway:CollapsedString">
+                        <annotation />
+                    </element>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="turn.proxyServicePropertiesType">
+        <annotation>
+            <documentation>
+                Properties accepted by the turn.proxy service configuration.
+            </documentation>
+        </annotation>
+        <complexContent>
+            <restriction base="gateway:ServicePropertiesType">
+                <all>
+                    <element maxOccurs="1" minOccurs="0" name="key.alias" type="gateway:CollapsedString">
+                        <annotation>
+                            <documentation>The alias in the certificate containing the shared secret</documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="key.algorithm" type="gateway:CollapsedString">
+                        <annotation>
+                            <documentation>
+                                The algorithm used for the HMAC computation of the password using the username and the
+                                shared secret. If missing the default value is HmacSHA1.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="mapped.address" type="gateway:CollapsedString">
+                        <annotation>
+                            <documentation>
+                                Address and port that will override MAPPED-ADDRESS attribute and xored with the magic
+                                cookie the attribute XOR-MAPPED-ADDRESS.
+
+                                The address can also be extracted from the source ip and port. For this, use the value
+                                'AUTO' in this property.
+
+                                Makes key.alias property mandatory.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="masking.key" type="gateway:CollapsedString">
+                        <annotation>
+                            <documentation>
+                                If defined, will be used to mask the outgoing XOR-RELAYED-ADDRESS and unmask the
+                                XOR-PEER-ADDRESS in order to protect the Turn server's IP addresses from exposure.
+
+                                Format: "0x%08X"
+
+                                Address is IPv4:PORT the mask will be performed by XOR-ing each byte of the expression with
+                                each byte of the address. For IPv6:PORT the mask will be repeated 4 times and each byte
+                                of the resulting expression will be xored with each bye of the address.
+
+                                The port will be xored with the first two bytes.
+
+                                Makes key.alias property mandatory.
+                            </documentation>
+                        </annotation>
+                    </element>
+                </all>
             </restriction>
         </complexContent>
     </complexType>
