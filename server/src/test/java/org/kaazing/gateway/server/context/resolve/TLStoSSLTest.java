@@ -15,40 +15,30 @@
  */
 package org.kaazing.gateway.server.context.resolve;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.KeyStore;
-import java.text.MessageFormat;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.kaazing.gateway.server.test.Gateway;
-import org.kaazing.gateway.server.test.config.GatewayConfiguration;
-import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.gateway.service.ServiceFactory;
-import org.kaazing.gateway.service.echo.EchoService;
 import org.kaazing.gateway.server.config.june2016.GatewayConfigDocument;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 
 public class TLStoSSLTest {
 
+    private static final String BASE_PATH = "org/kaazing/gateway/server/config/parse/data/";
+    private static final String ACCEPT_XML = "gateway-config-tls-in-accept.xml";    
+    private static final String ACCEPT_OPTIONS_XML = "gateway-config-tls-accept-options.xml";
+    private static final String CONNECT_XML = "gateway-config-tls-in-connect.xml";
+    private static final String CONNECT_OPTIONS_XML = "gateway-config-tls-connect-options.xml";
+
     private static GatewayConfigParser parser;
     private static GatewayContextResolver resolver;
 
     private File configFile;
-    private File keyStoreFile;
-    private File keyStorePasswordFile;
-    private File trustStoreFile;
 
     @BeforeClass
     public static void init() {
@@ -62,18 +52,6 @@ public class TLStoSSLTest {
         } catch (Exception ex) {
             Assert.fail("Failed to load keystore.db, unable to init test due to exception: " + ex);
         }  
-    }
-
-    @Before
-    public void setAllowedServices() throws Exception {
-        Set<String> serviceList = new HashSet<>();
-        serviceList.add("directory");
-        serviceList.add("proxy");
-
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        keyStoreFile = new File(classLoader.getResource("mykeystore.db").toURI());
-        keyStorePasswordFile = new File(classLoader.getResource("mykeystore.pw").toURI());
-        trustStoreFile = new File(classLoader.getResource("truststore.db").toURI());
     }
 
     @After
@@ -96,44 +74,20 @@ public class TLStoSSLTest {
         fos.close();
         return file;
     }
-    
-    private File createTempFileFromResource(String resourceName, String... values) throws IOException {
-        File file = File.createTempFile("gateway-config", "xml");
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        InputStream is = classLoader.getResource(resourceName).openStream();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(is.available());
-        int datum;
-        while ((datum = is.read()) != -1) {
-            baos.write(datum);
-        }
-        is.close();
-
-        final String replacedContent = MessageFormat.format(baos.toString("UTF-8"), (Object[])values);
-        ByteArrayInputStream bais = new ByteArrayInputStream(replacedContent.getBytes("UTF-8"));
-
-        FileOutputStream fos = new FileOutputStream(file);
-        while ((datum = bais.read()) != -1) {
-            fos.write(datum);
-        }
-        fos.flush();
-        fos.close();
-
-        return file;
-    }
 
     @Test
     public void parseAndResolveTLSinAccept() throws Exception {
         configFile = createTempFileFromResource(
-                "org/kaazing/gateway/server/config/parse/data/gateway-config-tls-in-accept.xml");
+                String.format("%s%s", BASE_PATH, ACCEPT_XML));
         GatewayConfigDocument doc = parser.parse(configFile);
         Assert.assertNotNull(doc);
         resolver.resolve(doc);
     }
-    
+ 
     @Test
     public void parseAndResolveTLSAcceptOptions() throws Exception {
         configFile = createTempFileFromResource(
-                "org/kaazing/gateway/server/config/parse/data/gateway-config-tls-accept-options.xml");
+                String.format("%s%s", BASE_PATH, ACCEPT_OPTIONS_XML));
         GatewayConfigDocument doc = parser.parse(configFile);
         Assert.assertNotNull(doc);
         resolver.resolve(doc);
@@ -142,16 +96,16 @@ public class TLStoSSLTest {
     @Test
     public void parseAndResolveTLSinConnect() throws Exception {
         configFile = createTempFileFromResource(
-                "org/kaazing/gateway/server/config/parse/data/gateway-config-tls-in-connect.xml");
+                String.format("%s%s", BASE_PATH, CONNECT_XML));
         GatewayConfigDocument doc = parser.parse(configFile);
         Assert.assertNotNull(doc);
         resolver.resolve(doc);
     }
-    
+ 
     @Test
     public void parseAndResolveTLSConnectOptions() throws Exception {
         configFile = createTempFileFromResource(
-                "org/kaazing/gateway/server/config/parse/data/gateway-config-tls-connect-options.xml");
+                String.format("%s%s", BASE_PATH, CONNECT_OPTIONS_XML));
         GatewayConfigDocument doc = parser.parse(configFile);
         Assert.assertNotNull(doc);
         resolver.resolve(doc);
