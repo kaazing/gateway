@@ -69,10 +69,32 @@
         <groupId>org.kaazing</groupId>
         <artifactId>k3po-maven-plugin</artifactId>
       </plugin>
+
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>**/*.java</include>
+          </includes>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>verify</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -123,6 +145,61 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+
+        <configuration>
+          <images>
+            <image>
+              <name>coturn_server</name>
+              <build>
+                <from>kaazing/3rd-party:coturn</from>
+                <optimise>false</optimise>
+              </build>
+              <run>
+                <hostname>localhost</hostname>
+                <privileged>true</privileged>
+                <entrypoint>/usr/bin/turnserver --no-cli -v --use-auth-secret --static-auth-secret=turn.shared.secret</entrypoint>
+                <ports>
+                  <port>3478:3478</port>
+                </ports>
+                <wait>
+                  <tcp>
+                    <ports>
+                      <port>3478</port>
+                    </ports>
+                  </tcp>
+                  <time>30000</time>
+                </wait>
+              </run>
+            </image>
+          </images>
+        </configuration>
+
+        <executions>
+          <execution>
+            <id>start</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>build</goal>
+              <goal>start</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>stop</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+            <configuration>
+              <removeVolumes>true</removeVolumes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
   </build>
 
