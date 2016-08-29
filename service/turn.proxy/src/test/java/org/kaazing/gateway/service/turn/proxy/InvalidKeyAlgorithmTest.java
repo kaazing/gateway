@@ -67,7 +67,7 @@ public class InvalidKeyAlgorithmTest {
                             .connect("tcp://localhost:3479")
                             .type("turn.proxy")
                             .property("key.alias", "turn.shared.secret")
-                            .property("key.algorithm", "")
+                            .property("key.algorithm", "no algorithm")
                             .done()
                         .security()
                             .keyStore(keyStore)

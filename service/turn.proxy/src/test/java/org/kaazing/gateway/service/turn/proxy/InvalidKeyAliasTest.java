@@ -66,7 +66,7 @@ public class InvalidKeyAliasTest {
                             .accept("tcp://localhost:3478")
                             .connect("tcp://localhost:3479")
                             .type("turn.proxy")
-                            .property("key.alias", "turn.shared.secretgjfdhgjkdfh")
+                            .property("key.alias", "bla bla bla")
                             .property("key.algorithm", "HmacMD5")
                         .done()
                         .security()

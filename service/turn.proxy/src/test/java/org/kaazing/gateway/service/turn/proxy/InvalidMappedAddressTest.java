@@ -78,7 +78,7 @@ public class InvalidMappedAddressTest {
         // @formatter:on
         try {
             gateway.start(configuration);
-            //throw new AssertionError("Gateway should fail to start because the mapped address key is invalid.");
+            //throw new AssertionError("Gateway should fail to start because the mapped address is invalid.");
 //        } catch (NumberFormatException e) {
 //            Assert.assertTrue("Wrong error message: " + e.getMessage(), e.getMessage().matches(
 //                    "Invalid mapped address"));
