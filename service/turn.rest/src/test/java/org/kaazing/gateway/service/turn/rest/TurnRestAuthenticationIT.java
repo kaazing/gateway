@@ -54,9 +54,7 @@ public class TurnRestAuthenticationIT {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
             // @formatter:off
-
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .property(EarlyAccessFeatures.TURN_REST_SERVICE.getPropertyName(), "true")
@@ -68,16 +66,12 @@ public class TurnRestAuthenticationIT {
                                 .requireRole("username")
                             .done()
 
-                            .property("generate.credentials", "class:" + DefaultCredentialsGenerator.class.getName())
                             .property("key.alias", "turn.shared.secret")
                             .property("key.algorithm", "HmacSHA1")
-                            .nestedProperty("uris")
-                                .property("uri", "turn:turn_server_ip")
-                            .done()
-                            .nestedProperty("options")
-                                .property("credentials.ttl", "43200")
-                                .property("username.separator", ":")
-                            .done()
+                            .property("credentials.generator", "class:" + DefaultCredentialsGenerator.class.getName())
+                            .property("credentials.ttl", "43200")
+                            .property("username.separator", ":")
+                            .property("url", "turn:192.168.99.100:3478?transport=tcp")
                         .done()
                         .security()
                             .keyStore(keyStore)
@@ -98,21 +92,16 @@ public class TurnRestAuthenticationIT {
                         .service()
                             .accept("http://localhost:8002/")
                             .type("turn.rest")
-
-                            .property("generate.credentials", "class:" + DefaultCredentialsGenerator.class.getName())
                             .property("key.alias", "turn.shared.secret")
                             .property("key.algorithm", "HmacSHA1")
-                            .nestedProperty("uris")
-                                .property("uri", "turn:turn_server_ip")
-                            .done()
-                            .nestedProperty("options")
-                                .property("credentials.ttl", "43200")
-                                .property("username.separator", ":")
-                            .done()
+                            .property("credentials.generator", "class:" + DefaultCredentialsGenerator.class.getName())
+                            .property("credentials.ttl", "43200")
+                            .property("username.separator", ":")
+                            .property("url", "turn:192.168.99.100:3478?transport=tcp")
                         .done()
 
                     .done();
-            // @formatter:on+
+            // @formatter:on
             init(configuration);
         }
     };
