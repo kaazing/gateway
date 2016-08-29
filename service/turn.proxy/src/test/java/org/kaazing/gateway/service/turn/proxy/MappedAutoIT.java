@@ -95,8 +95,4 @@ public class MappedAutoIT {
     public void shouldPassWithDefaultTurnProtocolTest() throws Exception {
         k3po.finish();
     }
-
-    // TODO create also a test for IPv6
-    // TODO create test for AUTO mask
-
 }

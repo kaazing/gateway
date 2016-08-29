@@ -73,8 +73,6 @@ public class AllocationsIT {
                         .property("mapped.address", "192.0.2.15:8080")
                         .property("key.alias", "turn.shared.secret")
                         .property("key.algorithm", "HmacMD5")
-                            // TODO relay adress override
-                            //.property("relay.address.mask", propertyValue)
                     .done()
                     .security()
                         .keyStore(keyStore)
