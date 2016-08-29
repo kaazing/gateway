@@ -27,6 +27,7 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -35,13 +36,39 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
 /**
- * Test to validate behavior as specified in <a href="https://tools.ietf.org/html/rfc5766">RFC 5766: TURN</a> through TCP.
+ * Test to validate behavior as specified in <a href="https://tools.ietf.org/html/rfc5766">RFC 5766: TURN</a>
+ * through TCP and UDP.
  */
-public class AllocationsIT {
+
+// @Ignore("This is a base class, use AllocationsSuiteIT instead.")
+@RunWith(InheritedBaseRunner.class)
+@IgnoreBaseClassTests
+public abstract class AllocationsIT {
+
+
+    public static class TcpAllocationsIT extends AllocationsIT {
+        @Override
+        public String getProtocol() {
+            return "tcp";
+        }
+    }
+
+    public static class UdpAllocationsIT extends AllocationsIT {
+        @Override
+        public String getProtocol() {
+            return "udp";
+        }
+    }
+
+    public String protocol = getProtocol();
+
+    public abstract String getProtocol();
+
 
     private final K3poRule k3po = new K3poRule()
             .setScriptRoot("org/kaazing/specification/turn/allocations")
-            .scriptProperty("acceptURI 'tcp://localhost:3479'");
+            .scriptProperty("acceptURI '" + protocol + "://localhost:3479'")
+            .scriptProperty("connectURI '" + protocol + "://localhost:3478'");
 
     private final GatewayRule gateway = new GatewayRule() {
         {
@@ -53,10 +80,10 @@ public class AllocationsIT {
                 keyStore = KeyStore.getInstance("JCEKS");
                 keyStore.load(fileInStr, "ab987c".toCharArray());
                 keyStore.setKeyEntry(
-                    "turn.shared.secret",
-                    new SecretKeySpec("turnAuthenticationSharedSecret".getBytes(forName("UTF-8")), "PBEWithMD5AndDES"),
-                    "ab987c".toCharArray(),
-                    null
+                        "turn.shared.secret",
+                        new SecretKeySpec("turnAuthenticationSharedSecret".getBytes(forName("UTF-8")), "PBEWithMD5AndDES"),
+                        "ab987c".toCharArray(),
+                        null
                 );
             }
             catch (Exception e) {
@@ -64,23 +91,23 @@ public class AllocationsIT {
             }
             // @formatter:off
             GatewayConfiguration configuration =
-                new GatewayConfigurationBuilder()
-                    .property(EarlyAccessFeatures.TURN_PROXY.getPropertyName(), "true")
-                    .service()
-                        .accept("tcp://localhost:3478")
-                        .connect("tcp://localhost:3479")
-                        .type("turn.proxy")
-                        .property("mapped.address", "192.0.2.15:8080")
-                        .property("key.alias", "turn.shared.secret")
-                        .property("key.algorithm", "HmacMD5")
+                    new GatewayConfigurationBuilder()
+                            .property(EarlyAccessFeatures.TURN_PROXY.getPropertyName(), "true")
+                            .service()
+                            .accept(protocol + "://localhost:3478")
+                            .connect(protocol + "://localhost:3479")
+                            .type("turn.proxy")
+                            .property("mapped.address", "192.0.2.15:8080")
+                            .property("key.alias", "turn.shared.secret")
+                            .property("key.algorithm", "HmacMD5")
                             // TODO relay adress override
                             //.property("relay.address.mask", propertyValue)
-                    .done()
-                    .security()
-                        .keyStore(keyStore)
-                        .keyStorePassword(password)
-                    .done()
-                .done();
+                            .done()
+                            .security()
+                            .keyStore(keyStore)
+                            .keyStorePassword(password)
+                            .done()
+                            .done();
             // @formatter:on
             init(configuration);
         }
@@ -94,8 +121,8 @@ public class AllocationsIT {
      */
     @Test
     @Specification({
-        "simple.allocate.method/request",
-        "simple.allocate.method/response" })
+            "simple.allocate.method/request",
+            "simple.allocate.method/response" })
     public void shouldSucceedWithGenericSTUNHeader() throws Exception {
         k3po.finish();
     }
@@ -105,8 +132,8 @@ public class AllocationsIT {
      */
     @Test
     @Specification({
-        "two.allocate.methods.with.no.credentials/request",
-        "two.allocate.methods.with.no.credentials/response" })
+            "two.allocate.methods.with.no.credentials/request",
+            "two.allocate.methods.with.no.credentials/response" })
     public void shouldRespondWithTwo401sWhenGivenAllocateMethodsWithNoCred() throws Exception {
         k3po.finish();
     }
@@ -116,8 +143,8 @@ public class AllocationsIT {
      */
     @Test
     @Specification({
-        "allocate.method.with.requested.transport.attribute/request",
-        "allocate.method.with.requested.transport.attribute/response" })
+            "allocate.method.with.requested.transport.attribute/request",
+            "allocate.method.with.requested.transport.attribute/response" })
     public void shouldSucceedWithOnlyTransportAttribute() throws Exception {
         k3po.finish();
     }
@@ -127,8 +154,8 @@ public class AllocationsIT {
      */
     @Test
     @Specification({
-        "correct.allocation.method/request",
-        "correct.allocation.method/response" })
+            "correct.allocation.method/request",
+            "correct.allocation.method/response" })
     public void shouldSucceedWithCorrectAllocation() throws Exception {
         k3po.finish();
     }
@@ -149,8 +176,8 @@ public class AllocationsIT {
      */
     @Test
     @Specification({
-        "incorrect.length.given/request",
-        "incorrect.length.given/response" })
+            "incorrect.length.given/request",
+            "incorrect.length.given/response" })
     @Ignore("No script in specification")
     public void shouldGive401IfDirectlyGivesCredentials() throws Exception {
         k3po.finish();
@@ -161,8 +188,8 @@ public class AllocationsIT {
      */
     @Test
     @Specification({
-        "multiple.connections.with.same.credentials.responds.437/request",
-        "multiple.connections.with.same.credentials.responds.437/response" })
+            "multiple.connections.with.same.credentials.responds.437/request",
+            "multiple.connections.with.same.credentials.responds.437/response" })
     public void shouldRespond437ToMultipleConnectionsWithSameCredentials() throws Exception {
         k3po.finish();
     }
@@ -172,8 +199,8 @@ public class AllocationsIT {
      */
     @Test
     @Specification({
-        "wrong.credentials.responds.441/request",
-        "wrong.credentials.responds.441/response" })
+            "wrong.credentials.responds.441/request",
+            "wrong.credentials.responds.441/response" })
     public void shouldRespond441ToWrongCredentials() throws Exception {
         k3po.finish();
     }
@@ -183,8 +210,8 @@ public class AllocationsIT {
      */
     @Test
     @Specification({
-        "unknown.attribute.responds.420/request",
-        "unknown.attribute.responds.420/response" })
+            "unknown.attribute.responds.420/request",
+            "unknown.attribute.responds.420/response" })
     public void shouldRespond420ToExtraBytes() throws Exception {
         k3po.finish();
     }
@@ -194,8 +221,8 @@ public class AllocationsIT {
      */
     @Test
     @Specification({
-        "no.requested.transport.attribute.responds.400/request",
-        "no.requested.transport.attribute.responds.400/response" })
+            "no.requested.transport.attribute.responds.400/request",
+            "no.requested.transport.attribute.responds.400/response" })
     public void shouldRespond400ToAllocateWithNoRequestedTransportAttribute() throws Exception {
         k3po.finish();
     }
