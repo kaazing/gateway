@@ -37,7 +37,7 @@ public class FeatureNotEnabledTest {
 
     @Rule
     public TestRule testExecutionTrace = new MethodExecutionTrace();
-    
+
     @Test
     public void shouldFailGatewayStartupWhenEarlyAccessFeaturePropertyNotSet() throws Exception {
         Gateway gateway = new Gateway();

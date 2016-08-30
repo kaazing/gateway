@@ -39,7 +39,7 @@ public class MappedAddressWithoutKeyAliasTest {
     public TestRule testExecutionTrace = new MethodExecutionTrace();
     
     @Test
-    public void shouldFailGatewayStartupWhenMaskPropertySetToInvalid() throws Exception {
+    public void shouldFailGatewayStartupWhenMappedAddressSetWithoutKeyAlias() throws Exception {
         Gateway gateway = new Gateway();
         KeyStore keyStore = null;
         char[] password = "ab987c".toCharArray();

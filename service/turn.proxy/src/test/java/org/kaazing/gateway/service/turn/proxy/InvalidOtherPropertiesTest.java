@@ -24,6 +24,7 @@ import java.security.KeyStore;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -33,13 +34,14 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.test.util.MethodExecutionTrace;
 
-public class InvalidURITest {
+public class InvalidOtherPropertiesTest {
 
     @Rule
     public TestRule testExecutionTrace = new MethodExecutionTrace();
 
+    @Ignore("Please see issue #708: https://github.com/kaazing/tickets/issues/708")
     @Test
-    public void shouldFailGatewayStartupWhenURISetToInvalid() throws Exception {
+    public void shouldFailGatewayStartupWhenSetUnsupportedProperties() throws Exception {
         Gateway gateway = new Gateway();
         KeyStore keyStore = null;
         char[] password = "ab987c".toCharArray();
@@ -63,12 +65,17 @@ public class InvalidURITest {
                 new GatewayConfigurationBuilder()
                         .property(EarlyAccessFeatures.TURN_PROXY.getPropertyName(), "true")
                         .service()
-                            .accept("tcp://localhostttt:3478")
-                            .connect("tcp://www.google.com:3479")
+                            .accept("tcp://localhost:3478")
+                            .connect("tcp://localhost:3479")
                             .type("turn.proxy")
                             .property("key.alias", "turn.shared.secret")
-                            .property("key.algorithm", "")
+                            .property("key.algorithm", "HmacMD5")
+                            .nestedProperty("uris")
+                                .property("uri", "uri1")
+                                .property("uri", "uri2")
+                                .property("uri", "uri3")
                             .done()
+                        .done()
                         .security()
                             .keyStore(keyStore)
                             .keyStorePassword(password)
@@ -77,10 +84,10 @@ public class InvalidURITest {
         // @formatter:on
         try {
             gateway.start(configuration);
-            throw new AssertionError("Gateway should fail to start because the URI is invalid.");
-        } catch (IllegalArgumentException e) {
+            throw new AssertionError("Gateway should fail to start because there are properties in the config that are not suuported.");
+        } catch (NumberFormatException e) {
             Assert.assertTrue("Wrong error message: " + e.getMessage(), e.getMessage().matches(
-                    "Unable to resolve DNS name: localhostttt"));
+                    "...."));
         } finally {
             gateway.stop();
         }

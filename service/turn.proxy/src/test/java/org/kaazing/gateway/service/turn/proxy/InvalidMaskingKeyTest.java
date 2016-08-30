@@ -24,6 +24,7 @@ import java.security.KeyStore;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -37,9 +38,10 @@ public class InvalidMaskingKeyTest {
 
     @Rule
     public TestRule testExecutionTrace = new MethodExecutionTrace();
-    
+
+    @Ignore("Please see issue #708: https://github.com/kaazing/tickets/issues/708")
     @Test
-    public void shouldFailGatewayStartupWhenMaskPropertySetToInvalid() throws Exception {
+    public void shouldFailGatewayStartupWhenMaskingKeySetToInvalid() throws Exception {
         Gateway gateway = new Gateway();
         KeyStore keyStore = null;
         char[] password = "ab987c".toCharArray();
@@ -80,9 +82,9 @@ public class InvalidMaskingKeyTest {
         try {
             gateway.start(configuration);
             throw new AssertionError("Gateway should fail to start because the masking key is invalid.");
-//        } catch (NumberFormatException e) {
-//            Assert.assertTrue("Wrong error message: " + e.getMessage(), e.getMessage().matches(
-//                    "Invalid masking key"));
+        } catch (NumberFormatException e) {
+            Assert.assertTrue("Wrong error message: " + e.getMessage(), e.getMessage().matches(
+                    "Invalid masking key"));
         } finally {
             gateway.stop();
         }
