@@ -155,8 +155,15 @@
             <image>
               <name>coturn_server</name>
               <build>
-                <from>kaazing/3rd-party:coturn</from>
+                <from>ubuntu:16.04</from>
                 <optimise>false</optimise>
+                <runCmds>
+                  <run>apt-get update</run>
+                  <run>apt-get dist-upgrade -y</run>
+                  <run>DEBIAN_FRONTEND=noninteractive \
+                    apt-get install -y \
+                    coturn </run>
+                </runCmds>
               </build>
               <run>
                 <hostname>localhost</hostname>

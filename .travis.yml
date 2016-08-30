@@ -8,7 +8,6 @@ env:
     - secure: "F6oCHN9p/gAFymPD091Yq/7niP1swVRrox7wPUQ3g/ELpIl8GS5JD2GapfVhsdV5oOkIXn0JWmzNSAVrI9jeUVZUCtkUdr+OMdyzzS9iJHmDxQOGnz3/vefbV5VQTCIFZKzE2c7usVcaxkVj4E+Ao4pcrXoXOzbvx2In2D/7+B8="
 before_install: certificates/add-to-cacerts.sh
 install:
-    - docker login -u kaazingqa -p ZingerQA -e dockerhub@kaazing.com
     - export DOCKER_HOST=tcp://127.0.0.1:2375
     - mvn -q -B -U install -DskipTests -DskipITs
 script:
