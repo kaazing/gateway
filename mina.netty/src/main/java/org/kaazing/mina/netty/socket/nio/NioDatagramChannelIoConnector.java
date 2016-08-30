@@ -36,7 +36,11 @@ public class NioDatagramChannelIoConnector extends DatagramChannelIoConnector {
             DatagramChannelIoSessionConfig.class, Object.class);
 
     public NioDatagramChannelIoConnector(DatagramChannelIoSessionConfig sessionConfig) {
-        super(sessionConfig, new NioDatagramChannelFactory());
+        this(sessionConfig, new NioDatagramChannelFactory());
+    }
+
+    public NioDatagramChannelIoConnector(DatagramChannelIoSessionConfig sessionConfig, NioDatagramChannelFactory channelFactory) {
+        super(sessionConfig, channelFactory);
     }
 
     @Override

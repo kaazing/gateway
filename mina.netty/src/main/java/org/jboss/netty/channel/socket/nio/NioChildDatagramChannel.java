@@ -133,10 +133,6 @@ public class NioChildDatagramChannel extends AbstractNioChannel<DatagramChannel>
         return config;
     }
 
-    DatagramChannel getDatagramChannel() {
-        return channel;
-    }
-
     public ChannelFuture joinGroup(InetAddress multicastAddress) {
         try {
             return joinGroup(

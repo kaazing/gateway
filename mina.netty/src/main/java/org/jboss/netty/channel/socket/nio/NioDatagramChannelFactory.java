@@ -110,7 +110,7 @@ public class NioDatagramChannelFactory implements DatagramChannelFactory {
      * See {@link #NioDatagramChannelFactory(Executor)}
      */
     public NioDatagramChannelFactory() {
-        this((InternetProtocolFamily) null);
+        this(null, new NioWorkerPool(Executors.newCachedThreadPool(), SelectorUtil.DEFAULT_IO_THREADS));
     }
 
     /**
@@ -118,9 +118,9 @@ public class NioDatagramChannelFactory implements DatagramChannelFactory {
      *
      * See {@link #NioDatagramChannelFactory(Executor)}
      */
-    public NioDatagramChannelFactory(InternetProtocolFamily family) {
+    public NioDatagramChannelFactory(InternetProtocolFamily family, WorkerPool<NioWorker> childPool) {
         workerPool = new NioDatagramWorkerPool(Executors.newCachedThreadPool(), SelectorUtil.DEFAULT_IO_THREADS);
-        childPool = new NioWorkerPool(Executors.newCachedThreadPool(), SelectorUtil.DEFAULT_IO_THREADS);
+        this.childPool = childPool;
         this.family = family;
         sink = new NioDatagramPipelineSink(workerPool);
         childSink = new NioChildDatagramPipelineSink(childPool);

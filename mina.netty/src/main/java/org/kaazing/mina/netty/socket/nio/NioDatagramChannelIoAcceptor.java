@@ -38,9 +38,12 @@ public class NioDatagramChannelIoAcceptor extends DatagramChannelIoAcceptor {
             DatagramSessionConfig.class, Object.class);
 
     public NioDatagramChannelIoAcceptor(DatagramChannelIoSessionConfig sessionConfig) {
-        super(sessionConfig, new NioDatagramChannelFactory(), new SimpleChannelUpstreamHandler());
+        this(sessionConfig, new NioDatagramChannelFactory());
     }
 
+    public NioDatagramChannelIoAcceptor(DatagramChannelIoSessionConfig sessionConfig, NioDatagramChannelFactory channelFactory) {
+        super(sessionConfig, channelFactory, new SimpleChannelUpstreamHandler());
+    }
 
     @Override
     public TransportMetadata getTransportMetadata() {

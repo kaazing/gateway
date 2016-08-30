@@ -24,6 +24,7 @@ import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
@@ -72,7 +73,8 @@ public class NioDatagramConnector extends AbstractNioConnector {
     @Override
     protected IoConnectorEx initConnector() {
         DatagramChannelIoSessionConfig config = new DefaultDatagramChannelIoSessionConfig();
-        NioDatagramChannelIoConnector connector = new NioDatagramChannelIoConnector(config);
+        NioDatagramChannelFactory channelFactory = new NioDatagramChannelFactory();
+        NioDatagramChannelIoConnector connector = new NioDatagramChannelIoConnector(config, channelFactory);
 
         String readBufferSize = configuration.getProperty("org.kaazing.gateway.transport.udp.READ_BUFFER_SIZE");
         String minimumReadBufferSize = configuration.getProperty("org.kaazing.gateway.transport.udp.MINIMUM_READ_BUFFER_SIZE");
