@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.junit.runner.RunWith;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -36,11 +37,40 @@ import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-public class MappedAutoIT {
+/**
+ * Test to validate behavior as specified in <a href="https://tools.ietf.org/html/rfc5766">RFC 5766: TURN</a>
+ * through TCP and UDP.
+ */
+
+// @Ignore("This is a base class, use MappedAutoSuiteIT instead.")
+@RunWith(InheritedBaseRunner.class)
+@IgnoreBaseClassTests
+public abstract class MappedAutoIT {
+
+    public static class TcpMappedAutoIT extends MappedAutoIT {
+        @Override
+        public String getProtocol() {
+            return "tcp";
+        }
+    }
+
+    public static class UdpMappedAutoIT extends MappedAutoIT {
+        @Override
+        public String getProtocol() {
+            return "udp";
+        }
+    }
+
+
+    public String protocol = getProtocol();
+
+    public abstract String getProtocol();
 
     private final K3poRule k3po = new K3poRule()
             .setScriptRoot("org/kaazing/gateway/service/turn/proxy")
-            .scriptProperty("acceptURI 'tcp://localhost:3479'");
+            .scriptProperty("acceptURI '" + protocol + "://localhost:3479'")
+            .scriptProperty("connectURI '" + protocol + "://localhost:3478'");
+
 
     private final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
 
@@ -50,14 +80,14 @@ public class MappedAutoIT {
             char[] password = "ab987c".toCharArray();
             try {
                 FileInputStream fileInStr = new FileInputStream(System.getProperty("user.dir")
-                    + "/target/truststore/keystore.db");
+                        + "/target/truststore/keystore.db");
                 keyStore = KeyStore.getInstance("JCEKS");
                 keyStore.load(fileInStr, "ab987c".toCharArray());
                 keyStore.setKeyEntry(
-                    "turn.shared.secret",
-                    new SecretKeySpec("turnAuthenticationSharedSecret".getBytes(forName("UTF-8")), "PBEWithMD5AndDES"),
-                    password,
-                    null
+                        "turn.shared.secret",
+                        new SecretKeySpec("turnAuthenticationSharedSecret".getBytes(forName("UTF-8")), "PBEWithMD5AndDES"),
+                        password,
+                        null
                 );
             }
             catch (Exception e) {
@@ -65,20 +95,20 @@ public class MappedAutoIT {
             }
             // @formatter:off
             GatewayConfiguration configuration =
-                new GatewayConfigurationBuilder()
-                    .property(EarlyAccessFeatures.TURN_PROXY.getPropertyName(), "true")
-                    .service()
-                        .accept("tcp://localhost:3478")
-                        .connect("tcp://localhost:3479")
-                        .type("turn.proxy")
-                        .property("mapped.address", "AUTO")
-                        .property("key.alias", "turn.shared.secret")
-                    .done()
-                    .security()
-                        .keyStore(keyStore)
-                        .keyStorePassword(password)
-                    .done()
-                .done();
+                    new GatewayConfigurationBuilder()
+                            .property(EarlyAccessFeatures.TURN_PROXY.getPropertyName(), "true")
+                            .service()
+                            .accept(protocol + "://localhost:3478")
+                            .connect(protocol + "://localhost:3479")
+                            .type("turn.proxy")
+                            .property("mapped.address", "AUTO")
+                            .property("key.alias", "turn.shared.secret")
+                            .done()
+                            .security()
+                            .keyStore(keyStore)
+                            .keyStorePassword(password)
+                            .done()
+                            .done();
             // @formatter:on
             init(configuration);
         }

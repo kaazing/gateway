@@ -26,6 +26,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -33,11 +34,42 @@ import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-public class PeerConnectionIT {
+
+
+/**
+ * Test to validate behavior as specified in <a href="https://tools.ietf.org/html/rfc5766">RFC 5766: TURN</a>
+ * through TCP and UDP.
+ */
+
+// @Ignore("This is a base class, use AllocationsSuiteIT instead.")
+@RunWith(InheritedBaseRunner.class)
+@IgnoreBaseClassTests
+public abstract class PeerConnectionIT {
+
+
+    public static class TcpPeerConnectionIT extends PeerConnectionIT {
+        @Override
+        public String getProtocol() {
+            return "tcp";
+        }
+    }
+
+    public static class UdpPeerConnectionIT extends PeerConnectionIT {
+        @Override
+        public String getProtocol() {
+            return "udp";
+        }
+    }
+
+    public String protocol = getProtocol();
+
+    public abstract String getProtocol();
 
     private final K3poRule k3po = new K3poRule()
             .setScriptRoot("org/kaazing/specification/turn/peer.connection")
-            .scriptProperty("acceptURI 'tcp://localhost:3479'");
+            .scriptProperty("acceptURI '" + protocol + "://localhost:3479'")
+            .scriptProperty("connectURI '" + protocol + "://localhost:3478'");
+
 
     private final GatewayRule gateway = new GatewayRule() {
         {
@@ -63,8 +95,8 @@ public class PeerConnectionIT {
                 new GatewayConfigurationBuilder()
                     .property(EarlyAccessFeatures.TURN_PROXY.getPropertyName(), "true")
                     .service()
-                        .accept("tcp://localhost:3478")
-                        .connect("tcp://localhost:3479")
+                        .accept(protocol + "://localhost:3478")
+                        .connect(protocol + "://localhost:3479")
                         .type("turn.proxy")
                         .property("mapped.address", "192.0.2.15:8080")
                         .property("key.alias", "turn.shared.secret")
