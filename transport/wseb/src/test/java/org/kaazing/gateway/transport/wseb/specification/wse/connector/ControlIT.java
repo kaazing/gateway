@@ -88,7 +88,7 @@ public class ControlIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        connector.connect("ws://localhost:8080/path?query", null, handler);
+        connector.connect("wse://localhost:8080/path?query", null, handler);
         k3po.finish();
     }
 
@@ -104,7 +104,7 @@ public class ControlIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        connector.connect("ws://localhost:8080/path?query", null, handler);
+        connector.connect("wse://localhost:8080/path?query", null, handler);
         k3po.finish();
     }
 
@@ -135,7 +135,7 @@ public class ControlIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        connector.connect("ws://localhost:8080/path?query", null, handler);
+        connector.connect("wse://localhost:8080/path?query", null, handler);
         k3po.finish();
     }
 
@@ -152,7 +152,7 @@ public class ControlIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        connector.connect("ws://localhost:8080/path?query", null, handler);
+        connector.connect("wse://localhost:8080/path?query", null, handler);
         k3po.finish();
     }
 
@@ -182,7 +182,7 @@ public class ControlIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        connector.connect("ws://localhost:8080/path?query", null, handler);
+        connector.connect("wse://localhost:8080/path?query", null, handler);
         k3po.finish();
     }
 
@@ -198,10 +198,8 @@ public class ControlIT {
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        connector.connect("ws://localhost:8080/path?query", null, handler);
+        connector.connect("wse://localhost:8080/path?query", null, handler);
         k3po.finish();
     }
-
-
 
 }

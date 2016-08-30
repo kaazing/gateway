@@ -85,7 +85,7 @@ public class DownstreamIT {
                 will(countDown(closed));
             }
         });
-        connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
+        connector.connect("wse://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
         closed.await(4, SECONDS);
         MemoryAppender.assertMessagesLogged(Collections.singletonList(".*nexpected.*type.*"), EMPTY_STRING_SET, null, false);
@@ -106,7 +106,7 @@ public class DownstreamIT {
                 will(countDown(closed));
             }
         });
-        connector.connect("ws://localhost:8080/path?query", null, handler);
+        connector.connect("wse://localhost:8080/path?query", null, handler);
         k3po.finish();
         closed.await(4, SECONDS);
         MemoryAppender.assertMessagesLogged(Collections.singletonList(".*nexpected.*status.*"), EMPTY_STRING_SET, null, false);
@@ -128,7 +128,7 @@ public class DownstreamIT {
                 will(countDown(closed));
             }
         });
-        connector.connect("ws://localhost:8080/path?query", null, handler);
+        connector.connect("wse://localhost:8080/path?query", null, handler);
         k3po.finish();
         closed.await(4, SECONDS);
         MemoryAppender.assertMessagesLogged(Collections.singletonList(".*received.*after reconnect.*"), EMPTY_STRING_SET, null, false);

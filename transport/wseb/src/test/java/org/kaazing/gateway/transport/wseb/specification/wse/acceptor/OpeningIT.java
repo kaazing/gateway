@@ -101,6 +101,13 @@ public class OpeningIT {
     }
 
     @Test
+    @Specification({ "connection.established.no.websocket.extensions/handshake.request" })
+    public void shouldEstablishConnectionWithNoXWebSocketExtensions() throws Exception {
+        acceptor.bind("wse://localhost:8080/path", mockHandler());
+        k3po.finish();
+    }
+
+    @Test
     @Specification("request.header.x.websocket.extensions/handshake.request")
     public void shouldEstablishConnectionWithRequestHeaderXWebSocketExtensions() throws Exception {
         acceptor.bind("wse://localhost:8080/path", mockHandler());

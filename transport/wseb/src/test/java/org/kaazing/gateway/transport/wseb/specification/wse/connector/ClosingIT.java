@@ -20,7 +20,6 @@ import static org.junit.Assert.assertTrue;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
@@ -87,7 +86,7 @@ public class ClosingIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
+        ConnectFuture connectFuture = connector.connect("wse://localhost:8080/path?query", null, handler);
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
         connectSession.close(false);
         assertTrue(closed.await(4, SECONDS));
@@ -113,7 +112,7 @@ public class ClosingIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
+        ConnectFuture connectFuture = connector.connect("wse://localhost:8080/path?query", null, handler);
         assertTrue("Connect failed", connectFuture.await(5,  SECONDS));
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
         connectSession.close(false);
@@ -150,7 +149,7 @@ public class ClosingIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
+        ConnectFuture connectFuture = connector.connect("wse://localhost:8080/path?query", null, handler);
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
         CloseFuture closeFuture = connectSession.getCloseFuture();
         assertTrue(closed.await(4, SECONDS));
@@ -175,7 +174,7 @@ public class ClosingIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
+        ConnectFuture connectFuture = connector.connect("wse://localhost:8080/path?query", null, handler);
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
         CloseFuture closeFuture = connectSession.getCloseFuture();
         assertTrue(closed.await(4, SECONDS));
@@ -208,7 +207,7 @@ public class ClosingIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
+        ConnectFuture connectFuture = connector.connect("wse://localhost:8080/path?query", null, handler);
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
         CloseFuture closeFuture = connectSession.getCloseFuture();
         assertTrue(closed.await(4, SECONDS));
@@ -248,7 +247,7 @@ public class ClosingIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
+        ConnectFuture connectFuture = connector.connect("wse://localhost:8080/path?query", null, handler);
         connectFuture.getSession();
         assertTrue(closed.await(4, SECONDS));
 
@@ -272,7 +271,7 @@ public class ClosingIT {
             }
         });
 
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
+        ConnectFuture connectFuture = connector.connect("wse://localhost:8080/path?query", null, handler);
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
         CloseFuture closeFuture = connectSession.close(false);
         assertTrue(closed.await(4, SECONDS));
