@@ -15,14 +15,18 @@
  */
 package org.kaazing.gateway.service.turn.proxy.filters;
 
+import static org.kaazing.gateway.service.turn.proxy.filters.StunMessage.HEADER_BYTES;
 import static org.kaazing.gateway.service.turn.proxy.filters.StunMessage.attributePaddedLength;
 import static org.kaazing.gateway.util.turn.TurnUtils.HMAC_SHA_1;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Base64;
+import java.util.Map;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -119,11 +123,11 @@ public class TurnFrameEncoder extends ProtocolEncoderAdapter {
                 buf.putShort(2, (short) lengthSoFar);
                 int pos = buf.position();
                 buf.position(0);
-                buf.limit(StunMessage.HEADER_BYTES + lengthSoFar - 4 - attributePaddedLength(attribute.getLength()));
+                buf.limit(HEADER_BYTES + lengthSoFar - 4 - attributePaddedLength(attribute.getLength()));
                 attribute = overrideMessageIntegrity(username, buf);
                 buf.putShort(2, stunMessage.getMessageLength());
                 buf.position(pos);
-                buf.limit(StunMessage.HEADER_BYTES + stunMessage.getMessageLength());
+                buf.limit(HEADER_BYTES + stunMessage.getMessageLength());
             } else if (attribute instanceof Fingerprint && stunMessage.isModified()) {
                 LOGGER.debug("Message is modified will override attribute FINGERPRINT");
                 // message length already at total value
