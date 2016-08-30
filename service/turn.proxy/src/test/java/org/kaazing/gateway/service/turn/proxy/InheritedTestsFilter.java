@@ -18,9 +18,6 @@ package org.kaazing.gateway.service.turn.proxy;
 import org.junit.runner.Description;
 import org.junit.runner.manipulation.Filter;
 
-/**
- * Created by APirvu on 8/29/2016.
- */
 public class InheritedTestsFilter extends Filter {
     @Override
     public boolean shouldRun(Description description) {

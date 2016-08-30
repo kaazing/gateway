@@ -22,11 +22,7 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.TestClass;
 
 
-/**
- * Created by APirvu on 8/29/2016.
- */
 public class InheritedBaseRunner extends BlockJUnit4ClassRunner {
-
 
     @Override
     protected Object createTest() throws Exception {
