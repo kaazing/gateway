@@ -41,6 +41,7 @@ import org.kaazing.k3po.junit.rules.K3poRule;
  */
 
 // @Ignore("This is a base class, use AllocationsSuiteIT instead.")
+
 @RunWith(InheritedBaseRunner.class)
 @IgnoreBaseClassTests
 public abstract class AllocationsIT {
