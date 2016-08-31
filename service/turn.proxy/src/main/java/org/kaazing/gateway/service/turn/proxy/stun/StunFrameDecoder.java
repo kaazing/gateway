@@ -128,11 +128,14 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
             stunMessageAttributes.add(attribute);
             remaining -= length;
 
-            // remove padding
+            // copy padding, it can be any value, but is not ignored for MESSAGE-INTEGRITY generation
+            byte[] padding = new byte[attributePaddedLength(length) - length];
             for (int i = length; i < attributePaddedLength(length); i++) {
-                in.get();
+                padding[i-length] = in.get();
                 remaining -= 1;
             }
+            attribute.setPadding(padding);
+
         } while (remaining > 0);
         return stunMessageAttributes;
     }

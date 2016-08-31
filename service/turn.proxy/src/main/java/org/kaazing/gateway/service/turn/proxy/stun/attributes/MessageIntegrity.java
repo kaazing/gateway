@@ -46,12 +46,4 @@ public class MessageIntegrity extends Attribute {
         return value;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : getVariable()) {
-            sb.append(String.format("%02X ", b));
-        }
-        return String.format("%s - %s", super.toString(), sb.toString());
-    }
 }

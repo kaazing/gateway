@@ -186,13 +186,9 @@ public abstract class AbstractAddress extends Attribute {
     @Override
     public String toString() {
         try {
-            StringBuilder sb = new StringBuilder();
-            for (byte b : getVariable()) {
-                sb.append(String.format("%02X ", b));
-            }
             return String.format(
-                    "%s - %s:%s - %s",
-                    super.toString(), InetAddress.getByAddress(getAddress()), getPort(), sb.toString()
+                    "%s - %s:%s",
+                    super.toString(), InetAddress.getByAddress(getAddress()), getPort()
             );
         } catch (UnknownHostException e) {
             LOGGER.debug("Unable to transform address to string, using default implementation", e);
