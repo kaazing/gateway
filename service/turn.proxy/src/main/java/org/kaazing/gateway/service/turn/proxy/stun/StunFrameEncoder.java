@@ -18,10 +18,12 @@ package org.kaazing.gateway.service.turn.proxy.stun;
 import static org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage.attributePaddedLength;
 import static org.kaazing.gateway.util.turn.TurnUtils.HMAC_SHA_1;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Map;
 
@@ -109,24 +111,29 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
     }
 
     private void encodeAttributes(StunProxyMessage stunMessage, String username, ByteBuffer buf) throws NoSuchAlgorithmException, InvalidKeyException {
-        int lengthSoFar = StunProxyMessage.HEADER_BYTES;
+        int lengthSoFar = 0; // StunProxyMessage.HEADER_BYTES;
         for (Attribute attribute : stunMessage.getAttributes()) {
+            lengthSoFar += 4 + attributePaddedLength(attribute.getLength());
             if (attribute instanceof MessageIntegrity &&
                 stunMessage.isModified() && username != null && sharedSecret != null) {
                 LOGGER.debug("Message is modified will override attribute MESSAGE-INTEGRITY");
                 // order counts when here we can safely recreate the message integrity
                 // overwrite message length and use the current buffer content, secret and password
                 buf.putShort(2, (short) lengthSoFar);
+                int pos = buf.position();
+                buf.position(0);
+                buf.limit(StunProxyMessage.HEADER_BYTES + lengthSoFar - 4 - attributePaddedLength(attribute.getLength()));
                 attribute = overrideMessageIntegrity(username, buf);
                 buf.putShort(2, stunMessage.getMessageLength());
+                buf.position(pos);
+                buf.limit(StunProxyMessage.HEADER_BYTES + stunMessage.getMessageLength());
             } else if (attribute instanceof Fingerprint && stunMessage.isModified()) {
-                LOGGER.debug("Message is modified will override atribute FINGERPRINT");
+                LOGGER.debug("Message is modified will override attribute FINGERPRINT");
                 // message length already at total value
                 attribute = new Fingerprint();
                 ((Fingerprint) attribute).calculate(buf.array());
             }
 
-            lengthSoFar += 4 + attributePaddedLength(attribute.getLength());
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Encoding STUN attribute: " + attribute);
             }
@@ -135,17 +142,36 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
             buf.putShort(length);
             byte[] variable = attribute.getVariable();
             buf.put(variable);
+
+            // restore padding or create new one
+            byte[] padding = attribute.getPadding();
+            if (padding == null) {
+                padding = new byte[attributePaddedLength(length) - length];
+                Arrays.fill(padding, (byte)0x00);
+            }
             for (int i = length; i < attributePaddedLength(length); i++) {
-                buf.put((byte) 0x00);
+                buf.put(padding[i-length]);
             }
         }
     }
 
     private Attribute overrideMessageIntegrity(String username, ByteBuffer buf) throws NoSuchAlgorithmException, InvalidKeyException {
+        byte[] data = new byte[buf.limit() - buf.position()];
+        System.arraycopy(buf.array(), 0, data, buf.position(), buf.limit());
+        if (LOGGER.isTraceEnabled()) {
+            StringBuilder sb = new StringBuilder();
+            for (byte b : data) {
+                sb.append(String.format("%02X ", b));
+            }
+            LOGGER.trace("Buffer data: " + sb.toString());
+        }
         char[] password = TurnUtils.generatePassword(username, sharedSecret, keyAlgorithm);
+
+        // TODO retrieve the realm the same as the username
+        byte[] key = TurnUtils.generateKey(username, "demo", new String(password), ':');
         Mac hMac = Mac.getInstance(HMAC_SHA_1);
-        SecretKey signingKey = new SecretKeySpec(new String(password).getBytes(), HMAC_SHA_1);
+        SecretKey signingKey = new SecretKeySpec(key, HMAC_SHA_1);
         hMac.init(signingKey);
-        return new MessageIntegrity(hMac.doFinal(buf.array()), StunAttributeFactory.CredentialType.SHORT_TERM);
+        return new MessageIntegrity(hMac.doFinal(data), StunAttributeFactory.CredentialType.SHORT_TERM);
     }
 }

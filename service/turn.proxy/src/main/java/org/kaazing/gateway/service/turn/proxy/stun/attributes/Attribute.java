@@ -21,16 +21,30 @@ package org.kaazing.gateway.service.turn.proxy.stun.attributes;
  */
 public abstract class Attribute {
 
+    private byte[] padding;
+
     public abstract short getType();
 
     public abstract short getLength();
 
     public abstract byte[] getVariable();
 
+    public byte[] getPadding() {
+        return padding;
+    }
+
+    public void setPadding(byte[] padding) {
+        this.padding = padding;
+    }
+
     @Override
     public String toString() {
         int type = getType();
-        return String.format("%s", AttributeType.valueOf(type));
+        StringBuilder sb = new StringBuilder();
+        for (byte b : getVariable()) {
+            sb.append(String.format("%02X ", b));
+        }
+        return String.format("%s[%d] - %s", AttributeType.valueOf(type), getLength(), sb.toString());
     }
 
 }
