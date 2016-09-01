@@ -313,3 +313,7 @@ This product contains a modified version of Apache Mina 2.0.0 RC1
 	License:  http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage: http://mina.apache.org/
 
+This product depends on opencsv 2.3
+
+	License:	http://opencsv.sourceforge.net/license.html (The Apache License, Version 2.0)
+	Homepage:	http://opencsv.sourceforge.net/

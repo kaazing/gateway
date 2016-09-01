@@ -60,7 +60,7 @@ then
    for feature in $GATEWAY_FEATURES; do
       FEATURE_OPTS="$FEATURE_OPTS -Dfeature.$feature"
    done
-   set =f; unset IFS
+   set +f; unset IFS
 fi
 
 # Check if Java exists

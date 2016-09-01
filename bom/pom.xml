@@ -115,7 +115,7 @@
                 <groupId>org.kaazing</groupId>
                 <artifactId>gateway.service.turn.rest</artifactId>
                 <version>${project.version}</version>
-            </dependency>            
+            </dependency>
             <dependency>
                 <groupId>org.kaazing</groupId>
                 <artifactId>gateway.service.update.check</artifactId>
@@ -124,6 +124,11 @@
             <dependency>
                 <groupId>org.kaazing</groupId>
                 <artifactId>gateway.service.update.check.management</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>gateway.service.turn.proxy</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- transport dependencies -->

@@ -1,0 +1,132 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+property realm "example.com"
+property nonce "adl7W7PeDU4hKE72jdaQvbAMcr6h39sm"
+property acceptURI "tcp://localhost:3478"
+
+accept ${acceptURI}
+accepted
+connected
+
+#allocation request (w/ cred)
+read [0x00] [0x03] [0x00] [0x68]
+read [0x21] [0x12] [0xa4] [0x42]
+read ([0..12]:transactionID)
+#Attribute Lifetime
+read [0x00] [0x0d] [0x00] [0x04]
+read [0x00] [0x00] [0x0e] [0x10] #3600 seconds
+#Attribute Requested Transport
+read [0x00] [0x19] [0x00] [0x01]
+read [0x11] [0x00] [0x00] [0x00]
+#Attribute Don't Fragment
+read [0x00] [0x1a] [0x00] [0x00]
+#Attribute Username
+read [0x00] [0x06] [0x00] [0x03]
+read "joe" [0x00]
+#Attribute Realm
+read [0x00] [0x14] [0x00] [0x0b]
+read ${realm} [0x00]
+#Attribute Nonce
+read [0x00] [0x15] [0x00] [0x20]
+read ${nonce}
+#Attribute Message-Integrity
+read [0x00] [0x08] [0x00] (byte:length)
+read ([0..${length}]:messageDigest)
+
+#200 response w/ mapped address
+#STUN Header
+write [0x01] [0x03] [0x00] [0x40] #Type|Length
+write [0x21] [0x12] [0xa4] [0x42] #Magic Cookie
+write ${transactionID}
+#Attribute Lifetime
+write [0x00] [0x0d] [0x00] [0x04]
+write [0x00] [0x00] [0x0c] [0x08] #3080 seconds
+#Attribute XOR-Relayed-Address
+write [0x00] [0x16] [0x00] [0x08]
+write [0x00] [0x01] ${turn:portXOR(8080)} #port 8080
+write ${turn:ipXOR("127.0.0.1")}
+#Attribute XOR-Mapped-Address
+write [0x00] [0x20] [0x00] [0x08]
+write [0xff] [0x01] ${turn:portXOR(1)} #port 8080
+write ${turn:ipXOR("127.0.0.1")}
+#Attribute Message-Integrity
+write [0x00] [0x08] [0x00] ${length}
+write [0x01] [0x02] [0x03] [0x04] ${turn:messageDigestMD5Encoding("joe:example.com:welcome")}
+#Attribute Fingerprint - dummy content
+write [0x80] [0x28] [0x00] [0x04]
+write [0x00] [0x00] [0x00] [0x00]
+
+#creates permissions for peer
+read [0x00] [0x08] [0x00] [0x60]
+read [0x21] [0x12] [0xa4] [0x42]
+read ([0..12]:transactionID)
+#Attribute XOR-Peer-Address
+read [0x00] [0x12] [0x00] [0x08]
+read [0x00] [0x01] ${turn:portXOR(8001)} #port 8001
+read ([0..4]:peer_address)
+#Attribute Username
+read [0x00] [0x06] [0x00] [0x03]
+read "joe" [0x00]
+#Attribute Realm
+read [0x00] [0x14] [0x00] [0x0b]
+read ${realm} [0x00]
+#Attribute Nonce
+read [0x00] [0x15] [0x00] [0x20]
+read ${nonce}
+#Attribute Message-Integrity
+read [0x00] [0x08] [0x00] ${length}
+read ([0..${length}]:messageDigest)
+
+#success
+write [0x01] [0x08] [0x00] [0x14]
+write [0x21] [0x12] [0xa4] [0x42]
+write ${transactionID}
+#attribute Message-Integrity
+write [0x00] [0x08] [0x00] ${length}
+write [0x01] [0x02] [0x03] [0x04] ${turn:messageDigestMD5Encoding("joe:example.com:welcome")}
+
+#binds to peer
+read [0x00] [0x09] [0x00] [0x68]
+read [0x21] [0x12] [0xa4] [0x42]
+read ([0..12]:transactionID)
+#Attribute Channel-Number
+read [0x00] [0x0c] [0x00] [0x02]
+read [0x40] [0x00] [0x00] [0x00]
+#Attribute XOR-Peer-Address
+read [0x00] [0x12] [0x00] [0x08]
+read [0x00] [0x01] ${turn:portXOR(8001)} #port 8001
+read ([0..4]:peer_address)
+#Attribute Username
+read [0x00] [0x06] [0x00] [0x03]
+read "joe" [0x00]
+#Attribute Realm
+read [0x00] [0x14] [0x00] [0x0b]
+read ${realm} [0x00]
+#Attribute Nonce
+read [0x00] [0x15] [0x00] [0x20]
+read ${nonce}
+#Attribute Message-Integrity
+read [0x00] [0x08] [0x00] ${length}
+read ([0..${length}]:messageDigest)
+
+#success
+write [0x01] [0x09] [0x00] [0x18]
+write [0x21] [0x12] [0xa4] [0x42]
+write ${transactionID}
+#attribute Message-Integrity
+write [0x00] [0x08] [0x00] ${length}
+write [0x01] [0x02] [0x03] [0x04] ${turn:messageDigestMD5Encoding("joe:example.com:welcome")}
