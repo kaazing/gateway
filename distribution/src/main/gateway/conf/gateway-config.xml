@@ -16,7 +16,7 @@
     limitations under the License.
 
 -->
-<gateway-config xmlns="http://xmlns.kaazing.org/2015/11/gateway">
+<gateway-config xmlns="http://xmlns.kaazing.org/2016/06/gateway">
 
   <!--
   #############################################################################
@@ -97,6 +97,13 @@
     <cross-site-constraint>
       <allow-origin>*</allow-origin>
     </cross-site-constraint>
+  </service>
+
+
+  <service>
+    <name>Update Checker</name>
+    <description>Checks to see if a newer version of the Gateway is available</description>
+    <type>update.check</type>
   </service>
 
 
