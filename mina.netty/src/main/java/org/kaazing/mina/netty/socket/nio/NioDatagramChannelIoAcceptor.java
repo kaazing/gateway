@@ -23,8 +23,6 @@ import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.channel.socket.DatagramChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioChildDatagramChannel;
-import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
-import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.netty.ChannelIoSession;
 import org.kaazing.mina.netty.socket.DatagramChannelIoAcceptor;
@@ -37,10 +35,6 @@ public class NioDatagramChannelIoAcceptor extends DatagramChannelIoAcceptor {
     private static final TransportMetadata NIO_DATAGRAM_TRANSPORT_METADATA = new DefaultTransportMetadata(
             "Kaazing", "NioDatagramChannel", true, true, InetSocketAddress.class,
             DatagramSessionConfig.class, Object.class);
-
-    public NioDatagramChannelIoAcceptor(DatagramChannelIoSessionConfig sessionConfig) {
-        this(sessionConfig, new NioDatagramChannelFactory());
-    }
 
     public NioDatagramChannelIoAcceptor(DatagramChannelIoSessionConfig sessionConfig, DatagramChannelFactory channelFactory) {
         super(sessionConfig, channelFactory, new SimpleChannelUpstreamHandler());

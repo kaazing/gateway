@@ -36,10 +36,6 @@ public class NioDatagramChannelIoConnector extends DatagramChannelIoConnector {
             "Kaazing", "NioDatagramChannel", true, true, InetSocketAddress.class,
             DatagramChannelIoSessionConfig.class, Object.class);
 
-    public NioDatagramChannelIoConnector(DatagramChannelIoSessionConfig sessionConfig) {
-        this(sessionConfig, new NioDatagramChannelFactory());
-    }
-
     public NioDatagramChannelIoConnector(DatagramChannelIoSessionConfig sessionConfig, DatagramChannelFactory channelFactory) {
         super(sessionConfig, channelFactory);
     }

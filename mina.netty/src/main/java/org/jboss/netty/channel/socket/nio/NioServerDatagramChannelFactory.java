@@ -41,6 +41,7 @@ import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.socket.DatagramChannel;
 import org.jboss.netty.channel.socket.DatagramChannelFactory;
 import org.jboss.netty.channel.socket.InternetProtocolFamily;
+import org.jboss.netty.channel.socket.ServerSocketChannel;
 import org.jboss.netty.channel.socket.Worker;
 import org.jboss.netty.channel.socket.oio.OioDatagramChannelFactory;
 import org.jboss.netty.util.ExternalResourceReleasable;
@@ -53,44 +54,23 @@ import org.jboss.netty.util.ExternalResourceReleasable;
  *
  * <h3>How threads work</h3>
  * <p>
- * There is only one thread type in a {@link NioDatagramChannelFactory};
- * worker threads.
+ * There are two types of threads in a {@link NioServerDatagramChannelFactory};
+ * one is boss thread and the other is worker thread.
+ *
+ * <h4>Boss threads</h4>
+ * <p>
+ * Each bound {@link NioDatagramChannel} has its own boss thread.
+ * For example, if you opened two server ports such as 80 and 443, you will
+ * have two boss threads.  A boss thread creates child sessions based on
+ * the remote address of client.  Once a child connection is created
+ * successfully, the boss thread passes the child {@link Channel} to one of
+ * the worker threads that the {@link NioServerDatagramChannelFactory} manages.
  *
  * <h4>Worker threads</h4>
  * <p>
- * One {@link NioDatagramChannelFactory} can have one or more worker
+ * One {@link NioServerDatagramChannelFactory} can have one or more worker
  * threads.  A worker thread performs non-blocking read and write for one or
- * more {@link DatagramChannel}s in a non-blocking mode.
- *
- * <h3>Life cycle of threads and graceful shutdown</h3>
- * <p>
- * All worker threads are acquired from the {@link Executor} which was specified
- * when a {@link NioDatagramChannelFactory} was created.  Therefore, you should
- * make sure the specified {@link Executor} is able to lend the sufficient
- * number of threads.  It is the best bet to specify
- * {@linkplain Executors#newCachedThreadPool() a cached thread pool}.
- * <p>
- * All worker threads are acquired lazily, and then released when there's
- * nothing left to process.  All the related resources such as {@link Selector}
- * are also released when the worker threads are released.  Therefore, to shut
- * down a service gracefully, you should do the following:
- *
- * <ol>
- * <li>close all channels created by the factory usually using
- *     {@link ChannelGroup#close()}, and</li>
- * <li>call {@link #releaseExternalResources()}.</li>
- * </ol>
- *
- * Please make sure not to shut down the executor until all channels are
- * closed.  Otherwise, you will end up with a {@link RejectedExecutionException}
- * and the related resources might not be released properly.
- *
- * <h3>Limitation</h3>
- * <p>
- * Multicast is not supported.  Please use {@link OioDatagramChannelFactory}
- * instead.
- *
- * @apiviz.landmark
+ * more {@link Channel}s in a non-blocking mode.
  */
 public class NioServerDatagramChannelFactory implements DatagramChannelFactory {
 

@@ -35,13 +35,11 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 
-import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.socket.DatagramChannel;
 import org.jboss.netty.channel.socket.DatagramChannelFactory;
 import org.jboss.netty.channel.socket.InternetProtocolFamily;
-import org.jboss.netty.channel.socket.Worker;
 import org.jboss.netty.channel.socket.oio.OioDatagramChannelFactory;
 import org.jboss.netty.util.ExternalResourceReleasable;
 
@@ -53,19 +51,19 @@ import org.jboss.netty.util.ExternalResourceReleasable;
  *
  * <h3>How threads work</h3>
  * <p>
- * There is only one thread type in a {@link NioDatagramChannelFactory};
+ * There is only one thread type in a {@link NioClientDatagramChannelFactory};
  * worker threads.
  *
  * <h4>Worker threads</h4>
  * <p>
- * One {@link NioDatagramChannelFactory} can have one or more worker
+ * One {@link NioClientDatagramChannelFactory} can have one or more worker
  * threads.  A worker thread performs non-blocking read and write for one or
  * more {@link DatagramChannel}s in a non-blocking mode.
  *
  * <h3>Life cycle of threads and graceful shutdown</h3>
  * <p>
  * All worker threads are acquired from the {@link Executor} which was specified
- * when a {@link NioDatagramChannelFactory} was created.  Therefore, you should
+ * when a {@link NioClientDatagramChannelFactory} was created.  Therefore, you should
  * make sure the specified {@link Executor} is able to lend the sufficient
  * number of threads.  It is the best bet to specify
  * {@linkplain Executors#newCachedThreadPool() a cached thread pool}.
@@ -89,8 +87,6 @@ import org.jboss.netty.util.ExternalResourceReleasable;
  * <p>
  * Multicast is not supported.  Please use {@link OioDatagramChannelFactory}
  * instead.
- *
- * @apiviz.landmark
  */
 public class NioClientDatagramChannelFactory implements DatagramChannelFactory {
 

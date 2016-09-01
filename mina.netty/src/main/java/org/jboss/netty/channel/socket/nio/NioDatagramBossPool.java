@@ -21,7 +21,7 @@ import java.util.concurrent.Executor;
 
 
 /**
- * Holds {@link NioServerBoss} instances to use
+ * Holds {@link NioDatagramWorker} instances to use
  */
 public class NioDatagramBossPool extends AbstractNioBossPool<NioDatagramWorker> {
     private final ThreadNameDeterminer determiner;
@@ -29,8 +29,8 @@ public class NioDatagramBossPool extends AbstractNioBossPool<NioDatagramWorker> 
     /**
      * Create a new instance
      *
-     * @param bossExecutor  the {@link Executor} to use for server the {@link NioServerBoss}
-     * @param bossCount     the number of {@link NioServerBoss} instances this {@link NioServerBossPool} will hold
+     * @param bossExecutor  the {@link Executor} to use for server the {@link NioDatagramWorker}
+     * @param bossCount     the number of {@link NioDatagramWorker} instances this {@link NioDatagramBossPool} will hold
      * @param determiner    the {@link ThreadNameDeterminer} to use for name the threads. Use {@code null}
      *                      if you not want to set one explicit.
      */
@@ -43,8 +43,8 @@ public class NioDatagramBossPool extends AbstractNioBossPool<NioDatagramWorker> 
     /**
      * Create a new instance using no {@link ThreadNameDeterminer}
      *
-     * @param bossExecutor  the {@link Executor} to use for server the {@link NioServerBoss}
-     * @param bossCount     the number of {@link NioServerBoss} instances this {@link NioServerBossPool} will hold
+     * @param bossExecutor  the {@link Executor} to use for server the {@link NioDatagramWorker}
+     * @param bossCount     the number of {@link NioDatagramWorker} instances this {@link NioDatagramBossPool} will hold
      */
     public NioDatagramBossPool(Executor bossExecutor, int bossCount) {
         this(bossExecutor, bossCount, null);
