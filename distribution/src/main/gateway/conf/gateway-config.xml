@@ -72,7 +72,7 @@
 
     <type>echo</type>
 
-    <!-- Restrict cross site constraints before running in production -->
+    <!-- "*" is not secure for javascript applications, change before running in production -->
     <cross-site-constraint>
       <allow-origin>*</allow-origin>
     </cross-site-constraint>
@@ -93,7 +93,7 @@
 
     <realm-name>demo</realm-name>
 
-    <!-- Restrict cross site constraints before running in production -->
+    <!-- "*" is not secure for javascript applications, change before running in production -->
     <cross-site-constraint>
       <allow-origin>*</allow-origin>
     </cross-site-constraint>
