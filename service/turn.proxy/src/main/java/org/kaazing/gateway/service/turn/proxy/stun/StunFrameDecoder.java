@@ -19,6 +19,7 @@ import static org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage.MAGIC
 import static org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage.attributePaddedLength;
 
 import java.nio.BufferUnderflowException;
+import java.nio.channels.UnsupportedAddressTypeException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +34,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
+    public enum TURNMessageFormat {
+        STUN, CHANNEL_DATA, RESERVED;
+
+        public static TURNMessageFormat retrieveType(short leadingBitsAndMessageType) {
+            LOGGER.trace(String.format("retrievingType (leadingBitsAndMessageType=%04X)",leadingBitsAndMessageType));
+            int leadingBits = ( leadingBitsAndMessageType & 0xC000 )>>14;
+            switch ( leadingBits) {
+            case 0:
+                return STUN;
+            case 1:
+                return CHANNEL_DATA;
+            default:
+                return RESERVED;
+            }
+        }
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger("service.turn.proxy");
     private final StunAttributeFactory stunAttributeFactory;
 
@@ -52,9 +70,45 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
 
         // https://tools.ietf.org/html/rfc5389#section-6
         short leadingBitsAndMessageType = in.getShort();
+        
+        TURNMessageFormat messageFormat = TURNMessageFormat.retrieveType(leadingBitsAndMessageType);  
 
-        validateIsStun(leadingBitsAndMessageType);
+        switch (messageFormat) {
+        case STUN:
+            return processStunMessage(session, in, out, leadingBitsAndMessageType);
+        case CHANNEL_DATA:
+            return processChannelDataMessage(session, in, out, leadingBitsAndMessageType);
+        default:
+            throw new UnsupportedOperationException(String.format("Unknown message type %04X",leadingBitsAndMessageType));
+        }
+    }
 
+    private boolean processChannelDataMessage(IoSession session, IoBufferEx in, ProtocolDecoderOutput out,
+        short leadingBitsAndMessageType) {
+        short channelNumber = leadingBitsAndMessageType;
+        short messageLength = in.getShort();
+        byte[] appData = new byte[messageLength];
+
+        if (in.remaining() < messageLength) {
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace(String.format("Message has %d bytes remaining, which is less than declared length of: %d",
+                        in.remaining(), messageLength));
+            }
+            in.reset();
+            return false;
+        } else if (in.remaining() == 0) {
+            LOGGER.debug("Message does not contain any application data");
+        } else {
+            in.get(appData);
+        }
+        ChannelDataProxyMessage message = new ChannelDataProxyMessage(channelNumber, messageLength, appData);
+        in.mark();
+        out.write(message);
+        return true;
+    }
+
+    private boolean processStunMessage(IoSession session, IoBufferEx in, ProtocolDecoderOutput out,
+        short leadingBitsAndMessageType) {
         StunMessageClass messageClass = StunMessageClass.valueOf(leadingBitsAndMessageType);
 
         StunMessageMethod method = StunMessageMethod.valueOf(leadingBitsAndMessageType);
@@ -105,7 +159,6 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
         StunProxyMessage stunMessage = new StunProxyMessage(messageClass, method, transactionId, attributes);
         in.mark();
         out.write(stunMessage);
-
         return true;
     }
 
@@ -138,13 +191,6 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
 
         } while (remaining > 0);
         return stunMessageAttributes;
-    }
-
-    private void validateIsStun(short leadingBitsAndMessageType) {
-        int leadingBytes = leadingBitsAndMessageType & 0xC00;
-        if (0 != leadingBytes) {
-            throw new IllegalArgumentException(String.format("Illegal leading bytes in STUN message: %02X from: %04X", leadingBytes, leadingBitsAndMessageType));
-        }
     }
 
     private void validateMagicCookie(int magicCookie) {

@@ -18,7 +18,6 @@ package org.kaazing.gateway.service.turn.proxy.stun;
 import static org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage.attributePaddedLength;
 import static org.kaazing.gateway.util.turn.TurnUtils.HMAC_SHA_1;
 
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -88,6 +87,31 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Encoding STUN message: " + message);
         }
+
+        ByteBuffer buf;
+        if (message instanceof StunProxyMessage) {
+            buf = serializeStunMessage(message);
+        } else if (message instanceof StunProxyMessage) {
+            buf = serializeChannelDataMessage(message);
+        } else {
+            throw new IllegalArgumentException(String.format(
+                    "Unknown message received. Only StunProxyMessage and ChannelDataProxyMessage are supported. Received %s",
+                    message.getClass().getName()));
+        }
+        out.write(allocator.wrap(buf));
+    }
+
+    private ByteBuffer serializeChannelDataMessage(Object message) {
+        ChannelDataProxyMessage msg = (ChannelDataProxyMessage) message;
+        ByteBuffer buf = allocator.allocate(ChannelDataProxyMessage.HEADER_BYTES + msg.getMessageLength());
+        buf.putShort((short)msg.getChannelNumber());
+        buf.putShort((short)msg.getMessageLength());
+        buf.put(msg.getAppData());
+        buf.flip();
+        return buf;
+    }
+
+    private ByteBuffer serializeStunMessage(Object message) throws NoSuchAlgorithmException, InvalidKeyException {
         StunProxyMessage stunMessage = (StunProxyMessage) message;
         String username = null;
         if (stunMessage.getMessageClass().equals(StunMessageClass.RESPONSE) ||
@@ -107,7 +131,7 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
         buf.put(stunMessage.getTransactionId());
         encodeAttributes(stunMessage, username, buf);
         buf.flip();
-        out.write(allocator.wrap(buf));
+        return buf;
     }
 
     private void encodeAttributes(StunProxyMessage stunMessage, String username, ByteBuffer buf) throws NoSuchAlgorithmException, InvalidKeyException {
