@@ -51,10 +51,10 @@ public class Tcp2UdpIT {
         }
     };
 
-    private TestRule trace = new MethodExecutionTrace();
+    private final TestRule trace = new MethodExecutionTrace();
 
     @Rule
-    public TestRule chain = outerRule(trace).around(k3po).around(gaateway).around(timeout);
+    public final TestRule chain = outerRule(trace).around(k3po).around(gaateway).around(timeout);
 
     @Test
     @Specification({

@@ -92,53 +92,26 @@ import org.jboss.netty.util.ExternalResourceReleasable;
  *
  * @apiviz.landmark
  */
-public class NioDatagramChannelFactory implements DatagramChannelFactory {
+public class NioClientDatagramChannelFactory implements DatagramChannelFactory {
 
     private final NioDatagramPipelineSink sink;
-    private final NioChildDatagramPipelineSink childSink;
-    private final WorkerPool<NioDatagramWorker> workerPool;
-    private final WorkerPool<NioWorker> childPool;
+    private final WorkerPool<NioWorker> workerPool;
     private final InternetProtocolFamily family;
     private boolean releasePool;
 
-    /**
-     * Create a new {@link NioDatagramChannelFactory} with a {@link Executors#newCachedThreadPool()}
-     * and without preferred {@link InternetProtocolFamily}.  Please note that the {@link InternetProtocolFamily}
-     * of the channel will be platform (and possibly configuration) dependent and therefore
-     * unspecified.  Use {@link #NioDatagramChannelFactory(InternetProtocolFamily)} if unsure.
-     *
-     * See {@link #NioDatagramChannelFactory(Executor)}
-     */
-    public NioDatagramChannelFactory() {
-        this(null, new NioWorkerPool(Executors.newCachedThreadPool(), SelectorUtil.DEFAULT_IO_THREADS));
-    }
-
-    /**
-     * Create a new {@link NioDatagramChannelFactory} with a {@link Executors#newCachedThreadPool()}.
-     *
-     * See {@link #NioDatagramChannelFactory(Executor)}
-     */
-    public NioDatagramChannelFactory(InternetProtocolFamily family, WorkerPool<NioWorker> childPool) {
-        workerPool = new NioDatagramWorkerPool(Executors.newCachedThreadPool(), SelectorUtil.DEFAULT_IO_THREADS);
-        this.childPool = childPool;
-        this.family = family;
-        sink = new NioDatagramPipelineSink(workerPool);
-        childSink = new NioChildDatagramPipelineSink(childPool);
+    public NioClientDatagramChannelFactory(WorkerPool<NioWorker> workerPool) {
+        this.workerPool = workerPool;
+        this.family = null;
+        sink = new NioDatagramPipelineSink();
         releasePool = true;
     }
 
-    public DatagramChannel newChannel(final ChannelPipeline pipeline) {
-        return new NioDatagramChannel(this, pipeline, sink, sink.nextWorker(), family);
-    }
-
-    // mina.netty change -  adding this to create child datagram channels
-    public NioChildDatagramChannel newChildChannel(Channel parent, final ChannelPipeline pipeline) {
-        return new NioChildDatagramChannel(parent, this, pipeline, childSink, childSink.nextWorker(), family);
+    public DatagramChannel newChannel(ChannelPipeline pipeline) {
+        return new NioDatagramChannel(this, pipeline, sink, workerPool.nextWorker(), family);
     }
 
     public void shutdown() {
         workerPool.shutdown();
-        childPool.shutdown();
         if (releasePool) {
             releasePool();
         }
@@ -146,16 +119,12 @@ public class NioDatagramChannelFactory implements DatagramChannelFactory {
 
     public void releaseExternalResources() {
         workerPool.shutdown();
-        childPool.shutdown();
         releasePool();
     }
 
     private void releasePool() {
         if (workerPool instanceof ExternalResourceReleasable) {
             ((ExternalResourceReleasable) workerPool).releaseExternalResources();
-        }
-        if (childPool instanceof ExternalResourceReleasable) {
-            ((ExternalResourceReleasable) childPool).releaseExternalResources();
         }
     }
 }

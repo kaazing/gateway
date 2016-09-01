@@ -55,7 +55,7 @@ import static org.jboss.netty.channel.Channels.*;
  * A class responsible for registering channels with {@link Selector}.
  * It also implements the {@link Selector} loop.
  */
-public class NioDatagramWorker extends AbstractNioWorker {
+public class NioDatagramWorker extends AbstractNioWorker implements Boss {
 
     /**
      * Sole constructor.

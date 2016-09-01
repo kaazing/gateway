@@ -33,7 +33,6 @@ package org.jboss.netty.channel.socket.nio;
 import static org.jboss.netty.channel.Channels.*;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executor;
 
 import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelFuture;
@@ -48,23 +47,6 @@ import org.jboss.netty.channel.MessageEvent;
  * an array of I/O workers.
  */
 class NioDatagramPipelineSink extends AbstractNioChannelSink {
-
-    private final WorkerPool<NioDatagramWorker> workerPool;
-
-    /**
-     * Creates a new {@link NioDatagramPipelineSink} with a the number of {@link NioDatagramWorker}s
-     * specified in workerCount.  The {@link NioDatagramWorker}s take care of reading and writing
-     * for the {@link NioDatagramChannel}.
-     *
-     * @param workerExecutor
-     *        the {@link Executor} that will run the {@link NioDatagramWorker}s
-     *        for this sink
-     * @param workerCount
-     *        the number of {@link NioDatagramWorker}s for this sink
-     */
-    NioDatagramPipelineSink(final WorkerPool<NioDatagramWorker> workerPool) {
-        this.workerPool = workerPool;
-    }
 
     /**
      * Handle downstream event.
@@ -199,10 +181,6 @@ class NioDatagramPipelineSink extends AbstractNioChannelSink {
                 channel.worker.close(channel, future);
             }
         }
-    }
-
-    NioDatagramWorker nextWorker() {
-        return workerPool.nextWorker();
     }
 
 }

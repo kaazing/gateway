@@ -21,6 +21,7 @@ import org.apache.mina.transport.socket.DatagramSessionConfig;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.socket.DatagramChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioChildDatagramChannel;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
@@ -41,7 +42,7 @@ public class NioDatagramChannelIoAcceptor extends DatagramChannelIoAcceptor {
         this(sessionConfig, new NioDatagramChannelFactory());
     }
 
-    public NioDatagramChannelIoAcceptor(DatagramChannelIoSessionConfig sessionConfig, NioDatagramChannelFactory channelFactory) {
+    public NioDatagramChannelIoAcceptor(DatagramChannelIoSessionConfig sessionConfig, DatagramChannelFactory channelFactory) {
         super(sessionConfig, channelFactory, new SimpleChannelUpstreamHandler());
     }
 

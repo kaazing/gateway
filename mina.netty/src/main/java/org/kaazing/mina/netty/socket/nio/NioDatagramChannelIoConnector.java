@@ -21,6 +21,7 @@ import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelConfig;
+import org.jboss.netty.channel.socket.DatagramChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 
@@ -39,7 +40,7 @@ public class NioDatagramChannelIoConnector extends DatagramChannelIoConnector {
         this(sessionConfig, new NioDatagramChannelFactory());
     }
 
-    public NioDatagramChannelIoConnector(DatagramChannelIoSessionConfig sessionConfig, NioDatagramChannelFactory channelFactory) {
+    public NioDatagramChannelIoConnector(DatagramChannelIoSessionConfig sessionConfig, DatagramChannelFactory channelFactory) {
         super(sessionConfig, channelFactory);
     }
 
