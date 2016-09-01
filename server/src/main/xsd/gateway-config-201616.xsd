@@ -1501,6 +1501,16 @@
                     <documentation>The maximum redirects http connector follows</documentation>
                 </annotation>
             </element>
+            <element name="http.max.authentication.attempts" maxOccurs="1" minOccurs="0" type="nonNegativeInteger">
+                <annotation>
+                    <documentation>The maximum responses to a 401 a http connector will make</documentation>
+                </annotation>
+            </element>
+            <element name="http.authenticator" maxOccurs="1" minOccurs="0" type="gateway:CollapsedString">
+                <annotation>
+                    <documentation>The authenticator the http connector should authenticate with</documentation>
+                </annotation>
+            </element>
         </all>
     </complexType>
 

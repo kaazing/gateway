@@ -466,7 +466,6 @@
                         </goals>
                         <phase>validate</phase>
                         <configuration>
-                            <!-- Skipping until we enforce everywhere -->
                             <skip>true</skip>
                         </configuration>
                     </execution>

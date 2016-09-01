@@ -25,5 +25,7 @@ public interface EarlyAccessFeatures {
     EarlyAccessFeature WSX_302_REDIRECT = new EarlyAccessFeature("wsx.302.redirect", "Send redirect for wsx via 302", false);
     EarlyAccessFeature TURN_REST_SERVICE = new EarlyAccessFeature("turn.rest", "TURN REST Service", false);
     EarlyAccessFeature TURN_PROXY = new EarlyAccessFeature("turn.proxy", "TURN Proxy Service", false);
+    EarlyAccessFeature HTTP_AUTHENTICATOR = new EarlyAccessFeature("http.authenticator", "TURN Proxy Service", false);
+    EarlyAccessFeature LOGIN_MODULE_EXPIRING_STATE = new EarlyAccessFeature("login.module.expiring.state", "TURN Proxy Service", false);
 
 }

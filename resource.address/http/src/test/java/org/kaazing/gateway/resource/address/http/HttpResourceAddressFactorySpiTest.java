@@ -32,6 +32,7 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_TIMEOUT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.LOGIN_CONTEXT_FACTORY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.MAXIMUM_REDIRECTS;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.MAX_AUTHENTICATION_ATTEMPTS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_PARAMETER_NAMES;
@@ -95,6 +96,7 @@ public class HttpResourceAddressFactorySpiTest {
         options.put("http.realmAuthenticationCookieNames",new String[] {"c1", "c2"});
         options.put("http.loginContextFactory", loginContextFactory);
         options.put("http.serverHeaderEnabled", Boolean.FALSE);
+        options.put("http.max.authentication.attempts", 5);
 
     }
 
@@ -139,6 +141,7 @@ public class HttpResourceAddressFactorySpiTest {
         assertEmpty(address.getOption(REALM_AUTHENTICATION_COOKIE_NAMES));
         assertNull(address.getOption(LOGIN_CONTEXT_FACTORY));
         assertTrue(address.getOption(SERVER_HEADER_ENABLED));
+        assertEquals(new Integer(0), address.getOption(MAX_AUTHENTICATION_ATTEMPTS));
     }
 
     @Test
@@ -162,6 +165,7 @@ public class HttpResourceAddressFactorySpiTest {
         assertArrayEquals(new String[]{"c1", "c2"}, address.getOption(REALM_AUTHENTICATION_COOKIE_NAMES));
         assertEquals(loginContextFactory, address.getOption(LOGIN_CONTEXT_FACTORY));
         assertFalse(address.getOption(SERVER_HEADER_ENABLED));
+        assertEquals(new Integer(5), address.getOption(MAX_AUTHENTICATION_ATTEMPTS));
     }
 
     @Test
