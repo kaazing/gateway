@@ -82,7 +82,6 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
     @Override
     public void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception {
         if (!(message instanceof StunMessage)) {
-            // easiest way to avoid race condition where decoder is removed on the filter chain prior to encoder
             out.write(message);
         }
         if (LOGGER.isTraceEnabled()) {

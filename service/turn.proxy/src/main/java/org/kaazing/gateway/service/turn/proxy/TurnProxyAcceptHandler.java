@@ -133,8 +133,8 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
                     currentTransactions.put(transactionId, username);
                 }
             );
-            super.messageReceived(session, message);
         }
+        super.messageReceived(session, message);
     }
 
     /*

@@ -28,6 +28,7 @@ import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.ErrorCode;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
+import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.filter.codec.CumulativeProtocolDecoderEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,17 +45,69 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
     @Override
     protected boolean doDecode(IoSession session, IoBufferEx in, ProtocolDecoderOutput out) throws Exception {
 
-        LOGGER.trace("Decoding STUN message: " + in);
-        if (in.remaining() < 20) {
+        LOGGER.trace("Decoding TURN message: " + in);
+        if (in.remaining() < 2) {
             return false;
         }
         in.mark();
 
-        // https://tools.ietf.org/html/rfc5389#section-6
+        short leadingBits = in.getShort();
+
+        boolean result;
+        final int leadingByte = (int) (leadingBits & 0xC000);
+        switch (leadingByte) {
+        case 0x0000:
+            // https://tools.ietf.org/html/rfc5389#section-6
+            result = decodeStunMessage(session, in, out);
+            break;
+        case 0x4000:
+            // https://tools.ietf.org/html/rfc5766#section-11
+            result = decodeChannelDataMessage(session, in, out);
+            break;
+        default:
+            // TODO change to decoder exception
+            throw new IllegalArgumentException(String.format("Illegal leading bytes", leadingBits, leadingBits));
+        }
+        if (result) {
+            in.mark();
+        }else{
+            in.reset();
+        }
+        return result;
+    }
+
+    private boolean decodeChannelDataMessage(IoSession session, IoBufferEx in, ProtocolDecoderOutput out) {
+        in.reset();
+
+        if (in.remaining() < 4) {
+            return false;
+        }
+        short channel = in.getShort();
+        short length = in.getShort();
+        
+        if (in.remaining() < length){
+            return false;
+        }
+        if(LOGGER.isTraceEnabled()){
+            LOGGER.trace("Decoding TURN data message for channel: " + channel + ", of length: " + length);
+        }
+        in.reset();
+        final int dataMessageLength = length + 4;
+        in.limit(dataMessageLength);
+        out.write(in.slice());
+        in.position(dataMessageLength);
+        return false;
+    }
+
+    private boolean decodeStunMessage(IoSession session, IoBufferEx in, ProtocolDecoderOutput out) {
+        in.reset();
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Decoding STUN message: " + in);
+        }
+        if (in.remaining() < 20) {
+            return false;
+        }
         short leadingBitsAndMessageType = in.getShort();
-
-        validateIsStun(leadingBitsAndMessageType);
-
         StunMessageClass messageClass = StunMessageClass.valueOf(leadingBitsAndMessageType);
 
         StunMessageMethod method = StunMessageMethod.valueOf(leadingBitsAndMessageType);
@@ -73,7 +126,6 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
                 LOGGER.trace(String.format("Message has %d bytes remaining, which is less than declared length of: %d",
                         in.remaining(), messageLength));
             }
-            in.reset();
             return false;
         } else if (in.remaining() == 0) {
             /*
@@ -84,7 +136,7 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
                 above, all fields in an attribute are transmitted most significant
                 bit first.
              */
-            LOGGER.debug("Message does not contain any attributes");
+            LOGGER.trace("Message does not contain any attributes");
         } else {
             try {
                 attributes = decodeAttributes(in, messageLength, transactionId);
@@ -98,12 +150,10 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
                 StunMessage stunMessage = new StunMessage(StunMessageClass.ERROR, StunMessageMethod.ALLOCATE, transactionId, errors);
                 LOGGER.warn("replying with error message: " + stunMessage);
                 session.write(stunMessage);
-                in.mark();
                 return true;
             }
         }
         StunMessage stunMessage = new StunMessage(messageClass, method, transactionId, attributes);
-        in.mark();
         out.write(stunMessage);
 
         return true;
@@ -138,13 +188,6 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
 
         } while (remaining > 0);
         return stunMessageAttributes;
-    }
-
-    private void validateIsStun(short leadingBitsAndMessageType) {
-        int leadingBytes = leadingBitsAndMessageType & 0xC00;
-        if (0 != leadingBytes) {
-            throw new IllegalArgumentException(String.format("Illegal leading bytes in STUN message: %02X from: %04X", leadingBytes, leadingBitsAndMessageType));
-        }
     }
 
     private void validateMagicCookie(int magicCookie) {
