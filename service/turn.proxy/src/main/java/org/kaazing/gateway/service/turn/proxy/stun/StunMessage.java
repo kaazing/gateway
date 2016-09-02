@@ -23,7 +23,7 @@ import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
  * Stun Message as defined in https://tools.ietf.org/html/rfc5389#section-6.
  *
  */
-public class StunProxyMessage {
+public class StunMessage {
 
     private final StunMessageClass messageClass;
     private final StunMessageMethod method;
@@ -35,7 +35,7 @@ public class StunProxyMessage {
 
     public static final int HEADER_BYTES = 20;
 
-    public StunProxyMessage(StunMessageClass messageClass, StunMessageMethod method, byte[] transactionId,
+    public StunMessage(StunMessageClass messageClass, StunMessageMethod method, byte[] transactionId,
             List<Attribute> attributes) {
         this.messageClass = messageClass;
         this.method = method;

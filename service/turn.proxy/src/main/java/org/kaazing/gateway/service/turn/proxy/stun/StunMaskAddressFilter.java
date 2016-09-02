@@ -36,7 +36,7 @@ public class StunMaskAddressFilter extends IoFilterAdapter {
     public enum Orientation {
         INCOMING {
             @Override
-            public void visitAddress(StunProxyMessage stunProxyMessage, AddressVisitor visitor) {
+            public void visitAddress(StunMessage stunProxyMessage, AddressVisitor visitor) {
                 LOGGER.debug("INCOMING stun proxy message, unmasking XOR-PEER-ADDRESS");
                 stunProxyMessage.getAttributes()
                     .stream()
@@ -49,7 +49,7 @@ public class StunMaskAddressFilter extends IoFilterAdapter {
         },
         OUTGOING {
             @Override
-            public void visitAddress(StunProxyMessage stunProxyMessage, AddressVisitor visitor) {
+            public void visitAddress(StunMessage stunProxyMessage, AddressVisitor visitor) {
                 LOGGER.debug("OUTGOING stun proxy message, masking XOR-RELAY-ADDRESS");
                 stunProxyMessage.getAttributes()
                     .stream()
@@ -61,7 +61,7 @@ public class StunMaskAddressFilter extends IoFilterAdapter {
             }
         };
 
-        public abstract void visitAddress(StunProxyMessage stunProxyMessage, AddressVisitor visitor);
+        public abstract void visitAddress(StunMessage stunProxyMessage, AddressVisitor visitor);
 
         @FunctionalInterface
         public interface AddressVisitor {
@@ -110,8 +110,8 @@ public class StunMaskAddressFilter extends IoFilterAdapter {
 
     @Override
     public void messageReceived(NextFilter nextFilter, IoSession session, Object message) throws Exception {
-        if (message instanceof StunProxyMessage) {
-            orientation.visitAddress((StunProxyMessage) message, maskVisitor);
+        if (message instanceof StunMessage) {
+            orientation.visitAddress((StunMessage) message, maskVisitor);
         }
         super.messageReceived(nextFilter, session, message);
     }

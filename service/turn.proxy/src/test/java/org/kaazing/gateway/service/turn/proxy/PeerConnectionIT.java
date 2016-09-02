@@ -151,5 +151,16 @@ public class PeerConnectionIT {
         k3po.finish();
     }
 
+    /**
+     * See <a href="https://tools.ietf.org/html/rfc5766">RFC 5766: Turn Protocol</a>.
+     */
+    @Test
+    @Specification({
+        "correct.turn.protocol.with.sent.data.message/request",
+        "correct.turn.protocol.with.sent.data.message/response" })
+    public void shouldSuccessfullySendDataMessage() throws Exception {
+        k3po.finish();
+    }
+
 
 }

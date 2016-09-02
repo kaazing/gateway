@@ -31,7 +31,7 @@ import org.kaazing.gateway.service.proxy.AbstractProxyAcceptHandler;
 import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
 import org.kaazing.gateway.service.turn.proxy.stun.StunCodecFilter;
 import org.kaazing.gateway.service.turn.proxy.stun.StunMaskAddressFilter;
-import org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage;
+import org.kaazing.gateway.service.turn.proxy.stun.StunMessage;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.Username;
 import org.kaazing.gateway.util.turn.TurnUtils;
 import org.slf4j.Logger;
@@ -120,9 +120,9 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(String.format("Received message [%s] from [%s]", message, session));
         }
-        if (message instanceof StunProxyMessage) {
+        if (message instanceof StunMessage) {
             // Store the incoming username for this transaction, will be reused if generating the message integrity
-            StunProxyMessage stunProxyMessage = (StunProxyMessage) message;
+            StunMessage stunProxyMessage = (StunMessage) message;
             stunProxyMessage.getAttributes().stream().filter(attr -> attr instanceof Username).forEach(
                 attr -> {
                     String transactionId = Base64.getEncoder().encodeToString(stunProxyMessage.getTransactionId());

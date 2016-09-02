@@ -15,8 +15,8 @@
  */
 package org.kaazing.gateway.service.turn.proxy.stun;
 
-import static org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage.MAGIC_COOKIE;
-import static org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage.attributePaddedLength;
+import static org.kaazing.gateway.service.turn.proxy.stun.StunMessage.MAGIC_COOKIE;
+import static org.kaazing.gateway.service.turn.proxy.stun.StunMessage.attributePaddedLength;
 
 import java.nio.BufferUnderflowException;
 import java.util.ArrayList;
@@ -95,14 +95,14 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
                 errorCode.setErrorCode(400);
                 errorCode.setErrMsg("Bad Request");
                 errors.add(errorCode);
-                StunProxyMessage stunMessage = new StunProxyMessage(StunMessageClass.ERROR, StunMessageMethod.ALLOCATE, transactionId, errors);
+                StunMessage stunMessage = new StunMessage(StunMessageClass.ERROR, StunMessageMethod.ALLOCATE, transactionId, errors);
                 LOGGER.warn("replying with error message: " + stunMessage);
                 session.write(stunMessage);
                 in.mark();
                 return true;
             }
         }
-        StunProxyMessage stunMessage = new StunProxyMessage(messageClass, method, transactionId, attributes);
+        StunMessage stunMessage = new StunMessage(messageClass, method, transactionId, attributes);
         in.mark();
         out.write(stunMessage);
 

@@ -21,7 +21,7 @@ import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
 import org.kaazing.gateway.service.turn.proxy.stun.StunMessageClass;
 import org.kaazing.gateway.service.turn.proxy.stun.StunMessageMethod;
-import org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage;
+import org.kaazing.gateway.service.turn.proxy.stun.StunMessage;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.MappedAddress;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorMappedAddress;
@@ -49,9 +49,9 @@ class TurnProxyConnectHandler extends AbstractProxyHandler {
 
     @Override
     public void messageReceived(IoSession session, Object message) {
-        if (message instanceof StunProxyMessage) {
+        if (message instanceof StunMessage) {
             LOGGER.debug(String.format("Received message [%s] from [%s] ", message, session));
-            StunProxyMessage stunMessage = (StunProxyMessage) message;
+            StunMessage stunMessage = (StunMessage) message;
             if (stunMessage.getMethod() == StunMessageMethod.ALLOCATE &&
                 stunMessage.getMessageClass() == StunMessageClass.RESPONSE) {
                 InetSocketAddress acceptAddress = getMappedAddress(session);
@@ -67,7 +67,7 @@ class TurnProxyConnectHandler extends AbstractProxyHandler {
     }
 
 
-    private void overrideMappedAddress(StunProxyMessage stunMessage, InetSocketAddress acceptAddress) {
+    private void overrideMappedAddress(StunMessage stunMessage, InetSocketAddress acceptAddress) {
         for (int i = 0; i < stunMessage.getAttributes().size(); i++) {
             Attribute attribute = stunMessage.getAttributes().get(i);
             if (attribute instanceof MappedAddress) {

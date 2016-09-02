@@ -15,7 +15,7 @@
  */
 package org.kaazing.gateway.service.turn.proxy.stun;
 
-import static org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage.attributePaddedLength;
+import static org.kaazing.gateway.service.turn.proxy.stun.StunMessage.attributePaddedLength;
 import static org.kaazing.gateway.util.turn.TurnUtils.HMAC_SHA_1;
 
 import java.nio.Buffer;
@@ -81,14 +81,14 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
 
     @Override
     public void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception {
-        if (!(message instanceof StunProxyMessage)) {
+        if (!(message instanceof StunMessage)) {
             // easiest way to avoid race condition where decoder is removed on the filter chain prior to encoder
             out.write(message);
         }
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Encoding STUN message: " + message);
         }
-        StunProxyMessage stunMessage = (StunProxyMessage) message;
+        StunMessage stunMessage = (StunMessage) message;
         String username = null;
         if (stunMessage.getMessageClass().equals(StunMessageClass.RESPONSE) ||
             stunMessage.getMessageClass().equals(StunMessageClass.ERROR)) {
@@ -98,19 +98,19 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
                 LOGGER.warn("STUN message is modified but MESSAGE-INTEGRITY attribute can not be recalculated because username and/or shared secret is not available");
             }
         }
-        ByteBuffer buf = allocator.allocate(StunProxyMessage.HEADER_BYTES + stunMessage.getMessageLength());
+        ByteBuffer buf = allocator.allocate(StunMessage.HEADER_BYTES + stunMessage.getMessageLength());
         short messageMethod = stunMessage.getMethod().getValue();
         short messageClass = stunMessage.getMessageClass().getValue();
         buf.putShort((short) (messageMethod | messageClass));
         buf.putShort(stunMessage.getMessageLength());
-        buf.putInt(StunProxyMessage.MAGIC_COOKIE);
+        buf.putInt(StunMessage.MAGIC_COOKIE);
         buf.put(stunMessage.getTransactionId());
         encodeAttributes(stunMessage, username, buf);
         buf.flip();
         out.write(allocator.wrap(buf));
     }
 
-    private void encodeAttributes(StunProxyMessage stunMessage, String username, ByteBuffer buf) throws NoSuchAlgorithmException, InvalidKeyException {
+    private void encodeAttributes(StunMessage stunMessage, String username, ByteBuffer buf) throws NoSuchAlgorithmException, InvalidKeyException {
         int lengthSoFar = 0; // StunProxyMessage.HEADER_BYTES;
         for (Attribute attribute : stunMessage.getAttributes()) {
             lengthSoFar += 4 + attributePaddedLength(attribute.getLength());
@@ -122,11 +122,11 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
                 buf.putShort(2, (short) lengthSoFar);
                 int pos = buf.position();
                 buf.position(0);
-                buf.limit(StunProxyMessage.HEADER_BYTES + lengthSoFar - 4 - attributePaddedLength(attribute.getLength()));
+                buf.limit(StunMessage.HEADER_BYTES + lengthSoFar - 4 - attributePaddedLength(attribute.getLength()));
                 attribute = overrideMessageIntegrity(username, buf);
                 buf.putShort(2, stunMessage.getMessageLength());
                 buf.position(pos);
-                buf.limit(StunProxyMessage.HEADER_BYTES + stunMessage.getMessageLength());
+                buf.limit(StunMessage.HEADER_BYTES + stunMessage.getMessageLength());
             } else if (attribute instanceof Fingerprint && stunMessage.isModified()) {
                 LOGGER.debug("Message is modified will override attribute FINGERPRINT");
                 // message length already at total value
