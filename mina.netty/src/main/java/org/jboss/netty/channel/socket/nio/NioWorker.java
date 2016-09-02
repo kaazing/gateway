@@ -30,9 +30,6 @@
  */
 package org.jboss.netty.channel.socket.nio;
 
-import static org.jboss.netty.channel.Channels.fireChannelDisconnected;
-import static org.jboss.netty.channel.Channels.fireChannelDisconnectedLater;
-import static org.jboss.netty.channel.Channels.fireExceptionCaughtLater;
 import static org.jboss.netty.channel.Channels.fireWriteComplete;
 import static org.kaazing.mina.netty.config.InternalSystemProperty.MAXIMUM_PROCESS_TASKS_TIME;
 import static java.lang.String.format;
@@ -108,12 +105,12 @@ public class NioWorker extends AbstractNioWorker {
 
     @Override
     protected boolean read(SelectionKey k) {
-        if (k.channel() instanceof DatagramChannel) {
-            return readUdp(k);
-        }
-        final SocketChannel ch = (SocketChannel) k.channel();
-        final NioSocketChannel channel = (NioSocketChannel) k.attachment();
+        ReadDispatcher dispatcher = (ReadDispatcher) k.attachment();
+        return dispatcher.dispatch(this, k);
+    }
 
+    private boolean readTcp(SelectionKey k, NioSocketChannel channel) {
+        final SocketChannel ch = (SocketChannel) k.channel();
         final ReceiveBufferSizePredictor predictor =
             channel.getConfig().getReceiveBufferSizePredictor();
         final int predictedRecvBufSize = predictor.nextReceiveBufferSize();
@@ -189,18 +186,18 @@ public class NioWorker extends AbstractNioWorker {
     protected Runnable createRegisterTask(Channel channel, ChannelFuture future) {
         if (channel instanceof NioSocketChannel) {
             boolean server = !(channel instanceof NioClientSocketChannel);
-            return new RegisterTask((NioSocketChannel) channel, future, server);
+            return new TcpChannelRegisterTask((NioSocketChannel) channel, future, server);
         } else {
-            return createRegisterTaskUdp(channel, future);
+            return new UdpChannelRegistionTask((NioDatagramChannel) channel, future);
         }
     }
 
-    private final class RegisterTask implements Runnable {
+    private final class TcpChannelRegisterTask implements Runnable {
         private final NioSocketChannel channel;
         private final ChannelFuture future;
         private final boolean server;
 
-        RegisterTask(
+        TcpChannelRegisterTask(
                 NioSocketChannel channel, ChannelFuture future, boolean server) {
 
             this.channel = channel;
@@ -227,7 +224,7 @@ public class NioWorker extends AbstractNioWorker {
                 }
 
                 channel.channel.register(
-                        selector, channel.getRawInterestOps(), channel);
+                        selector, channel.getRawInterestOps(), new TcpReadDispatcher(channel));
 
                 if (future != null) {
                     channel.setConnected();
@@ -275,11 +272,25 @@ public class NioWorker extends AbstractNioWorker {
         }
     }
 
+    @Override
+    protected void close(SelectionKey k) {
+        ReadDispatcher dispatcher = (ReadDispatcher) k.attachment();
+        AbstractNioChannel<?> ch = dispatcher.channel();
+        close(ch, succeededFuture(ch));
+    }
+
+    @Override
+    void writeFromSelectorLoop(final SelectionKey k) {
+        ReadDispatcher dispatcher = (ReadDispatcher) k.attachment();
+        AbstractNioChannel<?> ch = dispatcher.channel();
+        ch.writeSuspended = false;
+        write0(ch);
+    }
+
     //
     // ---------------- UDP worker -----------------------
     //
-    private boolean readUdp(final SelectionKey key) {
-        final NioDatagramChannel channel = (NioDatagramChannel) key.attachment();
+    private boolean readUdp(final SelectionKey key, NioDatagramChannel channel) {
         ReceiveBufferSizePredictor predictor =
                 channel.getConfig().getReceiveBufferSizePredictor();
         final ChannelBufferFactory bufferFactory = channel.getConfig().getBufferFactory();
@@ -332,23 +343,17 @@ public class NioWorker extends AbstractNioWorker {
         return true;
     }
 
-    private Runnable createRegisterTaskUdp(Channel channel, ChannelFuture future) {
-        assert channel instanceof NioDatagramChannel;
-
-        return new ChannelRegistionTask((NioDatagramChannel) channel, future);
-    }
-
     /**
      * RegisterTask is a task responsible for registering a channel with a
      * selector.
      */
-    private final class ChannelRegistionTask implements Runnable {
+    private final class UdpChannelRegistionTask implements Runnable {
         private final NioDatagramChannel channel;
 
         private final ChannelFuture future;
 
-        ChannelRegistionTask(final NioDatagramChannel channel,
-                             final ChannelFuture future) {
+        UdpChannelRegistionTask(final NioDatagramChannel channel,
+                                final ChannelFuture future) {
             this.channel = channel;
             this.future = future;
         }
@@ -370,7 +375,7 @@ public class NioWorker extends AbstractNioWorker {
 
             try {
                 channel.getDatagramChannel().register(
-                        selector, channel.getInternalInterestOps(), channel);
+                        selector, channel.getInternalInterestOps(), new UdpReadDispatcher(channel));
 
                 if (future != null) {
                     future.setSuccess();
@@ -529,6 +534,49 @@ public class NioWorker extends AbstractNioWorker {
         }
 
         fireWriteComplete(channel, writtenBytes);
+    }
+
+    interface ReadDispatcher {
+        AbstractNioChannel channel();
+        boolean dispatch(NioWorker worker, SelectionKey key);
+    }
+
+    static class TcpReadDispatcher implements ReadDispatcher {
+
+        private final NioSocketChannel channel;
+
+        TcpReadDispatcher(NioSocketChannel channel) {
+            this.channel = channel;
+        }
+
+        @Override
+        public AbstractNioChannel channel() {
+            return channel;
+        }
+
+        @Override
+        public boolean dispatch(NioWorker worker, SelectionKey key) {
+            return worker.readTcp(key, channel);
+        }
+    }
+
+    static class UdpReadDispatcher implements ReadDispatcher {
+
+        private final NioDatagramChannel channel;
+
+        UdpReadDispatcher(NioDatagramChannel channel) {
+            this.channel = channel;
+        }
+
+        @Override
+        public AbstractNioChannel channel() {
+            return channel;
+        }
+
+        @Override
+        public boolean dispatch(NioWorker worker, SelectionKey key) {
+            return worker.readUdp(key, channel);
+        }
     }
 
 }
