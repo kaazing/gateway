@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.turn.proxy.stun;
+package org.kaazing.gateway.service.turn.proxy.filters;
 
-import static org.kaazing.gateway.service.turn.proxy.stun.StunMessage.MAGIC_COOKIE;
-import static org.kaazing.gateway.service.turn.proxy.stun.StunMessage.attributePaddedLength;
+import static org.kaazing.gateway.service.turn.proxy.filters.StunMessage.MAGIC_COOKIE;
+import static org.kaazing.gateway.service.turn.proxy.filters.StunMessage.attributePaddedLength;
 
 import java.nio.BufferUnderflowException;
 import java.util.ArrayList;

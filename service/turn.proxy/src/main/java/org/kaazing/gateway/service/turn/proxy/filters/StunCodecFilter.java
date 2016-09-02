@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.turn.proxy.stun;
+package org.kaazing.gateway.service.turn.proxy.filters;
 
-import static org.kaazing.gateway.service.turn.proxy.stun.StunAttributeFactory.CredentialType.SHORT_TERM;
+import static org.kaazing.gateway.service.turn.proxy.filters.StunAttributeFactory.CredentialType.SHORT_TERM;
 
 import java.security.Key;
 

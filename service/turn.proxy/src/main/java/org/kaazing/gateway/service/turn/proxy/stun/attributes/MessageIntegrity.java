@@ -17,7 +17,7 @@ package org.kaazing.gateway.service.turn.proxy.stun.attributes;
 
 import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType.MESSAGE_INTEGRITY;
 
-import org.kaazing.gateway.service.turn.proxy.stun.StunAttributeFactory;
+import org.kaazing.gateway.service.turn.proxy.filters.StunAttributeFactory;
 
 public class MessageIntegrity extends Attribute {
 

@@ -19,9 +19,9 @@ import java.net.InetSocketAddress;
 
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
-import org.kaazing.gateway.service.turn.proxy.stun.StunMessageClass;
-import org.kaazing.gateway.service.turn.proxy.stun.StunMessageMethod;
-import org.kaazing.gateway.service.turn.proxy.stun.StunMessage;
+import org.kaazing.gateway.service.turn.proxy.filters.StunMessage;
+import org.kaazing.gateway.service.turn.proxy.filters.StunMessageClass;
+import org.kaazing.gateway.service.turn.proxy.filters.StunMessageMethod;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.MappedAddress;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.XorMappedAddress;

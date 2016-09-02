@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.kaazing.gateway.service.turn.proxy.stun;
+package org.kaazing.gateway.service.turn.proxy.filters;
 
 import java.util.Base64;
 import java.util.Map;
