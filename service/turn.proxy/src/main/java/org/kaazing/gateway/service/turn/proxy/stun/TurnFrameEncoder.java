@@ -18,7 +18,6 @@ package org.kaazing.gateway.service.turn.proxy.stun;
 import static org.kaazing.gateway.service.turn.proxy.stun.StunMessage.attributePaddedLength;
 import static org.kaazing.gateway.util.turn.TurnUtils.HMAC_SHA_1;
 
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -62,7 +61,7 @@ import org.slf4j.LoggerFactory;
    FINGERPRINT, appear after MESSAGE-INTEGRITY.
  */
 
-public class StunFrameEncoder extends ProtocolEncoderAdapter {
+public class TurnFrameEncoder extends ProtocolEncoderAdapter {
 
     private final IoBufferAllocatorEx<?> allocator;
     private final Map<String, String> currentTransactions;
@@ -72,7 +71,7 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger("service.turn.proxy");
 
 
-    public StunFrameEncoder(IoBufferAllocatorEx<?> aloc, Map<String, String> currentTrx, Key ss, String keyAlg) {
+    public TurnFrameEncoder(IoBufferAllocatorEx<?> aloc, Map<String, String> currentTrx, Key ss, String keyAlg) {
         this.allocator = aloc;
         this.currentTransactions = currentTrx;
         this.sharedSecret = ss;
@@ -82,6 +81,7 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
     @Override
     public void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception {
         if (!(message instanceof StunMessage)) {
+            // Stun Data Message
             out.write(message);
         }
         if (LOGGER.isTraceEnabled()) {

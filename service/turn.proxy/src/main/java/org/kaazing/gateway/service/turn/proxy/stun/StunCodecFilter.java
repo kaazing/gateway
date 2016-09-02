@@ -49,14 +49,14 @@ public class StunCodecFilter extends ProtocolCodecFilter {
         @Override
         public ProtocolEncoder getEncoder(IoSession session) throws Exception {
             IoSessionEx sessionEx = (IoSessionEx) session;
-            return new StunFrameEncoder(sessionEx.getBufferAllocator(),
+            return new TurnFrameEncoder(sessionEx.getBufferAllocator(),
                     (Map<String, String>) session.getAttribute(TURN_SESSION_TRANSACTION_MAP), sharedSecret, keyAlgorithm);
         }
 
         @Override
         public ProtocolDecoder getDecoder(IoSession session) throws Exception {
             IoSessionEx sessionEx = (IoSessionEx) session;
-            return new StunFrameDecoder(sessionEx.getBufferAllocator(), stunAttributeFactory);
+            return new TurnFrameDecoder(sessionEx.getBufferAllocator(), stunAttributeFactory);
         }
     }
 }

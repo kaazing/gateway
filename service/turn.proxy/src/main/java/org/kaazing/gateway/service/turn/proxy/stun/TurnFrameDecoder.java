@@ -28,16 +28,15 @@ import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.ErrorCode;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
-import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.filter.codec.CumulativeProtocolDecoderEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
+public class TurnFrameDecoder extends CumulativeProtocolDecoderEx {
     private static final Logger LOGGER = LoggerFactory.getLogger("service.turn.proxy");
     private final StunAttributeFactory stunAttributeFactory;
 
-    public StunFrameDecoder(IoBufferAllocatorEx<?> allocator, StunAttributeFactory stunAttributeFactory) {
+    public TurnFrameDecoder(IoBufferAllocatorEx<?> allocator, StunAttributeFactory stunAttributeFactory) {
         super(allocator);
         this.stunAttributeFactory = stunAttributeFactory;
     }
