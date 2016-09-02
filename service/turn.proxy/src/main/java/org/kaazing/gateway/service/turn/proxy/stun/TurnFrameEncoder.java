@@ -23,8 +23,6 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Base64;
-import java.util.Map;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -64,16 +62,14 @@ import org.slf4j.LoggerFactory;
 public class TurnFrameEncoder extends ProtocolEncoderAdapter {
 
     private final IoBufferAllocatorEx<?> allocator;
-    private final Map<String, String> currentTransactions;
     private final Key sharedSecret;
     private final String keyAlgorithm;
 
     private static final Logger LOGGER = LoggerFactory.getLogger("service.turn.proxy");
 
 
-    public TurnFrameEncoder(IoBufferAllocatorEx<?> aloc, Map<String, String> currentTrx, Key ss, String keyAlg) {
+    public TurnFrameEncoder(IoBufferAllocatorEx<?> aloc, Key ss, String keyAlg) {
         this.allocator = aloc;
-        this.currentTransactions = currentTrx;
         this.sharedSecret = ss;
         this.keyAlgorithm = keyAlg;
     }
@@ -91,8 +87,10 @@ public class TurnFrameEncoder extends ProtocolEncoderAdapter {
         String username = null;
         if (stunMessage.getMessageClass().equals(StunMessageClass.RESPONSE) ||
             stunMessage.getMessageClass().equals(StunMessageClass.ERROR)) {
-            username = currentTransactions.remove(Base64.getEncoder().encodeToString(stunMessage.getTransactionId()));
-            LOGGER.trace(String.format("Removed username %s from transactions map", username));
+            username = stunMessage.getUsername();
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace(String.format("Removed username %s from transactions map", username));
+            }
             if (stunMessage.isModified() && (username == null || sharedSecret ==null)) {
                 LOGGER.warn("STUN message is modified but MESSAGE-INTEGRITY attribute can not be recalculated because username and/or shared secret is not available");
             }

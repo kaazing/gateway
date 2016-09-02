@@ -15,11 +15,9 @@
  */
 package org.kaazing.gateway.service.turn.proxy.stun;
 
-import static org.kaazing.gateway.service.turn.proxy.TurnProxyAcceptHandler.TURN_SESSION_TRANSACTION_MAP;
 import static org.kaazing.gateway.service.turn.proxy.stun.StunAttributeFactory.CredentialType.SHORT_TERM;
 
 import java.security.Key;
-import java.util.Map;
 
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
@@ -49,8 +47,7 @@ public class StunCodecFilter extends ProtocolCodecFilter {
         @Override
         public ProtocolEncoder getEncoder(IoSession session) throws Exception {
             IoSessionEx sessionEx = (IoSessionEx) session;
-            return new TurnFrameEncoder(sessionEx.getBufferAllocator(),
-                    (Map<String, String>) session.getAttribute(TURN_SESSION_TRANSACTION_MAP), sharedSecret, keyAlgorithm);
+            return new TurnFrameEncoder(sessionEx.getBufferAllocator(), sharedSecret, keyAlgorithm);
         }
 
         @Override

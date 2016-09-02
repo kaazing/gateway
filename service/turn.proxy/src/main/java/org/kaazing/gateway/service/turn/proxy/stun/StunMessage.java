@@ -32,6 +32,7 @@ public class StunMessage {
     public static final int MAGIC_COOKIE = 0x2112A442;
     private static final int PADDED_TO = 4;
     private boolean modified = false;
+    private String username;
 
     public static final int HEADER_BYTES = 20;
 
@@ -91,5 +92,13 @@ public class StunMessage {
      */
     public void setModified(boolean modified) {
         this.modified = modified;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return username;
     }
 }
