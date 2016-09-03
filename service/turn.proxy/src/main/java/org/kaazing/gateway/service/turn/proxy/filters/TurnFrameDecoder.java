@@ -67,11 +67,6 @@ public class TurnFrameDecoder extends CumulativeProtocolDecoderEx {
         default:
             throw new ProtocolDecoderException(String.format("Illegal leading bytes", leadingBits, leadingBits));
         }
-        if (result) {
-            in.mark();
-        } else {
-            in.reset();
-        }
         return result;
     }
 
@@ -82,9 +77,10 @@ public class TurnFrameDecoder extends CumulativeProtocolDecoderEx {
             return false;
         }
         short channel = in.getShort();
-        short length = in.getShort();
+        int length = in.getShort();
 
         if (in.remaining() < length) {
+            in.reset();
             return false;
         }
         if (LOGGER.isTraceEnabled()) {
@@ -95,7 +91,8 @@ public class TurnFrameDecoder extends CumulativeProtocolDecoderEx {
         in.limit(dataMessageLength);
         out.write(in.slice());
         in.position(dataMessageLength);
-        return false;
+        in.mark();
+        return in.hasRemaining();
     }
 
     private boolean decodeStunMessage(IoBufferEx in, ProtocolDecoderOutput out) throws ProtocolDecoderException {
@@ -104,6 +101,7 @@ public class TurnFrameDecoder extends CumulativeProtocolDecoderEx {
             LOGGER.trace("Decoding STUN message: " + in);
         }
         if (in.remaining() < 20) {
+            in.reset();
             return false;
         }
         short leadingBitsAndMessageType = in.getShort();
@@ -125,6 +123,7 @@ public class TurnFrameDecoder extends CumulativeProtocolDecoderEx {
                 LOGGER.trace(String.format("Message has %d bytes remaining, which is less than declared length of: %d",
                         in.remaining(), messageLength));
             }
+            in.reset();
             return false;
         } else if (in.remaining() == 0) {
             /*
@@ -150,6 +149,7 @@ public class TurnFrameDecoder extends CumulativeProtocolDecoderEx {
         }
         StunMessage stunMessage = new StunMessage(messageClass, method, transactionId, attributes);
         out.write(stunMessage);
+        in.mark();
 
         return true;
     }
