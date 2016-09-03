@@ -32,6 +32,7 @@ import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
 import org.kaazing.gateway.service.turn.proxy.filters.StunCodecFilter;
 import org.kaazing.gateway.service.turn.proxy.filters.StunMaskAddressFilter;
 import org.kaazing.gateway.service.turn.proxy.filters.StunUserameFilter;
+import org.kaazing.gateway.service.turn.proxy.filters.TurnFrameDecoderException;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.util.turn.TurnUtils;
 import org.slf4j.Logger;
@@ -132,6 +133,15 @@ public class TurnProxyAcceptHandler extends AbstractProxyAcceptHandler {
         super.messageReceived(session, message);
     }
 
+    @Override
+    public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+        if (cause instanceof TurnFrameDecoderException) {
+            LOGGER.warn("Protocol Decoder Exception", cause);
+            session.write(((TurnFrameDecoderException) cause).getStunMessage());
+        } else {
+            super.exceptionCaught(session, cause);
+        }
+    }
     /*
      * Initializer for connect session. It adds the processed accept session headers on the connect session
      */

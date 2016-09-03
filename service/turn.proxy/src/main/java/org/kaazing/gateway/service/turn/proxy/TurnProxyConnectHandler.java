@@ -63,6 +63,7 @@ class TurnProxyConnectHandler extends AbstractProxyHandler {
                 }
             }
         }
+        
         super.messageReceived(session, message);
     }
 

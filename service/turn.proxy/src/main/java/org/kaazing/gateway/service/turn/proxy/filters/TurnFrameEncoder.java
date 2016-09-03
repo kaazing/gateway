@@ -83,6 +83,10 @@ public class TurnFrameEncoder extends ProtocolEncoderAdapter {
         if (!(message instanceof StunMessage)) {
             // Stun Data Message
             out.write(message);
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Writing STUN data message: " + message);
+            }
+            return;
         }
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Encoding STUN message: " + message);
@@ -108,6 +112,9 @@ public class TurnFrameEncoder extends ProtocolEncoderAdapter {
         buf.put(stunMessage.getTransactionId());
         encodeAttributes(stunMessage, username, buf);
         buf.flip();
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Writing STUN message: " + buf);
+        }
         out.write(allocator.wrap(buf));
     }
 
