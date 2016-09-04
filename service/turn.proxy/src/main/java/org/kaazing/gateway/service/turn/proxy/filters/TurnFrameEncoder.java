@@ -31,6 +31,7 @@ import java.util.Map;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.ws.ProtocolException;
 
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
@@ -81,52 +82,47 @@ public class TurnFrameEncoder extends ProtocolEncoderAdapter {
 
     @Override
     public void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception {
-        if(message instanceof DummyMessage2){
-            final IoBufferEx dst = ((DummyMessage2) message).getDst();
-            out.write(dst);
-            return;
-        }
-        if(message instanceof DummyMessage){
-            final byte[] dst = ((DummyMessage) message).getDst();
-            out.write(allocator.wrap(ByteBuffer.wrap(dst)));
-            return;
-        }
-        if (!(message instanceof StunMessage)) {
-            // Stun Data Message
-            out.write(message);
+        if (message instanceof TurnDataMessage) {
+            final byte[] dst = ((TurnDataMessage) message).getDst();
+            final IoBufferEx wrap = allocator.wrap(ByteBuffer.wrap(dst));
             if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("Writing STUN data message: " + message);
+                LOGGER.trace(session + " Encoding TURN Data message: " + wrap);
             }
+            out.write(wrap);
             return;
-        }
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Encoding STUN message: " + message);
-        }
-        StunMessage stunMessage = (StunMessage) message;
-        String username = null;
-        if (stunMessage.getMessageClass().equals(StunMessageClass.RESPONSE) ||
-            stunMessage.getMessageClass().equals(StunMessageClass.ERROR)) {
-            username = stunMessage.getUsername();
+        } else if (message instanceof StunMessage) {
             if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace(String.format("Removed username %s from transactions map", username));
+                LOGGER.trace(session + "Encoding STUN message: " + message);
             }
-            if (stunMessage.isModified() && (username == null || sharedSecret ==null)) {
-                LOGGER.warn("STUN message is modified but MESSAGE-INTEGRITY attribute can not be recalculated because username and/or shared secret is not available");
+            StunMessage stunMessage = (StunMessage) message;
+            String username = null;
+            if (stunMessage.getMessageClass().equals(StunMessageClass.RESPONSE)
+                    || stunMessage.getMessageClass().equals(StunMessageClass.ERROR)) {
+                username = stunMessage.getUsername();
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace(String.format("Removed username %s from transactions map", username));
+                }
+                if (stunMessage.isModified() && (username == null || sharedSecret == null)) {
+                    LOGGER.warn(
+                            "STUN message is modified but MESSAGE-INTEGRITY attribute can not be recalculated because username and/or shared secret is not available");
+                }
             }
+            ByteBuffer buf = allocator.allocate(StunMessage.HEADER_BYTES + stunMessage.getMessageLength());
+            short messageMethod = stunMessage.getMethod().getValue();
+            short messageClass = stunMessage.getMessageClass().getValue();
+            buf.putShort((short) (messageMethod | messageClass));
+            buf.putShort(stunMessage.getMessageLength());
+            buf.putInt(StunMessage.MAGIC_COOKIE);
+            buf.put(stunMessage.getTransactionId());
+            encodeAttributes(stunMessage, username, buf);
+            buf.flip();
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Writing STUN message: " + buf);
+            }
+            out.write(allocator.wrap(buf));
+        } else {
+            throw new ProtocolException(session + " Uknown message type");
         }
-        ByteBuffer buf = allocator.allocate(StunMessage.HEADER_BYTES + stunMessage.getMessageLength());
-        short messageMethod = stunMessage.getMethod().getValue();
-        short messageClass = stunMessage.getMessageClass().getValue();
-        buf.putShort((short) (messageMethod | messageClass));
-        buf.putShort(stunMessage.getMessageLength());
-        buf.putInt(StunMessage.MAGIC_COOKIE);
-        buf.put(stunMessage.getTransactionId());
-        encodeAttributes(stunMessage, username, buf);
-        buf.flip();
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Writing STUN message: " + buf);
-        }
-        out.write(allocator.wrap(buf));
     }
 
     private void encodeAttributes(StunMessage stunMessage, String username, ByteBuffer buf) throws NoSuchAlgorithmException, InvalidKeyException {

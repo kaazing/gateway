@@ -46,28 +46,8 @@ public class TurnFrameDecoder extends CumulativeProtocolDecoderEx {
     @Override
     protected boolean doDecode(IoSession session, IoBufferEx in, ProtocolDecoderOutput out) throws Exception {
 
-        int length = in.remaining() < 500 ? in.remaining() : 50;
-////        if (LOGGER.isTraceEnabled()) {
-////            LOGGER.trace("Decoding TURN data message for channel: " + channel + ", of length: " + length);
-////        }
-//        
-////        IoBufferEx dst = in.limit(length); 
-////        out.write(new DummyMessage2(in.slice()));
-////        in.mark();
-////        in.reset()
-////        
-////        return in.hasRemaining();
-//        
-//        
-//        byte[] dst = new byte[length];
-//        in.get(dst);
-//        out.write(new DummyMessage(dst));
-//        in.mark();
-//        
-//        return in.hasRemaining();
-        
-        if(LOGGER.isTraceEnabled()){
-        LOGGER.trace("Decoding TURN message: " + in);
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace(session + " Decoding TURN message: " + in);
         }
         if (in.remaining() < 2) {
             return false;
@@ -104,35 +84,22 @@ public class TurnFrameDecoder extends CumulativeProtocolDecoderEx {
         int length = in.getShort() + 4;
         length = ((length + 4 - 1) / 4) * 4;
 
-        System.out.println(length);
-
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace(session + "Decoding TURN data message for channel: " + channel + ", of length: " + length);
         }
 
         in.position(in.position() - 4);
-//        in.reset();  // reset to get first two bytes
 
-        System.out.println(in);
-
-        System.out.println("Remaining: " + in.remaining()  + "   " + length);
-        if(in.remaining() < length){
+        if (in.remaining() < length) {
             return false;
         }
         byte[] dst = new byte[length];
-        
+
         in.get(dst);
-        out.write(new DummyMessage(dst));
+        out.write(new TurnDataMessage(dst));
         in.mark();
-        
+
         return in.hasRemaining();
-//        in.reset();
-//        final int dataMessageLength = length + 4;
-//        in.limit(dataMessageLength);
-//        out.write(in.slice());
-//        in.position(dataMessageLength);
-//        in.mark();
-//        return in.hasRemaining();
     }
 
     private boolean decodeStunMessage(IoBufferEx in, ProtocolDecoderOutput out) throws ProtocolDecoderException {

@@ -16,17 +16,15 @@
 
 package org.kaazing.gateway.service.turn.proxy.filters;
 
-import org.kaazing.mina.core.buffer.IoBufferEx;
+public class TurnDataMessage {
 
-public class DummyMessage2 {
+    private final byte[] dst;
 
-    private final IoBufferEx dst;
-
-    public DummyMessage2(IoBufferEx dst) {
+    public TurnDataMessage(byte[] dst) {
         this.dst = dst;
     }
 
-    public IoBufferEx getDst() {
+    public byte[] getDst() {
         return dst;
     }
 
