@@ -61,7 +61,6 @@ import org.kaazing.gateway.security.SecurityContext;
 import org.kaazing.gateway.security.auth.BasicLoginModule;
 import org.kaazing.gateway.security.auth.NegotiateLoginModule;
 import org.kaazing.gateway.security.auth.TimeoutLoginModule;
-import org.kaazing.gateway.server.ExpiringState;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.config.SchemeConfig;
@@ -976,7 +975,9 @@ public class GatewayContextResolver {
                     options.put(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY, configuration
                             .getProperty(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY));
                     if (LOGIN_MODULE_EXPIRING_STATE.isEnabled(configuration)) {
-                        options.put(ExpiringState.NAME, new DefaultExpiringState(clusterContext.getCollectionsFactory()));
+                        final String expiringStateName = "ExpiringState";
+                        options.put(expiringStateName,
+                                new DefaultExpiringState(clusterContext.getCollectionsFactory(), expiringStateName));
                     }
 
                     LoginModuleOptionsType rawOptions = loginModule.getOptions();

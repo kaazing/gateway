@@ -531,13 +531,6 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
             return retryConnect(httpSession, session, newConnectAddress);
         }
 
-        /**
-         * Retries a connect based on new ConnectAddress
-         * @param httpSession
-         * @param session
-         * @param newConnectAddress
-         * @return
-         */
         private DefaultConnectFuture retryConnect(DefaultHttpSession httpSession, IoSessionEx session,
             ResourceAddress newConnectAddress) {
             DefaultConnectFuture connectFuture = new DefaultConnectFuture();

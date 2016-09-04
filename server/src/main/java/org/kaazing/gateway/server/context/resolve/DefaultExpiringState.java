@@ -26,8 +26,8 @@ import com.hazelcast.core.IMap;
 final class DefaultExpiringState implements ExpiringState {
     private final IMap<Object, Object> delegate;
 
-    protected DefaultExpiringState(CollectionsFactory collectionsFactory) {
-        this.delegate = collectionsFactory.getMap(ExpiringState.NAME);
+    DefaultExpiringState(CollectionsFactory collectionsFactory, String expiringStateName) {
+        this.delegate = collectionsFactory.getMap(expiringStateName);
     }
 
     @Override

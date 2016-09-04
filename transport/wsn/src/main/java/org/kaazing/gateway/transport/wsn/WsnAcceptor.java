@@ -1073,7 +1073,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                         return;
                     }
 
-//                     If configured with "Application xxx" challenge scheme, reject and close the connection
+                    // If configured with "Application xxx" challenge scheme, reject and close the connection
                     if (!verifyApplicationChallengeSchemeSecurity(session)) {
                         return;
                     }

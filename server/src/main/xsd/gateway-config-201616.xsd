@@ -1502,14 +1502,11 @@
                 </annotation>
             </element>
             <element name="http.max.authentication.attempts" maxOccurs="1" minOccurs="0" type="nonNegativeInteger">
-                <annotation>
-                    <documentation>The maximum responses to a 401 a http connector will make</documentation>
-                </annotation>
-            </element>
-            <element name="http.authenticator" maxOccurs="1" minOccurs="0" type="gateway:CollapsedString">
-                <annotation>
-                    <documentation>The authenticator the http connector should authenticate with</documentation>
-                </annotation>
+            <annotation>
+                <documentation>The number of attempts that the http connector
+                    will try while authenticating (i.e responding to a 401)
+                </documentation>
+            </annotation>
             </element>
         </all>
     </complexType>

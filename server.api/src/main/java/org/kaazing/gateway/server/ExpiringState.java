@@ -25,9 +25,6 @@ import java.util.concurrent.TimeUnit;
  */
 public interface ExpiringState {
 
-    // TODO remove internally
-    public static final String NAME = "ExpiringState";
-
     /**
      * Puts an entry into this map with a given ttl (time to live) value
      * if the specified key is not already associated with a value.
@@ -39,7 +36,7 @@ public interface ExpiringState {
      * @param timeunit time unit for the ttl
      * @return null if absent, or returns the old value of the entry
      */
-    public abstract Object putIfAbsent(String key, Object value, long ttl, TimeUnit timeunit);
+    Object putIfAbsent(String key, Object value, long ttl, TimeUnit timeunit);
 
     /**
      * Gets the given key.
@@ -47,7 +44,7 @@ public interface ExpiringState {
      * @param key of the entry
      * @return value of the entry, or null
      */
-    public abstract Object get(String key);
+    Object get(String key);
 
     /**
      * Removes the given key.
@@ -56,5 +53,5 @@ public interface ExpiringState {
      * @return A {@link java.util.concurrent.Future} from which the value
      *         removed from the map can be retrieved.
      */
-    public abstract Object remove(String key, Object value);
+    Object remove(String key, Object value);
 }

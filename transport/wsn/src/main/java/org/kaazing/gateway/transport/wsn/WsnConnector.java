@@ -174,8 +174,8 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
 
         // (KG-7391) Use ping and pong to detect and close dead connections, if ws inactivity timeout is active
         final ResourceAddress connectAddress = (ResourceAddress) session.removeAttribute(WSN_CONNECT_ADDRESS_KEY);
-//        WsCheckAliveFilter.addIfFeatureEnabled(filterChain, WsnAcceptor.CHECK_ALIVE_FILTER,
-//                connectAddress.getOption(WsResourceAddress.INACTIVITY_TIMEOUT), logger);
+        WsCheckAliveFilter.addIfFeatureEnabled(filterChain, WsnAcceptor.CHECK_ALIVE_FILTER,
+                connectAddress.getOption(WsResourceAddress.INACTIVITY_TIMEOUT), logger);
     }
 
     @Override
