@@ -19,6 +19,7 @@ import static org.kaazing.gateway.service.turn.proxy.filters.StunMessage.MAGIC_C
 import static org.kaazing.gateway.service.turn.proxy.filters.StunMessage.attributePaddedLength;
 
 import java.nio.BufferUnderflowException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +46,29 @@ public class TurnFrameDecoder extends CumulativeProtocolDecoderEx {
     @Override
     protected boolean doDecode(IoSession session, IoBufferEx in, ProtocolDecoderOutput out) throws Exception {
 
+        int length = in.remaining() < 500 ? in.remaining() : 50;
+////        if (LOGGER.isTraceEnabled()) {
+////            LOGGER.trace("Decoding TURN data message for channel: " + channel + ", of length: " + length);
+////        }
+//        
+////        IoBufferEx dst = in.limit(length); 
+////        out.write(new DummyMessage2(in.slice()));
+////        in.mark();
+////        in.reset()
+////        
+////        return in.hasRemaining();
+//        
+//        
+//        byte[] dst = new byte[length];
+//        in.get(dst);
+//        out.write(new DummyMessage(dst));
+//        in.mark();
+//        
+//        return in.hasRemaining();
+        
+        if(LOGGER.isTraceEnabled()){
         LOGGER.trace("Decoding TURN message: " + in);
+        }
         if (in.remaining() < 2) {
             return false;
         }
@@ -72,27 +95,44 @@ public class TurnFrameDecoder extends CumulativeProtocolDecoderEx {
 
     private boolean decodeChannelDataMessage(IoSession session, IoBufferEx in, ProtocolDecoderOutput out) {
         in.reset();
+        in.mark();
 
         if (in.remaining() < 4) {
             return false;
         }
         short channel = in.getShort();
-        int length = in.getShort();
+        int length = in.getShort() + 4;
+        length = ((length + 4 - 1) / 4) * 4;
 
-        if (in.remaining() < length) {
-            in.reset();
+        System.out.println(length);
+
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace(session + "Decoding TURN data message for channel: " + channel + ", of length: " + length);
+        }
+
+        in.position(in.position() - 4);
+//        in.reset();  // reset to get first two bytes
+
+        System.out.println(in);
+
+        System.out.println("Remaining: " + in.remaining()  + "   " + length);
+        if(in.remaining() < length){
             return false;
         }
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Decoding TURN data message for channel: " + channel + ", of length: " + length);
-        }
-        in.reset();
-        final int dataMessageLength = length + 4;
-        in.limit(dataMessageLength);
-        out.write(in.slice());
-        in.position(dataMessageLength);
+        byte[] dst = new byte[length];
+        
+        in.get(dst);
+        out.write(new DummyMessage(dst));
         in.mark();
+        
         return in.hasRemaining();
+//        in.reset();
+//        final int dataMessageLength = length + 4;
+//        in.limit(dataMessageLength);
+//        out.write(in.slice());
+//        in.position(dataMessageLength);
+//        in.mark();
+//        return in.hasRemaining();
     }
 
     private boolean decodeStunMessage(IoBufferEx in, ProtocolDecoderOutput out) throws ProtocolDecoderException {
@@ -109,7 +149,7 @@ public class TurnFrameDecoder extends CumulativeProtocolDecoderEx {
 
         StunMessageMethod method = StunMessageMethod.valueOf(leadingBitsAndMessageType);
 
-        short messageLength = in.getShort();
+        int messageLength = in.getShort();
 
         int magicCookie = in.getInt();
         validateMagicCookie(magicCookie);
@@ -154,14 +194,14 @@ public class TurnFrameDecoder extends CumulativeProtocolDecoderEx {
         return true;
     }
 
-    private List<Attribute> decodeAttributes(IoBufferEx in, short remaining, byte[] transactionId) {
+    private List<Attribute> decodeAttributes(IoBufferEx in, int remaining, byte[] transactionId) {
         List<Attribute> stunMessageAttributes = new ArrayList<>();
         // Any attribute type MAY appear more than once in a STUN message.
         // Unless specified otherwise, the order of appearance is significant:
         // only the first occurrence needs to be processed by a receiver, and
         // any duplicates MAY be ignored by a receiver.
         do {
-            short type = in.getShort();
+            int type = in.getShort();
             short length = in.getShort();
             remaining -= 4;
 

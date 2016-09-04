@@ -40,6 +40,7 @@ import org.kaazing.gateway.service.turn.proxy.stun.attributes.Fingerprint;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.MessageIntegrity;
 import org.kaazing.gateway.util.turn.TurnUtils;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
+import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,6 +81,16 @@ public class TurnFrameEncoder extends ProtocolEncoderAdapter {
 
     @Override
     public void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception {
+        if(message instanceof DummyMessage2){
+            final IoBufferEx dst = ((DummyMessage2) message).getDst();
+            out.write(dst);
+            return;
+        }
+        if(message instanceof DummyMessage){
+            final byte[] dst = ((DummyMessage) message).getDst();
+            out.write(allocator.wrap(ByteBuffer.wrap(dst)));
+            return;
+        }
         if (!(message instanceof StunMessage)) {
             // Stun Data Message
             out.write(message);
