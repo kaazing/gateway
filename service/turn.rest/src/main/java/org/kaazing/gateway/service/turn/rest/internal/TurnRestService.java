@@ -67,12 +67,12 @@ public class TurnRestService implements Service {
         EarlyAccessFeatures.TURN_REST_SERVICE.assertEnabled(getConfiguration(), serviceContext.getLogger());
         ServiceProperties properties = serviceContext.getProperties();
 
-        String urls = getTurnURLs(properties);
+        String[] urls = getUrls(properties);
         TurnRestCredentialsGenerator credentialGeneratorInstance = setUpCredentialsGenerator(properties);
 
         String ttl = properties.get("credentials.ttl") != null ? properties.get("credentials.ttl") : DEFAULT_CREDENTIALS_TTL;
         handler = new TurnRestServiceHandler(Long.toString(Utils.parseTimeInterval(ttl, TimeUnit.SECONDS, 0)),
-                        credentialGeneratorInstance, urls);
+                        credentialGeneratorInstance, urls[0], urls[1]);
     }
 
     private TurnRestCredentialsGenerator setUpCredentialsGenerator(ServiceProperties properties)
@@ -90,13 +90,23 @@ public class TurnRestService implements Service {
         return credentialGeneratorInstance;
     }
 
-    private String getTurnURLs(ServiceProperties properties) {
-        StringBuilder u = new StringBuilder();
+    private String[] getUrls(ServiceProperties properties) {
+        StringBuilder stunUrls = new StringBuilder();
+        StringBuilder turnUrls = new StringBuilder();
         for (String url : properties.get("url").split(LIST_SEPARATOR)) {
-            u.append("\"").append(url).append("\",");
+            if (url.startsWith("turn")) {
+                turnUrls.append("\"").append(url).append("\",");
+            } else {
+                stunUrls.append("\"").append(url).append("\",");
+            }
         }
-        u.setLength(u.length() - 1);
-        return u.toString();
+        if (turnUrls.length() != 0) {
+            turnUrls.setLength(turnUrls.length() - 1);
+        }
+        if (stunUrls.length() != 0) {
+            stunUrls.setLength(stunUrls.length() - 1);
+        }
+        return new String[]{turnUrls.toString(), stunUrls.toString()};
     }
 
     private Key resolveSharedSecret(ServiceProperties properties) {
