@@ -15,21 +15,16 @@
  */
 package org.kaazing.gateway.service.turn.proxy;
 
+import static java.lang.String.format;
 import static java.nio.charset.Charset.forName;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.rules.RuleChain.outerRule;
-
-import java.io.FileInputStream;
-import java.security.KeyStore;
-
-import javax.crypto.spec.SecretKeySpec;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -37,44 +32,32 @@ import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-/**
- * Test to validate behavior as specified in <a href="https://tools.ietf.org/html/rfc5766">RFC 5766: TURN</a>
- * through TCP and UDP.
- */
+import javax.crypto.spec.SecretKeySpec;
+import java.io.FileInputStream;
+import java.security.KeyStore;
+import java.util.Arrays;
+import java.util.Collection;
 
-// @Ignore("This is a base class, use MappedAutoSuiteIT instead.")
-@RunWith(InheritedBaseRunner.class)
-@IgnoreBaseClassTests
-public abstract class MappedAutoIT {
 
-    public static class TcpMappedAutoIT extends MappedAutoIT {
-        @Override
-        public String getProtocol() {
-            return "tcp";
-        }
+@RunWith(Parameterized.class)
+public class MaskingIT {
+
+    @Parameters
+    public static Collection<String> data() {
+        return Arrays.asList(new String[]{"tcp", "udp"});
     }
 
-    public static class UdpMappedAutoIT extends MappedAutoIT {
-        @Override
-        public String getProtocol() {
-            return "udp";
-        }
-    }
+    private final K3poRule k3po;
+    private final GatewayRule gateway;
 
 
-    public String protocol = getProtocol();
+    public MaskingIT(String scheme){
+        k3po = new K3poRule()
+                .setScriptRoot("org/kaazing/gateway/service/turn/proxy")
+                .scriptProperty(format("acceptURI '%s://localhost:3479'", scheme))
+                .scriptProperty(format("connectURI '%s://localhost:3478'", scheme));
 
-    public abstract String getProtocol();
-
-    private final K3poRule k3po = new K3poRule()
-            .setScriptRoot("org/kaazing/gateway/service/turn/proxy")
-            .scriptProperty("acceptURI '" + protocol + "://localhost:3479'")
-            .scriptProperty("connectURI '" + protocol + "://localhost:3478'");
-
-
-    private final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
-
-    private final GatewayRule gateway = new GatewayRule() {
+        gateway = new GatewayRule() {
         {
             KeyStore keyStore = null;
             char[] password = "ab987c".toCharArray();
@@ -95,38 +78,41 @@ public abstract class MappedAutoIT {
             }
             // @formatter:off
             GatewayConfiguration configuration =
-                    new GatewayConfigurationBuilder()
-                            .property(EarlyAccessFeatures.TURN_PROXY.getPropertyName(), "true")
-                            .service()
-                            .accept(protocol + "://localhost:3478")
-                            .connect(protocol + "://localhost:3479")
-                            .type("turn.proxy")
-                            .property("mapped.address", "AUTO")
-                            .property("key.alias", "turn.shared.secret")
-                            .done()
-                            .security()
-                            .keyStore(keyStore)
-                            .keyStorePassword(password)
-                            .done()
-                            .done();
+                new GatewayConfigurationBuilder()
+                    .property(EarlyAccessFeatures.TURN_PROXY.getPropertyName(), "true")
+                    .service()
+                        .accept(scheme + "://localhost:3478")
+                        .connect(scheme + "://localhost:3479")
+                        .type("turn.proxy")
+                        .property("mapped.address", "192.0.2.15:8080")
+                        .property("masking.key", "0x1010101")
+                        .property("key.alias", "turn.shared.secret")
+                        .property("key.algorithm", "HmacMD5")
+                    .done()
+                    .security()
+                        .keyStore(keyStore)
+                        .keyStorePassword(password)
+                    .done()
+                .done();
             // @formatter:on
             init(configuration);
         }
     };
+        this.chain = createRuleChain(gateway, k3po);
+    }
 
     @Rule
-    public final TestRule chain = outerRule(gateway).around(k3po).around(timeout);
+    public TestRule chain;
 
     @Test
     @Specification({
-            "auto.mapped.address.test/request",
-            "auto.mapped.address.test/response"
+            "mask.relay.peer.address/request",
+            "mask.relay.peer.address/response"
     })
     public void shouldPassWithDefaultTurnProtocolTest() throws Exception {
         k3po.finish();
     }
 
     // TODO create also a test for IPv6
-    // TODO create test for AUTO mask
 
 }
