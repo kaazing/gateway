@@ -23,12 +23,8 @@ public class MessageIntegrity extends Attribute {
 
     protected final byte[] value;
 
-    @SuppressWarnings("For now only supporting short term credentials")
-    private final StunAttributeFactory.CredentialType credentialType;
-
     public MessageIntegrity(byte[] value, StunAttributeFactory.CredentialType credentialType) {
         this.value = value;
-        this.credentialType = credentialType;
     }
 
     @Override
