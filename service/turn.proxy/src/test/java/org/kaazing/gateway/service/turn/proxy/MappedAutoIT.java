@@ -40,7 +40,7 @@ import java.util.Collection;
 
 
 @RunWith(Parameterized.class)
-public class MaskingIT {
+public class MappedAutoIT {
 
     @Parameters
     public static Collection<String> data() {
@@ -51,7 +51,7 @@ public class MaskingIT {
     private final GatewayRule gateway;
 
 
-    public MaskingIT(String scheme){
+    public MappedAutoIT(String scheme){
         k3po = new K3poRule()
                 .setScriptRoot("org/kaazing/gateway/service/turn/proxy")
                 .scriptProperty(format("acceptURI '%s://localhost:3479'", scheme))
