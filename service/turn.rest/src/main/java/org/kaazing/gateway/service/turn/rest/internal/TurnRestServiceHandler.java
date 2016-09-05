@@ -15,12 +15,10 @@
  */
 package org.kaazing.gateway.service.turn.rest.internal;
 
-import java.security.Key;
 import java.util.Arrays;
 
 import javax.security.auth.Subject;
 
-import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.service.turn.rest.TurnRestCredentials;
 import org.kaazing.gateway.service.turn.rest.TurnRestCredentialsGenerator;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
@@ -29,22 +27,23 @@ import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpVersion;
+import org.kaazing.gateway.util.turn.TurnException;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 
 class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
     private TurnRestCredentialsGenerator credentialGenerator;
-    private String uris;
+    private String urls;
 
     private String ttl;
 
     TurnRestServiceHandler(String ttl, TurnRestCredentialsGenerator credentialGenerator,
-            String uris) {
+            String urls) {
 
         this.ttl = ttl;
         this.credentialGenerator = credentialGenerator;
-        this.uris = uris;
+        this.urls = urls;
 
     }
 
@@ -52,7 +51,6 @@ class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
     protected void doSessionOpened(HttpAcceptSession session) throws Exception {
         HttpMethod method = session.getMethod();
         String service = session.getParameter("service");
-        String ttl;
 
         if (method != HttpMethod.GET) {
             session.setStatus(HttpStatus.CLIENT_METHOD_NOT_ALLOWED);
@@ -67,23 +65,20 @@ class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
         session.setVersion(HttpVersion.HTTP_1_1);
         session.setWriteHeader(HttpHeaders.HEADER_CONTENT_TYPE, "application/json");
 
-        if (null == this.ttl) {
-            ttl = session.getParameter("Max-Age");
-        } else {
-            ttl = this.ttl;
-        }
-
         String username = null;
         char[] password = null;
         if (credentialGenerator != null) {
             Subject subject = session.getSubject();
+            if (subject == null) {
+                throw new TurnException("Subject is null");
+            }
             credentialGenerator.setCredentialsTTL(ttl);
             TurnRestCredentials credentials = credentialGenerator.generate(subject);
             username = credentials.getUsername();
             password = credentials.getPassword();
         }
 
-        String response = TurnRestJSONResponse.createResponse(username, password, ttl, this.uris);
+        String response = TurnRestJSONResponse.createResponse(username, password, ttl, this.urls);
 
         if (password != null) {
             Arrays.fill(password, '0');

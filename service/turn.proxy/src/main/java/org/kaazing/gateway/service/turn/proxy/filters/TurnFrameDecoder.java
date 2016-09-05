@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.turn.proxy.stun;
+package org.kaazing.gateway.service.turn.proxy.filters;
 
-import static org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage.MAGIC_COOKIE;
-import static org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage.attributePaddedLength;
+import static org.kaazing.gateway.service.turn.proxy.filters.StunMessage.MAGIC_COOKIE;
+import static org.kaazing.gateway.service.turn.proxy.filters.StunMessage.attributePaddedLength;
 
 import java.nio.BufferUnderflowException;
-import java.nio.channels.UnsupportedAddressTypeException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.mina.core.session.IoSession;
+import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.ErrorCode;
@@ -33,28 +34,11 @@ import org.kaazing.mina.filter.codec.CumulativeProtocolDecoderEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
-    public enum TURNMessageFormat {
-        STUN, CHANNEL_DATA, RESERVED;
-
-        public static TURNMessageFormat retrieveType(short leadingBitsAndMessageType) {
-            LOGGER.trace(String.format("retrievingType (leadingBitsAndMessageType=%04X)",leadingBitsAndMessageType));
-            int leadingBits = ( leadingBitsAndMessageType & 0xC000 )>>14;
-            switch ( leadingBits) {
-            case 0:
-                return STUN;
-            case 1:
-                return CHANNEL_DATA;
-            default:
-                return RESERVED;
-            }
-        }
-    }
-
+public class TurnFrameDecoder extends CumulativeProtocolDecoderEx {
     private static final Logger LOGGER = LoggerFactory.getLogger("service.turn.proxy");
     private final StunAttributeFactory stunAttributeFactory;
 
-    public StunFrameDecoder(IoBufferAllocatorEx<?> allocator, StunAttributeFactory stunAttributeFactory) {
+    public TurnFrameDecoder(IoBufferAllocatorEx<?> allocator, StunAttributeFactory stunAttributeFactory) {
         super(allocator);
         this.stunAttributeFactory = stunAttributeFactory;
     }
@@ -62,58 +46,77 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
     @Override
     protected boolean doDecode(IoSession session, IoBufferEx in, ProtocolDecoderOutput out) throws Exception {
 
-        LOGGER.trace("Decoding STUN message: " + in);
-        if (in.remaining() < 20) {
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace(session + " Decoding TURN message: " + in);
+        }
+        if (in.remaining() < 2) {
             return false;
         }
         in.mark();
 
-        // https://tools.ietf.org/html/rfc5389#section-6
-        short leadingBitsAndMessageType = in.getShort();
-        
-        TURNMessageFormat messageFormat = TURNMessageFormat.retrieveType(leadingBitsAndMessageType);  
+        short leadingBits = in.getShort();
 
-        switch (messageFormat) {
-        case STUN:
-            return processStunMessage(session, in, out, leadingBitsAndMessageType);
-        case CHANNEL_DATA:
-            return processChannelDataMessage(session, in, out, leadingBitsAndMessageType);
+        boolean result;
+        final int leadingByte = (int) (leadingBits & 0xC000);
+        switch (leadingByte) {
+        case 0x0000:
+            // https://tools.ietf.org/html/rfc5389#section-6
+            result = decodeStunMessage(in, out);
+            break;
+        case 0x4000:
+            // https://tools.ietf.org/html/rfc5766#section-11
+            result = decodeChannelDataMessage(session, in, out);
+            break;
         default:
-            throw new UnsupportedOperationException(String.format("Unknown message type %04X",leadingBitsAndMessageType));
+            throw new ProtocolDecoderException(String.format("Illegal leading bytes", leadingBits, leadingBits));
         }
+        return result;
     }
 
-    private boolean processChannelDataMessage(IoSession session, IoBufferEx in, ProtocolDecoderOutput out,
-        short leadingBitsAndMessageType) {
-        short channelNumber = leadingBitsAndMessageType;
-        short messageLength = in.getShort();
-        byte[] appData = new byte[messageLength];
+    private boolean decodeChannelDataMessage(IoSession session, IoBufferEx in, ProtocolDecoderOutput out) {
+        in.reset();
+        in.mark();
 
-        if (in.remaining() < messageLength) {
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace(String.format("Message has %d bytes remaining, which is less than declared length of: %d",
-                        in.remaining(), messageLength));
-            }
+        if (in.remaining() < 4) {
+            return false;
+        }
+        short channel = in.getShort();
+        int length = in.getShort() + 4;
+        length = ((length + 4 - 1) / 4) * 4;
+
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace(session + "Decoding TURN data message for channel: " + channel + ", of length: " + length);
+        }
+
+        in.position(in.position() - 4);
+
+        if (in.remaining() < length) {
+            return false;
+        }
+        byte[] dst = new byte[length];
+
+        in.get(dst);
+        out.write(new TurnDataMessage(dst));
+        in.mark();
+
+        return in.hasRemaining();
+    }
+
+    private boolean decodeStunMessage(IoBufferEx in, ProtocolDecoderOutput out) throws ProtocolDecoderException {
+        in.reset();
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Decoding STUN message: " + in);
+        }
+        if (in.remaining() < 20) {
             in.reset();
             return false;
-        } else if (in.remaining() == 0) {
-            LOGGER.debug("Message does not contain any application data");
-        } else {
-            in.get(appData);
         }
-        ChannelDataProxyMessage message = new ChannelDataProxyMessage(channelNumber, messageLength, appData);
-        in.mark();
-        out.write(message);
-        return true;
-    }
-
-    private boolean processStunMessage(IoSession session, IoBufferEx in, ProtocolDecoderOutput out,
-        short leadingBitsAndMessageType) {
+        short leadingBitsAndMessageType = in.getShort();
         StunMessageClass messageClass = StunMessageClass.valueOf(leadingBitsAndMessageType);
 
         StunMessageMethod method = StunMessageMethod.valueOf(leadingBitsAndMessageType);
 
-        short messageLength = in.getShort();
+        int messageLength = in.getShort();
 
         int magicCookie = in.getInt();
         validateMagicCookie(magicCookie);
@@ -131,45 +134,41 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
             return false;
         } else if (in.remaining() == 0) {
             /*
-                https://tools.ietf.org/html/rfc5389#section-15
-                After the STUN header are zero or more attributes.  Each attribute
-                MUST be TLV encoded, with a 16-bit type, 16-bit length, and value.
-                Each STUN attribute MUST end on a 32-bit boundary.  As mentioned
-                above, all fields in an attribute are transmitted most significant
-                bit first.
+             * https://tools.ietf.org/html/rfc5389#section-15 After the STUN header are zero or more attributes. Each
+             * attribute MUST be TLV encoded, with a 16-bit type, 16-bit length, and value. Each STUN attribute MUST end
+             * on a 32-bit boundary. As mentioned above, all fields in an attribute are transmitted most significant bit
+             * first.
              */
-            LOGGER.debug("Message does not contain any attributes");
+            LOGGER.trace("Message does not contain any attributes");
         } else {
             try {
                 attributes = decodeAttributes(in, messageLength, transactionId);
             } catch (BufferUnderflowException e) {
-                LOGGER.warn("Could not decode attributes", e);
                 List<Attribute> errors = new ArrayList<>(1);
                 ErrorCode errorCode = new ErrorCode();
                 errorCode.setErrorCode(400);
                 errorCode.setErrMsg("Bad Request");
                 errors.add(errorCode);
-                StunProxyMessage stunMessage = new StunProxyMessage(StunMessageClass.ERROR, StunMessageMethod.ALLOCATE, transactionId, errors);
+                StunMessage stunMessage = new StunMessage(StunMessageClass.ERROR, method, transactionId, errors);
                 LOGGER.warn("replying with error message: " + stunMessage);
-                session.write(stunMessage);
-                in.mark();
-                return true;
+                throw new TurnFrameDecoderException("Could not decode attributes", e, stunMessage);
             }
         }
-        StunProxyMessage stunMessage = new StunProxyMessage(messageClass, method, transactionId, attributes);
-        in.mark();
+        StunMessage stunMessage = new StunMessage(messageClass, method, transactionId, attributes);
         out.write(stunMessage);
+        in.mark();
+
         return true;
     }
 
-    private List<Attribute> decodeAttributes(IoBufferEx in, short remaining, byte[] transactionId) {
+    private List<Attribute> decodeAttributes(IoBufferEx in, int remaining, byte[] transactionId) {
         List<Attribute> stunMessageAttributes = new ArrayList<>();
         // Any attribute type MAY appear more than once in a STUN message.
         // Unless specified otherwise, the order of appearance is significant:
         // only the first occurrence needs to be processed by a receiver, and
         // any duplicates MAY be ignored by a receiver.
         do {
-            short type = in.getShort();
+            int type = in.getShort();
             short length = in.getShort();
             remaining -= 4;
 
@@ -184,7 +183,7 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
             // copy padding, it can be any value, but is not ignored for MESSAGE-INTEGRITY generation
             byte[] padding = new byte[attributePaddedLength(length) - length];
             for (int i = length; i < attributePaddedLength(length); i++) {
-                padding[i-length] = in.get();
+                padding[i - length] = in.get();
                 remaining -= 1;
             }
             attribute.setPadding(padding);
@@ -193,9 +192,9 @@ public class StunFrameDecoder extends CumulativeProtocolDecoderEx {
         return stunMessageAttributes;
     }
 
-    private void validateMagicCookie(int magicCookie) {
+    private void validateMagicCookie(int magicCookie) throws ProtocolDecoderException {
         if (magicCookie != MAGIC_COOKIE) {
-            throw new IllegalArgumentException("Illegal magic cookie value: " + magicCookie);
+            throw new ProtocolDecoderException("Illegal magic cookie value: " + magicCookie);
         }
 
     }

@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.util.turn;
 
-public class TurnException extends RuntimeException {
+package org.kaazing.gateway.service.turn.proxy.filters;
 
-    private static final long serialVersionUID = -2542024439819718984L;
+public class TurnDataMessage {
 
-    public TurnException(String message, Exception cause) {
-        super(message, cause);
+    private final byte[] dst;
+
+    public TurnDataMessage(byte[] dst) {
+        this.dst = dst;
     }
 
-    public TurnException(String message) {
-        super(message);
+    public byte[] getDst() {
+        return dst;
     }
 
 }

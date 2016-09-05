@@ -25,7 +25,7 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
-import org.kaazing.gateway.service.turn.proxy.stun.StunMaskAddressFilter;
+import org.kaazing.gateway.service.turn.proxy.filters.StunMaskAddressFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

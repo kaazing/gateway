@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.turn.proxy.stun;
+package org.kaazing.gateway.service.turn.proxy.filters;
 
-import static org.kaazing.gateway.service.turn.proxy.stun.StunProxyMessage.attributePaddedLength;
+import static org.kaazing.gateway.service.turn.proxy.filters.StunMessage.HEADER_BYTES;
+import static org.kaazing.gateway.service.turn.proxy.filters.StunMessage.attributePaddedLength;
 import static org.kaazing.gateway.util.turn.TurnUtils.HMAC_SHA_1;
 
 import java.nio.ByteBuffer;
@@ -29,6 +30,7 @@ import java.util.Map;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.ws.ProtocolException;
 
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
@@ -38,6 +40,7 @@ import org.kaazing.gateway.service.turn.proxy.stun.attributes.Fingerprint;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.MessageIntegrity;
 import org.kaazing.gateway.util.turn.TurnUtils;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
+import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,80 +64,67 @@ import org.slf4j.LoggerFactory;
    FINGERPRINT, appear after MESSAGE-INTEGRITY.
  */
 
-public class StunFrameEncoder extends ProtocolEncoderAdapter {
+public class TurnFrameEncoder extends ProtocolEncoderAdapter {
 
     private final IoBufferAllocatorEx<?> allocator;
-    private final Map<String, String> currentTransactions;
     private final Key sharedSecret;
     private final String keyAlgorithm;
 
     private static final Logger LOGGER = LoggerFactory.getLogger("service.turn.proxy");
 
 
-    public StunFrameEncoder(IoBufferAllocatorEx<?> aloc, Map<String, String> currentTrx, Key ss, String keyAlg) {
+    public TurnFrameEncoder(IoBufferAllocatorEx<?> aloc, Key ss, String keyAlg) {
         this.allocator = aloc;
-        this.currentTransactions = currentTrx;
         this.sharedSecret = ss;
         this.keyAlgorithm = keyAlg;
     }
 
     @Override
     public void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception {
-        if (!(message instanceof StunProxyMessage)) {
-            // easiest way to avoid race condition where decoder is removed on the filter chain prior to encoder
-            out.write(message);
-        }
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Encoding STUN message: " + message);
-        }
-
-        ByteBuffer buf;
-        if (message instanceof StunProxyMessage) {
-            buf = serializeStunMessage(message);
-        } else if (message instanceof StunProxyMessage) {
-            buf = serializeChannelDataMessage(message);
-        } else {
-            throw new IllegalArgumentException(String.format(
-                    "Unknown message received. Only StunProxyMessage and ChannelDataProxyMessage are supported. Received %s",
-                    message.getClass().getName()));
-        }
-        out.write(allocator.wrap(buf));
-    }
-
-    private ByteBuffer serializeChannelDataMessage(Object message) {
-        ChannelDataProxyMessage msg = (ChannelDataProxyMessage) message;
-        ByteBuffer buf = allocator.allocate(ChannelDataProxyMessage.HEADER_BYTES + msg.getMessageLength());
-        buf.putShort((short)msg.getChannelNumber());
-        buf.putShort((short)msg.getMessageLength());
-        buf.put(msg.getAppData());
-        buf.flip();
-        return buf;
-    }
-
-    private ByteBuffer serializeStunMessage(Object message) throws NoSuchAlgorithmException, InvalidKeyException {
-        StunProxyMessage stunMessage = (StunProxyMessage) message;
-        String username = null;
-        if (stunMessage.getMessageClass().equals(StunMessageClass.RESPONSE) ||
-            stunMessage.getMessageClass().equals(StunMessageClass.ERROR)) {
-            username = currentTransactions.remove(Base64.getEncoder().encodeToString(stunMessage.getTransactionId()));
-            LOGGER.trace(String.format("Removed username %s from transactions map", username));
-            if (stunMessage.isModified() && (username == null || sharedSecret ==null)) {
-                LOGGER.warn("STUN message is modified but MESSAGE-INTEGRITY attribute can not be recalculated because username and/or shared secret is not available");
+        if (message instanceof TurnDataMessage) {
+            final byte[] dst = ((TurnDataMessage) message).getDst();
+            final IoBufferEx wrap = allocator.wrap(ByteBuffer.wrap(dst));
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace(session + " Encoding TURN Data message: " + wrap);
             }
+            out.write(wrap);
+            return;
+        } else if (message instanceof StunMessage) {
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace(session + "Encoding STUN message: " + message);
+            }
+            StunMessage stunMessage = (StunMessage) message;
+            String username = null;
+            if (stunMessage.getMessageClass().equals(StunMessageClass.RESPONSE)
+                    || stunMessage.getMessageClass().equals(StunMessageClass.ERROR)) {
+                username = stunMessage.getUsername();
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace(String.format("Removed username %s from transactions map", username));
+                }
+                if (stunMessage.isModified() && (username == null || sharedSecret == null)) {
+                    LOGGER.warn(
+                            "STUN message is modified but MESSAGE-INTEGRITY attribute can not be recalculated because username and/or shared secret is not available");
+                }
+            }
+            ByteBuffer buf = allocator.allocate(StunMessage.HEADER_BYTES + stunMessage.getMessageLength());
+            short messageMethod = stunMessage.getMethod().getValue();
+            short messageClass = stunMessage.getMessageClass().getValue();
+            buf.putShort((short) (messageMethod | messageClass));
+            buf.putShort(stunMessage.getMessageLength());
+            buf.putInt(StunMessage.MAGIC_COOKIE);
+            buf.put(stunMessage.getTransactionId());
+            encodeAttributes(stunMessage, username, buf);
+            buf.flip();
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Writing STUN message: " + buf);
+            }
+            out.write(allocator.wrap(buf));
+        } else {
+            throw new ProtocolException(session + " Uknown message type");
         }
-        ByteBuffer buf = allocator.allocate(StunProxyMessage.HEADER_BYTES + stunMessage.getMessageLength());
-        short messageMethod = stunMessage.getMethod().getValue();
-        short messageClass = stunMessage.getMessageClass().getValue();
-        buf.putShort((short) (messageMethod | messageClass));
-        buf.putShort(stunMessage.getMessageLength());
-        buf.putInt(StunProxyMessage.MAGIC_COOKIE);
-        buf.put(stunMessage.getTransactionId());
-        encodeAttributes(stunMessage, username, buf);
-        buf.flip();
-        return buf;
     }
 
-    private void encodeAttributes(StunProxyMessage stunMessage, String username, ByteBuffer buf) throws NoSuchAlgorithmException, InvalidKeyException {
+    private void encodeAttributes(StunMessage stunMessage, String username, ByteBuffer buf) throws NoSuchAlgorithmException, InvalidKeyException {
         int lengthSoFar = 0; // StunProxyMessage.HEADER_BYTES;
         for (Attribute attribute : stunMessage.getAttributes()) {
             lengthSoFar += 4 + attributePaddedLength(attribute.getLength());
@@ -146,11 +136,11 @@ public class StunFrameEncoder extends ProtocolEncoderAdapter {
                 buf.putShort(2, (short) lengthSoFar);
                 int pos = buf.position();
                 buf.position(0);
-                buf.limit(StunProxyMessage.HEADER_BYTES + lengthSoFar - 4 - attributePaddedLength(attribute.getLength()));
+                buf.limit(HEADER_BYTES + lengthSoFar - 4 - attributePaddedLength(attribute.getLength()));
                 attribute = overrideMessageIntegrity(username, buf);
                 buf.putShort(2, stunMessage.getMessageLength());
                 buf.position(pos);
-                buf.limit(StunProxyMessage.HEADER_BYTES + stunMessage.getMessageLength());
+                buf.limit(HEADER_BYTES + stunMessage.getMessageLength());
             } else if (attribute instanceof Fingerprint && stunMessage.isModified()) {
                 LOGGER.debug("Message is modified will override attribute FINGERPRINT");
                 // message length already at total value

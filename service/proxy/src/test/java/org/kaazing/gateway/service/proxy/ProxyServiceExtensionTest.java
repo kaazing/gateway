@@ -15,16 +15,30 @@
  */
 package org.kaazing.gateway.service.proxy;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -34,6 +48,19 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.test.util.ITUtil;
 
 public class ProxyServiceExtensionTest {
+
+    private static ClassLoader classLoader;
+
+    @BeforeClass
+    public static void before() throws Exception {
+        classLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(new TestClassLoader(TestExtension.class.getName()));
+    }
+
+    @AfterClass
+    public static void after() {
+        Thread.currentThread().setContextClassLoader(classLoader);
+    }
 
     private GatewayRule gateway = new GatewayRule() {
         {
@@ -83,6 +110,57 @@ public class ProxyServiceExtensionTest {
         } catch (Exception ex) {
             fail("Unexpected exception in client connecting to server: " + ex);
         }
+
+        Thread.currentThread().setContextClassLoader(new ProxyServiceExtensionIT.TestClassLoader());
+
+    }
+
+    /**
+     * A classloader whose getResources("META-INF/services/org.kaazing.gateway.service.proxy.ProxyServiceExtensionSpi")
+     * method will return a URL whose contents will be the list of class names supplied in the constructor.
+     * This avoids the need for test meta-info resources files to be available on the test class path.
+     */
+    static class TestClassLoader extends ClassLoader {
+        private URL url;
+
+        TestClassLoader(String... factorySpiClassNames) throws MalformedURLException {
+            url = new URL(null, "data:metainf", new TestURLStreamHandler(factorySpiClassNames));
+        }
+
+        @Override
+        public Enumeration<URL> getResources(String name) throws IOException {
+            if (name.equals("META-INF/services/" + ProxyServiceExtensionSpi.class.getName())) {
+                return Collections.enumeration(Collections.singletonList(url));
+            }
+            return super.getResources(name);
+        }
+
+    }
+
+    private static class TestURLStreamHandler extends URLStreamHandler {
+        private final byte[] contents;
+
+        TestURLStreamHandler(String[] factorySpiClassNames) {
+            String metaInfContent = Arrays.stream(factorySpiClassNames).collect(joining("\n"));
+            contents = metaInfContent.getBytes(UTF_8);
+        }
+
+        @Override
+        protected URLConnection openConnection(URL u) throws IOException {
+            return new URLConnection(u) {
+
+                @Override
+                public void connect() throws IOException {
+                }
+
+                @Override
+                public InputStream getInputStream() {
+                    return new ByteArrayInputStream(contents);
+                }
+
+            };
+        }
+
     }
 
 }

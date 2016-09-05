@@ -13,18 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.util.turn;
 
-public class TurnException extends RuntimeException {
+package org.kaazing.gateway.service.turn.proxy.filters;
 
-    private static final long serialVersionUID = -2542024439819718984L;
+import org.apache.mina.filter.codec.ProtocolDecoderException;
 
-    public TurnException(String message, Exception cause) {
+public class TurnFrameDecoderException extends ProtocolDecoderException {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -294329247047308297L;
+    private final StunMessage stunMessage;
+
+    /**
+     * Constructs a new instance with the specified message and the specified
+     * cause.
+     * @param stunMessage 
+     */
+    public TurnFrameDecoderException(String message, Throwable cause, StunMessage stunMessage) {
         super(message, cause);
+        this.stunMessage = stunMessage;
     }
 
-    public TurnException(String message) {
-        super(message);
+    public StunMessage getStunMessage() {
+        return stunMessage;
     }
 
 }
