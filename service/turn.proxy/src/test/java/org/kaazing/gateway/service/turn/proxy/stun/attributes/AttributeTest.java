@@ -15,7 +15,7 @@
  */
 package org.kaazing.gateway.service.turn.proxy.stun.attributes;
 
-import static org.kaazing.gateway.service.turn.proxy.stun.StunAttributeFactory.CredentialType.SHORT_TERM;
+import static org.kaazing.gateway.service.turn.proxy.filters.StunAttributeFactory.CredentialType.SHORT_TERM;
 import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType.EVEN_PORT;
 import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType.FINGERPRINT;
 import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType.MAPPED_ADDRESS;
@@ -35,7 +35,7 @@ import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.kaazing.gateway.service.turn.proxy.stun.StunAttributeFactory;
+import org.kaazing.gateway.service.turn.proxy.filters.StunAttributeFactory;
 
 public class AttributeTest {
 

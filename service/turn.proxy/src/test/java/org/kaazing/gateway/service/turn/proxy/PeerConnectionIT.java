@@ -66,9 +66,9 @@ public class PeerConnectionIT {
                         .accept("tcp://localhost:3478")
                         .connect("tcp://localhost:3479")
                         .type("turn.proxy")
-                        .property("mapped.address", "192.0.2.15:8080")
-                        .property("key.alias", "turn.shared.secret")
-                        .property("key.algorithm", "HmacMD5")
+//                        .property("mapped.address", "192.0.2.15:8080")
+//                        .property("key.alias", "turn.shared.secret")
+//                        .property("key.algorithm", "HmacMD5")
                         // TODO relay adress override
                         //.property("relay.address.mask", propertyValue)
                     .done()
@@ -148,6 +148,17 @@ public class PeerConnectionIT {
         "correct.turn.protocol.with.sent.data/request",
         "correct.turn.protocol.with.sent.data/response" })
     public void shouldSuccessfullySendData() throws Exception {
+        k3po.finish();
+    }
+
+    /**
+     * See <a href="https://tools.ietf.org/html/rfc5766">RFC 5766: Turn Protocol</a>.
+     */
+    @Test
+    @Specification({
+        "correct.turn.protocol.with.sent.data.message/request",
+        "correct.turn.protocol.with.sent.data.message/response" })
+    public void shouldSuccessfullySendDataMessage() throws Exception {
         k3po.finish();
     }
 

@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.turn.rest.internal;
 
-import java.text.MessageFormat;
+package org.kaazing.gateway.service.turn.proxy.filters;
 
-public final class TurnRestJSONResponse {
+public class TurnDataMessage {
 
-    private TurnRestJSONResponse() {
+    private final byte[] dst;
+
+    public TurnDataMessage(byte[] dst) {
+        this.dst = dst;
     }
 
-    public static String createResponse(String username, char[] password, String ttl, String urls) {
-        String response = "";
-        if (username != null && password != null) {
-            response = MessageFormat.format("\"username\":\"{0}\",\"credential\":\"{1}\",", username, new String(password));
-        }
-        response = MessageFormat.format("'{'{0}\"ttl\":{1},\"urls\":[{2}]'}'", response, ttl, urls);
-        return response;
+    public byte[] getDst() {
+        return dst;
     }
+
 }

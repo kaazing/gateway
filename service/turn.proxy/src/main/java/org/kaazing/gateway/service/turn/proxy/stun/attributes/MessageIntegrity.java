@@ -15,20 +15,16 @@
  */
 package org.kaazing.gateway.service.turn.proxy.stun.attributes;
 
-import org.kaazing.gateway.service.turn.proxy.stun.StunAttributeFactory;
-
 import static org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType.MESSAGE_INTEGRITY;
+
+import org.kaazing.gateway.service.turn.proxy.filters.StunAttributeFactory;
 
 public class MessageIntegrity extends Attribute {
 
     protected final byte[] value;
 
-    @SuppressWarnings("For now only supporting short term credentials")
-    private final StunAttributeFactory.CredentialType credentialType;
-
     public MessageIntegrity(byte[] value, StunAttributeFactory.CredentialType credentialType) {
         this.value = value;
-        this.credentialType = credentialType;
     }
 
     @Override
