@@ -102,7 +102,7 @@ public class NioClientDatagramChannelFactory implements DatagramChannelFactory {
         releasePool = true;
     }
 
-    public DatagramChannel newChannel(ChannelPipeline pipeline) {
+    public DatagramChannel newChannel(final ChannelPipeline pipeline) {
         return new NioDatagramChannel(this, pipeline, sink, workerPool.nextWorker(), family);
     }
 

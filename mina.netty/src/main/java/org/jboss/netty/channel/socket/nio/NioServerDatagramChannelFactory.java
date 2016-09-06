@@ -30,20 +30,13 @@
  */
 package org.jboss.netty.channel.socket.nio;
 
-import java.nio.channels.Selector;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.RejectedExecutionException;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.socket.DatagramChannel;
 import org.jboss.netty.channel.socket.DatagramChannelFactory;
 import org.jboss.netty.channel.socket.InternetProtocolFamily;
-import org.jboss.netty.channel.socket.ServerSocketChannel;
-import org.jboss.netty.channel.socket.Worker;
-import org.jboss.netty.channel.socket.oio.OioDatagramChannelFactory;
 import org.jboss.netty.util.ExternalResourceReleasable;
 
 /**
@@ -76,13 +69,13 @@ public class NioServerDatagramChannelFactory implements DatagramChannelFactory {
 
     private final NioDatagramPipelineSink sink;
     private final NioChildDatagramPipelineSink childSink;
-    private final BossPool<NioDatagramWorker> boosPool;
+    private final BossPool<NioDatagramWorker> bossPool;
     private final WorkerPool<NioWorker> workerPool;
     private final InternetProtocolFamily family;
     private boolean releasePool;
 
     public NioServerDatagramChannelFactory(Executor bossExecutor, int bossCount, WorkerPool<NioWorker> workerPool) {
-        boosPool = new NioDatagramBossPool(bossExecutor, bossCount, null);
+        bossPool = new NioDatagramBossPool(bossExecutor, bossCount, null);
         this.workerPool = workerPool;
         this.family = null;
         sink = new NioDatagramPipelineSink();
@@ -91,7 +84,7 @@ public class NioServerDatagramChannelFactory implements DatagramChannelFactory {
     }
 
     public DatagramChannel newChannel(final ChannelPipeline pipeline) {
-        return new NioDatagramChannel(this, pipeline, sink, boosPool.nextBoss(), family);
+        return new NioDatagramChannel(this, pipeline, sink, bossPool.nextBoss(), family);
     }
 
     // mina.netty change -  adding this to create child datagram channels
@@ -101,7 +94,7 @@ public class NioServerDatagramChannelFactory implements DatagramChannelFactory {
 
     public void shutdown() {
         workerPool.shutdown();
-        boosPool.shutdown();
+        bossPool.shutdown();
         if (releasePool) {
             releasePool();
         }
@@ -109,7 +102,7 @@ public class NioServerDatagramChannelFactory implements DatagramChannelFactory {
 
     public void releaseExternalResources() {
         workerPool.shutdown();
-        boosPool.shutdown();
+        bossPool.shutdown();
         releasePool();
     }
 
@@ -117,8 +110,8 @@ public class NioServerDatagramChannelFactory implements DatagramChannelFactory {
         if (workerPool instanceof ExternalResourceReleasable) {
             ((ExternalResourceReleasable) workerPool).releaseExternalResources();
         }
-        if (boosPool instanceof ExternalResourceReleasable) {
-            ((ExternalResourceReleasable) boosPool).releaseExternalResources();
+        if (bossPool instanceof ExternalResourceReleasable) {
+            ((ExternalResourceReleasable) bossPool).releaseExternalResources();
         }
     }
 }

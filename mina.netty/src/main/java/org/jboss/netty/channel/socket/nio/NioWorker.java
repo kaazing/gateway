@@ -541,7 +541,7 @@ public class NioWorker extends AbstractNioWorker {
         boolean dispatch(NioWorker worker, SelectionKey key);
     }
 
-    static class TcpReadDispatcher implements ReadDispatcher {
+    static final class TcpReadDispatcher implements ReadDispatcher {
 
         private final NioSocketChannel channel;
 
@@ -560,7 +560,7 @@ public class NioWorker extends AbstractNioWorker {
         }
     }
 
-    static class UdpReadDispatcher implements ReadDispatcher {
+    static final class UdpReadDispatcher implements ReadDispatcher {
 
         private final NioDatagramChannel channel;
 
