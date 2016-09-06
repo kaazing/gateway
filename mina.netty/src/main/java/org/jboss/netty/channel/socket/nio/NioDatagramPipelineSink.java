@@ -80,7 +80,7 @@ class NioDatagramPipelineSink extends AbstractNioChannelSink {
                     if (value != null) {
                         connect(channel, future, (InetSocketAddress) value);
                     } else {
-                        NioDatagramWorker.disconnect(channel, future);
+                        NioServerDatagramBoss.disconnect(channel, future);
                     }
                     break;
                 case INTEREST_OPS:
