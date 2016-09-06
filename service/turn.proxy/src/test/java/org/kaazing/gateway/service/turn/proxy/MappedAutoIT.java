@@ -15,20 +15,16 @@
  */
 package org.kaazing.gateway.service.turn.proxy;
 
+import static java.lang.String.format;
 import static java.nio.charset.Charset.forName;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.rules.RuleChain.outerRule;
-
-import java.io.FileInputStream;
-import java.security.KeyStore;
-
-import javax.crypto.spec.SecretKeySpec;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -36,28 +32,45 @@ import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
+import javax.crypto.spec.SecretKeySpec;
+import java.io.FileInputStream;
+import java.security.KeyStore;
+import java.util.Arrays;
+import java.util.Collection;
+
+
+@RunWith(Parameterized.class)
 public class MappedAutoIT {
 
-    private final K3poRule k3po = new K3poRule()
-            .setScriptRoot("org/kaazing/gateway/service/turn/proxy")
-            .scriptProperty("acceptURI 'tcp://localhost:3479'");
+    @Parameters
+    public static Collection<String> data() {
+        return Arrays.asList(new String[]{"tcp", "udp"});
+    }
 
-    private final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
+    private final K3poRule k3po;
+    private final GatewayRule gateway;
 
-    private final GatewayRule gateway = new GatewayRule() {
+
+    public MappedAutoIT(String scheme){
+        k3po = new K3poRule()
+                .setScriptRoot("org/kaazing/gateway/service/turn/proxy")
+                .scriptProperty(format("acceptURI '%s://localhost:3479'", scheme))
+                .scriptProperty(format("connectURI '%s://localhost:3478'", scheme));
+
+        gateway = new GatewayRule() {
         {
             KeyStore keyStore = null;
             char[] password = "ab987c".toCharArray();
             try {
                 FileInputStream fileInStr = new FileInputStream(System.getProperty("user.dir")
-                    + "/target/truststore/keystore.db");
+                        + "/target/truststore/keystore.db");
                 keyStore = KeyStore.getInstance("JCEKS");
                 keyStore.load(fileInStr, "ab987c".toCharArray());
                 keyStore.setKeyEntry(
-                    "turn.shared.secret",
-                    new SecretKeySpec("turnAuthenticationSharedSecret".getBytes(forName("UTF-8")), "PBEWithMD5AndDES"),
-                    password,
-                    null
+                        "turn.shared.secret",
+                        new SecretKeySpec("turnAuthenticationSharedSecret".getBytes(forName("UTF-8")), "PBEWithMD5AndDES"),
+                        password,
+                        null
                 );
             }
             catch (Exception e) {
@@ -68,11 +81,13 @@ public class MappedAutoIT {
                 new GatewayConfigurationBuilder()
                     .property(EarlyAccessFeatures.TURN_PROXY.getPropertyName(), "true")
                     .service()
-                        .accept("tcp://localhost:3478")
-                        .connect("tcp://localhost:3479")
+                        .accept(scheme + "://localhost:3478")
+                        .connect(scheme + "://localhost:3479")
                         .type("turn.proxy")
-                        .property("mapped.address", "AUTO")
+                        .property("mapped.address", "192.0.2.15:8080")
+                        .property("masking.key", "0x1010101")
                         .property("key.alias", "turn.shared.secret")
+                        .property("key.algorithm", "HmacMD5")
                     .done()
                     .security()
                         .keyStore(keyStore)
@@ -83,20 +98,21 @@ public class MappedAutoIT {
             init(configuration);
         }
     };
+        this.chain = createRuleChain(gateway, k3po);
+    }
 
     @Rule
-    public final TestRule chain = outerRule(gateway).around(k3po).around(timeout);
+    public TestRule chain;
 
     @Test
     @Specification({
-            "auto.mapped.address.test/request",
-            "auto.mapped.address.test/response"
+            "mask.relay.peer.address/request",
+            "mask.relay.peer.address/response"
     })
     public void shouldPassWithDefaultTurnProtocolTest() throws Exception {
         k3po.finish();
     }
 
     // TODO create also a test for IPv6
-    // TODO create test for AUTO mask
 
 }
