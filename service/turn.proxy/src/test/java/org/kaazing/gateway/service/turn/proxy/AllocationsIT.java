@@ -161,6 +161,7 @@ public class AllocationsIT {
     @Specification({
             "incorrect.attribute.length.with.error.message.length/request",
             "incorrect.attribute.length.with.error.message.length/no.response"})
+    @Ignore("https://github.com/kaazing/tickets/issues/730")
     public void shouldGive400WithIncorrectLength() throws Exception {
         k3po.finish();
     }
