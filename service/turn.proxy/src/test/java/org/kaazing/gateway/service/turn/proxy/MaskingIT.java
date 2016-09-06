@@ -15,11 +15,16 @@
  */
 package org.kaazing.gateway.service.turn.proxy;
 
+import static java.lang.String.format;
+import static java.nio.charset.Charset.forName;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
+
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -30,20 +35,29 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.FileInputStream;
 import java.security.KeyStore;
+import java.util.Arrays;
+import java.util.Collection;
 
-import static java.nio.charset.Charset.forName;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.rules.RuleChain.outerRule;
 
+@RunWith(Parameterized.class)
 public class MaskingIT {
 
-    private final K3poRule k3po = new K3poRule()
-            .setScriptRoot("org/kaazing/gateway/service/turn/proxy")
-            .scriptProperty("acceptURI 'tcp://localhost:3479'");
+    @Parameters
+    public static Collection<String> data() {
+        return Arrays.asList(new String[]{"tcp", "udp"});
+    }
 
-    private final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
+    private final K3poRule k3po;
+    private final GatewayRule gateway;
 
-    private final GatewayRule gateway = new GatewayRule() {
+
+    public MaskingIT(String scheme){
+        k3po = new K3poRule()
+                .setScriptRoot("org/kaazing/gateway/service/turn/proxy")
+                .scriptProperty(format("acceptURI '%s://localhost:3479'", scheme))
+                .scriptProperty(format("connectURI '%s://localhost:3478'", scheme));
+
+        gateway = new GatewayRule() {
         {
             KeyStore keyStore = null;
             char[] password = "ab987c".toCharArray();
@@ -67,8 +81,8 @@ public class MaskingIT {
                 new GatewayConfigurationBuilder()
                     .property(EarlyAccessFeatures.TURN_PROXY.getPropertyName(), "true")
                     .service()
-                        .accept("tcp://localhost:3478")
-                        .connect("tcp://localhost:3479")
+                        .accept(scheme + "://localhost:3478")
+                        .connect(scheme + "://localhost:3479")
                         .type("turn.proxy")
                         .property("mapped.address", "192.0.2.15:8080")
                         .property("masking.key", "0x1010101")
@@ -84,9 +98,11 @@ public class MaskingIT {
             init(configuration);
         }
     };
+        this.chain = createRuleChain(gateway, k3po);
+    }
 
     @Rule
-    public final TestRule chain = outerRule(gateway).around(k3po).around(timeout);
+    public TestRule chain;
 
     @Test
     @Specification({

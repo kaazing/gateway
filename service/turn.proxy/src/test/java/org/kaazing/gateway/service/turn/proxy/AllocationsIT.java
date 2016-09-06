@@ -15,11 +15,14 @@
  */
 package org.kaazing.gateway.service.turn.proxy;
 
+import static java.lang.String.format;
 import static java.nio.charset.Charset.forName;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.FileInputStream;
 import java.security.KeyStore;
+import java.util.Arrays;
+import java.util.Collection;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -27,6 +30,9 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -37,57 +43,72 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 /**
  * Test to validate behavior as specified in <a href="https://tools.ietf.org/html/rfc5766">RFC 5766: TURN</a> through TCP.
  */
+@RunWith(Parameterized.class)
 public class AllocationsIT {
 
-    private final K3poRule k3po = new K3poRule()
-            .setScriptRoot("org/kaazing/specification/turn/allocations")
-            .scriptProperty("acceptURI 'tcp://localhost:3479'");
+    @Parameters
+    public static Collection<String> data() {
+        return Arrays.asList(new String[]{"tcp", "udp"});
+    }
 
-    private final GatewayRule gateway = new GatewayRule() {
-        {
-            KeyStore keyStore = null;
-            char[] password = "ab987c".toCharArray();
-            try {
-                FileInputStream fileInStr = new FileInputStream(System.getProperty("user.dir")
-                        + "/target/truststore/keystore.db");
-                keyStore = KeyStore.getInstance("JCEKS");
-                keyStore.load(fileInStr, "ab987c".toCharArray());
-                keyStore.setKeyEntry(
-                    "turn.shared.secret",
-                    new SecretKeySpec("turnAuthenticationSharedSecret".getBytes(forName("UTF-8")), "PBEWithMD5AndDES"),
-                    "ab987c".toCharArray(),
-                    null
-                );
+    private final K3poRule k3po;
+    private final GatewayRule gateway;
+
+    public AllocationsIT(String scheme){
+        k3po = new K3poRule()
+                .setScriptRoot("org/kaazing/specification/turn/allocations")
+                .scriptProperty(format("acceptURI '%s://localhost:3479'", scheme))
+                .scriptProperty(format("connectURI '%s://localhost:3478'", scheme));
+        
+        gateway = new GatewayRule() {
+            {
+                KeyStore keyStore = null;
+                char[] password = "ab987c".toCharArray();
+                try {
+                    FileInputStream fileInStr = new FileInputStream(System.getProperty("user.dir")
+                            + "/target/truststore/keystore.db");
+                    keyStore = KeyStore.getInstance("JCEKS");
+                    keyStore.load(fileInStr, "ab987c".toCharArray());
+                    keyStore.setKeyEntry(
+                        "turn.shared.secret",
+                        new SecretKeySpec("turnAuthenticationSharedSecret".getBytes(forName("UTF-8")), "PBEWithMD5AndDES"),
+                        "ab987c".toCharArray(),
+                        null
+                    );
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                // @formatter:off
+                GatewayConfiguration configuration =
+                    new GatewayConfigurationBuilder()
+                        .property(EarlyAccessFeatures.TURN_PROXY.getPropertyName(), "true")
+                        .service()
+                            .accept(scheme + "://localhost:3478")
+                            .connect(scheme + "://localhost:3479")
+                            .type("turn.proxy")
+                            .property("mapped.address", "192.0.2.15:8080")
+                            .property("key.alias", "turn.shared.secret")
+                            .property("key.algorithm", "HmacMD5")
+                                // TODO relay adress override
+                                //.property("relay.address.mask", propertyValue)
+                        .done()
+                        .security()
+                            .keyStore(keyStore)
+                            .keyStorePassword(password)
+                        .done()
+                    .done();
+                // @formatter:on
+                init(configuration);
             }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-            // @formatter:off
-            GatewayConfiguration configuration =
-                new GatewayConfigurationBuilder()
-                    .property(EarlyAccessFeatures.TURN_PROXY.getPropertyName(), "true")
-                    .service()
-                        .accept("tcp://localhost:3478")
-                        .connect("tcp://localhost:3479")
-                        .type("turn.proxy")
-                        .property("mapped.address", "192.0.2.15:8080")
-                        .property("key.alias", "turn.shared.secret")
-                        .property("key.algorithm", "HmacMD5")
-                            // TODO relay adress override
-                            //.property("relay.address.mask", propertyValue)
-                    .done()
-                    .security()
-                        .keyStore(keyStore)
-                        .keyStorePassword(password)
-                    .done()
-                .done();
-            // @formatter:on
-            init(configuration);
-        }
-    };
+            
+        };
+        this.chain = createRuleChain(gateway, k3po);
+    }
+
 
     @Rule
-    public TestRule chain = createRuleChain(gateway, k3po);
+    public TestRule chain;
 
     /**
      * See <a href="https://tools.ietf.org/html/rfc5766#section-6">RFC 5766 section 6: Allocations</a>.
@@ -140,6 +161,7 @@ public class AllocationsIT {
     @Specification({
             "incorrect.attribute.length.with.error.message.length/request",
             "incorrect.attribute.length.with.error.message.length/no.response"})
+    @Ignore("https://github.com/kaazing/tickets/issues/730")
     public void shouldGive400WithIncorrectLength() throws Exception {
         k3po.finish();
     }
@@ -201,4 +223,3 @@ public class AllocationsIT {
     }
 
 }
-
