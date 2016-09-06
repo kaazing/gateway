@@ -19,7 +19,6 @@ import static org.kaazing.gateway.service.turn.proxy.filters.StunMessage.HEADER_
 import static org.kaazing.gateway.service.turn.proxy.filters.StunMessage.attributePaddedLength;
 import static org.kaazing.gateway.util.turn.TurnUtils.HMAC_SHA_1;
 
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -102,6 +101,11 @@ public class TurnFrameEncoder extends ProtocolEncoderAdapter {
                 if (LOGGER.isTraceEnabled()) {
                     LOGGER.trace(String.format("Removed username %s from transactions map", username));
                 }
+
+                if (stunMessage.isModified() && (username == null)) {
+                    String transactionId = Base64.getEncoder().encodeToString(stunMessage.getTransactionId());
+                    username = TurnFrameDecoder.transactionId2Username.get(transactionId).getUsername();
+                }
                 if (stunMessage.isModified() && (username == null || sharedSecret == null)) {
                     LOGGER.warn(
                             "STUN message is modified but MESSAGE-INTEGRITY attribute can not be recalculated because username and/or shared secret is not available");
@@ -180,6 +184,7 @@ public class TurnFrameEncoder extends ProtocolEncoderAdapter {
             }
             LOGGER.trace("Buffer data: " + sb.toString());
         }
+
         char[] password = TurnUtils.generatePassword(username, sharedSecret, keyAlgorithm);
 
         // TODO retrieve the realm the same as the username
@@ -187,6 +192,6 @@ public class TurnFrameEncoder extends ProtocolEncoderAdapter {
         Mac hMac = Mac.getInstance(HMAC_SHA_1);
         SecretKey signingKey = new SecretKeySpec(key, HMAC_SHA_1);
         hMac.init(signingKey);
-        return new MessageIntegrity(hMac.doFinal(data), StunAttributeFactory.CredentialType.SHORT_TERM);
+        return new MessageIntegrity(hMac.doFinal(data), StunAttributeFactory.CredentialType.LONG_TERM);
     }
 }

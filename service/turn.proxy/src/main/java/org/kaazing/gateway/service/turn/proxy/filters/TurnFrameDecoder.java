@@ -19,15 +19,18 @@ import static org.kaazing.gateway.service.turn.proxy.filters.StunMessage.MAGIC_C
 import static org.kaazing.gateway.service.turn.proxy.filters.StunMessage.attributePaddedLength;
 
 import java.nio.BufferUnderflowException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.AttributeType;
 import org.kaazing.gateway.service.turn.proxy.stun.attributes.ErrorCode;
+import org.kaazing.gateway.service.turn.proxy.stun.attributes.Username;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.filter.codec.CumulativeProtocolDecoderEx;
@@ -102,6 +105,8 @@ public class TurnFrameDecoder extends CumulativeProtocolDecoderEx {
         return in.hasRemaining();
     }
 
+    public static HashMap<String, Username> transactionId2Username = new HashMap<>();
+
     private boolean decodeStunMessage(IoBufferEx in, ProtocolDecoderOutput out) throws ProtocolDecoderException {
         in.reset();
         if (LOGGER.isTraceEnabled()) {
@@ -143,6 +148,17 @@ public class TurnFrameDecoder extends CumulativeProtocolDecoderEx {
         } else {
             try {
                 attributes = decodeAttributes(in, messageLength, transactionId);
+                Username username = null;
+                for (Attribute a : attributes) {
+                    if (a.getType() == AttributeType.USERNAME.getType()) {
+
+                        username = (Username) a;
+                    }
+                    if (username != null) {
+                        LOGGER.trace("username: " + username + ", " + Base64.getEncoder().encodeToString(transactionId));
+                        transactionId2Username.put(Base64.getEncoder().encodeToString(transactionId), username);
+                    }
+                }
             } catch (BufferUnderflowException e) {
                 List<Attribute> errors = new ArrayList<>(1);
                 ErrorCode errorCode = new ErrorCode();
