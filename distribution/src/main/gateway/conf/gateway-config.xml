@@ -16,7 +16,7 @@
     limitations under the License.
 
 -->
-<gateway-config xmlns="http://xmlns.kaazing.org/2015/11/gateway">
+<gateway-config xmlns="http://xmlns.kaazing.org/2016/06/gateway">
 
   <!--
   #############################################################################
@@ -72,7 +72,7 @@
 
     <type>echo</type>
 
-    <!-- Restrict cross site constraints before running in production -->
+    <!-- "*" is not secure for javascript applications, change before running in production -->
     <cross-site-constraint>
       <allow-origin>*</allow-origin>
     </cross-site-constraint>
@@ -93,10 +93,17 @@
 
     <realm-name>demo</realm-name>
 
-    <!-- Restrict cross site constraints before running in production -->
+    <!-- "*" is not secure for javascript applications, change before running in production -->
     <cross-site-constraint>
       <allow-origin>*</allow-origin>
     </cross-site-constraint>
+  </service>
+
+
+  <service>
+    <name>Update Checker</name>
+    <description>Checks to see if a newer version of the Gateway is available</description>
+    <type>update.check</type>
   </service>
 
 

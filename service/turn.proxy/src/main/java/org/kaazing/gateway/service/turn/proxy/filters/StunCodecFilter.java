@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.turn.proxy.stun;
+package org.kaazing.gateway.service.turn.proxy.filters;
 
-import static org.kaazing.gateway.service.turn.proxy.TurnProxyAcceptHandler.TURN_SESSION_TRANSACTION_MAP;
-import static org.kaazing.gateway.service.turn.proxy.stun.StunAttributeFactory.CredentialType.SHORT_TERM;
+import static org.kaazing.gateway.service.turn.proxy.filters.StunAttributeFactory.CredentialType.SHORT_TERM;
 
 import java.security.Key;
-import java.util.Map;
 
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
@@ -49,14 +47,13 @@ public class StunCodecFilter extends ProtocolCodecFilter {
         @Override
         public ProtocolEncoder getEncoder(IoSession session) throws Exception {
             IoSessionEx sessionEx = (IoSessionEx) session;
-            return new StunFrameEncoder(sessionEx.getBufferAllocator(),
-                    (Map<String, String>) session.getAttribute(TURN_SESSION_TRANSACTION_MAP), sharedSecret, keyAlgorithm);
+            return new TurnFrameEncoder(sessionEx.getBufferAllocator(), sharedSecret, keyAlgorithm);
         }
 
         @Override
         public ProtocolDecoder getDecoder(IoSession session) throws Exception {
             IoSessionEx sessionEx = (IoSessionEx) session;
-            return new StunFrameDecoder(sessionEx.getBufferAllocator(), stunAttributeFactory);
+            return new TurnFrameDecoder(sessionEx.getBufferAllocator(), stunAttributeFactory);
         }
     }
 }

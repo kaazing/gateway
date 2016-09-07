@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.turn.proxy.stun;
+package org.kaazing.gateway.service.turn.proxy.filters;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ import org.kaazing.gateway.service.turn.proxy.stun.attributes.Attribute;
  * Stun Message as defined in https://tools.ietf.org/html/rfc5389#section-6.
  *
  */
-public class StunProxyMessage {
+public class StunMessage {
 
     private final StunMessageClass messageClass;
     private final StunMessageMethod method;
@@ -32,10 +32,11 @@ public class StunProxyMessage {
     public static final int MAGIC_COOKIE = 0x2112A442;
     private static final int PADDED_TO = 4;
     private boolean modified = false;
+    private String username;
 
     public static final int HEADER_BYTES = 20;
 
-    public StunProxyMessage(StunMessageClass messageClass, StunMessageMethod method, byte[] transactionId,
+    public StunMessage(StunMessageClass messageClass, StunMessageMethod method, byte[] transactionId,
             List<Attribute> attributes) {
         this.messageClass = messageClass;
         this.method = method;
@@ -91,5 +92,13 @@ public class StunProxyMessage {
      */
     public void setModified(boolean modified) {
         this.modified = modified;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return username;
     }
 }

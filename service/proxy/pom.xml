@@ -69,6 +69,10 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>netx.data</artifactId>
+        </dependency>
 
     </dependencies>
 
