@@ -19,6 +19,8 @@ import static org.junit.rules.RuleChain.outerRule;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.PropertyConfigurator;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -31,19 +33,19 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
-public class Udp2TcpIT {
+public class Tcp2TcpIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("./");
 
     private final TestRule timeout = new DisableOnDebug(new Timeout(10, TimeUnit.SECONDS));
 
-    private final GatewayRule gateway = new GatewayRule() {
+    private final GatewayRule gaateway = new GatewayRule() {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                     .service()
                         .type("proxy")
-                        .accept("udp://localhost:8080")
-                        .connect("tcp://localhost:8080")
+                        .accept("tcp://localhost:8080")
+                        .connect("tcp://localhost:3101")
                     .done()
             .done();
 
@@ -54,21 +56,19 @@ public class Udp2TcpIT {
     private final TestRule trace = new MethodExecutionTrace();
 
     @Rule
-    public final TestRule chain = outerRule(trace).around(k3po).around(gateway).around(timeout);
+    public final TestRule chain = outerRule(trace).around(k3po).around(gaateway).around(timeout);
 
-    @Test
-    @Specification({
-            "org/kaazing/specification/udp/rfc768/echo.data/client",
-            "org/kaazing/specification/tcp/rfc793/echo.data/server" })
-    public void bidirectionalData() throws Exception {
-        k3po.finish();
+    @BeforeClass
+    public static void init() throws Exception {
+        PropertyConfigurator.configure("src/test/resources/log4j.properties");
     }
 
     @Test
     @Specification({
-            "org/kaazing/specification/tcp/rfc793/concurrent.connections/client",
-            "org/kaazing/specification/tcp/rfc793/concurrent.connections/server" })
-    public void concurrentConnections() throws Exception {
+            "org/kaazing/specification/tcp/rfc793/echo.data/client",
+            "org/kaazing/gateway/service/proxy/echo.data/tcp.server"
+    })
+    public void bidirectionalData() throws Exception {
         k3po.finish();
     }
 

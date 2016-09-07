@@ -25,20 +25,17 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.netx.URLConnectionHelper;
 import org.kaazing.test.util.ITUtil;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLStreamHandler;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.joining;
 
 public class ProxyServiceExtensionIT {
@@ -88,46 +85,25 @@ public class ProxyServiceExtensionIT {
      * method will return a URL whose contents will be the list of class names supplied in the constructor.
      * This avoids the need for test meta-info resources files to be available on the test class path.
      */
-    static class TestClassLoader extends ClassLoader {
-        private URL url;
+    private static class TestClassLoader extends ClassLoader {
+        private final List<URL> urls;
 
-        TestClassLoader(String... factorySpiClassNames) throws MalformedURLException {
-            url = new URL(null, "data:metainf", new TestURLStreamHandler(factorySpiClassNames));
+        TestClassLoader(String... factorySpiClassNames) throws IOException {
+            URLConnectionHelper helper = URLConnectionHelper.newInstance();
+            String contents = Arrays.stream(factorySpiClassNames).collect(joining("\n"));
+            URI uri = URI.create("data:," + contents);
+            URL url = helper.toURL(uri);
+            urls = Collections.singletonList(url);
         }
 
         @Override
         public Enumeration<URL> getResources(String name) throws IOException {
             if (name.equals("META-INF/services/" + ProxyServiceExtensionSpi.class.getName())) {
-                return Collections.enumeration(Collections.singletonList(url));
+                return Collections.enumeration(urls);
             }
             return super.getResources(name);
         }
 
     }
 
-    private static class TestURLStreamHandler extends URLStreamHandler {
-        private final byte[] contents;
-
-        TestURLStreamHandler(String[] factorySpiClassNames) {
-            String metaInfContent = Arrays.stream(factorySpiClassNames).collect(joining("\n"));
-            contents = metaInfContent.getBytes(UTF_8);
-        }
-
-        @Override
-        protected URLConnection openConnection(URL u) throws IOException {
-            return new URLConnection(u) {
-
-                @Override
-                public void connect() throws IOException {
-                }
-
-                @Override
-                public InputStream getInputStream() {
-                    return new ByteArrayInputStream(contents);
-                }
-
-            };
-        }
-
-    }
 }
