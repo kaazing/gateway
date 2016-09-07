@@ -84,9 +84,7 @@ public class MappedAutoIT {
                         .accept(scheme + "://localhost:3478")
                         .connect(scheme + "://localhost:3479")
                         .type("turn.proxy")
-                        //.property("mapped.address", "192.0.2.15:8080")
-                        //.property("masking.key", "0x1010101")
-						.property("mapped.address", "AUTO")
+                        .property("mapped.address", "AUTO")
                         .property("key.alias", "turn.shared.secret")
                         .property("key.algorithm", "HmacMD5")
                     .done()
@@ -107,10 +105,8 @@ public class MappedAutoIT {
 
     @Test
     @Specification({
-            //"mask.relay.peer.address/request",
-            //"mask.relay.peer.address/response"
-			"auto.mapped.address.test/request",
-            "auto.mapped.address.test/response"
+        "auto.mapped.address.test/request",
+        "auto.mapped.address.test/response"
     })
     public void shouldPassWithDefaultTurnProtocolTest() throws Exception {
         k3po.finish();
