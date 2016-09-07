@@ -67,12 +67,13 @@ public class TurnRestService implements Service {
         EarlyAccessFeatures.TURN_REST_SERVICE.assertEnabled(getConfiguration(), serviceContext.getLogger());
         ServiceProperties properties = serviceContext.getProperties();
 
-        String[] urls = getUrls(properties);
+        String turnUrls = getUrls(properties, "turn");
+        String stunUrls = getUrls(properties, "stun");
         TurnRestCredentialsGenerator credentialGeneratorInstance = setUpCredentialsGenerator(properties);
 
         String ttl = properties.get("credentials.ttl") != null ? properties.get("credentials.ttl") : DEFAULT_CREDENTIALS_TTL;
         handler = new TurnRestServiceHandler(Long.toString(Utils.parseTimeInterval(ttl, TimeUnit.SECONDS, 0)),
-                        credentialGeneratorInstance, urls[0], urls[1]);
+                        credentialGeneratorInstance, turnUrls, stunUrls);
     }
 
     private TurnRestCredentialsGenerator setUpCredentialsGenerator(ServiceProperties properties)
@@ -90,23 +91,17 @@ public class TurnRestService implements Service {
         return credentialGeneratorInstance;
     }
 
-    private String[] getUrls(ServiceProperties properties) {
-        StringBuilder stunUrls = new StringBuilder();
-        StringBuilder turnUrls = new StringBuilder();
+    private String getUrls(ServiceProperties properties, String name) {
+        StringBuilder urls = new StringBuilder();
         for (String url : properties.get("url").split(LIST_SEPARATOR)) {
-            if (url.startsWith("turn")) {
-                turnUrls.append("\"").append(url).append("\",");
-            } else {
-                stunUrls.append("\"").append(url).append("\",");
+            if (url.startsWith(name)) {
+                urls.append("\"").append(url).append("\",");
             }
         }
-        if (turnUrls.length() != 0) {
-            turnUrls.setLength(turnUrls.length() - 1);
+        if (urls.length() != 0) {
+            urls.setLength(urls.length() - 1);
         }
-        if (stunUrls.length() != 0) {
-            stunUrls.setLength(stunUrls.length() - 1);
-        }
-        return new String[]{turnUrls.toString(), stunUrls.toString()};
+        return urls.toString();
     }
 
     private Key resolveSharedSecret(ServiceProperties properties) {
