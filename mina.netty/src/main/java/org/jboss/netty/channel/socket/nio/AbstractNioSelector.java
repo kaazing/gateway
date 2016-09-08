@@ -352,6 +352,7 @@ abstract class AbstractNioSelector implements NioSelector {
                     break;
                 } else {
                     process(selector);
+                    processRead();
                 }
             } catch (Throwable t) {
                 logger.warn(
@@ -400,7 +401,7 @@ abstract class AbstractNioSelector implements NioSelector {
         assert selector != null && selector.isOpen();
     }
 
-    private void processTaskQueue() {
+    protected void processTaskQueue() {
         for (;;) {
             final Runnable task = taskQueue.poll();
             if (task == null) {
@@ -486,6 +487,10 @@ abstract class AbstractNioSelector implements NioSelector {
     }
 
     protected abstract void process(Selector selector) throws IOException;
+
+    protected void processRead() throws IOException {
+
+    }
 
     protected int select(Selector selector, boolean quickSelect) throws IOException {
         return select(selector);

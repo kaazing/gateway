@@ -109,6 +109,10 @@
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.service.update.check.management</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.service.turn.proxy</artifactId>
+        </dependency>
 
         <!-- transport dependencies -->
         <dependency>
@@ -212,6 +216,10 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.wse</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.service.turn.rest</artifactId>
         </dependency>
     </dependencies>
 

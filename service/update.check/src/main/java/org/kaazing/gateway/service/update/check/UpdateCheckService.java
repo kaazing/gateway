@@ -113,7 +113,7 @@ public class UpdateCheckService implements Service {
     }
 
     /**
-     * Forces a check for an update and registers the listener if it is not already registerd
+     * Forces a check for an update and registers the listener if it is not already registered
      * @param updateCheckListener
      */
     public void checkForUpdate(UpdateCheckListener updateCheckListener) {

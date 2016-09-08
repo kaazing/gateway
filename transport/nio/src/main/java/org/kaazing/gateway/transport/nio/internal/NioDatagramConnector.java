@@ -23,12 +23,18 @@ import javax.annotation.Resource;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.jboss.netty.channel.socket.nio.NioClientDatagramChannelFactory;
+import org.jboss.netty.channel.socket.nio.NioWorker;
+import org.jboss.netty.channel.socket.nio.WorkerPool;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.bio.MulticastConnector;
 import org.kaazing.mina.core.service.IoConnectorEx;
+import org.kaazing.mina.netty.socket.DatagramChannelIoSessionConfig;
+import org.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
+import org.kaazing.mina.netty.socket.nio.NioDatagramChannelIoConnector;
 import org.slf4j.LoggerFactory;
 
 public class NioDatagramConnector extends AbstractNioConnector {
@@ -38,6 +44,12 @@ public class NioDatagramConnector extends AbstractNioConnector {
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory resourceAddressFactory;
 
+    private NioSocketAcceptor tcpAcceptor;
+
+    @Resource(name = "tcp.acceptor")
+    public void setTcpAcceptor(NioSocketAcceptor tcpAcceptor) {
+        this.tcpAcceptor = tcpAcceptor;
+    }
 
     @Resource(name = "bridgeServiceFactory")
     public void setBridgeServiceFactory(BridgeServiceFactory bridgeServiceFactory) {
@@ -65,7 +77,10 @@ public class NioDatagramConnector extends AbstractNioConnector {
 
     @Override
     protected IoConnectorEx initConnector() {
-        org.apache.mina.transport.socket.nio.NioDatagramConnectorEx connector = new org.apache.mina.transport.socket.nio.NioDatagramConnectorEx();
+        DatagramChannelIoSessionConfig config = new DefaultDatagramChannelIoSessionConfig();
+        WorkerPool<NioWorker> workerPool = tcpAcceptor.initWorkerPool(logger, "UDP connector: {}", getConfiguration());
+        NioClientDatagramChannelFactory channelFactory = new NioClientDatagramChannelFactory(workerPool);
+        NioDatagramChannelIoConnector connector = new NioDatagramChannelIoConnector(config, channelFactory);
 
         String readBufferSize = configuration.getProperty("org.kaazing.gateway.transport.udp.READ_BUFFER_SIZE");
         String minimumReadBufferSize = configuration.getProperty("org.kaazing.gateway.transport.udp.MINIMUM_READ_BUFFER_SIZE");

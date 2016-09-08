@@ -15,6 +15,7 @@
  */
 package org.kaazing.mina.netty;
 
+import static java.util.concurrent.Executors.newCachedThreadPool;
 import static org.kaazing.mina.netty.PortUtil.nextPort;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -24,6 +25,7 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -31,11 +33,17 @@ import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.logging.LoggingFilter;
+import org.jboss.netty.channel.socket.nio.NioServerDatagramChannelFactory;
+import org.jboss.netty.channel.socket.nio.NioWorkerPool;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 
+import org.junit.rules.DisableOnDebug;
+import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.kaazing.mina.netty.socket.DatagramChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.nio.NioDatagramChannelIoAcceptor;
@@ -43,8 +51,10 @@ import org.kaazing.mina.netty.socket.nio.NioDatagramChannelIoAcceptor;
 /**
  * Integration test for mina.netty layer. Similar to IT, but for datagram transport.
  */
-@Ignore // Not yet working. gateway.server is still using Mina for UDP.
 public class NioDatagramChannelIoAcceptorIT {
+
+    @Rule
+    public TestRule timeout = new DisableOnDebug(new Timeout(10, TimeUnit.SECONDS));
 
     private IoAcceptor acceptor;
     private DatagramSocket socket;
@@ -53,7 +63,9 @@ public class NioDatagramChannelIoAcceptorIT {
     public void initResources() throws Exception {
         DatagramChannelIoSessionConfig sessionConfig = new DefaultDatagramChannelIoSessionConfig();
         sessionConfig.setReuseAddress(true);
-        acceptor = new NioDatagramChannelIoAcceptor(sessionConfig);
+        NioWorkerPool workerPool = new NioWorkerPool(newCachedThreadPool(), 4);
+        NioServerDatagramChannelFactory channelFactory = new NioServerDatagramChannelFactory(newCachedThreadPool(), 1, workerPool);
+        acceptor = new NioDatagramChannelIoAcceptor(sessionConfig, channelFactory);
         acceptor.getFilterChain().addLast("logger", new LoggingFilter());
         socket = new DatagramSocket();
         socket.setReuseAddress(true);
@@ -69,7 +81,7 @@ public class NioDatagramChannelIoAcceptorIT {
         }
     }
 
-    @Test (timeout = 1000)
+    @Test
     public void shouldEchoBytes() throws Exception {
 
         final AtomicInteger exceptionsCaught = new AtomicInteger();

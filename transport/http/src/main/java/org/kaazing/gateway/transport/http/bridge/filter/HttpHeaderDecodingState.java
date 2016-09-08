@@ -15,6 +15,9 @@
  */
 package org.kaazing.gateway.transport.http.bridge.filter;
 
+
+import static org.kaazing.gateway.transport.http.HttpStatus.CLIENT_BAD_REQUEST;
+
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
@@ -113,6 +116,9 @@ public abstract class HttpHeaderDecodingState extends DecodingStateMachine {
                 throw new ProtocolDecoderException("Invalid header name in the request");
             }
             lastHeaderName = buffer.getString(asciiDecoder);
+            if (!lastHeaderName.trim().equals(lastHeaderName)) {
+                throw new HttpProtocolDecoderException(CLIENT_BAD_REQUEST);
+            }
             return AFTER_READ_HEADER_NAME;
         }
     };

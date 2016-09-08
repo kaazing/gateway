@@ -15,28 +15,41 @@
  */
 package org.kaazing.gateway.transport.nio.internal;
 
-import java.net.InetAddress;
-import java.util.Properties;
-
-import javax.annotation.Resource;
-
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.core.session.IoSession;
+import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.jboss.netty.channel.socket.nio.NioServerDatagramChannelFactory;
+import org.jboss.netty.channel.socket.nio.NioWorker;
+import org.jboss.netty.channel.socket.nio.WorkerPool;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
-import org.kaazing.gateway.transport.BridgeAcceptHandler;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
-import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.NioBindException;
 import org.kaazing.gateway.transport.bio.MulticastAcceptor;
 import org.kaazing.mina.core.service.IoAcceptorEx;
+import org.kaazing.mina.netty.socket.DatagramChannelIoSessionConfig;
+import org.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
+import org.kaazing.mina.netty.socket.nio.NioDatagramChannelIoAcceptor;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Resource;
+import java.net.InetAddress;
+import java.util.Properties;
+
+import static java.util.concurrent.Executors.newCachedThreadPool;
+import static org.kaazing.gateway.transport.nio.NioSystemProperty.UDP_IDLE_TIMEOUT;
 
 public class NioDatagramAcceptor extends AbstractNioAcceptor {
 
     private static final String LOGGER_NAME = String.format("transport.%s.accept", NioProtocol.UDP.name().toLowerCase());
+
+    private NioSocketAcceptor tcpAcceptor;
+
+    @Resource(name = "tcp.acceptor")
+    public void setTcpAcceptor(NioSocketAcceptor tcpAcceptor) {
+        this.tcpAcceptor = tcpAcceptor;
+    }
 
     public NioDatagramAcceptor(Properties configuration) {
         super(configuration, LoggerFactory.getLogger(LOGGER_NAME));
@@ -46,60 +59,34 @@ public class NioDatagramAcceptor extends AbstractNioAcceptor {
         return "udp";
     }
 
-    private Properties configuration;
-
-    @Resource(name = "configuration")
-    public void setConfiguration(Properties configuration) {
-        this.configuration = configuration;
-    }
-
 	@Override
     protected IoAcceptorEx initAcceptor(final IoSessionInitializer<? extends IoFuture> initializer) {
-	    // TODO: use the following instead of Mina when/if we get NioDatagramChannelIoAcceptor working
-//	    DatagramChannelIoSessionConfig config;
-//        try {
-//            config = new DefaultDatagramChannelIoSessionConfig();
-//        }
-//        catch (SocketException e) {
-//            throw new RuntimeException(e);
-//        }
-//	    NioDatagramChannelIoAcceptor acceptor = new NioDatagramChannelIoAcceptor(config, initializer);
-//      acceptor.setIoSessionInitializer(initializer);
-        org.apache.mina.transport.socket.nio.NioDatagramAcceptorEx acceptor = new org.apache.mina.transport.socket.nio.NioDatagramAcceptorEx();
-
-        // TODO: move the following (WITHOUT the sessionCreated override) back up to AbstractNioAcceptor.init once we stop using
-        //       Mina's NioDatagramAcceptor. We'll pass the initializer directly into NioDatagramChannelIoAcceptor
-	    //       (to ensure it gets executed before sessionCreated is called on the filter chain).
-        acceptor.setHandler(new BridgeAcceptHandler(this) {
-            @Override
-            public void sessionCreated(IoSession session) throws Exception {
-                LoggingFilter.addIfNeeded(logger, session, getTransportName());
-
-                if (initializer != null) {
-                    initializer.initializeSession(session, null);
-                }
-                super.sessionCreated(session);
-            }
-        });
+	    DatagramChannelIoSessionConfig config = new DefaultDatagramChannelIoSessionConfig();
+        WorkerPool<NioWorker> workerPool = tcpAcceptor.initWorkerPool(logger, "UDP acceptor: {}", configuration);
+        NioServerDatagramChannelFactory channelFactory = new NioServerDatagramChannelFactory(newCachedThreadPool(), 1, workerPool);
+        NioDatagramChannelIoAcceptor acceptor = new NioDatagramChannelIoAcceptor(config, channelFactory);
+        acceptor.setIoSessionInitializer(initializer);
 
         String readBufferSize = configuration.getProperty("org.kaazing.gateway.transport.udp.READ_BUFFER_SIZE");
-        String minimumReadBufferSize = configuration.getProperty("org.kaazing.gateway.transport.udp.MINIMUM_READ_BUFFER_SIZE");
-        String maximumReadBufferSize = configuration.getProperty("org.kaazing.gateway.transport.udp.MAXIMUM_READ_BUFFER_SIZE");
-
         if (readBufferSize != null) {
             acceptor.getSessionConfig().setReadBufferSize(Integer.parseInt(readBufferSize));
             logger.debug("READ_BUFFER_SIZE setting for UDP acceptor: {}", readBufferSize);
         }
 
+        String minimumReadBufferSize = configuration.getProperty("org.kaazing.gateway.transport.udp.MINIMUM_READ_BUFFER_SIZE");
         if (minimumReadBufferSize != null) {
             acceptor.getSessionConfig().setMinReadBufferSize(Integer.parseInt(minimumReadBufferSize));
             logger.debug("MINIMUM_READ_BUFFER_SIZE setting for UDP acceptor: {}", minimumReadBufferSize);
         }
 
+        String maximumReadBufferSize = configuration.getProperty("org.kaazing.gateway.transport.udp.MAXIMUM_READ_BUFFER_SIZE");
         if (maximumReadBufferSize != null) {
             acceptor.getSessionConfig().setMaxReadBufferSize(Integer.parseInt(maximumReadBufferSize));
             logger.debug("MAXIMUM_READ_BUFFER_SIZE setting for UDP acceptor: {}", maximumReadBufferSize);
         }
+
+        int idleTimeout = UDP_IDLE_TIMEOUT.getIntProperty(configuration);
+        acceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, idleTimeout);
 
         return acceptor;
     }

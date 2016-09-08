@@ -15,25 +15,31 @@
  */
 package org.kaazing.mina.netty.bootstrap;
 
-import static org.jboss.netty.channel.Channels.pipeline;
-
-import java.net.SocketAddress;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.ChildChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.ServerChannelFactory;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.socket.nio.AbstractNioWorker;
+import org.jboss.netty.channel.socket.nio.NioChildDatagramChannel;
+import org.jboss.netty.channel.socket.nio.NioServerDatagramChannelFactory;
+import org.kaazing.mina.netty.IoAcceptorChannelHandler;
+
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static org.jboss.netty.channel.Channels.fireChannelConnected;
+import static org.jboss.netty.channel.Channels.fireChannelOpen;
+import static org.jboss.netty.channel.Channels.pipeline;
 
 class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements ServerBootstrap {
 
@@ -82,80 +88,76 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
 
     private final class ConnectionlessParentChannelHandler extends SimpleChannelUpstreamHandler {
 
-        private final Map<SocketAddress, Map<SocketAddress, Channel>> childChannelsByLocalAddress;
+        // remote address --> child channel
+        private final Map<SocketAddress, NioChildDatagramChannel> childChannels;
 
-        public ConnectionlessParentChannelHandler() {
-            childChannelsByLocalAddress = new ConcurrentHashMap<>();
+        ConnectionlessParentChannelHandler() {
+            childChannels = new ConcurrentHashMap<>();
         }
 
         @Override
-        public void channelConnected(ChannelHandlerContext ctx,
-                ChannelStateEvent e) throws Exception {
-            // TODO Auto-generated method stub
+        public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
             super.channelConnected(ctx, e);
         }
 
         @Override
-        public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
-                throws Exception {
-
-//            // lookup child channel based on local and remote addresses
-//            Channel channel = e.getChannel();
-//            SocketAddress remoteAddress = e.getRemoteAddress();
-//            Channel childChannel = getChildChannel(channel, remoteAddress, true);
-//
-//            // deliver message received to child channel pipeline
-//            fireMessageReceived(childChannel, e);
+        public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
+            ((IoAcceptorChannelHandler) parentHandler).childChannelOpen(ctx, e);
+            NioChildDatagramChannel childChannel = (NioChildDatagramChannel) e.getChildChannel();
+            childChannel.getWorker().executeInIoThread(
+                    () -> fireChannelConnected(childChannel, childChannel.getRemoteAddress())
+            );
         }
 
         @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
-                throws Exception {
+        public void childChannelClosed(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
+            NioChildDatagramChannel childChannel = (NioChildDatagramChannel) e.getChildChannel();
+            childChannels.remove(childChannel.getRemoteAddress());
+            childChannel.getWorker().deregister(childChannel);
+        }
+
+        @Override
+        public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+            // lookup child channel based on local and remote addresses
+            Channel channel = e.getChannel();
+            NioChildDatagramChannel childChannel = getChildChannel(channel, e.getRemoteAddress());
+
+            AbstractNioWorker childWorker = childChannel.getWorker();
+            childWorker.messageReceived(childChannel, e.getMessage());
+        }
+
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
             ctx.sendUpstream(e);
         }
 
-        private Channel getChildChannel(Channel channel, SocketAddress remoteAddress,
-                                        boolean createIfNull) throws Exception {
+        @Override
+        public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+            childChannels.forEach(((socketAddress, childChannel) -> childChannel.close()));
+            childChannels.clear();
 
-            SocketAddress localAddress = channel.getLocalAddress();
-            Map<SocketAddress, Channel> childChannelsByRemoteAddress = childChannelsByLocalAddress.get(localAddress);
-            if (childChannelsByRemoteAddress == null && createIfNull) {
-                Map<SocketAddress, Channel> newChildChannels = new ConcurrentHashMap<>();
-                childChannelsByRemoteAddress = childChannelsByLocalAddress.put(localAddress, newChildChannels);
-                if (childChannelsByRemoteAddress == null) {
-                    childChannelsByRemoteAddress = newChildChannels;
-                }
-            }
-            if (childChannelsByRemoteAddress != null) {
-                Channel childChannel = childChannelsByRemoteAddress.get(remoteAddress);
-                if (childChannel == null && createIfNull) {
-                    ChannelPipelineFactory childPipelineFactory = getPipelineFactory();
-                    ChannelPipeline newChildPipeline = childPipelineFactory.getPipeline();
-                    ChannelFactory channelFactory = channel.getFactory();
-                    Channel newChildChannel = channelFactory.newChannel(newChildPipeline);
-                    childChannel = childChannelsByRemoteAddress.put(remoteAddress, newChildChannel);
-                    if (childChannel == null) {
-//                        newChildChannel.bind(localAddress);
-                        newChildChannel.connect(remoteAddress);
-                        childChannel = newChildChannel;
-                    }
-                }
-                if (childChannel != null) {
-                    final Map<SocketAddress, Channel> childChannelsByRemoteAddress0 = childChannelsByRemoteAddress;
-                    final SocketAddress remoteAddress0 = remoteAddress;
-                    ChannelFuture closeFuture = childChannel.getCloseFuture();
-                    closeFuture.addListener(new ChannelFutureListener() {
+            e.getFuture().setSuccess();
+        }
 
-                        @Override
-                        public void operationComplete(ChannelFuture future) throws Exception {
-                            childChannelsByRemoteAddress0.remove(remoteAddress0);
-                        }
-
-                    });
+        private NioChildDatagramChannel getChildChannel(Channel channel, SocketAddress remoteAddress) throws Exception {
+            return childChannels.computeIfAbsent(remoteAddress, x -> {
+                ChannelPipelineFactory childPipelineFactory = getPipelineFactory();
+                ChannelPipeline childPipeline;
+                try {
+                    childPipeline = childPipelineFactory.getPipeline();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
+
+                ChannelFactory channelFactory = channel.getFactory();
+                NioChildDatagramChannel childChannel = ((NioServerDatagramChannelFactory)channelFactory).newChildChannel(channel, childPipeline);
+                childChannel.setLocalAddress((InetSocketAddress) channel.getLocalAddress());
+                childChannel.setRemoteAddress((InetSocketAddress) remoteAddress);
+                fireChannelOpen(childChannel);
+                childChannel.getWorker().register(childChannel);
+
                 return childChannel;
-            }
-            return null;
+            });
         }
     }
 }

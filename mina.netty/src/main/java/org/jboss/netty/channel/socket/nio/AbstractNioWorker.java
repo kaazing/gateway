@@ -42,8 +42,10 @@ import static org.jboss.netty.channel.Channels.fireExceptionCaught;
 import static org.jboss.netty.channel.Channels.fireExceptionCaughtLater;
 import static org.jboss.netty.channel.Channels.fireWriteCompleteLater;
 import static org.jboss.netty.channel.Channels.succeededFuture;
+import static uk.co.real_logic.agrona.concurrent.ringbuffer.RingBufferDescriptor.TRAILER_LENGTH;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
@@ -59,27 +61,52 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBufferFactory;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.socket.Worker;
+import org.jboss.netty.channel.socket.nio.NioWorker.ReadDispatcher;
+import org.jboss.netty.channel.socket.nio.NioWorker.TcpReadDispatcher;
+import org.jboss.netty.channel.socket.nio.NioWorker.UdpReadDispatcher;
 import org.jboss.netty.channel.socket.nio.SocketSendBufferPool.SendBuffer;
+import org.jboss.netty.logging.InternalLogger;
+import org.jboss.netty.logging.InternalLoggerFactory;
 import org.jboss.netty.util.ThreadNameDeterminer;
 import org.jboss.netty.util.ThreadRenamingRunnable;
 
 import org.kaazing.mina.netty.channel.DefaultWriteCompletionEventEx;
+import uk.co.real_logic.agrona.DirectBuffer;
+import uk.co.real_logic.agrona.collections.Int2ObjectHashMap;
+import uk.co.real_logic.agrona.concurrent.AtomicBuffer;
+import uk.co.real_logic.agrona.concurrent.BackoffIdleStrategy;
+import uk.co.real_logic.agrona.concurrent.IdleStrategy;
+import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
+import uk.co.real_logic.agrona.concurrent.ringbuffer.OneToOneRingBuffer;
 
-abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
+public abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
+    private static final InternalLogger LOGGER = InternalLoggerFactory.getInstance(AbstractNioWorker.class);
 
+    protected final SocketReceiveBufferAllocator recvBufferPool = new SocketReceiveBufferAllocator();
     protected final SocketSendBufferPool sendBufferPool = new SocketSendBufferPool();
     private final DefaultWriteCompletionEventEx writeCompletionEvent = new DefaultWriteCompletionEventEx();
 
+    private final OneToOneRingBuffer ringBuffer;
+    private final Int2ObjectHashMap<Channel> channels;
+    private final AtomicBuffer atomicBuffer = new UnsafeBuffer(new byte[0]);
+    private final IdleStrategy idleStrategy = new BackoffIdleStrategy(50, 50, 10000, 20000);
+
     AbstractNioWorker(Executor executor) {
-        super(executor);
+        this(executor, null);
     }
 
     AbstractNioWorker(Executor executor, ThreadNameDeterminer determiner) {
         super(executor, determiner);
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect((16 * 1024) + TRAILER_LENGTH);
+        ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(byteBuffer));
+        channels = new Int2ObjectHashMap<>();
     }
 
     @Override
@@ -119,6 +146,7 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
     public void run() {
         super.run();
         sendBufferPool.releaseExternalResources();
+        recvBufferPool.releaseExternalResources();
     }
 
     @Override
@@ -571,12 +599,17 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
      */
     protected abstract boolean read(SelectionKey k);
 
-    void deregister(final AbstractNioChannel<?> channel) {
+    public void deregister(final AbstractNioChannel<?> channel) {
         // avoid modifying selected keys from process(select)
         // use processTasks instead
         registerTask(new Runnable() {
             @Override
             public void run() {
+                channels.remove(channel.getId().intValue());
+                if (channel instanceof NioChildDatagramChannel) {
+                    return;
+                }
+
                 SelectionKey key = channel.channel.keyFor(selector);
                 if (key != null) {
                     key.cancel();
@@ -596,7 +629,7 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
         });
     }
 
-    void register(final AbstractNioChannel<?> channel) {
+    public void register(final AbstractNioChannel<?> channel) {
         // avoid modifying selected keys from process(select)
         // use processTasks instead
         registerTask(new Runnable() {
@@ -604,18 +637,71 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
             @Override
             public void run() {
                 try {
+                    channels.put(channel.getId().intValue(), channel);
+
+                    if (channel instanceof NioChildDatagramChannel) {
+                        return;
+                    }
+
                     // ensure channel.writeSuspended cannot remain true due to race
                     // note: setOpWrite is a no-op before selectionKey is registered w/ selector
                     int rawInterestOps = channel.getRawInterestOps();
                     rawInterestOps |= SelectionKey.OP_WRITE;
                     channel.setRawInterestOpsNow(rawInterestOps);
-
-                    channel.channel.register(selector, rawInterestOps, channel);
+                    ReadDispatcher readDispatcher = channel instanceof NioSocketChannel
+                            ? new TcpReadDispatcher((NioSocketChannel) channel)
+                            : new UdpReadDispatcher((NioDatagramChannel) channel);
+                    channel.channel.register(selector, rawInterestOps, readDispatcher);
                 }
                 catch (ClosedChannelException e) {
                     close(channel, succeededFuture(channel));
                 }
             }
         });
+    }
+
+    public void messageReceived(AbstractNioChannel<?> channel, Object message) {
+        assert channel.getId() >= 0;
+
+        ChannelBuffer buf = (ChannelBuffer) message;
+        ByteBuffer byteBuffer = buf.toByteBuffer();
+        atomicBuffer.wrap(byteBuffer);
+        // If there is no space in the ring buffer,  the message would be dropped (ok for UDP)
+        boolean written = ringBuffer.write(channel.getId(), atomicBuffer, 0, atomicBuffer.capacity());
+        if (LOGGER.isDebugEnabled() && !written) {
+            LOGGER.debug(String.format("Message %s for channel %s is not written to ring buffer", message, channel));
+        }
+    }
+
+    protected void processRead() throws IOException {
+        if (ringBuffer == null) {
+            return;
+        }
+        int workCount = ringBuffer.read(this::handleRead);
+
+        idleStrategy.idle(workCount);
+    }
+
+    private void handleRead(int msgTypeId, DirectBuffer buffer, int index, int length) {
+        Channel childChannel = channels.get(msgTypeId);
+        if (childChannel == null) {
+            // register task may still be in the task queue, so this gives the register task a chance
+            // to complete rather than effectively dropping the UDP packet.
+            processTaskQueue();
+            childChannel = channels.get(msgTypeId);
+        }
+
+        if (childChannel != null) {
+            final ChannelBufferFactory bufferFactory = childChannel.getConfig().getBufferFactory();
+            ByteBuffer byteBuffer = recvBufferPool.get(length).order(bufferFactory.getDefaultOrder());
+            buffer.getBytes(index, byteBuffer, length);
+            byteBuffer.flip();
+
+            ChannelBuffer channelBuffer = bufferFactory.getBuffer(byteBuffer);
+
+            Channels.fireMessageReceived(childChannel, channelBuffer);
+        } else if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(String.format("There is no channel %s found, so dropping message %s", msgTypeId, buffer));
+        }
     }
 }
