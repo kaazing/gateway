@@ -24,6 +24,5 @@ public interface EarlyAccessFeatures {
     EarlyAccessFeature WSN_302_REDIRECT = new EarlyAccessFeature("wsn.302.redirect", "Send redirect for wsn via 302", false);
     EarlyAccessFeature WSX_302_REDIRECT = new EarlyAccessFeature("wsx.302.redirect", "Send redirect for wsx via 302", false);
     EarlyAccessFeature TURN_REST_SERVICE = new EarlyAccessFeature("turn.rest", "TURN REST Service", false);
-    EarlyAccessFeature TURN_PROXY = new EarlyAccessFeature("turn.proxy", "TURN Proxy Service", false);
 
 }

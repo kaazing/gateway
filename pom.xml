@@ -75,7 +75,6 @@
         <module>service/http.proxy</module>
         <module>service/proxy</module>
         <module>service/turn.rest</module>
-        <module>service/turn.proxy</module>
         <module>service/update.check</module>
         <module>service/update.check.management</module>
         <module>transport/spi</module>
