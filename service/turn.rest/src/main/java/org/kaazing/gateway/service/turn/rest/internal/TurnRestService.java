@@ -91,10 +91,10 @@ public class TurnRestService implements Service {
         return credentialGeneratorInstance;
     }
 
-    private String getUrls(ServiceProperties properties, String name) {
+    private String getUrls(ServiceProperties properties, String protocolName) {
         StringBuilder urls = new StringBuilder();
         for (String url : properties.get("url").split(LIST_SEPARATOR)) {
-            if (url.startsWith(name)) {
+            if (url.toLowerCase().startsWith(protocolName)) {
                 urls.append("\"").append(url).append("\",");
             }
         }
