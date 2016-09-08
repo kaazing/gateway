@@ -15,14 +15,6 @@
  */
 package org.kaazing.gateway.service.turn.rest;
 
-import static java.nio.charset.Charset.forName;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
-
-import java.io.FileInputStream;
-import java.security.KeyStore;
-
-import javax.crypto.spec.SecretKeySpec;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -33,8 +25,15 @@ import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-public class TurnRestIT {
-    private static final String ACCEPT_URL = "http://localhost:8000/";
+import javax.crypto.spec.SecretKeySpec;
+import java.io.FileInputStream;
+import java.security.KeyStore;
+
+import static java.nio.charset.Charset.forName;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
+
+public class TurnRestAuthenticationIT {
+    private static final String ACCEPT_URL = "http://localhost:8001/";
 
     private final K3poRule robot = new K3poRule();
 
@@ -72,9 +71,7 @@ public class TurnRestIT {
                             .property("credentials.generator", "class:" + DefaultCredentialsGenerator.class.getName())
                             .property("credentials.ttl", "43200")
                             .property("username.separator", ":")
-                            .property("url", "turn:1.2.3.4:9991?transport=udp")
-                            .property("url", "turn:1.2.3.4:9992?transport=tcp")
-                            .property("url", "turns:1.2.3.4:443?transport=tcp")
+                            .property("url", "turn:192.168.99.100:3478?transport=tcp")
                         .done()
                         .security()
                             .keyStore(keyStore)
@@ -90,24 +87,51 @@ public class TurnRestIT {
                                 .done()
                             .done()
                         .done()
+
+
+                        .service()
+                            .accept("http://localhost:8002/")
+                            .type("turn.rest")
+                            .property("key.alias", "turn.shared.secret")
+                            .property("key.algorithm", "HmacSHA1")
+                            .property("credentials.generator", "class:" + DefaultCredentialsGenerator.class.getName())
+                            .property("credentials.ttl", "43200")
+                            .property("username.separator", ":")
+                            .property("url", "turn:192.168.99.100:3478?transport=tcp")
+                        .done()
+
                     .done();
             // @formatter:on
             init(configuration);
         }
     };
 
+
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-    @Specification("generate.valid.response")
+    @Specification("no.auth.credentials")
     @Test
-    public void generateValidResponse() throws Exception {
+    public void noCredentials() throws Exception {
+       robot.finish();
+    }
+
+    @Specification("invalid.auth.credentials")
+    @Test
+    public void invalidCredentials() throws Exception {
         robot.finish();
     }
 
-    @Specification("invalid.service.parameter")
+    @Specification("valid.auth.credentials")
     @Test
-    public void closeOnInvalidServiceParameter() throws Exception {
+    public void validCredentials() throws Exception {
         robot.finish();
     }
+
+    @Specification("no.security.realm")
+    @Test
+    public void serviceWithoutSecurityRealm() throws Exception {
+        robot.finish();
+    }
+
 }

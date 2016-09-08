@@ -19,6 +19,7 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.util.Base64;
@@ -63,5 +64,16 @@ public class TurnUtils {
         }
 
         return Base64.getEncoder().encodeToString(hmac.doFinal(username.getBytes())).toCharArray();
+    }
+
+
+    public static byte[] generateKey(String username, String realm, String password, char separator) {
+        String data = String.format("%s%c%s%c%s", username, separator, realm, separator, password);
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            return md.digest(data.getBytes());
+        } catch (NoSuchAlgorithmException e) {
+            throw new TurnException("Unable to generate key", e);
+        }
     }
 }

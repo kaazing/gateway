@@ -30,14 +30,13 @@
  */
 package org.jboss.netty.channel.socket.nio;
 
-import static org.jboss.netty.channel.Channels.fireWriteComplete;
-import static org.kaazing.mina.netty.config.InternalSystemProperty.MAXIMUM_PROCESS_TASKS_TIME;
-import static java.lang.String.format;
-import static org.jboss.netty.channel.Channels.fireChannelBound;
-import static org.jboss.netty.channel.Channels.fireChannelConnected;
-import static org.jboss.netty.channel.Channels.fireExceptionCaught;
-import static org.jboss.netty.channel.Channels.fireMessageReceived;
-import static org.jboss.netty.channel.Channels.succeededFuture;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBufferFactory;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelException;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.ReceiveBufferSizePredictor;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -47,250 +46,30 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
 import java.util.Queue;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBufferFactory;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelException;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.ReceiveBufferSizePredictor;
-import org.jboss.netty.util.ThreadNameDeterminer;
+import static org.jboss.netty.channel.Channels.*;
 
-import org.kaazing.mina.netty.config.InternalSystemProperty;
+/**
+ * A class responsible for registering channels with {@link Selector}.
+ * It also implements the {@link Selector} loop.
+ */
+public class NioServerDatagramBoss extends AbstractNioWorker implements Boss {
 
-public class NioWorker extends AbstractNioWorker {
-
-    // Avoid static variables to facilitate unit tests
-    private final long MAXIMUM_PROCESS_TASKS_TIME_MILLIS
-    = MAXIMUM_PROCESS_TASKS_TIME.getLongProperty(System.getProperties());
-
-    private final long MAXIMUM_PROCESS_TASKS_TIME_NANOS =
-            TimeUnit.MILLISECONDS.toNanos(MAXIMUM_PROCESS_TASKS_TIME_MILLIS);
-
-    private final long QUICK_SELECT_TIMEOUT =
-            InternalSystemProperty.QUICK_SELECT_TIMEOUT.getLongProperty(System.getProperties());
-
-    {
-        // Always report when any of the tuning features are active, irrespective of log4j configuration
-        if (MAXIMUM_PROCESS_TASKS_TIME_MILLIS > 0) {
-            String message = format(
-               "NioWorker: maximum task queue processing time = %d ms. Quick select timeout = %s.",
-               MAXIMUM_PROCESS_TASKS_TIME_MILLIS, QUICK_SELECT_TIMEOUT == 0 ? "selectNow used" : QUICK_SELECT_TIMEOUT);
-            if (PERF_LOGGER.isInfoEnabled()) {
-                PERF_LOGGER.info(message);
-            }
-             else {
-                System.out.println(message);
-            }
-        }
-    }
-
-    public NioWorker(Executor executor) {
+    /**
+     * Sole constructor.
+     *
+     * @param executor the {@link Executor} used to execute {@link Runnable}s
+     *                 such as {@link ChannelRegistionTask}
+     */
+    NioServerDatagramBoss(final Executor executor) {
         super(executor);
     }
 
-    public NioWorker(Executor executor, ThreadNameDeterminer determiner) {
-        super(executor, determiner);
-    }
-
     @Override
-    protected final long getMaximumProcessTaskQueueTimeNanos() {
-        return MAXIMUM_PROCESS_TASKS_TIME_NANOS;
-    }
-
-    @Override
-    protected boolean read(SelectionKey k) {
-        ReadDispatcher dispatcher = (ReadDispatcher) k.attachment();
-        return dispatcher.dispatch(this, k);
-    }
-
-    private boolean readTcp(SelectionKey k, NioSocketChannel channel) {
-        final SocketChannel ch = (SocketChannel) k.channel();
-        final ReceiveBufferSizePredictor predictor =
-            channel.getConfig().getReceiveBufferSizePredictor();
-        final int predictedRecvBufSize = predictor.nextReceiveBufferSize();
-        final ChannelBufferFactory bufferFactory = channel.getConfig().getBufferFactory();
-
-        int ret = 0;
-        int readBytes = 0;
-        boolean failure = true;
-
-        ByteBuffer bb = recvBufferPool.get(predictedRecvBufSize).order(bufferFactory.getDefaultOrder());
-        try {
-            while ((ret = ch.read(bb)) > 0) {
-                readBytes += ret;
-                if (!bb.hasRemaining()) {
-                    break;
-                }
-            }
-            failure = false;
-        } catch (ClosedChannelException e) {
-            // Can happen, and does not need a user attention.
-        } catch (Throwable t) {
-            fireExceptionCaught(channel, t);
-        }
-
-        if (readBytes > 0) {
-            bb.flip();
-
-            final ChannelBuffer buffer = bufferFactory.getBuffer(readBytes);
-            buffer.setBytes(0, bb);
-            buffer.writerIndex(readBytes);
-
-            // Update the predictor.
-            predictor.previousReceiveBufferSize(readBytes);
-
-            // Fire the event.
-            fireMessageReceived(channel, buffer);
-        }
-
-        if (ret < 0 || failure) {
-            k.cancel(); // Some JDK implementations run into an infinite loop without this.
-            close(channel, succeededFuture(channel));
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    protected boolean scheduleWriteIfNecessary(final AbstractNioChannel<?> channel) {
-        final Thread currentThread = Thread.currentThread();
-        final Thread workerThread = thread;
-        if (currentThread != workerThread) {
-            if (channel.writeTaskInTaskQueue.compareAndSet(false, true)) {
-                registerTask(channel.writeTask);
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    @Override
-    protected int select(Selector selector, boolean quickSelect) throws IOException {
-        if (quickSelect) {
-            return SelectorUtil.select(selector, QUICK_SELECT_TIMEOUT);
-        } else {
-            return SelectorUtil.select(selector);
-        }
-    }
-
-    @Override
-    protected Runnable createRegisterTask(Channel channel, ChannelFuture future) {
-        if (channel instanceof NioSocketChannel) {
-            boolean server = !(channel instanceof NioClientSocketChannel);
-            return new TcpChannelRegisterTask((NioSocketChannel) channel, future, server);
-        } else {
-            return new UdpChannelRegistionTask((NioDatagramChannel) channel, future);
-        }
-    }
-
-    private final class TcpChannelRegisterTask implements Runnable {
-        private final NioSocketChannel channel;
-        private final ChannelFuture future;
-        private final boolean server;
-
-        TcpChannelRegisterTask(
-                NioSocketChannel channel, ChannelFuture future, boolean server) {
-
-            this.channel = channel;
-            this.future = future;
-            this.server = server;
-        }
-
-        @Override
-        public void run() {
-            SocketAddress localAddress = channel.getLocalAddress();
-            SocketAddress remoteAddress = channel.getRemoteAddress();
-
-            if (localAddress == null || remoteAddress == null) {
-                if (future != null) {
-                    future.setFailure(new ClosedChannelException());
-                }
-                close(channel, succeededFuture(channel));
-                return;
-            }
-
-            try {
-                if (server) {
-                    channel.channel.configureBlocking(false);
-                }
-
-                channel.channel.register(
-                        selector, channel.getRawInterestOps(), new TcpReadDispatcher(channel));
-
-                if (future != null) {
-                    channel.setConnected();
-                    future.setSuccess();
-                }
-
-                if (server || !((NioClientSocketChannel) channel).boundManually) {
-                    fireChannelBound(channel, localAddress);
-                }
-                fireChannelConnected(channel, remoteAddress);
-            } catch (IOException e) {
-                if (future != null) {
-                    future.setFailure(e);
-                }
-                close(channel, succeededFuture(channel));
-                if (!(e instanceof ClosedChannelException)) {
-                    throw new ChannelException(
-                            "Failed to register a socket to the selector.", e);
-                }
-            }
-        }
-    }
-
-    @Override
-    public void run() {
-        super.run();
-        recvBufferPool.releaseExternalResources();
-    }
-
-    @Override
-    protected void write0(final AbstractNioChannel<?> channel) {
-        if (channel instanceof NioSocketChannel || channel instanceof NioChildDatagramChannel) {
-            super.write0(channel);
-        } else {
-            write0Udp(channel);
-        }
-    }
-
-    @Override
-    void writeFromUserCode(final AbstractNioChannel<?> channel) {
-        if (channel instanceof NioDatagramChannel) {
-            writeFromUserCodeUdp(channel);
-        } else {
-            super.writeFromUserCode(channel);
-        }
-    }
-
-    @Override
-    protected void close(SelectionKey k) {
-        ReadDispatcher dispatcher = (ReadDispatcher) k.attachment();
-        AbstractNioChannel<?> ch = dispatcher.channel();
-        close(ch, succeededFuture(ch));
-    }
-
-    @Override
-    void writeFromSelectorLoop(final SelectionKey k) {
-        ReadDispatcher dispatcher = (ReadDispatcher) k.attachment();
-        AbstractNioChannel<?> ch = dispatcher.channel();
-        ch.writeSuspended = false;
-        write0(ch);
-    }
-
-    //
-    // ---------------- UDP worker -----------------------
-    //
-    private boolean readUdp(final SelectionKey key, NioDatagramChannel channel) {
+    protected boolean read(final SelectionKey key) {
+        final NioDatagramChannel channel = (NioDatagramChannel) key.attachment();
         ReceiveBufferSizePredictor predictor =
                 channel.getConfig().getReceiveBufferSizePredictor();
         final ChannelBufferFactory bufferFactory = channel.getConfig().getBufferFactory();
@@ -343,17 +122,59 @@ public class NioWorker extends AbstractNioWorker {
         return true;
     }
 
+    @Override
+    protected boolean scheduleWriteIfNecessary(final AbstractNioChannel<?> channel) {
+        final Thread workerThread = thread;
+        if (workerThread == null || Thread.currentThread() != workerThread) {
+            if (channel.writeTaskInTaskQueue.compareAndSet(false, true)) {
+                // "add" the channels writeTask to the writeTaskQueue.
+                registerTask(channel.writeTask);
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    static void disconnect(NioDatagramChannel channel, ChannelFuture future) {
+        boolean connected = channel.isConnected();
+        boolean iothread = isIoThread(channel);
+        try {
+            channel.getDatagramChannel().disconnect();
+            future.setSuccess();
+            if (connected) {
+                if (iothread) {
+                    fireChannelDisconnected(channel);
+                } else {
+                    fireChannelDisconnectedLater(channel);
+                }
+            }
+        } catch (Throwable t) {
+            future.setFailure(t);
+            if (iothread) {
+                fireExceptionCaught(channel, t);
+            } else {
+                fireExceptionCaughtLater(channel, t);
+            }
+        }
+    }
+
+    @Override
+    protected Runnable createRegisterTask(Channel channel, ChannelFuture future) {
+        return new ChannelRegistionTask((NioDatagramChannel) channel, future);
+    }
+
     /**
      * RegisterTask is a task responsible for registering a channel with a
      * selector.
      */
-    private final class UdpChannelRegistionTask implements Runnable {
+    private final class ChannelRegistionTask implements Runnable {
         private final NioDatagramChannel channel;
 
         private final ChannelFuture future;
 
-        UdpChannelRegistionTask(final NioDatagramChannel channel,
-                                final ChannelFuture future) {
+        ChannelRegistionTask(final NioDatagramChannel channel,
+                             final ChannelFuture future) {
             this.channel = channel;
             this.future = future;
         }
@@ -375,7 +196,7 @@ public class NioWorker extends AbstractNioWorker {
 
             try {
                 channel.getDatagramChannel().register(
-                        selector, channel.getInternalInterestOps(), new UdpReadDispatcher(channel));
+                        selector, channel.getInternalInterestOps(), channel);
 
                 if (future != null) {
                     future.setSuccess();
@@ -398,9 +219,8 @@ public class NioWorker extends AbstractNioWorker {
         }
     }
 
-    void writeFromUserCodeUdp(final AbstractNioChannel<?> channel) {
-        assert channel instanceof NioDatagramChannel;
-
+    @Override
+    public void writeFromUserCode(final AbstractNioChannel<?> channel) {
         /*
          * Note that we are not checking if the channel is connected. Connected
          * has a different meaning in UDP and means that the channels socket is
@@ -428,8 +248,8 @@ public class NioWorker extends AbstractNioWorker {
         write0(channel);
     }
 
-    private void write0Udp(final AbstractNioChannel<?> channel) {
-        assert channel instanceof NioDatagramChannel;
+    @Override
+    protected void write0(final AbstractNioChannel<?> channel) {
 
         boolean addOpWrite = false;
         boolean removeOpWrite = false;
@@ -536,47 +356,9 @@ public class NioWorker extends AbstractNioWorker {
         fireWriteComplete(channel, writtenBytes);
     }
 
-    interface ReadDispatcher {
-        AbstractNioChannel channel();
-        boolean dispatch(NioWorker worker, SelectionKey key);
+    @Override
+    public void run() {
+        super.run();
+        recvBufferPool.releaseExternalResources();
     }
-
-    static final class TcpReadDispatcher implements ReadDispatcher {
-
-        private final NioSocketChannel channel;
-
-        TcpReadDispatcher(NioSocketChannel channel) {
-            this.channel = channel;
-        }
-
-        @Override
-        public AbstractNioChannel channel() {
-            return channel;
-        }
-
-        @Override
-        public boolean dispatch(NioWorker worker, SelectionKey key) {
-            return worker.readTcp(key, channel);
-        }
-    }
-
-    static final class UdpReadDispatcher implements ReadDispatcher {
-
-        private final NioDatagramChannel channel;
-
-        UdpReadDispatcher(NioDatagramChannel channel) {
-            this.channel = channel;
-        }
-
-        @Override
-        public AbstractNioChannel channel() {
-            return channel;
-        }
-
-        @Override
-        public boolean dispatch(NioWorker worker, SelectionKey key) {
-            return worker.readUdp(key, channel);
-        }
-    }
-
 }

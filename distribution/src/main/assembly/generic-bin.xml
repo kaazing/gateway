@@ -72,7 +72,6 @@
         <include>org.kaazing:gateway.service.amqp</include>
         <include>org.kaazing:gateway.service.update.check</include>
         <include>org.kaazing:gateway.service.turn.rest</include>
-        <include>org.kaazing:gateway.service.turn.proxy</include>
 
         <!-- auth jars  -->
         <include>org.kaazing:gateway.security</include>

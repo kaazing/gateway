@@ -98,6 +98,7 @@ public class UdpAcceptorRule implements TestRule {
                 in.close();
                 PropertyConfigurator.configure(log4j);
             }
+            NioSocketAcceptor tcpAcceptor = null;
             try {
                 // Connector setup
                 schedulerProvider = new SchedulerProvider();
@@ -106,13 +107,20 @@ public class UdpAcceptorRule implements TestRule {
                 TransportFactory transportFactory = TransportFactory.newTransportFactory((Map) configuration);
                 BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
 
+                tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
+                tcpAcceptor.setResourceAddressFactory(addressFactory);
+                tcpAcceptor.setBridgeServiceFactory(serviceFactory);
+                tcpAcceptor.setSchedulerProvider(schedulerProvider);
+
                 acceptor = (NioDatagramAcceptor) transportFactory.getTransport("udp").getAcceptor();
+                acceptor.setTcpAcceptor(tcpAcceptor);
                 acceptor.setResourceAddressFactory(addressFactory);
                 acceptor.setBridgeServiceFactory(serviceFactory);
                 acceptor.setSchedulerProvider(schedulerProvider);
 
                 base.evaluate();
             } finally {
+                tcpAcceptor.dispose();
                 acceptor.dispose();
                 schedulerProvider.shutdownNow();
             }
