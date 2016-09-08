@@ -33,13 +33,12 @@ public class SimpleTestLoginModule extends BaseStateDrivenLoginModule {
         try {
             handler.handle(new Callback[] {atc});
         } catch (IOException e) {
-			// TODO: log exception
-			return false;
-		}
-		catch (UnsupportedCallbackException e) {
-			// TODO: log exception
-			return false;
-		}
+            // TODO: log exception
+            return false;
+        } catch (UnsupportedCallbackException e) {
+            // TODO: log exception
+            return false;
+        }
 
         String up = atc.getAuthenticationToken().get();
         String name = up.substring(0, up.indexOf(':'));

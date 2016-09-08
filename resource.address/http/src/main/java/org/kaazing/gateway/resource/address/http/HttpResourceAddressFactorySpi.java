@@ -27,9 +27,10 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.GATE
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.INJECTABLE_HEADERS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_CONNECTIONS;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.MAXIMUM_REDIRECTS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_TIMEOUT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.LOGIN_CONTEXT_FACTORY;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.MAXIMUM_REDIRECTS;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.MAX_AUTHENTICATION_ATTEMPTS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.ORIGIN_SECURITY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES;
@@ -48,7 +49,6 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.TRAN
 import java.io.File;
 import java.net.URI;
 import java.security.Principal;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -76,7 +76,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
 
     private static final Map<String, List<ResourceFactory>> RESOURCE_FACTORIES_BY_KEY
             = new HashMap<>();
-
+    
     static {
         // go backwards so we can set alternate addresses correctly
         List<ResourceFactory> insecureAlternateResourceFactories = Collections.singletonList(
@@ -243,6 +243,14 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
             options.setOption(REALM_USER_PRINCIPAL_CLASSES, realmUserPrincipalClasses);
         }
 
+        Object maxAuthenticationAttempts = optionsByName.remove(MAX_AUTHENTICATION_ATTEMPTS.name());
+        if (maxAuthenticationAttempts != null) {
+            if (maxAuthenticationAttempts instanceof String) {
+                maxAuthenticationAttempts = Integer.parseInt((String) maxAuthenticationAttempts);
+            }
+            options.setOption(MAX_AUTHENTICATION_ATTEMPTS, (Integer) maxAuthenticationAttempts);
+        }
+
         IdentityResolver httpIdentityResolver = (IdentityResolver) optionsByName.remove(IDENTITY_RESOLVER.name());
         if (httpIdentityResolver != null) {
             options.setOption(IDENTITY_RESOLVER, httpIdentityResolver);
@@ -340,6 +348,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         address.setOption0(SERVICE_DOMAIN, options.getOption(SERVICE_DOMAIN));
         address.setOption0(SERVER_HEADER_ENABLED, options.getOption(SERVER_HEADER_ENABLED));
         address.setOption0(REALM_USER_PRINCIPAL_CLASSES, options.getOption(REALM_USER_PRINCIPAL_CLASSES));
+        address.setOption0(MAX_AUTHENTICATION_ATTEMPTS, options.getOption(MAX_AUTHENTICATION_ATTEMPTS));
         if (address.getOption(IDENTITY_RESOLVER) == null) {
              Collection<Class<? extends Principal>> realmUserPrincipalClasses = address.getOption(REALM_USER_PRINCIPAL_CLASSES);
              if (realmUserPrincipalClasses != null && realmUserPrincipalClasses.size() > 0) {

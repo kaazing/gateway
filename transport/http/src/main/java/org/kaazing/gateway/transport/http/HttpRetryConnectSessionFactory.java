@@ -23,11 +23,11 @@ import org.kaazing.mina.core.session.IoSessionEx;
  * Session factory used when HttpConnector is following a redirect
  *
  */
-class HttpRedirectSessionFactory implements HttpConnectSessionFactory {
+class HttpRetryConnectSessionFactory implements HttpConnectSessionFactory {
 
     private final DefaultHttpSession httpSession;
 
-    public HttpRedirectSessionFactory(DefaultHttpSession httpSession) {
+    public HttpRetryConnectSessionFactory(DefaultHttpSession httpSession) {
         this.httpSession = httpSession;
     }
 
