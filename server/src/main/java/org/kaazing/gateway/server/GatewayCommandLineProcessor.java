@@ -15,15 +15,23 @@
  */
 package org.kaazing.gateway.server;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.Parser;
 import org.apache.commons.cli.PosixParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * Main entry point for gateway process when started by the command line.
@@ -33,6 +41,10 @@ import org.slf4j.LoggerFactory;
  * a system property and passed to Gateway, rather than requiring Gateway to handle a new input vector.
  */
 public class GatewayCommandLineProcessor {
+    private static final String CONFIG_ARG = "config";
+
+    private static final String HELP_ARG = "help";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GatewayCommandLineProcessor.class);
 
     private HelpFormatter helpFormatter;
@@ -46,14 +58,14 @@ public class GatewayCommandLineProcessor {
     }
 
     private void launchGateway(String[] args, Properties properties) {
-        CommandLine cmd;
+        CommandLine cmd = null;
         Options options = createOptions();
 
         try {
             Parser parser = new PosixParser();
             cmd = parser.parse(options, args);
         } catch (ParseException ex) {
-            printCliHelp("There was a problem with a command-line argument:\n" + ex.getMessage(), options);
+            printCliHelp("There was a problem with a command-line argument:\n" + ex.getMessage(), options, cmd);
             return;
         }
 
@@ -64,17 +76,17 @@ public class GatewayCommandLineProcessor {
             for (String nonProcessedArg : nonProcessedArgs) {
                 System.out.println("   " + nonProcessedArg);
             }
-            printCliHelp(null, options);
+            printCliHelp(null, options, cmd);
             return;
         }
 
-        if (cmd.hasOption("help")) {
-            printCliHelp(null, options);
+        if (cmd.hasOption(HELP_ARG)) {
+            printCliHelp(null, options, cmd);
             return;
         }
 
         // get the various options
-        String config = cmd.getOptionValue("config");
+        String config = cmd.getOptionValue(CONFIG_ARG);
         if (config != null) {
             properties.setProperty(Gateway.GATEWAY_CONFIG_PROPERTY, config);
         }
@@ -107,19 +119,65 @@ public class GatewayCommandLineProcessor {
         }
     }
 
-    private void printCliHelp(String message, Options options) {
+    private void printCliHelp(String message, Options options, CommandLine cmd) {
         if (message != null) {
             System.out.println(message);
         }
 
-        helpFormatter.printHelp("gateway.start", options, true);
-        return;
+        Options all_opt = new Options();
+
+        // add the options that are parsed by the java binary, except for script-arg
+        // since this argument is internal, we shouldn't be using it
+        for (Object o : options.getOptions()) {
+            Option o1 = (Option) o;
+            all_opt.addOption(o1);
+        }
+
+        // also, get the file that has documentation for the values parsed in the launching script
+        File helpScript = getScriptedOptsFile();
+        appendScriptedOptions(helpScript, all_opt);
+        helpFormatter.printHelp("gateway.start", all_opt, true);
+    }
+
+    private File getScriptedOptsFile() {
+        File helpScript = null;
+        String helpScriptPath = System.getenv("SCRIPTED_ARGS");
+
+        if (helpScriptPath != null) {
+            helpScript = new File(helpScriptPath);
+        }
+        return helpScript;
+    }
+
+    private void appendScriptedOptions(File helpScript, Options all_opt) {
+        try {
+            if (helpScript != null && helpScript.exists()) {
+                InputStreamReader input_opt;
+                input_opt = new InputStreamReader(new FileInputStream(helpScript));
+
+                CSVReader script_options = new CSVReader(input_opt);
+                // add options that are parsed by script
+                String[] nextLine;
+
+                while ((nextLine = script_options.readNext()) != null) {
+                    Option o = new Option(null, nextLine[0], Boolean.parseBoolean(nextLine[1]), nextLine[2]);
+                    all_opt.addOption(o);
+                }
+                script_options.close();
+            }
+
+        } catch (IOException e) {
+            // if this try catch block fails, don't do anything
+            // it will only mean that we cannot show the "scripted args"
+            LOGGER.debug("Exception when trying  to get scripted arguments", e);
+        }
     }
 
     private Options createOptions() {
         Options options = new Options();
-        options.addOption(null, "config", true, "path to gateway configuration file");
-        options.addOption(null, "help", false, "print the help text");
+        options.addOption(null, CONFIG_ARG, true, "path to gateway configuration file");
+        options.addOption(null, HELP_ARG, false, "print the help text");
         return options;
     }
 }
+

@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.2.1</version>
+        <version>5.2.2</version>
     </parent>
     <artifactId>gateway.server</artifactId>
     <name>Kaazing WebSocket Gateway - Server</name>
@@ -249,6 +249,11 @@
             <version>1.0.0.24</version>
             <classifier>keystore</classifier>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>${opencsv.version}</version>
         </dependency>
     </dependencies>
 

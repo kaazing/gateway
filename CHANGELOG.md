@@ -2,13 +2,23 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.0...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.1...HEAD)
 
 **Merged pull requests:**
 
+- Removed echoing of java path and version on startup [\#680](https://github.com/kaazing/gateway/pull/680) ([mgherghe](https://github.com/mgherghe))
+
+## [5.2.1](https://github.com/kaazing/gateway/tree/5.2.1) (2016-08-19)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.0...5.2.1)
+
+**Merged pull requests:**
+
+- Turn.proxy implementation [\#679](https://github.com/kaazing/gateway/pull/679) ([Anisotrop](https://github.com/Anisotrop))
+- Implementation of turn.rest authentication service [\#674](https://github.com/kaazing/gateway/pull/674) ([DoruM](https://github.com/DoruM))
 - HTTP Proxy Issue 648 [\#672](https://github.com/kaazing/gateway/pull/672) ([a-zuckut](https://github.com/a-zuckut))
 - Remove copyright info from log4j xml/properties files [\#668](https://github.com/kaazing/gateway/pull/668) ([ahousing](https://github.com/ahousing))
 - Fix for issue 310: WSN Connector: Connection should fail when the value of the  header in handshake response is not  \#310 [\#665](https://github.com/kaazing/gateway/pull/665) ([vmaraloiu](https://github.com/vmaraloiu))
+- Help written from file [\#656](https://github.com/kaazing/gateway/pull/656) ([DoruM](https://github.com/DoruM))
 
 ## [5.2.0](https://github.com/kaazing/gateway/tree/5.2.0) (2016-08-08)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.1.2...5.2.0)
