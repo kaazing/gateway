@@ -38,6 +38,10 @@ public interface HttpHeaders {
     String HEADER_X_FORWARDED_HOST = "X-Forwarded-Host";
     String HEADER_X_FORWARDED_PROTO = "X-Forwarded-Proto";
     String HEADER_CACHE_CONTROL = "Cache-Control";
+    String HEADER_IF_MATCH = "If-Match";
+    String HEADER_IF_MODIFIED_SINCE = "If-Modified-Since";
+    String HEADER_IF_UNMODIFIED_SINCE = "If-Unmodified-Since";
+    String HEADER_IF_NONE_MATCH = "If-None-Match";
 
     String HEADER_UPGRADE = "Upgrade";
     String HEADER_VIA= "Via";

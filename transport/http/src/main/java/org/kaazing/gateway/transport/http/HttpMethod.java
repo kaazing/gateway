@@ -16,5 +16,5 @@
 package org.kaazing.gateway.transport.http;
 
 public enum HttpMethod {
-	OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, CONNECT
+	OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, CONNECT, BAD_METHOD
 }
