@@ -54,6 +54,24 @@ public abstract class WebSocketExtensionFactorySpi implements Comparable<WebSock
      *                   (protocol violation). Throwing this exception will result in failing the WebSocket
      *                   connection.
      */
+    public WebSocketExtension offer(ExtensionHelper extensionHelper,
+                                                 WsResourceAddress address) {
+        return null;
+    }
+
+    /**
+     * This method is called when the extension is requested by the client during the WebSocket handshake.
+     * @param requestedExtension  Extension token and parameters from the WebSocket handshake request
+     * @param extensionHelper TODO
+     * @param address    WebSocket resource address on which the handshake is taking place
+     * @return         - WebSocketExtensionSpi instance representing the active, negotiated extension,
+     *                   or null if the extension request from the client is rejected but the websocket
+     *                   connection need not be failed.
+     * @throws ProtocolException
+     *                   If the extension header is invalid for example invalid extension parameters
+     *                   (protocol violation). Throwing this exception will result in failing the WebSocket
+     *                   connection.
+     */
     public abstract WebSocketExtension negotiate(ExtensionHeader requestedExtension, ExtensionHelper extensionHelper,
         WsResourceAddress address) throws ProtocolException;
 

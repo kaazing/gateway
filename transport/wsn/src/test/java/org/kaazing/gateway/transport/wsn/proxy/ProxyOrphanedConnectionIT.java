@@ -48,7 +48,7 @@ public class ProxyOrphanedConnectionIT {
         }
     };
 
-    private TestRule timeout = new DisableOnDebug(Timeout.seconds(2000000));
+    private TestRule timeout = new DisableOnDebug(Timeout.seconds(5));
 
     @Rule
     public TestRule chain = RuleChain.outerRule(gateway).around(robot).around(timeout);

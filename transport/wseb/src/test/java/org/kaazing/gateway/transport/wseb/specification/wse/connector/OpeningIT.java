@@ -125,31 +125,6 @@ public class OpeningIT {
         k3po.finish();
     }
 
-    @Test
-    @Specification("request.header.x.websocket.extensions/handshake.response")
-    public void shouldEstablishConnectionWithRequestHeaderXWebSocketExtensions() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                // No close handshake so IOException may occur depending on timing of k3po closing connections
-                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
-            }
-        });
-        Map<String, Object> connectOptions = new HashMap<>();
-        connectOptions.put("extensions", Arrays.asList("primary", "secondary"));
-        final ResourceAddress connectAddress =
-                ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
-                        "ws://localhost:8080/path?query",
-                        connectOptions);
-
-        connector.connect(connectAddress, handler).getSession();
-        k3po.finish();
-    }
-
     // Server only test. Spec compliant clients ALWAYS use a POST request with an empty body.
     void serverShouldTolerateNonEmptyRequestBody()
             throws Exception {
@@ -332,33 +307,6 @@ public class OpeningIT {
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
         MemoryAppender.assertMessagesLogged(Collections.singletonList("WebSocket.*protocol"), EMPTY_STRING_SET, null, false);
-    }
-
-    @Test
-    @Specification("response.header.x.websocket.extensions.not.requested/handshake.response")
-    public void shouldFailConnectionWhenXWebSocketExtensionsNotRequested() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Exception.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
-            }
-        });
-        Map<String, Object> connectOptions = new HashMap<>();
-        connectOptions.put("extensions", Collections.singletonList("primary, secondary"));
-        final ResourceAddress connectAddress =
-                ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
-                        "ws://localhost:8080/path?query",
-                        connectOptions);
-
-        IoSession session = connector.connect(connectAddress, handler).getSession();
-
-        k3po.finish();
-        assertTrue(session.getCloseFuture().await(4, SECONDS));
-        MemoryAppender.assertMessagesLogged(Collections.singletonList("WebSocket extension.*not requested"), EMPTY_STRING_SET, null, false);
     }
 
     @Test

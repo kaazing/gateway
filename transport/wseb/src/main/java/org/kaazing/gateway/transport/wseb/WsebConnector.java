@@ -59,6 +59,7 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
+import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.AbstractBridgeConnector;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -76,9 +77,13 @@ import org.kaazing.gateway.transport.http.ResponseFuture;
 import org.kaazing.gateway.transport.ws.Command;
 import org.kaazing.gateway.transport.ws.WsCloseMessage;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
+import org.kaazing.gateway.transport.ws.WsConnector;
 import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.transport.wseb.filter.WsebBufferAllocator;
 import org.kaazing.gateway.transport.wseb.filter.WsebFrameCodecFilter;
 import org.kaazing.gateway.transport.wseb.util.WseUtils;
@@ -106,6 +111,26 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
     private ResourceAddressFactory resourceAddressFactory;
     private Properties configuration;
     private boolean specCompliant;
+
+    private WebSocketExtensionFactory webSocketExtensionFactory;
+
+    private static final ExtensionHelper extensionHelper = new ExtensionHelper() {
+
+        @Override
+        public void setLoginContext(IoSession session, ResultAwareLoginContext loginContext) {
+            WsebSession wsebSession = WSE_SESSION_KEY.get(session);
+            assert wsebSession !=  null;
+            wsebSession.setLoginContext(loginContext);
+        }
+
+        @Override
+        public void closeWebSocketConnection(IoSession session) {
+            WsebSession wsebSession = WSE_SESSION_KEY.get(session);
+            assert wsebSession !=  null;
+            wsebSession.close(false);
+        }
+
+    };
 
     private static final IoFutureListener<ResponseFuture>
                 CHECK_READER_RESPONSE_LISTENER = new IoFutureListener<ResponseFuture>() {
@@ -167,6 +192,10 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
         this.resourceAddressFactory = factory;
     }
 
+    @Resource(name = "ws.connector")
+    public void setWsConnector(WsConnector connector) {
+        this.webSocketExtensionFactory = connector.getWebSocketExtensionFactory();
+    }
 
     @Override
     protected IoProcessorEx<WsebSession> initProcessor() {
@@ -294,11 +323,11 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                     }
                 }
 
-                List<String> wsExtensions = connectAddressNext.getOption(WsResourceAddress.EXTENSIONS);
-                if (wsExtensions!= null) {
-                    for (String extension : wsExtensions) {
+                List<WebSocketExtension> extensions = webSocketExtensionFactory.offerWebSocketExtensions((WsResourceAddress) connectAddressNext, extensionHelper);
+                if (extensions != null) {
+                    for (WebSocketExtension extension : extensions) {
                         if (extension != null) {
-                            httpSession.addWriteHeader(HEADER_X_WEBSOCKET_EXTENSIONS, extension);
+                            httpSession.addWriteHeader(HEADER_X_WEBSOCKET_EXTENSIONS, extension.getExtensionHeader().toString());
                         }
                     }
                 }

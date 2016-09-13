@@ -49,6 +49,7 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
+import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.AbstractBridgeConnector;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -65,6 +66,7 @@ import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpPostUpgradeFilter;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsBinaryMessage;
+import org.kaazing.gateway.transport.ws.WsConnector;
 import org.kaazing.gateway.transport.ws.WsContinuationMessage;
 import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.WsPingMessage;
@@ -76,6 +78,9 @@ import org.kaazing.gateway.transport.ws.bridge.filter.WsCodecFilter;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameBase64Filter;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameTextFilter;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.transport.ws.util.WsUtils;
 import org.kaazing.gateway.util.Encoding;
 import org.kaazing.gateway.util.Utils;
@@ -100,6 +105,24 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
     private static final TypedAttributeKey<ConnectFuture> WSN_CONNECT_FUTURE_KEY = new TypedAttributeKey<>(WsnConnector.class, "wsnConnectFuture");
     private static final TypedAttributeKey<ResourceAddress> WSN_CONNECT_ADDRESS_KEY = new TypedAttributeKey<>(WsnConnector.class, "wsnConnectAddress");
 
+    private static final ExtensionHelper extensionHelper = new ExtensionHelper() {
+
+        @Override
+        public void setLoginContext(IoSession session, ResultAwareLoginContext loginContext) {
+            WsnSession wsnSession = SESSION_KEY.get(session);
+            assert wsnSession !=  null;
+            wsnSession.setLoginContext(loginContext);
+        }
+
+        @Override
+        public void closeWebSocketConnection(IoSession session) {
+            WsnSession wsnSession = SESSION_KEY.get(session);
+            assert wsnSession !=  null;
+            wsnSession.close(false);
+        }
+
+    };
+
     private final HttpPostUpgradeFilter postUpgrade;
     private final WsCodecFilter codec;
     private final WsFrameBase64Filter base64;
@@ -109,6 +132,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
     private ResourceAddressFactory resourceAddressFactory;
     private Properties configuration = new Properties();
     private ScheduledExecutorService scheduler;
+    private WebSocketExtensionFactory webSocketExtensionFactory;
 
     public WsnConnector() {
         super(new DefaultIoSessionConfigEx());
@@ -138,6 +162,11 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
     @Resource(name = "resourceAddressFactory")
     public void setResourceAddressFactory(ResourceAddressFactory factory) {
         this.resourceAddressFactory = factory;
+    }
+
+    @Resource(name = "ws.connector")
+    public void setWsConnector(WsConnector connector) {
+        this.webSocketExtensionFactory = connector.getWebSocketExtensionFactory();
     }
 
 
@@ -357,12 +386,11 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                     httpSession.setWriteHeader("Sec-WebSocket-Protocol", Utils.asCommaSeparatedString(protocols));
                 }
 
-                List<String> extensions = wsnConnectAddress.getOption(WsResourceAddress.EXTENSIONS);
+                List<WebSocketExtension> extensions = webSocketExtensionFactory.offerWebSocketExtensions((WsResourceAddress) wsnConnectAddress, extensionHelper);
                 if (extensions != null) {
-                    for (String extension : extensions) {
+                    for (WebSocketExtension extension : extensions) {
                         if (extension != null) {
-                            httpSession.addWriteHeader(HEADER_SEC_WEBSOCKET_EXTENSIONS,
-                                    new ExtensionHeaderBuilder(extension).toString());
+                            httpSession.addWriteHeader(HEADER_SEC_WEBSOCKET_EXTENSIONS, extension.getExtensionHeader().toString());
                         }
                     }
                 }

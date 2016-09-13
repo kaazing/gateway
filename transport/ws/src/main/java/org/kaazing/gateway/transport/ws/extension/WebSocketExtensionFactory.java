@@ -103,6 +103,19 @@ public final class WebSocketExtensionFactory {
         return result;
     }
 
+    public List<WebSocketExtension> offerWebSocketExtensions(WsResourceAddress address,
+                                                                 ExtensionHelper extensionHelper) {
+        List<WebSocketExtension> list = new ArrayList<>();
+
+        for(WebSocketExtensionFactorySpi extension : factoriesRO.values()) {
+            WebSocketExtension extension1 = extension.offer(extensionHelper, address);
+            if (extension1 != null) {
+                list.add(extension1);
+            }
+        }
+        return list;
+    }
+
     private static List<ExtensionHeader> toWsExtensions(Collection<String> extensionTokens) {
         if (extensionTokens == null) {
             throw new NullPointerException("extensionTokens");
