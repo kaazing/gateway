@@ -492,4 +492,29 @@ public class OpeningIT {
         MemoryAppender.assertMessagesLogged(Collections.singletonList("downstream"), EMPTY_STRING_SET, null, false);
     }
 
+    @Test
+    @Specification("connection.established.no.websocket.extensions/handshake.response")
+    public void shouldEstablishConnectionWithNoXWebSocketExtensions() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                // No close handshake so IOException may occur depending on timing of k3po closing connections
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+        Map<String, Object> connectOptions = new HashMap<>();
+        connectOptions.put("extensions", Arrays.asList("x-kaazing-ping-pong"));
+        ResourceAddress connectAddress =
+                ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
+                        "wse://localhost:8080/path?query",
+                        connectOptions);
+
+        connector.connect(connectAddress, handler).getSession();
+        k3po.finish();
+    }
+
 }

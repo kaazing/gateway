@@ -37,6 +37,7 @@ public final class PingPongExtensionFactory extends WebSocketExtensionFactorySpi
 
     @Override
     public WebSocketExtension offer(ExtensionHelper extensionHelper, WsResourceAddress address) {
+        // This extension is used for client <--> gateway, but not for gateway <--> gateway
         return null;
     }
 
