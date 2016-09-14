@@ -616,7 +616,6 @@ public class MessageFormatIT {
             connectSession.setMethod(HttpMethod.POST);
             connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8080");
             connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(0));
-            connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(0));
         }
     }
 

@@ -98,13 +98,9 @@ public class HttpResourceAddressFactorySpiTest {
         options.put("http.realmAuthenticationCookieNames",new String[] {"c1", "c2"});
         options.put("http.loginContextFactory", loginContextFactory);
         options.put("http.serverHeaderEnabled", Boolean.FALSE);
-<<<<<<< HEAD
         options.put("http.max.authentication.attempts", 5);
-
-=======
         options.put("http.userAgentHeaderEnabled", Boolean.FALSE);
         options.put("http.hostHeaderEnabled", Boolean.FALSE);
->>>>>>> 6ecc79c2d280cf373f30a9e990ab0ae52b0dbf66
     }
 
     @Test
@@ -148,12 +144,9 @@ public class HttpResourceAddressFactorySpiTest {
         assertEmpty(address.getOption(REALM_AUTHENTICATION_COOKIE_NAMES));
         assertNull(address.getOption(LOGIN_CONTEXT_FACTORY));
         assertTrue(address.getOption(SERVER_HEADER_ENABLED));
-<<<<<<< HEAD
         assertEquals(new Integer(0), address.getOption(MAX_AUTHENTICATION_ATTEMPTS));
-=======
         assertTrue(address.getOption(USER_AGENT_HEADER_ENABLED));
         assertTrue(address.getOption(HOST_HEADER_ENABLED));
->>>>>>> 6ecc79c2d280cf373f30a9e990ab0ae52b0dbf66
     }
 
     @Test
@@ -177,12 +170,9 @@ public class HttpResourceAddressFactorySpiTest {
         assertArrayEquals(new String[]{"c1", "c2"}, address.getOption(REALM_AUTHENTICATION_COOKIE_NAMES));
         assertEquals(loginContextFactory, address.getOption(LOGIN_CONTEXT_FACTORY));
         assertFalse(address.getOption(SERVER_HEADER_ENABLED));
-<<<<<<< HEAD
         assertEquals(new Integer(5), address.getOption(MAX_AUTHENTICATION_ATTEMPTS));
-=======
         assertFalse(address.getOption(USER_AGENT_HEADER_ENABLED));
         assertFalse(address.getOption(HOST_HEADER_ENABLED));
->>>>>>> 6ecc79c2d280cf373f30a9e990ab0ae52b0dbf66
     }
 
     @Test

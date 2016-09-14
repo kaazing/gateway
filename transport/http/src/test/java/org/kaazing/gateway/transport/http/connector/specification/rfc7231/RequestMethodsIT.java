@@ -199,12 +199,6 @@ public class RequestMethodsIT {
         k3po.finish();
     }
 
-    /*
-     * Server-side test
-     * 
-     * @Specification({"405/response"}) public void serverMustRespondWith405ToNotAllowedMethods() throws Exception {
-     */
-
     private static class ConnectSessionInitializerPost implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {

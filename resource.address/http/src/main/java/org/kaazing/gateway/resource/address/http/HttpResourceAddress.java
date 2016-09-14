@@ -158,15 +158,12 @@ public final class HttpResourceAddress extends ResourceAddress {
                     return (V) serviceDomain;
                 case SERVER_HEADER:
                     return (V) serverHeaderEnabled;
-<<<<<<< HEAD
                 case MAX_AUTHENTICATION_ATTEMPTS:
                     return (V) maxAuthenticationAttempts;
-=======
                 case USER_AGENT_HEADER:
                     return (V) userAgentHeaderEnabled;
                 case HOST_HEADER:
                     return (V) hostHeaderEnabled;
->>>>>>> 6ecc79c2d280cf373f30a9e990ab0ae52b0dbf66
                 case REALM_USER_PRINCIPAL_CLASSES:
                     return (V) realmUserPrincipalClasses;
             }
@@ -286,11 +283,7 @@ public final class HttpResourceAddress extends ResourceAddress {
             LOGIN_CONTEXT_FACTORY, INJECTABLE_HEADERS,
             ORIGIN_SECURITY, TEMP_DIRECTORY, GATEWAY_ORIGIN_SECURITY, BALANCE_ORIGINS,
             AUTHENTICATION_CONNECT, AUTHENTICATION_IDENTIFIER, ENCRYPTION_KEY_ALIAS, SERVICE_DOMAIN, SERVER_HEADER,
-<<<<<<< HEAD
-            REALM_USER_PRINCIPAL_CLASSES ,MAX_REDIRECTS, MAX_AUTHENTICATION_ATTEMPTS;
-=======
-            USER_AGENT_HEADER, HOST_HEADER, REALM_USER_PRINCIPAL_CLASSES ,MAX_REDIRECTS
->>>>>>> 6ecc79c2d280cf373f30a9e990ab0ae52b0dbf66
+            MAX_AUTHENTICATION_ATTEMPTS, USER_AGENT_HEADER, HOST_HEADER, REALM_USER_PRINCIPAL_CLASSES ,MAX_REDIRECTS
         }
 
         private static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
