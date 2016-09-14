@@ -344,33 +344,6 @@ public class MessageFormatIT {
         k3po.finish();
     }
 
-    @Ignore("Assertion Error: Unexpected Invocation")
-    @Test
-    @Specification({"outbound.should.process.response.with.content.length/response"})
-    public void outboundShouldProcessResponseWithContentLength() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
-        closed.await(2, SECONDS);
-
-        k3po.finish();
-    }
-
     @Test
     @Specification({"inbound.should.process.request.with.content.length/response"})
     public void inboundShouldProcessRequestWithContentLength() throws Exception {
