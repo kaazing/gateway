@@ -28,7 +28,7 @@
         <maven.compiler.testSource>1.8</maven.compiler.testSource>
         <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
         <hazelcast.version>1.9.4.8</hazelcast.version>
-        <k3po.version>3.0.0-alpha-41</k3po.version>
+        <k3po.version>3.0.0-alpha-45</k3po.version>
         <jdom.version>1.1</jdom.version>
         <jmock.version>2.6.0</jmock.version>
         <slf4j.log4j.version>1.7.21</slf4j.log4j.version>
@@ -75,7 +75,6 @@
         <module>service/http.proxy</module>
         <module>service/proxy</module>
         <module>service/turn.rest</module>
-        <module>service/turn.proxy</module>
         <module>service/update.check</module>
         <module>service/update.check.management</module>
         <module>transport/spi</module>
@@ -227,6 +226,12 @@
                 <version>${k3po.version}</version>
                 <scope>test</scope>
             </dependency>     
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>netx.data</artifactId>
+                <version>0.4.0</version>
+                <scope>test</scope>
+            </dependency>
        </dependencies>
     </dependencyManagement>
 
@@ -466,7 +471,6 @@
                         </goals>
                         <phase>validate</phase>
                         <configuration>
-                            <!-- Skipping until we enforce everywhere -->
                             <skip>true</skip>
                         </configuration>
                     </execution>

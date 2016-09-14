@@ -25,6 +25,7 @@ import static org.kaazing.gateway.resource.address.uri.URIUtils.getQuery;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getUserInfo;
 import static org.kaazing.gateway.service.util.ServiceUtils.LIST_SEPARATOR;
+import static org.kaazing.gateway.util.feature.EarlyAccessFeatures.LOGIN_MODULE_EXPIRING_STATE;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -221,12 +222,11 @@ public class GatewayContextResolver {
         ClusterType[] clusterConfigs = gatewayConfig.getClusterArray();
         ClusterType clusterConfig = (clusterConfigs.length > 0) ? clusterConfigs[clusterConfigs.length - 1] : null;
 
-        DefaultSecurityContext securityContext = securityResolver.resolve(securityConfig);
-        RealmsContext realmsContext = resolveRealms(securityConfig, securityContext, configuration);
-        DefaultServiceDefaultsContext serviceDefaultsContext = resolveServiceDefaults(serviceDefaults);
-        // Map<String, DefaultSessionContext> sessionContexts = resolveSessions(sessionConfigs, securityContext, realmsContext);
         SchedulerProvider schedulerProvider = new SchedulerProvider(configuration);
         ClusterContext clusterContext = resolveCluster(clusterConfig, schedulerProvider);
+        DefaultSecurityContext securityContext = securityResolver.resolve(securityConfig);
+        RealmsContext realmsContext = resolveRealms(securityConfig, securityContext, configuration, clusterContext);
+        DefaultServiceDefaultsContext serviceDefaultsContext = resolveServiceDefaults(serviceDefaults);
         ServiceRegistry servicesByURI = new ServiceRegistry();
         Map<String, Object> dependencyContexts = resolveDependencyContext();
         ResourceAddressFactory resourceAddressFactory = resolveResourceAddressFactories();
@@ -937,7 +937,8 @@ public class GatewayContextResolver {
     }
 
 
-    private RealmsContext resolveRealms(SecurityType securityConfig, SecurityContext securityContext, Properties configuration) {
+    private RealmsContext resolveRealms(SecurityType securityConfig, SecurityContext securityContext, Properties configuration,
+        ClusterContext clusterContext) {
         Map<String, DefaultRealmContext> realmContexts = new HashMap<>();
 
         if (securityConfig != null) {
@@ -976,12 +977,17 @@ public class GatewayContextResolver {
                 for (LoginModuleType loginModule : loginModulesArray) {
                     String type = loginModule.getType();
                     String success = loginModule.getSuccess().toString();
-                    Map<String, String> options = new HashMap<>();
+                    Map<String, Object> options = new HashMap<>();
 
                     // add the GATEWAY_CONFIG_DIRECTORY to the options so it can be used from various login modules
                     // (see FileLoginModule for an example)
                     options.put(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY, configuration
                             .getProperty(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY));
+                    if (LOGIN_MODULE_EXPIRING_STATE.isEnabled(configuration)) {
+                        final String expiringStateName = "ExpiringState";
+                        options.put(expiringStateName,
+                                new DefaultExpiringState(clusterContext.getCollectionsFactory(), expiringStateName));
+                    }
 
                     LoginModuleOptionsType rawOptions = loginModule.getOptions();
                     if (rawOptions != null) {
@@ -1082,14 +1088,6 @@ public class GatewayContextResolver {
             return null;
         }
         return String.valueOf(l);
-    }
-
-    private String resolveAuthorizationMode(AuthenticationType.AuthorizationMode.Enum authorizationMode) {
-        if (authorizationMode == null) {
-            return AUTHORIZATION_MODE_CHALLENGE;
-        } else {
-            return authorizationMode.toString();
-        }
     }
 
     // NOTE: Code between the previous and next methods was moved from here to SecurityContextResolver
