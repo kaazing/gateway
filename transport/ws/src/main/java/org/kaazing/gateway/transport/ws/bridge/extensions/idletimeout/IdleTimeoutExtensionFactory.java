@@ -32,7 +32,7 @@ public final class IdleTimeoutExtensionFactory extends WebSocketExtensionFactory
 
     @Override
     public WebSocketExtension offer(ExtensionHelper extensionHelper, WsResourceAddress address) {
-        // TODO do we need this extension to be sent by connectors handshake request ?
+        // connectors are not sending this extension in handshake request
         return null;
     }
 

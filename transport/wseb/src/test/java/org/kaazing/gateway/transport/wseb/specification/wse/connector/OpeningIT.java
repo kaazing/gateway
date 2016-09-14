@@ -507,7 +507,6 @@ public class OpeningIT {
             }
         });
         Map<String, Object> connectOptions = new HashMap<>();
-        connectOptions.put("extensions", Arrays.asList("x-kaazing-ping-pong"));
         ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
                         "wse://localhost:8080/path?query",

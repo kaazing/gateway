@@ -323,12 +323,11 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                     }
                 }
 
-                List<WebSocketExtension> extensions = webSocketExtensionFactory.offerWebSocketExtensions((WsResourceAddress) connectAddressNext, extensionHelper);
-                if (extensions != null) {
-                    for (WebSocketExtension extension : extensions) {
-                        if (extension != null) {
-                            httpSession.addWriteHeader(HEADER_X_WEBSOCKET_EXTENSIONS, extension.getExtensionHeader().toString());
-                        }
+                List<WebSocketExtension> extensions = webSocketExtensionFactory.offerWebSocketExtensions(
+                        (WsResourceAddress) connectAddressNext, extensionHelper);
+                for (WebSocketExtension extension : extensions) {
+                    if (extension != null) {
+                        httpSession.addWriteHeader(HEADER_X_WEBSOCKET_EXTENSIONS, extension.getExtensionHeader().toString());
                     }
                 }
 

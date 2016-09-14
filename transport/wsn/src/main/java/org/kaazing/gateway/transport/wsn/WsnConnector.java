@@ -387,11 +387,9 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 }
 
                 List<WebSocketExtension> extensions = webSocketExtensionFactory.offerWebSocketExtensions((WsResourceAddress) wsnConnectAddress, extensionHelper);
-                if (extensions != null) {
-                    for (WebSocketExtension extension : extensions) {
-                        if (extension != null) {
-                            httpSession.addWriteHeader(HEADER_SEC_WEBSOCKET_EXTENSIONS, extension.getExtensionHeader().toString());
-                        }
+                for (WebSocketExtension extension : extensions) {
+                    if (extension != null) {
+                        httpSession.addWriteHeader(HEADER_SEC_WEBSOCKET_EXTENSIONS, extension.getExtensionHeader().toString());
                     }
                 }
 

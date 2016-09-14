@@ -80,36 +80,13 @@ public class OpeningHandshake1IT {
     @BeforeClass
     public static void before() throws Exception {
         classLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(new TestClassLoader(PrimaryExtensionFactory.class.getName(), SecondaryExtensionFactory.class.getName()));
+        ClassLoader testCL = new TestClassLoader(PrimaryExtensionFactory.class.getName(), SecondaryExtensionFactory.class.getName());
+        Thread.currentThread().setContextClassLoader(testCL);
     }
 
     @AfterClass
     public static void after() {
         Thread.currentThread().setContextClassLoader(classLoader);
-    }
-
-
-    @Test
-    @Ignore("K3po issue# 53: Simplify matching syntax for comma-separated list HTTP headers; currently has comma separated which is not support in K3po yet")
-    @Specification({
-        "request.header.sec.websocket.protocol/handshake.response"
-        })
-    public void shouldEstablishConnectionWithRequestHeaderSecWebSocketProtocol() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                atMost(1).of(handler).sessionOpened(with(any(IoSessionEx.class)));
-            }
-        });
-
-        String [] protocols = {"primary", " secondary"}; // Need the space to honor the script.
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", protocols, null, handler);
-        connectFuture.awaitUninterruptibly();
-        assertTrue(connectFuture.isConnected());
-
-        k3po.finish();
     }
 
     @Test
@@ -126,8 +103,7 @@ public class OpeningHandshake1IT {
             }
         });
 
-        String[] extensions = {"primary", " secondary"}; // Need the space to honor the script.
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, extensions, handler);
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
 
@@ -148,8 +124,7 @@ public class OpeningHandshake1IT {
             }
         });
 
-        String[] extensions = {"primary", " secondary"}; // Need the space to honor the script.
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, extensions, handler);
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
 
@@ -171,39 +146,12 @@ public class OpeningHandshake1IT {
             }
         });
 
-        String[] extensions = {"primary", " secondary"};  // Need space to honor the script.
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, extensions, handler);
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, null, handler);
         connectFuture.awaitUninterruptibly();
         assertFalse(connectFuture.isConnected());
 
         k3po.finish();
     }
-
-    @Test
-    @Ignore("Issue# 315: connectFuture.isConnected() must return false as the negotiated protocol does not match any"
-            + "of the supported protocols")
-    @Specification({
-        "response.header.sec.websocket.protocol.not.negotiated/handshake.response" })
-    public void shouldFailConnectionWhenResponseHeaderSecWebSocketProtocolNotNegotiated() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-
-        context.checking(new Expectations() {
-            {
-                never(handler).sessionCreated(with(any(IoSessionEx.class)));
-                never(handler).sessionOpened(with(any(IoSessionEx.class)));
-                never(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                never(handler).sessionClosed(with(any(IoSessionEx.class)));
-            }
-        });
-
-        String [] protocols = {"primary", " secondary"}; // Need the space to honor the script.
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", protocols, null, handler);
-        connectFuture.awaitUninterruptibly();
-        assertFalse(connectFuture.isConnected());
-
-        k3po.finish();
-    }
-
 
     public static class SecondaryExtensionFactory extends WebSocketExtensionFactorySpi {
 
@@ -214,14 +162,7 @@ public class OpeningHandshake1IT {
 
         @Override
         public WebSocketExtension negotiate(ExtensionHeader header, ExtensionHelper extensionHelper, WsResourceAddress address) throws ProtocolException {
-            return new WebSocketExtension(extensionHelper) {
-
-                @Override
-                public ExtensionHeader getExtensionHeader() {
-                    return header;
-                }
-
-            };
+            return null;
         }
 
         @Override
@@ -246,14 +187,7 @@ public class OpeningHandshake1IT {
 
         @Override
         public WebSocketExtension negotiate(ExtensionHeader header, ExtensionHelper extensionHelper, WsResourceAddress address) throws ProtocolException {
-            return new WebSocketExtension(extensionHelper) {
-
-                @Override
-                public ExtensionHeader getExtensionHeader() {
-                    return header;
-                }
-
-            };
+            return null;
         }
 
         @Override

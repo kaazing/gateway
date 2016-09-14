@@ -143,7 +143,6 @@ public class Opening1IT {
             }
         });
         Map<String, Object> connectOptions = new HashMap<>();
-        connectOptions.put("extensions", Arrays.asList("primary", "secondary"));
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
                         "ws://localhost:8080/path?query",
@@ -167,7 +166,6 @@ public class Opening1IT {
             }
         });
         Map<String, Object> connectOptions = new HashMap<>();
-        connectOptions.put("extensions", Collections.singletonList("primary, secondary"));
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
                         "ws://localhost:8080/path?query",

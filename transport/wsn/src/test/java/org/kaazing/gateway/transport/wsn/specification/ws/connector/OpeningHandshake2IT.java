@@ -75,7 +75,8 @@ public class OpeningHandshake2IT {
     @BeforeClass
     public static void before() throws Exception {
         classLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(new TestClassLoader(ValidExtensionFactory.class.getName(), InvalidExtensionFactory.class.getName()));
+        ClassLoader testCL = new TestClassLoader(ValidExtensionFactory.class.getName(), InvalidExtensionFactory.class.getName());
+        Thread.currentThread().setContextClassLoader(testCL);
     }
 
     @AfterClass
@@ -84,9 +85,7 @@ public class OpeningHandshake2IT {
     }
 
     @Test
-    @Specification({
-        "response.header.sec.websocket.extensions.partial.agreement/handshake.response"
-        })
+    @Specification("response.header.sec.websocket.extensions.partial.agreement/handshake.response")
     public void shouldEstablishConnectionWithSomeExtensionsNegotiated() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 
@@ -97,8 +96,7 @@ public class OpeningHandshake2IT {
             }
         });
 
-        String[] extensions = {"valid", " invalid"}; // Need the space to honor the script.
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, extensions, handler);
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
 
@@ -115,14 +113,7 @@ public class OpeningHandshake2IT {
 
         @Override
         public WebSocketExtension negotiate(ExtensionHeader header, ExtensionHelper extensionHelper, WsResourceAddress address) throws ProtocolException {
-            return new WebSocketExtension(extensionHelper) {
-
-                @Override
-                public ExtensionHeader getExtensionHeader() {
-                    return header;
-                }
-
-            };
+            return null;
         }
 
         @Override
@@ -147,14 +138,7 @@ public class OpeningHandshake2IT {
 
         @Override
         public WebSocketExtension negotiate(ExtensionHeader header, ExtensionHelper extensionHelper, WsResourceAddress address) throws ProtocolException {
-            return new WebSocketExtension(extensionHelper) {
-
-                @Override
-                public ExtensionHeader getExtensionHeader() {
-                    return header;
-                }
-
-            };
+            return null;
         }
 
         @Override

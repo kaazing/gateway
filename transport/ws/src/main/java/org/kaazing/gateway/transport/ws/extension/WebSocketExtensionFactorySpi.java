@@ -42,20 +42,14 @@ public abstract class WebSocketExtensionFactorySpi implements Comparable<WebSock
     public abstract String getExtensionName();
 
     /**
-     * This method is called when the extension is requested by the client during the WebSocket handshake.
-     * @param requestedExtension  Extension token and parameters from the WebSocket handshake request
-     * @param extensionHelper TODO
+     * This method is called when a connector wants to include the extension in websocket handsahke request.
+     *
+     * @param extensionHelper extension helper
      * @param address    WebSocket resource address on which the handshake is taking place
-     * @return         - WebSocketExtensionSpi instance representing the active, negotiated extension,
-     *                   or null if the extension request from the client is rejected but the websocket
-     *                   connection need not be failed.
-     * @throws ProtocolException
-     *                   If the extension header is invalid for example invalid extension parameters
-     *                   (protocol violation). Throwing this exception will result in failing the WebSocket
-     *                   connection.
+     * @return         - WebSocketExtensionSpi instance that needs to be included in handshake request
+     *                   or null if the extension doesn't want to be included in handshake request
      */
-    public WebSocketExtension offer(ExtensionHelper extensionHelper,
-                                                 WsResourceAddress address) {
+    public WebSocketExtension offer(ExtensionHelper extensionHelper, WsResourceAddress address) {
         return null;
     }
 
