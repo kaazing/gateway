@@ -37,6 +37,7 @@
         <!-- Try to avoid huge heap size on Travis builds -->
         <failsafeArgLine>-Xmx1024m</failsafeArgLine>
         <opencsv.version>2.3</opencsv.version>
+		<jmh.version>1.14</jmh.version>
     </properties>
 
     <modules>
@@ -232,6 +233,12 @@
                 <version>0.4.0</version>
                 <scope>test</scope>
             </dependency>
+			<dependency>
+				<groupId>org.openjdk.jmh</groupId>
+				<artifactId>jmh-core</artifactId>
+				<version>${jmh.version}</version>
+                <scope>test</scope>
+			</dependency>
        </dependencies>
     </dependencyManagement>
 

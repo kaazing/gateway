@@ -26,14 +26,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.WriteFuture;
-import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -42,11 +39,10 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.transport.nio.NioSystemProperty;
+import org.kaazing.gateway.transport.udp.UdpAcceptorRule;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
-import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.test.util.ResolutionTestUtils;
 
