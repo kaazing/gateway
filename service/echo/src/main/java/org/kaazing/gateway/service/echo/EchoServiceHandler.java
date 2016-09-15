@@ -59,11 +59,11 @@ class EchoServiceHandler extends IoHandlerAdapter<IoSessionEx> {
                             }
                         }
                     }
-                    
+
                     if (listenerPendingCount.decrementAndGet() <= 0) {
                         listenerInvocationCount.set(0);
                         listenerPendingCount.set(maximumStackDepth);
-                        
+
                         if (remainingMessages.decrementAndGet() >= 0) {
                             session.write(buf).addListener(this);
                         }
@@ -85,6 +85,6 @@ class EchoServiceHandler extends IoHandlerAdapter<IoSessionEx> {
 
     @Override
     protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
-        LoggingUtils.log(logger, cause);
+        LoggingUtils.log(session, logger, cause);
     }
 }

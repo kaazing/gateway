@@ -371,7 +371,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                     session.close(false);
 
                     String message = String.format("Unexpected HTTP exception: %s", cause);
-                    LoggingUtils.log(logger, message, cause);
+                    LoggingUtils.log(session, logger, message, cause);
                 }
 
                 // Note: we must trigger doSessionClosed here to avoid recursion of exceptionCaught
@@ -381,7 +381,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 if (logger.isDebugEnabled()) {
                 // handle malformed HTTP scenario
                     String message = format("Error on HTTP connection, closing connection: %s", cause);
-                    LoggingUtils.log(logger, message, cause);
+                    LoggingUtils.log(session, logger, message, cause);
                 }
 
                 if (!session.isClosing() && cause instanceof HttpProtocolDecoderException) {

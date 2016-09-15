@@ -129,6 +129,7 @@ public class WsxAcceptorLoggingIT {
                 "wsn#.*CLOSED"
         }));
         forbiddenPatterns = null;
+        throw new Exception("GET LOG");
     }
 }
 

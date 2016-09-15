@@ -35,7 +35,7 @@ public class BroadcastListenHandler extends IoHandlerAdapter {
     private final boolean disconnectClientsOnReconnect;
     private final long maximumScheduledWriteBytes;
     private final Logger logger;
-	
+
 	public BroadcastListenHandler(Collection<IoSession> clients, boolean disconnectClientsOnReconnect, long maximumScheduledWriteBytes, Logger logger) {
 		this.clients = clients;
 		this.codec = new IoMessageCodecFilter();
@@ -73,16 +73,16 @@ public class BroadcastListenHandler extends IoHandlerAdapter {
 	        if (message instanceof Message) {
 	            ((Message)message).initCache();
 	        }
-	        
+
 			for (IoSession client : clients) {
 			    writeOrClose(client, message);
 			}
 		}
 	}
- 
+
     @Override
     public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-        LoggingUtils.log(logger, cause);
+        LoggingUtils.log(session, logger, cause);
     }
 
     private void writeOrClose(IoSession client, Object message) {
@@ -95,10 +95,10 @@ public class BroadcastListenHandler extends IoHandlerAdapter {
             if (scheduledWriteBytes > maximumScheduledWriteBytes) {
                 if (logger.isInfoEnabled()) {
                     String logMessage = String.format("Closing client session %s because scheduled write bytes %d exceeds the configured limit of %d",
-                            client, scheduledWriteBytes, maximumScheduledWriteBytes); 
+                            client, scheduledWriteBytes, maximumScheduledWriteBytes);
                     logger.info(logMessage);
                 }
-                client.close(true); 
+                client.close(true);
                 // BroadcastServiceHandler.sessionClosed(IoSession) will take care of removing client from clients
             }
             else {
@@ -117,7 +117,7 @@ public class BroadcastListenHandler extends IoHandlerAdapter {
                 }
                 break;
             }
-            session = parent; 
+            session = parent;
         }
         return session.getScheduledWriteBytes();
     }

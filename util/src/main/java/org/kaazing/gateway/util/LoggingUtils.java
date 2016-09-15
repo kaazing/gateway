@@ -15,6 +15,7 @@
  */
 package org.kaazing.gateway.util;
 
+import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 
 public final class LoggingUtils {
@@ -23,7 +24,7 @@ public final class LoggingUtils {
         // so as not to be instantiated
     }
 
-    public static void log(Logger logger, Throwable t) {
+    public static void log(IoSession session, Logger logger, Throwable t) {
         if (logger.isDebugEnabled()) {
             logger.debug(t.getMessage(), t);
         } else {
@@ -31,7 +32,7 @@ public final class LoggingUtils {
         }
     }
 
-    public static void log(Logger logger, String message, Throwable t) {
+    public static void log(IoSession session, Logger logger, String message, Throwable t) {
         if (logger.isDebugEnabled()) {
             logger.debug(message, t);
         } else {

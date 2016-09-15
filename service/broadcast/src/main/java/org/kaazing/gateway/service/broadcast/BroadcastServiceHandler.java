@@ -79,7 +79,7 @@ class BroadcastServiceHandler extends IoHandlerAdapter {
             }
         }
         else {
-            LoggingUtils.log(logger, "Unexpected exception in broadcast service handler", cause);
+            LoggingUtils.log(session, logger, "Unexpected exception in broadcast service handler", cause);
         }
     }
 
