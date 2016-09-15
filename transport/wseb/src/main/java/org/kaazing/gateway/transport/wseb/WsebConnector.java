@@ -326,9 +326,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                 List<WebSocketExtension> extensions = webSocketExtensionFactory.offerWebSocketExtensions(
                         (WsResourceAddress) connectAddressNext, extensionHelper);
                 for (WebSocketExtension extension : extensions) {
-                    if (extension != null) {
-                        httpSession.addWriteHeader(HEADER_X_WEBSOCKET_EXTENSIONS, extension.getExtensionHeader().toString());
-                    }
+                    httpSession.addWriteHeader(HEADER_X_WEBSOCKET_EXTENSIONS, extension.getExtensionHeader().toString());
                 }
 
                 httpSession.setWriteHeader(HEADER_X_ACCEPT_COMMANDS, "ping");
