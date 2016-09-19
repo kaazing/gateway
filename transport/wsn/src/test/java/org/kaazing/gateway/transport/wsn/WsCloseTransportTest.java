@@ -95,6 +95,7 @@ public class WsCloseTransportTest {
     private NioSocketAcceptor tcpAcceptor;
     private NioSocketConnector tcpConnector;
     private SchedulerProvider schedulerProvider;
+    private WsConnector wsConnector;
 
     private void waitForLatch(CountDownLatch l,
                               final int delay,
@@ -122,7 +123,7 @@ public class WsCloseTransportTest {
     public void tearDown() throws Exception {
         // For reasons unknown, tcpAcceptor.unbind does not actually free up the bound port until dispose is called.
         // So we must dispose to avoid the next test method failing to bind.
-        wsnConnector.dispose(); httpConnector.dispose(); tcpConnector.dispose();
+        wsnConnector.dispose(); httpConnector.dispose(); tcpConnector.dispose(); wsConnector.dispose();
         wsnAcceptor.dispose(); httpAcceptor.dispose(); tcpAcceptor.dispose();
         schedulerProvider.shutdownNow();
     }
@@ -155,7 +156,7 @@ public class WsCloseTransportTest {
         WsAcceptor wsAcceptor = (WsAcceptor)transportFactory.getTransport("ws").getAcceptor();
         wsAcceptor.setWsnAcceptor(wsnAcceptor);
         wsAcceptor.setConfiguration(new Properties());
-        WsConnector wsConnector = (WsConnector)transportFactory.getTransport("ws").getConnector();
+        wsConnector = (WsConnector)transportFactory.getTransport("ws").getConnector();
         wsConnector.setWsnConnector(wsnConnector);
 
 
@@ -183,6 +184,8 @@ public class WsCloseTransportTest {
         if (wsConnectCloseTimeout != null) {
             wsnConnector.setConfiguration(wsConnectProperties);
         }
+        wsConnector = (WsConnector) transportFactory.getTransport("ws").getConnector();
+        wsnConnector.setWsConnector(wsConnector);
 
         httpAcceptor.setBridgeServiceFactory(bridgeServiceFactory);
 //        httpAcceptor.setServiceRegistry(serviceRegistry);

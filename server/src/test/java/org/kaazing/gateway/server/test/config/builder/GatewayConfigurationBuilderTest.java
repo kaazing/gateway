@@ -42,9 +42,9 @@ public class GatewayConfigurationBuilderTest {
                         .done()
                         .done();
 
-        Map<String, String> properties = configuration.getServices().iterator().next().getProperties();
-        assertEquals("aValue", properties.get("a"));
-        assertEquals("bValue", properties.get("b"));
+        Map<String, List<String>> properties = configuration.getServices().iterator().next().getProperties();
+        assertEquals("aValue", properties.get("a").get(0));
+        assertEquals("bValue", properties.get("b").get(0));
     }
 
     @Test
@@ -86,46 +86,46 @@ public class GatewayConfigurationBuilderTest {
                         .done()
                     .done();
 
-        Map<String, String> properties = configuration.getServices().iterator().next().getProperties();
-        assertEquals("aValue", properties.get("a"));
-        assertEquals("bValue", properties.get("b"));
-        assertEquals("cValue", properties.get("c"));
+        Map<String, List<String>> properties = configuration.getServices().iterator().next().getProperties();
+        assertEquals("aValue", properties.get("a").get(0));
+        assertEquals("bValue", properties.get("b").get(0));
+        assertEquals("cValue", properties.get("c").get(0));
         List<NestedServicePropertiesConfiguration> nestedPropertyConfigs = configuration.getServices().iterator()
                 .next().getNestedProperties();
         assertEquals(4, nestedPropertyConfigs.size());
 
-        Map<String, String> nested1Level1Map1 = nestedPropertyConfigs.get(0).getSimpleProperties();
-        Map<String, String> nested1Level1Map2 = nestedPropertyConfigs.get(1).getSimpleProperties();
-        assertEquals("1aValue1", nested1Level1Map1.get("1a"));
-        assertEquals("1bValue1", nested1Level1Map1.get("1b"));
-        assertEquals("1aValue2", nested1Level1Map2.get("1a"));
-        assertEquals("1bValue2", nested1Level1Map2.get("1b"));
+        Map<String, List<String>> nested1Level1Map1 = nestedPropertyConfigs.get(0).getSimpleProperties();
+        Map<String, List<String>> nested1Level1Map2 = nestedPropertyConfigs.get(1).getSimpleProperties();
+        assertEquals("1aValue1", nested1Level1Map1.get("1a").get(0));
+        assertEquals("1bValue1", nested1Level1Map1.get("1b").get(0));
+        assertEquals("1aValue2", nested1Level1Map2.get("1a").get(0));
+        assertEquals("1bValue2", nested1Level1Map2.get("1b").get(0));
 
-        Map<String, String> nested2Level1Map = nestedPropertyConfigs.get(2).getSimpleProperties();
-        assertEquals("2aLevel1", nested2Level1Map.get("2a"));
-        assertEquals("2bLevel1", nested2Level1Map.get("2b"));
+        Map<String, List<String>> nested2Level1Map = nestedPropertyConfigs.get(2).getSimpleProperties();
+        assertEquals("2aLevel1", nested2Level1Map.get("2a").get(0));
+        assertEquals("2bLevel1", nested2Level1Map.get("2b").get(0));
 
-        Map<String, String> nested3Level1Map = nestedPropertyConfigs.get(3).getSimpleProperties();
-        assertEquals("3aValue", nested3Level1Map.get("3a"));
-        assertEquals("3bValue", nested3Level1Map.get("3b"));
-        assertEquals("1aNested3Level1", nested3Level1Map.get("1a"));
+        Map<String, List<String>> nested3Level1Map = nestedPropertyConfigs.get(3).getSimpleProperties();
+        assertEquals("3aValue", nested3Level1Map.get("3a").get(0));
+        assertEquals("3bValue", nested3Level1Map.get("3b").get(0));
+        assertEquals("1aNested3Level1", nested3Level1Map.get("1a").get(0));
 
         Collection<NestedServicePropertiesConfiguration> nested2Level2Configs = nestedPropertyConfigs.get(2).getNestedProperties();
         assertEquals(1, nested2Level2Configs.size());
 
         NestedServicePropertiesConfiguration nested2Level2Config = nested2Level2Configs.iterator().next();
-        Map<String, String> nested2Level2Map = nested2Level2Config.getSimpleProperties();
-        assertEquals("2cLevel2", nested2Level2Map.get("2c"));
-        assertEquals("2dLevel2", nested2Level2Map.get("2d"));
+        Map<String, List<String>> nested2Level2Map = nested2Level2Config.getSimpleProperties();
+        assertEquals("2cLevel2", nested2Level2Map.get("2c").get(0));
+        assertEquals("2dLevel2", nested2Level2Map.get("2d").get(0));
         assertEquals(2, nested2Level2Map.size());
 
         Collection<NestedServicePropertiesConfiguration> nested2Level3Configs = nested2Level2Config.getNestedProperties();
         assertEquals(1, nested2Level3Configs.size());
 
         NestedServicePropertiesConfiguration nested2Level3Config = nested2Level3Configs.iterator().next();
-        Map<String, String> nested2Level3Map = nested2Level3Config.getSimpleProperties();
-        assertEquals("2eLevel3", nested2Level3Map.get("2e"));
-        assertEquals("2fLevel3", nested2Level3Map.get("2f"));
+        Map<String, List<String>> nested2Level3Map = nested2Level3Config.getSimpleProperties();
+        assertEquals("2eLevel3", nested2Level3Map.get("2e").get(0));
+        assertEquals("2fLevel3", nested2Level3Map.get("2f").get(0));
         assertEquals(2, nested2Level3Map.size());
     }
 }

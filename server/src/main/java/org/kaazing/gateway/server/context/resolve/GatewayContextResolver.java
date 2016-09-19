@@ -24,6 +24,8 @@ import static org.kaazing.gateway.resource.address.uri.URIUtils.getPort;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getQuery;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getUserInfo;
+import static org.kaazing.gateway.service.util.ServiceUtils.LIST_SEPARATOR;
+import static org.kaazing.gateway.util.feature.EarlyAccessFeatures.LOGIN_MODULE_EXPIRING_STATE;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -62,7 +64,6 @@ import org.kaazing.gateway.security.auth.TimeoutLoginModule;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.config.SchemeConfig;
-import org.kaazing.gateway.server.config.parse.DefaultSchemeConfig;
 import org.kaazing.gateway.server.config.june2016.AuthenticationType;
 import org.kaazing.gateway.server.config.june2016.AuthorizationConstraintType;
 import org.kaazing.gateway.server.config.june2016.ClusterConnectOptionsType;
@@ -79,6 +80,7 @@ import org.kaazing.gateway.server.config.june2016.ServiceConnectOptionsType;
 import org.kaazing.gateway.server.config.june2016.ServiceDefaultsType;
 import org.kaazing.gateway.server.config.june2016.ServicePropertiesType;
 import org.kaazing.gateway.server.config.june2016.ServiceType;
+import org.kaazing.gateway.server.config.parse.DefaultSchemeConfig;
 import org.kaazing.gateway.server.context.DependencyContext;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.service.ServiceRegistry;
@@ -99,7 +101,6 @@ import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.aws.AwsUtils;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
-import org.kaazing.gateway.util.ssl.SslCipherSuites;
 import org.slf4j.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -221,12 +222,11 @@ public class GatewayContextResolver {
         ClusterType[] clusterConfigs = gatewayConfig.getClusterArray();
         ClusterType clusterConfig = (clusterConfigs.length > 0) ? clusterConfigs[clusterConfigs.length - 1] : null;
 
-        DefaultSecurityContext securityContext = securityResolver.resolve(securityConfig);
-        RealmsContext realmsContext = resolveRealms(securityConfig, securityContext, configuration);
-        DefaultServiceDefaultsContext serviceDefaultsContext = resolveServiceDefaults(serviceDefaults);
-        // Map<String, DefaultSessionContext> sessionContexts = resolveSessions(sessionConfigs, securityContext, realmsContext);
         SchedulerProvider schedulerProvider = new SchedulerProvider(configuration);
         ClusterContext clusterContext = resolveCluster(clusterConfig, schedulerProvider);
+        DefaultSecurityContext securityContext = securityResolver.resolve(securityConfig);
+        RealmsContext realmsContext = resolveRealms(securityConfig, securityContext, configuration, clusterContext);
+        DefaultServiceDefaultsContext serviceDefaultsContext = resolveServiceDefaults(serviceDefaults);
         ServiceRegistry servicesByURI = new ServiceRegistry();
         Map<String, Object> dependencyContexts = resolveDependencyContext();
         ResourceAddressFactory resourceAddressFactory = resolveResourceAddressFactories();
@@ -735,7 +735,15 @@ public class GatewayContextResolver {
                     }
                 }
                 if (isSimpleProperty) {
-                    properties.put(node.getLocalName(), nodeValue);
+                    // TODO; consider going to dynamically typed objects
+                    // (i.e. allowing Object as properties value)
+                    // For now if we see a property that is a list, we convert to comma separated list
+                    String existingValue = properties.get(node.getLocalName());
+                    if (existingValue == null) {
+                        properties.put(node.getLocalName(), nodeValue);
+                    } else {
+                        properties.put(node.getLocalName(), existingValue + LIST_SEPARATOR + nodeValue);
+                    }
                 }
             }
         }
@@ -920,7 +928,8 @@ public class GatewayContextResolver {
     }
 
 
-    private RealmsContext resolveRealms(SecurityType securityConfig, SecurityContext securityContext, Properties configuration) {
+    private RealmsContext resolveRealms(SecurityType securityConfig, SecurityContext securityContext, Properties configuration,
+        ClusterContext clusterContext) {
         Map<String, DefaultRealmContext> realmContexts = new HashMap<>();
 
         if (securityConfig != null) {
@@ -959,12 +968,17 @@ public class GatewayContextResolver {
                 for (LoginModuleType loginModule : loginModulesArray) {
                     String type = loginModule.getType();
                     String success = loginModule.getSuccess().toString();
-                    Map<String, String> options = new HashMap<>();
+                    Map<String, Object> options = new HashMap<>();
 
                     // add the GATEWAY_CONFIG_DIRECTORY to the options so it can be used from various login modules
                     // (see FileLoginModule for an example)
                     options.put(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY, configuration
                             .getProperty(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY));
+                    if (LOGIN_MODULE_EXPIRING_STATE.isEnabled(configuration)) {
+                        final String expiringStateName = "ExpiringState";
+                        options.put(expiringStateName,
+                                new DefaultExpiringState(clusterContext.getCollectionsFactory(), expiringStateName));
+                    }
 
                     LoginModuleOptionsType rawOptions = loginModule.getOptions();
                     if (rawOptions != null) {
@@ -1065,14 +1079,6 @@ public class GatewayContextResolver {
             return null;
         }
         return String.valueOf(l);
-    }
-
-    private String resolveAuthorizationMode(AuthenticationType.AuthorizationMode.Enum authorizationMode) {
-        if (authorizationMode == null) {
-            return AUTHORIZATION_MODE_CHALLENGE;
-        } else {
-            return authorizationMode.toString();
-        }
     }
 
     // NOTE: Code between the previous and next methods was moved from here to SecurityContextResolver

@@ -62,8 +62,10 @@ public class NioDatagramAcceptorTest {
         ResourceAddress bindAddress = addressFactory.newResourceAddress("udp://localhost:8080", new HashMap<>());
 
         Properties configuration = new Properties();
+        NioSocketAcceptor tcpAcceptor = new NioSocketAcceptor(configuration);
         NioDatagramAcceptor acceptor = new NioDatagramAcceptor(configuration);
         acceptor.setResourceAddressFactory(newResourceAddressFactory());
+        acceptor.setTcpAcceptor(tcpAcceptor);
 
         acceptor.bind(bindAddress, handler, null);
         String str = "Hello World";
