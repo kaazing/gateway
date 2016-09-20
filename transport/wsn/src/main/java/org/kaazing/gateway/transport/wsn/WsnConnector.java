@@ -19,6 +19,7 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
+import static org.kaazing.gateway.transport.ws.util.WsUtils.HEADER_SEC_WEBSOCKET_EXTENSIONS;
 import static org.kaazing.gateway.transport.wsn.WsnSession.SESSION_KEY;
 
 import java.io.IOException;
@@ -74,6 +75,7 @@ import org.kaazing.gateway.transport.ws.bridge.filter.WsCheckAliveFilter;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsCodecFilter;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameBase64Filter;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameTextFilter;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
 import org.kaazing.gateway.transport.ws.util.WsUtils;
 import org.kaazing.gateway.util.Encoding;
 import org.kaazing.gateway.util.Utils;
@@ -354,6 +356,17 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 if (!protocols.isEmpty()) {
                     httpSession.setWriteHeader("Sec-WebSocket-Protocol", Utils.asCommaSeparatedString(protocols));
                 }
+
+                List<String> extensions = wsnConnectAddress.getOption(WsResourceAddress.EXTENSIONS);
+                if (extensions != null) {
+                    for (String extension : extensions) {
+                        if (extension != null) {
+                            httpSession.addWriteHeader(HEADER_SEC_WEBSOCKET_EXTENSIONS,
+                                    new ExtensionHeaderBuilder(extension).toString());
+                        }
+                    }
+                }
+
                 WSN_SESSION_INITIALIZER_KEY.set(httpSession, wsnSessionInitializer);
                 WSN_CONNECT_FUTURE_KEY.set(httpSession, wsnConnectFuture);
                 WSN_CONNECT_ADDRESS_KEY.set(httpSession, wsnConnectAddress);
@@ -570,6 +583,27 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 logger.info("WebSocket connection failed: No Connection: websocket response header");
                 wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: No Connection header"));
                 return;
+            }
+
+            List<String> negotiatedExtensions = httpSession.getReadHeaders(HEADER_SEC_WEBSOCKET_EXTENSIONS);
+            List<String> requestedExtensions = httpSession.getWriteHeaders(HEADER_SEC_WEBSOCKET_EXTENSIONS);
+            if (negotiatedExtensions != null && !negotiatedExtensions.isEmpty()) {
+                if (requestedExtensions == null || requestedExtensions.isEmpty()) {
+                    logger.warn("WebSocket upgrade failed: Extensions were not requested, but received {}",
+                            negotiatedExtensions);
+                    wsnConnectFuture.setException(
+                            new Exception("WebSocket Upgrade Failed: Invalid " + HEADER_SEC_WEBSOCKET_EXTENSIONS + " header"));
+                    return;
+                } else {
+                    for (String negociatedExtension : negotiatedExtensions) {
+                        if (!requestedExtensions.contains(new ExtensionHeaderBuilder(negociatedExtension).getExtensionToken())) {
+                            logger.warn("WebSocket upgrade failed: Extension {} was not requested.", negociatedExtension);
+                            wsnConnectFuture.setException(new Exception(
+                                    "WebSocket Upgrade Failed: Invalid " + HEADER_SEC_WEBSOCKET_EXTENSIONS + " header"));
+                            return;
+                        }
+                    }
+                }
             }
 
             final IoSessionInitializer<? extends IoFuture> wsnSessionInitializer = WSN_SESSION_INITIALIZER_KEY.remove(httpSession);

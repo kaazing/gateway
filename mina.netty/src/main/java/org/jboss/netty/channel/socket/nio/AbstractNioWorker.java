@@ -68,6 +68,9 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.socket.Worker;
+import org.jboss.netty.channel.socket.nio.NioWorker.ReadDispatcher;
+import org.jboss.netty.channel.socket.nio.NioWorker.TcpReadDispatcher;
+import org.jboss.netty.channel.socket.nio.NioWorker.UdpReadDispatcher;
 import org.jboss.netty.channel.socket.nio.SocketSendBufferPool.SendBuffer;
 import org.jboss.netty.logging.InternalLogger;
 import org.jboss.netty.logging.InternalLoggerFactory;
@@ -603,6 +606,9 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
             @Override
             public void run() {
                 channels.remove(channel.getId().intValue());
+                if (channel instanceof NioChildDatagramChannel) {
+                    return;
+                }
 
                 SelectionKey key = channel.channel.keyFor(selector);
                 if (key != null) {
@@ -633,15 +639,19 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
                 try {
                     channels.put(channel.getId().intValue(), channel);
 
-                    // TODO some channels no need to register with selector
+                    if (channel instanceof NioChildDatagramChannel) {
+                        return;
+                    }
 
                     // ensure channel.writeSuspended cannot remain true due to race
                     // note: setOpWrite is a no-op before selectionKey is registered w/ selector
                     int rawInterestOps = channel.getRawInterestOps();
                     rawInterestOps |= SelectionKey.OP_WRITE;
                     channel.setRawInterestOpsNow(rawInterestOps);
-
-                    channel.channel.register(selector, rawInterestOps, channel);
+                    ReadDispatcher readDispatcher = channel instanceof NioSocketChannel
+                            ? new TcpReadDispatcher((NioSocketChannel) channel)
+                            : new UdpReadDispatcher((NioDatagramChannel) channel);
+                    channel.channel.register(selector, rawInterestOps, readDispatcher);
                 }
                 catch (ClosedChannelException e) {
                     close(channel, succeededFuture(channel));

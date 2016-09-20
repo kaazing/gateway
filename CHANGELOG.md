@@ -1,12 +1,33 @@
 # Change Log
 
-## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
+## [5.2.2](https://github.com/kaazing/gateway/tree/5.2.2) (2016-09-09)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.1...5.2.2)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.1...HEAD)
+**Fixed bugs:**
+
+- wsn transport is reacting incorrectly to case where maximum ws message size is exceeded [\#463](https://github.com/kaazing/gateway/issues/463)
+- WSN Connector: Connection should fail when the value of the `Connection` header in handshake response is not `Upgrade` [\#310](https://github.com/kaazing/gateway/issues/310)
 
 **Merged pull requests:**
 
+- Removed turn.proxy module [\#703](https://github.com/kaazing/gateway/pull/703) ([mgherghe](https://github.com/mgherghe))
+- Apirvu param prot [\#702](https://github.com/kaazing/gateway/pull/702) ([dpwspoon](https://github.com/dpwspoon))
+- Turn proxy support for turn data message [\#699](https://github.com/kaazing/gateway/pull/699) ([dpwspoon](https://github.com/dpwspoon))
+- Tweak comment in configuration [\#698](https://github.com/kaazing/gateway/pull/698) ([robinzimmermann](https://github.com/robinzimmermann))
+- Update schema to latest. Add update.check service [\#697](https://github.com/kaazing/gateway/pull/697) ([robinzimmermann](https://github.com/robinzimmermann))
+- Http Connector authenticating to 401 and Login Module expiring state [\#696](https://github.com/kaazing/gateway/pull/696) ([dpwspoon](https://github.com/dpwspoon))
+- Using tcp acceptor's worker pool for udp child sessions [\#694](https://github.com/kaazing/gateway/pull/694) ([jitsni](https://github.com/jitsni))
+- Parameterized test classes to run with TCP and UDP [\#693](https://github.com/kaazing/gateway/pull/693) ([apirvu](https://github.com/apirvu))
+- Changes for MESSAGE-INTEGRITY generation [\#692](https://github.com/kaazing/gateway/pull/692) ([Anisotrop](https://github.com/Anisotrop))
+- Added tests for webRTC turn rest service [\#691](https://github.com/kaazing/gateway/pull/691) ([vstratan](https://github.com/vstratan))
+- Adding proxy service tests [\#689](https://github.com/kaazing/gateway/pull/689) ([jitsni](https://github.com/jitsni))
+- Ignored symlink tests if the user has no OS access to create symlinks [\#686](https://github.com/kaazing/gateway/pull/686) ([mgherghe](https://github.com/mgherghe))
+- Refactor turn.rest API to match feedback [\#684](https://github.com/kaazing/gateway/pull/684) ([mgherghe](https://github.com/mgherghe))
+- Mask XOR-RELAY-ADDRESS and unmask XOR-PEER-ADDRESS [\#681](https://github.com/kaazing/gateway/pull/681) ([Anisotrop](https://github.com/Anisotrop))
 - Removed echoing of java path and version on startup [\#680](https://github.com/kaazing/gateway/pull/680) ([mgherghe](https://github.com/mgherghe))
+- add ws extensions functionality in WsnConnector [\#657](https://github.com/kaazing/gateway/pull/657) ([danibusu](https://github.com/danibusu))
+- Changes for time unit conversion. [\#649](https://github.com/kaazing/gateway/pull/649) ([vmaraloiu](https://github.com/vmaraloiu))
+- Add the port of the remote client to HEADER\_X\_FORWARDED\_FOR and FORWARDED\_FOR headers. Perform changes in k3po scripts for the new changes. [\#630](https://github.com/kaazing/gateway/pull/630) ([vmaraloiu](https://github.com/vmaraloiu))
 
 ## [5.2.1](https://github.com/kaazing/gateway/tree/5.2.1) (2016-08-19)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.2.0...5.2.1)

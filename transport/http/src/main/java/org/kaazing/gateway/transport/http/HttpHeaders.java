@@ -18,6 +18,7 @@ package org.kaazing.gateway.transport.http;
 public interface HttpHeaders {
 
     String HEADER_AUTHORIZATION = "Authorization";
+    String HEADER_PROXY_AUTHORIZATION = "Proxy-Authorization";
     String HEADER_CONTENT_LENGTH = "Content-Length";
     String HEADER_CONTENT_TYPE = "Content-Type";
     String HEADER_DATE = "Date";
@@ -45,5 +46,6 @@ public interface HttpHeaders {
     String HEADER_X_SEQUENCE_NO = "X-Sequence-No";
     String HEADER_SET_COOKIE = "Set-Cookie";
     String HEADER_LOCATION = "Location";
+    String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
 }

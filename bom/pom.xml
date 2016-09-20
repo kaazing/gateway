@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.2.2</version>
+        <version>5.2.3</version>
     </parent>
 
     <artifactId>gateway.bom</artifactId>
@@ -124,11 +124,6 @@
             <dependency>
                 <groupId>org.kaazing</groupId>
                 <artifactId>gateway.service.update.check.management</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.kaazing</groupId>
-                <artifactId>gateway.service.turn.proxy</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- transport dependencies -->

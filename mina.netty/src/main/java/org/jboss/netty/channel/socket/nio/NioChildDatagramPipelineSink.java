@@ -47,12 +47,6 @@ import java.net.SocketAddress;
  */
 class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
 
-    private final WorkerPool<NioWorker> workerPool;
-
-    NioChildDatagramPipelineSink(final WorkerPool<NioWorker> workerPool) {
-        this.workerPool = workerPool;
-    }
-
     /**
      * Handle downstream event.
      *
@@ -97,10 +91,6 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
             assert offered;
             parentChannel.worker.writeFromUserCode(parentChannel);
         }
-    }
-
-    AbstractNioWorker nextWorker() {
-        return workerPool.nextWorker();
     }
 
     private static final class ParentMessageEvent implements MessageEvent {

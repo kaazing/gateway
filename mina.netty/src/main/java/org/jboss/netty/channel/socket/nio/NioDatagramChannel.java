@@ -70,7 +70,7 @@ public class NioDatagramChannel extends AbstractNioChannel<DatagramChannel>
 
     NioDatagramChannel(final ChannelFactory factory,
             final ChannelPipeline pipeline, final ChannelSink sink,
-            final NioDatagramWorker worker, InternetProtocolFamily family) {
+            final AbstractNioWorker worker, InternetProtocolFamily family) {
         super(null, factory, pipeline, sink, worker, openNonBlockingChannel(family), true);
         config = new DefaultNioDatagramChannelConfig(channel);
 
@@ -109,11 +109,6 @@ public class NioDatagramChannel extends AbstractNioChannel<DatagramChannel>
         } catch (final IOException e) {
             throw new ChannelException("Failed to open a DatagramChannel.", e);
         }
-    }
-
-    @Override
-    public NioDatagramWorker getWorker() {
-        return (NioDatagramWorker) super.getWorker();
     }
 
     public boolean isBound() {
