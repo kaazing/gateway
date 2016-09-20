@@ -57,10 +57,11 @@ public class LoggingFilter extends IoFilterAdapter {
     private final String idleFormat;
     private final String exceptionFormat;
     private final String closedFormat;
-
     private final String writeFormat;
 
-    private enum Strategy {
+    protected boolean shouldForceMoveAfterCodec = true;
+
+    protected enum Strategy {
         DEBUG(LogLevel.DEBUG),
         ERROR(LogLevel.ERROR),
         INFO(LogLevel.INFO),
@@ -202,14 +203,16 @@ public class LoggingFilter extends IoFilterAdapter {
         logSessionOpened(session);
         super.sessionOpened(nextFilter, session);
 
-        // Move after codec to log codec exceptions (should they occur) and decoded messages
-        IoFilterChain filterChain = session.getFilterChain();
-        Entry codecEntry = filterChain.getEntry(ProtocolCodecFilter.class);
-        if (codecEntry != null) {
-            Entry loggingEntry = filterChain.getEntry(this);
-            assert (loggingEntry != null);
-            loggingEntry.remove();
-            codecEntry.addAfter(loggingEntry.getName(), loggingEntry.getFilter());
+        if (shouldForceMoveAfterCodec) {
+            // Move after codec to log codec exceptions (should they occur) and decoded messages
+            IoFilterChain filterChain = session.getFilterChain();
+            Entry codecEntry = filterChain.getEntry(ProtocolCodecFilter.class);
+            if (codecEntry != null) {
+                Entry loggingEntry = filterChain.getEntry(this);
+                assert (loggingEntry != null);
+                loggingEntry.remove();
+                codecEntry.addAfter(loggingEntry.getName(), loggingEntry.getFilter());
+            }
         }
     }
 
