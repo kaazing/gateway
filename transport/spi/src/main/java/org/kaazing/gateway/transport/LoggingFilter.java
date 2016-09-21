@@ -135,14 +135,8 @@ public class LoggingFilter extends IoFilterAdapter {
         if (!logger.isInfoEnabled()) {
             return false;
         }
-        String user = getUserIdentifier(session);
         String loggingFilterName = transportName + "#logging";
-        String format = transportName + "#%s";
-        if (user != null) {
-            // Escape % in user in case it contains a scoped ipv6 address like "fe80:0:0:0:90ea:3ee4:77ad:77ec%15:61641"
-            // so we have a valid format string
-            format = format + " " + user.replace("%", "%%");
-        }
+        String format = getLoggingFormat(session, transportName);
         if (logger.isTraceEnabled()) {
             session.getFilterChain().addLast(loggingFilterName, new ObjectLoggingFilter(logger, format));
             return true;
@@ -366,6 +360,17 @@ public class LoggingFilter extends IoFilterAdapter {
 
             getFilterWriteStrategy().log(logger, writeFormat, session.getId(), message);
         }
+    }
+
+    protected static String getLoggingFormat(IoSession session, String transportName) {
+        String user = getUserIdentifier(session);
+        String format = transportName + "#%s";
+        if (user != null) {
+            // Escape % in user in case it contains a scoped ipv6 address like "fe80:0:0:0:90ea:3ee4:77ad:77ec%15:61641"
+            // so we have a valid format string
+            format = format + " " + user.replace("%", "%%");
+        }
+        return format;
     }
 
     /**
