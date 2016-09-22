@@ -1557,6 +1557,11 @@
     </complexType>
 
     <complexType name="turn.restServicePropertiesType">
+        <annotation>
+            <documentation>
+                Properties accepted by the turn.rest service configuration.
+            </documentation>
+        </annotation>
         <complexContent>
             <restriction base="gateway:ServicePropertiesType">
                 <sequence>
