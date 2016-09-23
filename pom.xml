@@ -92,6 +92,7 @@
         <module>mina.core</module>
         <module>mina.netty</module>
         <module>test.util</module>
+        <module>bench</module>
     </modules>
 
     <dependencyManagement>
@@ -237,8 +238,12 @@
 				<groupId>org.openjdk.jmh</groupId>
 				<artifactId>jmh-core</artifactId>
 				<version>${jmh.version}</version>
-                <scope>test</scope>
 			</dependency>
+            <dependency>
+                <groupId>org.openjdk.jmh</groupId>
+                <artifactId>jmh-generator-annprocess</artifactId>
+                <version>${jmh.version}</version>
+            </dependency>
        </dependencies>
     </dependencyManagement>
 
