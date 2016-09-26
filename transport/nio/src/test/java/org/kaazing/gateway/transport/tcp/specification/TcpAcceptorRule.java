@@ -61,7 +61,7 @@ public class TcpAcceptorRule implements TestRule {
     public void bind(String accept, IoHandler acceptHandler) {
 
         final ResourceAddress acceptAddress =
-                addressFactory.newResourceAddress(accept);
+                getAddressFactory().newResourceAddress(accept);
 
         acceptor.bind(acceptAddress, acceptHandler, null);
     }
@@ -109,7 +109,7 @@ public class TcpAcceptorRule implements TestRule {
                 BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
 
                 acceptor = (NioSocketAcceptor) transportFactory.getTransport("tcp").getAcceptor();
-                acceptor.setResourceAddressFactory(addressFactory);
+                acceptor.setResourceAddressFactory(getAddressFactory());
                 acceptor.setBridgeServiceFactory(serviceFactory);
                 acceptor.setSchedulerProvider(schedulerProvider);
 
@@ -125,6 +125,10 @@ public class TcpAcceptorRule implements TestRule {
     public TcpAcceptorRule addConfigurationProperty(String propertyName, String propertyValue) {
         configuration.setProperty(propertyName, propertyValue);
         return this;
+    }
+
+    public ResourceAddressFactory getAddressFactory() {
+        return addressFactory;
     }
 
 }

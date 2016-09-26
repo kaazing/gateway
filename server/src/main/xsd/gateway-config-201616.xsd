@@ -1336,6 +1336,12 @@
                     <documentation>The maximum redirects http connector follows</documentation>
                 </annotation>
             </element>
+            <!-- DPW todo, set on connect options as well -->
+            <element name="tcp.realmName" maxOccurs="1" minOccurs="0" type="gateway:CollapsedString">
+                <annotation>
+                    <documentation>Allows setting a realm name at the tcp level</documentation>
+                </annotation>
+            </element>
         </all>
     </complexType>
 

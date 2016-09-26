@@ -729,8 +729,19 @@ public class DefaultServiceContext implements ServiceContext {
                                 getProperties().get("encryption.key.alias"));
                         options.put(format(optionPattern, SERVICE_DOMAIN),
                                 getProperties().get("service.domain"));
-
                     }
+                }
+
+                // TCP
+                for (String optionPattern : asList("tcp.%s")) {
+                    // NO REALM_NAME as this will be an accept/connect option
+                    options.put(format(optionPattern, LOGIN_CONTEXT_FACTORY),
+                            serviceRealmContext.getLoginContextFactory());
+//                    initial support will just be authenticate or not
+//                    options.put(format(optionPattern, REQUIRED_ROLES),
+//                            getRequireRoles());
+//                    options.put(format(optionPattern, REALM_USER_PRINCIPAL_CLASSES.name()),
+//                            getUserPrincipalClasses(serviceRealmContext.getUserPrincipalClasses()));
                 }
 
                 // TODO: eliminate forceNativeChallengeScheme by locking down authentication schemes for "directory" service
