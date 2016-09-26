@@ -357,8 +357,8 @@ abstract class AbstractNioSelector implements NioSelector {
                 } else {
                     workCount += process(selector);
                     workCount += processRead();
-                    idleStrategy.idle(workCount);
                 }
+                idleStrategy.idle(workCount);
             } catch (Throwable t) {
                 logger.warn(
                         "Unexpected exception in the selector loop.", t);
