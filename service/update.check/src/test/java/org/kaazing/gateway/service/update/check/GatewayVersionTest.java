@@ -31,6 +31,10 @@ public class GatewayVersionTest {
     private GatewayVersion low2;
     private GatewayVersion low3;
     private GatewayVersion equal;
+    private GatewayVersion rc1;
+    private GatewayVersion rc2;
+    private GatewayVersion equalrc1;
+
 
     @Before
     public void init() throws Exception {
@@ -42,6 +46,9 @@ public class GatewayVersionTest {
         low2 = parseGatewayVersion("3.0.3");
         low3 = parseGatewayVersion("3.1.2");
         equal = parseGatewayVersion("3.1.3");
+        rc1 = new GatewayVersion(3, 1, 3, "RC001");
+        rc2 = parseGatewayVersion("3.1.3-RC002");
+        equalrc1 = parseGatewayVersion("3.1.3-RC001");
     }
 
     @Test
@@ -54,6 +61,10 @@ public class GatewayVersionTest {
         assertTrue(middle.compareTo(low3) > 0);
         assertTrue(middle.compareTo(equal) == 0);
         assertTrue(middle.compareTo(middle) == 0);
+        assertTrue(rc1.compareTo(middle) < 0);
+        assertTrue(rc2.compareTo(middle) < 0);
+        assertTrue(rc2.compareTo(rc1) > 0);
+        assertTrue(rc2.compareTo(low3) > 0);
     }
 
     @Test
@@ -67,5 +78,6 @@ public class GatewayVersionTest {
         assertFalse(middle.equals(null));
         assertTrue(middle.equals(middle));
         assertTrue(middle.equals(equal));
+        assertTrue(rc1.equals(equalrc1));
     }
 }
