@@ -78,7 +78,7 @@ class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
             TurnRestCredentials credentials = credentialGenerator.generate(subject);
             username = credentials.getUsername();
             password = credentials.getPassword();
-            LOGGER.info(String.format("Generated username: %s, generated password: %s", username, new String(password)));
+            LOGGER.info(String.format("%s Generated username: %s", session, username));
         }
 
         String response = TurnRestJSONResponse.createResponse(username, password, ttl, turnUrls, stunUrls);
