@@ -37,16 +37,17 @@ class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TurnRestServiceHandler.class);
     private TurnRestCredentialsGenerator credentialGenerator;
-    private String turnUrls;
-    private String stunUrls;
+    private String urls;
 
     private String ttl;
 
-    TurnRestServiceHandler(String ttl, TurnRestCredentialsGenerator credentialGenerator, String turnUrls, String stunUrls) {
+    TurnRestServiceHandler(String ttl, TurnRestCredentialsGenerator credentialGenerator,
+            String urls) {
+
         this.ttl = ttl;
         this.credentialGenerator = credentialGenerator;
-        this.turnUrls = turnUrls;
-        this.stunUrls = stunUrls;
+        this.urls = urls;
+
     }
 
     @Override
@@ -81,7 +82,7 @@ class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
             LOGGER.info(String.format("%s Generated username: %s", session, username));
         }
 
-        String response = TurnRestJSONResponse.createResponse(username, password, ttl, turnUrls, stunUrls);
+        String response = TurnRestJSONResponse.createResponse(username, password, ttl, this.urls);
 
         if (password != null) {
             Arrays.fill(password, '0');
