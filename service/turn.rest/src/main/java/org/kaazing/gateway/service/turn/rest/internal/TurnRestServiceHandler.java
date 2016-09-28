@@ -34,16 +34,17 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
     private TurnRestCredentialsGenerator credentialGenerator;
-    private String turnUrls;
-    private String stunUrls;
+    private String urls;
 
     private String ttl;
 
-    TurnRestServiceHandler(String ttl, TurnRestCredentialsGenerator credentialGenerator, String turnUrls, String stunUrls) {
+    TurnRestServiceHandler(String ttl, TurnRestCredentialsGenerator credentialGenerator,
+            String urls) {
+
         this.ttl = ttl;
         this.credentialGenerator = credentialGenerator;
-        this.turnUrls = turnUrls;
-        this.stunUrls = stunUrls;
+        this.urls = urls;
+
     }
 
     @Override
@@ -77,7 +78,7 @@ class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
             password = credentials.getPassword();
         }
 
-        String response = TurnRestJSONResponse.createResponse(username, password, ttl, turnUrls, stunUrls);
+        String response = TurnRestJSONResponse.createResponse(username, password, ttl, this.urls);
 
         if (password != null) {
             Arrays.fill(password, '0');

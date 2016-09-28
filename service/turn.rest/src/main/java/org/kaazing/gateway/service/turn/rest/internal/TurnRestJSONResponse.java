@@ -22,18 +22,12 @@ public final class TurnRestJSONResponse {
     private TurnRestJSONResponse() {
     }
 
-    public static String createResponse(String username, char[] password, String ttl, String turnUrls, String stunUrls) {
+    public static String createResponse(String username, char[] password, String ttl, String urls) {
         String response = "";
         if (username != null && password != null) {
             response = MessageFormat.format("\"username\":\"{0}\",\"credential\":\"{1}\",", username, new String(password));
         }
-        if (stunUrls.length() != 0) {
-            stunUrls = MessageFormat.format("'{'\"urls\":[{0}]'}',", stunUrls);
-        }
-        if (turnUrls.length() != 0) {
-            turnUrls = MessageFormat.format(",\"urls\":[{0}]", turnUrls);
-        }
-        response = MessageFormat.format("[{0}'{'{1}\"ttl\":{2}{3}'}']", stunUrls, response, ttl, turnUrls);
+        response = MessageFormat.format("'{'{0}\"ttl\":{1},\"urls\":[{2}]'}'", response, ttl, urls);
         return response;
     }
 }
