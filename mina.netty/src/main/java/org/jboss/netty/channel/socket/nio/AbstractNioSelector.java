@@ -31,6 +31,7 @@
 package org.jboss.netty.channel.socket.nio;
 
 import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.io.IOException;
 import java.nio.channels.CancelledKeyException;
@@ -64,10 +65,12 @@ abstract class AbstractNioSelector implements NioSelector {
     protected static final Logger PERF_LOGGER = LoggerFactory.getLogger("performance.tcp");
 
     private static final AtomicInteger nextId = new AtomicInteger();
-    protected static final long LATENCY_BEFORE_LOG_PROCESS_SELECT = TimeUnit.MILLISECONDS.toNanos(100);
-    private static final long LATENCY_BEFORE_LOG_TASK = TimeUnit.MILLISECONDS.toNanos(100);
+    protected static final long LATENCY_BEFORE_LOG_PROCESS_SELECT = MILLISECONDS.toNanos(100);
+    private static final long LATENCY_BEFORE_LOG_TASK = MILLISECONDS.toNanos(100);
 
     private final int id = nextId.incrementAndGet();
+    private final IdleStrategy idleStrategy = new BackoffIdleStrategy(50, 50,
+            MILLISECONDS.toNanos(10), MILLISECONDS.toNanos(50));
 
     /**
      * Internal Netty logger.
