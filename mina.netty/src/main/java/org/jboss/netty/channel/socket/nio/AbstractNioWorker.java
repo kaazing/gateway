@@ -96,7 +96,6 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
     private final OneToOneRingBuffer ringBuffer;
     private final Int2ObjectHashMap<Channel> channels;
     private final AtomicBuffer atomicBuffer = new UnsafeBuffer(new byte[0]);
-    private final IdleStrategy idleStrategy = new BackoffIdleStrategy(50, 50, 10000, 20000);
 
     AbstractNioWorker(Executor executor) {
         this(executor, null);
@@ -150,14 +149,15 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
     }
 
     @Override
-    protected void process(Selector selector) throws IOException {
+    protected int process(Selector selector) throws IOException {
         Set<SelectionKey> selectedKeys = selector.selectedKeys();
         // check if the set is empty and if so just return to not create garbage by
         // creating a new Iterator every time even if there is nothing to process.
         // See https://github.com/netty/netty/issues/597
         if (selectedKeys.isEmpty()) {
-            return;
+            return 0;
         }
+        int workCount = selectedKeys.size();
         boolean perfLogEnabled = PERF_LOGGER.isDebugEnabled();
         long startProcess = perfLogEnabled ? System.nanoTime() : 0;
         long numReads = 0;
@@ -193,6 +193,7 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
                         TimeUnit.NANOSECONDS.toMillis(totalTime), numReads, numWrites));
             }
         }
+        return workCount;
     }
 
     void writeFromUserCode(final AbstractNioChannel<?> channel) {
@@ -673,13 +674,11 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
         }
     }
 
-    protected void processRead() throws IOException {
+    protected int processRead() throws IOException {
         if (ringBuffer == null) {
-            return;
+            return 0;
         }
-        int workCount = ringBuffer.read(this::handleRead);
-
-        idleStrategy.idle(workCount);
+        return ringBuffer.read(this::handleRead);
     }
 
     private void handleRead(int msgTypeId, DirectBuffer buffer, int index, int length) {

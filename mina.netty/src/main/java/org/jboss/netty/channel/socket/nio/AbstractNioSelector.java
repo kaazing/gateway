@@ -243,6 +243,7 @@ abstract class AbstractNioSelector implements NioSelector {
             wakenUp.set(false);
 
             try {
+                int workCount = 0;
                 long beforeSelect = System.nanoTime();
                 int selected = select(selector, quickSelect);
                 if (SelectorUtil.EPOLL_BUG_WORKAROUND && selected == 0 && !wakenupFromLoop && !wakenUp.get()) {
@@ -330,10 +331,10 @@ abstract class AbstractNioSelector implements NioSelector {
                 cancelledKeys = 0;
                 if (maximumProcessTaskQueueNanos > 0) {
                     long deadlineNanos = System.nanoTime() + maximumProcessTaskQueueNanos;
-                    quickSelect = processTaskQueue(deadlineNanos);
+                    workCount += processTaskQueue(deadlineNanos);
                 }
                 else {
-                    processTaskQueue();
+                    workCount += processTaskQueue();
                 }
                 selector = this.selector; // processTaskQueue() can call rebuildSelector()
 
@@ -341,7 +342,7 @@ abstract class AbstractNioSelector implements NioSelector {
                     this.selector = null;
 
                     // process one time again
-                    processTaskQueue();
+                    workCount += processTaskQueue();
 
                     for (SelectionKey k: selector.keys()) {
                         close(k);
@@ -356,9 +357,10 @@ abstract class AbstractNioSelector implements NioSelector {
                     shutdownLatch.countDown();
                     break;
                 } else {
-                    process(selector);
-                    processRead();
+                    workCount += process(selector);
+                    workCount += processRead();
                 }
+                idleStrategy.idle(workCount);
             } catch (Throwable t) {
                 logger.warn(
                         "Unexpected exception in the selector loop.", t);
@@ -406,13 +408,15 @@ abstract class AbstractNioSelector implements NioSelector {
         assert selector != null && selector.isOpen();
     }
 
-    protected void processTaskQueue() {
+    protected int processTaskQueue() {
+        int workCount = 0;
         for (;;) {
             final Runnable task = taskQueue.poll();
             if (task == null) {
                 break;
             }
             task.run();
+            workCount++;
 
             try {
                 cleanUpCancelledKeys();
@@ -420,17 +424,16 @@ abstract class AbstractNioSelector implements NioSelector {
                 // Ignore
             }
         }
+        return workCount;
     }
 
-    private boolean processTaskQueue(long deadLineNanos) {
-        long numTasks = 0;
+    private int processTaskQueue(long deadLineNanos) {
+        int numTasks = 0;
         boolean perfLogEnabled = PERF_LOGGER.isInfoEnabled();
         long startTime = perfLogEnabled ? System.nanoTime() : 0;
-        boolean quickSelect;
         for (;;) {
             final Runnable task = taskQueue.poll();
             if (task == null) {
-                quickSelect = false;
                 break;
             }
             numTasks++;
@@ -452,11 +455,10 @@ abstract class AbstractNioSelector implements NioSelector {
                     }
                 }
                 // Make sure select in run() loop is no wait or short since we still have tasks to do
-                quickSelect = true;
                 break;
             }
         }
-        return quickSelect;
+        return numTasks;
     }
 
     protected final void increaseCancelledKeys() {
@@ -491,10 +493,12 @@ abstract class AbstractNioSelector implements NioSelector {
         }
     }
 
-    protected abstract void process(Selector selector) throws IOException;
+    // returns work count
+    protected abstract int process(Selector selector) throws IOException;
 
-    protected void processRead() throws IOException {
-
+    // returns work count
+    protected int processRead() throws IOException {
+        return 0;
     }
 
     protected int select(Selector selector, boolean quickSelect) throws IOException {
@@ -502,7 +506,7 @@ abstract class AbstractNioSelector implements NioSelector {
     }
 
     protected int select(Selector selector) throws IOException {
-        return SelectorUtil.select(selector);
+        return SelectorUtil.select(selector, 0L);
     }
 
     protected abstract void close(SelectionKey k);
