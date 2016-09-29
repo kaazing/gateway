@@ -224,7 +224,7 @@ public class NioWorker extends AbstractNioWorker {
                 }
 
                 channel.channel.register(
-                        selector, channel.getRawInterestOps(), new TcpReadDispatcher(channel));
+                        selector, channel.getInternalInterestOps(), new TcpReadDispatcher(channel));
 
                 if (future != null) {
                     channel.setConnected();
