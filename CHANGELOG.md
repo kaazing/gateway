@@ -17,6 +17,25 @@
 - Fixed typo in early access feature description [\#704](https://github.com/kaazing/gateway/pull/704) ([dpwspoon](https://github.com/dpwspoon))
 - Changed turn.rest json response to include stun URLs [\#701](https://github.com/kaazing/gateway/pull/701) ([mgherghe](https://github.com/mgherghe))
 
+## [5.2.3](https://github.com/kaazing/gateway/tree/5.2.3) (2016-09-20)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.3-RC003...5.2.3)
+
+## [5.2.3-RC003](https://github.com/kaazing/gateway/tree/5.2.3-RC003) (2016-09-20)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.2...5.2.3-RC003)
+
+**Fixed bugs:**
+
+- WSN Connector: Connection should fail when the negotiated extension is not in the list of supported extensions [\#314](https://github.com/kaazing/gateway/issues/314)
+- WSN Connector: Missing Sec-WebSocket-Extensions header in the handshake request [\#309](https://github.com/kaazing/gateway/issues/309)
+
+**Merged pull requests:**
+
+- add getter for GatewayConfigurationDocument: [\#708](https://github.com/kaazing/gateway/pull/708) ([dpwspoon](https://github.com/dpwspoon))
+- Update test.Gateway to allow fetching of generated xml configuration [\#707](https://github.com/kaazing/gateway/pull/707) ([danibusu](https://github.com/danibusu))
+- WebSocket extensions decide whether to be part of handshake or not [\#705](https://github.com/kaazing/gateway/pull/705) ([jitsni](https://github.com/jitsni))
+- Fixed typo in early access feature description [\#704](https://github.com/kaazing/gateway/pull/704) ([dpwspoon](https://github.com/dpwspoon))
+- Changed turn.rest json response to include stun URLs [\#701](https://github.com/kaazing/gateway/pull/701) ([mgherghe](https://github.com/mgherghe))
+
 ## [5.2.2](https://github.com/kaazing/gateway/tree/5.2.2) (2016-09-09)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.2.1...5.2.2)
 
