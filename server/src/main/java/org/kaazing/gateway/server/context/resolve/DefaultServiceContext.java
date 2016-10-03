@@ -735,13 +735,23 @@ public class DefaultServiceContext implements ServiceContext {
                 // TCP
                 for (String optionPattern : asList("tcp.%s")) {
                     // NO REALM_NAME as this will be an accept/connect option
-                    options.put(format(optionPattern, LOGIN_CONTEXT_FACTORY),
-                            serviceRealmContext.getLoginContextFactory());
+                    String tcpRealmOptionName = format(optionPattern, REALM_NAME);
+                    String tcpRealmName = (String) options.get(tcpRealmOptionName);
+                    if (tcpRealmName != null) {
+                        // check if it's the same as the configured realm
+                        if (!serviceRealmContext.getName().equals(tcpRealmName)) {
+                            logger.error("{} configuration error: {} needs to be set to the same value as the configured realm",
+                                    serviceName, tcpRealmOptionName);
+                            throw new IllegalArgumentException(
+                                    tcpRealmOptionName + " needs to be the same as the configured realm");
+                        }
+                        options.put(format(optionPattern, LOGIN_CONTEXT_FACTORY), serviceRealmContext.getLoginContextFactory());
 //                    initial support will just be authenticate or not
 //                    options.put(format(optionPattern, REQUIRED_ROLES),
 //                            getRequireRoles());
 //                    options.put(format(optionPattern, REALM_USER_PRINCIPAL_CLASSES.name()),
 //                            getUserPrincipalClasses(serviceRealmContext.getUserPrincipalClasses()));
+                    }
                 }
 
                 // TODO: eliminate forceNativeChallengeScheme by locking down authentication schemes for "directory" service

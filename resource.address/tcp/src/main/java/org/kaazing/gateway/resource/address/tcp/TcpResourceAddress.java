@@ -41,6 +41,8 @@ public final class TcpResourceAddress extends ResourceAddress {
 
     private InetSocketAddress bindAddress;
     private long maximumOutboundRate = MAXIMUM_OUTBOUND_RATE.defaultValue();
+    private String realmName;
+    private LoginContextFactory loginContextFactory;
 
     TcpResourceAddress(ResourceAddressFactorySpi factory, String original, URI resource) {
         super(factory, original, resource);
@@ -52,10 +54,14 @@ public final class TcpResourceAddress extends ResourceAddress {
         if (option instanceof TcpResourceOption) {
             TcpResourceOption tcpOption = (TcpResourceOption) option;
             switch (tcpOption.kind) {
-            case BIND_ADDRESS:
-                return (V) bindAddress;
-            case MAXIMUM_OUTBOUND_RATE:
-                return (V) valueOf(maximumOutboundRate);
+                case BIND_ADDRESS:
+                    return (V) bindAddress;
+                case MAXIMUM_OUTBOUND_RATE:
+                    return (V) valueOf(maximumOutboundRate);
+                case REALM_NAME:
+                    return (V) realmName;
+                case LOGIN_CONTEXT_FACTORY:
+                    return (V) loginContextFactory;
             }
         }
 
@@ -67,12 +73,18 @@ public final class TcpResourceAddress extends ResourceAddress {
         if (option instanceof TcpResourceOption) {
             TcpResourceOption tcpOption = (TcpResourceOption) option;
             switch (tcpOption.kind) {
-            case BIND_ADDRESS:
-                bindAddress = (InetSocketAddress) value;
-                return;
-            case MAXIMUM_OUTBOUND_RATE:
-                maximumOutboundRate = (Long) value;
-                return;
+                case BIND_ADDRESS:
+                    bindAddress = (InetSocketAddress) value;
+                    return;
+                case MAXIMUM_OUTBOUND_RATE:
+                    maximumOutboundRate = (Long) value;
+                    return;
+                case REALM_NAME:
+                    realmName = (String) value;
+                    return;
+                case LOGIN_CONTEXT_FACTORY:
+                    loginContextFactory = (LoginContextFactory) value;
+                    return;
             }
         }
 

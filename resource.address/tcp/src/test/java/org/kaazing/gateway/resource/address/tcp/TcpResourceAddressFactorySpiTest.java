@@ -55,7 +55,6 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.resource.address.NameResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.TcpResourceOption;
 import org.kaazing.gateway.security.LoginContextFactory;
 import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 import org.kaazing.test.util.ResolutionTestUtils;
@@ -158,6 +157,8 @@ public class TcpResourceAddressFactorySpiTest {
         assertNull(address.getOption(QUALIFIER));
         assertNull(address.getOption(BIND_ADDRESS));
         assertEquals(0xFFFFFFFFL, address.getOption(MAXIMUM_OUTBOUND_RATE).longValue());
+        assertNull(address.getOption(REALM_NAME));
+        assertNull(address.getOption(LOGIN_CONTEXT_FACTORY));
     }
 
     @Test
