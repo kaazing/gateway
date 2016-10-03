@@ -157,11 +157,6 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
         result.put("ws[ws/rfc6455].ws[ws/rfc6455].inactivityTimeout", wsInactivityTimeout);
         result.put("ws[ws/draft-7x].ws[ws/draft-7x].inactivityTimeout", wsInactivityTimeout);
 
-        List<String> wsExtensions = getWsExtensions(wsInactivityTimeout);
-        result.put("ws.extensions", wsExtensions);
-        result.put("ws[ws/rfc6455].ws[ws/rfc6455].extensions", wsExtensions);
-        result.put("ws[ws/draft-7x].ws[ws/draft-7x].extensions", wsExtensions);
-
         int wsMaxMessageSize = getWsMaximumMessageSize(optionsCopy.remove("ws.maximum.message.size"));
         result.put("ws.maxMessageSize", wsMaxMessageSize);
         result.put("ws[ws/rfc6455].ws[ws/rfc6455].maxMessageSize", wsMaxMessageSize);

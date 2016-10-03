@@ -96,7 +96,6 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
     private final OneToOneRingBuffer ringBuffer;
     private final Int2ObjectHashMap<Channel> channels;
     private final AtomicBuffer atomicBuffer = new UnsafeBuffer(new byte[0]);
-    private final IdleStrategy idleStrategy = new BackoffIdleStrategy(50, 50, 10000, 20000);
 
     AbstractNioWorker(Executor executor) {
         this(executor, null);
@@ -150,14 +149,15 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
     }
 
     @Override
-    protected void process(Selector selector) throws IOException {
+    protected int process(Selector selector) throws IOException {
         Set<SelectionKey> selectedKeys = selector.selectedKeys();
         // check if the set is empty and if so just return to not create garbage by
         // creating a new Iterator every time even if there is nothing to process.
         // See https://github.com/netty/netty/issues/597
         if (selectedKeys.isEmpty()) {
-            return;
+            return 0;
         }
+        int workCount = selectedKeys.size();
         boolean perfLogEnabled = PERF_LOGGER.isDebugEnabled();
         long startProcess = perfLogEnabled ? System.nanoTime() : 0;
         long numReads = 0;
@@ -193,6 +193,7 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
                         TimeUnit.NANOSECONDS.toMillis(totalTime), numReads, numWrites));
             }
         }
+        return workCount;
     }
 
     void writeFromUserCode(final AbstractNioChannel<?> channel) {
@@ -394,11 +395,11 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
             return;
         }
 
-        int interestOps = channel.getRawInterestOps();
+        int interestOps = channel.getInternalInterestOps();
         if ((interestOps & SelectionKey.OP_WRITE) == 0) {
             interestOps |= SelectionKey.OP_WRITE;
             key.interestOps(interestOps);
-            channel.setRawInterestOpsNow(interestOps);
+            channel.setInternalInterestOps(interestOps);
         }
     }
 
@@ -413,11 +414,11 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
             return;
         }
 
-        int interestOps = channel.getRawInterestOps();
+        int interestOps = channel.getInternalInterestOps();
         if ((interestOps & SelectionKey.OP_WRITE) != 0) {
             interestOps &= ~SelectionKey.OP_WRITE;
             key.interestOps(interestOps);
-            channel.setRawInterestOpsNow(interestOps);
+            channel.setInternalInterestOps(interestOps);
         }
     }
 
@@ -542,16 +543,16 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
             SelectionKey key = channel.channel.keyFor(selector);
 
             // Override OP_WRITE flag - a user cannot change this flag.
-            int newInterestOps = interestOps & ~Channel.OP_WRITE | channel.getRawInterestOps() & Channel.OP_WRITE;
+            int newInterestOps = interestOps & ~Channel.OP_WRITE | channel.getInternalInterestOps() & Channel.OP_WRITE;
 
             if (key == null || selector == null) {
-                if (channel.getRawInterestOps() != newInterestOps) {
+                if (channel.getInternalInterestOps() != newInterestOps) {
                     changed = true;
                 }
 
                 // Not registered to the worker yet.
                 // Set the rawInterestOps immediately; RegisterTask will pick it up.
-                channel.setRawInterestOpsNow(newInterestOps);
+                channel.setInternalInterestOps(newInterestOps);
 
                 future.setSuccess();
                 if (changed) {
@@ -565,14 +566,14 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
                 return;
             }
 
-            if (channel.getRawInterestOps() != newInterestOps) {
+            if (channel.getInternalInterestOps() != newInterestOps) {
                 changed = true;
                 key.interestOps(newInterestOps);
                 if (Thread.currentThread() != thread &&
                     wakenUp.compareAndSet(false, true)) {
                     selector.wakeup();
                 }
-                channel.setRawInterestOpsNow(newInterestOps);
+                channel.setInternalInterestOps(newInterestOps);
             }
 
             future.setSuccess();
@@ -645,13 +646,13 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
 
                     // ensure channel.writeSuspended cannot remain true due to race
                     // note: setOpWrite is a no-op before selectionKey is registered w/ selector
-                    int rawInterestOps = channel.getRawInterestOps();
-                    rawInterestOps |= SelectionKey.OP_WRITE;
-                    channel.setRawInterestOpsNow(rawInterestOps);
+                    int interestOps = channel.getInternalInterestOps();
+                    interestOps |= SelectionKey.OP_WRITE;
+                    channel.setInternalInterestOps(interestOps);
                     ReadDispatcher readDispatcher = channel instanceof NioSocketChannel
                             ? new TcpReadDispatcher((NioSocketChannel) channel)
                             : new UdpReadDispatcher((NioDatagramChannel) channel);
-                    channel.channel.register(selector, rawInterestOps, readDispatcher);
+                    channel.channel.register(selector, interestOps, readDispatcher);
                 }
                 catch (ClosedChannelException e) {
                     close(channel, succeededFuture(channel));
@@ -673,13 +674,11 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
         }
     }
 
-    protected void processRead() throws IOException {
+    protected int processRead() throws IOException {
         if (ringBuffer == null) {
-            return;
+            return 0;
         }
-        int workCount = ringBuffer.read(this::handleRead);
-
-        idleStrategy.idle(workCount);
+        return ringBuffer.read(this::handleRead);
     }
 
     private void handleRead(int msgTypeId, DirectBuffer buffer, int index, int length) {

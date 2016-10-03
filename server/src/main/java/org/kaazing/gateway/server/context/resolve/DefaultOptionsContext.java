@@ -22,10 +22,7 @@ import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.format;
@@ -38,18 +35,7 @@ class DefaultOptionsContext {
     private static final int DEFAULT_HTTP_KEEPALIVE_TIMEOUT = 30; //seconds
     private static final long UNLIMITED_MAX_OUTPUT_RATE = 0xFFFFFFFFL;
     private static final long DEFAULT_TCP_MAXIMUM_OUTBOUND_RATE = UNLIMITED_MAX_OUTPUT_RATE; //unlimited
-
-    private static final String PING_PONG = "x-kaazing-ping-pong";
-    private static final String IDLE_TIMEOUT = "x-kaazing-idle-timeout";
     private static final long DEFAULT_WS_INACTIVITY_TIMEOUT_MILLIS = 0L;
-
-    private static final List<String> DEFAULT_WEBSOCKET_EXTENSIONS;
-
-    static {
-        // Note: including null in these arrays permits us to process no protocols/extensions
-        // without throwing an exception.
-        DEFAULT_WEBSOCKET_EXTENSIONS = Arrays.asList(PING_PONG, null);
-    }
 
     static String resolveInternalBindOptionName(String externalBindOptionName) {
         switch (externalBindOptionName) {
@@ -115,18 +101,6 @@ class DefaultOptionsContext {
         }
 
         return transportURI;
-    }
-
-    static List<String> getWsExtensions(long wsInactivityTimeout) {
-        List<String> wsExtensions;
-        if (wsInactivityTimeout > 0) {
-            ArrayList<String> extensions = new ArrayList<>(DEFAULT_WEBSOCKET_EXTENSIONS);
-            extensions.add(IDLE_TIMEOUT);
-            wsExtensions = extensions;
-        } else {
-            wsExtensions = DEFAULT_WEBSOCKET_EXTENSIONS;
-        }
-        return wsExtensions;
     }
 
     static int getWsMaximumMessageSize(String wsMaxMessageSizeValue) {
