@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.*;
-import javax.security.auth.login.FailedLoginException;
+import javax.security.auth.login.FailedLoginException+
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
@@ -56,7 +56,7 @@ public class ExpiringTokenCustomLoginModule implements LoginModule {
     private DefaultUserConfig defaultPrincipal = new DefaultUserConfig();
 
     private ExpiringState expiringState;
-
+""
     // initial state
     protected Subject subject;
     private Map<String, ?> sharedState;
