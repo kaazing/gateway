@@ -1,21 +1,39 @@
-## [5.2.3](https://github.com/kaazing/gateway/tree/5.2.3) (2016-09-20)
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.3-RC003...5.2.3)
+# Change Log
 
-## [5.2.3-RC003](https://github.com/kaazing/gateway/tree/5.2.3-RC003) (2016-09-20)
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.2...5.2.3-RC003)
+## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-**Fixed bugs:**
-
-- WSN Connector: Connection should fail when the negotiated extension is not in the list of supported extensions [\#314](https://github.com/kaazing/gateway/issues/314)
-- WSN Connector: Missing Sec-WebSocket-Extensions header in the handshake request [\#309](https://github.com/kaazing/gateway/issues/309)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.4...HEAD)
 
 **Merged pull requests:**
 
-- add getter for GatewayConfigurationDocument: [\#708](https://github.com/kaazing/gateway/pull/708) ([dpwspoon](https://github.com/dpwspoon))
-- Update test.Gateway to allow fetching of generated xml configuration [\#707](https://github.com/kaazing/gateway/pull/707) ([danibusu](https://github.com/danibusu))
-- WebSocket extensions decide whether to be part of handshake or not [\#705](https://github.com/kaazing/gateway/pull/705) ([jitsni](https://github.com/jitsni))
-- Fixed typo in early access feature description [\#704](https://github.com/kaazing/gateway/pull/704) ([dpwspoon](https://github.com/dpwspoon))
-- Changed turn.rest json response to include stun URLs [\#701](https://github.com/kaazing/gateway/pull/701) ([mgherghe](https://github.com/mgherghe))
+- Selector.selectNow is triggered by passing timeout=0L [\#728](https://github.com/kaazing/gateway/pull/728) ([jitsni](https://github.com/jitsni))
+
+## [5.2.4](https://github.com/kaazing/gateway/tree/5.2.4) (2016-10-03)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.4-RC003...5.2.4)
+
+## [5.2.4-RC003](https://github.com/kaazing/gateway/tree/5.2.4-RC003) (2016-10-03)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.3...5.2.4-RC003)
+
+**Fixed bugs:**
+
+- RC releases: Gateway fails to start up due to error in Update service concerning version format [\#715](https://github.com/kaazing/gateway/issues/715)
+
+**Merged pull requests:**
+
+- Configure Agrona's buffer size for udp child channels [\#726](https://github.com/kaazing/gateway/pull/726) ([jitsni](https://github.com/jitsni))
+- Release 5.2.4 branch merge [\#725](https://github.com/kaazing/gateway/pull/725) ([jitsni](https://github.com/jitsni))
+- Syncing netty changes w.r.t interestops [\#724](https://github.com/kaazing/gateway/pull/724) ([jitsni](https://github.com/jitsni))
+- Set UDP receive buffer size to 2048 [\#723](https://github.com/kaazing/gateway/pull/723) ([dpwspoon](https://github.com/dpwspoon))
+- Revert "Changed turn.rest json response to include stun URLs" [\#722](https://github.com/kaazing/gateway/pull/722) ([dpwspoon](https://github.com/dpwspoon))
+- Revert "Changed turn.rest json response to include stun URLs" [\#721](https://github.com/kaazing/gateway/pull/721) ([dpwspoon](https://github.com/dpwspoon))
+- Fixing IdleStrategy compilation issue [\#720](https://github.com/kaazing/gateway/pull/720) ([jitsni](https://github.com/jitsni))
+- Parking the thread for 10mills instead of 10micros [\#719](https://github.com/kaazing/gateway/pull/719) ([jitsni](https://github.com/jitsni))
+- Bugfix/870 update parent [\#717](https://github.com/kaazing/gateway/pull/717) ([ahousing](https://github.com/ahousing))
+- Add support for release candidates. [\#716](https://github.com/kaazing/gateway/pull/716) ([Anisotrop](https://github.com/Anisotrop))
+- Added annotation for the turn.rest service in xsd file [\#714](https://github.com/kaazing/gateway/pull/714) ([mgherghe](https://github.com/mgherghe))
+- Turn Proxy - Unify Logging Output [\#713](https://github.com/kaazing/gateway/pull/713) ([mgherghe](https://github.com/mgherghe))
+- Added maximum.redirects to accept/connect options [\#712](https://github.com/kaazing/gateway/pull/712) ([dpwspoon](https://github.com/dpwspoon))
+- Worker threads are going to PARK state unnecessarily [\#711](https://github.com/kaazing/gateway/pull/711) ([jitsni](https://github.com/jitsni))
 
 ## [5.2.3](https://github.com/kaazing/gateway/tree/5.2.3) (2016-09-20)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.2.3-RC003...5.2.3)
