@@ -53,7 +53,7 @@ import org.kaazing.test.util.ResolutionTestUtils;
 public class UdpAcceptorIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/udp/rfc768");
-    
+
     private final UdpAcceptorRule acceptor;
     {
         Properties config = new Properties();
@@ -66,9 +66,9 @@ public class UdpAcceptorIT {
 
     @Parameters
     public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][] {     
-                {"udp://127.0.0.1:8080"}//, {"udp://[@" + networkInterface + "]:8080"}
-           });
+        return Arrays.asList(new Object[][]{
+            {"udp://127.0.0.1:8080"}// , {"udp://[@" + networkInterface + "]:8080"}
+        });
     }
 
     @Parameter
@@ -151,7 +151,7 @@ public class UdpAcceptorIT {
     @Test
     @Specification("echo.data/client")
     public void bidirectionalData() throws Exception {
-        bindTo8080(new IoHandlerAdapter<IoSessionEx>(){
+        bindTo8080(new IoHandlerAdapter<IoSessionEx>() {
             private boolean first = true;
 
             @Override
@@ -167,7 +167,6 @@ public class UdpAcceptorIT {
                 }
             }
         });
-
 
         k3po.finish();
     }
@@ -259,4 +258,32 @@ public class UdpAcceptorIT {
         k3po.finish();
     }
 
+    @Test
+    @Specification("additions/large.message.size/client")
+    public void largeData() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+
+        bindTo8080(new IoHandlerAdapter<IoSessionEx>() {
+            @Override
+            protected void doMessageReceived(IoSessionEx session, Object message) {
+                String decoded = new String(((IoBuffer) message).array());
+                System.out.println(decoded);
+                String expect = nTimes("abcdefghijklmnopqrstuvwxyz", 57);
+                assertEquals(expect, decoded);
+                latch.countDown();
+            }
+
+        });
+        k3po.finish();
+
+        latch.await(2, SECONDS);
+    }
+
+    private static String nTimes(String string, int n) {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < n; i++) {
+            result.append(string);
+        }
+        return result.toString();
+    }
 }

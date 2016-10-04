@@ -67,13 +67,12 @@ public class TurnRestService implements Service {
         EarlyAccessFeatures.TURN_REST_SERVICE.assertEnabled(getConfiguration(), serviceContext.getLogger());
         ServiceProperties properties = serviceContext.getProperties();
 
-        String turnUrls = getUrls(properties, "turn");
-        String stunUrls = getUrls(properties, "stun");
+        String urls = getTurnURLs(properties);
         TurnRestCredentialsGenerator credentialGeneratorInstance = setUpCredentialsGenerator(properties);
 
         String ttl = properties.get("credentials.ttl") != null ? properties.get("credentials.ttl") : DEFAULT_CREDENTIALS_TTL;
         handler = new TurnRestServiceHandler(Long.toString(Utils.parseTimeInterval(ttl, TimeUnit.SECONDS, 0)),
-                        credentialGeneratorInstance, turnUrls, stunUrls);
+                        credentialGeneratorInstance, urls);
     }
 
     private TurnRestCredentialsGenerator setUpCredentialsGenerator(ServiceProperties properties)
@@ -91,17 +90,13 @@ public class TurnRestService implements Service {
         return credentialGeneratorInstance;
     }
 
-    private String getUrls(ServiceProperties properties, String protocolName) {
-        StringBuilder urls = new StringBuilder();
+    private String getTurnURLs(ServiceProperties properties) {
+        StringBuilder u = new StringBuilder();
         for (String url : properties.get("url").split(LIST_SEPARATOR)) {
-            if (url.toLowerCase().startsWith(protocolName)) {
-                urls.append("\"").append(url).append("\",");
-            }
+            u.append("\"").append(url).append("\",");
         }
-        if (urls.length() != 0) {
-            urls.setLength(urls.length() - 1);
-        }
-        return urls.toString();
+        u.setLength(u.length() - 1);
+        return u.toString();
     }
 
     private Key resolveSharedSecret(ServiceProperties properties) {

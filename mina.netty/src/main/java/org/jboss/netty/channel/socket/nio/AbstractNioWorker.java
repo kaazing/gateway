@@ -42,6 +42,7 @@ import static org.jboss.netty.channel.Channels.fireExceptionCaught;
 import static org.jboss.netty.channel.Channels.fireExceptionCaughtLater;
 import static org.jboss.netty.channel.Channels.fireWriteCompleteLater;
 import static org.jboss.netty.channel.Channels.succeededFuture;
+import static org.kaazing.mina.netty.config.InternalSystemProperty.UDP_CHANNEL_BUFFER_SIZE;
 import static uk.co.real_logic.agrona.concurrent.ringbuffer.RingBufferDescriptor.TRAILER_LENGTH;
 
 import java.io.IOException;
@@ -81,13 +82,14 @@ import org.kaazing.mina.netty.channel.DefaultWriteCompletionEventEx;
 import uk.co.real_logic.agrona.DirectBuffer;
 import uk.co.real_logic.agrona.collections.Int2ObjectHashMap;
 import uk.co.real_logic.agrona.concurrent.AtomicBuffer;
-import uk.co.real_logic.agrona.concurrent.BackoffIdleStrategy;
-import uk.co.real_logic.agrona.concurrent.IdleStrategy;
 import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 import uk.co.real_logic.agrona.concurrent.ringbuffer.OneToOneRingBuffer;
 
 public abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
     private static final InternalLogger LOGGER = InternalLoggerFactory.getInstance(AbstractNioWorker.class);
+
+    private final int UDP_CHANNEL_BUFFER_SIZE_PER_WORKER
+            = UDP_CHANNEL_BUFFER_SIZE.getIntProperty(System.getProperties());
 
     protected final SocketReceiveBufferAllocator recvBufferPool = new SocketReceiveBufferAllocator();
     protected final SocketSendBufferPool sendBufferPool = new SocketSendBufferPool();
@@ -103,7 +105,7 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
 
     AbstractNioWorker(Executor executor, ThreadNameDeterminer determiner) {
         super(executor, determiner);
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect((16 * 1024) + TRAILER_LENGTH);
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(UDP_CHANNEL_BUFFER_SIZE_PER_WORKER + TRAILER_LENGTH);
         ringBuffer = new OneToOneRingBuffer(new UnsafeBuffer(byteBuffer));
         channels = new Int2ObjectHashMap<>();
     }
@@ -395,11 +397,11 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
             return;
         }
 
-        int interestOps = channel.getRawInterestOps();
+        int interestOps = channel.getInternalInterestOps();
         if ((interestOps & SelectionKey.OP_WRITE) == 0) {
             interestOps |= SelectionKey.OP_WRITE;
             key.interestOps(interestOps);
-            channel.setRawInterestOpsNow(interestOps);
+            channel.setInternalInterestOps(interestOps);
         }
     }
 
@@ -414,11 +416,11 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
             return;
         }
 
-        int interestOps = channel.getRawInterestOps();
+        int interestOps = channel.getInternalInterestOps();
         if ((interestOps & SelectionKey.OP_WRITE) != 0) {
             interestOps &= ~SelectionKey.OP_WRITE;
             key.interestOps(interestOps);
-            channel.setRawInterestOpsNow(interestOps);
+            channel.setInternalInterestOps(interestOps);
         }
     }
 
@@ -543,16 +545,16 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
             SelectionKey key = channel.channel.keyFor(selector);
 
             // Override OP_WRITE flag - a user cannot change this flag.
-            int newInterestOps = interestOps & ~Channel.OP_WRITE | channel.getRawInterestOps() & Channel.OP_WRITE;
+            int newInterestOps = interestOps & ~Channel.OP_WRITE | channel.getInternalInterestOps() & Channel.OP_WRITE;
 
             if (key == null || selector == null) {
-                if (channel.getRawInterestOps() != newInterestOps) {
+                if (channel.getInternalInterestOps() != newInterestOps) {
                     changed = true;
                 }
 
                 // Not registered to the worker yet.
                 // Set the rawInterestOps immediately; RegisterTask will pick it up.
-                channel.setRawInterestOpsNow(newInterestOps);
+                channel.setInternalInterestOps(newInterestOps);
 
                 future.setSuccess();
                 if (changed) {
@@ -566,14 +568,14 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
                 return;
             }
 
-            if (channel.getRawInterestOps() != newInterestOps) {
+            if (channel.getInternalInterestOps() != newInterestOps) {
                 changed = true;
                 key.interestOps(newInterestOps);
                 if (Thread.currentThread() != thread &&
                     wakenUp.compareAndSet(false, true)) {
                     selector.wakeup();
                 }
-                channel.setRawInterestOpsNow(newInterestOps);
+                channel.setInternalInterestOps(newInterestOps);
             }
 
             future.setSuccess();
@@ -646,13 +648,13 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
 
                     // ensure channel.writeSuspended cannot remain true due to race
                     // note: setOpWrite is a no-op before selectionKey is registered w/ selector
-                    int rawInterestOps = channel.getRawInterestOps();
-                    rawInterestOps |= SelectionKey.OP_WRITE;
-                    channel.setRawInterestOpsNow(rawInterestOps);
+                    int interestOps = channel.getInternalInterestOps();
+                    interestOps |= SelectionKey.OP_WRITE;
+                    channel.setInternalInterestOps(interestOps);
                     ReadDispatcher readDispatcher = channel instanceof NioSocketChannel
                             ? new TcpReadDispatcher((NioSocketChannel) channel)
                             : new UdpReadDispatcher((NioDatagramChannel) channel);
-                    channel.channel.register(selector, rawInterestOps, readDispatcher);
+                    channel.channel.register(selector, interestOps, readDispatcher);
                 }
                 catch (ClosedChannelException e) {
                     close(channel, succeededFuture(channel));
