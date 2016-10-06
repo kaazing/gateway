@@ -116,6 +116,7 @@ public class DefaultServiceContext implements ServiceContext {
     private static final String REALM_CHALLENGE_SCHEME = "realmChallengeScheme";
     private static final String REALM_DESCRIPTION = "realmDescription";
     private static final String REALM_NAME = "realmName";
+    private static final String REALM = "realm";
     private static final String REQUIRED_ROLES = "requiredRoles";
     private static final String SERVICE_DOMAIN = "serviceDomain";
     private static final String TEMP_DIRECTORY = "tempDirectory";
@@ -735,7 +736,7 @@ public class DefaultServiceContext implements ServiceContext {
                 // TCP
                 for (String optionPattern : asList("tcp.%s")) {
                     // NO REALM_NAME as this will be an accept/connect option
-                    String tcpRealmOptionName = format(optionPattern, REALM_NAME);
+                    String tcpRealmOptionName = format(optionPattern, REALM);
                     String tcpRealmName = (String) options.get(tcpRealmOptionName);
                     if (tcpRealmName != null) {
                         // check if it's the same as the configured realm
