@@ -30,7 +30,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.BIND_ADDRESS;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.LOGIN_CONTEXT_FACTORY;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.MAXIMUM_OUTBOUND_RATE;
-import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.REALM_NAME;
+import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.REALM;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -96,8 +96,8 @@ public class TcpResourceAddressFactorySpiTest {
         options.put("tcp.maximumOutboundRate", 534L);
         options.put("tcp.qualifier", "random");
         options.put("tcp.bind", new InetSocketAddress(2222));
-        options.put("tcp.realmName", "demo");
-        options.put("tcp.loginContextFactory", loginContextFactory);
+        options.put(REALM.name(), "demo");
+        options.put(LOGIN_CONTEXT_FACTORY.name(), loginContextFactory);
     }
 
     @Test
@@ -157,7 +157,7 @@ public class TcpResourceAddressFactorySpiTest {
         assertNull(address.getOption(QUALIFIER));
         assertNull(address.getOption(BIND_ADDRESS));
         assertEquals(0xFFFFFFFFL, address.getOption(MAXIMUM_OUTBOUND_RATE).longValue());
-        assertNull(address.getOption(REALM_NAME));
+        assertNull(address.getOption(REALM));
         assertNull(address.getOption(LOGIN_CONTEXT_FACTORY));
     }
 
@@ -168,7 +168,7 @@ public class TcpResourceAddressFactorySpiTest {
         assertEquals("random", address.getOption(QUALIFIER));
         assertEquals(new InetSocketAddress(2222), address.getOption(BIND_ADDRESS));
         assertEquals(534L, address.getOption(MAXIMUM_OUTBOUND_RATE).longValue());
-        assertEquals("demo", address.getOption(REALM_NAME));
+        assertEquals("demo", address.getOption(REALM));
         assertEquals(loginContextFactory, address.getOption(LOGIN_CONTEXT_FACTORY));
     }
 

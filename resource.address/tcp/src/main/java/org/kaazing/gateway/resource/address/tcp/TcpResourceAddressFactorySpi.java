@@ -21,7 +21,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.BIND_ADDRESS;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.LOGIN_CONTEXT_FACTORY;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.MAXIMUM_OUTBOUND_RATE;
-import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.REALM_NAME;
+import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.REALM;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.TRANSPORT_NAME;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getHost;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getPort;
@@ -100,9 +100,9 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             options.setOption(MAXIMUM_OUTBOUND_RATE, maximumOutboundRate);
         }
 
-        String realmName = (String) optionsByName.remove(REALM_NAME.name());
-        if (realmName != null) {
-            options.setOption(REALM_NAME, realmName);
+        String realm = (String) optionsByName.remove(REALM.name());
+        if (realm != null) {
+            options.setOption(REALM, realm);
         }
 
         LoginContextFactory loginContextFactory = (LoginContextFactory) optionsByName.remove(LOGIN_CONTEXT_FACTORY.name());
@@ -245,7 +245,7 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
 
         address.setOption0(BIND_ADDRESS, options.getOption(BIND_ADDRESS));
         address.setOption0(MAXIMUM_OUTBOUND_RATE, options.getOption(MAXIMUM_OUTBOUND_RATE));
-        address.setOption0(REALM_NAME, options.getOption(REALM_NAME));
+        address.setOption0(REALM, options.getOption(REALM));
         address.setOption0(LOGIN_CONTEXT_FACTORY, options.getOption(LOGIN_CONTEXT_FACTORY));
     }
 

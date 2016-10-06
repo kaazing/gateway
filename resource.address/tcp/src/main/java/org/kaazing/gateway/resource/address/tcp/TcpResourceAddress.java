@@ -35,13 +35,13 @@ public final class TcpResourceAddress extends ResourceAddress {
 
     public static final ResourceOption<InetSocketAddress> BIND_ADDRESS = new TcpBindAddressOption();
     public static final ResourceOption<Long> MAXIMUM_OUTBOUND_RATE = new TcpMaximumOutboundRateOption();
-    public static final ResourceOption<String> REALM_NAME = new TcpRealmNameOption();
+    public static final ResourceOption<String> REALM = new TcpRealmOption();
     public static final ResourceOption<LoginContextFactory> LOGIN_CONTEXT_FACTORY = new TcpLoginContextFactoryOption();
     private static final long MAXIMUM_OUTBOUND_RATE_DEFAULT = 0xFFFFFFFFL;
 
     private InetSocketAddress bindAddress;
     private long maximumOutboundRate = MAXIMUM_OUTBOUND_RATE.defaultValue();
-    private String realmName;
+    private String realm;
     private LoginContextFactory loginContextFactory;
 
     TcpResourceAddress(ResourceAddressFactorySpi factory, String original, URI resource) {
@@ -58,8 +58,8 @@ public final class TcpResourceAddress extends ResourceAddress {
                     return (V) bindAddress;
                 case MAXIMUM_OUTBOUND_RATE:
                     return (V) valueOf(maximumOutboundRate);
-                case REALM_NAME:
-                    return (V) realmName;
+                case REALM:
+                    return (V) realm;
                 case LOGIN_CONTEXT_FACTORY:
                     return (V) loginContextFactory;
             }
@@ -79,8 +79,8 @@ public final class TcpResourceAddress extends ResourceAddress {
                 case MAXIMUM_OUTBOUND_RATE:
                     maximumOutboundRate = (Long) value;
                     return;
-                case REALM_NAME:
-                    realmName = (String) value;
+                case REALM:
+                    realm = (String) value;
                     return;
                 case LOGIN_CONTEXT_FACTORY:
                     loginContextFactory = (LoginContextFactory) value;
@@ -97,7 +97,7 @@ public final class TcpResourceAddress extends ResourceAddress {
             //@formatter:off
             BIND_ADDRESS,
             MAXIMUM_OUTBOUND_RATE,
-            REALM_NAME,
+            REALM,
             LOGIN_CONTEXT_FACTORY,
             //@formatter:on
         }
@@ -128,9 +128,9 @@ public final class TcpResourceAddress extends ResourceAddress {
         }
     }
 
-    private static final class TcpRealmNameOption extends TcpResourceOption<String> {
-        private TcpRealmNameOption() {
-            super(Kind.REALM_NAME, "realmName");
+    private static final class TcpRealmOption extends TcpResourceOption<String> {
+        private TcpRealmOption() {
+            super(Kind.REALM, "realm");
         }
     }
 
