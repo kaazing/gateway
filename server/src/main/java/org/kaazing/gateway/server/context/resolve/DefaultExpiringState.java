@@ -32,7 +32,7 @@ final class DefaultExpiringState implements ExpiringState {
 
     @Override
     public Object putIfAbsent(String key, Object value, long ttl, TimeUnit timeunit) {
-        return delegate.putIfAbsent(key, value);
+        return delegate.putIfAbsent(key, value, ttl, timeunit);
     }
 
     @Override
@@ -45,3 +45,5 @@ final class DefaultExpiringState implements ExpiringState {
         return delegate.remove(key, value);
     }
 }
+
+
