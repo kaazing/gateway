@@ -19,7 +19,7 @@
 connect tcp://localhost:8110
 connected
 
-write "GET  HTTP/1.1\r\n"
+write "GET /info HTTP/1.1\r\n"
 write "Host: localhost:8111\r\n"
 write "Accept: */*\r\n"
 write "\r\n"
@@ -39,11 +39,14 @@ closed
 # tomcat server
 #
 
-accept tcp://localhost:8080
+accept tcp://localhost:8081
 accepted
 connected
 
-read "GET HTTP/1.1\r\n"
+read "GET /info HTTP/1.1\r\n"
+read "Via: 1.1 kaazing-" /.*/ "\r\n"
+read "User-Agent: Kaazing Gateway\r\n"
+
 read "Host: localhost:8081\r\n"
 read "Accept: */*\r\n"
 

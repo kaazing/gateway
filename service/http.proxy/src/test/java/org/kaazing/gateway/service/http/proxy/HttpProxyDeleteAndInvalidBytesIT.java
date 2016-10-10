@@ -35,15 +35,15 @@ public class HttpProxyDeleteAndInvalidBytesIT {
         {
             // @formatter:off
             GatewayConfiguration configuration =
-                    new GatewayConfigurationBuilder()
-                            .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
-                            .service()
-                            .accept("http://localhost:8110")
-                            .connect("http://localhost:8080")
-                            .type("http.proxy")
-                            .connectOption("http.keepalive", "disabled")
-                            .done()
-                            .done();
+                new GatewayConfigurationBuilder()
+                    .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
+                    .service()
+                        .accept("http://localhost:8110")
+                        .connect("http://localhost:8080")
+                        .type("http.proxy")
+                        .connectOption("http.keepalive", "disabled")
+                    .done()
+                .done();
             // @formatter:on
             init(configuration);
         }

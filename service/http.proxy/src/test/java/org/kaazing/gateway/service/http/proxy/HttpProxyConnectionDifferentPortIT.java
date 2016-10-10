@@ -18,7 +18,6 @@ package org.kaazing.gateway.service.http.proxy;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -37,22 +36,22 @@ public class HttpProxyConnectionDifferentPortIT {
             // @formatter:off
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
-                            .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
-                            .service()
+                        .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
+                        .service()
                             .accept("http://localhost:8110")
                             .connect("http://localhost:8080")
                             .name("Proxy Service 1")
                             .type("http.proxy")
                             .connectOption("http.keepalive", "disabled")
-                            .done()
-
-                            .service()
+                        .done()
+                        .service()
                             .accept("http://localhost:8111")
                             .connect("http://localhost:8081")
+                            .acceptOption("http.transport", "tcp://localhost:8110")
                             .name("Proxy Service 2")
                             .type("http.proxy")
-                            .done()
-                            .done();
+                        .done()
+                    .done();
             // @formatter:on
             init(configuration);
         }
