@@ -116,6 +116,7 @@ public class DefaultServiceContext implements ServiceContext {
     private static final String REALM_CHALLENGE_SCHEME = "realmChallengeScheme";
     private static final String REALM_DESCRIPTION = "realmDescription";
     private static final String REALM_NAME = "realmName";
+    private static final String REALM = "realm";
     private static final String REQUIRED_ROLES = "requiredRoles";
     private static final String SERVICE_DOMAIN = "serviceDomain";
     private static final String TEMP_DIRECTORY = "tempDirectory";
@@ -729,7 +730,28 @@ public class DefaultServiceContext implements ServiceContext {
                                 getProperties().get("encryption.key.alias"));
                         options.put(format(optionPattern, SERVICE_DOMAIN),
                                 getProperties().get("service.domain"));
+                    }
+                }
 
+                // TCP
+                for (String optionPattern : asList("tcp.%s")) {
+                    // NO REALM_NAME as this will be an accept/connect option
+                    String tcpRealmOptionName = format(optionPattern, REALM);
+                    String tcpRealmName = (String) options.get(tcpRealmOptionName);
+                    if (tcpRealmName != null) {
+                        // check if it's the same as the configured realm
+                        if (!serviceRealmContext.getName().equals(tcpRealmName)) {
+                            logger.error("{} configuration error: {} needs to be set to the same value as the configured realm",
+                                    serviceName, tcpRealmOptionName);
+                            throw new IllegalArgumentException(
+                                    tcpRealmOptionName + " needs to be the same as the configured realm");
+                        }
+                        options.put(format(optionPattern, LOGIN_CONTEXT_FACTORY), serviceRealmContext.getLoginContextFactory());
+//                    initial support will just be authenticate or not
+//                    options.put(format(optionPattern, REQUIRED_ROLES),
+//                            getRequireRoles());
+//                    options.put(format(optionPattern, REALM_USER_PRINCIPAL_CLASSES.name()),
+//                            getUserPrincipalClasses(serviceRealmContext.getUserPrincipalClasses()));
                     }
                 }
 

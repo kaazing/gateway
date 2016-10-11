@@ -19,7 +19,9 @@ import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.BIND_ADDRESS;
+import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.LOGIN_CONTEXT_FACTORY;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.MAXIMUM_OUTBOUND_RATE;
+import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.REALM;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.TRANSPORT_NAME;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getHost;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getPort;
@@ -47,6 +49,7 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
+import org.kaazing.gateway.security.LoginContextFactory;
 
 public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpResourceAddress> {
 
@@ -97,6 +100,15 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             options.setOption(MAXIMUM_OUTBOUND_RATE, maximumOutboundRate);
         }
 
+        String realm = (String) optionsByName.remove(REALM.name());
+        if (realm != null) {
+            options.setOption(REALM, realm);
+        }
+
+        LoginContextFactory loginContextFactory = (LoginContextFactory) optionsByName.remove(LOGIN_CONTEXT_FACTORY.name());
+        if (loginContextFactory != null) {
+            options.setOption(LOGIN_CONTEXT_FACTORY, loginContextFactory);
+        }
     }
 
     private InetSocketAddress parseBindAddress(Object bindAddress) {
@@ -233,6 +245,8 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
 
         address.setOption0(BIND_ADDRESS, options.getOption(BIND_ADDRESS));
         address.setOption0(MAXIMUM_OUTBOUND_RATE, options.getOption(MAXIMUM_OUTBOUND_RATE));
+        address.setOption0(REALM, options.getOption(REALM));
+        address.setOption0(LOGIN_CONTEXT_FACTORY, options.getOption(LOGIN_CONTEXT_FACTORY));
     }
 
     /**
