@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -242,6 +243,27 @@ public class Expectations extends org.jmock.Expectations {
         };
     }
 
+    public void will(final Runnable runnable) {
+        currentBuilder().setAction(new Action() {
+
+            @Override
+            public void describeTo(
+                Description description) {
+
+                // no-op
+            }
+
+            @Override
+            public Object invoke(
+                Invocation invocation) throws Throwable {
+
+                runnable.run();
+                return null;
+            }
+
+        });
+    }
+
     private static final class HasMessage extends BaseMatcher<WriteRequest> {
 
         private final Matcher<Object> message;
@@ -268,4 +290,3 @@ public class Expectations extends org.jmock.Expectations {
     }
 
 }
-
