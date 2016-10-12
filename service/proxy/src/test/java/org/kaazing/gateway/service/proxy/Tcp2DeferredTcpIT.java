@@ -19,6 +19,8 @@ import static org.junit.rules.RuleChain.outerRule;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.PropertyConfigurator;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -31,7 +33,7 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
-public class Tcp2UdpIT {
+public class Tcp2DeferredTcpIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("./");
 
@@ -43,7 +45,8 @@ public class Tcp2UdpIT {
                     .service()
                         .type("proxy")
                         .accept("tcp://localhost:8080")
-                        .connect("udp://localhost:8080")
+                        .connect("tcp://localhost:3101")
+                        .property("connect.strategy", "deferred")
                     .done()
             .done();
 
@@ -56,21 +59,17 @@ public class Tcp2UdpIT {
     @Rule
     public final TestRule chain = outerRule(trace).around(k3po).around(gateway).around(timeout);
 
-    @Test
-    @Specification({
-            "org/kaazing/specification/tcp/rfc793/echo.data/client",
-            "org/kaazing/specification/udp/rfc768/echo.data/server"
-    })
-    public void bidirectionalData() throws Exception {
-        k3po.finish();
+    @BeforeClass
+    public static void init() throws Exception {
+        PropertyConfigurator.configure("src/test/resources/log4j.properties");
     }
 
     @Test
     @Specification({
-            "org/kaazing/specification/tcp/rfc793/concurrent.connections/client",
-            "org/kaazing/specification/udp/rfc768/concurrent.connections/server"
-     })
-    public void concurrentConnections() throws Exception {
+            "org/kaazing/specification/tcp/rfc793/echo.data/client",
+            "org/kaazing/gateway/service/proxy/echo.data/tcp.server"
+    })
+    public void bidirectionalData() throws Exception {
         k3po.finish();
     }
 
