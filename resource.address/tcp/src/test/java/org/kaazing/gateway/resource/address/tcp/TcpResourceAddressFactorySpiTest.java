@@ -48,7 +48,9 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
@@ -77,6 +79,9 @@ public class TcpResourceAddressFactorySpiTest {
             return null;
         }
     };
+
+    @Rule
+    public ExpectedException thrown= ExpectedException.none();
 
     @Parameters
     public static Collection<Object[]> data() {
@@ -114,6 +119,27 @@ public class TcpResourceAddressFactorySpiTest {
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPort() throws Exception {
         factory.newResourceAddress("tcp://127.0.0.1");
+    }
+
+    @Test
+    public void shouldThrowSpecificNICExceptionNoBrackets() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("The interface name @ethh is not recognized");
+        factory.newResourceAddress("tcp://@ethh:8080");
+    }
+
+    @Test
+    public void shouldThrowSpecificNICExceptionBrackets() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("The interface name [@ethh] is not recognized");
+        factory.newResourceAddress("tcp://[@ethh]:8080");
+    }
+
+    @Test
+    public void shouldThrowGenericResolutionException() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Unable to resolve DNS name: ethh");
+        factory.newResourceAddress("tcp://ethh:8080");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -237,6 +263,5 @@ public class TcpResourceAddressFactorySpiTest {
         alternate = alternate.getOption(ALTERNATE);
         assertNull(alternate);
     }
-    
 
 }
