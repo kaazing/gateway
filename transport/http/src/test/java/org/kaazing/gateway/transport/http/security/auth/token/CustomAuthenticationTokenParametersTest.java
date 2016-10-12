@@ -108,9 +108,6 @@ public class CustomAuthenticationTokenParametersTest {
             allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES);
             will(returnValue(cookieNames));
 
-            allowing(address).getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
-            will(returnValue(authorizationMode));
-
             allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
             will(returnValue(challengeScheme));
         }

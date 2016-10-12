@@ -124,9 +124,6 @@ public class HttpSubjectSecurityFilterTest {
                 allowing(address).getOption(HttpResourceAddress.REALM_NAME);
                 will(returnValue(null));
 
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
-                will(returnValue(null));
-
                 allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
                 will(returnValue(null));
 
@@ -164,9 +161,6 @@ public class HttpSubjectSecurityFilterTest {
             {
 
                 allowing(address).getOption(HttpResourceAddress.REALM_NAME);
-                will(returnValue(null));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
                 will(returnValue(null));
 
                 allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
@@ -236,9 +230,6 @@ public class HttpSubjectSecurityFilterTest {
                 allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
                 will(returnValue(null));
 
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
-                will(returnValue(null));
-
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(new String[]{}));
 
@@ -281,9 +272,6 @@ public class HttpSubjectSecurityFilterTest {
                 will(returnValue(null));
 
                 allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
-                will(returnValue(null));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
                 will(returnValue(null));
 
                 // alreadyLoggedIn == false
@@ -360,9 +348,6 @@ public class HttpSubjectSecurityFilterTest {
 
                 allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
                 will(returnValue("Application Token"));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
-                will(returnValue("challenge"));
 
                 // not already logged in
                 oneOf(session).getSubject();
@@ -468,9 +453,6 @@ public class HttpSubjectSecurityFilterTest {
                 allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
                 will(returnValue("Application Token"));
 
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
-                will(returnValue("challenge"));
-
                 // not already logged in
                 oneOf(session).getSubject();
 
@@ -565,13 +547,8 @@ public class HttpSubjectSecurityFilterTest {
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(new String[]{"AUTHORIZED"}));
 
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
-                will(returnValue("challenge"));
-
                 // not already logged in
                 oneOf(session).getSubject(); will(returnValue(null));
-
-
 
                 // login() method itself
                 oneOf(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES);
@@ -653,9 +630,6 @@ public class HttpSubjectSecurityFilterTest {
 
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(new String[]{"AUTHORIZED"}));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
-                will(returnValue("challenge"));
 
                 allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
                 will(returnValue("Application Token"));

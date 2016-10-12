@@ -188,9 +188,6 @@ public class DefaultAuthenticationTokenExtractorTest {
             allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES);
             will(returnValue(null));
 
-            allowing(address).getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
-            will(returnValue(null));
-
             allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
             will(returnValue(challengeScheme));
         }

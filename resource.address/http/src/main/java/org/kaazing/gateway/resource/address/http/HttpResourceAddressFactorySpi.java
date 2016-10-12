@@ -35,7 +35,6 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.ORIG
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_PARAMETER_NAMES;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHORIZATION_MODE;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_CHALLENGE_SCHEME;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_DESCRIPTION;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_NAME;
@@ -151,11 +150,6 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         String realmName = (String) optionsByName.remove(REALM_NAME.name());
         if (realmName != null) {
             options.setOption(REALM_NAME, realmName);
-        }
-
-        String realmAuthorizationMode = (String) optionsByName.remove(REALM_AUTHORIZATION_MODE.name());
-        if (realmAuthorizationMode != null) {
-            options.setOption(REALM_AUTHORIZATION_MODE, realmAuthorizationMode);
         }
 
         String realmChallengeScheme = (String) optionsByName.remove(REALM_CHALLENGE_SCHEME.name());
@@ -330,7 +324,6 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         address.setOption0(KEEP_ALIVE_CONNECTIONS, options.getOption(KEEP_ALIVE_CONNECTIONS));
         address.setOption0(REQUIRED_ROLES, options.getOption(REQUIRED_ROLES));
         address.setOption0(REALM_NAME, options.getOption(REALM_NAME));
-        address.setOption0(REALM_AUTHORIZATION_MODE, options.getOption(REALM_AUTHORIZATION_MODE));
         address.setOption0(REALM_CHALLENGE_SCHEME, options.getOption(REALM_CHALLENGE_SCHEME));
         address.setOption0(REALM_DESCRIPTION, options.getOption(REALM_DESCRIPTION));
         address.setOption0(REALM_AUTHENTICATION_HEADER_NAMES, options.getOption(REALM_AUTHENTICATION_HEADER_NAMES));

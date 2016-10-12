@@ -36,7 +36,6 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.MAX_
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_PARAMETER_NAMES;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHORIZATION_MODE;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_CHALLENGE_SCHEME;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_DESCRIPTION;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_NAME;
@@ -133,7 +132,6 @@ public class HttpResourceAddressFactorySpiTest {
         assertEquals(address.getOption(KEEP_ALIVE_CONNECTIONS).intValue(), DEFAULT_HTTP_KEEPALIVE_CONNECTIONS);
         assertNull(address.getOption(REALM_NAME));
         assertEmpty(address.getOption(REQUIRED_ROLES));
-        assertEquals("challenge",address.getOption(REALM_AUTHORIZATION_MODE));
         assertNull(address.getOption(REALM_CHALLENGE_SCHEME));
         assertNull(address.getOption(REALM_DESCRIPTION));
         assertEmpty(address.getOption(REALM_AUTHENTICATION_HEADER_NAMES));
@@ -157,7 +155,6 @@ public class HttpResourceAddressFactorySpiTest {
         assertEquals("demo", address.getOption(REALM_NAME));
         assertArrayEquals(new String[] { "admin" }, address.getOption(REQUIRED_ROLES));
 
-        assertEquals("authorizationMode",address.getOption(REALM_AUTHORIZATION_MODE));
         assertEquals("challengeScheme", address.getOption(REALM_CHALLENGE_SCHEME));
         assertEquals("realmDescription", address.getOption(REALM_DESCRIPTION));
         assertArrayEquals(new String[]{"h1", "h2"}, address.getOption(REALM_AUTHENTICATION_HEADER_NAMES));

@@ -196,9 +196,6 @@ public class CustomAuthenticationTokenCookiesTest {
                 allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES);
                 will(returnValue(testCase.configuredSessionCookies));
 
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
-                will(returnValue("challenge"));
-
                 allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
                 will(returnValue("Basic"));
             }});

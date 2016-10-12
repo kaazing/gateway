@@ -45,7 +45,6 @@ public final class HttpResourceAddress extends ResourceAddress {
     public static final ResourceOption<Integer> KEEP_ALIVE_CONNECTIONS = new HttpKeepAliveConnectionsOption();
 
     public static final ResourceOption<String> REALM_NAME = new HttpRealmNameOption();
-    public static final ResourceOption<String> REALM_AUTHORIZATION_MODE = new HttpRealmAuthorizationModeOption();
     public static final ResourceOption<String> REALM_CHALLENGE_SCHEME = new HttpRealmChallengeSchemeOption();
     public static final ResourceOption<String> REALM_DESCRIPTION = new HttpRealmDescriptionOption();
     public static final ResourceOption<String[]> REALM_AUTHENTICATION_HEADER_NAMES = new HttpRealmAuthenticationHeaderNamesOption();
@@ -75,7 +74,6 @@ public final class HttpResourceAddress extends ResourceAddress {
     private Integer keepAliveMaxConnections = KEEP_ALIVE_CONNECTIONS.defaultValue();
     private String[] requiredRoles = REQUIRED_ROLES.defaultValue();
     private String realmName;
-    private String realmAuthorizationMode = REALM_AUTHORIZATION_MODE.defaultValue();
     private String realmChallengeScheme;
     private String realmDescription;
     private String[] realmAuthenticationHeaderNames;
@@ -120,8 +118,6 @@ public final class HttpResourceAddress extends ResourceAddress {
                     return (V) requiredRoles;
                 case REALM_NAME:
                     return (V) realmName;
-                case REALM_AUTHORIZATION_MODE:
-                    return (V) realmAuthorizationMode;
                 case REALM_CHALLENGE_SCHEME:
                     return (V) realmChallengeScheme;
                 case REALM_DESCRIPTION:
@@ -187,9 +183,6 @@ public final class HttpResourceAddress extends ResourceAddress {
                     return;
                 case REALM_NAME:
                     realmName = (String) value;
-                    return;
-                case REALM_AUTHORIZATION_MODE:
-                    realmAuthorizationMode = (String) value;
                     return;
                 case REALM_CHALLENGE_SCHEME:
                     realmChallengeScheme = (String) value;
@@ -264,7 +257,7 @@ public final class HttpResourceAddress extends ResourceAddress {
     public static class HttpResourceOption<T> extends ResourceOption<T> {
 
 	    protected enum Kind { KEEP_ALIVE, KEEP_ALIVE_TIMEOUT, KEEP_ALIVE_CONNECTIONS, REQUIRED_ROLES, REALM_NAME,
-            REALM_AUTHORIZATION_MODE, REALM_CHALLENGE_SCHEME, REALM_DESCRIPTION,
+            REALM_CHALLENGE_SCHEME, REALM_DESCRIPTION,
             REALM_AUTHENTICATION_HEADER_NAMES, REALM_AUTHENTICATION_PARAMETER_NAMES, REALM_AUTHENTICATION_COOKIE_NAMES,
             LOGIN_CONTEXT_FACTORY, INJECTABLE_HEADERS,
             ORIGIN_SECURITY, TEMP_DIRECTORY, GATEWAY_ORIGIN_SECURITY, BALANCE_ORIGINS,
@@ -319,12 +312,6 @@ public final class HttpResourceAddress extends ResourceAddress {
     private static final class HttpRealmNameOption extends HttpResourceOption<String> {
         private HttpRealmNameOption() {
             super(Kind.REALM_NAME, "realmName");
-        }
-    }
-
-    private static final class HttpRealmAuthorizationModeOption extends HttpResourceOption<String> {
-        private HttpRealmAuthorizationModeOption() {
-            super(Kind.REALM_AUTHORIZATION_MODE, "realmAuthorizationMode", "challenge");
         }
     }
 
