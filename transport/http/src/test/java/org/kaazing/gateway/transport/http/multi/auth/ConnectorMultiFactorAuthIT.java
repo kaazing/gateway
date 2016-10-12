@@ -15,62 +15,122 @@
  */
 package org.kaazing.gateway.transport.http.multi.auth;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.rules.RuleChain.outerRule;
+import static java.net.Authenticator.setDefault;
+import static org.kaazing.gateway.transport.http.HttpMethod.GET;
+import static org.kaazing.gateway.util.feature.EarlyAccessFeatures.HTTP_AUTHENTICATOR;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.mina.core.future.ConnectFuture;
+import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IoSession;
+import org.apache.mina.core.session.IoSessionInitializer;
+import org.jmock.Expectations;
+import org.jmock.States;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.jmock.lib.concurrent.Synchroniser;
+import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
-import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.ResourceAddressFactory;
-import org.kaazing.gateway.resource.address.ResourceOptions;
-import org.kaazing.gateway.resource.address.http.HttpOriginSecurity;
-import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
-import org.kaazing.gateway.server.context.resolve.DefaultCrossSiteConstraintContext;
-import org.kaazing.gateway.transport.http.HttpAcceptorRule;
+import org.kaazing.gateway.transport.http.HttpConnectSession;
+import org.kaazing.gateway.transport.http.HttpConnectorRule;
+import org.kaazing.gateway.transport.http.security.auth.connector.ResetAuthenticatorRule;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class ConnectorMultiFactorAuthIT {
-    private final K3poRule k3po = new K3poRule()
-            .setScriptRoot("org/kaazing/specification/http/multi/auth");
-
-    private final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
-    
-    private final HttpAcceptorRule acceptor = new HttpAcceptorRule();
+    private final HttpConnectorRule connector =
+            new HttpConnectorRule().addProperty(HTTP_AUTHENTICATOR.getPropertyName(), "true");
+    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/http/multi/auth");
+    private States testState;
 
     @Rule
-    public final TestRule chain = outerRule(acceptor).outerRule(k3po).around(timeout);
+    public TestRule chain = createRuleChain(connector, k3po);
+
+    @Rule
+    public ResetAuthenticatorRule resetAuthenticatorRule = new ResetAuthenticatorRule();
+
+    AuthenticatorMock authenticator;
+
+    Synchroniser syncronizer;
+
+    public abstract class AuthenticatorMock extends Authenticator {
+        public abstract PasswordAuthentication getPasswordAuthentication();
+    }
+    
+    @Rule
+    JUnitRuleMockery context = new JUnitRuleMockery() {
+        {
+            setThreadingPolicy(new Synchroniser());
+            setImposteriser(ClassImposteriser.INSTANCE);
+            testState = context.states("testState").startsAs("initial-state");
+            syncronizer = new Synchroniser();
+            context.setThreadingPolicy(syncronizer);
+            authenticator = context.mock(AuthenticatorMock.class);
+            // inner class this
+            setDefault(authenticator);
+        }
+    };
 
     @Test
-    @Specification({
-        "request.with.secure.challenge.identity/server",
-        })
+    @Specification({"request.with.secure.challenge.identity/server",})
     public void serverMayGiveSecChallengeIdentityHeaderWith401() throws Exception {
+        connector.getConnectOptions().put("http.max.authentication.attempts", "5");
+        final IoHandler handler = context.mock(IoHandler.class);
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSession.class)));
+                oneOf(handler).sessionOpened(with(any(IoSession.class)));
+                exactly(2).of(authenticator).getPasswordAuthentication();
+                will(onConsecutiveCalls(
+                        returnValue(new PasswordAuthentication("joe", new char[]{'w', 'e', 'l', 'c', 'o', 'm', 'e'})),
+                        returnValue(new PasswordAuthentication("pin", new char[]{'1', '2', '3', '4'}))));
+                oneOf(handler).sessionClosed(with(any(IoSession.class)));
+                then(testState.is("finished"));
+            }
+        });
+        Map<String, Object> connectOptions = new HashMap<>();
+
+        connector.connect("http://localhost:8000/resource", handler, new IoSessionInitializer<ConnectFuture>() {
+            @Override
+            public void initializeSession(IoSession session, ConnectFuture future) {
+                HttpConnectSession connectSession = (HttpConnectSession) session;
+                connectSession.setMethod(GET);
+            }
+        }, connectOptions);
+
         k3po.finish();
+        syncronizer.waitUntil(testState.is("finished"));
     }
 
     @Test
     @Specification({"response.with.secure.challenge.identity/server"})
     public void clientShouldAttachSecChallengeIdentityToFollowingRequests() throws Exception {
+        connector.getConnectOptions().put("http.max.authentication.attempts", "5");
+        final IoHandler handler = context.mock(IoHandler.class);
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSession.class)));
+                oneOf(handler).sessionOpened(with(any(IoSession.class)));
+                oneOf(authenticator).getPasswordAuthentication();
+                will(returnValue(new PasswordAuthentication("joe", new char[]{'w', 'e', 'l', 'c', 'o', 'm', 'e'})));
+            }
+        });
+        Map<String, Object> connectOptions = new HashMap<>();
+
+        connector.connect("http://localhost:8000/resource", handler, new IoSessionInitializer<ConnectFuture>() {
+            @Override
+            public void initializeSession(IoSession session, ConnectFuture future) {
+                HttpConnectSession connectSession = (HttpConnectSession) session;
+                connectSession.setMethod(GET);
+            }
+        }, connectOptions);
+
         k3po.finish();
-    }
-
-    private static ResourceAddress httpAddress() {
-        Map<String, DefaultCrossSiteConstraintContext> constraints = new HashMap<>();
-        DefaultCrossSiteConstraintContext constraintContext =
-                new DefaultCrossSiteConstraintContext("http://source.example.com:80", "GET,POST", null, null);
-        constraints.put(constraintContext.getAllowOrigin(), constraintContext);
-        HttpOriginSecurity httpOriginSecuirty = new HttpOriginSecurity(constraints);
-
-        ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-        ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
-        options.setOption(HttpResourceAddress.ORIGIN_SECURITY, httpOriginSecuirty);
-        return addressFactory.newResourceAddress("http://localhost:8000/path", options);
     }
 }
