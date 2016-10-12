@@ -30,15 +30,8 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.DEFA
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_CONNECTIONS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_TIMEOUT;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.LOGIN_CONTEXT_FACTORY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.MAXIMUM_REDIRECTS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.MAX_AUTHENTICATION_ATTEMPTS;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_PARAMETER_NAMES;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_CHALLENGE_SCHEME;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_DESCRIPTION;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_NAME;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REQUIRED_ROLES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.SERVER_HEADER_ENABLED;
 
@@ -130,14 +123,7 @@ public class HttpResourceAddressFactorySpiTest {
         assertTrue(address.getOption(KEEP_ALIVE));
         assertEquals(address.getOption(KEEP_ALIVE_TIMEOUT).intValue(), 30);
         assertEquals(address.getOption(KEEP_ALIVE_CONNECTIONS).intValue(), DEFAULT_HTTP_KEEPALIVE_CONNECTIONS);
-        assertNull(address.getOption(REALM_NAME));
         assertEmpty(address.getOption(REQUIRED_ROLES));
-        assertNull(address.getOption(REALM_CHALLENGE_SCHEME));
-        assertNull(address.getOption(REALM_DESCRIPTION));
-        assertEmpty(address.getOption(REALM_AUTHENTICATION_HEADER_NAMES));
-        assertEmpty(address.getOption(REALM_AUTHENTICATION_PARAMETER_NAMES));
-        assertEmpty(address.getOption(REALM_AUTHENTICATION_COOKIE_NAMES));
-        assertNull(address.getOption(LOGIN_CONTEXT_FACTORY));
         assertTrue(address.getOption(SERVER_HEADER_ENABLED));
         assertEquals(new Integer(0), address.getOption(MAX_AUTHENTICATION_ATTEMPTS));
     }
@@ -152,15 +138,8 @@ public class HttpResourceAddressFactorySpiTest {
         assertEquals(10, address.getOption(KEEP_ALIVE_CONNECTIONS).intValue());
         assertFalse(address.getOption(KEEP_ALIVE));
         assertEquals(address.getOption(MAXIMUM_REDIRECTS), new Integer(0));
-        assertEquals("demo", address.getOption(REALM_NAME));
         assertArrayEquals(new String[] { "admin" }, address.getOption(REQUIRED_ROLES));
 
-        assertEquals("challengeScheme", address.getOption(REALM_CHALLENGE_SCHEME));
-        assertEquals("realmDescription", address.getOption(REALM_DESCRIPTION));
-        assertArrayEquals(new String[]{"h1", "h2"}, address.getOption(REALM_AUTHENTICATION_HEADER_NAMES));
-        assertArrayEquals(new String[]{"p1", "p2"}, address.getOption(REALM_AUTHENTICATION_PARAMETER_NAMES));
-        assertArrayEquals(new String[]{"c1", "c2"}, address.getOption(REALM_AUTHENTICATION_COOKIE_NAMES));
-        assertEquals(loginContextFactory, address.getOption(LOGIN_CONTEXT_FACTORY));
         assertFalse(address.getOption(SERVER_HEADER_ENABLED));
         assertEquals(new Integer(5), address.getOption(MAX_AUTHENTICATION_ATTEMPTS));
     }

@@ -56,7 +56,6 @@ public final class HttpResourceAddress extends ResourceAddress {
     public static final ResourceOption<String> ENCRYPTION_KEY_ALIAS = new EncryptionKeyAliasOption();
     public static final ResourceOption<String> SERVICE_DOMAIN = new ServiceDomainOption();
     public static final HttpResourceOption<Boolean> SERVER_HEADER_ENABLED = new HttpServerHeaderOption();
-    public static final HttpResourceOption<Collection<Class<? extends Principal>>> REALM_USER_PRINCIPAL_CLASSES = new HttpRealmAuthenticationUserPrincipalClassesOption();
 
     public static final ResourceOption<Integer> MAX_AUTHENTICATION_ATTEMPTS = new MaxAuthenticationAttemptsOption();
 
@@ -109,20 +108,6 @@ public final class HttpResourceAddress extends ResourceAddress {
                     return (V) keepAliveMaxConnections;
                 case REQUIRED_ROLES:
                     return (V) requiredRoles;
-                case REALM_NAME:
-                    return (V) realmName;
-                case REALM_CHALLENGE_SCHEME:
-                    return (V) realmChallengeScheme;
-                case REALM_DESCRIPTION:
-                    return (V) realmDescription;
-                case REALM_AUTHENTICATION_HEADER_NAMES:
-                    return (V) realmAuthenticationHeaderNames;
-                case REALM_AUTHENTICATION_PARAMETER_NAMES:
-                    return (V) realmAuthenticationParameterNames;
-                case REALM_AUTHENTICATION_COOKIE_NAMES:
-                    return (V) realmAuthenticationCookieNames;
-                case LOGIN_CONTEXT_FACTORY:
-                    return (V) loginContextFactory;
                 case INJECTABLE_HEADERS:
                     return (V) injectableHeaders;
                 case ORIGIN_SECURITY:
@@ -173,27 +158,6 @@ public final class HttpResourceAddress extends ResourceAddress {
                     return;
                 case REQUIRED_ROLES:
                     requiredRoles = (String[]) value;
-                    return;
-                case REALM_NAME:
-                    realmName = (String) value;
-                    return;
-                case REALM_CHALLENGE_SCHEME:
-                    realmChallengeScheme = (String) value;
-                    return;
-                case REALM_DESCRIPTION:
-                    realmDescription = (String) value;
-                    return;
-                case REALM_AUTHENTICATION_HEADER_NAMES:
-                    realmAuthenticationHeaderNames = (String[]) value;
-                    return;
-                case REALM_AUTHENTICATION_PARAMETER_NAMES:
-                    realmAuthenticationParameterNames = (String[]) value;
-                    return;
-                case REALM_AUTHENTICATION_COOKIE_NAMES:
-                    realmAuthenticationCookieNames = (String[]) value;
-                    return;
-                case LOGIN_CONTEXT_FACTORY:
-                    loginContextFactory = (LoginContextFactory) value;
                     return;
                 case AUTHENTICATION_CONNECT:
                     authenticationConnect = (String) value;
@@ -249,13 +213,8 @@ public final class HttpResourceAddress extends ResourceAddress {
 
     public static class HttpResourceOption<T> extends ResourceOption<T> {
 
-	    protected enum Kind { KEEP_ALIVE, KEEP_ALIVE_TIMEOUT, KEEP_ALIVE_CONNECTIONS, REQUIRED_ROLES, REALM_NAME,
-            REALM_CHALLENGE_SCHEME, REALM_DESCRIPTION,
-            REALM_AUTHENTICATION_HEADER_NAMES, REALM_AUTHENTICATION_PARAMETER_NAMES, REALM_AUTHENTICATION_COOKIE_NAMES,
-            LOGIN_CONTEXT_FACTORY, INJECTABLE_HEADERS,
-            ORIGIN_SECURITY, TEMP_DIRECTORY, GATEWAY_ORIGIN_SECURITY, BALANCE_ORIGINS,
-            AUTHENTICATION_CONNECT, AUTHENTICATION_IDENTIFIER, ENCRYPTION_KEY_ALIAS, SERVICE_DOMAIN, SERVER_HEADER,
-            REALM_USER_PRINCIPAL_CLASSES ,MAX_REDIRECTS, MAX_AUTHENTICATION_ATTEMPTS;
+        protected enum Kind {
+            KEEP_ALIVE, KEEP_ALIVE_TIMEOUT, KEEP_ALIVE_CONNECTIONS, REQUIRED_ROLES, INJECTABLE_HEADERS, ORIGIN_SECURITY, TEMP_DIRECTORY, GATEWAY_ORIGIN_SECURITY, BALANCE_ORIGINS, AUTHENTICATION_CONNECT, AUTHENTICATION_IDENTIFIER, ENCRYPTION_KEY_ALIAS, SERVICE_DOMAIN, SERVER_HEADER, REALM_USER_PRINCIPAL_CLASSES, MAX_REDIRECTS, MAX_AUTHENTICATION_ATTEMPTS;
         }
 
         private static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();

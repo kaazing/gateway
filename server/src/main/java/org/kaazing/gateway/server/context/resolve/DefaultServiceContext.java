@@ -19,7 +19,6 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.kaazing.gateway.resource.address.ResourceAddress.CONNECT_REQUIRES_INIT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_USER_PRINCIPAL_CLASSES;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.buildURIAsString;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getAuthority;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getFragment;
@@ -65,6 +64,7 @@ import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.http.HttpRealmConfig;
 import org.kaazing.gateway.security.AuthenticationContext;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.security.RealmContext;
@@ -107,15 +107,8 @@ public class DefaultServiceContext implements ServiceContext {
     private static final String BALANCE_ORIGINS = "balanceOrigins";
     private static final String ENCRYPTION_KEY_ALIAS = "encryptionKeyAlias";
     private static final String GATEWAY_ORIGIN_SECURITY = "gatewayHttpOriginSecurity";
-    private static final String LOGIN_CONTEXT_FACTORY = "loginContextFactory";
     private static final String ORIGIN_SECURITY = "originSecurity";
-    private static final String REALM_AUTHENTICATION_COOKIE_NAMES = "realmAuthenticationCookieNames";
-    private static final String REALM_AUTHENTICATION_HEADER_NAMES = "realmAuthenticationHeaderNames";
-    private static final String REALM_AUTHENTICATION_PARAMETER_NAMES = "realmAuthenticationParameterNames";
-    private static final String REALM_AUTHORIZATION_MODE = "realmAuthorizationMode";
-    private static final String REALM_CHALLENGE_SCHEME = "realmChallengeScheme";
-    private static final String REALM_DESCRIPTION = "realmDescription";
-    private static final String REALM_NAME = "realmName";
+    private static final String REALMS = "realms";
     private static final String REQUIRED_ROLES = "requiredRoles";
     private static final String SERVICE_DOMAIN = "serviceDomain";
     private static final String TEMP_DIRECTORY = "tempDirectory";
@@ -687,35 +680,21 @@ public class DefaultServiceContext implements ServiceContext {
         // is protected, and whether it is application- or native- security that is desired.
         if (serviceRealmContext != null) {
             final AuthenticationContext authenticationContext = serviceRealmContext.getAuthenticationContext();
+            List<HttpRealmConfig> realms = new ArrayList<>();
+            realms.add(new HttpRealmConfig(serviceRealmContext));
             if (authenticationContext != null) {
 
                 String challengeScheme = authenticationContext.getHttpChallengeScheme();
                 boolean isApplicationChallengeScheme = challengeScheme.startsWith(AUTH_SCHEME_APPLICATION_PREFIX);
 
                 if (isApplicationChallengeScheme && !forceNativeChallengeScheme) {
-                    options.put(format("http[http/1.1].%s", REALM_CHALLENGE_SCHEME),
-                            authenticationContext.getHttpChallengeScheme());
+                    options.put(format("http[http/1.1].%s", REALMS),
+                            realms);
                     for (String optionPattern : asList("http[httpxe/1.1].%s", "http[x-kaazing-handshake].%s")) {
-                        options.put(format(optionPattern, REALM_NAME),
-                                serviceRealmContext.getName());
                         options.put(format(optionPattern, REQUIRED_ROLES),
                                 getRequireRoles());
-                        options.put(format(optionPattern, REALM_AUTHORIZATION_MODE),
-                                authenticationContext.getAuthorizationMode());
-                        options.put(format(optionPattern, REALM_CHALLENGE_SCHEME),
-                                authenticationContext.getHttpChallengeScheme());
-                        options.put(format(optionPattern, REALM_DESCRIPTION),
-                                serviceRealmContext.getDescription());
-                        options.put(format(optionPattern, REALM_AUTHENTICATION_HEADER_NAMES),
-                                authenticationContext.getHttpHeaders());
-                        options.put(format(optionPattern, REALM_AUTHENTICATION_PARAMETER_NAMES),
-                                authenticationContext.getHttpQueryParameters());
-                        options.put(format(optionPattern, REALM_AUTHENTICATION_COOKIE_NAMES),
-                                authenticationContext.getHttpCookieNames());
-                        options.put(format(optionPattern, LOGIN_CONTEXT_FACTORY),
-                                serviceRealmContext.getLoginContextFactory());
-                        options.put(format(optionPattern, REALM_USER_PRINCIPAL_CLASSES.name()),
-                                getUserPrincipalClasses(serviceRealmContext.getUserPrincipalClasses()));
+                        options.put(format(optionPattern, REALMS),
+                                realms);
                         // We need this to support reading legacy service properties during authentication.
                         // authentication-connect, authentication-identifier, encryption.key.alias, service.domain
                         // The negotiate properties are replaced with client-side capabilities to use different
@@ -725,10 +704,6 @@ public class DefaultServiceContext implements ServiceContext {
                                 getProperties().get("authentication.connect"));
                         options.put(format(optionPattern, AUTHENTICATION_IDENTIFIER),
                                 getProperties().get("authentication.identifier"));
-                        options.put(format(optionPattern, ENCRYPTION_KEY_ALIAS),
-                                getProperties().get("encryption.key.alias"));
-                        options.put(format(optionPattern, SERVICE_DOMAIN),
-                                getProperties().get("service.domain"));
 
                     }
                 }
@@ -736,26 +711,10 @@ public class DefaultServiceContext implements ServiceContext {
                 // TODO: eliminate forceNativeChallengeScheme by locking down authentication schemes for "directory" service
                 if (!isApplicationChallengeScheme || forceNativeChallengeScheme) {
                     String optionPattern = "http[http/1.1].%s";
-                    options.put(format(optionPattern, REALM_NAME),
-                            serviceRealmContext.getName());
+                    options.put(format(optionPattern, REALMS),
+                            realms);
                     options.put(format(optionPattern, REQUIRED_ROLES),
                             getRequireRoles());
-                    options.put(format(optionPattern, REALM_AUTHORIZATION_MODE),
-                            authenticationContext.getAuthorizationMode());
-                    options.put(format(optionPattern, REALM_CHALLENGE_SCHEME),
-                            authenticationContext.getHttpChallengeScheme());
-                    options.put(format(optionPattern, REALM_DESCRIPTION),
-                            serviceRealmContext.getDescription());
-                    options.put(format(optionPattern, REALM_AUTHENTICATION_HEADER_NAMES),
-                            authenticationContext.getHttpHeaders());
-                    options.put(format(optionPattern, REALM_AUTHENTICATION_PARAMETER_NAMES),
-                            authenticationContext.getHttpQueryParameters());
-                    options.put(format(optionPattern, REALM_AUTHENTICATION_COOKIE_NAMES),
-                            authenticationContext.getHttpCookieNames());
-                    options.put(format(optionPattern, LOGIN_CONTEXT_FACTORY),
-                            serviceRealmContext.getLoginContextFactory());
-                    options.put(format(optionPattern, REALM_USER_PRINCIPAL_CLASSES.name()),
-                            getUserPrincipalClasses(serviceRealmContext.getUserPrincipalClasses()));
                     // see note above for why this is needed
                     options.put(format(optionPattern, AUTHENTICATION_CONNECT),
                             getProperties().get("authentication.connect"));
