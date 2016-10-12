@@ -28,16 +28,9 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.INJE
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_CONNECTIONS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_TIMEOUT;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.LOGIN_CONTEXT_FACTORY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.MAXIMUM_REDIRECTS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.MAX_AUTHENTICATION_ATTEMPTS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.ORIGIN_SECURITY;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_PARAMETER_NAMES;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_CHALLENGE_SCHEME;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_DESCRIPTION;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_NAME;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_USER_PRINCIPAL_CLASSES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REQUIRED_ROLES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.SERVER_HEADER_ENABLED;
@@ -145,41 +138,6 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         String[] requiredRoles = (String[]) optionsByName.remove(REQUIRED_ROLES.name());
         if (requiredRoles != null) {
             options.setOption(REQUIRED_ROLES, requiredRoles);
-        }
-        
-        String realmName = (String) optionsByName.remove(REALM_NAME.name());
-        if (realmName != null) {
-            options.setOption(REALM_NAME, realmName);
-        }
-
-        String realmChallengeScheme = (String) optionsByName.remove(REALM_CHALLENGE_SCHEME.name());
-        if (realmChallengeScheme != null) {
-            options.setOption(REALM_CHALLENGE_SCHEME, realmChallengeScheme);
-        }
-
-        String realmDescription = (String) optionsByName.remove(REALM_DESCRIPTION.name());
-        if (realmDescription != null) {
-            options.setOption(REALM_DESCRIPTION, realmDescription);
-        }
-
-        String[] realmAuthenticationHeaderNames = (String[]) optionsByName.remove(REALM_AUTHENTICATION_HEADER_NAMES.name());
-        if (realmAuthenticationHeaderNames != null) {
-            options.setOption(REALM_AUTHENTICATION_HEADER_NAMES, realmAuthenticationHeaderNames);
-        }
-
-        String[] realmAuthenticationParameterNames = (String[]) optionsByName.remove(REALM_AUTHENTICATION_PARAMETER_NAMES.name());
-        if (realmAuthenticationParameterNames != null) {
-            options.setOption(REALM_AUTHENTICATION_PARAMETER_NAMES, realmAuthenticationParameterNames);
-        }
-
-        String[] realmAuthenticationCookieNames = (String[]) optionsByName.remove(REALM_AUTHENTICATION_COOKIE_NAMES.name());
-        if (realmAuthenticationCookieNames != null) {
-            options.setOption(REALM_AUTHENTICATION_COOKIE_NAMES, realmAuthenticationCookieNames);
-        }
-
-        LoginContextFactory loginContextFactory = (LoginContextFactory) optionsByName.remove(LOGIN_CONTEXT_FACTORY.name());
-        if (loginContextFactory != null) {
-            options.setOption(LOGIN_CONTEXT_FACTORY, loginContextFactory);
         }
 
         String authenticationConnect = (String) optionsByName.remove(AUTHENTICATION_CONNECT.name());
@@ -323,13 +281,6 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         address.setOption0(KEEP_ALIVE_TIMEOUT, options.getOption(KEEP_ALIVE_TIMEOUT));
         address.setOption0(KEEP_ALIVE_CONNECTIONS, options.getOption(KEEP_ALIVE_CONNECTIONS));
         address.setOption0(REQUIRED_ROLES, options.getOption(REQUIRED_ROLES));
-        address.setOption0(REALM_NAME, options.getOption(REALM_NAME));
-        address.setOption0(REALM_CHALLENGE_SCHEME, options.getOption(REALM_CHALLENGE_SCHEME));
-        address.setOption0(REALM_DESCRIPTION, options.getOption(REALM_DESCRIPTION));
-        address.setOption0(REALM_AUTHENTICATION_HEADER_NAMES, options.getOption(REALM_AUTHENTICATION_HEADER_NAMES));
-        address.setOption0(REALM_AUTHENTICATION_PARAMETER_NAMES, options.getOption(REALM_AUTHENTICATION_PARAMETER_NAMES));
-        address.setOption0(REALM_AUTHENTICATION_COOKIE_NAMES, options.getOption(REALM_AUTHENTICATION_COOKIE_NAMES));
-        address.setOption0(LOGIN_CONTEXT_FACTORY, options.getOption(LOGIN_CONTEXT_FACTORY));
         address.setOption0(INJECTABLE_HEADERS, options.getOption(INJECTABLE_HEADERS));
         address.setOption0(ORIGIN_SECURITY, options.getOption(ORIGIN_SECURITY));
         address.setOption0(TEMP_DIRECTORY, options.getOption(TEMP_DIRECTORY));

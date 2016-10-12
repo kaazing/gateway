@@ -44,13 +44,6 @@ public final class HttpResourceAddress extends ResourceAddress {
     public static final ResourceOption<Integer> KEEP_ALIVE_TIMEOUT = new HttpKeepAliveTimeoutOption();
     public static final ResourceOption<Integer> KEEP_ALIVE_CONNECTIONS = new HttpKeepAliveConnectionsOption();
 
-    public static final ResourceOption<String> REALM_NAME = new HttpRealmNameOption();
-    public static final ResourceOption<String> REALM_CHALLENGE_SCHEME = new HttpRealmChallengeSchemeOption();
-    public static final ResourceOption<String> REALM_DESCRIPTION = new HttpRealmDescriptionOption();
-    public static final ResourceOption<String[]> REALM_AUTHENTICATION_HEADER_NAMES = new HttpRealmAuthenticationHeaderNamesOption();
-    public static final ResourceOption<String[]> REALM_AUTHENTICATION_PARAMETER_NAMES = new HttpRealmAuthenticationParameterNamesOption();
-    public static final ResourceOption<String[]> REALM_AUTHENTICATION_COOKIE_NAMES = new HttpRealmAuthenticationCookieNamesOption();
-    public static final ResourceOption<LoginContextFactory> LOGIN_CONTEXT_FACTORY = new HttpLoginContextFactoryOption();
     public static final ResourceOption<String[]> REQUIRED_ROLES = new HttpRequiredRolesOption();
     public static final ResourceOption<Set<HttpInjectableHeader>> INJECTABLE_HEADERS = new HttpInjectableHeadersOption();
     public static final ResourceOption<HttpOriginSecurity> ORIGIN_SECURITY = new HttpOriginSecurityOption();
@@ -306,49 +299,6 @@ public final class HttpResourceAddress extends ResourceAddress {
     private static final class HttpRequiredRolesOption extends HttpResourceOption<String[]> {
         private HttpRequiredRolesOption() {
             super(Kind.REQUIRED_ROLES, "requiredRoles", new String[0]);
-        }
-    }
-    
-    private static final class HttpRealmNameOption extends HttpResourceOption<String> {
-        private HttpRealmNameOption() {
-            super(Kind.REALM_NAME, "realmName");
-        }
-    }
-
-    private static final class HttpRealmChallengeSchemeOption extends HttpResourceOption<String> {
-        private HttpRealmChallengeSchemeOption() {
-            super(Kind.REALM_CHALLENGE_SCHEME, "realmChallengeScheme");
-        }
-    }
-
-    private static final class HttpRealmAuthenticationHeaderNamesOption extends HttpResourceOption<String[]> {
-        private HttpRealmAuthenticationHeaderNamesOption() {
-            super(Kind.REALM_AUTHENTICATION_HEADER_NAMES, "realmAuthenticationHeaderNames", new String[0]);
-        }
-    }
-
-    private static final class HttpRealmAuthenticationParameterNamesOption extends HttpResourceOption<String[]> {
-        private HttpRealmAuthenticationParameterNamesOption() {
-            super(Kind.REALM_AUTHENTICATION_PARAMETER_NAMES, "realmAuthenticationParameterNames", new String[0]);
-        }
-    }
-
-    private static final class HttpRealmAuthenticationCookieNamesOption extends HttpResourceOption<String[]> {
-        private HttpRealmAuthenticationCookieNamesOption() {
-            super(Kind.REALM_AUTHENTICATION_COOKIE_NAMES, "realmAuthenticationCookieNames", new String[0]);
-        }
-    }
-
-
-    private static final class HttpRealmDescriptionOption extends HttpResourceOption<String> {
-        private HttpRealmDescriptionOption() {
-            super(Kind.REALM_DESCRIPTION, "realmDescription");
-        }
-    }
-
-    private static final class HttpLoginContextFactoryOption extends HttpResourceOption<LoginContextFactory> {
-        private HttpLoginContextFactoryOption() {
-            super(Kind.LOGIN_CONTEXT_FACTORY, "loginContextFactory");
         }
     }
 
