@@ -42,7 +42,7 @@ public class TurnRestService implements Service {
 
     private static final String CLASS_PREFIX = "class:";
     private static final char DEFAULT_USER_SEPARATOR = ':';
-    private static final String DEFAULT_CREDENTIALS_TTL = "86400";
+    private static final String DEFAULT_CREDENTIALS_TTL = "24 hours";
     private static final String DEFAULT_KEY_ALGORITHM = "HmacSHA1";
 
     private TurnRestServiceHandler handler;
