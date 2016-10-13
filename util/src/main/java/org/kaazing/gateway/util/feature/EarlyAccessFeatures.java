@@ -26,5 +26,6 @@ public interface EarlyAccessFeatures {
     EarlyAccessFeature TURN_REST_SERVICE = new EarlyAccessFeature("turn.rest", "TURN REST Service", false);
     EarlyAccessFeature HTTP_AUTHENTICATOR = new EarlyAccessFeature("http.authenticator", "HTTP Authenticator", false);
     EarlyAccessFeature LOGIN_MODULE_EXPIRING_STATE = new EarlyAccessFeature("login.module.expiring.state", "Login Module Expiring State", false);
+    EarlyAccessFeature TCP_SECURITY_EXTENSION = new EarlyAccessFeature("tcp.security", "TCP Security Extension", false);
 
 }
