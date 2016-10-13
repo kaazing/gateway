@@ -15,11 +15,14 @@
  */
 package org.kaazing.gateway.resource.address.tcp;
 
+import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.BIND_ADDRESS;
+import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.LOGIN_CONTEXT_FACTORY;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.MAXIMUM_OUTBOUND_RATE;
+import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.REALM;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.TRANSPORT_NAME;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getHost;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getPort;
@@ -47,9 +50,11 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
+import org.kaazing.gateway.security.LoginContextFactory;
 
 public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpResourceAddress> {
 
+    private static final String NETWORK_INTERFACE_AUTHORITY = "(\\[{0,1}@[a-zA-Z0-9 :]*\\]{0,1})";
     private static final String JAVA_NET_PREFER_IPV4_STACK = "java.net.preferIPv4Stack";
     private static final String SCHEME_NAME = "tcp";
     private static final String PROTOCOL_NAME = "tcp";
@@ -97,6 +102,15 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             options.setOption(MAXIMUM_OUTBOUND_RATE, maximumOutboundRate);
         }
 
+        String realm = (String) optionsByName.remove(REALM.name());
+        if (realm != null) {
+            options.setOption(REALM, realm);
+        }
+
+        LoginContextFactory loginContextFactory = (LoginContextFactory) optionsByName.remove(LOGIN_CONTEXT_FACTORY.name());
+        if (loginContextFactory != null) {
+            options.setOption(LOGIN_CONTEXT_FACTORY, loginContextFactory);
+        }
     }
 
     private InetSocketAddress parseBindAddress(Object bindAddress) {
@@ -195,7 +209,17 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             }
         }
         catch (UnknownHostException e) {
-            throw new IllegalArgumentException(format("Unable to resolve DNS name: %s", getHost(location)), e);
+            String host = getHost(location);
+            Pattern pattern = Pattern.compile(URIUtils.NETWORK_INTERFACE_AUTHORITY);
+            Matcher matcher = pattern.matcher(host);
+            // Test for network interface syntax and throw specific error message if found
+            if (matcher.find()) {
+                throw new IllegalArgumentException(format("The interface name %s is not recognized", host), e);
+            }
+            // Network interface syntax format not detected so generic error message can be thrown
+            else {
+                throw new IllegalArgumentException(format("Unable to resolve DNS name: %s", host), e);
+            }
         }
 
         if (tcpAddresses.isEmpty()) {
@@ -233,6 +257,8 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
 
         address.setOption0(BIND_ADDRESS, options.getOption(BIND_ADDRESS));
         address.setOption0(MAXIMUM_OUTBOUND_RATE, options.getOption(MAXIMUM_OUTBOUND_RATE));
+        address.setOption0(REALM, options.getOption(REALM));
+        address.setOption0(LOGIN_CONTEXT_FACTORY, options.getOption(LOGIN_CONTEXT_FACTORY));
     }
 
     /**
