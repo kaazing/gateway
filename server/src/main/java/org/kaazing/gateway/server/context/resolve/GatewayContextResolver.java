@@ -26,7 +26,7 @@ import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getUserInfo;
 import static org.kaazing.gateway.service.util.ServiceUtils.LIST_SEPARATOR;
 import static org.kaazing.gateway.util.feature.EarlyAccessFeatures.LOGIN_MODULE_EXPIRING_STATE;
-import static org.kaazing.gateway.util.feature.EarlyAccessFeatures.TCP_SECURITY_EXTENSION;
+import static org.kaazing.gateway.util.feature.EarlyAccessFeatures.TCP_REALM_EXTENSION;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -648,7 +648,7 @@ public class GatewayContextResolver {
                     (defaultServiceConfig != null) ? defaultServiceConfig.getAcceptOptions() : null;
             AcceptOptionsContext acceptOptionsContext = new DefaultAcceptOptionsContext(acceptOptions, defaultOptionsConfig);
             if (acceptOptionsContext.asOptionsMap().containsKey("tcp.realm")) {
-                TCP_SECURITY_EXTENSION.assertEnabled(configuration, LOGGER);
+                TCP_REALM_EXTENSION.assertEnabled(configuration, LOGGER);
             }
 
             ServiceConnectOptionsType connectOptions = serviceConfig.getConnectOptions();
