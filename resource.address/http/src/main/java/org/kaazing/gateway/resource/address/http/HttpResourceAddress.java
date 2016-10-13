@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -59,18 +60,14 @@ public final class HttpResourceAddress extends ResourceAddress {
 
     public static final ResourceOption<Integer> MAX_AUTHENTICATION_ATTEMPTS = new MaxAuthenticationAttemptsOption();
 
+    public static final ResourceOption<List<HttpRealmConfig>> REALMS = new HttpRealmsOption();
+
     private Boolean serverHeaderEnabled = SERVER_HEADER_ENABLED.defaultValue();
     private Boolean keepAlive = KEEP_ALIVE.defaultValue();
     private Integer httpMaxRedirects = MAXIMUM_REDIRECTS.defaultValue();
     private Integer keepAliveTimeout = KEEP_ALIVE_TIMEOUT.defaultValue();
     private Integer keepAliveMaxConnections = KEEP_ALIVE_CONNECTIONS.defaultValue();
     private String[] requiredRoles = REQUIRED_ROLES.defaultValue();
-    private String realmName;
-    private String realmChallengeScheme;
-    private String realmDescription;
-    private String[] realmAuthenticationHeaderNames;
-    private String[] realmAuthenticationParameterNames;
-    private String[] realmAuthenticationCookieNames;
     private LoginContextFactory loginContextFactory;
     private Set<HttpInjectableHeader> injectableHeaders = INJECTABLE_HEADERS.defaultValue();
     private HttpOriginSecurity originSecurity;
@@ -84,6 +81,8 @@ public final class HttpResourceAddress extends ResourceAddress {
     private String authenticationIdentifier;
     private String encryptionKeyAlias;
     private String serviceDomain;
+
+    private List<HttpRealmConfig> realms;
 
     private Collection<Class<? extends Principal>> realmUserPrincipalClasses;
 
@@ -132,6 +131,8 @@ public final class HttpResourceAddress extends ResourceAddress {
                     return (V) maxAuthenticationAttempts;
                 case REALM_USER_PRINCIPAL_CLASSES:
                     return (V) realmUserPrincipalClasses;
+                case REALMS:
+                    return (V) realms;
             }
         }
 
@@ -195,6 +196,9 @@ public final class HttpResourceAddress extends ResourceAddress {
                 case MAX_AUTHENTICATION_ATTEMPTS:
                     maxAuthenticationAttempts = (Integer) value;
                     return;
+                case REALMS:
+                    realms = (List<HttpRealmConfig>) value;
+                    return;
             }
         }
 
@@ -214,7 +218,26 @@ public final class HttpResourceAddress extends ResourceAddress {
     public static class HttpResourceOption<T> extends ResourceOption<T> {
 
         protected enum Kind {
-            KEEP_ALIVE, KEEP_ALIVE_TIMEOUT, KEEP_ALIVE_CONNECTIONS, REQUIRED_ROLES, INJECTABLE_HEADERS, ORIGIN_SECURITY, TEMP_DIRECTORY, GATEWAY_ORIGIN_SECURITY, BALANCE_ORIGINS, AUTHENTICATION_CONNECT, AUTHENTICATION_IDENTIFIER, ENCRYPTION_KEY_ALIAS, SERVICE_DOMAIN, SERVER_HEADER, REALM_USER_PRINCIPAL_CLASSES, MAX_REDIRECTS, MAX_AUTHENTICATION_ATTEMPTS;
+            //@formatter:off
+            KEEP_ALIVE,
+            KEEP_ALIVE_TIMEOUT,
+            KEEP_ALIVE_CONNECTIONS,
+            REQUIRED_ROLES,
+            INJECTABLE_HEADERS,
+            ORIGIN_SECURITY,
+            TEMP_DIRECTORY,
+            GATEWAY_ORIGIN_SECURITY,
+            BALANCE_ORIGINS,
+            AUTHENTICATION_CONNECT,
+            AUTHENTICATION_IDENTIFIER,
+            ENCRYPTION_KEY_ALIAS,
+            SERVICE_DOMAIN,
+            SERVER_HEADER,
+            REALM_USER_PRINCIPAL_CLASSES,
+            MAX_REDIRECTS,
+            MAX_AUTHENTICATION_ATTEMPTS,
+            REALMS;
+          //@formatter:on
         }
 
         private static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
@@ -331,6 +354,12 @@ public final class HttpResourceAddress extends ResourceAddress {
     private static final class MaxAuthenticationAttemptsOption extends HttpResourceOption<Integer> {
         private MaxAuthenticationAttemptsOption() {
             super(Kind.MAX_AUTHENTICATION_ATTEMPTS, "max.authentication.attempts", 0);
+        }
+    }
+
+    private static final class HttpRealmsOption extends HttpResourceOption<List<HttpRealmConfig>> {
+        private HttpRealmsOption() {
+            super(Kind.REALMS, "realms", new ArrayList<HttpRealmConfig>());
         }
     }
 

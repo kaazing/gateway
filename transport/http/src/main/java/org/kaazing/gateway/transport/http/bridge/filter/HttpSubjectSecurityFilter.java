@@ -18,6 +18,7 @@ package org.kaazing.gateway.transport.http.bridge.filter;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -28,6 +29,7 @@ import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.http.HttpRealmConfig;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 import org.kaazing.gateway.security.auth.DefaultLoginResult;
@@ -35,6 +37,7 @@ import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.security.auth.token.DefaultAuthenticationToken;
 import org.kaazing.gateway.transport.http.DefaultHttpSession;
 import org.kaazing.gateway.transport.http.HttpCookie;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.bridge.HttpMessage;
@@ -60,7 +63,6 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
     public static final String AUTH_SCHEME_APPLICATION_PREFIX = "Application ";
     public static final String AUTH_SCHEME_BASIC = "Basic";
     public static final String AUTH_SCHEME_NEGOTIATE = "Negotiate";
-
     static final AttributeKey NEW_SESSION_COOKIE_KEY = new AttributeKey(HttpSubjectSecurityFilter.class, "sessionCookie");
 
     private final AuthorizationMap authorizationMap;
@@ -102,10 +104,14 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
             httpRequest.setSubject( ((IoSessionEx)session).getSubject() );
         }
 
+        // DPW do recover of expiring state here, need to figure out how to get expiring state,
+        // note definition is in gateway.server.api, and impl in gateway.server
+        // currently http does not have dependencies on either of those
+        // it can not have a dep on gateway.server 
         ResourceAddress httpAddress = httpRequest.getLocalAddress();
-        String realmName = httpAddress.getOption(HttpResourceAddress.REALM_NAME);
+        List<HttpRealmConfig> realms = httpAddress.getOption(HttpResourceAddress.REALMS);
 
-        if ( realmName == null ) {
+        if (realms.isEmpty()) {
             ResultAwareLoginContext loginContext = null;
             // Make sure we propagate the login context from the layer below in httpxe case
             if (session instanceof DefaultHttpSession) {
@@ -314,9 +320,12 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
 
         ResourceAddress httpAddress = httpRequest.getLocalAddress();
 
-        String realmName = httpAddress.getOption(HttpResourceAddress.REALM_NAME);
-        String realmChallengeScheme = httpAddress.getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
-
+        
+        List<HttpRealmConfig> realms = httpAddress.getOption(HttpResourceAddress.REALMS);
+        
+        // TODO, add logic 
+        // sec_chec = message.getHeaders(HttpHeaders.HEADER_SEC_CHALLENGE_IDENTITY);
+        // reauthenticate
         if ( alreadyLoggedIn(session, httpAddress)) {
             // KG-3232, KG-3267: we should never leave the login context unset
             // for unprotected services.
@@ -331,7 +340,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
             return;
         }
 
-        if ( realmName == null ) {
+        if (realms.isEmpty()) {
             setUnprotectedLoginContext(httpRequest);
             if (loggerIsEnabled) {
                 logger.trace("HttpSecurityStandardFilter skipped because no realm is configured.");
@@ -339,6 +348,9 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
             super.doMessageReceived(nextFilter, session, message);
             return;
         }
+        
+        // realms TODO go to current realm, only doing 0 for now;
+        HttpRealmConfig realm = realms.get(0);
 
         AuthenticationTokenExtractor tokenExtractor = DefaultAuthenticationTokenExtractor.INSTANCE;
 
@@ -347,7 +359,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         // so stop the filter chain here.
         //
 
-        DefaultAuthenticationToken authToken = (DefaultAuthenticationToken) tokenExtractor.extract(httpRequest);
+        DefaultAuthenticationToken authToken = (DefaultAuthenticationToken) tokenExtractor.extract(httpRequest, realm);
 
         // If the client request provided authentication data which has
         // a challenge scheme, make sure that the client-sent challenge
@@ -355,7 +367,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         // request, and the client should be informed of this.
 
         String clientChallengeScheme = authToken.getScheme();
-        String expectedChallengeScheme = getBaseAuthScheme(realmChallengeScheme);
+        String expectedChallengeScheme = getBaseAuthScheme(realm.getChallengeScheme());
 
         if (clientChallengeScheme != null &&
                 clientChallengeScheme.equals(expectedChallengeScheme) == false) {
@@ -380,7 +392,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         suspendIncoming(session);
 
         // Schedule LoginContext.login() execution using a separate thread
-        LoginContextTask loginContextTask = new LoginContextTask(nextFilter, session, httpRequest, authToken, null);
+        LoginContextTask loginContextTask = new LoginContextTask(nextFilter, session, httpRequest, authToken, null, realm);
         scheduler.execute(loginContextTask);
     }
 
@@ -392,15 +404,17 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         private final DefaultAuthenticationToken authToken;
         private final TypedCallbackHandlerMap additionalCallbacks;
         private final long createdTime;
+        private final HttpRealmConfig realm;
 
         LoginContextTask(NextFilter nextFilter, IoSession session, HttpRequestMessage httpRequest,
-                         DefaultAuthenticationToken authToken, TypedCallbackHandlerMap additionalCallbacks) {
+                         DefaultAuthenticationToken authToken, TypedCallbackHandlerMap additionalCallbacks, HttpRealmConfig realm) {
             this.nextFilter = nextFilter;
             this.session = session;
             this.httpRequest = httpRequest;
             this.authToken = authToken;
             this.additionalCallbacks = additionalCallbacks;
             this.createdTime = System.currentTimeMillis();
+            this.realm = realm;
         }
 
         @Override
@@ -409,7 +423,12 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
                 logger.trace("Executing login task %d ms after scheduling for session %s",
                         (System.currentTimeMillis() - createdTime) , session);
             }
-            boolean succeeded = login(nextFilter, session, httpRequest, authToken, additionalCallbacks);
+            // 
+            boolean succeeded = login(nextFilter, session, httpRequest, authToken, additionalCallbacks, realm);
+            // DPW TODO, if succeeded save state and check next realm...
+            //if(succeeded)
+            
+            //
             try {
                 if (succeeded) {
                     // Complete the rest of the filter chain

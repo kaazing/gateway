@@ -730,27 +730,6 @@ public class DefaultServiceContext implements ServiceContext {
         }
     }
 
-    /**
-     * Method converting String[] userPrincipalClasses to Class[]
-     * @param userPrincipalClasses
-     * @return
-     */
-   private Collection<Class<? extends Principal>> getUserPrincipalClasses(String[] userPrincipalClasses) {
-       Collection<Class<? extends Principal>> userPrincipals = new ArrayList<>();
-       for (String item : serviceRealmContext.getUserPrincipalClasses()) {
-           try {
-               userPrincipals.add(Class.forName(item).asSubclass(Principal.class));
-           } catch (ClassNotFoundException e) {
-               throw new RuntimeException(
-                     format("%s%s%s", "Class ", item,
-                            " could not be loaded. Please check the gateway configuration xml and confirm that"
-                            + " user-principal-class value(s) are spelled correctly for realm "
-                            + serviceRealmContext.getName() + "."), new ClassNotFoundException(e.getMessage()));
-           }
-       }
-   return userPrincipals;
-    }
-
     private Collection<String> toHttpBalanceOriginURIs(Collection<String> balances) {
         if (balances == null || balances.isEmpty()) {
             return balances;

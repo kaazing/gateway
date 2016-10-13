@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.net.URI;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -45,6 +46,7 @@ import org.jmock.lib.concurrent.Synchroniser;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.http.HttpRealmConfig;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.resource.address.tcp.TcpResourceAddressFactorySpi;
 import org.kaazing.gateway.security.LoginContextFactory;
@@ -121,11 +123,8 @@ public class HttpSubjectSecurityFilterTest {
         message.setLocalAddress(address);
         context.checking(new Expectations() {
             {
-                allowing(address).getOption(HttpResourceAddress.REALM_NAME);
-                will(returnValue(null));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
-                will(returnValue(null));
+                allowing(address).getOption(HttpResourceAddress.REALMS);
+                will(returnValue(new ArrayList<HttpRealmConfig>()));
 
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(null));
@@ -160,11 +159,8 @@ public class HttpSubjectSecurityFilterTest {
         context.checking(new Expectations() {
             {
 
-                allowing(address).getOption(HttpResourceAddress.REALM_NAME);
-                will(returnValue(null));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
-                will(returnValue(null));
+                allowing(address).getOption(HttpResourceAddress.REALMS);
+                will(returnValue(new ArrayList<HttpRealmConfig>()));
 
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(null));
@@ -224,11 +220,8 @@ public class HttpSubjectSecurityFilterTest {
 
         context.checking(new Expectations() {
             {
-                allowing(address).getOption(HttpResourceAddress.REALM_NAME);
-                will(returnValue(null));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
-                will(returnValue(null));
+                allowing(address).getOption(HttpResourceAddress.REALMS);
+                will(returnValue(new ArrayList<HttpRealmConfig>()));
 
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(new String[]{}));
@@ -268,11 +261,8 @@ public class HttpSubjectSecurityFilterTest {
 
         context.checking(new Expectations() {
             {
-                allowing(address).getOption(HttpResourceAddress.REALM_NAME);
-                will(returnValue(null));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
-                will(returnValue(null));
+                allowing(address).getOption(HttpResourceAddress.REALMS);
+                will(returnValue(new ArrayList<HttpRealmConfig>()));
 
                 // alreadyLoggedIn == false
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
@@ -339,34 +329,18 @@ public class HttpSubjectSecurityFilterTest {
             {
                 oneOf(session).getRemoteAddress(); will(returnValue(tcpResourceAddress));
 
-                oneOf(session).getSubject(); will(returnValue(null));
-                allowing(address).getOption(HttpResourceAddress.REALM_NAME);
-                will(returnValue("demo"));
+                allowing(address).getOption(HttpResourceAddress.REALMS);
+                final ArrayList<HttpRealmConfig> realms = new ArrayList<HttpRealmConfig>();
+                realms.add(new HttpRealmConfig("demo", null, "Application Token", null,  new String[]{"foo"}, new String[]{}, new String[]{}, loginContextFactory, null));
+                will(returnValue(realms));
 
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(new String[]{"AUTHORIZED"}));
 
-                allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
-                will(returnValue("Application Token"));
-
-                // not already logged in
-                oneOf(session).getSubject();
-
+                // not already logged in, DPW -- Not sure why I needed to change this to allowing, double check
+                allowing(session).getSubject();
 
                 // login() method itself
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES);
-                will(returnValue(null));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_PARAMETER_NAMES);
-                will(returnValue(null));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES);
-                will(returnValue(null));
-
-
-                oneOf(address).getOption(HttpResourceAddress.LOGIN_CONTEXT_FACTORY);
-                will(returnValue(loginContextFactory));
-
                 oneOf(loginContextFactory).createLoginContext(with(aNonNull(TypedCallbackHandlerMap.class)));
                 will(returnValue(loginContext));
 
@@ -444,32 +418,17 @@ public class HttpSubjectSecurityFilterTest {
         context.checking(new Expectations() {
             {
                 oneOf(session).getSubject(); will(returnValue(null));
-                allowing(address).getOption(HttpResourceAddress.REALM_NAME);
-                will(returnValue("demo"));
 
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(new String[]{"AUTHORIZED"}));
 
-                allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
-                will(returnValue("Application Token"));
+                allowing(address).getOption(HttpResourceAddress.REALMS);
+                final ArrayList<HttpRealmConfig> realms = new ArrayList<HttpRealmConfig>();
+                realms.add(new HttpRealmConfig("demo", null, "Application Token", null,  new String[]{"foo"}, new String[]{}, new String[]{}, loginContextFactory, null));
+                will(returnValue(realms));
 
                 // not already logged in
                 oneOf(session).getSubject();
-
-
-                // login() method itself
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES);
-                will(returnValue(null));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_PARAMETER_NAMES);
-                will(returnValue(null));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES);
-                will(returnValue(null));
-
-
-                oneOf(address).getOption(HttpResourceAddress.LOGIN_CONTEXT_FACTORY);
-                will(returnValue(loginContextFactory));
 
                 oneOf(loginContextFactory).createLoginContext(with(aNonNull(TypedCallbackHandlerMap.class)));
                 will(returnValue(loginContext));
@@ -538,11 +497,10 @@ public class HttpSubjectSecurityFilterTest {
 
         context.checking(new Expectations() {
             {
-                allowing(address).getOption(HttpResourceAddress.REALM_NAME);
-                will(returnValue("demo"));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
-                will(returnValue("Application Token"));
+                allowing(address).getOption(HttpResourceAddress.REALMS);
+                final ArrayList<HttpRealmConfig> realms = new ArrayList<HttpRealmConfig>();
+                realms.add(new HttpRealmConfig("demo", null, "Application Token", null,  new String[]{"foo"}, new String[]{}, new String[]{}, loginContextFactory, null));
+                will(returnValue(realms));
 
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(new String[]{"AUTHORIZED"}));
@@ -550,18 +508,6 @@ public class HttpSubjectSecurityFilterTest {
                 // not already logged in
                 oneOf(session).getSubject(); will(returnValue(null));
 
-                // login() method itself
-                oneOf(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES);
-                will(returnValue(null));
-
-                oneOf(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_PARAMETER_NAMES);
-                will(returnValue(null));
-
-                oneOf(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES);
-                will(returnValue(null));
-
-                oneOf(address).getOption(HttpResourceAddress.LOGIN_CONTEXT_FACTORY);
-                will(returnValue(loginContextFactory));
                 oneOf(loginContextFactory).createLoginContext(with(aNonNull(TypedCallbackHandlerMap.class)));
                 will(returnValue(loginContext));
                 oneOf(session).suspendRead();
@@ -625,31 +571,17 @@ public class HttpSubjectSecurityFilterTest {
 
         context.checking(new Expectations() {
             {
-                allowing(address).getOption(HttpResourceAddress.REALM_NAME);
-                will(returnValue("demo"));
+                allowing(address).getOption(HttpResourceAddress.REALMS);
+                final ArrayList<HttpRealmConfig> realms = new ArrayList<HttpRealmConfig>();
+                realms.add(new HttpRealmConfig("demo", null, "Application Token", null,  new String[]{"foo"}, new String[]{}, new String[]{}, loginContextFactory, null));
+                will(returnValue(realms));
 
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(new String[]{"AUTHORIZED"}));
 
-                allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
-                will(returnValue("Application Token"));
-
                 // not already logged in
                 oneOf(session).getSubject(); will(returnValue(null));
 
-
-                // login() method itself
-                oneOf(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES);
-                will(returnValue(null));
-
-                oneOf(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_PARAMETER_NAMES);
-                will(returnValue(null));
-
-                oneOf(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES);
-                will(returnValue(null));
-
-                oneOf(address).getOption(HttpResourceAddress.LOGIN_CONTEXT_FACTORY);
-                will(returnValue(loginContextFactory));
                 oneOf(loginContextFactory).createLoginContext(with(aNonNull(TypedCallbackHandlerMap.class)));
                 will(returnValue(loginContext));
                 oneOf(session).suspendRead();

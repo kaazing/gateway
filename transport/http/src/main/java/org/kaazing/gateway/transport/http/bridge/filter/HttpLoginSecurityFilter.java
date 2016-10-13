@@ -37,6 +37,7 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.http.HttpRealmConfig;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.security.LoginContextFactory;
 import org.kaazing.gateway.security.TypedCallbackHandlerMap;
@@ -148,7 +149,8 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                                       IoSession session,
                                       HttpRequestMessage httpRequest,
                                       AuthenticationToken authToken,
-                                      TypedCallbackHandlerMap additionalCallbacks) {
+                                      TypedCallbackHandlerMap additionalCallbacks,
+                                      HttpRealmConfig realm) {
 
         DefaultLoginResult loginResult;
 
@@ -158,11 +160,11 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         ResultAwareLoginContext loginContext = null;
         ResourceAddress address = httpRequest.getLocalAddress();
 
-        String httpChallengeScheme = address.getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
+        String httpChallengeScheme = realm.getChallengeScheme();
         try {
 
 
-            LoginContextFactory loginContextFactory = address.getOption(HttpResourceAddress.LOGIN_CONTEXT_FACTORY);
+            LoginContextFactory loginContextFactory = realm.getLoginContextFactory();
             TypedCallbackHandlerMap callbackHandlerMap = new TypedCallbackHandlerMap();
 
             registerCallbacks(session, httpRequest, authToken, callbackHandlerMap);
@@ -218,7 +220,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
             challengeData = loginResult.getLoginChallengeData();
         }
 
-        HttpResponseMessage httpResponse = challengeFactory.createChallenge(httpRequest, challengeData);
+        HttpResponseMessage httpResponse = challengeFactory.createChallenge(httpRequest, realm, challengeData);
 
         if (loggerEnabled()) {
             String challenge = httpResponse.getHeader(HttpSubjectSecurityFilter.WWW_AUTHENTICATE_HEADER);
@@ -261,7 +263,8 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                             IoSession session,
                             HttpRequestMessage httpRequest,
                             AuthenticationToken authToken,
-                            TypedCallbackHandlerMap additionalCallbacks) {
+                            TypedCallbackHandlerMap additionalCallbacks,
+                            HttpRealmConfig realm) {
 
         ResourceAddress address = httpRequest.getLocalAddress();
         String[] requiredRolesArray = address.getOption(HttpResourceAddress.REQUIRED_ROLES);
@@ -293,7 +296,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         // Issue a challenge since authentication is required.
         if (authTokenIsMissing(authToken) &&
             rolesAreSufficient == false) {
-            return loginMissingToken(nextFilter, session, httpRequest, authToken, additionalCallbacks);
+            return loginMissingToken(nextFilter, session, httpRequest, authToken, additionalCallbacks, realm);
         }
 
         DefaultLoginResult loginResult = null;
@@ -315,7 +318,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
         if (!rolesAreSufficient) {
             // We have a token to validate - let us validate it by logging in to a login module.
-            final LoginContextFactory loginContextFactory = address.getOption(HttpResourceAddress.LOGIN_CONTEXT_FACTORY);
+            final LoginContextFactory loginContextFactory = realm.getLoginContextFactory();
 
             try {
                 TypedCallbackHandlerMap callbackHandlerMap = new TypedCallbackHandlerMap();
@@ -357,7 +360,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                         if (data == null || data.length == 0) {
 
                             //KG-2207, KG-3464, KG-3389
-                            if (! HttpBaseSecurityFilter.AUTH_SCHEME_BASIC.equals(getBaseAuthScheme(address.getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME)))) {
+                            if (! HttpBaseSecurityFilter.AUTH_SCHEME_BASIC.equals(getBaseAuthScheme(realm.getChallengeScheme()))) {
                                 if (loggerEnabled()) {
                                     log("Login module login succeeded but requires another challenge, however no new challenge data was provided.");
                                 }
@@ -368,7 +371,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                     }
                     // Login was successful, but the subject identified does not have required roles
                     // to create the web socket.  We re-issue a challenge here.
-                    String challenge = sendChallengeResponse(nextFilter, session, httpRequest, loginResult);
+                    String challenge = sendChallengeResponse(nextFilter, session, httpRequest, loginResult, realm);
                     if (loggerEnabled()) {
                         if ( resultType != LoginResult.Type.CHALLENGE) {
                             log(String.format("Login module login succeeded but subject missing required roles; Issued another challenge '%s'.", challenge));
@@ -386,8 +389,8 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                 }
 
                 //KG-2207, KG-3389
-                if ( HttpBaseSecurityFilter.AUTH_SCHEME_BASIC.equals(getBaseAuthScheme(address.getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME))) ) {
-                    String challenge = sendChallengeResponse(nextFilter, session, httpRequest, loginResult);
+                if ( HttpBaseSecurityFilter.AUTH_SCHEME_BASIC.equals(getBaseAuthScheme(realm.getChallengeScheme()))) {
+                    String challenge = sendChallengeResponse(nextFilter, session, httpRequest, loginResult, realm);
                     if (loggerEnabled()) {
                         log(String.format("Login module login failed; Issued another challenge '%s'.", challenge), e);
                     }
@@ -427,11 +430,10 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         return loginOK;
     }
 
-    private String sendChallengeResponse(NextFilter nextFilter, IoSession session, HttpRequestMessage httpRequest,  DefaultLoginResult loginResult) {
-        ResourceAddress localAddress = httpRequest.getLocalAddress();
+    private String sendChallengeResponse(NextFilter nextFilter, IoSession session, HttpRequestMessage httpRequest, DefaultLoginResult loginResult, HttpRealmConfig realm) {
         Object[] challengeData = loginResult == null ? null : loginResult.getLoginChallengeData();
-        HttpResponseMessage httpResponse = challengeFactory.createChallenge(httpRequest, challengeData);
-        writeChallenge(httpResponse, nextFilter, session, localAddress.getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME));
+        HttpResponseMessage httpResponse = challengeFactory.createChallenge(httpRequest, realm, challengeData);
+        writeChallenge(httpResponse, nextFilter, session, realm.getChallengeScheme());
         return httpResponse.getHeader(HttpSubjectSecurityFilter.WWW_AUTHENTICATE_HEADER);
     }
 

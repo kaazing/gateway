@@ -18,8 +18,7 @@ package org.kaazing.gateway.transport.http.security.auth.token;
 import java.io.UnsupportedEncodingException;
 import java.util.Set;
 
-import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
+import org.kaazing.gateway.resource.address.http.HttpRealmConfig;
 import org.kaazing.gateway.security.auth.token.DefaultAuthenticationToken;
 import org.kaazing.gateway.server.spi.security.AuthenticationToken;
 import org.kaazing.gateway.transport.http.HttpCookie;
@@ -29,16 +28,14 @@ import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilte
 public class AbstractAuthenticationTokenExtractor implements AuthenticationTokenExtractor {
 
     @Override
-    public AuthenticationToken extract(HttpRequestMessage httpRequest) throws UnsupportedEncodingException {
+    public AuthenticationToken extract(HttpRequestMessage httpRequest, HttpRealmConfig realm) throws UnsupportedEncodingException {
         DefaultAuthenticationToken result = new DefaultAuthenticationToken();
 
         extractAuthorizationHeader(httpRequest, result);
 
-        ResourceAddress address = httpRequest.getLocalAddress();
-
-        final String[] httpHeaders = address.getOption(HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES);
-        final String[] httpQueryParameters = address.getOption(HttpResourceAddress.REALM_AUTHENTICATION_PARAMETER_NAMES);
-        final String[] httpCookieNames = address.getOption(HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES);
+        final String[] httpHeaders = realm.getHeaderNames();
+        final String[] httpQueryParameters = realm.getParameterNames();
+        final String[] httpCookieNames = realm.getAuthenticationCookieNames();
 
         if ( httpHeaders != null && httpHeaders.length > 0 ) {
             extractHttpHeaders(httpRequest, httpHeaders, result);

@@ -32,11 +32,14 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_TIMEOUT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.MAXIMUM_REDIRECTS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.MAX_AUTHENTICATION_ATTEMPTS;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALMS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REQUIRED_ROLES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.SERVER_HEADER_ENABLED;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.security.auth.Subject;
@@ -66,6 +69,9 @@ public class HttpResourceAddressFactorySpiTest {
         }
     };
 
+    private final List<HttpRealmConfig> realms =
+            Arrays.asList(new HttpRealmConfig[]{new HttpRealmConfig(null, null, null, null, null, null, null, null, null)});
+
     @Before
     public void before() {
         addressFactorySpi = new HttpResourceAddressFactorySpi();
@@ -89,7 +95,7 @@ public class HttpResourceAddressFactorySpiTest {
         options.put("http.loginContextFactory", loginContextFactory);
         options.put("http.serverHeaderEnabled", Boolean.FALSE);
         options.put("http.max.authentication.attempts", 5);
-
+        options.put("http.realms", realms);
     }
 
     @Test
@@ -125,6 +131,7 @@ public class HttpResourceAddressFactorySpiTest {
         assertEquals(address.getOption(KEEP_ALIVE_CONNECTIONS).intValue(), DEFAULT_HTTP_KEEPALIVE_CONNECTIONS);
         assertEmpty(address.getOption(REQUIRED_ROLES));
         assertTrue(address.getOption(SERVER_HEADER_ENABLED));
+        assertTrue(address.getOption(REALMS).isEmpty());
         assertEquals(new Integer(0), address.getOption(MAX_AUTHENTICATION_ATTEMPTS));
     }
 
@@ -139,7 +146,7 @@ public class HttpResourceAddressFactorySpiTest {
         assertFalse(address.getOption(KEEP_ALIVE));
         assertEquals(address.getOption(MAXIMUM_REDIRECTS), new Integer(0));
         assertArrayEquals(new String[] { "admin" }, address.getOption(REQUIRED_ROLES));
-
+        assertEquals(realms, address.getOption(REALMS));
         assertFalse(address.getOption(SERVER_HEADER_ENABLED));
         assertEquals(new Integer(5), address.getOption(MAX_AUTHENTICATION_ATTEMPTS));
     }
@@ -163,5 +170,4 @@ public class HttpResourceAddressFactorySpiTest {
             assertEquals(0, objects.length);
         }
     }
-    
 }

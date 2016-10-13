@@ -16,6 +16,12 @@
 
 package org.kaazing.gateway.resource.address.http;
 
+import static java.lang.String.format;
+
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.kaazing.gateway.security.AuthenticationContext;
 import org.kaazing.gateway.security.LoginContextFactory;
 import org.kaazing.gateway.security.RealmContext;
@@ -26,25 +32,63 @@ public class HttpRealmConfig {
 
     private final String name;
     private final String authorizationMode;
-    private final String realmChallengeScheme;
+    private final String challengeScheme;
     private final String description;
     private final String[] headerNames;
     private final String[] parameterNames;
     private final String[] authenticationCookieNames;
     private final LoginContextFactory loginContextFactory;
-    private final String[] userPrincipleClasses;
+    private final Collection<Class<? extends Principal>> userPrincipleClasses;
 
     public HttpRealmConfig(RealmContext serviceRealmContext) {
-        AuthenticationContext authenticationContext = serviceRealmContext.getAuthenticationContext();
+        // TODO, change call site to this to use other constructor
+        final AuthenticationContext authenticationContext = serviceRealmContext.getAuthenticationContext();
         name = serviceRealmContext.getName();
         authorizationMode = authenticationContext.getAuthorizationMode();
-        realmChallengeScheme = authenticationContext.getHttpChallengeScheme();
+        challengeScheme = authenticationContext.getHttpChallengeScheme();
         description = serviceRealmContext.getDescription();
         headerNames = authenticationContext.getHttpHeaders();
         parameterNames = authenticationContext.getHttpQueryParameters();
         authenticationCookieNames = authenticationContext.getHttpCookieNames();
         loginContextFactory = serviceRealmContext.getLoginContextFactory();
-        userPrincipleClasses = serviceRealmContext.getUserPrincipalClasses();
+        userPrincipleClasses = loadUserPrincipalClasses(serviceRealmContext.getUserPrincipalClasses());
+    }
+
+    // TODO remove Authorization Mode
+    public HttpRealmConfig(String name, String authorizationMode, String challengeScheme, String description,
+            String[] headerNames, String[] parameterNames, String[] authenticationCookieNames,
+            LoginContextFactory loginContextFactory, Collection<Class<? extends Principal>> userPrincipleClasses) {
+        this.name = name;
+        this.authorizationMode = authorizationMode;
+        this.challengeScheme = challengeScheme;
+        this.description = description;
+        this.headerNames = headerNames;
+        this.parameterNames = parameterNames;
+        this.authenticationCookieNames = authenticationCookieNames;
+        this.loginContextFactory = loginContextFactory;
+        this.userPrincipleClasses = userPrincipleClasses;
+
+    }
+
+    /**
+     * Method converting String[] userPrincipalClasses to Class[]
+     * @param userPrincipalClasses
+     * @return
+     */
+    private Collection<Class<? extends Principal>> loadUserPrincipalClasses(String[] userPrincipalClasses) {
+        Collection<Class<? extends Principal>> userPrincipals = new ArrayList<>();
+        for (String className : userPrincipalClasses) {
+            try {
+                userPrincipals.add(Class.forName(className).asSubclass(Principal.class));
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(
+                        format("%s%s%s", "Class ", className,
+                                " could not be loaded. Please check the gateway configuration xml and confirm that"
+                                        + " user-principal-class value(s) are spelled correctly for realm " + name + "."),
+                        new ClassNotFoundException(e.getMessage()));
+            }
+        }
+        return userPrincipals;
     }
 
     public String getName() {
@@ -55,8 +99,8 @@ public class HttpRealmConfig {
         return authorizationMode;
     }
 
-    public String getRealmChallengeScheme() {
-        return realmChallengeScheme;
+    public String getChallengeScheme() {
+        return challengeScheme;
     }
 
     public String getDescription() {
@@ -79,7 +123,7 @@ public class HttpRealmConfig {
         return loginContextFactory;
     }
 
-    public String[] getUserPrincipleClasses() {
+    public Collection<Class<? extends Principal>> getUserPrincipleClasses() {
         return userPrincipleClasses;
     }
 
