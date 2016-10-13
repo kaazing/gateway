@@ -15,6 +15,10 @@
  */
 package org.kaazing.gateway.util;
 
+import static java.lang.String.format;
+
+import java.io.IOException;
+
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 
@@ -25,19 +29,25 @@ public final class LoggingUtils {
     }
 
     public static void log(IoSession session, Logger logger, Throwable t) {
-        if (logger.isDebugEnabled()) {
-            logger.debug(t.getMessage(), t);
-        } else {
-            logger.info(t.getMessage());
-        }
+        log(session, logger, t.getMessage(), t);
     }
 
     public static void log(IoSession session, Logger logger, String message, Throwable t) {
         if (logger.isDebugEnabled()) {
-            logger.debug(message, t);
+            // don't print stack for IOExceptions ("Network connectivity has been lost or transport was closed at other end")
+            Throwable stack = t instanceof IOException ? t.getCause() : t;
+            if (stack != null) {
+                logger.debug(includeSession(message, session), t);
+            } else {
+                logger.debug(includeSession(message, session));
+            }
         } else {
-            logger.info(message);
+            logger.info(includeSession(message, session));
         }
+    }
+
+    private static String includeSession(String message, IoSession session) {
+        return format("%s %s", session, message);
     }
 
 }
