@@ -26,7 +26,6 @@ public class GrantPrincipal implements Principal {
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
 		return this.name;
 	}
 
