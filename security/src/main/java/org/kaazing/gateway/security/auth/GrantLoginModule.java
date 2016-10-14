@@ -24,38 +24,39 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
 public class GrantLoginModule implements LoginModule {
-	private Principal principal;
-	private Subject subject;
-	private String name;
-	@Override
-	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
-		this.subject=subject;
-		this.name = (String) options.get("name");
-	}
+    private Principal principal;
+    private Subject subject;
+    private String name;
 
-	@Override
-	public boolean login() throws LoginException {
-		this.principal = new GrantPrincipal(this.name);
+    @Override
+    public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
+        this.subject = subject;
+        this.name = (String) options.get("name");
+    }
 
-		return true;
-	}
+    @Override
+    public boolean login() throws LoginException {
+        this.principal = new GrantPrincipal(this.name);
 
-	@Override
-	public boolean commit() throws LoginException {
-		this.subject.getPrincipals().add(this.principal);
-		return true;
-	}
+        return true;
+    }
 
-	@Override
-	public boolean abort() throws LoginException {
-		this.subject.getPrincipals().remove(this.principal);	
-		return true;
-	}
+    @Override
+    public boolean commit() throws LoginException {
+        this.subject.getPrincipals().add(this.principal);
+        return true;
+    }
 
-	@Override
-	public boolean logout() throws LoginException {
-		this.subject.getPrincipals().remove(this.principal);	
-		return true;
-	}
+    @Override
+    public boolean abort() throws LoginException {
+        this.subject.getPrincipals().remove(this.principal);
+        return true;
+    }
+
+    @Override
+    public boolean logout() throws LoginException {
+        this.subject.getPrincipals().remove(this.principal);
+        return true;
+    }
 
 }

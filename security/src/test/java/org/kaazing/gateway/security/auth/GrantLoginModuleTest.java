@@ -29,19 +29,19 @@ import org.junit.Test;
 
 public class GrantLoginModuleTest {
 
-	@Test
-	public void testLoginAndCommit() throws LoginException {
-		String name = "AUTHORIZED";
-		Map<String, ?> options = singletonMap("name", name);
-		Subject subject=new Subject();
-		GrantLoginModule grantLoginModule=new GrantLoginModule();
-		grantLoginModule.initialize(subject, null, null, options);
-		grantLoginModule.login();
-		grantLoginModule.commit();
-		assertEquals(1, subject.getPrincipals().size());
-		Principal principal = subject.getPrincipals().iterator().next();
-		assertTrue(principal instanceof GrantPrincipal);
-		assertEquals(name, principal.getName());
-	}
+    @Test
+    public void testLoginAndCommit() throws LoginException {
+        String name = "AUTHORIZED";
+        Map<String, ?> options = singletonMap("name", name);
+        Subject subject = new Subject();
+        GrantLoginModule grantLoginModule = new GrantLoginModule();
+        grantLoginModule.initialize(subject, null, null, options);
+        grantLoginModule.login();
+        grantLoginModule.commit();
+        assertEquals(1, subject.getPrincipals().size());
+        Principal principal = subject.getPrincipals().iterator().next();
+        assertTrue(principal instanceof GrantPrincipal);
+        assertEquals(name, principal.getName());
+    }
 
 }

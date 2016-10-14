@@ -18,15 +18,15 @@ package org.kaazing.gateway.security.auth;
 import java.security.Principal;
 
 public class GrantPrincipal implements Principal {
-	private String name;
+    private String name;
 
-	public GrantPrincipal(String name){
-		this.name=name;
-	}
+    public GrantPrincipal(String name) {
+        this.name = name;
+    }
 
-	@Override
-	public String getName() {
-		return this.name;
-	}
+    @Override
+    public String getName() {
+        return this.name;
+    }
 
 }
