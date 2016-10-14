@@ -18,6 +18,7 @@ package org.kaazing.gateway.security.auth;
 import static org.junit.Assert.*;
 
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.security.auth.Subject;
@@ -35,7 +36,7 @@ public class GrantLoginModuleTest {
         Map<String, ?> options = singletonMap("name", name);
         Subject subject = new Subject();
         GrantLoginModule grantLoginModule = new GrantLoginModule();
-        grantLoginModule.initialize(subject, null, null, options);
+        grantLoginModule.initialize(subject, null, new HashMap<String, Object>(), options);
         grantLoginModule.login();
         grantLoginModule.commit();
         assertEquals(1, subject.getPrincipals().size());
