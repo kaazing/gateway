@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.http.bridge.filter;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -108,9 +107,9 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         // currently http does not have dependencies on either of those
         // it can not have a dep on gateway.server 
         ResourceAddress httpAddress = httpRequest.getLocalAddress();
-        List<HttpRealmConfig> realms = httpAddress.getOption(HttpResourceAddress.REALMS);
+        HttpRealmConfig[] realms = httpAddress.getOption(HttpResourceAddress.REALMS);
 
-        if (realms.isEmpty()) {
+        if (realms.length == 0) {
             ResultAwareLoginContext loginContext = null;
             // Make sure we propagate the login context from the layer below in httpxe case
             if (session instanceof DefaultHttpSession) {
@@ -320,7 +319,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         ResourceAddress httpAddress = httpRequest.getLocalAddress();
 
         
-        List<HttpRealmConfig> realms = httpAddress.getOption(HttpResourceAddress.REALMS);
+        HttpRealmConfig[] realms = httpAddress.getOption(HttpResourceAddress.REALMS);
         
         // TODO, add logic 
         // sec_chec = message.getHeaders(HttpHeaders.HEADER_SEC_CHALLENGE_IDENTITY);
@@ -339,7 +338,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
             return;
         }
 
-        if (realms.isEmpty()) {
+        if (realms.length == 0) {
             setUnprotectedLoginContext(httpRequest);
             if (loggerIsEnabled) {
                 logger.trace("HttpSecurityStandardFilter skipped because no realm is configured.");
@@ -349,7 +348,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         }
         
         // realms TODO go to current realm, only doing 0 for now;
-        HttpRealmConfig realm = realms.get(0);
+        HttpRealmConfig realm = realms[0];
 
         AuthenticationTokenExtractor tokenExtractor = DefaultAuthenticationTokenExtractor.INSTANCE;
 

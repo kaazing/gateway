@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -59,7 +58,7 @@ public final class HttpResourceAddress extends ResourceAddress {
 
     public static final ResourceOption<Integer> MAX_AUTHENTICATION_ATTEMPTS = new MaxAuthenticationAttemptsOption();
 
-    public static final ResourceOption<List<HttpRealmConfig>> REALMS = new HttpRealmsOption();
+    public static final ResourceOption<HttpRealmConfig[]> REALMS = new HttpRealmsOption();
 
     private Boolean serverHeaderEnabled = SERVER_HEADER_ENABLED.defaultValue();
     private Boolean keepAlive = KEEP_ALIVE.defaultValue();
@@ -80,7 +79,7 @@ public final class HttpResourceAddress extends ResourceAddress {
     private String encryptionKeyAlias;
     private String serviceDomain;
 
-    private List<HttpRealmConfig> realms;
+    private HttpRealmConfig[] realms;
 
     private Collection<Class<? extends Principal>> realmUserPrincipalClasses;
 
@@ -195,7 +194,7 @@ public final class HttpResourceAddress extends ResourceAddress {
                     maxAuthenticationAttempts = (Integer) value;
                     return;
                 case REALMS:
-                    realms = (List<HttpRealmConfig>) value;
+                    realms = (HttpRealmConfig[]) value;
                     return;
             }
         }
@@ -355,9 +354,9 @@ public final class HttpResourceAddress extends ResourceAddress {
         }
     }
 
-    private static final class HttpRealmsOption extends HttpResourceOption<List<HttpRealmConfig>> {
+    private static final class HttpRealmsOption extends HttpResourceOption<HttpRealmConfig[]> {
         private HttpRealmsOption() {
-            super(Kind.REALMS, "realms", new ArrayList<HttpRealmConfig>());
+            super(Kind.REALMS, "realms", new HttpRealmConfig[0]);
         }
     }
 

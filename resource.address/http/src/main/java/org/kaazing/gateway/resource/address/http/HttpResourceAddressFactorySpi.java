@@ -41,12 +41,14 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.TRAN
 import java.io.File;
 import java.net.URI;
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.kaazing.gateway.resource.address.IdentityResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
@@ -197,9 +199,9 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
             options.setOption(MAX_AUTHENTICATION_ATTEMPTS, (Integer) maxAuthenticationAttempts);
         }
 
-        Object realms = optionsByName.remove(REALMS.name());
+        HttpRealmConfig[] realms = (HttpRealmConfig[]) optionsByName.remove(REALMS.name());
         if (realms != null) {
-            options.setOption(REALMS, (List<HttpRealmConfig>) realms);
+            options.setOption(REALMS, realms);
         }
 
         IdentityResolver httpIdentityResolver = (IdentityResolver) optionsByName.remove(IDENTITY_RESOLVER.name());
@@ -207,18 +209,27 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
             options.setOption(IDENTITY_RESOLVER, httpIdentityResolver);
         }
         else {
-            Collection<Class<? extends Principal>> realmUserPrincipalClasses =
-                    getClosestUserPrincipalClasses((List<HttpRealmConfig>) optionsByName.remove(REALMS.name()));
-            if (realmUserPrincipalClasses != null && !realmUserPrincipalClasses.isEmpty()) {
-                httpIdentityResolver = new HttpIdentityResolver(realmUserPrincipalClasses);
+            Collection<Class<? extends Principal>> userPrincipalClasses =
+                    getUserPrincipalClasses((HttpRealmConfig[]) optionsByName.remove(REALMS.name()));
+            if (userPrincipalClasses != null && !userPrincipalClasses.isEmpty()) {
+                httpIdentityResolver = new HttpIdentityResolver(userPrincipalClasses);
                 options.setOption(IDENTITY_RESOLVER, httpIdentityResolver);
             }
         }
     }
 
-    private Collection<Class<? extends Principal>> getClosestUserPrincipalClasses(List<HttpRealmConfig> realms) {
-        if (realms != null && !realms.isEmpty()) {
-            return realms.get(realms.size() - 1).getUserPrincipleClasses();
+    private Collection<Class<? extends Principal>> getUserPrincipalClasses(HttpRealmConfig[] realms) {
+        if (realms != null && realms.length > 0) {
+        	if (realms.length == 1) {
+        		return realms[0].getUserPrincipleClasses();
+        	}
+        	else {
+	        	return Arrays.stream(realms)
+	        		      .map(r -> r.getUserPrincipleClasses())
+	        		      .filter(upc -> upc != null)
+	        		      .flatMap(upc -> upc.stream())
+	        		      .collect(Collectors.toList());
+        	}
         } else {
             return Collections.emptySet();
         }
@@ -303,7 +314,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         address.setOption0(MAX_AUTHENTICATION_ATTEMPTS, options.getOption(MAX_AUTHENTICATION_ATTEMPTS));
         address.setOption0(REALMS, options.getOption(REALMS));
         if (address.getOption(IDENTITY_RESOLVER) == null) {
-             Collection<Class<? extends Principal>> realmUserPrincipalClasses = getClosestUserPrincipalClasses(address.getOption(REALMS));
+             Collection<Class<? extends Principal>> realmUserPrincipalClasses = getUserPrincipalClasses(address.getOption(REALMS));
              if (realmUserPrincipalClasses != null && !realmUserPrincipalClasses.isEmpty()) {
                  IdentityResolver httpIdentityResolver = new HttpIdentityResolver(realmUserPrincipalClasses);
                  address.setIdentityResolver(IDENTITY_RESOLVER, httpIdentityResolver);
