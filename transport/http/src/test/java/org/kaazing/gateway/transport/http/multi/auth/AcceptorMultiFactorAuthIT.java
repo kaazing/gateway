@@ -21,6 +21,7 @@ import static org.junit.rules.RuleChain.outerRule;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -37,6 +38,7 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
 // TODO, work in progress
+@Ignore
 public class AcceptorMultiFactorAuthIT {
     private final K3poRule k3po = new K3poRule()
             .setScriptRoot("org/kaazing/specification/http/multi/auth");

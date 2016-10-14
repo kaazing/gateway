@@ -34,6 +34,7 @@ import org.jmock.States;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.jmock.lib.legacy.ClassImposteriser;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -62,20 +63,24 @@ public class ConnectorMultiFactorAuthIT {
     public abstract class AuthenticatorMock extends Authenticator {
         public abstract PasswordAuthentication getPasswordAuthentication();
     }
-    
+
     @Rule
-    JUnitRuleMockery context = new JUnitRuleMockery() {
+    public JUnitRuleMockery context = new JUnitRuleMockery() {
         {
             setThreadingPolicy(new Synchroniser());
             setImposteriser(ClassImposteriser.INSTANCE);
-            testState = context.states("testState").startsAs("initial-state");
-            syncronizer = new Synchroniser();
-            context.setThreadingPolicy(syncronizer);
-            authenticator = context.mock(AuthenticatorMock.class);
-            // inner class this
-            setDefault(authenticator);
         }
     };
+    
+    @Before
+    public void before(){
+        testState = context.states("testState").startsAs("initial-state");
+        syncronizer = new Synchroniser();
+        context.setThreadingPolicy(syncronizer);
+        authenticator = context.mock(AuthenticatorMock.class);
+        // inner class this
+        setDefault(authenticator);
+    }
 
     @Test
     @Specification({"request.with.secure.challenge.identity/server",})

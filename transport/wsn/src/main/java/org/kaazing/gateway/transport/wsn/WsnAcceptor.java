@@ -970,17 +970,21 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             // to keep track of initial x-kaazing-handshake request
             if (HttpMergeRequestFilter.INITIAL_HTTP_REQUEST_KEY.get(session.getParent()) == null) {
                 // Not a x-kaazing-handshake initial or extended request
-                List<HttpRealmConfig> realms = session.getLocalAddress().getOption(HttpResourceAddress.REALMS);
-                String httpChallengeScheme = realms.get(realms.size() - 1).getChallengeScheme();
-                if (httpChallengeScheme != null && httpChallengeScheme.startsWith(AUTH_SCHEME_APPLICATION_PREFIX)) {
-                    // challenge scheme starts with "Application ", so reject it (403 as no way to negotiate)
-                    if (logger.isInfoEnabled()) {
-                        logger.info(String.format("A Kaazing client library must be used for challenge scheme \"%s\", " +
-                               "rejecting connection from %s", httpChallengeScheme, session.getRemoteAddress()));
+                for (HttpRealmConfig realm : session.getLocalAddress().getOption(HttpResourceAddress.REALMS)) {
+                    String httpChallengeScheme = realm.getChallengeScheme();
+                    if (httpChallengeScheme != null && httpChallengeScheme.startsWith(AUTH_SCHEME_APPLICATION_PREFIX)) {
+                        // challenge scheme starts with "Application ", so reject it (403 as no way to negotiate)
+                        if (logger.isInfoEnabled()) {
+                            logger.info(
+                                    String.format(
+                                            "A Kaazing client library must be used for challenge scheme \"%s\", "
+                                                    + "rejecting connection from %s",
+                                            httpChallengeScheme, session.getRemoteAddress()));
+                        }
+                        session.setStatus(HttpStatus.CLIENT_FORBIDDEN);
+                        session.close(false);
+                        return false;
                     }
-                    session.setStatus(HttpStatus.CLIENT_FORBIDDEN);
-                    session.close(false);
-                    return false;
                 }
             }
             return true;
