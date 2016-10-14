@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.http.connector.specification.rfc7230;
+package org.kaazing.gateway.transport.http.connector.specification.rfc7234;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 
-import java.net.URI;
-import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.future.ConnectFuture;
@@ -31,7 +29,6 @@ import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -48,7 +45,7 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.test.util.ITUtil;
 import org.kaazing.test.util.MethodExecutionTrace;
 
-public class MessageFormatIT {
+public class ExpiresIT {
 
     private final HttpConnectorRule connector = new HttpConnectorRule();
 
@@ -60,72 +57,15 @@ public class MessageFormatIT {
 
     private final TestRule trace = new MethodExecutionTrace();
     private TestRule contextRule = ITUtil.toTestRule(context);
-    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7230/message.format");
+    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7234/expires");
     private final TestRule timeoutRule = new DisableOnDebug(new Timeout(5, SECONDS));
 
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po).around(timeoutRule);
 
     @Test
-    @Specification({"inbound.should.accept.headers/response"})
-    public void inboundShouldAcceptHeaders() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetHeader());
-        closed.await(2, SECONDS);
-
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({"outbound.should.accept.no.headers/response"})
-    public void outboundShouldAcceptNoHeaders() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        connector.getConnectOptions().put("http.userAgentHeaderEnabled", Boolean.FALSE);
-        connector.getConnectOptions().put("http.hostHeaderEnabled", Boolean.FALSE);
-
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetUriChange());
-        assertTrue(closed.await(2, SECONDS));
-
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({"outbound.should.accept.headers/response"})
-    public void outboundShouldAcceptHeaders() throws Exception {
+    @Specification({"already.expired.conditional.request.304/response"})
+    public void shouldReceiveOKWhenCacheResponseExpiredForUnconditionalRequest() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
@@ -144,15 +84,33 @@ public class MessageFormatIT {
             }
         });
 
-        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
 
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer2());
+        assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
 
     @Test
-    @Specification({"request.must.start.with.request.line/response"})
-    public void requestMustStartWithRequestLine() throws Exception {
+    @Specification({"already.expired.unconditional.request.200/response"})
+    public void shouldReceiveNotModifiedWhenCacheResponseExpiredForConditionalRequest() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
@@ -171,19 +129,9 @@ public class MessageFormatIT {
             }
         });
 
-        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
-
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({"server.should.send.414.to.request.with.too.long.a.request/response"})
-    public void serverShouldSend414ToRequestWithTooLongARequest() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        connector.getConnectOptions().put("http.userAgentHeaderEnabled", Boolean.FALSE);
+        final CountDownLatch closed2 = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -193,133 +141,21 @@ public class MessageFormatIT {
                 will(new CustomAction("Latch countdown") {
                     @Override
                     public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
+                        closed2.countDown();
                         return null;
                     }
                 });
             }
         });
 
-        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetLongRequest());
-        assertTrue(closed.await(2, SECONDS));
-
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
+        assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
 
     @Test
-    @Specification({"server.should.send.status.line.in.start.line/response"})
-    public void serverShouldSendStatusLineInStartLine() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
-        assertTrue(closed.await(2, SECONDS));
-
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({"server.should.reject.obs.in.header.value/response"})
-    public void serverShouldRejectOBSInHeaderValue() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        connector.getConnectOptions().put("http.userAgentHeaderEnabled", Boolean.FALSE);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerOBSInHeader());
-        assertTrue(closed.await(2, SECONDS));
-
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({"proxy.or.gateway.must.reject.obs.in.header.value/response"})
-    public void proxyOrGatewayMustRejectOBSInHeaderValue() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        connector.getConnectOptions().put("http.userAgentHeaderEnabled", Boolean.FALSE);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerOBSInHeader());
-        assertTrue(closed.await(2, SECONDS));
-
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({"inbound.on.receiving.field.with.length.larger.than.wanting.to.process.must.reply.with.4xx/response"})
-    public void inboundOnReceivingFieldWithLengthLargerThanWantingToProcessMustReplyWith4xx() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
-                        return null;
-                    }
-                });
-            }
-        });
-
-        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGetLongHeader());
-        assertTrue(closed.await(2, SECONDS));
-
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({"server.should.send.501.to.unknown.transfer.encoding/response"})
-    public void serverShouldSend501ToUnknownTransferEncoding() throws Exception {
+    @Specification({"fresh.response.from.cache/response"})
+    public void shouldReceiveUnexpiredResponseFromCache() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
@@ -338,15 +174,15 @@ public class MessageFormatIT {
             }
         });
 
-        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerTransferEncoding());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
 
         k3po.finish();
     }
 
     @Test
-    @Specification({"inbound.should.process.request.with.content.length/response"})
-    public void inboundShouldProcessRequestWithContentLength() throws Exception {
+    @Specification({"ignored.when.cache-control.max-age.is.available/response"})
+    public void shouldIgnoreExpiresHeaderWhenCacheControlMaxAgeIsAvailable() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
@@ -365,15 +201,33 @@ public class MessageFormatIT {
             }
         });
 
-        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerPostNoContent());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
 
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
+        assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
 
     @Test
-    @Specification({"client.should.send.content.length.header.in.post.even.if.no.content/response"})
-    public void clientShouldSendContentLengthHeaderInPostEvenIfNoContent() throws Exception {
+    @Specification({"ignored.when.cache-control.s-maxage.is.available/response"})
+    public void shouldIgnoreExpiresHeaderWhenCacheControlSharedMaxAgeIsAvailable() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
@@ -392,15 +246,33 @@ public class MessageFormatIT {
             }
         });
 
-        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerPostNoContent());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
 
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
+        assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
 
     @Test
-    @Specification({"head.response.must.not.have.content/response"})
-    public void headResponseMustNotHaveContent() throws Exception {
+    @Specification({"ignored.when.multiple.expires.200/response"})
+    public void shouldIgnoreMultipleExpiresHeaderInResponse() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
@@ -419,15 +291,33 @@ public class MessageFormatIT {
             }
         });
 
-        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerHead());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
 
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
+        assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
 
     @Test
-    @Specification({"head.response.must.not.have.content.though.may.have.content.length/response"})
-    public void headResponseMustNotHaveContentThoughMayHaveContentLength() throws Exception {
+    @Specification({"invalid.date.conditional.request.304/response"})
+    public void shouldReceiveNotModifiedWhenCachedResponseIsStaleDueToInvalidDateForConditionalRequest() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
@@ -446,19 +336,9 @@ public class MessageFormatIT {
             }
         });
 
-        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerHead());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
-
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({"server.must.reject.request.with.multiple.different.content.length/response"})
-    public void serverMustRejectRequestWithMultipleDifferentContentLength() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch closed = new CountDownLatch(1);
-
-        connector.getConnectOptions().put("http.userAgentHeaderEnabled", Boolean.FALSE);
+        final CountDownLatch closed2 = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -468,22 +348,21 @@ public class MessageFormatIT {
                 will(new CustomAction("Latch countdown") {
                     @Override
                     public Object invoke(Invocation invocation) throws Throwable {
-                        closed.countDown();
+                        closed2.countDown();
                         return null;
                     }
                 });
             }
         });
 
-        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerPostErrored());
-        assertTrue(closed.await(2, SECONDS));
-
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer2());
+        assertTrue(closed2.await(2, SECONDS));
         k3po.finish();
     }
 
     @Test
-    @Specification({"non.http.request.to.http.server.should.be.responded.to.with.400/response"})
-    public void nonHttpRequestToHttpServerShouldBeRespondedToWith400() throws Exception {
+    @Specification({"invalid.date.unconditional.request.200/response"})
+    public void shouldReceiveOKWhenCachedResponseIsStaleDueToInvalidDateForUnconditionalRequest() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
@@ -501,103 +380,137 @@ public class MessageFormatIT {
                 });
             }
         });
-
-        connector.connect("http://localhost:8080/", handler, new ConnectSessionInitializerGet());
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
         assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
+        assertTrue(closed2.await(2, SECONDS));
 
         k3po.finish();
     }
 
-    private static class ConnectSessionInitializerHead implements IoSessionInitializer<ConnectFuture> {
-        @Override
-        public void initializeSession(IoSession session, ConnectFuture future) {
-            HttpConnectSession connectSession = (HttpConnectSession) session;
-            connectSession.setMethod(HttpMethod.HEAD);
-        }
+    @Test
+    @Specification({"stale.response.conditional.request.304/response"})
+    public void shouldReceiveNotModifiedWhenCachedResponseIsStaleForConditionalRequest() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch closed = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
+        assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer2());
+        assertTrue(closed2.await(2, SECONDS));
+        k3po.finish();
     }
 
-    private static class ConnectSessionInitializerGet implements IoSessionInitializer<ConnectFuture> {
+    @Test
+    @Specification({"stale.response.unconditional.request.200/response"})
+    public void shouldReceiveOKWhenCachedResponseIsStaleForUnconditionalRequest() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch closed = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
+        assertTrue(closed.await(2, SECONDS));
+        final CountDownLatch closed2 = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        closed2.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+
+        connector.connect("http://localhost:8000/resource", handler, new ConnectSessionInitializer());
+        assertTrue(closed2.await(2, SECONDS));
+
+        k3po.finish();
+    }
+
+    private static class ConnectSessionInitializer implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
             HttpConnectSession connectSession = (HttpConnectSession) session;
             connectSession.setMethod(HttpMethod.GET);
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
         }
     }
 
-    private static class ConnectSessionInitializerGetLongHeader implements IoSessionInitializer<ConnectFuture> {
+    private static class ConnectSessionInitializer2 implements IoSessionInitializer<ConnectFuture> {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
             HttpConnectSession connectSession = (HttpConnectSession) session;
             connectSession.setMethod(HttpMethod.GET);
-            connectSession.addWriteHeader("header", "long_string");
-            connectSession.close(false);
-        }
-    }
-
-    private static class ConnectSessionInitializerGetLongRequest implements IoSessionInitializer<ConnectFuture> {
-        @Override
-        public void initializeSession(IoSession session, ConnectFuture future) {
-            HttpConnectSession connectSession = (HttpConnectSession) session;
-            connectSession.setRequestURI(URI.create("http://localhost:8080/"));
-            connectSession.setMethod(HttpMethod.GET);
-            connectSession.write(((IoSessionEx) session).getBufferAllocator().wrap(ByteBuffer.wrap(new byte[7911])));
-        }
-    }
-
-    private static class ConnectSessionInitializerGetUriChange implements IoSessionInitializer<ConnectFuture> {
-        @Override
-        public void initializeSession(IoSession session, ConnectFuture future) {
-            HttpConnectSession connectSession = (HttpConnectSession) session;
-            connectSession.setRequestURI(URI.create("http://localhost:8080/"));
-            connectSession.setMethod(HttpMethod.GET);
-        }
-    }
-
-    private static class ConnectSessionInitializerGetHeader implements IoSessionInitializer<ConnectFuture> {
-        @Override
-        public void initializeSession(IoSession session, ConnectFuture future) {
-            HttpConnectSession connectSession = (HttpConnectSession) session;
-            connectSession.setMethod(HttpMethod.GET);
-            connectSession.addWriteHeader("some", "header");
-            connectSession.close(false);
-        }
-    }
-
-    private static class ConnectSessionInitializerOBSInHeader implements IoSessionInitializer<ConnectFuture> {
-        @Override
-        public void initializeSession(IoSession session, ConnectFuture future) {
-            HttpConnectSession connectSession = (HttpConnectSession) session;
-            connectSession.setMethod(HttpMethod.GET);
-            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8080");
-            connectSession.addWriteHeader("BadHeader", String.valueOf("value\r\nPart of value\tstill part of value"));
-        }
-    }
-
-    private static class ConnectSessionInitializerTransferEncoding implements IoSessionInitializer<ConnectFuture> {
-        @Override
-        public void initializeSession(IoSession session, ConnectFuture future) {
-            HttpConnectSession connectSession = (HttpConnectSession) session;
-            connectSession.setMethod(HttpMethod.GET);
-            connectSession.addWriteHeader(HttpHeaders.HEADER_TRANSFER_ENCODING, "Unknown");
-        }
-    }
-
-    private static class ConnectSessionInitializerPostErrored implements IoSessionInitializer<ConnectFuture> {
-        @Override
-        public void initializeSession(IoSession session, ConnectFuture future) {
-            HttpConnectSession connectSession = (HttpConnectSession) session;
-            connectSession.setMethod(HttpMethod.POST);
-            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8080");
-            connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(0));
-        }
-    }
-
-    private static class ConnectSessionInitializerPostNoContent implements IoSessionInitializer<ConnectFuture> {
-        @Override
-        public void initializeSession(IoSession session, ConnectFuture future) {
-            HttpConnectSession connectSession = (HttpConnectSession) session;
-            connectSession.setMethod(HttpMethod.POST);
-            connectSession.addWriteHeader(HttpHeaders.HEADER_CONTENT_LENGTH, String.valueOf(0));
+            connectSession.addWriteHeader(HttpHeaders.HEADER_HOST, "localhost:8000");
+            connectSession.addWriteHeader(HttpHeaders.HEADER_IF_MODIFIED_SINCE, "Mon, 1 Jan 2015 01:23:45 GMT");
         }
     }
 
