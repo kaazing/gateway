@@ -16,15 +16,10 @@
 
 package org.kaazing.gateway.resource.address.http;
 
-import static java.lang.String.format;
-
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Collection;
 
-import org.kaazing.gateway.security.AuthenticationContext;
 import org.kaazing.gateway.security.LoginContextFactory;
-import org.kaazing.gateway.security.RealmContext;
 
 // TODO, decide on location and name of class...
 
@@ -40,20 +35,6 @@ public class HttpRealmConfig {
     private final LoginContextFactory loginContextFactory;
     private final Collection<Class<? extends Principal>> userPrincipleClasses;
 
-    public HttpRealmConfig(RealmContext serviceRealmContext) {
-        // TODO, change call site to this to use other constructor
-        final AuthenticationContext authenticationContext = serviceRealmContext.getAuthenticationContext();
-        name = serviceRealmContext.getName();
-        authorizationMode = authenticationContext.getAuthorizationMode();
-        challengeScheme = authenticationContext.getHttpChallengeScheme();
-        description = serviceRealmContext.getDescription();
-        headerNames = authenticationContext.getHttpHeaders();
-        parameterNames = authenticationContext.getHttpQueryParameters();
-        authenticationCookieNames = authenticationContext.getHttpCookieNames();
-        loginContextFactory = serviceRealmContext.getLoginContextFactory();
-        userPrincipleClasses = loadUserPrincipalClasses(serviceRealmContext.getUserPrincipalClasses());
-    }
-
     // TODO remove Authorization Mode
     public HttpRealmConfig(String name, String authorizationMode, String challengeScheme, String description,
             String[] headerNames, String[] parameterNames, String[] authenticationCookieNames,
@@ -68,27 +49,6 @@ public class HttpRealmConfig {
         this.loginContextFactory = loginContextFactory;
         this.userPrincipleClasses = userPrincipleClasses;
 
-    }
-
-    /**
-     * Method converting String[] userPrincipalClasses to Class[]
-     * @param userPrincipalClasses
-     * @return
-     */
-    private Collection<Class<? extends Principal>> loadUserPrincipalClasses(String[] userPrincipalClasses) {
-        Collection<Class<? extends Principal>> userPrincipals = new ArrayList<>();
-        for (String className : userPrincipalClasses) {
-            try {
-                userPrincipals.add(Class.forName(className).asSubclass(Principal.class));
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(
-                        format("%s%s%s", "Class ", className,
-                                " could not be loaded. Please check the gateway configuration xml and confirm that"
-                                        + " user-principal-class value(s) are spelled correctly for realm " + name + "."),
-                        new ClassNotFoundException(e.getMessage()));
-            }
-        }
-        return userPrincipals;
     }
 
     public String getName() {

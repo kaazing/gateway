@@ -67,6 +67,7 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.http.HttpRealmConfig;
 import org.kaazing.gateway.security.AuthenticationContext;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
+import org.kaazing.gateway.security.LoginContextFactory;
 import org.kaazing.gateway.security.RealmContext;
 import org.kaazing.gateway.server.service.AbstractSessionInitializer;
 import org.kaazing.gateway.service.AcceptOptionsContext;
@@ -679,9 +680,10 @@ public class DefaultServiceContext implements ServiceContext {
         // Add realmName property and  based on whether the service
         // is protected, and whether it is application- or native- security that is desired.
         if (serviceRealmContext != null) {
-            final AuthenticationContext authenticationContext = serviceRealmContext.getAuthenticationContext();
             List<HttpRealmConfig> realms = new ArrayList<>();
-            realms.add(new HttpRealmConfig(serviceRealmContext));
+            realms.add(newHttpRealm(serviceRealmContext));
+
+            final AuthenticationContext authenticationContext = serviceRealmContext.getAuthenticationContext();
             if (authenticationContext != null) {
 
                 String challengeScheme = authenticationContext.getHttpChallengeScheme();
@@ -749,6 +751,37 @@ public class DefaultServiceContext implements ServiceContext {
                 }
             }
         }
+    }
+
+	private static HttpRealmConfig newHttpRealm(RealmContext serviceRealmContext) {
+        final AuthenticationContext authenticationContext = serviceRealmContext.getAuthenticationContext();
+        String name = serviceRealmContext.getName();
+        String authorizationMode = authenticationContext.getAuthorizationMode();
+        String challengeScheme = authenticationContext.getHttpChallengeScheme();
+        String description = serviceRealmContext.getDescription();
+        String[] headerNames = authenticationContext.getHttpHeaders();
+        String[] parameterNames = authenticationContext.getHttpQueryParameters();
+        String[] authenticationCookieNames = authenticationContext.getHttpCookieNames();
+        LoginContextFactory loginContextFactory = serviceRealmContext.getLoginContextFactory();
+        Collection<Class<? extends Principal>> userPrincipleClasses = loadUserPrincipalClasses(name, serviceRealmContext.getUserPrincipalClasses());
+
+        return new HttpRealmConfig(name, authorizationMode, challengeScheme, description, headerNames, parameterNames, authenticationCookieNames, loginContextFactory, userPrincipleClasses);
+	}
+
+    private static Collection<Class<? extends Principal>> loadUserPrincipalClasses(String name, String[] userPrincipalClasses) {
+        Collection<Class<? extends Principal>> userPrincipals = new ArrayList<>();
+        for (String className : userPrincipalClasses) {
+            try {
+                userPrincipals.add(Class.forName(className).asSubclass(Principal.class));
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(
+                        format("%s%s%s", "Class ", className,
+                                " could not be loaded. Please check the gateway configuration xml and confirm that"
+                                        + " user-principal-class value(s) are spelled correctly for realm " + name + "."),
+                        new ClassNotFoundException(e.getMessage()));
+            }
+        }
+        return userPrincipals;
     }
 
     private Collection<String> toHttpBalanceOriginURIs(Collection<String> balances) {
