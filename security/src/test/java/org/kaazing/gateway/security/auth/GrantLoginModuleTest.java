@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 
 import static java.util.Collections.singletonMap;
@@ -36,7 +37,9 @@ public class GrantLoginModuleTest {
         Map<String, ?> options = singletonMap("name", name);
         Subject subject = new Subject();
         GrantLoginModule grantLoginModule = new GrantLoginModule();
-        grantLoginModule.initialize(subject, null, new HashMap<String, Object>(), options);
+        CallbackHandler handler = cbs -> {};
+        Map<String, Object> sharedState = new HashMap<>();
+        grantLoginModule.initialize(subject, handler, sharedState, options);
         grantLoginModule.login();
         grantLoginModule.commit();
         assertEquals(1, subject.getPrincipals().size());
