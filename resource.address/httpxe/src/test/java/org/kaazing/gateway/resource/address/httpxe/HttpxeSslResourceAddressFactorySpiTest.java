@@ -35,15 +35,15 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.http.HttpRealmConfig;
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 
 public class HttpxeSslResourceAddressFactorySpiTest {
 
     private HttpxeSslResourceAddressFactorySpi addressFactorySpi;
     private String addressURI;
     private Map<String, Object> options;
-    private final HttpRealmConfig[] realms =
-            new HttpRealmConfig[]{new HttpRealmConfig(null, null, null, null, null, null, null, null, null)};
+    private final HttpRealmInfo[] realms =
+            new HttpRealmInfo[]{new HttpRealmInfo(null, null, null, null, null, null, null, null, null)};
 
     @Before
     public void before() {
@@ -88,7 +88,7 @@ public class HttpxeSslResourceAddressFactorySpiTest {
         assertNull(address.getOption(QUALIFIER));
         assertNull(address.getOption(TRANSPORT));
         assertEquals(address.getOption(KEEP_ALIVE_TIMEOUT).intValue(), 30);
-        assertArrayEquals(new HttpRealmConfig[0], address.getOption(REALMS));
+        assertArrayEquals(new HttpRealmInfo[0], address.getOption(REALMS));
         assertEmpty(address.getOption(REQUIRED_ROLES));
     }
 

@@ -28,7 +28,7 @@ import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.http.HttpRealmConfig;
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 import org.kaazing.gateway.security.auth.DefaultLoginResult;
@@ -107,7 +107,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         // currently http does not have dependencies on either of those
         // it can not have a dep on gateway.server 
         ResourceAddress httpAddress = httpRequest.getLocalAddress();
-        HttpRealmConfig[] realms = httpAddress.getOption(HttpResourceAddress.REALMS);
+        HttpRealmInfo[] realms = httpAddress.getOption(HttpResourceAddress.REALMS);
 
         if (realms.length == 0) {
             ResultAwareLoginContext loginContext = null;
@@ -319,7 +319,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         ResourceAddress httpAddress = httpRequest.getLocalAddress();
 
         
-        HttpRealmConfig[] realms = httpAddress.getOption(HttpResourceAddress.REALMS);
+        HttpRealmInfo[] realms = httpAddress.getOption(HttpResourceAddress.REALMS);
         
         // TODO, add logic 
         // sec_chec = message.getHeaders(HttpHeaders.HEADER_SEC_CHALLENGE_IDENTITY);
@@ -348,7 +348,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         }
         
         // realms TODO go to current realm, only doing 0 for now;
-        HttpRealmConfig realm = realms[0];
+        HttpRealmInfo realm = realms[0];
 
         AuthenticationTokenExtractor tokenExtractor = DefaultAuthenticationTokenExtractor.INSTANCE;
 
@@ -402,10 +402,10 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         private final DefaultAuthenticationToken authToken;
         private final TypedCallbackHandlerMap additionalCallbacks;
         private final long createdTime;
-        private final HttpRealmConfig realm;
+        private final HttpRealmInfo realm;
 
         LoginContextTask(NextFilter nextFilter, IoSession session, HttpRequestMessage httpRequest,
-                         DefaultAuthenticationToken authToken, TypedCallbackHandlerMap additionalCallbacks, HttpRealmConfig realm) {
+                         DefaultAuthenticationToken authToken, TypedCallbackHandlerMap additionalCallbacks, HttpRealmInfo realm) {
             this.nextFilter = nextFilter;
             this.session = session;
             this.httpRequest = httpRequest;

@@ -46,7 +46,7 @@ import org.jmock.lib.concurrent.Synchroniser;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.http.HttpRealmConfig;
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.resource.address.tcp.TcpResourceAddressFactorySpi;
 import org.kaazing.gateway.security.LoginContextFactory;
@@ -124,7 +124,7 @@ public class HttpSubjectSecurityFilterTest {
         context.checking(new Expectations() {
             {
                 allowing(address).getOption(HttpResourceAddress.REALMS);
-                will(returnValue(new HttpRealmConfig[0]));
+                will(returnValue(new HttpRealmInfo[0]));
 
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(null));
@@ -160,7 +160,7 @@ public class HttpSubjectSecurityFilterTest {
             {
 
                 allowing(address).getOption(HttpResourceAddress.REALMS);
-                will(returnValue(new HttpRealmConfig[0]));
+                will(returnValue(new HttpRealmInfo[0]));
 
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(null));
@@ -221,7 +221,7 @@ public class HttpSubjectSecurityFilterTest {
         context.checking(new Expectations() {
             {
                 allowing(address).getOption(HttpResourceAddress.REALMS);
-                will(returnValue(new HttpRealmConfig[0]));
+                will(returnValue(new HttpRealmInfo[0]));
 
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(new String[]{}));
@@ -262,7 +262,7 @@ public class HttpSubjectSecurityFilterTest {
         context.checking(new Expectations() {
             {
                 allowing(address).getOption(HttpResourceAddress.REALMS);
-                will(returnValue(new HttpRealmConfig[0]));
+                will(returnValue(new HttpRealmInfo[0]));
 
                 // alreadyLoggedIn == false
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
@@ -330,8 +330,8 @@ public class HttpSubjectSecurityFilterTest {
                 oneOf(session).getRemoteAddress(); will(returnValue(tcpResourceAddress));
 
                 allowing(address).getOption(HttpResourceAddress.REALMS);
-                final HttpRealmConfig[] realms = new HttpRealmConfig[1];
-                realms[0] = new HttpRealmConfig("demo", null, "Application Token", null,  new String[]{"foo"}, new String[]{}, new String[]{}, loginContextFactory, null);
+                final HttpRealmInfo[] realms = new HttpRealmInfo[1];
+                realms[0] = new HttpRealmInfo("demo", null, "Application Token", null,  new String[]{"foo"}, new String[]{}, new String[]{}, loginContextFactory, null);
                 will(returnValue(realms));
 
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
@@ -423,8 +423,8 @@ public class HttpSubjectSecurityFilterTest {
                 will(returnValue(new String[]{"AUTHORIZED"}));
 
                 allowing(address).getOption(HttpResourceAddress.REALMS);
-                final HttpRealmConfig[] realms = new HttpRealmConfig[1];
-                realms[0] = new HttpRealmConfig("demo", null, "Application Token", null,  new String[]{"foo"}, new String[]{}, new String[]{}, loginContextFactory, null);
+                final HttpRealmInfo[] realms = new HttpRealmInfo[1];
+                realms[0] = new HttpRealmInfo("demo", null, "Application Token", null,  new String[]{"foo"}, new String[]{}, new String[]{}, loginContextFactory, null);
                 will(returnValue(realms));
 
                 // not already logged in
@@ -498,8 +498,8 @@ public class HttpSubjectSecurityFilterTest {
         context.checking(new Expectations() {
             {
                 allowing(address).getOption(HttpResourceAddress.REALMS);
-                final HttpRealmConfig[] realms = new HttpRealmConfig[1];
-                realms[0] = new HttpRealmConfig("demo", null, "Application Token", null,  new String[]{"foo"}, new String[]{}, new String[]{}, loginContextFactory, null);
+                final HttpRealmInfo[] realms = new HttpRealmInfo[1];
+                realms[0] = new HttpRealmInfo("demo", null, "Application Token", null,  new String[]{"foo"}, new String[]{}, new String[]{}, loginContextFactory, null);
                 will(returnValue(realms));
 
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
@@ -572,8 +572,8 @@ public class HttpSubjectSecurityFilterTest {
         context.checking(new Expectations() {
             {
                 allowing(address).getOption(HttpResourceAddress.REALMS);
-                final HttpRealmConfig[] realms = new HttpRealmConfig[1];
-                realms[0] = new HttpRealmConfig("demo", null, "Application Token", null,  new String[]{"foo"}, new String[]{}, new String[]{}, loginContextFactory, null);
+                final HttpRealmInfo[] realms = new HttpRealmInfo[1];
+                realms[0] = new HttpRealmInfo("demo", null, "Application Token", null,  new String[]{"foo"}, new String[]{}, new String[]{}, loginContextFactory, null);
                 will(returnValue(realms));
 
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);

@@ -18,7 +18,7 @@ package org.kaazing.gateway.transport.http.security.auth.token;
 import java.io.UnsupportedEncodingException;
 import java.util.Set;
 
-import org.kaazing.gateway.resource.address.http.HttpRealmConfig;
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.security.auth.token.DefaultAuthenticationToken;
 import org.kaazing.gateway.server.spi.security.AuthenticationToken;
 import org.kaazing.gateway.transport.http.HttpCookie;
@@ -28,7 +28,7 @@ import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilte
 public class AbstractAuthenticationTokenExtractor implements AuthenticationTokenExtractor {
 
     @Override
-    public AuthenticationToken extract(HttpRequestMessage httpRequest, HttpRealmConfig realm) throws UnsupportedEncodingException {
+    public AuthenticationToken extract(HttpRequestMessage httpRequest, HttpRealmInfo realm) throws UnsupportedEncodingException {
         DefaultAuthenticationToken result = new DefaultAuthenticationToken();
 
         extractAuthorizationHeader(httpRequest, result);

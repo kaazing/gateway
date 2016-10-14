@@ -78,8 +78,8 @@ public class HttpResourceAddressFactorySpiTest {
         }
     };
 
-    private final HttpRealmConfig[] realms =
-            new HttpRealmConfig[]{new HttpRealmConfig(null, null, null, null, null, null, null, null, null)};
+    private final HttpRealmInfo[] realms =
+            new HttpRealmInfo[]{new HttpRealmInfo(null, null, null, null, null, null, null, null, null)};
 
     @Before
     public void before() {
@@ -140,7 +140,7 @@ public class HttpResourceAddressFactorySpiTest {
         assertEquals(address.getOption(KEEP_ALIVE_CONNECTIONS).intValue(), DEFAULT_HTTP_KEEPALIVE_CONNECTIONS);
         assertEmpty(address.getOption(REQUIRED_ROLES));
         assertTrue(address.getOption(SERVER_HEADER_ENABLED));
-        assertArrayEquals(new HttpRealmConfig[0], address.getOption(REALMS));
+        assertArrayEquals(new HttpRealmInfo[0], address.getOption(REALMS));
         assertEquals(new Integer(0), address.getOption(MAX_AUTHENTICATION_ATTEMPTS));
     }
 

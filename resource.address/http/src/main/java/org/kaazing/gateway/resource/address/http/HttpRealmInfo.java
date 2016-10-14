@@ -21,9 +21,7 @@ import java.util.Collection;
 
 import org.kaazing.gateway.security.LoginContextFactory;
 
-// TODO, decide on location and name of class...
-
-public class HttpRealmConfig {
+public class HttpRealmInfo {
 
     private final String name;
     private final String authorizationMode;
@@ -36,7 +34,7 @@ public class HttpRealmConfig {
     private final Collection<Class<? extends Principal>> userPrincipleClasses;
 
     // TODO remove Authorization Mode
-    public HttpRealmConfig(String name, String authorizationMode, String challengeScheme, String description,
+    public HttpRealmInfo(String name, String authorizationMode, String challengeScheme, String description,
             String[] headerNames, String[] parameterNames, String[] authenticationCookieNames,
             LoginContextFactory loginContextFactory, Collection<Class<? extends Principal>> userPrincipleClasses) {
         this.name = name;

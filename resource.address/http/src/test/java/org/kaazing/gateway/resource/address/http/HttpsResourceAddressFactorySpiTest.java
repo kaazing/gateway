@@ -47,7 +47,7 @@ public class HttpsResourceAddressFactorySpiTest {
     private HttpsResourceAddressFactorySpi addressFactorySpi;
     private String addressURI;
     private Map<String, Object> options;
-    final HttpRealmConfig[] realms = new HttpRealmConfig[]{new HttpRealmConfig(null, null, null, null, null, null, null, null, null)};
+    final HttpRealmInfo[] realms = new HttpRealmInfo[]{new HttpRealmInfo(null, null, null, null, null, null, null, null, null)};
 
     @Before
     public void before() {
@@ -92,7 +92,7 @@ public class HttpsResourceAddressFactorySpiTest {
         assertNull(address.getOption(QUALIFIER));
         assertNull(address.getOption(TRANSPORT));
         assertEquals(address.getOption(KEEP_ALIVE_TIMEOUT).intValue(), 30);
-        assertArrayEquals(new HttpRealmConfig[0], address.getOption(REALMS));
+        assertArrayEquals(new HttpRealmInfo[0], address.getOption(REALMS));
         assertEmpty(address.getOption(REQUIRED_ROLES));
     }
 

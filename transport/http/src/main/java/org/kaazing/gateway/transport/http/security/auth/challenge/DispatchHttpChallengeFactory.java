@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.http.HttpRealmConfig;
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
@@ -52,7 +52,7 @@ public class DispatchHttpChallengeFactory implements HttpChallengeFactory {
 
     @Override
     public HttpResponseMessage createChallenge(HttpRequestMessage httpRequestMessage,
-                                               HttpRealmConfig realm,
+                                               HttpRealmInfo realm,
                                                Object... params) {
 
         if ( httpRequestMessage == null || httpRequestMessage.getLocalAddress() == null) {

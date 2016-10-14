@@ -37,7 +37,7 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.http.HttpRealmConfig;
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.security.LoginContextFactory;
 import org.kaazing.gateway.security.TypedCallbackHandlerMap;
@@ -150,7 +150,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                                       HttpRequestMessage httpRequest,
                                       AuthenticationToken authToken,
                                       TypedCallbackHandlerMap additionalCallbacks,
-                                      HttpRealmConfig realm) {
+                                      HttpRealmInfo realm) {
 
         DefaultLoginResult loginResult;
 
@@ -264,7 +264,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                             HttpRequestMessage httpRequest,
                             AuthenticationToken authToken,
                             TypedCallbackHandlerMap additionalCallbacks,
-                            HttpRealmConfig realm) {
+                            HttpRealmInfo realm) {
 
         ResourceAddress address = httpRequest.getLocalAddress();
         String[] requiredRolesArray = address.getOption(HttpResourceAddress.REQUIRED_ROLES);
@@ -430,7 +430,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         return loginOK;
     }
 
-    private String sendChallengeResponse(NextFilter nextFilter, IoSession session, HttpRequestMessage httpRequest, DefaultLoginResult loginResult, HttpRealmConfig realm) {
+    private String sendChallengeResponse(NextFilter nextFilter, IoSession session, HttpRequestMessage httpRequest, DefaultLoginResult loginResult, HttpRealmInfo realm) {
         Object[] challengeData = loginResult == null ? null : loginResult.getLoginChallengeData();
         HttpResponseMessage httpResponse = challengeFactory.createChallenge(httpRequest, realm, challengeData);
         writeChallenge(httpResponse, nextFilter, session, realm.getChallengeScheme());

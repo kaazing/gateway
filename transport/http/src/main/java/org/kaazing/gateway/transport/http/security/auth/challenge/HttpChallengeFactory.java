@@ -15,7 +15,7 @@
  */
 package org.kaazing.gateway.transport.http.security.auth.challenge;
 
-import org.kaazing.gateway.resource.address.http.HttpRealmConfig;
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 
@@ -27,7 +27,7 @@ import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 public interface HttpChallengeFactory {
 
     HttpResponseMessage createChallenge(HttpRequestMessage httpRequest,
-                                        HttpRealmConfig realm,
+                                        HttpRealmInfo realm,
                                         Object... params);
 
 }

@@ -19,7 +19,7 @@ package org.kaazing.gateway.transport.http.security.auth.challenge;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter.AUTH_SCHEME_APPLICATION_PREFIX;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.http.HttpRealmConfig;
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 
 public class TokenHttpChallengeFactory extends HttpChallengeFactoryAdapter {
@@ -38,7 +38,7 @@ public class TokenHttpChallengeFactory extends HttpChallengeFactoryAdapter {
      * of the custom opaque tokens.
      */
     @Override
-    protected String makeChallengeString(ResourceAddress address, HttpRealmConfig realm, Object... params) {
+    protected String makeChallengeString(ResourceAddress address, HttpRealmInfo realm, Object... params) {
         StringBuilder sb = new StringBuilder();
         String challengeScheme = realm.getChallengeScheme();
 

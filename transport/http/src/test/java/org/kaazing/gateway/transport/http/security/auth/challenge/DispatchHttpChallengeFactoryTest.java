@@ -28,7 +28,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.http.HttpRealmConfig;
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 
@@ -95,7 +95,7 @@ public class DispatchHttpChallengeFactoryTest {
         final ResourceAddress address = context.mock(ResourceAddress.class);
         request.setLocalAddress(address);
 
-        final HttpRealmConfig realm = new HttpRealmConfig("demo", null, "Basic", null,  new String[]{"foo"}, new String[]{}, new String[]{}, null, null);
+        final HttpRealmInfo realm = new HttpRealmInfo("demo", null, "Basic", null,  new String[]{"foo"}, new String[]{}, new String[]{}, null, null);
         try {
             factory.createChallenge(request, realm);
             fail("Expecting an Illegal State Exception because no factories are registered.");
@@ -124,7 +124,7 @@ public class DispatchHttpChallengeFactoryTest {
 
         request.setLocalAddress(address);
         factory.register(authScheme, basicFactory);
-        final HttpRealmConfig realm = new HttpRealmConfig("demo", null, authScheme, null,  new String[]{"foo"}, new String[]{}, new String[]{}, null, null);
+        final HttpRealmInfo realm = new HttpRealmInfo("demo", null, authScheme, null,  new String[]{"foo"}, new String[]{}, new String[]{}, null, null);
         context.checking(new Expectations() {
             {
                 oneOf(basicFactory).createChallenge(request, realm);

@@ -68,7 +68,7 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOption;
 import org.kaazing.gateway.resource.address.ResourceOptions;
-import org.kaazing.gateway.resource.address.http.HttpRealmConfig;
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
@@ -776,7 +776,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             noSecurityOptions.setOption(ALTERNATE, httpxeAddressNoSecurity);
 
             noSecurityOptions.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
-            noSecurityOptions.setOption(HttpResourceAddress.REALMS, new HttpRealmConfig[0]);
+            noSecurityOptions.setOption(HttpResourceAddress.REALMS, new HttpRealmInfo[0]);
             return resourceAddressFactory.newResourceAddress(httpAddress.getExternalURI(),
                     noSecurityOptions, httpAddress.getOption(ResourceAddress.QUALIFIER));
         }

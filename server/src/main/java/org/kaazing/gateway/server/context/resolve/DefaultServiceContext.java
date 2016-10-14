@@ -64,7 +64,7 @@ import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
-import org.kaazing.gateway.resource.address.http.HttpRealmConfig;
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.security.AuthenticationContext;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.security.LoginContextFactory;
@@ -680,7 +680,7 @@ public class DefaultServiceContext implements ServiceContext {
         // Add realmName property and  based on whether the service
         // is protected, and whether it is application- or native- security that is desired.
         if (serviceRealmContext != null) {
-            List<HttpRealmConfig> realms = new ArrayList<>();
+            List<HttpRealmInfo> realms = new ArrayList<>();
             realms.add(newHttpRealm(serviceRealmContext));
 
             final AuthenticationContext authenticationContext = serviceRealmContext.getAuthenticationContext();
@@ -753,7 +753,7 @@ public class DefaultServiceContext implements ServiceContext {
         }
     }
 
-	private static HttpRealmConfig newHttpRealm(RealmContext serviceRealmContext) {
+	private static HttpRealmInfo newHttpRealm(RealmContext serviceRealmContext) {
         final AuthenticationContext authenticationContext = serviceRealmContext.getAuthenticationContext();
         String name = serviceRealmContext.getName();
         String authorizationMode = authenticationContext.getAuthorizationMode();
@@ -765,7 +765,7 @@ public class DefaultServiceContext implements ServiceContext {
         LoginContextFactory loginContextFactory = serviceRealmContext.getLoginContextFactory();
         Collection<Class<? extends Principal>> userPrincipleClasses = loadUserPrincipalClasses(name, serviceRealmContext.getUserPrincipalClasses());
 
-        return new HttpRealmConfig(name, authorizationMode, challengeScheme, description, headerNames, parameterNames, authenticationCookieNames, loginContextFactory, userPrincipleClasses);
+        return new HttpRealmInfo(name, authorizationMode, challengeScheme, description, headerNames, parameterNames, authenticationCookieNames, loginContextFactory, userPrincipleClasses);
 	}
 
     private static Collection<Class<? extends Principal>> loadUserPrincipalClasses(String name, String[] userPrincipalClasses) {

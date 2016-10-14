@@ -199,7 +199,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
             options.setOption(MAX_AUTHENTICATION_ATTEMPTS, (Integer) maxAuthenticationAttempts);
         }
 
-        HttpRealmConfig[] realms = (HttpRealmConfig[]) optionsByName.remove(REALMS.name());
+        HttpRealmInfo[] realms = (HttpRealmInfo[]) optionsByName.remove(REALMS.name());
         if (realms != null) {
             options.setOption(REALMS, realms);
         }
@@ -210,7 +210,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         }
         else {
             Collection<Class<? extends Principal>> userPrincipalClasses =
-                    getUserPrincipalClasses((HttpRealmConfig[]) optionsByName.remove(REALMS.name()));
+                    getUserPrincipalClasses((HttpRealmInfo[]) optionsByName.remove(REALMS.name()));
             if (userPrincipalClasses != null && !userPrincipalClasses.isEmpty()) {
                 httpIdentityResolver = new HttpIdentityResolver(userPrincipalClasses);
                 options.setOption(IDENTITY_RESOLVER, httpIdentityResolver);
@@ -218,7 +218,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         }
     }
 
-    private Collection<Class<? extends Principal>> getUserPrincipalClasses(HttpRealmConfig[] realms) {
+    private Collection<Class<? extends Principal>> getUserPrincipalClasses(HttpRealmInfo[] realms) {
         if (realms != null && realms.length > 0) {
         	if (realms.length == 1) {
         		return realms[0].getUserPrincipleClasses();

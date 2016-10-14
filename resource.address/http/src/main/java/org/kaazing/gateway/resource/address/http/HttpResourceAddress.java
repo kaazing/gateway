@@ -58,7 +58,7 @@ public final class HttpResourceAddress extends ResourceAddress {
 
     public static final ResourceOption<Integer> MAX_AUTHENTICATION_ATTEMPTS = new MaxAuthenticationAttemptsOption();
 
-    public static final ResourceOption<HttpRealmConfig[]> REALMS = new HttpRealmsOption();
+    public static final ResourceOption<HttpRealmInfo[]> REALMS = new HttpRealmsOption();
 
     private Boolean serverHeaderEnabled = SERVER_HEADER_ENABLED.defaultValue();
     private Boolean keepAlive = KEEP_ALIVE.defaultValue();
@@ -79,7 +79,7 @@ public final class HttpResourceAddress extends ResourceAddress {
     private String encryptionKeyAlias;
     private String serviceDomain;
 
-    private HttpRealmConfig[] realms;
+    private HttpRealmInfo[] realms;
 
     private Collection<Class<? extends Principal>> realmUserPrincipalClasses;
 
@@ -194,7 +194,7 @@ public final class HttpResourceAddress extends ResourceAddress {
                     maxAuthenticationAttempts = (Integer) value;
                     return;
                 case REALMS:
-                    realms = (HttpRealmConfig[]) value;
+                    realms = (HttpRealmInfo[]) value;
                     return;
             }
         }
@@ -354,9 +354,9 @@ public final class HttpResourceAddress extends ResourceAddress {
         }
     }
 
-    private static final class HttpRealmsOption extends HttpResourceOption<HttpRealmConfig[]> {
+    private static final class HttpRealmsOption extends HttpResourceOption<HttpRealmInfo[]> {
         private HttpRealmsOption() {
-            super(Kind.REALMS, "realms", new HttpRealmConfig[0]);
+            super(Kind.REALMS, "realms", new HttpRealmInfo[0]);
         }
     }
 

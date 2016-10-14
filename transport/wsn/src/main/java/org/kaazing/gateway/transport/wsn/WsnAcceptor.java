@@ -74,7 +74,7 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.URLUtils;
-import org.kaazing.gateway.resource.address.http.HttpRealmConfig;
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
@@ -128,7 +128,6 @@ import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.transport.ws.util.WsHandshakeNegotiationException;
 import org.kaazing.gateway.transport.ws.util.WsUtils;
 import org.kaazing.gateway.util.Encoding;
-import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -970,7 +969,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             // to keep track of initial x-kaazing-handshake request
             if (HttpMergeRequestFilter.INITIAL_HTTP_REQUEST_KEY.get(session.getParent()) == null) {
                 // Not a x-kaazing-handshake initial or extended request
-                for (HttpRealmConfig realm : session.getLocalAddress().getOption(HttpResourceAddress.REALMS)) {
+                for (HttpRealmInfo realm : session.getLocalAddress().getOption(HttpResourceAddress.REALMS)) {
                     String httpChallengeScheme = realm.getChallengeScheme();
                     if (httpChallengeScheme != null && httpChallengeScheme.startsWith(AUTH_SCHEME_APPLICATION_PREFIX)) {
                         // challenge scheme starts with "Application ", so reject it (403 as no way to negotiate)

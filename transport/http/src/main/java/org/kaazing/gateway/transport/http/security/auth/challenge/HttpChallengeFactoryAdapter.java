@@ -19,7 +19,7 @@ import static org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecuri
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter.WWW_AUTHENTICATE_HEADER;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.http.HttpRealmConfig;
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
@@ -35,12 +35,12 @@ public abstract class HttpChallengeFactoryAdapter implements HttpChallengeFactor
 
     @Override
     public HttpResponseMessage createChallenge(HttpRequestMessage httpRequestMessage,
-                                               HttpRealmConfig realm,
+                                               HttpRealmInfo realm,
                                                Object... params) {
         return createChallenge0(httpRequestMessage, realm, params);
     }
 
-    private HttpResponseMessage createChallenge0(HttpRequestMessage httpRequestMessage, HttpRealmConfig realm, Object... params) {
+    private HttpResponseMessage createChallenge0(HttpRequestMessage httpRequestMessage, HttpRealmInfo realm, Object... params) {
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(httpRequestMessage.getVersion());
         httpResponse.setStatus(HttpStatus.CLIENT_UNAUTHORIZED);
@@ -51,7 +51,7 @@ public abstract class HttpChallengeFactoryAdapter implements HttpChallengeFactor
 
     protected abstract String getAuthenticationScheme();
 
-    protected String makeChallengeString(ResourceAddress address, HttpRealmConfig realm, Object... params) {
+    protected String makeChallengeString(ResourceAddress address, HttpRealmInfo realm, Object... params) {
         StringBuilder builder = new StringBuilder();
 
         //-- existing clients expect 'Application Basic' in the challenge so we
