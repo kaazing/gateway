@@ -776,7 +776,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             noSecurityOptions.setOption(ALTERNATE, httpxeAddressNoSecurity);
 
             noSecurityOptions.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
-            noSecurityOptions.setOption(HttpResourceAddress.REALMS, new ArrayList<HttpRealmConfig>());
+            noSecurityOptions.setOption(HttpResourceAddress.REALMS, new HttpRealmConfig[0]);
             return resourceAddressFactory.newResourceAddress(httpAddress.getExternalURI(),
                     noSecurityOptions, httpAddress.getOption(ResourceAddress.QUALIFIER));
         }

@@ -20,7 +20,6 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
@@ -30,9 +29,7 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REAL
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REQUIRED_ROLES;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
@@ -46,8 +43,8 @@ public class HttpxResourceAddressFactorySpiTest {
     private String addressURI;
     private Map<String, Object> options;
 
-    private final List<HttpRealmConfig> realms =
-            Arrays.asList(new HttpRealmConfig[]{new HttpRealmConfig(null, null, null, null, null, null, null, null, null)});
+    private final HttpRealmConfig[] realms =
+            new HttpRealmConfig[]{new HttpRealmConfig(null, null, null, null, null, null, null, null, null)};
 
     @Before
     public void before() {
@@ -92,7 +89,7 @@ public class HttpxResourceAddressFactorySpiTest {
         assertNull(address.getOption(QUALIFIER));
         assertNull(address.getOption(TRANSPORT));
         assertEquals(address.getOption(KEEP_ALIVE_TIMEOUT).intValue(), 30);
-        assertTrue(address.getOption(REALMS).isEmpty());
+        assertArrayEquals(new HttpRealmConfig[0], address.getOption(REALMS));
         assertEmpty(address.getOption(REQUIRED_ROLES));
     }
 
