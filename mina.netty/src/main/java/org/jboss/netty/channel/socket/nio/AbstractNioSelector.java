@@ -32,6 +32,7 @@ package org.jboss.netty.channel.socket.nio;
 
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import java.io.IOException;
 import java.nio.channels.CancelledKeyException;
@@ -72,7 +73,7 @@ abstract class AbstractNioSelector implements NioSelector {
 
     private final int id = nextId.incrementAndGet();
     private final IdleStrategy idleStrategy = new BackoffIdleStrategy(50, 50,
-            MILLISECONDS.toNanos(10), MILLISECONDS.toNanos(50));
+            NANOSECONDS.toNanos(100), MILLISECONDS.toNanos(10));
 
     /**
      * Internal Netty logger.
