@@ -704,7 +704,28 @@ public class DefaultServiceContext implements ServiceContext {
                                 getProperties().get("authentication.connect"));
                         options.put(format(optionPattern, AUTHENTICATION_IDENTIFIER),
                                 getProperties().get("authentication.identifier"));
+                        options.put(format(optionPattern, ENCRYPTION_KEY_ALIAS),
+                                getProperties().get("encryption.key.alias"));
+                        options.put(format(optionPattern, SERVICE_DOMAIN),
+                                getProperties().get("service.domain"));
+                    }
+                }
 
+                // TCP
+                for (String optionPattern : asList("tcp.%s")) {
+                    // NO REALM_NAME as this will be an accept/connect option
+                    String tcpRealmOptionName = format(optionPattern, "realm");
+                    String tcpRealmName = (String) options.get(tcpRealmOptionName);
+                    if (tcpRealmName != null) {
+                        // TODO, use REALMS TCP connect options
+                        // check if it's the same as the configured realm
+                        if (!serviceRealmContext.getName().equals(tcpRealmName)) {
+                            logger.error("{} configuration error: {} needs to be set to the same value as the configured realm",
+                                    serviceName, tcpRealmOptionName);
+                            throw new IllegalArgumentException(
+                                    tcpRealmOptionName + " needs to be the same as the configured realm");
+                        }
+                        options.put(format(optionPattern, "loginContextFactory"), serviceRealmContext.getLoginContextFactory());
                     }
                 }
 

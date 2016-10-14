@@ -100,6 +100,27 @@ public class UdpResourceAddressFactorySpiTest {
     }
 
     @Test
+    public void shouldThrowSpecificNICExceptionNoBrackets() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("The interface name @ethh is not recognized");
+        factory.newResourceAddress("udp://@ethh:8080");
+    }
+
+    @Test
+    public void shouldThrowSpecificNICExceptionBrackets() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("The interface name [@ethh] is not recognized");
+        factory.newResourceAddress("udp://[@ethh]:8080");
+    }
+
+    @Test
+    public void shouldThrowGenericResolutionException() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Unable to resolve DNS name: ethh");
+        factory.newResourceAddress("udp://ethh:8080");
+    }
+
+    @Test
     public void shouldCreateAddressWithDefaultOptions() throws Exception {
         ResourceAddress address = factory.newResourceAddress(addressURI);
         assertNull(address.getOption(NEXT_PROTOCOL));
