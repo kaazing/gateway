@@ -20,7 +20,6 @@ import static org.junit.Assert.assertNotNull;
 
 import java.net.URI;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -268,8 +267,6 @@ public class HttpSubjectSecurityFilterTest {
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(new String[]{"ADMINISTRATOR"}));
 
-                oneOf(session).getSubject();
-
                 // pass through
                 oneOf(nextFilter).messageReceived(session, message);
                 never(session).setAttribute(with(any(String.class)), with(any(Subject.class)));
@@ -427,9 +424,6 @@ public class HttpSubjectSecurityFilterTest {
                 realms[0] = new HttpRealmInfo("demo", null, "Application Token", null,  new String[]{"foo"}, new String[]{}, new String[]{}, loginContextFactory, null);
                 will(returnValue(realms));
 
-                // not already logged in
-                oneOf(session).getSubject();
-
                 oneOf(loginContextFactory).createLoginContext(with(aNonNull(TypedCallbackHandlerMap.class)));
                 will(returnValue(loginContext));
 
@@ -505,9 +499,6 @@ public class HttpSubjectSecurityFilterTest {
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(new String[]{"AUTHORIZED"}));
 
-                // not already logged in
-                oneOf(session).getSubject(); will(returnValue(null));
-
                 oneOf(loginContextFactory).createLoginContext(with(aNonNull(TypedCallbackHandlerMap.class)));
                 will(returnValue(loginContext));
                 oneOf(session).suspendRead();
@@ -578,9 +569,6 @@ public class HttpSubjectSecurityFilterTest {
 
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(new String[]{"AUTHORIZED"}));
-
-                // not already logged in
-                oneOf(session).getSubject(); will(returnValue(null));
 
                 oneOf(loginContextFactory).createLoginContext(with(aNonNull(TypedCallbackHandlerMap.class)));
                 will(returnValue(loginContext));

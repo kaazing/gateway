@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.transport.http.security.auth.token;
 
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_AUTHORIZATION;
+
 import java.io.UnsupportedEncodingException;
 import java.util.Set;
 
@@ -23,7 +25,6 @@ import org.kaazing.gateway.security.auth.token.DefaultAuthenticationToken;
 import org.kaazing.gateway.server.spi.security.AuthenticationToken;
 import org.kaazing.gateway.transport.http.HttpCookie;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
 
 public class AbstractAuthenticationTokenExtractor implements AuthenticationTokenExtractor {
 
@@ -98,8 +99,8 @@ public class AbstractAuthenticationTokenExtractor implements AuthenticationToken
     }
 
     private void extractAuthorizationHeader(HttpRequestMessage httpRequest, DefaultAuthenticationToken result) {
-        if (httpRequest.hasHeader(HttpSubjectSecurityFilter.AUTHORIZATION_HEADER) ) {
-            String authorization = httpRequest.getHeader(HttpSubjectSecurityFilter.AUTHORIZATION_HEADER).trim();
+        if (httpRequest.hasHeader(HEADER_AUTHORIZATION) ) {
+            String authorization = httpRequest.getHeader(HEADER_AUTHORIZATION).trim();
 
             // We have to be careful when handling any client-supplied data.  In
             // this particular case, we need to extract the challenge scheme from

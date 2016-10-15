@@ -680,8 +680,7 @@ public class DefaultServiceContext implements ServiceContext {
         // Add realmName property and  based on whether the service
         // is protected, and whether it is application- or native- security that is desired.
         if (serviceRealmContext != null) {
-            List<HttpRealmInfo> realms = new ArrayList<>();
-            realms.add(newHttpRealm(serviceRealmContext));
+            HttpRealmInfo[] realms = new HttpRealmInfo[] { newHttpRealm(serviceRealmContext) };
 
             final AuthenticationContext authenticationContext = serviceRealmContext.getAuthenticationContext();
             if (authenticationContext != null) {
@@ -691,12 +690,12 @@ public class DefaultServiceContext implements ServiceContext {
 
                 if (isApplicationChallengeScheme && !forceNativeChallengeScheme) {
                     options.put(format("http[http/1.1].%s", REALMS),
-                            realms);
+                    		realms);
                     for (String optionPattern : asList("http[httpxe/1.1].%s", "http[x-kaazing-handshake].%s")) {
                         options.put(format(optionPattern, REQUIRED_ROLES),
                                 getRequireRoles());
                         options.put(format(optionPattern, REALMS),
-                                realms);
+                        		realms);
                         // We need this to support reading legacy service properties during authentication.
                         // authentication-connect, authentication-identifier, encryption.key.alias, service.domain
                         // The negotiate properties are replaced with client-side capabilities to use different

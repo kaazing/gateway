@@ -17,10 +17,14 @@ package org.kaazing.gateway.transport.http.bridge.filter;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REQUIRED_ROLES;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_FORWARDED;
 import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_FORWARDED;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_SEC_CHALLENGE_IDENTITY;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_WWW_AUTHENTICATE;
 
 import java.net.InetAddress;
 import java.net.URI;
@@ -33,6 +37,7 @@ import java.util.regex.Pattern;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.AppConfigurationEntry;
+import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.apache.mina.core.session.IoSession;
@@ -46,16 +51,17 @@ import org.kaazing.gateway.security.auth.DefaultLoginResult;
 import org.kaazing.gateway.security.auth.InetAddressCallbackHandler;
 import org.kaazing.gateway.security.auth.YesLoginModule;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
+import org.kaazing.gateway.server.ExpiringState;
 import org.kaazing.gateway.server.spi.security.AuthenticationToken;
 import org.kaazing.gateway.server.spi.security.AuthenticationTokenCallback;
 import org.kaazing.gateway.server.spi.security.InetAddressCallback;
 import org.kaazing.gateway.server.spi.security.LoginResult;
 import org.kaazing.gateway.transport.http.HttpStatus;
+import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.gateway.transport.http.security.auth.challenge.HttpChallengeFactories;
 import org.kaazing.gateway.transport.http.security.auth.challenge.HttpChallengeFactory;
-import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 
 public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
@@ -72,12 +78,16 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
     private static final String FORWARDED_URI = "scheme://%s";
     private static final String HEADER_FORWARDED_UNKNOWN_VALUE = "unknown";
 
-    public HttpLoginSecurityFilter() {
+	private final ExpiringState expiringState;
+
+	public HttpLoginSecurityFilter() {
         super();
+        this.expiringState = null;
     }
 
-    public HttpLoginSecurityFilter(Logger logger) {
+    public HttpLoginSecurityFilter(Logger logger, ExpiringState expiringState) {
         super(logger);
+        this.expiringState = expiringState;
     }
 
     /**
@@ -90,13 +100,15 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
      * @param session  the session that may or may not be already logged in
      * @return true iff the session is "already logged in" as defined above.
      */
-    protected boolean alreadyLoggedIn(IoSession session, ResourceAddress address) {
+    protected boolean alreadyLoggedIn(HttpRequestMessage httpRequest) {
 
-        Collection<String> requiredRoles = asList(address.getOption(HttpResourceAddress.REQUIRED_ROLES));
+        ResourceAddress localAddress = httpRequest.getLocalAddress();
+        Subject subject = httpRequest.getSubject();
+
+        Collection<String> requiredRoles = asList(localAddress.getOption(REQUIRED_ROLES));
         if  (requiredRoles == null || requiredRoles.size() == 0) {
             return true;
         }
-        Subject subject = ((IoSessionEx)session).getSubject();
         if (subject != null ) {
             Collection<String> authorizedRoles = getAuthorizedRoles(subject);
             return authorizedRoles.containsAll(requiredRoles);
@@ -150,17 +162,17 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                                       HttpRequestMessage httpRequest,
                                       AuthenticationToken authToken,
                                       TypedCallbackHandlerMap additionalCallbacks,
-                                      HttpRealmInfo realm) {
+                                      HttpRealmInfo[] realms,
+                                      int realmIndex,
+                                      LoginContext[] loginContexts) {
 
-        DefaultLoginResult loginResult;
+        HttpRealmInfo realm = realms[realmIndex];
 
         // We build a LoginContext here and call login() so that login
         // modules have a chance to any challenge parameters to the initial
         // challenge (KG-2191).
         ResultAwareLoginContext loginContext = null;
-        ResourceAddress address = httpRequest.getLocalAddress();
 
-        String httpChallengeScheme = realm.getChallengeScheme();
         try {
 
 
@@ -208,25 +220,11 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
             return false;
         }
 
-        loginResult = loginContext.getLoginResult();
-        final LoginResult.Type resultType = loginResult.getType();
-
-        // Now check to see if any of the login modules added any challenge
-        // parameters/data.
-
-        Object[] challengeData = null;
-
-        if (resultType == LoginResult.Type.CHALLENGE) {
-            challengeData = loginResult.getLoginChallengeData();
-        }
-
-        HttpResponseMessage httpResponse = challengeFactory.createChallenge(httpRequest, realm, challengeData);
-
+        DefaultLoginResult loginResult = loginContext.getLoginResult();
+        String challenge = sendChallengeResponse(nextFilter, session, httpRequest, loginResult, realms, realmIndex, loginContexts);
         if (loggerEnabled()) {
-            String challenge = httpResponse.getHeader(HttpSubjectSecurityFilter.WWW_AUTHENTICATE_HEADER);
             log(String.format("No authentication token was provided.  Issuing an authentication challenge '%s'.", challenge));
         }
-        writeChallenge(httpResponse, nextFilter, session, httpChallengeScheme);
 
         // No matter what happens, we know that the roles currently present
         // are not sufficient for logging in, so return false.
@@ -264,7 +262,11 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                             HttpRequestMessage httpRequest,
                             AuthenticationToken authToken,
                             TypedCallbackHandlerMap additionalCallbacks,
-                            HttpRealmInfo realm) {
+                            HttpRealmInfo[] realms,
+                            int realmIndex,
+                            LoginContext[] loginContexts) {
+
+    	HttpRealmInfo realm = realms[realmIndex];
 
         ResourceAddress address = httpRequest.getLocalAddress();
         String[] requiredRolesArray = address.getOption(HttpResourceAddress.REQUIRED_ROLES);
@@ -296,7 +298,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         // Issue a challenge since authentication is required.
         if (authTokenIsMissing(authToken) &&
             rolesAreSufficient == false) {
-            return loginMissingToken(nextFilter, session, httpRequest, authToken, additionalCallbacks, realm);
+            return loginMissingToken(nextFilter, session, httpRequest, authToken, additionalCallbacks, realms, realmIndex, loginContexts);
         }
 
         DefaultLoginResult loginResult = null;
@@ -371,7 +373,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                     }
                     // Login was successful, but the subject identified does not have required roles
                     // to create the web socket.  We re-issue a challenge here.
-                    String challenge = sendChallengeResponse(nextFilter, session, httpRequest, loginResult, realm);
+                    String challenge = sendChallengeResponse(nextFilter, session, httpRequest, loginResult, realms, realmIndex, loginContexts);
                     if (loggerEnabled()) {
                         if ( resultType != LoginResult.Type.CHALLENGE) {
                             log(String.format("Login module login succeeded but subject missing required roles; Issued another challenge '%s'.", challenge));
@@ -390,7 +392,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
                 //KG-2207, KG-3389
                 if ( HttpBaseSecurityFilter.AUTH_SCHEME_BASIC.equals(getBaseAuthScheme(realm.getChallengeScheme()))) {
-                    String challenge = sendChallengeResponse(nextFilter, session, httpRequest, loginResult, realm);
+                    String challenge = sendChallengeResponse(nextFilter, session, httpRequest, loginResult, realms, realmIndex, loginContexts);
                     if (loggerEnabled()) {
                         log(String.format("Login module login failed; Issued another challenge '%s'.", challenge), e);
                     }
@@ -407,7 +409,8 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         if (loginOK) {
             // store information into the session
             try {
-
+            	loginContexts[realmIndex] = loginContext;
+            	
                 // remember login context
                 httpRequest.setLoginContext(loginContext);
 
@@ -430,11 +433,31 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         return loginOK;
     }
 
-    private String sendChallengeResponse(NextFilter nextFilter, IoSession session, HttpRequestMessage httpRequest, DefaultLoginResult loginResult, HttpRealmInfo realm) {
-        Object[] challengeData = loginResult == null ? null : loginResult.getLoginChallengeData();
+    private String sendChallengeResponse(
+    		NextFilter nextFilter,
+    		IoSession session,
+    		HttpRequestMessage httpRequest,
+    		DefaultLoginResult loginResult,
+    		HttpRealmInfo[] realms,
+    		int realmIndex,
+    		LoginContext[] loginContexts) {
+
+    	HttpRealmInfo realm = realms[realmIndex];
+    	Object[] challengeData = loginResult != null && loginResult.getType() == LoginResult.Type.CHALLENGE ? loginResult.getLoginChallengeData() : null;
         HttpResponseMessage httpResponse = challengeFactory.createChallenge(httpRequest, realm, challengeData);
+
+        if (realmIndex > 0) {
+        	String challengeIdentity;
+        	do {
+        		challengeIdentity = HttpUtils.newSessionId();
+        		httpResponse.setHeader(HEADER_SEC_CHALLENGE_IDENTITY, challengeIdentity);
+        	}
+        	while (expiringState != null && expiringState.putIfAbsent(challengeIdentity, loginContexts, 30, SECONDS) != null);
+        }
+        
         writeChallenge(httpResponse, nextFilter, session, realm.getChallengeScheme());
-        return httpResponse.getHeader(HttpSubjectSecurityFilter.WWW_AUTHENTICATE_HEADER);
+        
+        return httpResponse.getHeader(HEADER_WWW_AUTHENTICATE);
     }
 
     /**
@@ -527,6 +550,10 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
     protected void writeSessionCookie(IoSession session, HttpRequestMessage httpRequest, DefaultLoginResult loginResult) {
     }
+
+	protected LoginContext[] getLoginContexts(String challengeIdentity) {
+		return expiringState != null && challengeIdentity != null ? (LoginContext[]) expiringState.get(challengeIdentity) : null;
+	}
 
     private boolean authTokenIsMissing(AuthenticationToken authToken) {
         return authToken == null || authToken.isEmpty();

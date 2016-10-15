@@ -28,9 +28,9 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.server.spi.security.AuthenticationToken;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
 import org.kaazing.gateway.transport.test.Expectations;
 
 public class DefaultAuthenticationTokenExtractorTest {
@@ -56,7 +56,7 @@ public class DefaultAuthenticationTokenExtractorTest {
         HttpRequestMessage request = new HttpRequestMessage();
         request.setMethod(HttpMethod.GET);
         request.setRequestURI(uri);
-        request.setHeader(HttpSubjectSecurityFilter.AUTHORIZATION_HEADER, authorization);
+        request.setHeader(HttpHeaders.HEADER_AUTHORIZATION, authorization);
         request.setLocalAddress(address);
         token = extractor.extract(request, new HttpRealmInfo(null, null, scheme, param, null, new String[]{param}, null, null, null));
         String challengeScheme = token.getScheme();
@@ -90,7 +90,7 @@ public class DefaultAuthenticationTokenExtractorTest {
         HttpRequestMessage request = new HttpRequestMessage();
         request.setMethod(HttpMethod.GET);
         request.setRequestURI(uri);
-        request.setHeader(HttpSubjectSecurityFilter.AUTHORIZATION_HEADER, authorization);
+        request.setHeader(HttpHeaders.HEADER_AUTHORIZATION, authorization);
         request.setLocalAddress(address);
 
         token = extractor.extract(request, new HttpRealmInfo(null, null, scheme, param, null, new String[]{param}, null, null, null));
@@ -125,7 +125,7 @@ public class DefaultAuthenticationTokenExtractorTest {
         HttpRequestMessage request = new HttpRequestMessage();
         request.setMethod(HttpMethod.GET);
         request.setRequestURI(uri);
-        request.setHeader(HttpSubjectSecurityFilter.AUTHORIZATION_HEADER, authorization);
+        request.setHeader(HttpHeaders.HEADER_AUTHORIZATION, authorization);
         request.setLocalAddress(address);
 
         token = extractor.extract(request, new HttpRealmInfo(null, null, scheme, param, null, new String[]{param}, null, null, null));
@@ -159,7 +159,7 @@ public class DefaultAuthenticationTokenExtractorTest {
         HttpRequestMessage request = new HttpRequestMessage();
         request.setMethod(HttpMethod.GET);
         request.setRequestURI(uri);
-        request.setHeader(HttpSubjectSecurityFilter.AUTHORIZATION_HEADER, authorization);
+        request.setHeader(HttpHeaders.HEADER_AUTHORIZATION, authorization);
         request.setLocalAddress(address);
 
         token = extractor.extract(request, new HttpRealmInfo(null, null, scheme, null, null, new String[]{}, null, null, null));

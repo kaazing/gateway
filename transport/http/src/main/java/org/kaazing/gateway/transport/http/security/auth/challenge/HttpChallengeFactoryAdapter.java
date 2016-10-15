@@ -15,8 +15,8 @@
  */
 package org.kaazing.gateway.transport.http.security.auth.challenge;
 
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_WWW_AUTHENTICATE;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter.AUTH_SCHEME_APPLICATION_PREFIX;
-import static org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter.WWW_AUTHENTICATE_HEADER;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
@@ -45,7 +45,7 @@ public abstract class HttpChallengeFactoryAdapter implements HttpChallengeFactor
         httpResponse.setVersion(httpRequestMessage.getVersion());
         httpResponse.setStatus(HttpStatus.CLIENT_UNAUTHORIZED);
         String challenge = makeChallengeString(httpRequestMessage.getLocalAddress(), realm, params);
-        httpResponse.setHeader(WWW_AUTHENTICATE_HEADER, challenge);
+        httpResponse.setHeader(HEADER_WWW_AUTHENTICATE, challenge);
         return httpResponse;
     }
 
