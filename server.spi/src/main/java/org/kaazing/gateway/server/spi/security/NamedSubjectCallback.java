@@ -13,17 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.http.security.auth.token;
+package org.kaazing.gateway.server.spi.security;
 
-import java.io.UnsupportedEncodingException;
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
 
-import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
-import org.kaazing.gateway.server.spi.security.AuthenticationToken;
-import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
+/**
+ * A callback class that retrieves the Subject for a previous realm when authorizing multiple realms
+ */
+public class NamedSubjectCallback implements Callback {
 
-public interface AuthenticationTokenExtractor {
+	private final String realm;
 
-    AuthenticationToken extract(HttpRequestMessage httpRequest, HttpRealmInfo realm) throws UnsupportedEncodingException;
+	private Subject subject;
 
+	public NamedSubjectCallback(String realm) {
+		this.realm = realm;
+	}
+
+	public String getName() {
+		return realm;
+	}
+
+    public void setSubject(Subject subject) {
+        this.subject = subject;
+    }
+
+	public Subject getSubject() {
+        return subject;
+    }
 }
-

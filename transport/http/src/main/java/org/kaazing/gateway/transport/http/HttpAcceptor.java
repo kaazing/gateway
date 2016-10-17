@@ -70,6 +70,7 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
+import org.kaazing.gateway.server.ExpiringState;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
 import org.kaazing.gateway.transport.Bindings;
 import org.kaazing.gateway.transport.BridgeAcceptor;
@@ -124,6 +125,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
     private SchedulerProvider schedulerProvider;
 
+	private ExpiringState expiringState;
+
     private Properties configuration;
 
     private boolean httpxeSpecCompliant;
@@ -131,6 +134,11 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
     @Resource(name = "schedulerProvider")
     public void setSchedulerProvider(SchedulerProvider provider) {
         this.schedulerProvider = provider;
+    }
+
+    @Resource(name = "expiringState")
+    public void setExpiringState(ExpiringState expiringState) {
+        this.expiringState = expiringState;
     }
 
     @Resource(name = "configuration")
@@ -566,7 +574,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 break;
             case SUBJECT_SECURITY:
                 // One instance of HttpSubjectSecurityFilter per session
-                HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter(LoggerFactory.getLogger(SECURITY_LOGGER_NAME));
+                HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter(LoggerFactory.getLogger(SECURITY_LOGGER_NAME), expiringState);
                 filter.setSchedulerProvider(schedulerProvider);
                 chain.addLast(acceptFilter.filterName(), filter);
                 break;

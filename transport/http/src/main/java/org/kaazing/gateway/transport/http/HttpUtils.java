@@ -388,7 +388,7 @@ public class HttpUtils {
 	public static String newSessionId() {
 		// base-62, 32 chars long, random
 		int size = 32;
-		StringBuffer sessionId = new StringBuffer(size);
+		StringBuilder sessionId = new StringBuilder(size);
 		for (int i=0; i < size; i++) {
 		    int randomInt = Math.abs(SESSION_SEQUENCE.nextInt());
 		    sessionId.append(BASE_62_CHARS[randomInt % BASE_62_CHARS_LENGTH]);
