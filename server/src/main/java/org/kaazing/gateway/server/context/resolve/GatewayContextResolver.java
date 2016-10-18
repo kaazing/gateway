@@ -1333,8 +1333,8 @@ public class GatewayContextResolver {
             final boolean noPathToCanonicalize = canonicalizePath && (path == null || emptyPath);
             final boolean trailingSlashPath = "/".equals(path);
             final String scheme = getScheme(uri);
-            final boolean pathlessScheme =
-                    "ssl".equals(scheme) || "tcp".equals(scheme) || "pipe".equals(scheme) || "udp".equals(scheme);
+            final boolean pathlessScheme = "ssl".equals(scheme) || "tcp".equals(scheme) || "pipe".equals(scheme)
+                    || "udp".equals(scheme) || "mux".equals(scheme);
             final boolean trailingSlashWithPathlessScheme = trailingSlashPath && pathlessScheme;
             String newPath = trailingSlashWithPathlessScheme ? "" :
                              noPathToCanonicalize ? (pathlessScheme ? null : "/") : null;
