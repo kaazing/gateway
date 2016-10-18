@@ -76,7 +76,7 @@ public abstract class AbstractProxyService<HandlerType extends AbstractProxyHand
         handler.setMaximumPendingBytes(maximumPendingBytes);
         handler.setMaximumTransferredBytes(maximumTransferredBytes);
         handler.setMaximumRecoveryInterval(maximumRecoveryInterval);
-        handler.setPreparedConnectionCount(connectStrategy, preparedConnectionCount);
+        handler.setPreparedConnectionCount(connectStrategy, preparedConnectionCount, serviceContext.getProcessorCount());
     }
 
     @Override

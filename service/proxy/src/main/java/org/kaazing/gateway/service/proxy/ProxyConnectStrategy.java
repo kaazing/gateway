@@ -53,10 +53,12 @@ public final class ProxyConnectStrategy {
         }
     }
 
-    public static ProxyConnectStrategy newInstance(Strategy strategy, int connectionCount) {
+    public static ProxyConnectStrategy newInstance(Strategy strategy, int connectionCount, int maxConnectionCount) {
         switch (strategy) {
         case PREPARED:
-            connectionCount = Math.max(connectionCount, 1);
+            if (connectionCount == 0) {
+                connectionCount = maxConnectionCount;
+            }
             break;
         case IMMEDIATE:
         case DEFERRED:
