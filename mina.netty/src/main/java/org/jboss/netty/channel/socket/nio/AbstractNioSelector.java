@@ -361,7 +361,7 @@ abstract class AbstractNioSelector implements NioSelector {
                     workCount += process(selector);
                     workCount += processRead();
                 }
-                idleStrategy.idle(workCount);
+                //idleStrategy.idle(workCount);
             } catch (Throwable t) {
                 logger.warn(
                         "Unexpected exception in the selector loop.", t);
@@ -503,11 +503,15 @@ abstract class AbstractNioSelector implements NioSelector {
     }
 
     protected int select(Selector selector, boolean quickSelect) throws IOException {
-        return select(selector);
+        if (quickSelect) {
+            return SelectorUtil.select(selector, 0L);
+        } else {
+            return select(selector);
+        }
     }
 
     protected int select(Selector selector) throws IOException {
-        return SelectorUtil.select(selector, 0L);
+        return SelectorUtil.select(selector, 10L);
     }
 
     protected abstract void close(SelectionKey k);
