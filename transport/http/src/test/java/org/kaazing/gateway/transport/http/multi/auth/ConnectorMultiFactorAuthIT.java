@@ -124,6 +124,7 @@ public class ConnectorMultiFactorAuthIT {
                 oneOf(handler).sessionOpened(with(any(IoSession.class)));
                 oneOf(authenticator).getPasswordAuthentication();
                 will(returnValue(new PasswordAuthentication("joe", new char[]{'w', 'e', 'l', 'c', 'o', 'm', 'e'})));
+                allowing(handler).sessionClosed(with(any(IoSession.class)));
             }
         });
         Map<String, Object> connectOptions = new HashMap<>();
