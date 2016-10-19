@@ -138,4 +138,10 @@ public class ConnectorMultiFactorAuthIT {
 
         k3po.finish();
     }
+
+//    @Test
+//    @Ignore("In SPEC but not applicable to client")
+//    @Specification({"request.missing.secure.challenge.identity/server"})
+//    public void serverShouldChallengeFirstFactorWhenSecChallengeIdentityHeaderMissing() throws Exception {
+//    }
 }

@@ -994,7 +994,7 @@ public class GatewayContextResolver {
                     options.put(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY, configuration
                             .getProperty(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY));
                     if (LOGIN_MODULE_EXPIRING_STATE.isEnabled(configuration)) {
-						options.put(EXPIRING_STATE_OPTIONS_KEY, expiringState);
+                        options.put(EXPIRING_STATE_OPTIONS_KEY, expiringState);
                     }
 
                     LoginModuleOptionsType rawOptions = loginModule.getOptions();

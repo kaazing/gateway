@@ -81,8 +81,8 @@ public class NegotiateHttpChallengeFactoryTest {
                 will(returnValue(authIdentifier));
             }
         });
-        HttpResponseMessage response = factory.createChallenge(request, new HttpRealmInfo("demo", null, authenticationScheme, "Realm Description", null,
-                new String[]{}, null, null, null));
+        HttpResponseMessage response = factory.createChallenge(request, new HttpRealmInfo("demo", authenticationScheme, "Realm Description", null, new String[]{},
+                null, null, null));
         context.assertIsSatisfied();
         
         assertEquals(HttpStatus.CLIENT_UNAUTHORIZED, response.getStatus());

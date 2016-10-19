@@ -44,7 +44,7 @@ public class HttpxResourceAddressFactorySpiTest {
     private Map<String, Object> options;
 
     private final HttpRealmInfo[] realms =
-            new HttpRealmInfo[]{new HttpRealmInfo(null, null, null, null, null, null, null, null, null)};
+            new HttpRealmInfo[]{new HttpRealmInfo(null, null, null, null, null, null, null, null)};
 
     @Before
     public void before() {

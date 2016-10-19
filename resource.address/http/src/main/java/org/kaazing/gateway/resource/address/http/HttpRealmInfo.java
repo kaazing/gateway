@@ -24,7 +24,6 @@ import org.kaazing.gateway.security.LoginContextFactory;
 public class HttpRealmInfo {
 
     private final String name;
-    private final String authorizationMode;
     private final String challengeScheme;
     private final String description;
     private final String[] headerNames;
@@ -33,12 +32,10 @@ public class HttpRealmInfo {
     private final LoginContextFactory loginContextFactory;
     private final Collection<Class<? extends Principal>> userPrincipleClasses;
 
-    // TODO remove Authorization Mode
-    public HttpRealmInfo(String name, String authorizationMode, String challengeScheme, String description,
-            String[] headerNames, String[] parameterNames, String[] authenticationCookieNames,
-            LoginContextFactory loginContextFactory, Collection<Class<? extends Principal>> userPrincipleClasses) {
+    public HttpRealmInfo(String name, String challengeScheme, String description, String[] headerNames,
+            String[] parameterNames, String[] authenticationCookieNames, LoginContextFactory loginContextFactory,
+            Collection<Class<? extends Principal>> userPrincipleClasses) {
         this.name = name;
-        this.authorizationMode = authorizationMode;
         this.challengeScheme = challengeScheme;
         this.description = description;
         this.headerNames = headerNames;
@@ -51,10 +48,6 @@ public class HttpRealmInfo {
 
     public String getName() {
         return name;
-    }
-
-    public String getAuthorizationMode() {
-        return authorizationMode;
     }
 
     public String getChallengeScheme() {

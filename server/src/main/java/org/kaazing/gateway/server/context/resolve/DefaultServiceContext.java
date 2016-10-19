@@ -764,7 +764,7 @@ public class DefaultServiceContext implements ServiceContext {
         LoginContextFactory loginContextFactory = serviceRealmContext.getLoginContextFactory();
         Collection<Class<? extends Principal>> userPrincipleClasses = loadUserPrincipalClasses(name, serviceRealmContext.getUserPrincipalClasses());
 
-        return new HttpRealmInfo(name, authorizationMode, challengeScheme, description, headerNames, parameterNames, authenticationCookieNames, loginContextFactory, userPrincipleClasses);
+        return new HttpRealmInfo(name, challengeScheme, description, headerNames, parameterNames, authenticationCookieNames, loginContextFactory, userPrincipleClasses);
 	}
 
     private static Collection<Class<? extends Principal>> loadUserPrincipalClasses(String name, String[] userPrincipalClasses) {

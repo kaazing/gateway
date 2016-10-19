@@ -58,7 +58,7 @@ public class DefaultAuthenticationTokenExtractorTest {
         request.setRequestURI(uri);
         request.setHeader(HttpHeaders.HEADER_AUTHORIZATION, authorization);
         request.setLocalAddress(address);
-        token = extractor.extract(request, new HttpRealmInfo(null, null, scheme, param, null, new String[]{param}, null, null, null));
+        token = extractor.extract(request, new HttpRealmInfo(null, scheme, param, null, new String[]{param}, null, null, null));
         String challengeScheme = token.getScheme();
 
         assertTrue(String.format("Expected challenge scheme '%s', got null", scheme), challengeScheme != null);
@@ -93,7 +93,7 @@ public class DefaultAuthenticationTokenExtractorTest {
         request.setHeader(HttpHeaders.HEADER_AUTHORIZATION, authorization);
         request.setLocalAddress(address);
 
-        token = extractor.extract(request, new HttpRealmInfo(null, null, scheme, param, null, new String[]{param}, null, null, null));
+        token = extractor.extract(request, new HttpRealmInfo(null, scheme, param, null, new String[]{param}, null, null, null));
         String challengeScheme = token.getScheme();
 
         assertTrue("Expected challenge scheme 'Application', got null", challengeScheme != null);
@@ -128,7 +128,7 @@ public class DefaultAuthenticationTokenExtractorTest {
         request.setHeader(HttpHeaders.HEADER_AUTHORIZATION, authorization);
         request.setLocalAddress(address);
 
-        token = extractor.extract(request, new HttpRealmInfo(null, null, scheme, param, null, new String[]{param}, null, null, null));
+        token = extractor.extract(request, new HttpRealmInfo(null, scheme, param, null, new String[]{param}, null, null, null));
         String challengeScheme = token.getScheme();
 
         assertTrue(String.format("Expected challenge scheme '%s', got null", scheme), challengeScheme != null);
@@ -162,7 +162,7 @@ public class DefaultAuthenticationTokenExtractorTest {
         request.setHeader(HttpHeaders.HEADER_AUTHORIZATION, authorization);
         request.setLocalAddress(address);
 
-        token = extractor.extract(request, new HttpRealmInfo(null, null, scheme, null, null, new String[]{}, null, null, null));
+        token = extractor.extract(request, new HttpRealmInfo(null, scheme, null, null, new String[]{}, null, null, null));
         String challengeScheme = token.getScheme();
 
         assertTrue(String.format("Expected challenge scheme '%s', got null", scheme), challengeScheme != null);

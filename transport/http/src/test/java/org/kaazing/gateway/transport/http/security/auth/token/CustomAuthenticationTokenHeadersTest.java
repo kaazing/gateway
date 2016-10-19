@@ -47,7 +47,7 @@ public class CustomAuthenticationTokenHeadersTest {
         HttpRequestMessage requestMessage = new HttpRequestMessage();
         requestMessage.setLocalAddress(address);
         DefaultAuthenticationToken token = (DefaultAuthenticationToken) extractor.extract(requestMessage,
-                new HttpRealmInfo(null, null, "Basic", null, null, new String[]{}, new String[]{}, null, null));
+                new HttpRealmInfo(null, "Basic", null, null, new String[]{}, new String[]{}, null, null));
         assertEquals("Expecting empty token", 0, token.size());
 
         context.assertIsSatisfied();
@@ -73,7 +73,7 @@ public class CustomAuthenticationTokenHeadersTest {
         requestMessage.setLocalAddress(address);
 
         requestMessage.setHeader("foo", "bar");
-        DefaultAuthenticationToken token = (DefaultAuthenticationToken) extractor.extract(requestMessage,  new HttpRealmInfo(null, null, "Basic", null,  new String[]{"foo"}, new String[]{}, new String[]{}, null, null));
+        DefaultAuthenticationToken token = (DefaultAuthenticationToken) extractor.extract(requestMessage,  new HttpRealmInfo(null, "Basic", null, new String[]{"foo"},  new String[]{}, new String[]{}, null, null));
         assertEquals("Expecting single sized token", 1, token.size());
         assertEquals("Expecting value 'bar'", "bar", token.get());
 
@@ -95,7 +95,7 @@ public class CustomAuthenticationTokenHeadersTest {
         newHeaderValues.add("baz");
         newHeaders.put("foo", newHeaderValues);
         requestMessage.setHeaders(newHeaders);
-        DefaultAuthenticationToken token = (DefaultAuthenticationToken) extractor.extract(requestMessage,  new HttpRealmInfo(null, null, "Basic", null,  new String[]{"foo"}, new String[]{}, new String[]{}, null, null));
+        DefaultAuthenticationToken token = (DefaultAuthenticationToken) extractor.extract(requestMessage,  new HttpRealmInfo(null, "Basic", null, new String[]{"foo"},  new String[]{}, new String[]{}, null, null));
         assertEquals("Expecting single sized token", 1, token.size());
         assertEquals("Expecting value 'bar'", "bar", token.get());
 

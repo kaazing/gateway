@@ -459,7 +459,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
 
             boolean succeeded = true;
             for (int realmIndex = realmStartAt; succeeded && realmIndex < realms.length; realmIndex++) {
-				succeeded &= login(nextFilter, session, httpRequest, authToken, additionalCallbacks, realms, realmIndex, loginContexts);
+                succeeded &= login(nextFilter, session, httpRequest, authToken, additionalCallbacks, realms, realmIndex, loginContexts);
             }
             
             //

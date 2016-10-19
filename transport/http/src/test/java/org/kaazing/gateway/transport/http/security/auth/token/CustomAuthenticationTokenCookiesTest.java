@@ -192,7 +192,7 @@ public class CustomAuthenticationTokenCookiesTest {
                 will(returnValue(null));
             }});
 
-            AuthenticationToken actual = extractor.extract(requestMessage, new HttpRealmInfo(null, null, "BASIC", null, null, new String[]{}, testCase.configuredSessionCookies, null, null));
+            AuthenticationToken actual = extractor.extract(requestMessage, new HttpRealmInfo(null, "BASIC", null, null, new String[]{}, testCase.configuredSessionCookies, null, null));
 
             context.assertIsSatisfied();
 
