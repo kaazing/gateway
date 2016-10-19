@@ -150,10 +150,10 @@ public abstract class AbstractProxyHandler extends IoHandlerAdapter {
     }
 
     public void setPreparedConnectionCount(int preparedConnectionCount) {
-        setConnectStrategy(Strategy.PREPARED, preparedConnectionCount);
+        setConnectStrategy(Strategy.PREPARED, preparedConnectionCount, preparedConnectionCount);
     }
 
-    public void setPreparedConnectionCount(String connectStrategy, int preparedConnectionCount) {
+    public void setPreparedConnectionCount(String connectStrategy, int preparedConnectionCount, int maxConnectionCount) {
         switch (connectStrategy) {
         case "prepared":
         case "immediate":
@@ -163,14 +163,15 @@ public abstract class AbstractProxyHandler extends IoHandlerAdapter {
             throw new IllegalArgumentException(String.format("Unexpected value for connect strategy: %s", connectStrategy));
         }
 
-        setConnectStrategy(Strategy.valueOf(connectStrategy.toUpperCase()), preparedConnectionCount);
+        setConnectStrategy(Strategy.valueOf(connectStrategy.toUpperCase()), preparedConnectionCount, maxConnectionCount);
     }
 
     protected void setConnectStrategy(
         Strategy connectStrategy,
-        int preparedConnectionCount)
+        int preparedConnectionCount,
+        int maxConnectionCount)
     {
-        this.connectStrategy = ProxyConnectStrategy.newInstance(connectStrategy, preparedConnectionCount);
+        this.connectStrategy = ProxyConnectStrategy.newInstance(connectStrategy, preparedConnectionCount, maxConnectionCount);
         if ( LOGGER.isDebugEnabled() ) {
             LOGGER.debug("Proxy handler " + this + ": connect.strategy=" + connectStrategy + ".");
         }

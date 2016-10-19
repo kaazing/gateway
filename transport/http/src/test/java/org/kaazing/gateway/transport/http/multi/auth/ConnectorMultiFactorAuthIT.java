@@ -71,7 +71,7 @@ public class ConnectorMultiFactorAuthIT {
             setImposteriser(ClassImposteriser.INSTANCE);
         }
     };
-    
+
     @Before
     public void before(){
         testState = context.states("testState").startsAs("initial-state");
@@ -116,7 +116,7 @@ public class ConnectorMultiFactorAuthIT {
     @Test
     @Specification({"response.with.secure.challenge.identity/server"})
     public void clientShouldAttachSecChallengeIdentityToFollowingRequests() throws Exception {
-        connector.getConnectOptions().put("http.max.authentication.attempts", "5");
+        connector.getConnectOptions().put("http.max.authentication.attempts", "1");
         final IoHandler handler = context.mock(IoHandler.class);
         context.checking(new Expectations() {
             {
@@ -124,6 +124,7 @@ public class ConnectorMultiFactorAuthIT {
                 oneOf(handler).sessionOpened(with(any(IoSession.class)));
                 oneOf(authenticator).getPasswordAuthentication();
                 will(returnValue(new PasswordAuthentication("joe", new char[]{'w', 'e', 'l', 'c', 'o', 'm', 'e'})));
+                allowing(handler).sessionClosed(with(any(IoSession.class)));
             }
         });
         Map<String, Object> connectOptions = new HashMap<>();
