@@ -172,6 +172,11 @@
             <groupId>org.kaazing</groupId>
             <artifactId>specification.http</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.security</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
