@@ -1,5 +1,40 @@
 # Change Log
 
+## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
+
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.4...HEAD)
+
+**Merged pull requests:**
+
+- Selector.selectNow is triggered by passing timeout=0L [\#728](https://github.com/kaazing/gateway/pull/728) ([jitsni](https://github.com/jitsni))
+
+## [5.2.4](https://github.com/kaazing/gateway/tree/5.2.4) (2016-10-03)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.4-RC003...5.2.4)
+
+## [5.2.4-RC003](https://github.com/kaazing/gateway/tree/5.2.4-RC003) (2016-10-03)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.3...5.2.4-RC003)
+
+**Fixed bugs:**
+
+- RC releases: Gateway fails to start up due to error in Update service concerning version format [\#715](https://github.com/kaazing/gateway/issues/715)
+
+**Merged pull requests:**
+
+- Configure Agrona's buffer size for udp child channels [\#726](https://github.com/kaazing/gateway/pull/726) ([jitsni](https://github.com/jitsni))
+- Release 5.2.4 branch merge [\#725](https://github.com/kaazing/gateway/pull/725) ([jitsni](https://github.com/jitsni))
+- Syncing netty changes w.r.t interestops [\#724](https://github.com/kaazing/gateway/pull/724) ([jitsni](https://github.com/jitsni))
+- Set UDP receive buffer size to 2048 [\#723](https://github.com/kaazing/gateway/pull/723) ([dpwspoon](https://github.com/dpwspoon))
+- Revert "Changed turn.rest json response to include stun URLs" [\#722](https://github.com/kaazing/gateway/pull/722) ([dpwspoon](https://github.com/dpwspoon))
+- Revert "Changed turn.rest json response to include stun URLs" [\#721](https://github.com/kaazing/gateway/pull/721) ([dpwspoon](https://github.com/dpwspoon))
+- Fixing IdleStrategy compilation issue [\#720](https://github.com/kaazing/gateway/pull/720) ([jitsni](https://github.com/jitsni))
+- Parking the thread for 10mills instead of 10micros [\#719](https://github.com/kaazing/gateway/pull/719) ([jitsni](https://github.com/jitsni))
+- Bugfix/870 update parent [\#717](https://github.com/kaazing/gateway/pull/717) ([ahousing](https://github.com/ahousing))
+- Add support for release candidates. [\#716](https://github.com/kaazing/gateway/pull/716) ([Anisotrop](https://github.com/Anisotrop))
+- Added annotation for the turn.rest service in xsd file [\#714](https://github.com/kaazing/gateway/pull/714) ([mgherghe](https://github.com/mgherghe))
+- Turn Proxy - Unify Logging Output [\#713](https://github.com/kaazing/gateway/pull/713) ([mgherghe](https://github.com/mgherghe))
+- Added maximum.redirects to accept/connect options [\#712](https://github.com/kaazing/gateway/pull/712) ([dpwspoon](https://github.com/dpwspoon))
+- Worker threads are going to PARK state unnecessarily [\#711](https://github.com/kaazing/gateway/pull/711) ([jitsni](https://github.com/jitsni))
+
 ## [5.2.3](https://github.com/kaazing/gateway/tree/5.2.3) (2016-09-20)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.2.3-RC003...5.2.3)
 
@@ -65,7 +100,7 @@
 
 **Fixed bugs:**
 
-- Gateway Not Specification Compliant to Invalid Headers [\#637](https://github.com/kaazing/gateway/issues/637)
+- Gateway not specification compliant for invalid headers [\#637](https://github.com/kaazing/gateway/issues/637)
 - RFC 7232: Directory Service responds with 200 OK when If-Modified-Since matches Last-Modified from previous response [\#383](https://github.com/kaazing/gateway/issues/383)
 - WSN Connector: Missing `Connection` header in handshake response should not result in a successful connection [\#311](https://github.com/kaazing/gateway/issues/311)
 - WsnConnector does not reject a masked text or binary frame from the server [\#308](https://github.com/kaazing/gateway/issues/308)
