@@ -1,18 +1,39 @@
 # Change Log
 
-## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
+## [5.2.5](https://github.com/kaazing/gateway/tree/5.2.5) (2016-10-19)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.5-RC003...5.2.5)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.4...HEAD)
+## [5.2.5-RC003](https://github.com/kaazing/gateway/tree/5.2.5-RC003) (2016-10-19)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.4-RC003...5.2.5-RC003)
+
+**Closed issues:**
+
+- WsxAcceptorLoggingIT.shouldLogOpenAndInactivityTimeoutClose fails [\#737](https://github.com/kaazing/gateway/issues/737)
+- Occasional build failure in wseb acceptor spec test ControlIT.shouldCloseConnectionOnReceivingInvalidPingFromClient [\#580](https://github.com/kaazing/gateway/issues/580)
 
 **Merged pull requests:**
 
+- catchup develop from release [\#747](https://github.com/kaazing/gateway/pull/747) ([dpwspoon](https://github.com/dpwspoon))
+- Altered NioWorker.select and AbstractNioSelector.select to use 10ms select timeout [\#746](https://github.com/kaazing/gateway/pull/746) ([cmebarrow](https://github.com/cmebarrow))
+- Add "connect.strategy" property to proxy service\(s\) [\#745](https://github.com/kaazing/gateway/pull/745) ([jfallows](https://github.com/jfallows))
+- add check for mux scheme when adding trailing slash [\#744](https://github.com/kaazing/gateway/pull/744) ([danibusu](https://github.com/danibusu))
+- Changed turn.rest response to use json library instead of string formatting [\#743](https://github.com/kaazing/gateway/pull/743) ([mgherghe](https://github.com/mgherghe))
+- Adjusting IdleStrategy's parking times [\#741](https://github.com/kaazing/gateway/pull/741) ([jitsni](https://github.com/jitsni))
+- Created GrantLoginModule. [\#739](https://github.com/kaazing/gateway/pull/739) ([nemigaservices](https://github.com/nemigaservices))
+- add early access feature for tcp security extensions [\#736](https://github.com/kaazing/gateway/pull/736) ([danibusu](https://github.com/danibusu))
+- Add support for proxy service connect.strategy … [\#735](https://github.com/kaazing/gateway/pull/735) ([jfallows](https://github.com/jfallows))
+- Http.multi.auth [\#734](https://github.com/kaazing/gateway/pull/734) ([dpwspoon](https://github.com/dpwspoon))
+- Add convenience methods and tidy POM [\#732](https://github.com/kaazing/gateway/pull/732) ([jfallows](https://github.com/jfallows))
+- Modified DefaultExpiringState.putIfAbsent to accept ttl [\#731](https://github.com/kaazing/gateway/pull/731) ([apirvu](https://github.com/apirvu))
 - Selector.selectNow is triggered by passing timeout=0L [\#728](https://github.com/kaazing/gateway/pull/728) ([jitsni](https://github.com/jitsni))
-
-## [5.2.4](https://github.com/kaazing/gateway/tree/5.2.4) (2016-10-03)
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.4-RC003...5.2.4)
+- Tcp.ip.whitelist [\#727](https://github.com/kaazing/gateway/pull/727) ([danibusu](https://github.com/danibusu))
+- Network interface syntax enhancements [\#626](https://github.com/kaazing/gateway/pull/626) ([irina-mitrea-luxoft](https://github.com/irina-mitrea-luxoft))
 
 ## [5.2.4-RC003](https://github.com/kaazing/gateway/tree/5.2.4-RC003) (2016-10-03)
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.3...5.2.4-RC003)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.4...5.2.4-RC003)
+
+## [5.2.4](https://github.com/kaazing/gateway/tree/5.2.4) (2016-10-03)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.3...5.2.4)
 
 **Fixed bugs:**
 
