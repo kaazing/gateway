@@ -372,8 +372,6 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                             }
                         }
                     }
-                    // Login was successful, but the subject identified does not have required roles
-                    // to create the web socket.  We re-issue a challenge here.
                     if (realmIndex + 1 < realms.length && resultType == SUCCESS) {
                         // we only enforce subject at the end of the realm chain, otherwise we skip to the next realm
                         loginContexts[realmIndex] = loginContext;
@@ -383,9 +381,10 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
                         // remember subject
                         httpRequest.setSubject((loginContext == null || loginContext == LOGIN_CONTEXT_OK) ? subject : loginContext.getSubject());
-//                        realmIndex++;
                         return true;
                     }
+                    // Login was successful, but the subject identified does not have required roles
+                    // to create the web socket.  We re-issue a challenge here.
                     String challenge = sendChallengeResponse(nextFilter, session, httpRequest, loginResult, realms, realmIndex, loginContexts);
                     if (loggerEnabled()) {
                         if ( resultType != LoginResult.Type.CHALLENGE) {
