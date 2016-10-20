@@ -248,7 +248,7 @@ abstract class AbstractNioSelector implements NioSelector {
                 long beforeSelect = System.nanoTime();
                 int selected = select(selector, quickSelect);
                 // The SelectorUtil.EPOLL_BUG_WORKAROUND condition was removed in Netty 3.10.5 and instead
-                // put in the if (selectReturnsImmediately == 1024) condition later on. This seems inefficient
+                // added to the if (selectReturnsImmediately == 1024) condition later on. This seems inefficient
                 // for the (common) case where the workaround is not enabled since in that case there's no point
                 // in looping through the selector keys, so we are keeping the condition here. There's no risk
                 // of a busy loop (https://github.com/netty/netty/issues/2426) when the workaround is not enabled.
