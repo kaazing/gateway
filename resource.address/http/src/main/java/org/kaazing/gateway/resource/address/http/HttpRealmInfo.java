@@ -1,3 +1,10 @@
+package org.kaazing.gateway.resource.address.http;
+
+import java.security.Principal;
+import java.util.Collection;
+
+import org.kaazing.gateway.security.LoginContextFactory;
+
 /**
  * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
@@ -13,69 +20,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+public interface HttpRealmInfo {
 
-package org.kaazing.gateway.resource.address.http;
+    String getName();
 
-import java.security.Principal;
-import java.util.Collection;
+    String getChallengeScheme();
 
-import org.kaazing.gateway.security.LoginContextFactory;
+    String getDescription();
 
-public class HttpRealmInfo {
+    String[] getHeaderNames();
 
-    private final String name;
-    private final String challengeScheme;
-    private final String description;
-    private final String[] headerNames;
-    private final String[] parameterNames;
-    private final String[] authenticationCookieNames;
-    private final LoginContextFactory loginContextFactory;
-    private final Collection<Class<? extends Principal>> userPrincipleClasses;
+    String[] getParameterNames();
 
-    public HttpRealmInfo(String name, String challengeScheme, String description, String[] headerNames,
-            String[] parameterNames, String[] authenticationCookieNames, LoginContextFactory loginContextFactory,
-            Collection<Class<? extends Principal>> userPrincipleClasses) {
-        this.name = name;
-        this.challengeScheme = challengeScheme;
-        this.description = description;
-        this.headerNames = headerNames;
-        this.parameterNames = parameterNames;
-        this.authenticationCookieNames = authenticationCookieNames;
-        this.loginContextFactory = loginContextFactory;
-        this.userPrincipleClasses = userPrincipleClasses;
+    String[] getAuthenticationCookieNames();
 
-    }
+    LoginContextFactory getLoginContextFactory();
 
-    public String getName() {
-        return name;
-    }
-
-    public String getChallengeScheme() {
-        return challengeScheme;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String[] getHeaderNames() {
-        return headerNames;
-    }
-
-    public String[] getParameterNames() {
-        return parameterNames;
-    }
-
-    public String[] getAuthenticationCookieNames() {
-        return authenticationCookieNames;
-    }
-
-    public LoginContextFactory getLoginContextFactory() {
-        return loginContextFactory;
-    }
-
-    public Collection<Class<? extends Principal>> getUserPrincipleClasses() {
-        return userPrincipleClasses;
-    }
+    Collection<Class<? extends Principal>> getUserPrincipleClasses();
 
 }

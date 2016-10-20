@@ -26,7 +26,7 @@ import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
+import org.kaazing.gateway.resource.address.http.DefaultHttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.security.auth.token.DefaultAuthenticationToken;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
@@ -48,7 +48,7 @@ public class CustomAuthenticationTokenParametersTest {
         HttpRequestMessage requestMessage = new HttpRequestMessage();
         requestMessage.setLocalAddress(address);
         DefaultAuthenticationToken token = (DefaultAuthenticationToken) extractor.extract(requestMessage,
-                new HttpRealmInfo("demo", "Basic", null, null, new String[]{}, null, null, null));
+                new DefaultHttpRealmInfo("demo", "Basic", null, null, new String[]{}, null, null, null));
         assertEquals("Expecting empty token", 0, token.size());
 
         context.assertIsSatisfied();
@@ -65,7 +65,7 @@ public class CustomAuthenticationTokenParametersTest {
         requestMessage.setLocalAddress(address);
         requestMessage.setParameter("foo", "bar");
         DefaultAuthenticationToken token = (DefaultAuthenticationToken) extractor.extract(requestMessage,
-                new HttpRealmInfo("demo", "Basic", null, null, new String[]{"foo"}, null, null, null));
+                new DefaultHttpRealmInfo("demo", "Basic", null, null, new String[]{"foo"}, null, null, null));
         assertEquals("Expecting single sized token", 1, token.size());
         assertEquals("Expecting value 'bar'", "bar", token.get());
         assertEquals("Expecting value 'bar'", "bar", token.get("foo"));
@@ -89,7 +89,7 @@ public class CustomAuthenticationTokenParametersTest {
         newParams.put("foo", newParamValues);
         requestMessage.setParameters(newParams);
         DefaultAuthenticationToken token = (DefaultAuthenticationToken) extractor.extract(requestMessage,
-                new HttpRealmInfo("demo", "Basic", null, null, new String[]{"foo"}, null, null, null));
+                new DefaultHttpRealmInfo("demo", "Basic", null, null, new String[]{"foo"}, null, null, null));
         assertEquals("Expecting single sized token", 1, token.size());
         assertEquals("Expecting value 'bar'", "bar", token.get("foo"));
 
@@ -106,7 +106,7 @@ public class CustomAuthenticationTokenParametersTest {
         return new Expectations() {
             {
                 allowing(address).getOption(HttpResourceAddress.REALMS);
-                will(returnValue(new HttpRealmInfo("demo", challengeScheme, null, headerNames, parameterNames,
+                will(returnValue(new DefaultHttpRealmInfo("demo", challengeScheme, null, headerNames, parameterNames,
                         cookieNames, null, null)));
             }
         };

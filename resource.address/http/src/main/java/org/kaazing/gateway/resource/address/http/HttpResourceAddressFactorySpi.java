@@ -220,16 +220,12 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
 
     private Collection<Class<? extends Principal>> getUserPrincipalClasses(HttpRealmInfo[] realms) {
         if (realms != null && realms.length > 0) {
-        	if (realms.length == 1) {
-        		return realms[0].getUserPrincipleClasses();
-        	}
-        	else {
-	        	return Arrays.stream(realms)
-	        		      .map(r -> r.getUserPrincipleClasses())
-	        		      .filter(upc -> upc != null)
-	        		      .flatMap(upc -> upc.stream())
-	        		      .collect(Collectors.toList());
-        	}
+            if (realms.length == 1) {
+                return realms[0].getUserPrincipleClasses();
+            } else {
+                return Arrays.stream(realms).map(r -> r.getUserPrincipleClasses()).filter(upc -> upc != null)
+                        .flatMap(upc -> upc.stream()).collect(Collectors.toList());
+            }
         } else {
             return Collections.emptySet();
         }

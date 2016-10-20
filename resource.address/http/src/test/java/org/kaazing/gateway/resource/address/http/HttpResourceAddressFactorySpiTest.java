@@ -79,7 +79,7 @@ public class HttpResourceAddressFactorySpiTest {
     };
 
     private final HttpRealmInfo[] realms =
-            new HttpRealmInfo[]{new HttpRealmInfo(null, null, null, null, null, null, null, null)};
+            new HttpRealmInfo[]{new DefaultHttpRealmInfo(null, null, null, null, null, null, null, null)};
 
     @Before
     public void before() {

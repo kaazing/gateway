@@ -341,12 +341,6 @@ public final class HttpResourceAddress extends ResourceAddress {
             super(Kind.SERVER_HEADER, "serverHeaderEnabled", Boolean.TRUE);
         }
     }
-
-    private static final class HttpRealmAuthenticationUserPrincipalClassesOption extends HttpResourceOption<Collection<Class<? extends Principal>>> {
-        private HttpRealmAuthenticationUserPrincipalClassesOption() {
-            super(Kind.REALM_USER_PRINCIPAL_CLASSES, "realmAuthenticationUserPrincipalClasses", new ArrayList<>());
-        }
-    }
  
     private static final class MaxAuthenticationAttemptsOption extends HttpResourceOption<Integer> {
         private MaxAuthenticationAttemptsOption() {

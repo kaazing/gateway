@@ -42,6 +42,7 @@ import org.junit.rules.Timeout;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.http.DefaultHttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.security.auth.context.DefaultLoginContextFactory;
@@ -128,9 +129,9 @@ public class AcceptorMultiFactorAuthIT {
         HttpRealmInfo[] realms = new HttpRealmInfo[2];
 
         configuration = mockery.mock(Configuration.class);
-        realms[0] = new HttpRealmInfo(FIRST_REALM, "Basic", "firstFactor", new String[0], new String[0], new String[0],
+        realms[0] = new DefaultHttpRealmInfo(FIRST_REALM, "Basic", "firstFactor", new String[0], new String[0], new String[0],
                 new DefaultLoginContextFactory(FIRST_REALM, configuration), Collections.emptySet());
-        realms[1] = new HttpRealmInfo(SECOND_REALM, "Basic", "secondFactor", new String[0], new String[0], new String[0],
+        realms[1] = new DefaultHttpRealmInfo(SECOND_REALM, "Basic", "secondFactor", new String[0], new String[0], new String[0],
                 new DefaultLoginContextFactory(FIRST_REALM, configuration), Collections.emptySet());
         options.setOption(HttpResourceAddress.REALMS, realms);
 

@@ -24,7 +24,7 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Before;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
+import org.kaazing.gateway.resource.address.http.DefaultHttpRealmInfo;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
@@ -48,7 +48,7 @@ public class BasicHttpChallengeFactoryTest {
         final HttpRequestMessage request = new HttpRequestMessage();
         final ResourceAddress address = context.mock(ResourceAddress.class);
         request.setLocalAddress(address);
-        HttpResponseMessage response = factory.createChallenge(request, new HttpRealmInfo("demo", "Basic", "Realm Description", null, new String[]{},
+        HttpResponseMessage response = factory.createChallenge(request, new DefaultHttpRealmInfo("demo", "Basic", "Realm Description", null, new String[]{},
                 null, null, null));
         context.assertIsSatisfied();
         assertEquals(HttpStatus.CLIENT_UNAUTHORIZED, response.getStatus());
@@ -62,7 +62,7 @@ public class BasicHttpChallengeFactoryTest {
         request.setLocalAddress(address);
 
         Object[] params = new Object[] { "foo=\"bar\"", "baz=\"quxx\"" };
-        HttpResponseMessage response = factory.createChallenge(request, new HttpRealmInfo("demo", "Basic", "Realm Description", null, new String[]{},
+        HttpResponseMessage response = factory.createChallenge(request, new DefaultHttpRealmInfo("demo", "Basic", "Realm Description", null, new String[]{},
                 null, null, null), params);
         context.assertIsSatisfied();
         assertEquals(HttpStatus.CLIENT_UNAUTHORIZED, response.getStatus());
@@ -77,7 +77,7 @@ public class BasicHttpChallengeFactoryTest {
         request.setLocalAddress(address);
 
         Object[] params = null;
-        HttpResponseMessage response = factory.createChallenge(request, new HttpRealmInfo("demo", "Basic", "Realm Description", null, new String[]{},
+        HttpResponseMessage response = factory.createChallenge(request, new DefaultHttpRealmInfo("demo", "Basic", "Realm Description", null, new String[]{},
                 null, null, null), params);
         context.assertIsSatisfied();
         assertEquals(HttpStatus.CLIENT_UNAUTHORIZED, response.getStatus());
@@ -106,7 +106,7 @@ public class BasicHttpChallengeFactoryTest {
 
             }
         });
-        HttpResponseMessage response = factory.createChallenge(request, new HttpRealmInfo("demo", "Application Basic", "Realm Description", null, new String[]{},
+        HttpResponseMessage response = factory.createChallenge(request, new DefaultHttpRealmInfo("demo", "Application Basic", "Realm Description", null, new String[]{},
                 null, null, null));
         context.assertIsSatisfied();
         assertEquals(HttpStatus.CLIENT_UNAUTHORIZED, response.getStatus());
@@ -136,7 +136,7 @@ public class BasicHttpChallengeFactoryTest {
         });
 
         Object[] params = new Object[] { "foo=\"bar\"", "baz=\"quxx\"" };
-        HttpResponseMessage response = factory.createChallenge(request, new HttpRealmInfo("demo", "Application Basic", "Realm Description", null, new String[]{},
+        HttpResponseMessage response = factory.createChallenge(request, new DefaultHttpRealmInfo("demo", "Application Basic", "Realm Description", null, new String[]{},
                 null, null, null), params);
         context.assertIsSatisfied();
         assertEquals(HttpStatus.CLIENT_UNAUTHORIZED, response.getStatus());
@@ -167,7 +167,7 @@ public class BasicHttpChallengeFactoryTest {
         });
 
         Object[] params = null;
-        HttpResponseMessage response = factory.createChallenge(request, new HttpRealmInfo("demo", "Application Basic", "Realm Description", null, new String[]{},
+        HttpResponseMessage response = factory.createChallenge(request, new DefaultHttpRealmInfo("demo", "Application Basic", "Realm Description", null, new String[]{},
                 null, null, null), params);
         context.assertIsSatisfied();
         assertEquals(HttpStatus.CLIENT_UNAUTHORIZED, response.getStatus());
@@ -181,7 +181,7 @@ public class BasicHttpChallengeFactoryTest {
         final ResourceAddress address = context.mock(ResourceAddress.class);
         request.setLocalAddress(address);
 
-        HttpResponseMessage response = factory.createChallenge(request, new HttpRealmInfo("demo", null, "Realm Description", null, new String[]{},
+        HttpResponseMessage response = factory.createChallenge(request, new DefaultHttpRealmInfo("demo", null, "Realm Description", null, new String[]{},
                 null, null, null));
         context.assertIsSatisfied();
         assertEquals(HttpStatus.CLIENT_UNAUTHORIZED, response.getStatus());

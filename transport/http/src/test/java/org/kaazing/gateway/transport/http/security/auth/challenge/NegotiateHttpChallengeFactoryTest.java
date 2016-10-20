@@ -25,7 +25,7 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Before;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
+import org.kaazing.gateway.resource.address.http.DefaultHttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
@@ -81,7 +81,7 @@ public class NegotiateHttpChallengeFactoryTest {
                 will(returnValue(authIdentifier));
             }
         });
-        HttpResponseMessage response = factory.createChallenge(request, new HttpRealmInfo("demo", authenticationScheme, "Realm Description", null, new String[]{},
+        HttpResponseMessage response = factory.createChallenge(request, new DefaultHttpRealmInfo("demo", authenticationScheme, "Realm Description", null, new String[]{},
                 null, null, null));
         context.assertIsSatisfied();
         
