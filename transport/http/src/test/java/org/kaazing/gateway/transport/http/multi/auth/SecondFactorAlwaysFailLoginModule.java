@@ -16,7 +16,6 @@
 package org.kaazing.gateway.transport.http.multi.auth;
 
 import java.io.IOException;
-import java.util.Base64;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.UnsupportedCallbackException;
@@ -24,16 +23,14 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import org.kaazing.gateway.security.auth.BaseStateDrivenLoginModule;
 import org.kaazing.gateway.server.spi.security.AuthenticationTokenCallback;
 
-public class FirstFactorLoginModule extends BaseStateDrivenLoginModule {
-
-    String[] validUserPasswords = {"joe", "welcome"};
+public class SecondFactorAlwaysFailLoginModule extends BaseStateDrivenLoginModule {
 
     @Override
     protected boolean doLogin() {
         AuthenticationTokenCallback atc = new AuthenticationTokenCallback();
 
         try {
-            handler.handle(new Callback[] {atc});
+            handler.handle(new Callback[]{atc});
         } catch (IOException e) {
             // TODO: log exception
             return false;
@@ -42,18 +39,6 @@ public class FirstFactorLoginModule extends BaseStateDrivenLoginModule {
             return false;
         }
 
-        String up = atc.getAuthenticationToken().get();
-        up = new String(Base64.getDecoder().decode(up.getBytes()));
-        String name = up.substring(0, up.indexOf(':'));
-        String passwordCB = up.substring(up.indexOf(':')+1);
-        for ( int i = 0; i < validUserPasswords.length; i+=2) {
-            String user = validUserPasswords[i];
-            String password = validUserPasswords[i+1];
-            if ( name.equals(user) &&
-                 passwordCB.equals(password)) {
-                return true;
-            }
-        }
         return false;
     }
 
@@ -67,4 +52,3 @@ public class FirstFactorLoginModule extends BaseStateDrivenLoginModule {
         return true;
     }
 }
-

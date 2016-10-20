@@ -16,6 +16,9 @@
 package org.kaazing.gateway.transport.http.multi.auth;
 
 import java.io.IOException;
+import java.security.Principal;
+import java.util.Base64;
+import java.util.Set;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.UnsupportedCallbackException;
@@ -25,14 +28,14 @@ import org.kaazing.gateway.server.spi.security.AuthenticationTokenCallback;
 
 public class SecondFactorLoginModule extends BaseStateDrivenLoginModule {
 
-    String[] validUserPasswords = {"joe", "welcome", "jane", "welcome"};
+    String[] validUserPasswords = {"pin", "1234"};
 
     @Override
     protected boolean doLogin() {
         AuthenticationTokenCallback atc = new AuthenticationTokenCallback();
 
         try {
-            handler.handle(new Callback[] {atc});
+            handler.handle(new Callback[]{atc});
         } catch (IOException e) {
             // TODO: log exception
             return false;
@@ -42,13 +45,13 @@ public class SecondFactorLoginModule extends BaseStateDrivenLoginModule {
         }
 
         String up = atc.getAuthenticationToken().get();
+        up = new String(Base64.getDecoder().decode(up.getBytes()));
         String name = up.substring(0, up.indexOf(':'));
-        String passwordCB = up.substring(up.indexOf(':')+1);
-        for ( int i = 0; i < validUserPasswords.length; i+=2) {
+        String passwordCB = up.substring(up.indexOf(':') + 1);
+        for (int i = 0; i < validUserPasswords.length; i += 2) {
             String user = validUserPasswords[i];
-            String password = validUserPasswords[i+1];
-            if ( name.equals(user) &&
-                 passwordCB.equals(password)) {
+            String password = validUserPasswords[i + 1];
+            if (name.equals(user) && passwordCB.equals(password)) {
                 return true;
             }
         }
@@ -57,6 +60,13 @@ public class SecondFactorLoginModule extends BaseStateDrivenLoginModule {
 
     @Override
     protected boolean doCommit() {
+        Set<Principal> principals = this.subject.getPrincipals();
+        principals.add(new Principal() {
+            @Override
+            public String getName() {
+                return "AUTHORIZED";
+            }
+        });
         return true;
     }
 
@@ -65,4 +75,3 @@ public class SecondFactorLoginModule extends BaseStateDrivenLoginModule {
         return true;
     }
 }
-
