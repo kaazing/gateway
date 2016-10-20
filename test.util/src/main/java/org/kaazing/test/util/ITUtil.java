@@ -120,8 +120,7 @@ public final class ITUtil {
             private Statement doApplyInvokeMethod(
                 MethodRule in,
                 Statement base,
-                InvokeMethod invokeMethod)
-            {
+                InvokeMethod invokeMethod) {
                 try {
                     FrameworkMethod frameworkMethod = (FrameworkMethod) FIELD_FRAMEWORK_METHOD.get(invokeMethod);
                     Object target = FIELD_TARGET.get(invokeMethod);
