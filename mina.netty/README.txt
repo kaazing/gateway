@@ -6,6 +6,8 @@ Note that some of our copies of the Netty classes were copied from Netty version
 Netty version 3.6.3.Final is tag netty-3.6.3.Final (commit d70e3c1561f9).
 We only later upgraded our dependency to 3.10.5.Final (tag netty-3.10.5.Final).
 All changes made in Netty between 3.6.3 and 3.10.5 have now been applied to our copies.
+So if our copies are diff'd against https://github.com/netty/netty/tree/netty-3.10.5.Final
+the changes seen are only those we deliberaately made for Kaazing usage.
 
 AbstractChannel
 - mina.netty adds a single line code change to ensure id is positive
