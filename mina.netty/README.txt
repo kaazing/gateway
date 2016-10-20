@@ -22,7 +22,7 @@ AbstractNioChannel (may not be in sync)
   - 452df045 Always fire interestChanged from IO thread
 
 AbstractNioSelector (not in sync)
-(appears to be based on netty-3.6.3.Final with no attempt at pulling in changes from 3.10.5.Final)k
+(appears to be based on netty-3.6.3.Final with no attempt at pulling in changes from 3.10.5.Final)
 - mina.netty version adds cap on processTaskQueue duration plus some diagnostic log messages
 - mina.netty version adds processRead for udp
 - netty version now has no mention of the epoll bug
