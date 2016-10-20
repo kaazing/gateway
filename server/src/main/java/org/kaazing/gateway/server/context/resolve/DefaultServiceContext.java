@@ -64,6 +64,7 @@ import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.http.DefaultHttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.security.AuthenticationContext;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
@@ -764,7 +765,7 @@ public class DefaultServiceContext implements ServiceContext {
         LoginContextFactory loginContextFactory = serviceRealmContext.getLoginContextFactory();
         Collection<Class<? extends Principal>> userPrincipleClasses = loadUserPrincipalClasses(name, serviceRealmContext.getUserPrincipalClasses());
 
-        return new HttpRealmInfo(name, authorizationMode, challengeScheme, description, headerNames, parameterNames, authenticationCookieNames, loginContextFactory, userPrincipleClasses);
+        return new DefaultHttpRealmInfo(name, challengeScheme, description, headerNames, parameterNames, authenticationCookieNames, loginContextFactory, userPrincipleClasses);
 	}
 
     private static Collection<Class<? extends Principal>> loadUserPrincipalClasses(String name, String[] userPrincipalClasses) {

@@ -32,7 +32,7 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
+import org.kaazing.gateway.resource.address.http.DefaultHttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.server.spi.security.AuthenticationToken;
 import org.kaazing.gateway.transport.http.DefaultHttpCookie;
@@ -192,7 +192,7 @@ public class CustomAuthenticationTokenCookiesTest {
                 will(returnValue(null));
             }});
 
-            AuthenticationToken actual = extractor.extract(requestMessage, new HttpRealmInfo(null, null, "BASIC", null, null, new String[]{}, testCase.configuredSessionCookies, null, null));
+            AuthenticationToken actual = extractor.extract(requestMessage, new DefaultHttpRealmInfo(null, "BASIC", null, null, new String[]{}, testCase.configuredSessionCookies, null, null));
 
             context.assertIsSatisfied();
 

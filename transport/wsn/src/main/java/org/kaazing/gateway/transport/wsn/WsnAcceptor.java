@@ -22,6 +22,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.URLUtils.appendURI;
 import static org.kaazing.gateway.resource.address.URLUtils.ensureTrailingSlash;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALMS;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.CODEC_REQUIRED;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
@@ -75,7 +76,6 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.URLUtils;
 import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
-import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.resource.address.wsn.WsnResourceAddressFactorySpi;
@@ -969,7 +969,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             // to keep track of initial x-kaazing-handshake request
             if (HttpMergeRequestFilter.INITIAL_HTTP_REQUEST_KEY.get(session.getParent()) == null) {
                 // Not a x-kaazing-handshake initial or extended request
-                for (HttpRealmInfo realm : session.getLocalAddress().getOption(HttpResourceAddress.REALMS)) {
+                for (HttpRealmInfo realm : session.getLocalAddress().getOption(REALMS)) {
                     String httpChallengeScheme = realm.getChallengeScheme();
                     if (httpChallengeScheme != null && httpChallengeScheme.startsWith(AUTH_SCHEME_APPLICATION_PREFIX)) {
                         // challenge scheme starts with "Application ", so reject it (403 as no way to negotiate)

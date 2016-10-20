@@ -22,7 +22,7 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Before;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
+import org.kaazing.gateway.resource.address.http.DefaultHttpRealmInfo;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
@@ -46,8 +46,8 @@ public class TokenHttpChallengeFactoryTest {
         final HttpRequestMessage request = new HttpRequestMessage();
         final ResourceAddress address = context.mock(ResourceAddress.class);
         request.setLocalAddress(address);
-        HttpResponseMessage response = factory.createChallenge(request, new HttpRealmInfo("demo", null, "Token", null, null,
-                new String[]{}, null, null, null));
+        HttpResponseMessage response = factory.createChallenge(request, new DefaultHttpRealmInfo("demo", "Token", null, null, new String[]{},
+                null, null, null));
         context.assertIsSatisfied();
         assertEquals(HttpStatus.CLIENT_UNAUTHORIZED, response.getStatus());
         assertEquals("Token", response.getHeader("WWW-Authenticate"));
@@ -60,8 +60,8 @@ public class TokenHttpChallengeFactoryTest {
         request.setLocalAddress(address);
 
         Object[] params = new Object[] { "foo=\"bar\"", "baz=\"quxx\"" };
-        HttpResponseMessage response = factory.createChallenge(request, new HttpRealmInfo("demo", null, "Token", null, null,
-                new String[]{}, null, null, null), params);
+        HttpResponseMessage response = factory.createChallenge(request, new DefaultHttpRealmInfo("demo", "Token", null, null, new String[]{},
+                null, null, null), params);
         context.assertIsSatisfied();
         assertEquals("Token foo=\"bar\" baz=\"quxx\"", response.getHeader("WWW-Authenticate"));
     }
@@ -73,8 +73,8 @@ public class TokenHttpChallengeFactoryTest {
         request.setLocalAddress(address);
 
         Object[] params = null;
-        HttpResponseMessage response = factory.createChallenge(request, new HttpRealmInfo("demo", null, "Token", null, null,
-                new String[]{}, null, null, null), params);
+        HttpResponseMessage response = factory.createChallenge(request, new DefaultHttpRealmInfo("demo", "Token", null, null, new String[]{},
+                null, null, null), params);
         context.assertIsSatisfied();
         assertEquals(HttpStatus.CLIENT_UNAUTHORIZED, response.getStatus());
         assertEquals("Token", response.getHeader("WWW-Authenticate"));
@@ -85,8 +85,8 @@ public class TokenHttpChallengeFactoryTest {
         final HttpRequestMessage request = new HttpRequestMessage();
         final ResourceAddress address = context.mock(ResourceAddress.class);
         request.setLocalAddress(address);
-        HttpResponseMessage response = factory.createChallenge(request, new HttpRealmInfo("demo", null, "Application Token", null, null,
-                new String[]{}, null, null, null));
+        HttpResponseMessage response = factory.createChallenge(request, new DefaultHttpRealmInfo("demo", "Application Token", null, null, new String[]{},
+                null, null, null));
         context.assertIsSatisfied();
         assertEquals(HttpStatus.CLIENT_UNAUTHORIZED, response.getStatus());
         assertEquals("Application Token", response.getHeader("WWW-Authenticate"));
@@ -100,8 +100,8 @@ public class TokenHttpChallengeFactoryTest {
 
 
         Object[] params = new Object[] { "foo=\"bar\"", "baz=\"quxx\"" };
-        HttpResponseMessage response = factory.createChallenge(request, new HttpRealmInfo("demo", null, "Application Token", null, null,
-                new String[]{}, null, null, null), params);
+        HttpResponseMessage response = factory.createChallenge(request, new DefaultHttpRealmInfo("demo", "Application Token", null, null, new String[]{},
+                null, null, null), params);
         context.assertIsSatisfied();
         assertEquals(HttpStatus.CLIENT_UNAUTHORIZED, response.getStatus());
         String expected = "Application Token foo=\"bar\" baz=\"quxx\"";
@@ -116,8 +116,8 @@ public class TokenHttpChallengeFactoryTest {
 
 
         Object[] params = null;
-        HttpResponseMessage response = factory.createChallenge(request, new HttpRealmInfo("demo", null, "Application Token", null, null,
-                new String[]{}, null, null, null), params);
+        HttpResponseMessage response = factory.createChallenge(request, new DefaultHttpRealmInfo("demo", "Application Token", null, null, new String[]{},
+                null, null, null), params);
         context.assertIsSatisfied();
         assertEquals(HttpStatus.CLIENT_UNAUTHORIZED, response.getStatus());
         String expected = "Application Token";
@@ -130,8 +130,8 @@ public class TokenHttpChallengeFactoryTest {
         final ResourceAddress address = context.mock(ResourceAddress.class);
         request.setLocalAddress(address);
 
-        HttpResponseMessage response = factory.createChallenge(request, new HttpRealmInfo("demo", null, null, null, null,
-                new String[]{}, null, null, null));
+        HttpResponseMessage response = factory.createChallenge(request, new DefaultHttpRealmInfo("demo", null, null, null, new String[]{},
+                null, null, null));
         context.assertIsSatisfied();
         assertEquals(HttpStatus.CLIENT_UNAUTHORIZED, response.getStatus());
         assertEquals("Token", response.getHeader("WWW-Authenticate"));
