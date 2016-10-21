@@ -22,11 +22,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
@@ -36,6 +36,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.core.IsEqual;
 import org.jmock.api.Action;
 import org.jmock.api.Invocation;
+import org.jmock.internal.State;
 import org.jmock.lib.action.CustomAction;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 
@@ -208,6 +209,14 @@ public class Expectations extends org.jmock.Expectations {
 
     public <T> T lookup(String variableName, Class<T> clazz) {
         return clazz.cast(variables.get(variableName));
+    }
+
+    public IoFutureListener<?> onfuture(State success) {
+        return f -> {
+            if (f.isDone()) {
+                 success.activate();
+            }
+        };
     }
 
     public Action saveParameter(final String variableName, final int parameterIndex) {
