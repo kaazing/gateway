@@ -1,5 +1,18 @@
 # Change Log
 
+## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
+
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.5...HEAD)
+
+**Merged pull requests:**
+
+- Skip transport factories for disabled transports [\#754](https://github.com/kaazing/gateway/pull/754) ([jfallows](https://github.com/jfallows))
+- Http acceptor multi factor acceptor tests [\#753](https://github.com/kaazing/gateway/pull/753) ([dpwspoon](https://github.com/dpwspoon))
+- Removed Agrona from the mina.netty jar [\#751](https://github.com/kaazing/gateway/pull/751) ([mgherghe](https://github.com/mgherghe))
+- Make mock handler tolerant of call to sessionClosed [\#750](https://github.com/kaazing/gateway/pull/750) ([jfallows](https://github.com/jfallows))
+- Relax count on number of IDLE events [\#749](https://github.com/kaazing/gateway/pull/749) ([jfallows](https://github.com/jfallows))
+- Reduced number of follows in ConnectorMultiFactorAuthIT such that tes… [\#748](https://github.com/kaazing/gateway/pull/748) ([dpwspoon](https://github.com/dpwspoon))
+
 ## [5.2.5](https://github.com/kaazing/gateway/tree/5.2.5) (2016-10-19)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.2.5-RC003...5.2.5)
 
