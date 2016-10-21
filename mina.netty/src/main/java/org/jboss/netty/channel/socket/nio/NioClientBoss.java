@@ -90,15 +90,13 @@ public final class NioClientBoss extends AbstractNioSelector implements Boss {
     }
 
     @Override
-    protected int process(Selector selector) {
+    protected void process(Selector selector) {
         Set<SelectionKey> selectedKeys = selector.selectedKeys();
-        int workCount = selectedKeys.size();
         processSelectedKeys(selectedKeys);
 
         // Handle connection timeout every 10 milliseconds approximately.
         long currentTimeNanos = System.nanoTime();
         processConnectTimeout(selector.keys(), currentTimeNanos);
-        return workCount;
     }
 
     private void processSelectedKeys(Set<SelectionKey> selectedKeys) {
