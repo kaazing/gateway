@@ -16,7 +16,8 @@
 package org.kaazing.gateway.server.context.resolve;
 
 import static java.lang.String.format;
-import static java.util.concurrent.TimeUnit.*;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.buildURIAsString;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getAuthority;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getFragment;
@@ -67,12 +68,15 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
     private final Map<String, String> binds;        // gets modified by balancer service
     private final Map<String, String> options;      // unmodifiable map without bind options like tcp.bind etc
 
+    private final RealmsContext realmsContext;
+
     public DefaultAcceptOptionsContext() {
         this.binds = new HashMap<>();
         this.options = Collections.emptyMap();
+        realmsContext = null;
     }
 
-    public DefaultAcceptOptionsContext(ServiceAcceptOptionsType acceptOptions, ServiceAcceptOptionsType defaultOptions) {
+    public DefaultAcceptOptionsContext(ServiceAcceptOptionsType acceptOptions, ServiceAcceptOptionsType defaultOptions, RealmsContext realmsContext) {
         Map<String, String> options = parseAcceptOptionsType(acceptOptions);
         parseAcceptOptionsType(defaultOptions).entrySet()
                 .stream()
@@ -90,6 +94,7 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
         addBind("tcp", options.remove("tcp.bind"));
 
         this.options = Collections.unmodifiableMap(options);
+        this.realmsContext = realmsContext;
     }
 
     @Override
@@ -140,6 +145,8 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
         Map<String, String> optionsCopy = new HashMap<>(options);
 
         Map<String, Object> result = new LinkedHashMap<>();
+
+        parseHttpRealmOptions(result, options, realmsContext);
 
         result.put(SUPPORTED_PROTOCOLS, DEFAULT_WEBSOCKET_PROTOCOLS.toArray(
                 new String[DEFAULT_WEBSOCKET_PROTOCOLS.size()]));

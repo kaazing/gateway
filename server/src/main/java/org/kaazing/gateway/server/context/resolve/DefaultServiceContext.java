@@ -691,7 +691,7 @@ public class DefaultServiceContext implements ServiceContext {
 
                 if (isApplicationChallengeScheme && !forceNativeChallengeScheme) {
                     options.put(format("http[http/1.1].%s", REALMS),
-                    		realms);
+                            realms);
                     for (String optionPattern : asList("http[httpxe/1.1].%s", "http[x-kaazing-handshake].%s")) {
                         options.put(format(optionPattern, REQUIRED_ROLES),
                                 getRequireRoles());
@@ -753,10 +753,9 @@ public class DefaultServiceContext implements ServiceContext {
         }
     }
 
-	private static HttpRealmInfo newHttpRealm(RealmContext serviceRealmContext) {
+	public static HttpRealmInfo newHttpRealm(RealmContext serviceRealmContext) {
         final AuthenticationContext authenticationContext = serviceRealmContext.getAuthenticationContext();
         String name = serviceRealmContext.getName();
-        String authorizationMode = authenticationContext.getAuthorizationMode();
         String challengeScheme = authenticationContext.getHttpChallengeScheme();
         String description = serviceRealmContext.getDescription();
         String[] headerNames = authenticationContext.getHttpHeaders();
