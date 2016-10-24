@@ -52,7 +52,8 @@ public enum NioSystemProperty {
     // Note, the idle usage is using the mina netty idle timeout which may be set
     // by higher layers. Logic for this is in NioIdleFilter
     TCP_IDLE_TIMEOUT("org.kaazing.gateway.server.transport.tcp.IDLE_TIMEOUT", Integer.toString(0)),
-    UDP_IDLE_TIMEOUT("org.kaazing.gateway.server.transport.udp.IDLE_TIMEOUT", "60");
+    UDP_IDLE_TIMEOUT("org.kaazing.gateway.server.transport.udp.IDLE_TIMEOUT", "60"),
+    UDP_RECEIVE_BUFFER_SIZE("org.kaazing.gateway.server.transport.udp.RECEIVE_BUFFER_SIZE");
 
     private final String name;
     private final String defaultValue;

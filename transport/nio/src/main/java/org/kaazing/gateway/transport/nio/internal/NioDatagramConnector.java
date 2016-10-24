@@ -37,6 +37,8 @@ import org.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.nio.NioDatagramChannelIoConnector;
 import org.slf4j.LoggerFactory;
 
+import static org.kaazing.gateway.transport.nio.NioSystemProperty.UDP_RECEIVE_BUFFER_SIZE;
+
 public class NioDatagramConnector extends AbstractNioConnector {
 
     private static final String LOGGER_NAME = String.format("transport.%s.connect", NioProtocol.UDP.name().toLowerCase());
@@ -100,6 +102,10 @@ public class NioDatagramConnector extends AbstractNioConnector {
             connector.getSessionConfig().setMaxReadBufferSize(Integer.parseInt(maximumReadBufferSize));
             logger.debug("MAXIMUM_READ_BUFFER_SIZE setting for UDP connector: {}", maximumReadBufferSize);
         }
+
+        String recvBufferSize = configuration.getProperty(UDP_RECEIVE_BUFFER_SIZE.getPropertyName(), "65536");
+        connector.getSessionConfig().setReceiveBufferSize(Integer.parseInt(recvBufferSize));
+        logger.debug("UDP_RECEIVE_BUFFER_SIZE setting for UDP acceptor: {}", recvBufferSize);
 
         return connector;
     }

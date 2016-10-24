@@ -39,6 +39,7 @@ import java.util.Properties;
 
 import static java.util.concurrent.Executors.newCachedThreadPool;
 import static org.kaazing.gateway.transport.nio.NioSystemProperty.UDP_IDLE_TIMEOUT;
+import static org.kaazing.gateway.transport.nio.NioSystemProperty.UDP_RECEIVE_BUFFER_SIZE;
 
 public class NioDatagramAcceptor extends AbstractNioAcceptor {
 
@@ -84,6 +85,10 @@ public class NioDatagramAcceptor extends AbstractNioAcceptor {
             acceptor.getSessionConfig().setMaxReadBufferSize(Integer.parseInt(maximumReadBufferSize));
             logger.debug("MAXIMUM_READ_BUFFER_SIZE setting for UDP acceptor: {}", maximumReadBufferSize);
         }
+
+        String recvBufferSize = configuration.getProperty(UDP_RECEIVE_BUFFER_SIZE.getPropertyName(), "2097152");
+        acceptor.getSessionConfig().setReceiveBufferSize(Integer.parseInt(recvBufferSize));
+        logger.debug("UDP_RECEIVE_BUFFER_SIZE setting for UDP acceptor: {}", recvBufferSize);
 
         int idleTimeout = UDP_IDLE_TIMEOUT.getIntProperty(configuration);
         acceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, idleTimeout);
