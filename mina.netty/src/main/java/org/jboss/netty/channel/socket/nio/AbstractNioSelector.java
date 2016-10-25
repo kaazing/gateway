@@ -346,12 +346,16 @@ abstract class AbstractNioSelector implements NioSelector {
                     workCount += processTaskQueue();
 
                     for (SelectionKey k: selector.keys()) {
-                        close(k);
+                        try {
+                            close(k);
+                        } catch (Throwable e) {
+                            logger.warn("Failed to close a selection key.", e);
+                        }
                     }
 
                     try {
                         selector.close();
-                    } catch (IOException e) {
+                    } catch (Throwable e) {
                         logger.warn(
                                 "Failed to close a selector.", e);
                     }
