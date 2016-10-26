@@ -684,7 +684,8 @@ public class GatewayContextResolver {
                             InternalSystemProperty.TCP_PROCESSOR_COUNT.getIntProperty(configuration),
                             transportFactory,
                             resourceAddressFactory,
-                            realmsContext);
+                            realmsContext,
+                            configuration);
 
             serviceContexts.add(serviceContext);
 

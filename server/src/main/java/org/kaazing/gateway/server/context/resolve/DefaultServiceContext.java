@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -91,6 +92,7 @@ import org.kaazing.gateway.transport.Transport;
 import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.util.Encoding;
 import org.kaazing.gateway.util.GL;
+import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
@@ -183,7 +185,10 @@ public class DefaultServiceContext implements ServiceContext {
 
     private MonitoringEntityFactory monitoringFactory;
     private final RealmsContext realmsContext;
+    private Properties configuration;
 
+    @Deprecated
+    // Perhaps can be removed, (check management)
     public DefaultServiceContext(String serviceType, Service service) {
         this(serviceType,
                 null,
@@ -210,6 +215,7 @@ public class DefaultServiceContext implements ServiceContext {
                 1,
                 TransportFactory.newTransportFactory(Collections.EMPTY_MAP),
                 ResourceAddressFactory.newResourceAddressFactory(),
+                null,
                 null
         );
     }
@@ -239,7 +245,8 @@ public class DefaultServiceContext implements ServiceContext {
                                  int processorCount,
                                  TransportFactory transportFactory,
                                  ResourceAddressFactory resourceAddressFactory,
-                                 RealmsContext realmsContext) {
+                                 RealmsContext realmsContext,
+                                 Properties configuration) {
         this.serviceType = serviceType;
         this.serviceName = serviceName;
         this.serviceDescription = serviceDescription;
@@ -271,6 +278,7 @@ public class DefaultServiceContext implements ServiceContext {
         this.resourceAddressFactory = resourceAddressFactory;
         this.serviceSpecificObjects = new HashMap<>();
         this.realmsContext = realmsContext;
+        this.configuration = configuration;
     }
 
     @Override
@@ -688,14 +696,6 @@ public class DefaultServiceContext implements ServiceContext {
         // is protected, and whether it is application- or native- security that is desired.
         final String httpRealmOptions = (String) options.remove("http.realm");
 
-//        TODO DPW
-//        if (serviceRealmContext == null &&
-//                requireRolesCollection.size() > 0) {
-//
-//            throw new IllegalArgumentException("Authorization constraints require a " +
-//                    "specified realm-name for service \"" + serviceDescription + "\"");
-//        }
-        
         if (serviceRealmContext != null || httpRealmOptions != null) {
             if(serviceRealmContext != null && httpRealmOptions !=null){
                 throw new RuntimeException("Specified both realm-name and http.realm");
@@ -704,6 +704,7 @@ public class DefaultServiceContext implements ServiceContext {
             if(serviceRealmContext != null){
                 realms = new HttpRealmInfo[] { newHttpRealm(serviceRealmContext) };
             } else {
+                EarlyAccessFeatures.HTTP_REALM_ACCEPT_OPTION.assertEnabled(configuration, logger);
                 realms = parseHttpRealmOptions(httpRealmOptions, realmsContext);
             }
 
