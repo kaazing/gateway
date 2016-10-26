@@ -68,7 +68,6 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
     private final Map<String, String> binds;        // gets modified by balancer service
     private final Map<String, String> options;      // unmodifiable map without bind options like tcp.bind etc
 
-
     public DefaultAcceptOptionsContext() {
         this.binds = new HashMap<>();
         this.options = Collections.emptyMap();
