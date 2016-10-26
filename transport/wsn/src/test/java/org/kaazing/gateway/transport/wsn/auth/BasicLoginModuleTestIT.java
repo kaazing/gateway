@@ -61,11 +61,11 @@ public class BasicLoginModuleTestIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-	@Specification("basicLoginModuleFirstRequestSuccess")
-	@Test
-	public void basicLoginModuleFirstRequestSuccess() throws Exception {
-		robot.finish();
-	}
+    @Specification("basicLoginModuleFirstRequestSuccess")
+    @Test
+    public void basicLoginModuleFirstRequestSuccess() throws Exception {
+        robot.finish();
+    }
 
     @Specification("basicLoginModuleSecondRequestSuccess")
     @Test

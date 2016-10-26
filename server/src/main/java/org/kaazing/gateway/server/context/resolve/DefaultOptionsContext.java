@@ -17,22 +17,14 @@ package org.kaazing.gateway.server.context.resolve;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.kaazing.gateway.util.feature.EarlyAccessFeatures.HTTP_REALM_ACCEPT_OPTION;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
-import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
-import org.kaazing.gateway.security.RealmContext;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.ssl.SslCipherSuites;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
-import org.slf4j.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -216,21 +208,6 @@ class DefaultOptionsContext {
             protocol = WebSocketWireProtocol.HIXIE_75;
         }
         return protocol;
-    }
-
-    static void parseHttpRealmOptions(Map<String, Object> result, Map<String, String> options, RealmsContext realmsContext) {
-        String realmList = options.remove("http.realm");
-        if (realmList != null) {
-            List<HttpRealmInfo> realms = new ArrayList<HttpRealmInfo>();
-            Arrays.stream(realmList.split("\\s+")).forEachOrdered(realmName -> {
-                RealmContext serviceRealmContext = realmsContext.getRealmContext(realmName);
-                if (serviceRealmContext == null) {
-                    throw new RuntimeException(
-                            String.format("Specified accept option http.realm %s has no corrisponding realm", realmName));
-                }
-                realms.add(DefaultServiceContext.newHttpRealm(serviceRealmContext));
-            });
-        }
     }
 
     static Map<String, String> parseOptions(Node parent) {

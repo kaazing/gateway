@@ -237,7 +237,7 @@ public class GatewayContextResolver {
         DefaultSecurityContext securityContext = securityResolver.resolve(securityConfig);
         ExpiringState expiringState = resolveExpiringState(clusterContext);
         RealmsContext realmsContext = resolveRealms(securityConfig, securityContext, configuration, clusterContext, expiringState);
-        DefaultServiceDefaultsContext serviceDefaultsContext = resolveServiceDefaults(serviceDefaults);
+        DefaultServiceDefaultsContext serviceDefaultsContext = resolveServiceDefaults(serviceDefaults, realmsContext);
         ServiceRegistry servicesByURI = new ServiceRegistry();
         Map<String, Object> dependencyContexts = resolveDependencyContext();
         ResourceAddressFactory resourceAddressFactory = resolveResourceAddressFactories();
@@ -408,7 +408,7 @@ public class GatewayContextResolver {
 
     // Resolve service defaults into a config object so we can expose it as its
     // own object to management.
-    private DefaultServiceDefaultsContext resolveServiceDefaults(ServiceDefaultsType serviceDefaults) {
+    private DefaultServiceDefaultsContext resolveServiceDefaults(ServiceDefaultsType serviceDefaults, RealmsContext realmsContext) {
 
         if (serviceDefaults == null) {
             return null;
@@ -418,7 +418,7 @@ public class GatewayContextResolver {
 
         ServiceAcceptOptionsType serviceAcceptOptions = serviceDefaults.getAcceptOptions();
         if (serviceAcceptOptions != null) {
-            acceptOptions = new DefaultAcceptOptionsContext(null, serviceAcceptOptions, null);
+            acceptOptions = new DefaultAcceptOptionsContext(null, serviceAcceptOptions);
         }
 
         DefaultConnectOptionsContext connectOptions = null;
@@ -656,7 +656,7 @@ public class GatewayContextResolver {
             ServiceAcceptOptionsType acceptOptions = serviceConfig.getAcceptOptions();
             ServiceAcceptOptionsType defaultOptionsConfig =
                     (defaultServiceConfig != null) ? defaultServiceConfig.getAcceptOptions() : null;
-            AcceptOptionsContext acceptOptionsContext = new DefaultAcceptOptionsContext(acceptOptions, defaultOptionsConfig, serviceRealmContext);
+            AcceptOptionsContext acceptOptionsContext = new DefaultAcceptOptionsContext(acceptOptions, defaultOptionsConfig);
             if (acceptOptionsContext.asOptionsMap().containsKey("tcp.realm")) {
                 TCP_REALM_EXTENSION.assertEnabled(configuration, LOGGER);
             }
@@ -671,13 +671,6 @@ public class GatewayContextResolver {
 
             Key encryptionKey = null;
 
-            if (serviceRealmContext == null &&
-                    requireRolesCollection.size() > 0) {
-
-                throw new IllegalArgumentException("Authorization constraints require a " +
-                        "specified realm-name for service \"" + serviceDescription + "\"");
-            }
-
             DefaultServiceContext serviceContext =
                     new DefaultServiceContext(serviceType, serviceName, serviceDescription, serviceInstance, webDir,
                             tempDir, balanceURIs, acceptURIs, connectURIs,
@@ -690,7 +683,8 @@ public class GatewayContextResolver {
                             supportsMimeMappings(serviceType),
                             InternalSystemProperty.TCP_PROCESSOR_COUNT.getIntProperty(configuration),
                             transportFactory,
-                            resourceAddressFactory);
+                            resourceAddressFactory,
+                            realmsContext);
 
             serviceContexts.add(serviceContext);
 
