@@ -15,16 +15,22 @@
  */
 package org.kaazing.gateway.resource.address.tcp;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.kaazing.test.util.ResolutionTestUtils;
 
 /**
  * Class for testing preferIPv4Stack behavior.
  */
 public class TcpResourceAddressFactorySpiPreferIPV4Test {
+
+    private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -69,4 +75,29 @@ public class TcpResourceAddressFactorySpiPreferIPV4Test {
 
     }
 
+    @Test
+    public void shouldNotResolveLoopbackToIPv6IfProhibited() throws Exception {
+        // set the IPV4 flag to true
+        System.setProperty(JAVA_NET_PREFER_IPV4_STACK, "true");
+
+        TcpResourceAddress loopbackResourceAddress = factory.newResourceAddress("tcp://[@" + networkInterface + "]:8000");
+
+        // assert resource address does not contain IPv6
+        assertFalse(loopbackResourceAddress.toString().contains("0:0:0:0:0:0:0:1"));
+    }
+
+    @Test
+    public void shouldResolveLoopbackToIPv6IfNotProhibited() throws Exception {
+        // set the IPV4 flag to false
+        System.setProperty(JAVA_NET_PREFER_IPV4_STACK, "false");
+
+        TcpResourceAddress loopbackResourceAddress = factory.newResourceAddress("tcp://[@" + networkInterface + "]:8000");
+
+        // TravisCI does not support IPV6
+        boolean onTravisCI = System.getenv().containsKey("TRAVIS");
+        // assert resource address contains IPv6
+        if (!onTravisCI) {
+            assertTrue(loopbackResourceAddress.toString().contains("0:0:0:0:0:0:0:1"));
+        }
+    }
 }

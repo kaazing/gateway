@@ -1245,6 +1245,8 @@
         </sequence>
     </complexType>
 
+
+
     <complexType name="ServiceAcceptOptionsType">
         <all>
             <element name="ssl.ciphers" maxOccurs="1" minOccurs="0" type="gateway:CSVType">
@@ -1311,6 +1313,9 @@
             <element name="http.keepalive.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString" default="30">
                 <annotation/>
             </element>
+            <element name="http.realm" maxOccurs="1" minOccurs="0" type="gateway:StringList">
+                <annotation/>
+            </element>
             <element name="pipe.transport" maxOccurs="1" minOccurs="0" type="anyURI">
                 <annotation/>
             </element>
@@ -1338,6 +1343,10 @@
             </element>
         </all>
     </complexType>
+    
+    <simpleType name="StringList">
+      <list itemType="string" />
+    </simpleType>
 
     <complexType name="ServiceConnectOptionsType">
         <all>
@@ -1538,6 +1547,10 @@
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="prepared.connection.count"
                              type="nonNegativeInteger">
+                        <annotation/>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="connect.strategy"
+                             type="string">
                         <annotation/>
                     </element>
                     <element maxOccurs="1" minOccurs="0" name="internal.maximum.transferred.bytes"

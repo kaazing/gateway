@@ -178,7 +178,7 @@ public class NioWorker extends AbstractNioWorker {
         if (quickSelect) {
             return SelectorUtil.select(selector, QUICK_SELECT_TIMEOUT);
         } else {
-            return SelectorUtil.select(selector, 0L);
+            return SelectorUtil.select(selector, 10L);
         }
     }
 

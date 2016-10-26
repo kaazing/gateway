@@ -31,6 +31,7 @@ import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.service.ServiceContext;
+import org.kaazing.gateway.service.proxy.ProxyConnectStrategy.Strategy;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.filter.util.WriteRequestFilterEx;
@@ -51,7 +52,7 @@ public abstract class AbstractProxyHandler extends IoHandlerAdapter {
     private int maximumTransferredBytes = -1; // default to unlimited
     private int thresholdPendingBytes;
     private int maximumRecoveryInterval = 0;
-    private int preparedConnectionCount = 0;
+    private ProxyConnectStrategy connectStrategy;
 
     @Override
     public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
@@ -149,14 +150,39 @@ public abstract class AbstractProxyHandler extends IoHandlerAdapter {
     }
 
     public void setPreparedConnectionCount(int preparedConnectionCount) {
-        this.preparedConnectionCount = preparedConnectionCount;
+        setConnectStrategy(Strategy.PREPARED, preparedConnectionCount, preparedConnectionCount);
+    }
+
+    public void setPreparedConnectionCount(String connectStrategy, int preparedConnectionCount, int maxConnectionCount) {
+        switch (connectStrategy) {
+        case "prepared":
+        case "immediate":
+        case "deferred":
+            break;
+        default:
+            throw new IllegalArgumentException(String.format("Unexpected value for connect strategy: %s", connectStrategy));
+        }
+
+        setConnectStrategy(Strategy.valueOf(connectStrategy.toUpperCase()), preparedConnectionCount, maxConnectionCount);
+    }
+
+    protected void setConnectStrategy(
+        Strategy connectStrategy,
+        int preparedConnectionCount,
+        int maxConnectionCount)
+    {
+        this.connectStrategy = ProxyConnectStrategy.newInstance(connectStrategy, preparedConnectionCount, maxConnectionCount);
         if ( LOGGER.isDebugEnabled() ) {
-            LOGGER.debug("Proxy handler " + this + ": prepared.connection.count=" + preparedConnectionCount + ".");
+            LOGGER.debug("Proxy handler " + this + ": connect.strategy=" + connectStrategy + ".");
         }
     }
 
     public int getPreparedConnectionCount() {
-        return preparedConnectionCount;
+        return connectStrategy.getConnectionCount();
+    }
+
+    protected boolean isDeferredConnectStrategy() {
+        return connectStrategy.getStrategy() == Strategy.DEFERRED;
     }
 
     // called by connect listener in proxy service handler
