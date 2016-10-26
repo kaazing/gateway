@@ -302,7 +302,7 @@ public class AcceptOptionsTest {
         ServiceAcceptOptionsType serviceAcceptOptionsType = doc.getGatewayConfig().getServiceArray(0).getAcceptOptions();
         AcceptOptionsContext acceptOptionsContext;
         try {
-            acceptOptionsContext = new DefaultAcceptOptionsContext(serviceAcceptOptionsType, null, null);
+            acceptOptionsContext = new DefaultAcceptOptionsContext(serviceAcceptOptionsType, null);
 
         } catch (Exception e) {
             if (e instanceof RuntimeException &&
