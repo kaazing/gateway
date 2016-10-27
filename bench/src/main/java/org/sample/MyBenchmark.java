@@ -155,35 +155,35 @@ public class MyBenchmark {
         schedulerProvider.shutdownNow();
     }
 
-//    @Benchmark
-//    public void testDatagramSocket(ThreadState state) throws Exception {
-//        DatagramSocket udpClient = state.udpClient;
-//        String str = "Hello World";
-//        byte[] sendBuf = str.getBytes(UTF_8);
-//        DatagramPacket sendDp = new DatagramPacket(sendBuf, sendBuf.length);
-//        udpClient.send(sendDp);
-//
-//        try {
-//            byte[] recvBuf = new byte[20];
-//            DatagramPacket recvDp = new DatagramPacket(recvBuf, 0, recvBuf.length);
-//            udpClient.receive(recvDp);
-//            String got = new String(recvDp.getData(), recvDp.getOffset(), recvDp.getLength(), UTF_8);
-//            assertEquals(str, got);
-//            received.incrementAndGet();
-//        } catch (Throwable t) {
-//            t.printStackTrace();
-//        }
-//    }
-
     @Benchmark
-    public void testConnector(ConnectorState state) throws Exception {
-        String message = "Hello World";
-        IoSessionEx session = (IoSessionEx) state.session;
-        ByteBuffer data = ByteBuffer.wrap(message.getBytes());
-        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        WriteFuture writeFuture = session.write(allocator.wrap(data));
-        writeFuture.await(1, TimeUnit.SECONDS);
+    public void testDatagramSocket(ThreadState state) throws Exception {
+        DatagramSocket udpClient = state.udpClient;
+        String str = "Hello World";
+        byte[] sendBuf = str.getBytes(UTF_8);
+        DatagramPacket sendDp = new DatagramPacket(sendBuf, sendBuf.length);
+        udpClient.send(sendDp);
+
+        try {
+            byte[] recvBuf = new byte[20];
+            DatagramPacket recvDp = new DatagramPacket(recvBuf, 0, recvBuf.length);
+            udpClient.receive(recvDp);
+            String got = new String(recvDp.getData(), recvDp.getOffset(), recvDp.getLength(), UTF_8);
+            assertEquals(str, got);
+            received.incrementAndGet();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
     }
+
+//    @Benchmark
+//    public void testConnector(ConnectorState state) throws Exception {
+//        String message = "Hello World";
+//        IoSessionEx session = (IoSessionEx) state.session;
+//        ByteBuffer data = ByteBuffer.wrap(message.getBytes());
+//        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+//        WriteFuture writeFuture = session.write(allocator.wrap(data));
+//        writeFuture.await(1, TimeUnit.SECONDS);
+//    }
 
     private static final class EchoHandler extends IoHandlerAdapter<IoSessionEx> {
         AtomicLong value = new AtomicLong(0);
@@ -213,8 +213,8 @@ public class MyBenchmark {
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(MyBenchmark.class.getSimpleName())
-                .warmupIterations(5)
-                .measurementIterations(10)
+                .warmupIterations(10)
+                .measurementIterations(25)
                 .threads(8)
                 .forks(1)
                 .build();
