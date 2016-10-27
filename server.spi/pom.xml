@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.3.1-RC002</version>
+        <version>5.3.1-RC003</version>
     </parent>
 
     <artifactId>gateway.server.spi</artifactId>
