@@ -92,7 +92,6 @@
         <module>mina.core</module>
         <module>mina.netty</module>
         <module>test.util</module>
-        <module>bench</module>
     </modules>
 
     <dependencyManagement>
