@@ -53,7 +53,10 @@ public enum NioSystemProperty {
     // by higher layers. Logic for this is in NioIdleFilter
     TCP_IDLE_TIMEOUT("org.kaazing.gateway.server.transport.tcp.IDLE_TIMEOUT", Integer.toString(0)),
     UDP_IDLE_TIMEOUT("org.kaazing.gateway.server.transport.udp.IDLE_TIMEOUT", "60"),
-    UDP_RECEIVE_BUFFER_SIZE("org.kaazing.gateway.server.transport.udp.RECEIVE_BUFFER_SIZE");
+    UDP_CLIENT_RECEIVE_BUFFER_SIZE("org.kaazing.gateway.server.transport.udp.CLIENT_RECEIVE_BUFFER_SIZE", "65536"),
+    UDP_CLIENT_SEND_BUFFER_SIZE("org.kaazing.gateway.server.transport.udp.CLIENT_SEND_BUFFER_SIZE", "65536"),
+    UDP_SERVER_RECEIVE_BUFFER_SIZE("org.kaazing.gateway.server.transport.udp.SERVER_RECEIVE_BUFFER_SIZE", "2097152"),
+    UDP_SERVER_SEND_BUFFER_SIZE("org.kaazing.gateway.server.transport.udp.SERVER_SEND_BUFFER_SIZE", "2097152");
 
     private final String name;
     private final String defaultValue;

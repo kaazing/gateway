@@ -37,7 +37,6 @@ import org.jboss.netty.channel.socket.nio.NioServerDatagramChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioWorkerPool;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -45,7 +44,7 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.kaazing.mina.netty.socket.DatagramChannelIoSessionConfig;
-import org.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
+import org.kaazing.mina.netty.socket.nio.DefaultNioDatagramChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.nio.NioDatagramChannelIoAcceptor;
 
 /**
@@ -56,16 +55,20 @@ public class NioDatagramChannelIoAcceptorIT {
     @Rule
     public TestRule timeout = new DisableOnDebug(new Timeout(10, TimeUnit.SECONDS));
 
-    private IoAcceptor acceptor;
+    private NioDatagramChannelIoAcceptor acceptor;
     private DatagramSocket socket;
 
     @Before
     public void initResources() throws Exception {
-        DatagramChannelIoSessionConfig sessionConfig = new DefaultDatagramChannelIoSessionConfig();
+        DatagramChannelIoSessionConfig sessionConfig = new DefaultNioDatagramChannelIoSessionConfig();
         sessionConfig.setReuseAddress(true);
+        sessionConfig.setReceiveBufferSize(65536);
+        sessionConfig.setSendBufferSize(65536);
         NioWorkerPool workerPool = new NioWorkerPool(newCachedThreadPool(), 4);
         NioServerDatagramChannelFactory channelFactory = new NioServerDatagramChannelFactory(newCachedThreadPool(), 1, workerPool);
         acceptor = new NioDatagramChannelIoAcceptor(sessionConfig, channelFactory);
+        acceptor.setReceiveBufferSize("65536");
+        acceptor.setSendBufferSize("65536");
         acceptor.getFilterChain().addLast("logger", new LoggingFilter());
         socket = new DatagramSocket();
         socket.setReuseAddress(true);

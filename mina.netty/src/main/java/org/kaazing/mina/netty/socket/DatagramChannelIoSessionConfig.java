@@ -22,15 +22,15 @@ import org.jboss.netty.channel.socket.DatagramChannelConfig;
 import org.kaazing.mina.core.session.IoSessionConfigEx;
 import org.kaazing.mina.netty.ChannelIoSessionConfig;
 
-public abstract class DatagramChannelIoSessionConfig extends ChannelIoSessionConfig<DatagramChannelConfig>
-    implements DatagramSessionConfigEx {
+public abstract class DatagramChannelIoSessionConfig<T extends DatagramChannelConfig>
+                   extends ChannelIoSessionConfig<T> implements DatagramSessionConfigEx {
 
-    public DatagramChannelIoSessionConfig(DatagramChannelConfig channelConfig, DatagramSessionConfigEx defaults) {
-        super(channelConfig, defaults);
+    public DatagramChannelIoSessionConfig(T channelConfig) {
+        super(channelConfig);
     }
 
     @Override
-    protected final void doSetAll(IoSessionConfigEx config) {
+    protected void doSetAll(IoSessionConfigEx config) {
 
         super.doSetAll(config);
 
@@ -39,10 +39,12 @@ public abstract class DatagramChannelIoSessionConfig extends ChannelIoSessionCon
 
             setReceiveBufferSize(datagramConfig.getReceiveBufferSize());
             setSendBufferSize(datagramConfig.getSendBufferSize());
+            /*
             setTrafficClass(datagramConfig.getTrafficClass());
             setBroadcast(datagramConfig.isBroadcast());
             setCloseOnPortUnreachable(datagramConfig.isCloseOnPortUnreachable());
             setReuseAddress(datagramConfig.isReuseAddress());
+            */
         }
     }
 

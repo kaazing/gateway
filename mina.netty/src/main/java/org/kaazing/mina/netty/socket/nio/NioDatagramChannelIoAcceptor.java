@@ -20,6 +20,9 @@ import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelConfig;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.channel.socket.DatagramChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioChildDatagramChannel;
@@ -27,6 +30,7 @@ import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.netty.ChannelIoSession;
 import org.kaazing.mina.netty.socket.DatagramChannelIoAcceptor;
 import org.kaazing.mina.netty.socket.DatagramChannelIoSessionConfig;
+import org.kaazing.mina.netty.socket.SocketChannelIoAcceptor;
 
 import java.net.InetSocketAddress;
 
@@ -36,8 +40,16 @@ public class NioDatagramChannelIoAcceptor extends DatagramChannelIoAcceptor {
             "Kaazing", "NioDatagramChannel", true, true, InetSocketAddress.class,
             DatagramSessionConfig.class, Object.class);
 
+    private final DatagramAcceptorConfig acceptorConfig;
+
     public NioDatagramChannelIoAcceptor(DatagramChannelIoSessionConfig sessionConfig, DatagramChannelFactory channelFactory) {
-        super(sessionConfig, channelFactory, new SimpleChannelUpstreamHandler());
+        this(sessionConfig, channelFactory, new DatagramAcceptorConfig());
+    }
+
+    private NioDatagramChannelIoAcceptor(DatagramChannelIoSessionConfig sessionConfig, DatagramChannelFactory channelFactory,
+            DatagramAcceptorConfig acceptorConfig) {
+        super(sessionConfig, channelFactory, new DatagramBindHandler(acceptorConfig));
+        this.acceptorConfig = acceptorConfig;
     }
 
     @Override
@@ -49,6 +61,39 @@ public class NioDatagramChannelIoAcceptor extends DatagramChannelIoAcceptor {
     protected ChannelIoSession<? extends ChannelConfig> createSession(Channel channel,
             IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor) {
         return new NioDatagramChannelIoSession(this, processor, (NioChildDatagramChannel) channel);
+    }
+
+    public void setReceiveBufferSize(String receiveBufferSize) {
+        acceptorConfig.receiveBufferSize = receiveBufferSize;
+    }
+
+    public void setSendBufferSize(String sendBufferSize) {
+        acceptorConfig.sendBufferSize = sendBufferSize;
+    }
+
+    private static final class DatagramAcceptorConfig {
+        String receiveBufferSize;
+        String sendBufferSize;
+    }
+
+    private static final class DatagramBindHandler extends SimpleChannelHandler {
+
+        private final DatagramAcceptorConfig config;
+
+        DatagramBindHandler(DatagramAcceptorConfig config) {
+            this.config = config;
+        }
+
+        @Override
+        public void bindRequested(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+            // apply bind settings before we try to bind the channel
+            ChannelConfig channelConfig = ctx.getChannel().getConfig();
+
+            channelConfig.setOption("receiveBufferSize", config.receiveBufferSize);
+            channelConfig.setOption("sendBufferSize", config.sendBufferSize);
+
+            super.bindRequested(ctx, e);
+        }
     }
 
 }

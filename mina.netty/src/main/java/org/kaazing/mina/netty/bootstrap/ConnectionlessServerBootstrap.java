@@ -96,6 +96,11 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
         }
 
         @Override
+        public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+            ((IoAcceptorChannelHandler) parentHandler).channelOpen(ctx, e);
+        }
+
+        @Override
         public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
             super.channelConnected(ctx, e);
         }

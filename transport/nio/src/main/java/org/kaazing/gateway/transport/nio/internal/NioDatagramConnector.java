@@ -15,11 +15,6 @@
  */
 package org.kaazing.gateway.transport.nio.internal;
 
-import java.net.InetAddress;
-import java.util.Properties;
-
-import javax.annotation.Resource;
-
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSessionInitializer;
@@ -33,11 +28,16 @@ import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.bio.MulticastConnector;
 import org.kaazing.mina.core.service.IoConnectorEx;
 import org.kaazing.mina.netty.socket.DatagramChannelIoSessionConfig;
-import org.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
+import org.kaazing.mina.netty.socket.nio.DefaultNioDatagramChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.nio.NioDatagramChannelIoConnector;
 import org.slf4j.LoggerFactory;
 
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.UDP_RECEIVE_BUFFER_SIZE;
+import javax.annotation.Resource;
+import java.net.InetAddress;
+import java.util.Properties;
+
+import static org.kaazing.gateway.transport.nio.NioSystemProperty.UDP_CLIENT_RECEIVE_BUFFER_SIZE;
+import static org.kaazing.gateway.transport.nio.NioSystemProperty.UDP_CLIENT_SEND_BUFFER_SIZE;
 
 public class NioDatagramConnector extends AbstractNioConnector {
 
@@ -79,7 +79,7 @@ public class NioDatagramConnector extends AbstractNioConnector {
 
     @Override
     protected IoConnectorEx initConnector() {
-        DatagramChannelIoSessionConfig config = new DefaultDatagramChannelIoSessionConfig();
+        DatagramChannelIoSessionConfig config = new DefaultNioDatagramChannelIoSessionConfig();
         WorkerPool<NioWorker> workerPool = tcpAcceptor.initWorkerPool(logger, "UDP connector: {}", getConfiguration());
         NioClientDatagramChannelFactory channelFactory = new NioClientDatagramChannelFactory(workerPool);
         NioDatagramChannelIoConnector connector = new NioDatagramChannelIoConnector(config, channelFactory);
@@ -103,9 +103,13 @@ public class NioDatagramConnector extends AbstractNioConnector {
             logger.debug("MAXIMUM_READ_BUFFER_SIZE setting for UDP connector: {}", maximumReadBufferSize);
         }
 
-        String recvBufferSize = configuration.getProperty(UDP_RECEIVE_BUFFER_SIZE.getPropertyName(), "65536");
-        connector.getSessionConfig().setReceiveBufferSize(Integer.parseInt(recvBufferSize));
-        logger.debug("UDP_RECEIVE_BUFFER_SIZE setting for UDP acceptor: {}", recvBufferSize);
+        int recvBufferSize = UDP_CLIENT_RECEIVE_BUFFER_SIZE.getIntProperty(configuration);
+        connector.getSessionConfig().setReceiveBufferSize(recvBufferSize);
+        logger.debug("UDP_CLIENT_RECEIVE_BUFFER_SIZE setting for UDP connector: {}", recvBufferSize);
+
+        int sendBufferSize = UDP_CLIENT_SEND_BUFFER_SIZE.getIntProperty(configuration);
+        connector.getSessionConfig().setSendBufferSize(sendBufferSize);
+        logger.debug("UDP_CLIENT_SEND_BUFFER_SIZE setting for UDP connector: {}", sendBufferSize);
 
         return connector;
     }
