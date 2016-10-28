@@ -1,4 +1,4 @@
-Kaazing WebSocket Gateway Community Edition 5.2.5
+Kaazing WebSocket Gateway (Community Edition)
 
 A high-performance, scalable, secure, and robust real-time platform for reactive event-driven web and mobile applications.
 
