@@ -95,7 +95,7 @@ public abstract class AbstractProxyAcceptHandler extends AbstractProxyHandler {
     }
 
     @Override
-    void setMaximumPendingBytes(int maximumPendingBytes) {
+    public void setMaximumPendingBytes(int maximumPendingBytes) {
         super.setMaximumPendingBytes(maximumPendingBytes);
         connectHandler.setMaximumPendingBytes(maximumPendingBytes);
     }
