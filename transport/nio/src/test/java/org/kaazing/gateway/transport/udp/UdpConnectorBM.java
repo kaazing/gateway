@@ -52,6 +52,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -59,7 +60,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.UDP_IDLE_TIMEOUT;
 
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
@@ -90,8 +90,6 @@ public class UdpConnectorBM {
         udpServer.start();
 
         Map<String, Object> configuration = new HashMap<>();
-        configuration.put(UDP_IDLE_TIMEOUT.getPropertyName(), "2");
-
 
         addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         TransportFactory transportFactory = TransportFactory.newTransportFactory(configuration);
@@ -201,7 +199,7 @@ public class UdpConnectorBM {
                     socket.send(echoPacket);
                     serverSent.incrementAndGet();
                 } catch (IOException ioe) {
-                    ioe.printStackTrace();
+                    //ioe.printStackTrace();
                 }
             }
 
@@ -211,11 +209,13 @@ public class UdpConnectorBM {
     @State(Scope.Thread)
     public static class ConnectorState {
         IoSession session;
+        ConnectorHandler handler;
 
         public ConnectorState() {
             try {
                 ResourceAddress address = addressFactory.newResourceAddress(URI);
-                ConnectFuture future = udpConnector.connect(address, new ConnectorHandler(), null);
+                handler = new ConnectorHandler();
+                ConnectFuture future = udpConnector.connect(address, handler, null);
                 System.out.println("Connecting Udp connector client ..." + Thread.currentThread());
                 future.await(1, TimeUnit.SECONDS);
                 session = future.getSession();
@@ -254,14 +254,33 @@ public class UdpConnectorBM {
     }
 
     // Aynchronous client using gateway's udp connector
+    // send, send, send ...
+    // receive, receive, receive ...
+    // It is possible that many messages are not received by server
     @Benchmark
-    public void testConnector(ConnectorState state) throws Exception {
+    public void testAsyncConnector(ConnectorState state) throws Exception {
         String message = "Hello World";
         IoSessionEx session = (IoSessionEx) state.session;
         ByteBuffer data = ByteBuffer.wrap(message.getBytes());
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
         WriteFuture writeFuture = session.write(allocator.wrap(data));
         writeFuture.await(1, TimeUnit.SECONDS);
+        clientSent.incrementAndGet();
+    }
+
+    // Synchronous client using gateway's udp connector
+    // send - receive - send - receive ....
+    @Benchmark
+    public void testSyncConnector(ConnectorState state) throws Exception {
+        String message = "Hello World";
+        IoSessionEx session = (IoSessionEx) state.session;
+        ByteBuffer data = ByteBuffer.wrap(message.getBytes());
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+        CountDownLatch latch = new CountDownLatch(1);
+        state.handler.setLatch(latch);
+        session.write(allocator.wrap(data));
+        latch.await(1, TimeUnit.SECONDS);
+
         clientSent.incrementAndGet();
     }
 
@@ -289,10 +308,16 @@ public class UdpConnectorBM {
 
 
     private static final class ConnectorHandler extends IoHandlerAdapter<IoSessionEx> {
+        CountDownLatch latch;
 
         @Override
         protected void doMessageReceived(IoSessionEx session, Object message) {
             clientReceived.incrementAndGet();
+            latch.countDown();
+        }
+
+        void setLatch(CountDownLatch latch) {
+            this.latch = latch;
         }
     }
 
