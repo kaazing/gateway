@@ -131,7 +131,6 @@
                             <Implementation-Title>NIO Transport Tests</Implementation-Title>
                             <Implementation-Version>${project.version}</Implementation-Version>
                             <Artifact-Name>${groupId}:${artifactId}.tests</Artifact-Name>
-                            <Kaazing-Product>Enterprise.Gateway</Kaazing-Product>
                         </manifestEntries>
                     </archive>
                 </configuration>
