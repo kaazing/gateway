@@ -15,8 +15,6 @@
  */
 package org.kaazing.gateway.service.turn.rest.internal;
 
-import static org.kaazing.gateway.service.util.ServiceUtils.LIST_SEPARATOR;
-
 import java.security.Key;
 import java.security.KeyStore;
 import java.util.Properties;
@@ -67,7 +65,7 @@ public class TurnRestService implements Service {
         EarlyAccessFeatures.TURN_REST_SERVICE.assertEnabled(getConfiguration(), serviceContext.getLogger());
         ServiceProperties properties = serviceContext.getProperties();
 
-        String urls = getTurnURLs(properties);
+        String urls = properties.get("url");
         TurnRestCredentialsGenerator credentialGeneratorInstance = setUpCredentialsGenerator(properties);
 
         String ttl = properties.get("credentials.ttl") != null ? properties.get("credentials.ttl") : DEFAULT_CREDENTIALS_TTL;
@@ -88,15 +86,6 @@ public class TurnRestService implements Service {
         credentialGeneratorInstance.setSharedSecret(sharedSecret);
         credentialGeneratorInstance.setUsernameSeparator(separator);
         return credentialGeneratorInstance;
-    }
-
-    private String getTurnURLs(ServiceProperties properties) {
-        StringBuilder u = new StringBuilder();
-        for (String url : properties.get("url").split(LIST_SEPARATOR)) {
-            u.append("\"").append(url).append("\",");
-        }
-        u.setLength(u.length() - 1);
-        return u.toString();
     }
 
     private Key resolveSharedSecret(ServiceProperties properties) {

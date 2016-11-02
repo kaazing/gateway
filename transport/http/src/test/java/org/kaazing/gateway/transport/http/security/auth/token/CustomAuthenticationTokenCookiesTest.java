@@ -15,17 +15,8 @@
  */
 package org.kaazing.gateway.transport.http.security.auth.token;
 
-import org.jmock.Mockery;
-import org.jmock.lib.legacy.ClassImposteriser;
-import org.junit.Assert;
-import org.junit.Test;
-import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
-import org.kaazing.gateway.server.spi.security.AuthenticationToken;
-import org.kaazing.gateway.transport.http.DefaultHttpCookie;
-import org.kaazing.gateway.transport.http.HttpCookie;
-import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
-import org.kaazing.gateway.transport.test.Expectations;
+import static org.kaazing.gateway.transport.http.security.auth.token.CustomAuthenticationTokenCookiesTest.ResultType.EXCEPTION;
+import static org.kaazing.gateway.transport.http.security.auth.token.CustomAuthenticationTokenCookiesTest.ResultType.SUCCESS;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,8 +27,18 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import static org.kaazing.gateway.transport.http.security.auth.token.CustomAuthenticationTokenCookiesTest.ResultType.EXCEPTION;
-import static org.kaazing.gateway.transport.http.security.auth.token.CustomAuthenticationTokenCookiesTest.ResultType.SUCCESS;
+import org.jmock.Mockery;
+import org.jmock.lib.legacy.ClassImposteriser;
+import org.junit.Assert;
+import org.junit.Test;
+import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.http.DefaultHttpRealmInfo;
+import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
+import org.kaazing.gateway.server.spi.security.AuthenticationToken;
+import org.kaazing.gateway.transport.http.DefaultHttpCookie;
+import org.kaazing.gateway.transport.http.HttpCookie;
+import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
+import org.kaazing.gateway.transport.test.Expectations;
 
 public class CustomAuthenticationTokenCookiesTest {
 
@@ -187,23 +188,11 @@ public class CustomAuthenticationTokenCookiesTest {
             requestMessage.setLocalAddress(address);
 
             context.checking(new Expectations() {{
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES);
+                allowing(address).getOption(HttpResourceAddress.REALMS);
                 will(returnValue(null));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_PARAMETER_NAMES);
-                will(returnValue(null));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES);
-                will(returnValue(testCase.configuredSessionCookies));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
-                will(returnValue("challenge"));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
-                will(returnValue("Basic"));
             }});
 
-            AuthenticationToken actual = extractor.extract(requestMessage);
+            AuthenticationToken actual = extractor.extract(requestMessage, new DefaultHttpRealmInfo(null, "BASIC", null, null, new String[]{}, testCase.configuredSessionCookies, null, null));
 
             context.assertIsSatisfied();
 

@@ -17,14 +17,17 @@ package org.kaazing.test.util;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.internal.runners.statements.InvokeMethod;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.MethodRule;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.junit.runner.Description;
+import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
@@ -107,7 +110,26 @@ public final class ITUtil {
 
             @Override
             public Statement apply(Statement base, Description description) {
+                if (base instanceof InvokeMethod) {
+                    return doApplyInvokeMethod(in, base, (InvokeMethod) base);
+                }
+
                 return in.apply(base, null, description);
+            }
+
+            private Statement doApplyInvokeMethod(
+                MethodRule in,
+                Statement base,
+                InvokeMethod invokeMethod) {
+                try {
+                    FrameworkMethod frameworkMethod = (FrameworkMethod) FIELD_FRAMEWORK_METHOD.get(invokeMethod);
+                    Object target = FIELD_TARGET.get(invokeMethod);
+
+                    return in.apply(base, frameworkMethod, target);
+                }
+                catch (IllegalArgumentException | IllegalAccessException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
 
         };
@@ -117,4 +139,22 @@ public final class ITUtil {
 
     }
 
+    private static final Field FIELD_TARGET;
+    private static final Field FIELD_FRAMEWORK_METHOD;
+
+    static {
+        try {
+            final Field target = InvokeMethod.class.getDeclaredField("target");
+            final Field frameworkMethod = InvokeMethod.class.getDeclaredField("testMethod");
+
+            target.setAccessible(true);
+            frameworkMethod.setAccessible(true);
+
+            FIELD_TARGET = target;
+            FIELD_FRAMEWORK_METHOD = frameworkMethod;
+        }
+        catch (NoSuchFieldException | SecurityException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 }

@@ -47,6 +47,7 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import javax.annotation.Resource;
 import javax.management.MBeanServer;
@@ -62,6 +63,7 @@ import org.kaazing.gateway.security.SecurityContext;
 import org.kaazing.gateway.security.auth.BasicLoginModule;
 import org.kaazing.gateway.security.auth.NegotiateLoginModule;
 import org.kaazing.gateway.security.auth.TimeoutLoginModule;
+import org.kaazing.gateway.server.ExpiringState;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.config.SchemeConfig;
@@ -101,14 +103,16 @@ import org.kaazing.gateway.util.GL;
 import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.aws.AwsUtils;
-import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.slf4j.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.hazelcast.core.IMap;
+
 public class GatewayContextResolver {
-    public static final String AUTHORIZATION_MODE_CHALLENGE = "challenge";
+
+	public static final String AUTHORIZATION_MODE_CHALLENGE = "challenge";
 
     /**
      * Prefix to the authentication scheme to indicate that the Kaazing client application will handle the challenge rather than
@@ -134,6 +138,9 @@ public class GatewayContextResolver {
 
     private static final String SERVICE_TYPE_CLASS_PREFIX = "class:";
     private static final String LOGIN_MODULE_TYPE_CLASS_PREFIX = "class:";
+
+    private static final String EXPIRING_STATE_NAME = "ExpiringState";
+    private static final String EXPIRING_STATE_OPTIONS_KEY = "ExpiringState";
 
     // a map of file-extension to mime-type.  For backward compatibility, we'll
     // hardcode this initial set based on the values in Dragonfire HttpUtils.getContentType().
@@ -224,10 +231,12 @@ public class GatewayContextResolver {
         ClusterType[] clusterConfigs = gatewayConfig.getClusterArray();
         ClusterType clusterConfig = (clusterConfigs.length > 0) ? clusterConfigs[clusterConfigs.length - 1] : null;
 
+
         SchedulerProvider schedulerProvider = new SchedulerProvider(configuration);
         ClusterContext clusterContext = resolveCluster(clusterConfig, schedulerProvider);
         DefaultSecurityContext securityContext = securityResolver.resolve(securityConfig);
-        RealmsContext realmsContext = resolveRealms(securityConfig, securityContext, configuration, clusterContext);
+        ExpiringState expiringState = resolveExpiringState(clusterContext);
+        RealmsContext realmsContext = resolveRealms(securityConfig, securityContext, configuration, clusterContext, expiringState);
         DefaultServiceDefaultsContext serviceDefaultsContext = resolveServiceDefaults(serviceDefaults);
         ServiceRegistry servicesByURI = new ServiceRegistry();
         Map<String, Object> dependencyContexts = resolveDependencyContext();
@@ -273,6 +282,7 @@ public class GatewayContextResolver {
         injectables.put("bridgeServiceFactory", bridgeServiceFactory);
         injectables.put("resourceAddressFactory", resourceAddressFactory);
         injectables.put("transportFactory", transportFactory);
+        injectables.put("expiringState", expiringState);
         gatewayContext.getInjectables().putAll(injectables);
 
         injectResources(services,
@@ -932,9 +942,13 @@ public class GatewayContextResolver {
         }
     }
 
+	private ExpiringState resolveExpiringState(ClusterContext clusterContext) {
+        Supplier<IMap<Object, Object>> supplier = () -> clusterContext.getCollectionsFactory().getMap(EXPIRING_STATE_NAME);
+		return new DefaultExpiringState(supplier);
+	}
 
     private RealmsContext resolveRealms(SecurityType securityConfig, SecurityContext securityContext, Properties configuration,
-        ClusterContext clusterContext) {
+        ClusterContext clusterContext, ExpiringState expiringState) {
         Map<String, DefaultRealmContext> realmContexts = new HashMap<>();
 
         if (securityConfig != null) {
@@ -980,9 +994,7 @@ public class GatewayContextResolver {
                     options.put(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY, configuration
                             .getProperty(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY));
                     if (LOGIN_MODULE_EXPIRING_STATE.isEnabled(configuration)) {
-                        final String expiringStateName = "ExpiringState";
-                        options.put(expiringStateName,
-                                new DefaultExpiringState(clusterContext.getCollectionsFactory(), expiringStateName));
+                        options.put(EXPIRING_STATE_OPTIONS_KEY, expiringState);
                     }
 
                     LoginModuleOptionsType rawOptions = loginModule.getOptions();
@@ -1321,8 +1333,8 @@ public class GatewayContextResolver {
             final boolean noPathToCanonicalize = canonicalizePath && (path == null || emptyPath);
             final boolean trailingSlashPath = "/".equals(path);
             final String scheme = getScheme(uri);
-            final boolean pathlessScheme =
-                    "ssl".equals(scheme) || "tcp".equals(scheme) || "pipe".equals(scheme) || "udp".equals(scheme);
+            final boolean pathlessScheme = "ssl".equals(scheme) || "tcp".equals(scheme) || "pipe".equals(scheme)
+                    || "udp".equals(scheme) || "mux".equals(scheme);
             final boolean trailingSlashWithPathlessScheme = trailingSlashPath && pathlessScheme;
             String newPath = trailingSlashWithPathlessScheme ? "" :
                              noPathToCanonicalize ? (pathlessScheme ? null : "/") : null;

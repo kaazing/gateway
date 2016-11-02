@@ -48,4 +48,6 @@ public interface HttpHeaders {
     String HEADER_LOCATION = "Location";
     String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
+    String HEADER_SEC_CHALLENGE_IDENTITY = "Sec-Challenge-Identity";
+
 }

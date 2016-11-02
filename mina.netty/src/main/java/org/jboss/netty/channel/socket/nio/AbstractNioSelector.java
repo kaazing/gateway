@@ -32,6 +32,7 @@ package org.jboss.netty.channel.socket.nio;
 
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import java.io.IOException;
 import java.nio.channels.CancelledKeyException;
@@ -72,7 +73,7 @@ abstract class AbstractNioSelector implements NioSelector {
 
     private final int id = nextId.incrementAndGet();
     private final IdleStrategy idleStrategy = new BackoffIdleStrategy(50, 50,
-            MILLISECONDS.toNanos(10), MILLISECONDS.toNanos(50));
+            NANOSECONDS.toNanos(100), MILLISECONDS.toNanos(10));
 
     /**
      * Internal Netty logger.
@@ -345,12 +346,16 @@ abstract class AbstractNioSelector implements NioSelector {
                     workCount += processTaskQueue();
 
                     for (SelectionKey k: selector.keys()) {
-                        close(k);
+                        try {
+                            close(k);
+                        } catch (Throwable e) {
+                            logger.warn("Failed to close a selection key.", e);
+                        }
                     }
 
                     try {
                         selector.close();
-                    } catch (IOException e) {
+                    } catch (Throwable e) {
                         logger.warn(
                                 "Failed to close a selector.", e);
                     }
@@ -360,7 +365,7 @@ abstract class AbstractNioSelector implements NioSelector {
                     workCount += process(selector);
                     workCount += processRead();
                 }
-                idleStrategy.idle(workCount);
+                //idleStrategy.idle(workCount);
             } catch (Throwable t) {
                 logger.warn(
                         "Unexpected exception in the selector loop.", t);
@@ -502,11 +507,15 @@ abstract class AbstractNioSelector implements NioSelector {
     }
 
     protected int select(Selector selector, boolean quickSelect) throws IOException {
-        return select(selector);
+        if (quickSelect) {
+            return SelectorUtil.select(selector, 0L);
+        } else {
+            return select(selector);
+        }
     }
 
     protected int select(Selector selector) throws IOException {
-        return SelectorUtil.select(selector, 0L);
+        return SelectorUtil.select(selector, 10L);
     }
 
     protected abstract void close(SelectionKey k);

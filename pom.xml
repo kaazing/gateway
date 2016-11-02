@@ -28,7 +28,7 @@
         <maven.compiler.testSource>1.8</maven.compiler.testSource>
         <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
         <hazelcast.version>1.9.4.8</hazelcast.version>
-        <k3po.version>3.0.0-alpha-51</k3po.version>
+        <k3po.version>3.0.0-alpha-53</k3po.version>
         <jdom.version>1.1</jdom.version>
         <jmock.version>2.6.0</jmock.version>
         <slf4j.log4j.version>1.7.21</slf4j.log4j.version>
@@ -404,6 +404,11 @@
                     <dependency>
                         <groupId>org.kaazing</groupId>
                         <artifactId>specification.http</artifactId>
+                        <version>${k3po.version}</version>
+                    </dependency>
+                   <dependency>
+                        <groupId>org.kaazing</groupId>
+                        <artifactId>specification.http.multi.auth</artifactId>
                         <version>${k3po.version}</version>
                     </dependency>
                     <dependency>

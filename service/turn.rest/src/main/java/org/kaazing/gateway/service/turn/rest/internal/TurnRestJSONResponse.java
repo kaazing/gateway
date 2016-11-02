@@ -15,19 +15,32 @@
  */
 package org.kaazing.gateway.service.turn.rest.internal;
 
-import java.text.MessageFormat;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class TurnRestJSONResponse {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TurnRestJSONResponse.class);
 
     private TurnRestJSONResponse() {
     }
 
     public static String createResponse(String username, char[] password, String ttl, String urls) {
-        String response = "";
-        if (username != null && password != null) {
-            response = MessageFormat.format("\"username\":\"{0}\",\"credential\":\"{1}\",", username, new String(password));
+        JSONObject jsonObj = new JSONObject();
+
+        try {
+            if (username != null && password != null) {
+                jsonObj.put("username", username);
+                jsonObj.put("credential", new String(password));
+            }
+            jsonObj.put("ttl", ttl);
+            jsonObj.put("urls", urls.split(","));
+        } catch (JSONException e) {
+            LOGGER.warn("Exception while building the turn.rest JSON response", e);
         }
-        response = MessageFormat.format("'{'{0}\"ttl\":{1},\"urls\":[{2}]'}'", response, ttl, urls);
-        return response;
+
+        return jsonObj.toString();
     }
 }
