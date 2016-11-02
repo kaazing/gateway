@@ -249,8 +249,10 @@ public class UdpConnectorBM {
         schedulerProvider.shutdownNow();
 
         udpServer.stop();
-        System.out.println(" Total client sent = " + clientSent + " client received = " + clientReceived);
-        System.out.println(" Total server recv = " + serverReceived + "     server sent = " + serverSent);
+
+        System.out.println();
+        System.out.println("Total client sent = " + clientSent + " client received = " + clientReceived);
+        System.out.println("Total server recv = " + serverReceived + "     server sent = " + serverSent);
     }
 
     // Aynchronous client using gateway's udp connector

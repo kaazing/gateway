@@ -51,7 +51,9 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -75,9 +77,9 @@ public class UdpAcceptorBM {
     private static NioDatagramConnector udpConnector;
 
     private static NioSocketAcceptor tcpAcceptor;
-    private static EchoHandler echoHandler;
 
-    private static AtomicLong received = new AtomicLong();
+    private static AtomicInteger clientSent = new AtomicInteger(0);
+    private static AtomicInteger clientReceived = new AtomicInteger(0);
 
     @Setup
     public void init() throws Exception {
@@ -107,20 +109,20 @@ public class UdpAcceptorBM {
         udpConnector.setTcpAcceptor(tcpAcceptor);
 
         ResourceAddress address = addressFactory.newResourceAddress(URI);
-        System.out.println("Binding ...");
-        echoHandler = new EchoHandler();
+        System.out.println("UdpAcceptor starting ...");
+        EchoHandler echoHandler = new EchoHandler();
         udpAcceptor.bind(address, echoHandler, null);
     }
 
     @State(Scope.Thread)
-    public static class ThreadState {
+    public static class SocketState {
         DatagramSocket udpClient;
 
-        public ThreadState() {
+        public SocketState() {
             try {
                 udpClient = new DatagramSocket();
                 udpClient.setSoTimeout(1000);
-                System.out.println("Connecting client ..." + Thread.currentThread());
+                System.out.println("Connecting DatagramSocket client ..." + Thread.currentThread());
                 udpClient.connect(new InetSocketAddress("localhost", PORT));
             } catch (Exception e) {
                 e.printStackTrace();
@@ -131,37 +133,75 @@ public class UdpAcceptorBM {
     @State(Scope.Thread)
     public static class ConnectorState {
         IoSession session;
+        ConnectorHandler handler;
 
         public ConnectorState() {
             try {
-                System.out.println("Connecting UdpConnector client ..." + Thread.currentThread());
                 ResourceAddress address = addressFactory.newResourceAddress(URI);
-                ConnectFuture future = udpConnector.connect(address, new ConnectorHandler(), null);
+                handler = new ConnectorHandler();
+                ConnectFuture future = udpConnector.connect(address, handler, null);
+                System.out.println("Connecting Udp connector client ..." + Thread.currentThread());
                 future.await(1, TimeUnit.SECONDS);
                 session = future.getSession();
             } catch (Exception e) {
                 e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
     }
 
     @TearDown
     public void destroy() throws Exception {
-        System.out.println("Unbinding ...");
-        System.out.println("EchoHandler value = " + echoHandler.value + " received = " + received);
+        System.out.println("UdpAcceptor stopping ...");
         tcpAcceptor.dispose();
         udpAcceptor.dispose();
         udpConnector.dispose();
         schedulerProvider.shutdownNow();
+
+        System.out.println();
+        System.out.println("Total client sent = " + clientSent + " client received = " + clientReceived);
     }
 
+    // Aynchronous client using gateway's udp connector
+    // send, send, send ...
+    // receive, receive, receive ...
+    // It is possible that many messages are not received by server
     @Benchmark
-    public void testDatagramSocket(ThreadState state) throws Exception {
+    public void testAsyncConnector(ConnectorState state) throws Exception {
+        String message = "Hello World";
+        IoSessionEx session = (IoSessionEx) state.session;
+        ByteBuffer data = ByteBuffer.wrap(message.getBytes());
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+        WriteFuture writeFuture = session.write(allocator.wrap(data));
+        writeFuture.await(1, TimeUnit.SECONDS);
+        clientSent.incrementAndGet();
+    }
+
+    // Synchronous client using gateway's udp connector
+    // send - receive - send - receive ....
+    @Benchmark
+    public void testSyncConnector(ConnectorState state) throws Exception {
+        String message = "Hello World";
+        IoSessionEx session = (IoSessionEx) state.session;
+        ByteBuffer data = ByteBuffer.wrap(message.getBytes());
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+        CountDownLatch latch = new CountDownLatch(1);
+        state.handler.setLatch(latch);
+        session.write(allocator.wrap(data));
+        latch.await(1, TimeUnit.SECONDS);
+
+        clientSent.incrementAndGet();
+    }
+
+    // Synchronous client using DatagramSocket client
+    @Benchmark
+    public void testDatagramSocket(SocketState state) throws Exception {
         DatagramSocket udpClient = state.udpClient;
         String str = "Hello World";
         byte[] sendBuf = str.getBytes(UTF_8);
         DatagramPacket sendDp = new DatagramPacket(sendBuf, sendBuf.length);
         udpClient.send(sendDp);
+        clientSent.incrementAndGet();
 
         try {
             byte[] recvBuf = new byte[20];
@@ -169,21 +209,11 @@ public class UdpAcceptorBM {
             udpClient.receive(recvDp);
             String got = new String(recvDp.getData(), recvDp.getOffset(), recvDp.getLength(), UTF_8);
             assertEquals(str, got);
-            received.incrementAndGet();
+            clientReceived.incrementAndGet();
         } catch (Throwable t) {
             t.printStackTrace();
         }
     }
-
-//    @Benchmark
-//    public void testConnector(ConnectorState state) throws Exception {
-//        String message = "Hello World";
-//        IoSessionEx session = (IoSessionEx) state.session;
-//        ByteBuffer data = ByteBuffer.wrap(message.getBytes());
-//        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-//        WriteFuture writeFuture = session.write(allocator.wrap(data));
-//        writeFuture.await(1, TimeUnit.SECONDS);
-//    }
 
     private static final class EchoHandler extends IoHandlerAdapter<IoSessionEx> {
         AtomicLong value = new AtomicLong(0);
@@ -196,11 +226,16 @@ public class UdpAcceptorBM {
     }
 
     private static final class ConnectorHandler extends IoHandlerAdapter<IoSessionEx> {
+        CountDownLatch latch;
 
         @Override
         protected void doMessageReceived(IoSessionEx session, Object message) {
-            session.write(message);
-            received.incrementAndGet();
+            clientReceived.incrementAndGet();
+            latch.countDown();
+        }
+
+        void setLatch(CountDownLatch latch) {
+            this.latch = latch;
         }
     }
 
