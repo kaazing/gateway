@@ -214,7 +214,6 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
         long tcpMaximumOutboundRate = getTcpMaximumOutboundRate(optionsCopy.remove("tcp.maximum.outbound.rate"));
         result.put(TCP_MAXIMUM_OUTBOUND_RATE, tcpMaximumOutboundRate);
 
-
         for (Map.Entry<String, String> entry : getBinds().entrySet()) {
             /* For lookups out of this COPY of the options, we need to
              * translate the scheme names into hierarchical transport names,

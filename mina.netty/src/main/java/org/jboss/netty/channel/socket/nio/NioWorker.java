@@ -178,7 +178,7 @@ public class NioWorker extends AbstractNioWorker {
         if (quickSelect) {
             return SelectorUtil.select(selector, QUICK_SELECT_TIMEOUT);
         } else {
-            return SelectorUtil.select(selector);
+            return SelectorUtil.select(selector, 10L);
         }
     }
 
@@ -224,7 +224,7 @@ public class NioWorker extends AbstractNioWorker {
                 }
 
                 channel.channel.register(
-                        selector, channel.getRawInterestOps(), new TcpReadDispatcher(channel));
+                        selector, channel.getInternalInterestOps(), new TcpReadDispatcher(channel));
 
                 if (future != null) {
                     channel.setConnected();

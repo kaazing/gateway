@@ -31,6 +31,8 @@
 package org.jboss.netty.channel.socket.nio;
 
 import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import java.io.IOException;
 import java.nio.channels.CancelledKeyException;
@@ -59,15 +61,19 @@ import org.jboss.netty.util.ThreadRenamingRunnable;
 import org.jboss.netty.util.internal.DeadLockProofWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.co.real_logic.agrona.concurrent.BackoffIdleStrategy;
+import uk.co.real_logic.agrona.concurrent.IdleStrategy;
 
 abstract class AbstractNioSelector implements NioSelector {
     protected static final Logger PERF_LOGGER = LoggerFactory.getLogger("performance.tcp");
 
     private static final AtomicInteger nextId = new AtomicInteger();
-    protected static final long LATENCY_BEFORE_LOG_PROCESS_SELECT = TimeUnit.MILLISECONDS.toNanos(100);
-    private static final long LATENCY_BEFORE_LOG_TASK = TimeUnit.MILLISECONDS.toNanos(100);
+    protected static final long LATENCY_BEFORE_LOG_PROCESS_SELECT = MILLISECONDS.toNanos(100);
+    private static final long LATENCY_BEFORE_LOG_TASK = MILLISECONDS.toNanos(100);
 
     private final int id = nextId.incrementAndGet();
+    private final IdleStrategy idleStrategy = new BackoffIdleStrategy(50, 50,
+            NANOSECONDS.toNanos(100), MILLISECONDS.toNanos(10));
 
     /**
      * Internal Netty logger.
@@ -238,6 +244,7 @@ abstract class AbstractNioSelector implements NioSelector {
             wakenUp.set(false);
 
             try {
+                int workCount = 0;
                 long beforeSelect = System.nanoTime();
                 int selected = select(selector, quickSelect);
                 if (SelectorUtil.EPOLL_BUG_WORKAROUND && selected == 0 && !wakenupFromLoop && !wakenUp.get()) {
@@ -325,10 +332,10 @@ abstract class AbstractNioSelector implements NioSelector {
                 cancelledKeys = 0;
                 if (maximumProcessTaskQueueNanos > 0) {
                     long deadlineNanos = System.nanoTime() + maximumProcessTaskQueueNanos;
-                    quickSelect = processTaskQueue(deadlineNanos);
+                    workCount += processTaskQueue(deadlineNanos);
                 }
                 else {
-                    processTaskQueue();
+                    workCount += processTaskQueue();
                 }
                 selector = this.selector; // processTaskQueue() can call rebuildSelector()
 
@@ -336,24 +343,29 @@ abstract class AbstractNioSelector implements NioSelector {
                     this.selector = null;
 
                     // process one time again
-                    processTaskQueue();
+                    workCount += processTaskQueue();
 
                     for (SelectionKey k: selector.keys()) {
-                        close(k);
+                        try {
+                            close(k);
+                        } catch (Throwable e) {
+                            logger.warn("Failed to close a selection key.", e);
+                        }
                     }
 
                     try {
                         selector.close();
-                    } catch (IOException e) {
+                    } catch (Throwable e) {
                         logger.warn(
                                 "Failed to close a selector.", e);
                     }
                     shutdownLatch.countDown();
                     break;
                 } else {
-                    process(selector);
-                    processRead();
+                    workCount += process(selector);
+                    workCount += processRead();
                 }
+                //idleStrategy.idle(workCount);
             } catch (Throwable t) {
                 logger.warn(
                         "Unexpected exception in the selector loop.", t);
@@ -401,13 +413,15 @@ abstract class AbstractNioSelector implements NioSelector {
         assert selector != null && selector.isOpen();
     }
 
-    protected void processTaskQueue() {
+    protected int processTaskQueue() {
+        int workCount = 0;
         for (;;) {
             final Runnable task = taskQueue.poll();
             if (task == null) {
                 break;
             }
             task.run();
+            workCount++;
 
             try {
                 cleanUpCancelledKeys();
@@ -415,17 +429,16 @@ abstract class AbstractNioSelector implements NioSelector {
                 // Ignore
             }
         }
+        return workCount;
     }
 
-    private boolean processTaskQueue(long deadLineNanos) {
-        long numTasks = 0;
+    private int processTaskQueue(long deadLineNanos) {
+        int numTasks = 0;
         boolean perfLogEnabled = PERF_LOGGER.isInfoEnabled();
         long startTime = perfLogEnabled ? System.nanoTime() : 0;
-        boolean quickSelect;
         for (;;) {
             final Runnable task = taskQueue.poll();
             if (task == null) {
-                quickSelect = false;
                 break;
             }
             numTasks++;
@@ -447,11 +460,10 @@ abstract class AbstractNioSelector implements NioSelector {
                     }
                 }
                 // Make sure select in run() loop is no wait or short since we still have tasks to do
-                quickSelect = true;
                 break;
             }
         }
-        return quickSelect;
+        return numTasks;
     }
 
     protected final void increaseCancelledKeys() {
@@ -486,18 +498,24 @@ abstract class AbstractNioSelector implements NioSelector {
         }
     }
 
-    protected abstract void process(Selector selector) throws IOException;
+    // returns work count
+    protected abstract int process(Selector selector) throws IOException;
 
-    protected void processRead() throws IOException {
-
+    // returns work count
+    protected int processRead() throws IOException {
+        return 0;
     }
 
     protected int select(Selector selector, boolean quickSelect) throws IOException {
-        return select(selector);
+        if (quickSelect) {
+            return SelectorUtil.select(selector, 0L);
+        } else {
+            return select(selector);
+        }
     }
 
     protected int select(Selector selector) throws IOException {
-        return SelectorUtil.select(selector);
+        return SelectorUtil.select(selector, 10L);
     }
 
     protected abstract void close(SelectionKey k);

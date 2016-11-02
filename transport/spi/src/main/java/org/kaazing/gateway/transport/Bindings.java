@@ -55,6 +55,12 @@ public abstract class Bindings<B extends Binding> {
     
     public abstract Binding getBinding(ResourceAddress address);
 
+    public boolean hasAnyBinding(
+        ResourceAddress address)
+    {
+        return bindings.containsKey(address);
+    }
+
     /**
      * @return true when the last binding has been removed (reference count 0)
      */

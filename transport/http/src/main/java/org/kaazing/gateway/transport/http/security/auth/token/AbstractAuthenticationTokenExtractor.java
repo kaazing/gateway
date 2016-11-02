@@ -15,30 +15,28 @@
  */
 package org.kaazing.gateway.transport.http.security.auth.token;
 
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_AUTHORIZATION;
+
 import java.io.UnsupportedEncodingException;
 import java.util.Set;
 
-import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.security.auth.token.DefaultAuthenticationToken;
 import org.kaazing.gateway.server.spi.security.AuthenticationToken;
 import org.kaazing.gateway.transport.http.HttpCookie;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
 
 public class AbstractAuthenticationTokenExtractor implements AuthenticationTokenExtractor {
 
     @Override
-    public AuthenticationToken extract(HttpRequestMessage httpRequest) throws UnsupportedEncodingException {
+    public AuthenticationToken extract(HttpRequestMessage httpRequest, HttpRealmInfo realm) throws UnsupportedEncodingException {
         DefaultAuthenticationToken result = new DefaultAuthenticationToken();
 
         extractAuthorizationHeader(httpRequest, result);
 
-        ResourceAddress address = httpRequest.getLocalAddress();
-
-        final String[] httpHeaders = address.getOption(HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES);
-        final String[] httpQueryParameters = address.getOption(HttpResourceAddress.REALM_AUTHENTICATION_PARAMETER_NAMES);
-        final String[] httpCookieNames = address.getOption(HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES);
+        final String[] httpHeaders = realm.getHeaderNames();
+        final String[] httpQueryParameters = realm.getParameterNames();
+        final String[] httpCookieNames = realm.getAuthenticationCookieNames();
 
         if ( httpHeaders != null && httpHeaders.length > 0 ) {
             extractHttpHeaders(httpRequest, httpHeaders, result);
@@ -101,8 +99,8 @@ public class AbstractAuthenticationTokenExtractor implements AuthenticationToken
     }
 
     private void extractAuthorizationHeader(HttpRequestMessage httpRequest, DefaultAuthenticationToken result) {
-        if (httpRequest.hasHeader(HttpSubjectSecurityFilter.AUTHORIZATION_HEADER) ) {
-            String authorization = httpRequest.getHeader(HttpSubjectSecurityFilter.AUTHORIZATION_HEADER).trim();
+        if (httpRequest.hasHeader(HEADER_AUTHORIZATION) ) {
+            String authorization = httpRequest.getHeader(HEADER_AUTHORIZATION).trim();
 
             // We have to be careful when handling any client-supplied data.  In
             // this particular case, we need to extract the challenge scheme from

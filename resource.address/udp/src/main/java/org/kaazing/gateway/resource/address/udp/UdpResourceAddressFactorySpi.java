@@ -193,7 +193,17 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
             }
         }
         catch (UnknownHostException e) {
-            throw new IllegalArgumentException(format("Unable to resolve DNS name: %s", getHost(location)), e);
+            String host = getHost(location);
+            Pattern pattern = Pattern.compile(URIUtils.NETWORK_INTERFACE_AUTHORITY);
+            Matcher matcher = pattern.matcher(host);
+            // Test for network interface syntax and throw specific error message if found
+            if (matcher.find()) {
+                throw new IllegalArgumentException(format("The interface name %s is not recognized", host), e);
+            }
+            // Network interface syntax format not detected so generic error message can be thrown
+            else {
+                throw new IllegalArgumentException(format("Unable to resolve DNS name: %s", host), e);
+            }
         }
 
         if (udpAddresses.isEmpty()) {

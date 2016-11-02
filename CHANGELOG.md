@@ -1,11 +1,140 @@
 # Change Log
 
+## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
+
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.5...HEAD)
+
+**Merged pull requests:**
+
+- Skip transport factories for disabled transports [\#754](https://github.com/kaazing/gateway/pull/754) ([jfallows](https://github.com/jfallows))
+- Http acceptor multi factor acceptor tests [\#753](https://github.com/kaazing/gateway/pull/753) ([dpwspoon](https://github.com/dpwspoon))
+- Removed Agrona from the mina.netty jar [\#751](https://github.com/kaazing/gateway/pull/751) ([mgherghe](https://github.com/mgherghe))
+- Make mock handler tolerant of call to sessionClosed [\#750](https://github.com/kaazing/gateway/pull/750) ([jfallows](https://github.com/jfallows))
+- Relax count on number of IDLE events [\#749](https://github.com/kaazing/gateway/pull/749) ([jfallows](https://github.com/jfallows))
+- Reduced number of follows in ConnectorMultiFactorAuthIT such that tes… [\#748](https://github.com/kaazing/gateway/pull/748) ([dpwspoon](https://github.com/dpwspoon))
+
+## [5.2.5](https://github.com/kaazing/gateway/tree/5.2.5) (2016-10-19)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.5-RC003...5.2.5)
+
+## [5.2.5-RC003](https://github.com/kaazing/gateway/tree/5.2.5-RC003) (2016-10-19)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.4-RC003...5.2.5-RC003)
+
+**Closed issues:**
+
+- WsxAcceptorLoggingIT.shouldLogOpenAndInactivityTimeoutClose fails [\#737](https://github.com/kaazing/gateway/issues/737)
+- Occasional build failure in wseb acceptor spec test ControlIT.shouldCloseConnectionOnReceivingInvalidPingFromClient [\#580](https://github.com/kaazing/gateway/issues/580)
+
+**Merged pull requests:**
+
+- catchup develop from release [\#747](https://github.com/kaazing/gateway/pull/747) ([dpwspoon](https://github.com/dpwspoon))
+- Altered NioWorker.select and AbstractNioSelector.select to use 10ms select timeout [\#746](https://github.com/kaazing/gateway/pull/746) ([cmebarrow](https://github.com/cmebarrow))
+- Add "connect.strategy" property to proxy service\(s\) [\#745](https://github.com/kaazing/gateway/pull/745) ([jfallows](https://github.com/jfallows))
+- add check for mux scheme when adding trailing slash [\#744](https://github.com/kaazing/gateway/pull/744) ([danibusu](https://github.com/danibusu))
+- Changed turn.rest response to use json library instead of string formatting [\#743](https://github.com/kaazing/gateway/pull/743) ([mgherghe](https://github.com/mgherghe))
+- Adjusting IdleStrategy's parking times [\#741](https://github.com/kaazing/gateway/pull/741) ([jitsni](https://github.com/jitsni))
+- Created GrantLoginModule. [\#739](https://github.com/kaazing/gateway/pull/739) ([nemigaservices](https://github.com/nemigaservices))
+- add early access feature for tcp security extensions [\#736](https://github.com/kaazing/gateway/pull/736) ([danibusu](https://github.com/danibusu))
+- Add support for proxy service connect.strategy … [\#735](https://github.com/kaazing/gateway/pull/735) ([jfallows](https://github.com/jfallows))
+- Http.multi.auth [\#734](https://github.com/kaazing/gateway/pull/734) ([dpwspoon](https://github.com/dpwspoon))
+- Add convenience methods and tidy POM [\#732](https://github.com/kaazing/gateway/pull/732) ([jfallows](https://github.com/jfallows))
+- Modified DefaultExpiringState.putIfAbsent to accept ttl [\#731](https://github.com/kaazing/gateway/pull/731) ([apirvu](https://github.com/apirvu))
+- Selector.selectNow is triggered by passing timeout=0L [\#728](https://github.com/kaazing/gateway/pull/728) ([jitsni](https://github.com/jitsni))
+- Tcp.ip.whitelist [\#727](https://github.com/kaazing/gateway/pull/727) ([danibusu](https://github.com/danibusu))
+- Network interface syntax enhancements [\#626](https://github.com/kaazing/gateway/pull/626) ([irina-mitrea-luxoft](https://github.com/irina-mitrea-luxoft))
+
+## [5.2.4-RC003](https://github.com/kaazing/gateway/tree/5.2.4-RC003) (2016-10-03)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.4...5.2.4-RC003)
+
+## [5.2.4](https://github.com/kaazing/gateway/tree/5.2.4) (2016-10-03)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.3...5.2.4)
+
+**Fixed bugs:**
+
+- RC releases: Gateway fails to start up due to error in Update service concerning version format [\#715](https://github.com/kaazing/gateway/issues/715)
+
+**Merged pull requests:**
+
+- Configure Agrona's buffer size for udp child channels [\#726](https://github.com/kaazing/gateway/pull/726) ([jitsni](https://github.com/jitsni))
+- Release 5.2.4 branch merge [\#725](https://github.com/kaazing/gateway/pull/725) ([jitsni](https://github.com/jitsni))
+- Syncing netty changes w.r.t interestops [\#724](https://github.com/kaazing/gateway/pull/724) ([jitsni](https://github.com/jitsni))
+- Set UDP receive buffer size to 2048 [\#723](https://github.com/kaazing/gateway/pull/723) ([dpwspoon](https://github.com/dpwspoon))
+- Revert "Changed turn.rest json response to include stun URLs" [\#722](https://github.com/kaazing/gateway/pull/722) ([dpwspoon](https://github.com/dpwspoon))
+- Revert "Changed turn.rest json response to include stun URLs" [\#721](https://github.com/kaazing/gateway/pull/721) ([dpwspoon](https://github.com/dpwspoon))
+- Fixing IdleStrategy compilation issue [\#720](https://github.com/kaazing/gateway/pull/720) ([jitsni](https://github.com/jitsni))
+- Parking the thread for 10mills instead of 10micros [\#719](https://github.com/kaazing/gateway/pull/719) ([jitsni](https://github.com/jitsni))
+- Bugfix/870 update parent [\#717](https://github.com/kaazing/gateway/pull/717) ([ahousing](https://github.com/ahousing))
+- Add support for release candidates. [\#716](https://github.com/kaazing/gateway/pull/716) ([Anisotrop](https://github.com/Anisotrop))
+- Added annotation for the turn.rest service in xsd file [\#714](https://github.com/kaazing/gateway/pull/714) ([mgherghe](https://github.com/mgherghe))
+- Turn Proxy - Unify Logging Output [\#713](https://github.com/kaazing/gateway/pull/713) ([mgherghe](https://github.com/mgherghe))
+- Added maximum.redirects to accept/connect options [\#712](https://github.com/kaazing/gateway/pull/712) ([dpwspoon](https://github.com/dpwspoon))
+- Worker threads are going to PARK state unnecessarily [\#711](https://github.com/kaazing/gateway/pull/711) ([jitsni](https://github.com/jitsni))
+
+## [5.2.3](https://github.com/kaazing/gateway/tree/5.2.3) (2016-09-20)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.3-RC003...5.2.3)
+
+## [5.2.3-RC003](https://github.com/kaazing/gateway/tree/5.2.3-RC003) (2016-09-20)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.2...5.2.3-RC003)
+
+**Fixed bugs:**
+
+- WSN Connector: Connection should fail when the negotiated extension is not in the list of supported extensions [\#314](https://github.com/kaazing/gateway/issues/314)
+- WSN Connector: Missing Sec-WebSocket-Extensions header in the handshake request [\#309](https://github.com/kaazing/gateway/issues/309)
+
+**Merged pull requests:**
+
+- add getter for GatewayConfigurationDocument: [\#708](https://github.com/kaazing/gateway/pull/708) ([dpwspoon](https://github.com/dpwspoon))
+- Update test.Gateway to allow fetching of generated xml configuration [\#707](https://github.com/kaazing/gateway/pull/707) ([danibusu](https://github.com/danibusu))
+- WebSocket extensions decide whether to be part of handshake or not [\#705](https://github.com/kaazing/gateway/pull/705) ([jitsni](https://github.com/jitsni))
+- Fixed typo in early access feature description [\#704](https://github.com/kaazing/gateway/pull/704) ([dpwspoon](https://github.com/dpwspoon))
+- Changed turn.rest json response to include stun URLs [\#701](https://github.com/kaazing/gateway/pull/701) ([mgherghe](https://github.com/mgherghe))
+
+## [5.2.2](https://github.com/kaazing/gateway/tree/5.2.2) (2016-09-09)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.1...5.2.2)
+
+**Fixed bugs:**
+
+- wsn transport is reacting incorrectly to case where maximum ws message size is exceeded [\#463](https://github.com/kaazing/gateway/issues/463)
+- WSN Connector: Connection should fail when the value of the `Connection` header in handshake response is not `Upgrade` [\#310](https://github.com/kaazing/gateway/issues/310)
+
+**Merged pull requests:**
+
+- Removed turn.proxy module [\#703](https://github.com/kaazing/gateway/pull/703) ([mgherghe](https://github.com/mgherghe))
+- Apirvu param prot [\#702](https://github.com/kaazing/gateway/pull/702) ([dpwspoon](https://github.com/dpwspoon))
+- Turn proxy support for turn data message [\#699](https://github.com/kaazing/gateway/pull/699) ([dpwspoon](https://github.com/dpwspoon))
+- Tweak comment in configuration [\#698](https://github.com/kaazing/gateway/pull/698) ([robinzimmermann](https://github.com/robinzimmermann))
+- Update schema to latest. Add update.check service [\#697](https://github.com/kaazing/gateway/pull/697) ([robinzimmermann](https://github.com/robinzimmermann))
+- Http Connector authenticating to 401 and Login Module expiring state [\#696](https://github.com/kaazing/gateway/pull/696) ([dpwspoon](https://github.com/dpwspoon))
+- Using tcp acceptor's worker pool for udp child sessions [\#694](https://github.com/kaazing/gateway/pull/694) ([jitsni](https://github.com/jitsni))
+- Parameterized test classes to run with TCP and UDP [\#693](https://github.com/kaazing/gateway/pull/693) ([apirvu](https://github.com/apirvu))
+- Changes for MESSAGE-INTEGRITY generation [\#692](https://github.com/kaazing/gateway/pull/692) ([Anisotrop](https://github.com/Anisotrop))
+- Added tests for webRTC turn rest service [\#691](https://github.com/kaazing/gateway/pull/691) ([vstratan](https://github.com/vstratan))
+- Adding proxy service tests [\#689](https://github.com/kaazing/gateway/pull/689) ([jitsni](https://github.com/jitsni))
+- Ignored symlink tests if the user has no OS access to create symlinks [\#686](https://github.com/kaazing/gateway/pull/686) ([mgherghe](https://github.com/mgherghe))
+- Refactor turn.rest API to match feedback [\#684](https://github.com/kaazing/gateway/pull/684) ([mgherghe](https://github.com/mgherghe))
+- Mask XOR-RELAY-ADDRESS and unmask XOR-PEER-ADDRESS [\#681](https://github.com/kaazing/gateway/pull/681) ([Anisotrop](https://github.com/Anisotrop))
+- Removed echoing of java path and version on startup [\#680](https://github.com/kaazing/gateway/pull/680) ([mgherghe](https://github.com/mgherghe))
+- add ws extensions functionality in WsnConnector [\#657](https://github.com/kaazing/gateway/pull/657) ([danibusu](https://github.com/danibusu))
+- Changes for time unit conversion. [\#649](https://github.com/kaazing/gateway/pull/649) ([vmaraloiu](https://github.com/vmaraloiu))
+- Add the port of the remote client to HEADER\_X\_FORWARDED\_FOR and FORWARDED\_FOR headers. Perform changes in k3po scripts for the new changes. [\#630](https://github.com/kaazing/gateway/pull/630) ([vmaraloiu](https://github.com/vmaraloiu))
+
+## [5.2.1](https://github.com/kaazing/gateway/tree/5.2.1) (2016-08-19)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.0...5.2.1)
+
+**Merged pull requests:**
+
+- Turn.proxy implementation [\#679](https://github.com/kaazing/gateway/pull/679) ([Anisotrop](https://github.com/Anisotrop))
+- Implementation of turn.rest authentication service [\#674](https://github.com/kaazing/gateway/pull/674) ([DoruM](https://github.com/DoruM))
+- HTTP Proxy Issue 648 [\#672](https://github.com/kaazing/gateway/pull/672) ([a-zuckut](https://github.com/a-zuckut))
+- Remove copyright info from log4j xml/properties files [\#668](https://github.com/kaazing/gateway/pull/668) ([ahousing](https://github.com/ahousing))
+- Fix for issue 310: WSN Connector: Connection should fail when the value of the  header in handshake response is not  \#310 [\#665](https://github.com/kaazing/gateway/pull/665) ([vmaraloiu](https://github.com/vmaraloiu))
+- Help written from file [\#656](https://github.com/kaazing/gateway/pull/656) ([DoruM](https://github.com/DoruM))
+
 ## [5.2.0](https://github.com/kaazing/gateway/tree/5.2.0) (2016-08-08)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.1.2...5.2.0)
 
 **Fixed bugs:**
 
-- Gateway Not Specification Compliant to Invalid Headers [\#637](https://github.com/kaazing/gateway/issues/637)
+- Gateway not specification compliant for invalid headers [\#637](https://github.com/kaazing/gateway/issues/637)
 - RFC 7232: Directory Service responds with 200 OK when If-Modified-Since matches Last-Modified from previous response [\#383](https://github.com/kaazing/gateway/issues/383)
 - WSN Connector: Missing `Connection` header in handshake response should not result in a successful connection [\#311](https://github.com/kaazing/gateway/issues/311)
 - WsnConnector does not reject a masked text or binary frame from the server [\#308](https://github.com/kaazing/gateway/issues/308)
@@ -44,6 +173,10 @@
 - AcceptUriComparedToBalanceUriVisitor is comparing URIs prior to parameters being replaced, causing NPE that throws Parse Exception [\#612](https://github.com/kaazing/gateway/issues/612)
 - WSN Connector: Invalid value for the `Upgrade` header in handshake response must not result in a successful connection [\#312](https://github.com/kaazing/gateway/issues/312)
 - WsebAcceptorTest.shouldBindAWsAddress timeouts [\#287](https://github.com/kaazing/gateway/issues/287)
+
+**Closed issues:**
+
+- WsnInactivityTimeoutIT.shouldInactivityTimeoutWithPingPongExtensionAndExtendedHandshakePort80\(\) failing [\#300](https://github.com/kaazing/gateway/issues/300)
 
 **Merged pull requests:**
 

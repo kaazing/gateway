@@ -23,12 +23,14 @@ import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineException;
+import org.jboss.netty.channel.FixedReceiveBufferSizePredictorFactory;
 
 // TODO: contribute this back to Netty 3.x
 public class ConnectionlessBootstrap extends org.jboss.netty.bootstrap.ConnectionlessBootstrap {
 
     public ConnectionlessBootstrap() {
         super();
+        setOption("receiveBufferSizePredictorFactory", new FixedReceiveBufferSizePredictorFactory(2048));
     }
 
     public ConnectionlessBootstrap(ChannelFactory channelFactory) {

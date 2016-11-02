@@ -139,7 +139,7 @@ public final class NioServerBoss extends AbstractNioSelector
     }
 
     @Override
-    protected void process(Selector selector) {
+    protected int process(Selector selector) {
         Iterator<ChannelFuture> iter = channelUnregisteredFutures.iterator();
         if (iter.hasNext()) {
             boolean isDebugEnabled = logger.isDebugEnabled();
@@ -168,8 +168,9 @@ public final class NioServerBoss extends AbstractNioSelector
         }
 
         Set<SelectionKey> selectedKeys = selector.selectedKeys();
+        int workCount = selectedKeys.size();
         if (selectedKeys.isEmpty()) {
-            return;
+            return 0;
         }
         for (Iterator<SelectionKey> i = selectedKeys.iterator(); i.hasNext();) {
             SelectionKey k = i.next();
@@ -207,6 +208,7 @@ public final class NioServerBoss extends AbstractNioSelector
                 }
             }
         }
+        return workCount;
     }
 
     private static void registerAcceptedChannel(NioServerSocketChannel parent, SocketChannel acceptedSocket,

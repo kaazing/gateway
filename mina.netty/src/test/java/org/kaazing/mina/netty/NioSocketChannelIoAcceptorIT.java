@@ -428,8 +428,7 @@ public class NioSocketChannelIoAcceptorIT {
                 oneOf(handler).sessionOpened(with(instanceOf(IoSessionEx.class)));
                 will(perform("$0.getConfig().setIdleTimeInMillis(status, 50L); return;").where("status",
                         statusUnderTest));
-                oneOf(handler).sessionIdle(with(instanceOf(IoSessionEx.class)), with(statusUnderTest));
-                oneOf(handler).sessionIdle(with(instanceOf(IoSessionEx.class)), with(statusUnderTest));
+                atLeast(1).of(handler).sessionIdle(with(instanceOf(IoSessionEx.class)), with(statusUnderTest));
                 will(perform("$0.close(false); return;"));
                 oneOf(handler).sessionClosed(with(instanceOf(IoSessionEx.class)));
             }
