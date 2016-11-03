@@ -29,8 +29,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.Parser;
 import org.apache.commons.cli.PosixParser;
-import org.jboss.netty.logging.InternalLoggerFactory;
-import org.jboss.netty.logging.Slf4JLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import au.com.bytecode.opencsv.CSVReader;
@@ -98,9 +96,6 @@ public class GatewayCommandLineProcessor {
         // here (we do in the InstalledLinux case.)
         final Gateway gateway = GatewayFactory.createGateway();
         gateway.setProperties(properties);
-
-        // Configure mina.netty/netty logging so that we can control logging using log4j-config.xml
-        InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory());
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
