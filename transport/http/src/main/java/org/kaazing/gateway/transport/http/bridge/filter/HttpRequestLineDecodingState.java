@@ -31,7 +31,6 @@ import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpVersion;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
-import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.filter.codec.statemachine.ConsumeToDynamicTerminatorDecodingState;
 import org.kaazing.mina.filter.codec.statemachine.ConsumeToLinearWhitespaceDecodingState;
 
@@ -105,24 +104,6 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
             out.write(method);
             return AFTER_READ_METHOD;
         }
-
-        @Override
-        protected void validate(IoBufferEx buffer, int startPos) throws Exception {
-            int oldPos = buffer.position();
-            try {
-                buffer.position(startPos);
-                String partialHttpMethod = buffer.getString(US_ASCII_DECODER);
-                for (HttpMethod httpMethod: HttpMethod.values()) {
-                    if (httpMethod.toString().startsWith(partialHttpMethod.toUpperCase())) {
-                        return;
-                    }
-                }
-            } finally {
-                buffer.position(oldPos);  
-            }
-
-            throw new HttpProtocolDecoderException(HttpStatus.CLIENT_BAD_REQUEST);
-        };
 
     };
 
