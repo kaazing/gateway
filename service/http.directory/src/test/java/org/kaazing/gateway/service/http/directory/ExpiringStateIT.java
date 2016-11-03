@@ -51,8 +51,8 @@ public class ExpiringStateIT {
             GatewayConfiguration config1 = createGatewayConfigBuilder(clusterMember1URIcl, clusterMember2URIcl, clusterMember1URI, "8011", "8012");
             GatewayConfiguration config2 = createGatewayConfigBuilder(clusterMember2URIcl, clusterMember1URIcl, clusterMember2URI, "9011", "9012");
 
-//            init(config1, config2);
-            init(config2);
+            init(config1, config2);
+//            init(config2);
         }
     };
 
