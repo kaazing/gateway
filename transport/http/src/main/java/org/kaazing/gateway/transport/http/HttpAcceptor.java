@@ -80,6 +80,7 @@ import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpBindings.HttpBinding;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
@@ -94,7 +95,6 @@ import org.kaazing.gateway.transport.http.bridge.filter.HttpSerializeRequestsFil
 import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
 import org.kaazing.gateway.transport.http.resource.HttpDynamicResource;
 import org.kaazing.gateway.transport.http.resource.HttpDynamicResourceFactory;
-import org.kaazing.gateway.util.LoggingUtils;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;

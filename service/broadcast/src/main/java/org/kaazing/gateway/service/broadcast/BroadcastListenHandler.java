@@ -21,10 +21,10 @@ import java.util.Iterator;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
-import org.kaazing.gateway.util.LoggingUtils;
 import org.slf4j.Logger;
 
 import org.kaazing.gateway.transport.BridgeSession;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.bridge.Message;
 import org.kaazing.gateway.transport.io.filter.IoMessageCodecFilter;
 

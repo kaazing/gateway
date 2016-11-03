@@ -15,43 +15,32 @@
  */
 package org.kaazing.gateway.util;
 
-import static java.lang.String.format;
-
-import java.io.IOException;
-
-import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 
+/**
+ * @deprecated Use org.kaazing.gateway.transport.LoggingUtils instead
+ */
+@Deprecated
 public final class LoggingUtils {
 
     private LoggingUtils() {
         // so as not to be instantiated
     }
 
-    public static void log(IoSession session, Logger logger, Throwable t) {
-        log(session, logger, t.getMessage(), t);
-    }
-
-    public static void log(IoSession session, Logger logger, String message, Throwable t) {
+    public static void log(Logger logger, Throwable t) {
         if (logger.isDebugEnabled()) {
-            // don't print stack for IOExceptions ("Network connectivity has been lost or transport was closed at other end")
-            Throwable stack = t instanceof IOException ? t.getCause() : t;
-            if (stack != null) {
-                logger.debug(includeSession(message, session), t);
-            } else {
-                logger.debug(includeSession(message, session));
-            }
-        } else if (logger.isInfoEnabled()) {
-            logger.info(includeSession(message, session));
+            logger.debug(t.getMessage(), t);
+        } else {
+            logger.info(t.getMessage());
         }
     }
 
-    public static String getId(IoSession session) {
-        return session.getTransportMetadata().getName() + "#" + session.getId();
-    }
-
-    public static String includeSession(String message, IoSession session) {
-        return format("[%s] %s", getId(session), message);
+    public static void log(Logger logger, String message, Throwable t) {
+        if (logger.isDebugEnabled()) {
+            logger.debug(message, t);
+        } else {
+            logger.info(message);
+        }
     }
 
 }

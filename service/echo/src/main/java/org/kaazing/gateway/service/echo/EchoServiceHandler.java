@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.util.LoggingUtils;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
