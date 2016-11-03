@@ -39,7 +39,6 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -318,6 +317,15 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
             if (newWriteBufferSize >= highWaterMark) {
                 if (newWriteBufferSize - messageSize < highWaterMark) {
                     highWaterMarkCounter.incrementAndGet();
+                    // For Kaazing the poll and offer methods on the WriteRequestQueue will always be called on the IO thread
+                    // so we do not need to incur the overhead of the following check (which was added in Netty 3.5.10
+                    // commit: 452df045 Always fire interestChanged from IO thread):
+                    /*
+                    if (setUnwritable()) {
+                        if (!isIoThread(AbstractNioChannel.this)) {
+                            fireChannelInterestChangedLater(AbstractNioChannel.this);
+                        } else
+                    */
                     if (!notifying.get()) {
                         notifying.set(Boolean.TRUE);
                         fireChannelInterestChanged(AbstractNioChannel.this);
@@ -339,6 +347,15 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
                 if (newWriteBufferSize == 0 || newWriteBufferSize < lowWaterMark) {
                     if (newWriteBufferSize + messageSize >= lowWaterMark) {
                         highWaterMarkCounter.decrementAndGet();
+                        // For Kaazing the poll and offer methods on the WriteRequestQueue will always be called on the IO thread
+                        // so we do not need to incur the overhead of the following check (which was added in Netty 3.5.10
+                        // commit: 452df045 Always fire interestChanged from IO thread):
+                        /*
+                        if (isConnected() && setWritable()) {
+                            if (!isIoThread(AbstractNioChannel.this)) {
+                               fireChannelInterestChangedLater(AbstractNioChannel.this);
+                            } else if (!notifying.get()) {
+                        */
                         if (isConnected() && !notifying.get()) {
                             notifying.set(Boolean.TRUE);
                             fireChannelInterestChanged(AbstractNioChannel.this);
