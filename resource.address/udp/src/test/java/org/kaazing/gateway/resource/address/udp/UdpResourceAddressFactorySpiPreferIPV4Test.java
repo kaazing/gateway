@@ -15,21 +15,27 @@
  */
 package org.kaazing.gateway.resource.address.udp;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.kaazing.test.util.ResolutionTestUtils;
 
 /**
  * Class for testing preferIPv4Stack behavior.
  */
 public class UdpResourceAddressFactorySpiPreferIPV4Test {
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
     private static final String JAVA_NET_PREFER_IPV4_STACK = "java.net.preferIPv4Stack";
     private String systemPreferedIPv4 = "";
     private UdpResourceAddressFactorySpi factory = new UdpResourceAddressFactorySpi();
+    private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
 
     @Before
     public void before() {
@@ -63,4 +69,29 @@ public class UdpResourceAddressFactorySpiPreferIPV4Test {
         factory.newResourceAddress("udp://[::1]:8000");
     }
 
+    @Test
+    public void shouldNotResolveLoopbackToIPv6IfProhibited() throws Exception {
+        // set the IPV4 flag to true
+        System.setProperty(JAVA_NET_PREFER_IPV4_STACK, "true");
+
+        UdpResourceAddress loopbackResourceAddress = factory.newResourceAddress("udp://[@" + networkInterface + "]:8000");
+
+        // assert resource address does not contain IPv6
+        assertFalse(loopbackResourceAddress.toString().contains("0:0:0:0:0:0:0:1"));
+    }
+
+    @Test
+    public void shouldResolveLoopbackToIPv6IfNotProhibited() throws Exception {
+        // set the IPV4 flag to false
+        System.setProperty(JAVA_NET_PREFER_IPV4_STACK, "false");
+
+        UdpResourceAddress loopbackResourceAddress = factory.newResourceAddress("udp://[@" + networkInterface + "]:8000");
+
+        // TravisCI does not support IPV6
+        boolean onTravisCI = System.getenv().containsKey("TRAVIS");
+        // assert resource address contains IPv6
+        if (!onTravisCI) {
+            assertTrue(loopbackResourceAddress.toString().contains("0:0:0:0:0:0:0:1"));
+        }
+    }
 }

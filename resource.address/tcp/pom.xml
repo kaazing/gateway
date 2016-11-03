@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.2.5</version>
+        <version>5.3.1</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -25,6 +25,11 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.security</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

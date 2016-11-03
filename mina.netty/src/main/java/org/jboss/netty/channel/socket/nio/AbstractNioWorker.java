@@ -151,15 +151,14 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
     }
 
     @Override
-    protected int process(Selector selector) throws IOException {
+    protected void process(Selector selector) throws IOException {
         Set<SelectionKey> selectedKeys = selector.selectedKeys();
         // check if the set is empty and if so just return to not create garbage by
         // creating a new Iterator every time even if there is nothing to process.
         // See https://github.com/netty/netty/issues/597
         if (selectedKeys.isEmpty()) {
-            return 0;
+            return;
         }
-        int workCount = selectedKeys.size();
         boolean perfLogEnabled = PERF_LOGGER.isDebugEnabled();
         long startProcess = perfLogEnabled ? System.nanoTime() : 0;
         long numReads = 0;
@@ -195,7 +194,6 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
                         TimeUnit.NANOSECONDS.toMillis(totalTime), numReads, numWrites));
             }
         }
-        return workCount;
     }
 
     void writeFromUserCode(final AbstractNioChannel<?> channel) {
@@ -663,6 +661,7 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
         });
     }
 
+    // This method is called from the boss thread
     public void messageReceived(AbstractNioChannel<?> channel, Object message) {
         assert channel.getId() >= 0;
 
@@ -674,13 +673,20 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
         if (LOGGER.isDebugEnabled() && !written) {
             LOGGER.debug(String.format("Message %s for channel %s is not written to ring buffer", message, channel));
         }
+
+        // Wake up the selector so the event gets processed immediately by the worker thread
+        if (selector != null) {
+            if (wakenUp.compareAndSet(false, true)) {
+                selector.wakeup();
+            }
+        }
     }
 
-    protected int processRead() throws IOException {
+    protected void processRead() throws IOException {
         if (ringBuffer == null) {
-            return 0;
+            return;
         }
-        return ringBuffer.read(this::handleRead);
+        ringBuffer.read(this::handleRead);
     }
 
     private void handleRead(int msgTypeId, DirectBuffer buffer, int index, int length) {

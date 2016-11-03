@@ -25,11 +25,12 @@ import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.http.DefaultHttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.server.spi.security.AuthenticationToken;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
 import org.kaazing.gateway.transport.test.Expectations;
 
 public class DefaultAuthenticationTokenExtractorTest {
@@ -55,10 +56,9 @@ public class DefaultAuthenticationTokenExtractorTest {
         HttpRequestMessage request = new HttpRequestMessage();
         request.setMethod(HttpMethod.GET);
         request.setRequestURI(uri);
-        request.setHeader(HttpSubjectSecurityFilter.AUTHORIZATION_HEADER, authorization);
+        request.setHeader(HttpHeaders.HEADER_AUTHORIZATION, authorization);
         request.setLocalAddress(address);
-
-        token = extractor.extract(request);
+        token = extractor.extract(request, new DefaultHttpRealmInfo(null, scheme, param, null, new String[]{param}, null, null, null));
         String challengeScheme = token.getScheme();
 
         assertTrue(String.format("Expected challenge scheme '%s', got null", scheme), challengeScheme != null);
@@ -90,10 +90,10 @@ public class DefaultAuthenticationTokenExtractorTest {
         HttpRequestMessage request = new HttpRequestMessage();
         request.setMethod(HttpMethod.GET);
         request.setRequestURI(uri);
-        request.setHeader(HttpSubjectSecurityFilter.AUTHORIZATION_HEADER, authorization);
+        request.setHeader(HttpHeaders.HEADER_AUTHORIZATION, authorization);
         request.setLocalAddress(address);
 
-        token = extractor.extract(request);
+        token = extractor.extract(request, new DefaultHttpRealmInfo(null, scheme, param, null, new String[]{param}, null, null, null));
         String challengeScheme = token.getScheme();
 
         assertTrue("Expected challenge scheme 'Application', got null", challengeScheme != null);
@@ -125,10 +125,10 @@ public class DefaultAuthenticationTokenExtractorTest {
         HttpRequestMessage request = new HttpRequestMessage();
         request.setMethod(HttpMethod.GET);
         request.setRequestURI(uri);
-        request.setHeader(HttpSubjectSecurityFilter.AUTHORIZATION_HEADER, authorization);
+        request.setHeader(HttpHeaders.HEADER_AUTHORIZATION, authorization);
         request.setLocalAddress(address);
 
-        token = extractor.extract(request);
+        token = extractor.extract(request, new DefaultHttpRealmInfo(null, scheme, param, null, new String[]{param}, null, null, null));
         String challengeScheme = token.getScheme();
 
         assertTrue(String.format("Expected challenge scheme '%s', got null", scheme), challengeScheme != null);
@@ -159,10 +159,10 @@ public class DefaultAuthenticationTokenExtractorTest {
         HttpRequestMessage request = new HttpRequestMessage();
         request.setMethod(HttpMethod.GET);
         request.setRequestURI(uri);
-        request.setHeader(HttpSubjectSecurityFilter.AUTHORIZATION_HEADER, authorization);
+        request.setHeader(HttpHeaders.HEADER_AUTHORIZATION, authorization);
         request.setLocalAddress(address);
 
-        token = extractor.extract(request);
+        token = extractor.extract(request, new DefaultHttpRealmInfo(null, scheme, null, null, new String[]{}, null, null, null));
         String challengeScheme = token.getScheme();
 
         assertTrue(String.format("Expected challenge scheme '%s', got null", scheme), challengeScheme != null);
@@ -176,24 +176,12 @@ public class DefaultAuthenticationTokenExtractorTest {
     }
 
 
-    private Expectations getExpectations(final ResourceAddress address,
-                                         final String challengeScheme) {
-        return new Expectations() {{
-            allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES);
-            will(returnValue(null));
-
-            allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_PARAMETER_NAMES);
-            will(returnValue(null));
-
-            allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES);
-            will(returnValue(null));
-
-            allowing(address).getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
-            will(returnValue(null));
-
-            allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
-            will(returnValue(challengeScheme));
-        }
+    private Expectations getExpectations(final ResourceAddress address, final String challengeScheme) {
+        return new Expectations() {
+            {
+                allowing(address).getOption(HttpResourceAddress.REALMS);
+                will(returnValue(null));
+            }
         };
     }
 }

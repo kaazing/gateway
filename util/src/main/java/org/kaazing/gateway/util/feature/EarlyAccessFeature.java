@@ -17,7 +17,9 @@ package org.kaazing.gateway.util.feature;
 
 import static java.lang.String.format;
 
+import java.util.Map;
 import java.util.Properties;
+import java.util.function.BooleanSupplier;
 
 import org.slf4j.Logger;
 
@@ -41,7 +43,19 @@ public class EarlyAccessFeature {
         this.impliedBy = impliedBy;
     }
 
+    @SuppressWarnings({
+        "unchecked", "rawtypes" })
     public void assertEnabled(Properties configuration, Logger logger) {
+        assertEnabled((Map) configuration, logger);
+    }
+
+    @SuppressWarnings({
+        "unchecked", "rawtypes" })
+    public boolean isEnabled(Properties configuration) {
+        return isEnabled((Map) configuration);
+    }
+
+    public void assertEnabled(Map<String, ?> configuration, Logger logger) {
         if (!isEnabled(configuration)) {
             String message = "Early access feature {} is disabled. To use it you must set " +
                     "system property \"feature.{}\", or include {} in environment variable " +
@@ -52,20 +66,22 @@ public class EarlyAccessFeature {
         }
     }
 
-    public boolean isEnabled(Properties configuration) {
-        Boolean explicit = getExplicitSetting(configuration);
-        return explicit != null ? explicit : enabledByDefault || implied(configuration);
+
+    public boolean isEnabled(Map<String, ?> configuration) {
+        BooleanSupplier defaulter = () -> enabledByDefault || implied(configuration);
+        return isEnabled(configuration, defaulter);
     }
 
-    private Boolean getExplicitSetting(Properties configuration) {
-        String value = configuration.getProperty(getPropertyName());
-        if (value == null) {
-            return null;
+    private boolean isEnabled(Map<String, ?> configuration, BooleanSupplier defaulter) {
+        Object value = configuration.get(getPropertyName());
+        if (!(value instanceof String)) {
+            return defaulter.getAsBoolean();
         }
-        if (value.length() == 0) {
+        String propertyValue = (String)value;
+        if (propertyValue.length() == 0) {
             return true;
         }
-        return Boolean.parseBoolean(value);
+        return Boolean.parseBoolean(propertyValue);
     }
 
     // public to allow use by tests
@@ -73,7 +89,7 @@ public class EarlyAccessFeature {
         return "feature." + name;
     }
 
-    private boolean implied(Properties configuration) {
+    private boolean implied(Map<String, ?> configuration) {
         for (EarlyAccessFeature feature : impliedBy) {
             if (feature.isEnabled(configuration)) {
                 return true;
@@ -86,5 +102,4 @@ public class EarlyAccessFeature {
     public String toString() {
         return format("\"%s\" (%s)", name, description);
     }
-
 }

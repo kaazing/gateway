@@ -16,7 +16,8 @@
 package org.kaazing.gateway.server.context.resolve;
 
 import static java.lang.String.format;
-import static java.util.concurrent.TimeUnit.*;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.buildURIAsString;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getAuthority;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getFragment;
@@ -213,7 +214,6 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
 
         long tcpMaximumOutboundRate = getTcpMaximumOutboundRate(optionsCopy.remove("tcp.maximum.outbound.rate"));
         result.put(TCP_MAXIMUM_OUTBOUND_RATE, tcpMaximumOutboundRate);
-
 
         for (Map.Entry<String, String> entry : getBinds().entrySet()) {
             /* For lookups out of this COPY of the options, we need to
