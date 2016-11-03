@@ -26,7 +26,9 @@ import java.nio.charset.Charset;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.kaazing.gateway.transport.ws.WsBinaryMessage;
 import org.kaazing.gateway.transport.ws.WsContinuationMessage;
 import org.kaazing.gateway.transport.ws.WsMessage;
@@ -42,11 +44,14 @@ public class WsFrameDecoderTest {
 
     private static final Charset UTF_8 = Charset.forName("UTF-8");
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     @Test
     public void decodeZeroLengthPingFrame() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 0);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 0, false);
 
         IoBufferEx in = allocator.wrap(allocator.allocate(2))
                                  .put((byte)0x89)
@@ -69,7 +74,7 @@ public class WsFrameDecoderTest {
     public void decodeTextContinuationFrame() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 200);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 200, false);
 
         int firstPayload = 125;
         String first = createString('a', firstPayload);
@@ -117,7 +122,7 @@ public class WsFrameDecoderTest {
     public void decodeBinaryContinuationFrame() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 200);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 200, false);
 
         int firstPayload = 125;
         byte[] first = createString('a', firstPayload).getBytes("UTF-8");
@@ -165,7 +170,7 @@ public class WsFrameDecoderTest {
     public void decodeTextContinuationFrameWithFragmentedPayload() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 250);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 250, false);
 
         String textFramePayload = createString('a', 100);
         String continuationFramePayloadFirstFragment = createString('b', 50);
@@ -209,7 +214,7 @@ public class WsFrameDecoderTest {
     public void decodeBinaryContinuationFrameWithFragmentedPayload() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 250);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 250, false);
 
         byte[] binaryFramePayload = createString('a', 100).getBytes();
         byte[] continuationFramePayload = createString('b', 100).getBytes();
@@ -252,7 +257,7 @@ public class WsFrameDecoderTest {
     public void decodeFragmentedContinuationFrameExceedingMaxMessageSize() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 150);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 150, false);
 
         String textFramePayload = createString('a', 100);
 
@@ -284,7 +289,7 @@ public class WsFrameDecoderTest {
     public void pingInTextContinuationSequence() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 500);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 500, false);
 
         int firstPayload = 125;
         String first = createString('a', firstPayload);
@@ -379,7 +384,7 @@ public class WsFrameDecoderTest {
 
         try {
             IoBuffer in = (IoBuffer) getMaxMessageSizeBuffer(allocator);
-            ProtocolDecoder decoder = new WsFrameDecoder(allocator, 253);
+            ProtocolDecoder decoder = new WsFrameDecoder(allocator, 253, false);
             decoder.decode(session, in, session.getDecoderOutput());
             fail("Expected throw exception as the message size > 253");
         } catch (ProtocolDecoderException e) {
@@ -387,11 +392,11 @@ public class WsFrameDecoderTest {
         }
 
         IoBuffer in = (IoBuffer) getMaxMessageSizeBuffer(allocator);
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 254);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 254, false);
         decoder.decode(session, in, session.getDecoderOutput());
 
         in = (IoBuffer) getMaxMessageSizeBuffer(allocator);
-        decoder = new WsFrameDecoder(allocator, 255);
+        decoder = new WsFrameDecoder(allocator, 255, false);
         decoder.decode(session, in, session.getDecoderOutput());
     }
 
@@ -399,7 +404,7 @@ public class WsFrameDecoderTest {
     public void pingInBinaryContinuationSequence() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 400);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 400, false);
 
         int firstPayload = 125;
         byte[] first = createString('a', firstPayload).getBytes("UTF-8");
@@ -464,7 +469,7 @@ public class WsFrameDecoderTest {
     public void decodeZeroLengthMaskedPongFrame() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 0);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 0, true);
 
         IoBufferEx in = allocator.wrap(allocator.allocate(6))
                                  .put((byte)0x8A)
@@ -488,7 +493,7 @@ public class WsFrameDecoderTest {
     public void decodeZeroLengthBinaryFrame() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 0);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 0, false);
 
         IoBufferEx in = allocator.wrap(allocator.allocate(2))
                                  .put((byte)0x82)
@@ -511,7 +516,7 @@ public class WsFrameDecoderTest {
     public void decodeBinaryFrame() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 0);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 0, false);
 
         IoBufferEx in = allocator.wrap(allocator.allocate(204))
                                  .put((byte) 0x82)
@@ -537,7 +542,7 @@ public class WsFrameDecoderTest {
     public void decodeFragmentedBinaryFrame() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 0);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 0, false);
 
         IoBufferEx[] array = new IoBufferEx[] { allocator.wrap(allocator.allocate(104))
                                                          .put((byte) 0x82)
@@ -578,7 +583,7 @@ public class WsFrameDecoderTest {
     public void decodeZeroLengthTextFrame() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 0);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 0, false);
 
         IoBufferEx in = allocator.wrap(allocator.allocate(2))
                                  .put((byte) 0x81)
@@ -601,7 +606,7 @@ public class WsFrameDecoderTest {
     public void decodeTextFrame() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 0);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 0, false);
 
         IoBufferEx in = allocator.wrap(allocator.allocate(14))
                                  .put((byte) 0x81)
@@ -625,7 +630,7 @@ public class WsFrameDecoderTest {
     public void decodeFragmentedTextFrame() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 0);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 0, false);
 
         IoBufferEx[] array = new IoBufferEx[] { allocator.wrap(allocator.allocate(103))
                                                          .put((byte) 0x81)
@@ -679,7 +684,7 @@ public class WsFrameDecoderTest {
     private void sizeLimitDecodeBinaryFrame(int maxSize) throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, maxSize);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, maxSize, false);
 
         IoBufferEx in = allocator.wrap(allocator.allocate(204))
                                  .put((byte)0x82)
@@ -714,7 +719,7 @@ public class WsFrameDecoderTest {
     private void sizeLimitDecodeFragmentedBinaryFrame(int maxSize) throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, maxSize);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, maxSize, false);
 
         IoBufferEx[] array = new IoBufferEx[] { allocator.wrap(allocator.allocate(104))
                                                          .put((byte)0x82)
@@ -765,7 +770,7 @@ public class WsFrameDecoderTest {
     private void sizeLimitDecodeTextFrame(int maxSize) throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, maxSize);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, maxSize, false);
 
         IoBufferEx in = allocator.wrap(allocator.allocate(14))
                                  .put((byte)0x81)
@@ -799,7 +804,7 @@ public class WsFrameDecoderTest {
     private void sizeLimitDecodeFragmentedTextFrame(int maxSize) throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, maxSize);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, maxSize, false);
 
         IoBufferEx[] array = new IoBufferEx[] { allocator.wrap(allocator.allocate(103))
                                                          .put((byte)0x81)
@@ -847,7 +852,7 @@ public class WsFrameDecoderTest {
     private void sizeLimitDecodeDoubleTextFrame(int maxSize) throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, maxSize);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, maxSize, false);
 
         IoBufferEx in = allocator.wrap(allocator.allocate(12+2+15+2))
                                  .put((byte)0x81)
@@ -879,7 +884,7 @@ public class WsFrameDecoderTest {
     public void sizeLimitDecodeTextFrameFailEarly1() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 20);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 20, false);
         
         int dataSize = 30;
         StringBuilder data = new StringBuilder(dataSize);
@@ -902,7 +907,7 @@ public class WsFrameDecoderTest {
     public void sizeLimitDecodeTextFrameFailEarly2() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 20);
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 20, false);
         
         int dataSize = 30;
         StringBuilder data = new StringBuilder(dataSize);
@@ -918,7 +923,38 @@ public class WsFrameDecoderTest {
         // Now if we send the next 12 bytes that should exceed the limit (first byte is control byte, doesn't count)
         decoder.decode(session, (IoBuffer) in.getSlice(12), session.getDecoderOutput());
     }
-    
+
+    @Test
+    public void testDecodingMaskedPingFrameWhenMaskingNotExpectedThrowsProtocolDecoderException() throws Exception {
+        ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 200, false);
+
+        IoBufferEx in = allocator.wrap(allocator.allocate(6))
+                                 .put((byte) 0x89)
+                                 .put((byte) 0x80)
+                                 .fill(4)
+                                 .flip();
+
+        thrown.expect(ProtocolDecoderException.class);
+        decoder.decode(session, (IoBuffer) in, session.getDecoderOutput());
+    }
+
+    @Test
+    public void testDecodingPingUnmaskedFrameWhenMaskingExpectedThrowsProtocolDecoderException() throws Exception {
+        ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+        ProtocolDecoder decoder = new WsFrameDecoder(allocator, 200, true);
+
+        IoBufferEx in = allocator.wrap(allocator.allocate(6))
+                                 .put((byte) 0x89)
+                                 .put((byte) 0x00)
+                                 .fill(4)
+                                 .flip();
+
+        thrown.expect(ProtocolDecoderException.class);
+        decoder.decode(session, (IoBuffer) in, session.getDecoderOutput());
+    }
 /*
  * Use the below utility to decode a ws frame.
     public static String decodeABinaryFrame(byte[] hexBytes) throws Exception {
