@@ -27,5 +27,6 @@ public interface EarlyAccessFeatures {
     EarlyAccessFeature HTTP_AUTHENTICATOR = new EarlyAccessFeature("http.authenticator", "HTTP Authenticator", false);
     EarlyAccessFeature LOGIN_MODULE_EXPIRING_STATE = new EarlyAccessFeature("login.module.expiring.state", "Login Module Expiring State", false);
     EarlyAccessFeature TCP_REALM_EXTENSION = new EarlyAccessFeature("tcp.realm", "TCP Realm", false);
+    EarlyAccessFeature HTTP_REALM_ACCEPT_OPTION = new EarlyAccessFeature("http.realm", "Http Realm", false);
 
 }
