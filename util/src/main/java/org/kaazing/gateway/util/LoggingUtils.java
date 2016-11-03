@@ -41,13 +41,17 @@ public final class LoggingUtils {
             } else {
                 logger.debug(includeSession(message, session));
             }
-        } else {
+        } else if (logger.isInfoEnabled()) {
             logger.info(includeSession(message, session));
         }
     }
 
-    private static String includeSession(String message, IoSession session) {
-        return format("%s %s", session, message);
+    public static String getId(IoSession session) {
+        return session.getTransportMetadata().getName() + "#" + session.getId();
+    }
+
+    public static String includeSession(String message, IoSession session) {
+        return format("[%s] %s", getId(session), message);
     }
 
 }

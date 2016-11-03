@@ -123,6 +123,11 @@
       <name>demo</name>
       <description>Sample realm for file-based authentication</description>
 
+     <!-- Include user name in log messages and make it visible in JMX beans -->
+     <user-principal-class>
+        org.kaazing.gateway.security.auth.config.UserConfig
+     </user-principal-class>
+
       <authentication>
         <http-challenge-scheme>Application Basic</http-challenge-scheme>
         <login-modules>
