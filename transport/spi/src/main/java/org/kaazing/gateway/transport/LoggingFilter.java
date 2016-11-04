@@ -396,7 +396,7 @@ public class LoggingFilter extends IoFilterAdapter {
         }
     }
 
-    private static void log(Logger logger, LogLevel eventLevel, String message, Object param) {
+    protected static void log(Logger logger, LogLevel eventLevel, String message, Object param) {
         switch (eventLevel) {
             case TRACE : logger.trace(message, param); return;
             case DEBUG : logger.debug(message, param); return;

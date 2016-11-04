@@ -46,6 +46,9 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
+import org.apache.mina.filter.logging.LogLevel;
+import org.slf4j.Logger;
+
 
 public final class Utils {
 
@@ -853,6 +856,21 @@ public final class Utils {
 
     public static int randomInt() {
         return rand.nextInt();
+    }
+
+    /**
+     * @deprecated  Use LoggingUtil methods instead (or LoggingFilter)
+     */
+    @Deprecated
+    public static void log(Logger logger, LogLevel eventLevel, String message, Object param) {
+        switch (eventLevel) {
+            case TRACE : logger.trace(message, param); return;
+            case DEBUG : logger.debug(message, param); return;
+            case INFO  : logger.info(message, param); return;
+            case WARN  : logger.warn(message, param); return;
+            case ERROR : logger.error(message, param); return;
+            default    : return;
+        }
     }
 
     public static <T> void inject(Object target,

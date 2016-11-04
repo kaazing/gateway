@@ -107,7 +107,8 @@ public class WsxAcceptorLoggingIT {
                 "wsn#.*CLOSED"
         }));
 
-        forbiddenPatterns = Collections.singletonList("#.*EXCEPTION");    }
+        forbiddenPatterns = Collections.singletonList("#.*EXCEPTION");
+    }
 
     @Test
     @Specification({
