@@ -128,9 +128,26 @@ public class LoggingFilterTest {
 
         context.checking(new Expectations() {
             {
-                oneOf(logger).isInfoEnabled(); will(returnValue(true));
+                oneOf(logger).isWarnEnabled(); will(returnValue(true));
                 oneOf(session).getId(); will(returnValue(123L));
-                oneOf(logger).info(with(stringMatching("\\[tcp123].*NullPointerException.*")), with(exception));
+                oneOf(logger).warn(with(stringMatching("\\[tcp123].*NullPointerException.*")), with(exception));
+                oneOf(nextFilter).exceptionCaught(session, exception);
+            }
+        });
+
+        filter.exceptionCaught(nextFilter, session, exception);
+    }
+
+    @Test
+    public void shouldNotLogIOExceptionWhenLoggerLevelIsCoarserThanInfo() throws Exception {
+        LoggingFilter filter = new ExceptionLoggingFilter(logger, "tcp%s");
+        final Exception exception = new IOException();
+        exception.fillInStackTrace();
+
+        context.checking(new Expectations() {
+            {
+                oneOf(logger).isInfoEnabled(); will(returnValue(false));
+                oneOf(session).getId(); will(returnValue(123L));
                 oneOf(nextFilter).exceptionCaught(session, exception);
             }
         });

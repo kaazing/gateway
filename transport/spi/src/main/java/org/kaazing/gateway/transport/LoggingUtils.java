@@ -70,21 +70,49 @@ public final class LoggingUtils {
         return result;
     }
 
+    /**
+     * Logs an unexpected exception in the same way LoggingFilter would.
+     */
     public static void log(IoSession session, Logger logger, Throwable t) {
-        log(session, logger, t.getMessage(), t);
+        log(session, logger, t.toString(), t);
     }
 
+    /**
+     * Logs an unexpected exception in the same way LoggingFilter would.
+     * IOExceptions are treated specially because they are frequent and expected: they
+     * are logged only if info level is enabled.
+     */
     public static void log(IoSession session, Logger logger, String message, Throwable t) {
-        if (logger.isDebugEnabled()) {
-            // don't print stack for IOExceptions ("Network connectivity has been lost or transport was closed at other end")
-            Throwable stack = t instanceof IOException ? t.getCause() : t;
-            if (stack != null) {
-                logger.debug(addSession(message, session), t);
-            } else {
-                logger.debug(addSession(message, session));
+        boolean isIOException = t instanceof IOException;
+        if (isIOException && !logger.isInfoEnabled()) {
+            return;
+        }
+        if (logger.isWarnEnabled()) {
+            String finalMessage = t.getCause() == null ? message : message + ", caused by " + t.getCause();
+            finalMessage = addSession(finalMessage, session);
+            if (isIOException) {
+                logIOException(finalMessage, logger, t);
             }
-        } else if (logger.isInfoEnabled()) {
-            logger.info(addSession(message, session));
+            else if (logger.isInfoEnabled()) {
+                logger.warn(finalMessage, t);
+            }
+            else {
+                logger.warn(finalMessage);
+            }
+        }
+    }
+
+    /**
+     * IOExceptions ("Network connectivity has been lost or transport was closed at other end")
+     * can be frequent due to network timeouts (inactivity timeout) or loss of network connectivity
+     * so we only print info level and include a stack trace of the cause, if there is one.
+     */
+    private static void logIOException(String message, Logger logger, Throwable t) {
+        Throwable cause = t.getCause();
+        if (cause != null) {
+            logger.info(message, cause);
+        } else {
+            logger.info(message);
         }
     }
 

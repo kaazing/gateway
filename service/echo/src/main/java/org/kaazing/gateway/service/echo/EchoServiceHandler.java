@@ -24,21 +24,17 @@ import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class EchoServiceHandler extends IoHandlerAdapter<IoSessionEx> {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger;
 
     static final int DEFAULT_REPEAT_COUNT = 1;
 
     private final int repeatCount;
 
-    EchoServiceHandler() {
-        this(DEFAULT_REPEAT_COUNT);
-    }
-
-    EchoServiceHandler(int repeatCount) {
+    EchoServiceHandler(int repeatCount, Logger logger) {
         this.repeatCount = repeatCount;
+        this.logger = logger;
     }
 
     @Override

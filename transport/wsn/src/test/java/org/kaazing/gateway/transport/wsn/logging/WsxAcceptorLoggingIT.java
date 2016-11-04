@@ -127,7 +127,8 @@ public class WsxAcceptorLoggingIT {
                 "http#.*CLOSED",
                 "wsn#.*OPENED",
                 "wsn#.*EXCEPTION.*IOException",
-                "wsn#.*CLOSED"
+                "wsn#.*CLOSED",
+                "wsn#.*] java.io.IOException" // from EchoServiceHandler
         }));
         forbiddenPatterns = null;
     }

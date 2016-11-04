@@ -18,6 +18,7 @@ package org.kaazing.gateway.transport;
 import static org.junit.Assert.assertEquals;
 import static org.kaazing.gateway.resource.address.ResourceAddress.IDENTITY_RESOLVER;
 
+import java.io.IOException;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -45,6 +46,7 @@ import org.kaazing.mina.core.service.IoAcceptorEx;
 import org.kaazing.mina.core.service.IoConnectorEx;
 import org.kaazing.mina.core.service.IoServiceEx;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.slf4j.Logger;
 
 /**
  * NOTE: tests for Utils.parseTimeInterval are in separate unit test class ParseTimeIntervalTest
@@ -290,6 +292,156 @@ public class LoggingUtilsTest {
             }
         });
         assertEquals("test 127.0.0.1:2121", LoggingUtils.getUserIdentifier(sessionEx));
+    }
+
+    @Test
+    public void logWithErrorLevelLoggerShouldNotLog() throws Exception {
+        final Logger logger = context.mock(Logger.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(logger).isWarnEnabled(); will(returnValue(false));
+            }
+        });
+        LoggingUtils.log(sessionEx, logger, new Exception());
+    }
+
+    @Test
+    public void logWithWarnLevelLoggerShouldNotLogIOException() throws Exception {
+        final Logger logger = context.mock(Logger.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(logger).isInfoEnabled(); will(returnValue(false));
+            }
+        });
+        LoggingUtils.log(sessionEx, logger, new IOException());
+    }
+
+    @Test
+    public void logWithWarnLevelLoggerShouldLogThrowableWithoutStackTrace() throws Exception {
+        final TransportMetadata metadata = context.mock(TransportMetadata.class, "metadata");
+        final IoServiceEx service = context.mock(IoServiceEx.class, "service");
+        ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
+        String addressURI = "ws://localhost:2121/jms";
+        final SocketAddress address = addressFactory.newResourceAddress(addressURI);
+        final Subject subject = new Subject();
+
+        final Logger logger = context.mock(Logger.class);
+        Exception e = new Exception("exception message");
+
+        context.checking(new Expectations() {
+            {
+                oneOf(sessionEx).getAttribute(with(any(Object.class))); will(returnValue(null));
+                oneOf(sessionEx).getId(); will(returnValue(TEST_SESSION_NUMBER));
+                oneOf(sessionEx).getTransportMetadata(); will(returnValue(metadata));
+                oneOf(metadata).getName(); will(returnValue("wsn"));
+                oneOf(sessionEx).getService(); will(returnValue(service));
+                oneOf(sessionEx).getLocalAddress(); will(returnValue(address));
+                oneOf(sessionEx).getSubject(); will(returnValue(subject));
+                oneOf(sessionEx).getRemoteAddress(); will(returnValue(address));
+                oneOf(sessionEx).setAttribute(with(any(Object.class)), with(any(String.class)));
+                oneOf(logger).isWarnEnabled(); will(returnValue(true));
+                oneOf(logger).isInfoEnabled(); will(returnValue(false));
+                oneOf(logger).warn("[wsn#23 127.0.0.1:2121] java.lang.Exception: exception message");
+            }
+        });
+        LoggingUtils.log(sessionEx, logger, e);
+    }
+
+    @Test
+    public void logWithInfoLevelLoggerShouldLogThrowableWithStackTrace() throws Exception {
+        final TransportMetadata metadata = context.mock(TransportMetadata.class, "metadata");
+        final IoServiceEx service = context.mock(IoServiceEx.class, "service");
+        ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
+        String addressURI = "ws://localhost:2121/jms";
+        final SocketAddress address = addressFactory.newResourceAddress(addressURI);
+        final Subject subject = new Subject();
+
+        final Logger logger = context.mock(Logger.class);
+        Exception e = new Exception("exception message");
+
+        context.checking(new Expectations() {
+            {
+                oneOf(sessionEx).getAttribute(with(any(Object.class))); will(returnValue(null));
+                oneOf(sessionEx).getId(); will(returnValue(TEST_SESSION_NUMBER));
+                oneOf(sessionEx).getTransportMetadata(); will(returnValue(metadata));
+                oneOf(metadata).getName(); will(returnValue("wsn"));
+                oneOf(sessionEx).getService(); will(returnValue(service));
+                oneOf(sessionEx).getLocalAddress(); will(returnValue(address));
+                oneOf(sessionEx).getSubject(); will(returnValue(subject));
+                oneOf(sessionEx).getRemoteAddress(); will(returnValue(address));
+                oneOf(sessionEx).setAttribute(with(any(Object.class)), with(any(String.class)));
+                oneOf(logger).isWarnEnabled(); will(returnValue(true));
+                oneOf(logger).isInfoEnabled(); will(returnValue(true));
+                oneOf(logger).warn("[wsn#23 127.0.0.1:2121] java.lang.Exception: exception message", e);
+            }
+        });
+        LoggingUtils.log(sessionEx, logger, e);
+    }
+
+    @Test
+    public void logWithInfoLevelLoggerShouldLogIOExceptionWithoutStackTrace() throws Exception {
+        final TransportMetadata metadata = context.mock(TransportMetadata.class, "metadata");
+        final IoServiceEx service = context.mock(IoServiceEx.class, "service");
+        ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
+        String addressURI = "ws://localhost:2121/jms";
+        final SocketAddress address = addressFactory.newResourceAddress(addressURI);
+        final Subject subject = new Subject();
+
+        final Logger logger = context.mock(Logger.class);
+        Exception e = new IOException("exception message");
+
+        context.checking(new Expectations() {
+            {
+                oneOf(sessionEx).getAttribute(with(any(Object.class))); will(returnValue(null));
+                oneOf(sessionEx).getId(); will(returnValue(TEST_SESSION_NUMBER));
+                oneOf(sessionEx).getTransportMetadata(); will(returnValue(metadata));
+                oneOf(metadata).getName(); will(returnValue("wsn"));
+                oneOf(sessionEx).getService(); will(returnValue(service));
+                oneOf(sessionEx).getLocalAddress(); will(returnValue(address));
+                oneOf(sessionEx).getSubject(); will(returnValue(subject));
+                oneOf(sessionEx).getRemoteAddress(); will(returnValue(address));
+                oneOf(sessionEx).setAttribute(with(any(Object.class)), with(any(String.class)));
+                oneOf(logger).isWarnEnabled(); will(returnValue(true));
+                oneOf(logger).isInfoEnabled(); will(returnValue(true));
+                oneOf(logger).info("[wsn#23 127.0.0.1:2121] java.io.IOException: exception message");
+            }
+        });
+        LoggingUtils.log(sessionEx, logger, e);
+    }
+
+    @Test
+    public void logWithInfoLevelLoggerShouldLogIOExceptionWithCauseStackTrace() throws Exception {
+        final TransportMetadata metadata = context.mock(TransportMetadata.class, "metadata");
+        final IoServiceEx service = context.mock(IoServiceEx.class, "service");
+        ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
+        String addressURI = "ws://localhost:2121/jms";
+        final SocketAddress address = addressFactory.newResourceAddress(addressURI);
+        final Subject subject = new Subject();
+
+        final Logger logger = context.mock(Logger.class);
+        Exception cause = new Exception("cause message");
+        Exception e = new IOException("exception message", cause);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(sessionEx).getAttribute(with(any(Object.class))); will(returnValue(null));
+                oneOf(sessionEx).getId(); will(returnValue(TEST_SESSION_NUMBER));
+                oneOf(sessionEx).getTransportMetadata(); will(returnValue(metadata));
+                oneOf(metadata).getName(); will(returnValue("wsn"));
+                oneOf(sessionEx).getService(); will(returnValue(service));
+                oneOf(sessionEx).getLocalAddress(); will(returnValue(address));
+                oneOf(sessionEx).getSubject(); will(returnValue(subject));
+                oneOf(sessionEx).getRemoteAddress(); will(returnValue(address));
+                oneOf(sessionEx).setAttribute(with(any(Object.class)), with(any(String.class)));
+                oneOf(logger).isWarnEnabled(); will(returnValue(true));
+                oneOf(logger).isInfoEnabled(); will(returnValue(true));
+                oneOf(logger).info("[wsn#23 127.0.0.1:2121] java.io.IOException: exception message, "
+                        + "caused by java.lang.Exception: cause message", cause);
+            }
+        });
+        LoggingUtils.log(sessionEx, logger, e);
     }
 
     /**

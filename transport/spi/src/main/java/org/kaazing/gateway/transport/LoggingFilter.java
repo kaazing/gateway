@@ -64,10 +64,11 @@ public class LoggingFilter extends IoFilterAdapter {
 
         void log(Logger logger, String message, Throwable t) {
             if (shouldLog(logger)) {
-                // Include stack trace except for IOException, where we only log stack trace of the cause,
-                // if there is one, to avoid overkill in this common case which can be caused by abrupt
-                // client connection close or inactivity timeout.
-                Throwable stack = t instanceof IOException ? t.getCause() : t;
+                // Include stack trace if log level is info, except for IOException, where we only log stack trace
+                // of the cause, if there is one, and we only log if logger level is info or finer, to avoid overkill
+                // in this common case which can be caused by abrupt client network connection close or inactivity timeout.
+                boolean isIOException = t instanceof IOException;
+                Throwable stack = isIOException ? t.getCause() : t;
                 if (stack != null) {
                     LoggingFilter.log(logger, level, message, stack);
                 } else {
@@ -277,10 +278,14 @@ public class LoggingFilter extends IoFilterAdapter {
 
     protected Strategy getExceptionCaughtStrategy(Throwable exception) {
         // Up to 4.0.9 we were only logging exceptions at debug level.
-        // Ultimately we should treat unexpected exceptions as ERROR level
+        // Up to 5.3.0 we were logging exceptions at info level
+        // We are now logging them at warn level, except for IOExceptions,
+        // and including stack trace only when the logger level is info
+        // (and when there's a cause in case of IOException)
+        // Ultimately we should arguably log unexpected exceptions at error level
         // but we are cautious for now since we don't want customers to suddenly
-        // see lots of exception stacks in the logs
-        return Strategy.INFO;
+        // see lots of exception stacks in the logs.
+        return exception instanceof IOException ? Strategy.INFO : Strategy.WARN;
     }
 
     protected Strategy getSessionClosedStrategy() {
