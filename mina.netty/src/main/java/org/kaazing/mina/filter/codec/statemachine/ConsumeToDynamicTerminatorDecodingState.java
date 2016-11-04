@@ -110,7 +110,22 @@ public abstract class ConsumeToDynamicTerminatorDecodingState implements
             buffer.setAutoExpander(allocator);
         }
         buffer.put((IoBufferEx) in);
+        validate(buffer, beginPos);
         return this;
+    }
+
+    /**
+     * Validate partially received message, from {@code startPos} to the buffer's limit, in
+     * order to fail fast if what was received does not comply with what the current state
+     * is waiting for.
+     * 
+     * @param buffer the buffer containing the partial message 
+     * @param startPos the starting position inside the buffer
+     * @throws Exception if the validation fails or if any problems are encountered in the
+     *         validation process
+     */
+    protected void validate(IoBufferEx buffer, int startPos) throws Exception {
+        // TODO implement if necessary
     }
 
     /**
