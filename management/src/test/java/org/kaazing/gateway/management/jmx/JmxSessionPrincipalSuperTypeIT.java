@@ -35,7 +35,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.kaazing.gateway.management.test.util.JmxRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
@@ -47,7 +46,6 @@ import org.kaazing.test.util.ITUtil;
 /**
  * Variant of JmxSessionPrincipalIT which refers to the principal classes by an interface they implement
  * (UserInterface) rather than the concrete class name.
- *
  */
 public class JmxSessionPrincipalSupertypeIT {
 
@@ -124,7 +122,7 @@ public class JmxSessionPrincipalSupertypeIT {
     };
 
     private JmxRule jmxConnection = new JmxRule(JMX_URI);
-    public TestRule timeout = ITUtil.timeoutRule(10, SECONDS);
+    public TestRule timeout = ITUtil.timeoutRule(20, SECONDS);
 
     @Rule
     public TestRule chain = RuleChain.outerRule(gateway).around(k3po).around(jmxConnection).around(timeout);
