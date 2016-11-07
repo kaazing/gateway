@@ -40,10 +40,8 @@ import org.kaazing.gateway.management.system.HostManagementBean;
 import org.kaazing.gateway.management.system.JvmManagementBean;
 import org.kaazing.gateway.management.system.NicListManagementBean;
 import org.kaazing.gateway.management.system.NicManagementBean;
-import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.service.ServiceContext;
-import org.kaazing.gateway.transport.BridgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +82,6 @@ class JmxManagementServiceHandler implements ManagementServiceHandler {
     private final AtomicLong notificationSequenceNumber = new AtomicLong(0);
     // For performance, I need to pass this to the agent
     protected final ServiceContext serviceContext;
-    private final ManagementContext managementContext;
     private final MBeanServer mbeanServer;
 
     private final Map<Integer, ServiceMXBean> serviceBeanMap;
@@ -93,7 +90,6 @@ class JmxManagementServiceHandler implements ManagementServiceHandler {
     public JmxManagementServiceHandler(ServiceContext serviceContext, ManagementContext managementContext, MBeanServer
             mbeanServer) {
         this.serviceContext = serviceContext;
-        this.managementContext = managementContext;
         this.mbeanServer = mbeanServer;
         serviceBeanMap = new HashMap<>();
         sessionBeanMap = new HashMap<>();
@@ -171,7 +167,6 @@ class JmxManagementServiceHandler implements ManagementServiceHandler {
         try {
             ServiceManagementBean serviceManagementBean = sessionManagementBean.getServiceManagementBean();
             GatewayManagementBean gatewayManagementBean = serviceManagementBean.getGatewayManagementBean();
-            ResourceAddress address = BridgeSession.LOCAL_ADDRESS.get(sessionManagementBean.getSession());
 
             ObjectName name =
                     new ObjectName(String.format(SESSION_MBEAN_FORMAT_STR,

@@ -16,7 +16,6 @@
 package org.kaazing.gateway.management.system;
 
 import org.hyperic.sigar.Sigar;
-import org.hyperic.sigar.Uptime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +31,7 @@ public class SystemDataProviderFactory {
     public static SystemDataProvider createProvider() {
         try {
             Sigar sigar = new Sigar();
-            Uptime uptime = sigar.getUptime();
+            sigar.getUptime();
 
             return new SigarSystemDataProvider();
         } catch (Throwable t) {
