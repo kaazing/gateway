@@ -22,7 +22,7 @@
         <param name="File" value="${GATEWAY_LOG_DIRECTORY}/access.log"/>
         <param name="Append" value="true"/>
         <!-- max file size default is 10MB -->
-        <!--param name="MaxFileSize" value="100000"/-->
+        <!--param name="MaxFileSize" value="10MB"/-->
         <!-- max backup index default is 1. Increase to preserve more logs, for example -->
         <!--param name="MaxBackupIndex" value="10"/-->
 
@@ -35,7 +35,7 @@
         <param name="File" value="${GATEWAY_LOG_DIRECTORY}/proxy.log"/>
         <param name="Append" value="true"/>
         <!-- max file size default is 10MB -->
-        <!--param name="MaxFileSize" value="100000"/-->
+        <!--param name="MaxFileSize" value="10MB"/-->
         <!-- max backup index default is 1. Increase to preserve more logs, for example -->
         <!--param name="MaxBackupIndex" value="10"/-->
 
@@ -47,7 +47,7 @@
     <appender name="ErrorFile" class="org.apache.log4j.RollingFileAppender">
         <param name="File" value="${GATEWAY_LOG_DIRECTORY}/error.log"/>
         <param name="Append" value="true"/>
-        <param name="MaxFileSize" value="50000"/-->
+        <param name="MaxFileSize" value="50MB"/>
         <param name="MaxBackupIndex" value="2"/>
 
         <layout class="org.apache.log4j.PatternLayout">
