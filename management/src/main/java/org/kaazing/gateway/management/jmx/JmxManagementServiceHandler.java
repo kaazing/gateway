@@ -19,6 +19,7 @@ import java.lang.management.ManagementFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.management.JMException;
 import javax.management.MBeanServer;
@@ -91,8 +92,8 @@ class JmxManagementServiceHandler implements ManagementServiceHandler {
             mbeanServer) {
         this.serviceContext = serviceContext;
         this.mbeanServer = mbeanServer;
-        serviceBeanMap = new HashMap<>();
-        sessionBeanMap = new HashMap<>();
+        serviceBeanMap = new ConcurrentHashMap<>();
+        sessionBeanMap = new ConcurrentHashMap<>();
 
         managementContext.addGatewayManagementListener(new JmxGatewayManagementListener(this));
         managementContext.addServiceManagementListener(new JmxServiceManagementListener(this));
