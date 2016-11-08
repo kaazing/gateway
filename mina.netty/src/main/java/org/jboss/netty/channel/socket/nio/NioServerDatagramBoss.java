@@ -37,6 +37,8 @@ import org.jboss.netty.channel.ChannelException;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.ReceiveBufferSizePredictor;
+import org.jboss.netty.util.ThreadNameDeterminer;
+import org.jboss.netty.util.ThreadRenamingRunnable;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -55,7 +57,7 @@ import static org.jboss.netty.channel.Channels.*;
  * A class responsible for registering channels with {@link Selector}.
  * It also implements the {@link Selector} loop.
  */
-public class NioDatagramWorker extends AbstractNioWorker {
+public class NioServerDatagramBoss extends AbstractNioWorker /* AbstractNioSelector */ implements Boss {
 
     /**
      * Sole constructor.
@@ -63,7 +65,7 @@ public class NioDatagramWorker extends AbstractNioWorker {
      * @param executor the {@link Executor} used to execute {@link Runnable}s
      *                 such as {@link ChannelRegistionTask}
      */
-    NioDatagramWorker(final Executor executor) {
+    NioServerDatagramBoss(final Executor executor) {
         super(executor);
     }
 
@@ -357,8 +359,8 @@ public class NioDatagramWorker extends AbstractNioWorker {
     }
 
     @Override
-    public void run() {
-        super.run();
-        recvBufferPool.releaseExternalResources();
+    protected ThreadRenamingRunnable newThreadRenamingRunnable(int id, ThreadNameDeterminer determiner) {
+        return new ThreadRenamingRunnable(this, "New I/O udp boss #" + id, determiner);
     }
+
 }

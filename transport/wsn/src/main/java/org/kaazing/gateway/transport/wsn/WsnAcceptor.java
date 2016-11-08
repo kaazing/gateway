@@ -22,7 +22,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.URLUtils.appendURI;
 import static org.kaazing.gateway.resource.address.URLUtils.ensureTrailingSlash;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_CHALLENGE_SCHEME;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALMS;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.CODEC_REQUIRED;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
@@ -75,6 +75,7 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.URLUtils;
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.resource.address.wsn.WsnResourceAddressFactorySpi;
@@ -127,7 +128,6 @@ import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.transport.ws.util.WsHandshakeNegotiationException;
 import org.kaazing.gateway.transport.ws.util.WsUtils;
 import org.kaazing.gateway.util.Encoding;
-import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -969,16 +969,21 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             // to keep track of initial x-kaazing-handshake request
             if (HttpMergeRequestFilter.INITIAL_HTTP_REQUEST_KEY.get(session.getParent()) == null) {
                 // Not a x-kaazing-handshake initial or extended request
-                String httpChallengeScheme = session.getLocalAddress().getOption(REALM_CHALLENGE_SCHEME);
-                if (httpChallengeScheme != null && httpChallengeScheme.startsWith(AUTH_SCHEME_APPLICATION_PREFIX)) {
-                    // challenge scheme starts with "Application ", so reject it (403 as no way to negotiate)
-                    if (logger.isInfoEnabled()) {
-                        logger.info(String.format("A Kaazing client library must be used for challenge scheme \"%s\", " +
-                               "rejecting connection from %s", httpChallengeScheme, session.getRemoteAddress()));
+                for (HttpRealmInfo realm : session.getLocalAddress().getOption(REALMS)) {
+                    String httpChallengeScheme = realm.getChallengeScheme();
+                    if (httpChallengeScheme != null && httpChallengeScheme.startsWith(AUTH_SCHEME_APPLICATION_PREFIX)) {
+                        // challenge scheme starts with "Application ", so reject it (403 as no way to negotiate)
+                        if (logger.isInfoEnabled()) {
+                            logger.info(
+                                    String.format(
+                                            "A Kaazing client library must be used for challenge scheme \"%s\", "
+                                                    + "rejecting connection from %s",
+                                            httpChallengeScheme, session.getRemoteAddress()));
+                        }
+                        session.setStatus(HttpStatus.CLIENT_FORBIDDEN);
+                        session.close(false);
+                        return false;
                     }
-                    session.setStatus(HttpStatus.CLIENT_FORBIDDEN);
-                    session.close(false);
-                    return false;
                 }
             }
             return true;

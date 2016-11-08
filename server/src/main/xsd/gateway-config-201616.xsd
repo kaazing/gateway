@@ -364,7 +364,6 @@
         </sequence>
     </group>
 
-
     <complexType name="fileLoginModuleType">
         <complexContent>
             <restriction base="gateway:LoginModuleType">
@@ -1109,6 +1108,66 @@
         </complexContent>
     </complexType>
 
+    <complexType name="turn.restServiceType">
+        <annotation>
+            <documentation>This service provides REST authentication to a TURN server.</documentation>
+        </annotation>
+
+        <complexContent>
+            <restriction base="gateway:ServiceType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1"
+                             name="name"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="description"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="unbounded" minOccurs="1"
+                             name="accept"
+                             type="anyURI"/>
+
+                    <!-- connect is not supported for echo -->
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="balance"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="notify"
+                             type="anyURI"/>
+
+                    <element fixed="turn.rest" maxOccurs="1" minOccurs="1"
+                             name="type"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="properties"
+                             type="gateway:turn.restServicePropertiesType"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="accept-options"
+                             type="gateway:ServiceAcceptOptionsType" />
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="realm-name"
+                             type="gateway:CollapsedString" />
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="authorization-constraint"
+                             type="gateway:AuthorizationConstraintType"/>
+
+                    <!-- mime-mapping is not supported for balancer -->
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="cross-site-constraint"
+                             type="gateway:CrossSiteConstraintType"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
     <complexType name="PropertiesType">
         <sequence>
             <element maxOccurs="unbounded" minOccurs="1" name="property"
@@ -1186,6 +1245,8 @@
         </sequence>
     </complexType>
 
+
+
     <complexType name="ServiceAcceptOptionsType">
         <all>
             <element name="ssl.ciphers" maxOccurs="1" minOccurs="0" type="gateway:CSVType">
@@ -1252,6 +1313,9 @@
             <element name="http.keepalive.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString" default="30">
                 <annotation/>
             </element>
+            <element name="http.realm" maxOccurs="1" minOccurs="0" type="gateway:StringList">
+                <annotation/>
+            </element>
             <element name="pipe.transport" maxOccurs="1" minOccurs="0" type="anyURI">
                 <annotation/>
             </element>
@@ -1271,8 +1335,18 @@
                     </documentation>
                 </annotation>
             </element>
+            <element name="http.maximum.redirects" maxOccurs="1"
+                minOccurs="0" type="nonNegativeInteger">
+                <annotation>
+                    <documentation>The maximum redirects http connector follows</documentation>
+                </annotation>
+            </element>
         </all>
     </complexType>
+    
+    <simpleType name="StringList">
+      <list itemType="string" />
+    </simpleType>
 
     <complexType name="ServiceConnectOptionsType">
         <all>
@@ -1372,6 +1446,13 @@
                     <documentation>The maximum redirects http connector follows</documentation>
                 </annotation>
             </element>
+            <element name="http.max.authentication.attempts" maxOccurs="1" minOccurs="0" type="nonNegativeInteger">
+            <annotation>
+                <documentation>The number of attempts that the http connector
+                    will try while authenticating (i.e responding to a 401)
+                </documentation>
+            </annotation>
+            </element>
         </all>
     </complexType>
 
@@ -1468,6 +1549,10 @@
                              type="nonNegativeInteger">
                         <annotation/>
                     </element>
+                    <element maxOccurs="1" minOccurs="0" name="connect.strategy"
+                             type="string">
+                        <annotation/>
+                    </element>
                     <element maxOccurs="1" minOccurs="0" name="internal.maximum.transferred.bytes"
                              type="gateway:DataSizeString">
                         <annotation/>
@@ -1484,6 +1569,44 @@
                     <element maxOccurs="1" minOccurs="0"
                              name="repeat" type="gateway:CollapsedString">
                         <annotation/>
+                    </element>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="turn.restServicePropertiesType">
+        <annotation>
+            <documentation>
+                Properties accepted by the turn.rest service configuration.
+            </documentation>
+        </annotation>
+        <complexContent>
+            <restriction base="gateway:ServicePropertiesType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1" name="key.alias"
+                        type="gateway:CollapsedString">
+                        <annotation />
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="key.algorithm"
+                        type="gateway:CollapsedString">
+                        <annotation />
+                    </element>
+                    <element maxOccurs="1" minOccurs="1" name="credentials.generator"
+                         type="gateway:CollapsedString">
+                        <annotation />
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="credentials.ttl"
+                        type="gateway:TimeIntervalString">
+                        <annotation />
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="username.separator"
+                        type="gateway:CollapsedString">
+                        <annotation />
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="1" name="url"
+                        type="gateway:CollapsedString">
+                        <annotation />
                     </element>
                 </sequence>
             </restriction>

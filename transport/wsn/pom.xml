@@ -162,6 +162,10 @@
             <version>${k3po.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>netx.data</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

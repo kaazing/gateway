@@ -100,8 +100,15 @@ public class UpdateCheckServiceTest {
         // add listener
         service.addListener(listener);
 
-        // trigger event
+        // trigger event for older VERSION
         GatewayVersion latestVersion = new GatewayVersion(-1, 0, 12);
+        service.setLatestGatewayVersion(latestVersion);
+
+        assertTrue("Listener notified of newest Version", listener.notifiedEvents.size() == 0);
+
+
+        // trigger event for older RC
+        latestVersion = new GatewayVersion(5, 0, 0, "RC001");
         service.setLatestGatewayVersion(latestVersion);
 
         assertTrue("Listener notified of newest Version", listener.notifiedEvents.size() == 0);

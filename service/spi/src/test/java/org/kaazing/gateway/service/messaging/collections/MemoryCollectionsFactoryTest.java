@@ -15,12 +15,20 @@
  */
 package org.kaazing.gateway.service.messaging.collections;
 
+import static java.lang.Thread.sleep;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -233,5 +241,33 @@ public class MemoryCollectionsFactoryTest {
         Set<Map.Entry<String, TestObject>> entries = map.entrySet(query);
         Assert.assertTrue("Expected entries, got null", entries != null);
         Assert.assertTrue(String.format("Expected entries %s, got %s", expected, entries), entries.equals(expected));
+    }
+
+    @Test
+    public void expiringMap() throws Exception {
+        IMap<String, String> map = factory.getMap(MAP_NAME);
+
+        map.putIfAbsent("one", "1", 1, MILLISECONDS);
+        map.putIfAbsent("two", "2", 10000, MILLISECONDS);
+        map.putIfAbsent("three", "3", 2, MILLISECONDS);
+
+        sleep(5);
+
+        assertNull(map.putIfAbsent("one", "10", 1, MILLISECONDS));
+        assertEquals("2", map.putIfAbsent("two", "20", 1000, MILLISECONDS));
+        assertNull(map.putIfAbsent("three", "30", 10000, MILLISECONDS));
+
+        sleep(5);
+
+        assertNull(map.get("one"));
+        assertEquals("2", map.get("two"));
+        assertEquals("30", map.get("three"));
+        
+        sleep(5);
+        
+        assertFalse(map.remove("one", "10"));
+        assertTrue(map.remove("three", "30"));
+        assertFalse(map.remove("three", "30"));
+        
     }
 }

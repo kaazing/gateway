@@ -46,7 +46,7 @@ final class WsTransport extends Transport {
         extensionFactory = WebSocketExtensionFactory.newInstance();
         acceptor = new WsAcceptor(extensionFactory);
         acceptor.setConfiguration(configuration);
-        connector = new WsConnector();
+        connector = new WsConnector(extensionFactory);
     }
 
     @Override
