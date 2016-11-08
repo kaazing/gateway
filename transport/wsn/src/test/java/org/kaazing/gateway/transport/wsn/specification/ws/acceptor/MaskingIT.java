@@ -17,7 +17,6 @@ package org.kaazing.gateway.transport.wsn.specification.ws.acceptor;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -58,7 +57,6 @@ public class MaskingIT {
     public TestRule chain = createRuleChain(gateway, k3po);
 
     @Test
-    @Ignore("Read value for client differs from expected.")
     @Specification({
         "send.text.payload.not.masked/handshake.request.and.frame"
         })
@@ -67,7 +65,6 @@ public class MaskingIT {
     }
 
     @Test
-    @Ignore("Read value for client differs from expected.")
     @Specification({
         "send.binary.payload.not.masked/handshake.request.and.frame"
         })
