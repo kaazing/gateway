@@ -48,6 +48,7 @@ package org.jboss.netty.logging;
  * @apiviz.has org.jboss.netty.logging.InternalLogger oneway - - creates
  */
 public abstract class InternalLoggerFactory {
+    // mina.netty change - default factory is changed from JdkLoggerFactory to Slf4JLoggerFactory
     private static volatile InternalLoggerFactory defaultFactory = new Slf4JLoggerFactory();
 
     /**
