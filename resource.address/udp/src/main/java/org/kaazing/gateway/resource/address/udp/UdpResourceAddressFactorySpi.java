@@ -17,6 +17,7 @@ package org.kaazing.gateway.resource.address.udp;
 
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.BIND_ADDRESS;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.INTERFACE;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.MAXIMUM_OUTBOUND_RATE;
@@ -33,6 +34,7 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -127,6 +129,11 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
             String authorityFormat = (bindAddress instanceof Inet6Address) ? FORMAT_IPV6_AUTHORITY : FORMAT_IPV4_AUTHORITY;
             String newAuthority = format(authorityFormat, newHost, newPort);
             location = modifyURIAuthority(location, newAuthority);
+        }
+
+        // if udp has a transport, do not resolve the authority.
+        if (options.getOption(TRANSPORT) != null) {
+            return Collections.singletonList(super.newResourceAddress0(original, location, options));
         }
         
         // ensure that DNS name is resolved in transport address
