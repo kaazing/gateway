@@ -324,10 +324,8 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
      * Checks if masking is allowed/expected for the frame being decoded.
      */
     private void validateMaskingAllowed(boolean masked) throws ProtocolDecoderException {
-        if (masked && !maskingExpected) {
-            throw new ProtocolDecoderException("Received masked frame from server.");
-        } else if (!masked && maskingExpected) {
-            throw new ProtocolDecoderException("Received unmasked frame from client.");
+        if (masked != maskingExpected) {
+            throw new ProtocolDecoderException(String.format("Received unexpected %s frame", masked ? "masked" : "unmasked"));
         }
     }
 
