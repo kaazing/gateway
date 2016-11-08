@@ -237,7 +237,7 @@ public class GatewayContextResolver {
         DefaultSecurityContext securityContext = securityResolver.resolve(securityConfig);
         ExpiringState expiringState = resolveExpiringState(clusterContext);
         RealmsContext realmsContext = resolveRealms(securityConfig, securityContext, configuration, clusterContext, expiringState);
-        DefaultServiceDefaultsContext serviceDefaultsContext = resolveServiceDefaults(serviceDefaults);
+        DefaultServiceDefaultsContext serviceDefaultsContext = resolveServiceDefaults(serviceDefaults, realmsContext);
         ServiceRegistry servicesByURI = new ServiceRegistry();
         Map<String, Object> dependencyContexts = resolveDependencyContext();
         ResourceAddressFactory resourceAddressFactory = resolveResourceAddressFactories();
@@ -408,7 +408,7 @@ public class GatewayContextResolver {
 
     // Resolve service defaults into a config object so we can expose it as its
     // own object to management.
-    private DefaultServiceDefaultsContext resolveServiceDefaults(ServiceDefaultsType serviceDefaults) {
+    private DefaultServiceDefaultsContext resolveServiceDefaults(ServiceDefaultsType serviceDefaults, RealmsContext realmsContext) {
 
         if (serviceDefaults == null) {
             return null;
@@ -671,13 +671,6 @@ public class GatewayContextResolver {
 
             Key encryptionKey = null;
 
-            if (serviceRealmContext == null &&
-                    requireRolesCollection.size() > 0) {
-
-                throw new IllegalArgumentException("Authorization constraints require a " +
-                        "specified realm-name for service \"" + serviceDescription + "\"");
-            }
-
             DefaultServiceContext serviceContext =
                     new DefaultServiceContext(serviceType, serviceName, serviceDescription, serviceInstance, webDir,
                             tempDir, balanceURIs, acceptURIs, connectURIs,
@@ -690,7 +683,9 @@ public class GatewayContextResolver {
                             supportsMimeMappings(serviceType),
                             InternalSystemProperty.TCP_PROCESSOR_COUNT.getIntProperty(configuration),
                             transportFactory,
-                            resourceAddressFactory);
+                            resourceAddressFactory,
+                            realmsContext,
+                            configuration);
 
             serviceContexts.add(serviceContext);
 

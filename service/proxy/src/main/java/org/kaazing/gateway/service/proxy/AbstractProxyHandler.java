@@ -67,7 +67,7 @@ public abstract class AbstractProxyHandler extends IoHandlerAdapter {
         // TODO: consider adding a new SessionClosingFilter on the network end of the filter chain to fulfill the
         // session close future if an IOEXception is reported in exceptionCaught. Then session.isClosing() would
         // suffice here and anywhere else we may need this logic.
-        boolean connectionClosing = session.isClosing() || (cause instanceof IOException); 
+        boolean connectionClosing = session.isClosing() || (cause instanceof IOException);
         session.close(connectionClosing);
     }
 
@@ -122,7 +122,7 @@ public abstract class AbstractProxyHandler extends IoHandlerAdapter {
         }
     }
 
-    void setMaximumPendingBytes(int maximumPendingBytes) {
+    public void setMaximumPendingBytes(int maximumPendingBytes) {
         this.maximumPendingBytes = maximumPendingBytes;
         thresholdPendingBytes = maximumPendingBytes / 2;
         if (LOGGER.isDebugEnabled()) {
