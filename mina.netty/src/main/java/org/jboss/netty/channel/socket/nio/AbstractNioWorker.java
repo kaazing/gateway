@@ -59,7 +59,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
@@ -86,10 +85,7 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
     protected final SocketReceiveBufferAllocator recvBufferPool = new SocketReceiveBufferAllocator();
     protected final SocketSendBufferPool sendBufferPool = new SocketSendBufferPool();
     private final DefaultWriteCompletionEventEx writeCompletionEvent = new DefaultWriteCompletionEventEx();
-
-
     private final Queue<UpstreamMessageEvent> readQueue = new OneToOneConcurrentArrayQueue<>(UDP_CHANNEL_BUFFER_SIZE_PER_WORKER);
-    //private final Queue<UpstreamMessageEvent> readQueue = new ArrayBlockingQueue<>(UDP_CHANNEL_BUFFER_SIZE_PER_WORKER);
 
     AbstractNioWorker(Executor executor) {
         this(executor, null);
@@ -140,15 +136,14 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
     }
 
     @Override
-    protected int process(Selector selector) throws IOException {
+    protected void process(Selector selector) throws IOException {
         Set<SelectionKey> selectedKeys = selector.selectedKeys();
         // check if the set is empty and if so just return to not create garbage by
         // creating a new Iterator every time even if there is nothing to process.
         // See https://github.com/netty/netty/issues/597
         if (selectedKeys.isEmpty()) {
-            return 0;
+            return;
         }
-        int workCount = selectedKeys.size();
         boolean perfLogEnabled = PERF_LOGGER.isDebugEnabled();
         long startProcess = perfLogEnabled ? System.nanoTime() : 0;
         long numReads = 0;
@@ -184,7 +179,6 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
                         TimeUnit.NANOSECONDS.toMillis(totalTime), numReads, numWrites));
             }
         }
-        return workCount;
     }
 
     void writeFromUserCode(final AbstractNioChannel<?> channel) {
@@ -649,38 +643,34 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
         });
     }
 
+    // This method is called from the boss thread
     public void messageReceived(AbstractNioChannel<?> channel, Object message) {
         UpstreamMessageEvent event = new UpstreamMessageEvent(channel, message, null);
         boolean written = readQueue.offer(event);
-        if (!written) {
-            System.out.println(String.format("Message %s for channel %s is not written to buffer", message, channel));
-        }
         if (!written && LOGGER.isDebugEnabled()) {
             LOGGER.debug(String.format("Message %s for channel %s is not written to buffer", message, channel));
         }
+
         // Wake up the selector so the event gets processed immediately by the worker thread
         if (selector != null) {
             if (wakenUp.compareAndSet(false, true)) {
                 selector.wakeup();
             }
         }
-
     }
 
     @Override
-    protected int processRead() throws IOException {
-        if (readQueue == null) {
-            return 0;
-        }
-        while (true) {
-            UpstreamMessageEvent event = readQueue.poll();
-            if (event == null) {
-                break;
+    protected void processRead() throws IOException {
+        if (readQueue != null) {
+            while (true) {
+                UpstreamMessageEvent event = readQueue.poll();
+                if (event == null) {
+                    return;
+                }
+                Channel channel = event.getChannel();
+                channel.getPipeline().sendUpstream(event);
             }
-            Channel channel = event.getChannel();
-            channel.getPipeline().sendUpstream(event);
         }
-        return 0;
     }
 
 }
