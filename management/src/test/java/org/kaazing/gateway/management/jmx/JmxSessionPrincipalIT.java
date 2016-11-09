@@ -43,6 +43,14 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.ITUtil;
 
+/**
+ * This test verifies the correct functioning of the configured user principal classes. Each test opens three
+ * connections by running three scripts each of which opens a connection and does not close it.
+ *
+ * IMPLEMENTATION NOTE:
+ * Calling k3po.finish() verifies the scripts have completed but does not cause the connections to be closed
+ * (K3poRule only does that after the test method completes).
+ */
 public class JmxSessionPrincipalIT {
 
     private static final String JMX_URI = "service:jmx:rmi:///jndi/rmi://localhost:2020/jmxrmi";
@@ -63,6 +71,7 @@ public class JmxSessionPrincipalIT {
             @SuppressWarnings("deprecation")
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
+                        .property("org.kaazing.gateway.transport.ws.CLOSE_TIMEOUT",  "1s") // speed up the test
                         .service()
                             .accept(WS_URI)
                             .type("echo")
@@ -120,7 +129,8 @@ public class JmxSessionPrincipalIT {
     public TestRule timeout = ITUtil.timeoutRule(20, SECONDS);
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(gateway).around(k3po).around(jmxConnection).around(timeout);
+    //public TestRule chain = RuleChain.outerRule(gateway).around(k3po).around(jmxConnection).around(timeout);
+    public TestRule chain = ITUtil.createRuleChain(RuleChain.outerRule(gateway).around(jmxConnection), k3po, 20, SECONDS);
 
     @Specification({
         "wsn.session.with.user.principal.joe",
@@ -128,11 +138,7 @@ public class JmxSessionPrincipalIT {
         "wsn.session.with.user.principal.ann" })
     @Test
     public void sessionAttributePrincipalsShouldListUserPrincipals() throws Exception {
-        k3po.start();
-
-        k3po.awaitBarrier("JOE_WSN_SESSION_ESTABLISHED");
-        k3po.awaitBarrier("JOE_WSE_SESSION_ESTABLISHED");
-        k3po.awaitBarrier("ANN_WSN_SESSION_ESTABLISHED");
+        k3po.finish();
 
         MBeanServerConnection mbeanServerConn = jmxConnection.getConnection();
         Set<ObjectName> mbeanNames = mbeanServerConn.queryNames(
@@ -146,7 +152,6 @@ public class JmxSessionPrincipalIT {
                     principals.contains("RolePrincipal"));
         }
 
-        k3po.finish();
     }
 
     // Test should only kill sessions that have the "joe" user Principal
@@ -156,19 +161,17 @@ public class JmxSessionPrincipalIT {
         "wsn.session.with.user.principal.ann" })
     @Test
     public void shouldKillSessionsByUserPrincipal() throws Exception {
+        long start = System.currentTimeMillis();
+        k3po.finish();
         ObjectName echoServiceMbeanName = null;
-
-        k3po.start();
-
-        k3po.awaitBarrier("JOE_WSN_SESSION_ESTABLISHED");
-        k3po.awaitBarrier("JOE_WSE_SESSION_ESTABLISHED");
-        k3po.awaitBarrier("ANN_WSN_SESSION_ESTABLISHED");
 
         MBeanServerConnection mbeanServerConn = jmxConnection.getConnection();
         Set<ObjectName> mbeanNames = mbeanServerConn.queryNames(null, null);
         String MBeanPrefix = "subtype=services,serviceType=echo,serviceId=\"" + ECHO_WS_SERVICE + "\",name=summary";
         for (ObjectName name : mbeanNames) {
             if (name.toString().indexOf(MBeanPrefix) > 0) {
+                System.out.println("Time to find service MBean: " + (System.currentTimeMillis() - start));
+                start = System.currentTimeMillis();
                 echoServiceMbeanName = name;
 
                 ObjectName targetService = new ObjectName(name.toString());
@@ -178,6 +181,8 @@ public class JmxSessionPrincipalIT {
                 mbeanServerConn.invoke(targetService, "closeSessions", params, signature);
             }
         }
+        System.out.println("closeSessions took: " + (System.currentTimeMillis() - start));
+        start = System.currentTimeMillis();
 
         long startTime = currentTimeMillis();
         Long numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
@@ -187,8 +192,7 @@ public class JmxSessionPrincipalIT {
         }
 
         assertEquals("Ann Wsn session should still be alive", (Long) 1L, numberOfCurrentSessions);
-
-        k3po.finish();
+        System.out.println("Elapsed time: " + (System.currentTimeMillis() - start));
     }
 
     // Test should kill all sessions that have "TEST" as a role Principal
@@ -198,13 +202,8 @@ public class JmxSessionPrincipalIT {
         "wsn.session.with.user.principal.ann" })
     @Test
     public void shouldKillSessionsByRolePrincipal() throws Exception {
+        k3po.finish();
         ObjectName echoServiceMbeanName = null;
-
-        k3po.start();
-
-        k3po.awaitBarrier("JOE_WSN_SESSION_ESTABLISHED");
-        k3po.awaitBarrier("JOE_WSE_SESSION_ESTABLISHED");
-        k3po.awaitBarrier("ANN_WSN_SESSION_ESTABLISHED");
 
         MBeanServerConnection mbeanServerConn = jmxConnection.getConnection();
         Set<ObjectName> mbeanNames = mbeanServerConn.queryNames(null, null);
@@ -229,8 +228,6 @@ public class JmxSessionPrincipalIT {
         }
 
         assertEquals("Not all sessions have been closed", (Long) 0L, numberOfCurrentSessions);
-
-        k3po.finish();
     }
 
 }

@@ -47,5 +47,3 @@ write "\r\n"
 
 # Extended handshake response
 read [0x82 0x7E]
-
-read notify JOE_WSN_SESSION_ESTABLISHED

@@ -67,6 +67,7 @@ public class JmxSessionPrincipalSupertypeIT {
             @SuppressWarnings("deprecation")
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
+                        .property("org.kaazing.gateway.transport.ws.CLOSE_TIMEOUT",  "1s") // speed up the test
                         .service()
                             .accept(WS_URI)
                             .type("echo")
@@ -133,11 +134,7 @@ public class JmxSessionPrincipalSupertypeIT {
         "wsn.session.with.user.principal.ann" })
     @Test
     public void sessionAttributePrincipalsShouldListUserPrincipals() throws Exception {
-        k3po.start();
-
-        k3po.awaitBarrier("JOE_WSN_SESSION_ESTABLISHED");
-        k3po.awaitBarrier("JOE_WSE_SESSION_ESTABLISHED");
-        k3po.awaitBarrier("ANN_WSN_SESSION_ESTABLISHED");
+        k3po.finish();
 
         MBeanServerConnection mbeanServerConn = jmxConnection.getConnection();
         Set<ObjectName> mbeanNames = mbeanServerConn.queryNames(
@@ -150,8 +147,6 @@ public class JmxSessionPrincipalSupertypeIT {
             assertTrue(format("principles should contain RolePrincipal: Session %s, principals=\"%s\"", name, principals),
                     principals.contains("RolePrincipal"));
         }
-
-        k3po.finish();
     }
 
     // Test should only kill sessions that have the "joe" user Principal
@@ -161,13 +156,8 @@ public class JmxSessionPrincipalSupertypeIT {
         "wsn.session.with.user.principal.ann" })
     @Test
     public void shouldKillSessionsByUserPrincipalSupertype() throws Exception {
+        k3po.finish();
         ObjectName echoServiceMbeanName = null;
-
-        k3po.start();
-
-        k3po.awaitBarrier("JOE_WSN_SESSION_ESTABLISHED");
-        k3po.awaitBarrier("JOE_WSE_SESSION_ESTABLISHED");
-        k3po.awaitBarrier("ANN_WSN_SESSION_ESTABLISHED");
 
         MBeanServerConnection mbeanServerConn = jmxConnection.getConnection();
         Set<ObjectName> mbeanNames = mbeanServerConn.queryNames(null, null);
@@ -192,8 +182,6 @@ public class JmxSessionPrincipalSupertypeIT {
         }
 
         assertEquals("Ann Wsn session should still be alive", (Long) 1L, numberOfCurrentSessions);
-
-        k3po.finish();
     }
 
     // Test should kill all sessions that have "TEST" as a role Principal
@@ -204,14 +192,8 @@ public class JmxSessionPrincipalSupertypeIT {
         "wsn.session.with.user.principal.ann" })
     @Test
     public void shouldKillSessionsByRolePrincipalSupertype() throws Exception {
+        k3po.finish();
         ObjectName echoServiceMbeanName = null;
-
-        k3po.start();
-
-        k3po.awaitBarrier("JOE_WSN_SESSION_ESTABLISHED");
-        k3po.awaitBarrier("JOE_WSE_SESSION_ESTABLISHED");
-        k3po.awaitBarrier("ANN_WSN_SESSION_ESTABLISHED");
-        Thread.sleep(2000);
         MBeanServerConnection mbeanServerConn = jmxConnection.getConnection();
         Set<ObjectName> mbeanNames = mbeanServerConn.queryNames(null, null);
         String MBeanPrefix = "subtype=services,serviceType=echo,serviceId=\"" + ECHO_WS_SERVICE + "\",name=summary";
@@ -235,8 +217,6 @@ public class JmxSessionPrincipalSupertypeIT {
         }
 
         assertEquals("Not all sessions have been closed", (Long) 0L, numberOfCurrentSessions);
-
-        k3po.finish();
     }
 
 }
