@@ -37,7 +37,7 @@
         <!-- Try to avoid huge heap size on Travis builds -->
         <failsafeArgLine>-Xmx1024m</failsafeArgLine>
         <opencsv.version>2.3</opencsv.version>
-		<jmh.version>1.14</jmh.version>
+        <jmh.version>1.14</jmh.version>
     </properties>
 
     <modules>
@@ -92,7 +92,6 @@
         <module>mina.core</module>
         <module>mina.netty</module>
         <module>test.util</module>
-        <module>bench</module>
     </modules>
 
     <dependencyManagement>
