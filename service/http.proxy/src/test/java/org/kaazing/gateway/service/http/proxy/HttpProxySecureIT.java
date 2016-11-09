@@ -55,15 +55,13 @@ public class HttpProxySecureIT {
         // Initialize KeyStore of gateway
         password = "ab987c".toCharArray();
         keyStore = KeyStore.getInstance("JCEKS");
-//        FileInputStream kis = new FileInputStream("target/truststore/keystore.db");
-        FileInputStream kis = new FileInputStream("D:\\LUXOFT\\KAAZING\\Gateway\\gateway_HTTP\\service\\target\\keystore.db");
+        FileInputStream kis = new FileInputStream("target/truststore/keystore.db");
         keyStore.load(kis, password);
         kis.close();
 
         // Initialize TrustStore of gateway
         KeyStore trustStore = KeyStore.getInstance("JKS");
-//        FileInputStream tis = new FileInputStream("target/truststore/truststore.db");
-        FileInputStream tis = new FileInputStream("D:\\LUXOFT\\KAAZING\\Gateway\\gateway_HTTP\\service\\target\\truststore.db");
+        FileInputStream tis = new FileInputStream("target/truststore/truststore.db");
         trustStore.load(tis, null);
         tis.close();
 
