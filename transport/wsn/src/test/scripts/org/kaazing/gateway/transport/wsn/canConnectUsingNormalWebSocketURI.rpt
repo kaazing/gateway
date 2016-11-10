@@ -17,6 +17,8 @@
 ## This test came from converting rtest project (http://svn.kaazing.wan/gateway.server.rtests/) to robot test.
 ## This test might represent 3.6.x.y client behavior since the origin of rtests project was 3.6.x.y code line.
 
+property writeMask ${ws:randomBytes(4)}
+
 connect tcp://127.0.0.1:8001
 connected
 
@@ -42,14 +44,22 @@ read "\r\n"
 read [0x82 0x04 0xEF 0x83 0xBF 0x4E] 
 
 # Request check message flow post connection establishment.
-# WS binary frames (82) of length 4 (04). The content (A,B,C,D) is human-chosen. 
-write [0x82 0x04 0x0A 0x0B 0x0C 0x0D] 
+# WS binary frames (82) of length 4 (84). The content (A,B,C,D) is human-chosen. 
+write [0x82 0x84] 
+write ${writeMask}
+write option mask ${writeMask}
+write [0x0A 0x0B 0x0C 0x0D]
+write option mask [0x00 0x00 0x00 0x00] 
 
 # Echo response
 read [0x82 0x04 0x0A 0x0B 0x0C 0x0D] 
 
 # Request WS Connection Close
-write [0x88 0x02 0x03 0xE8] 
+write [0x88 0x82] 
+write ${writeMask}
+write option mask ${writeMask}
+write [0x03 0xE8]
+write option mask [0x00 0x00 0x00 0x00]
 
 # Response WS Connection Close
 read  [0x88 0x02 0x03 0xE8]
