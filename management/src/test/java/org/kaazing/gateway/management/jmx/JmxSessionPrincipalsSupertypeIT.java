@@ -44,10 +44,10 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.ITUtil;
 
 /**
- * Variant of JmxSessionPrincipalIT which refers to the principal classes by an interface they implement
+ * Variant of JmxSessionPrincipalsIT which refers to the principal classes by an interface they implement
  * (UserInterface) rather than the concrete class name.
  */
-public class JmxSessionPrincipalSupertypeIT {
+public class JmxSessionPrincipalsSupertypeIT {
 
     private static final String JMX_URI = "service:jmx:rmi:///jndi/rmi://localhost:2020/jmxrmi";
     private static final String WS_URI = "ws://localhost:8001/echo";

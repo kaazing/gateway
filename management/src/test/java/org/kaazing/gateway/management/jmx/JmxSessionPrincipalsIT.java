@@ -51,7 +51,7 @@ import org.kaazing.test.util.ITUtil;
  * Calling k3po.finish() verifies the scripts have completed but does not cause the connections to be closed
  * (K3poRule only does that after the test method completes).
  */
-public class JmxSessionPrincipalIT {
+public class JmxSessionPrincipalsIT {
 
     private static final String JMX_URI = "service:jmx:rmi:///jndi/rmi://localhost:2020/jmxrmi";
     private static final String WS_URI = "ws://localhost:8001/echo";
