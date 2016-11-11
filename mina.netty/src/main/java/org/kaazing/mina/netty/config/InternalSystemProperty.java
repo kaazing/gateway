@@ -35,7 +35,7 @@ public enum InternalSystemProperty {
 
     // A worker is serving multiple UDP child channels and they share an Agrona buffer.
     // This configures the buffer size in bytes. It must be a positive power of 2
-    UDP_CHANNEL_BUFFER_SIZE("org.kaazing.netty.UDP_CHANNEL_BUFFER_SIZE", "1048576");
+    UDP_CHANNEL_READ_QUEUE_SIZE("org.kaazing.netty.UDP_CHANNEL_READ_QUEUE_SIZE", "1048576");
 
     private final String name;
     private final String defaultValue;

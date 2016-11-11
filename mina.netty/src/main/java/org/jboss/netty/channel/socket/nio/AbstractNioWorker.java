@@ -74,18 +74,20 @@ import static org.jboss.netty.channel.Channels.fireExceptionCaught;
 import static org.jboss.netty.channel.Channels.fireExceptionCaughtLater;
 import static org.jboss.netty.channel.Channels.fireWriteCompleteLater;
 import static org.jboss.netty.channel.Channels.succeededFuture;
-import static org.kaazing.mina.netty.config.InternalSystemProperty.UDP_CHANNEL_BUFFER_SIZE;
+import static org.kaazing.mina.netty.config.InternalSystemProperty.UDP_CHANNEL_READ_QUEUE_SIZE;
 
 public abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
     private static final InternalLogger LOGGER = InternalLoggerFactory.getInstance(AbstractNioWorker.class);
 
-    private final int UDP_CHANNEL_BUFFER_SIZE_PER_WORKER
-            = UDP_CHANNEL_BUFFER_SIZE.getIntProperty(System.getProperties());
+    private final int UDP_CHANNEL_READ_QUEUE_SIZE_PER_WORKER
+            = UDP_CHANNEL_READ_QUEUE_SIZE.getIntProperty(System.getProperties());
 
     protected final SocketReceiveBufferAllocator recvBufferPool = new SocketReceiveBufferAllocator();
     protected final SocketSendBufferPool sendBufferPool = new SocketSendBufferPool();
     private final DefaultWriteCompletionEventEx writeCompletionEvent = new DefaultWriteCompletionEventEx();
-    private final Queue<UpstreamMessageEvent> readQueue = new OneToOneConcurrentArrayQueue<>(UDP_CHANNEL_BUFFER_SIZE_PER_WORKER);
+    private final Queue<UpstreamMessageEvent> readQueue = new OneToOneConcurrentArrayQueue<>(UDP_CHANNEL_READ_QUEUE_SIZE_PER_WORKER);
+
+    private int noDroppedMessages;
 
     AbstractNioWorker(Executor executor) {
         this(executor, null);
@@ -647,8 +649,15 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
     public void messageReceived(AbstractNioChannel<?> channel, Object message) {
         UpstreamMessageEvent event = new UpstreamMessageEvent(channel, message, null);
         boolean written = readQueue.offer(event);
-        if (!written && LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("Message %s for channel %s is not written to buffer", message, channel));
+        if (!written) {
+            noDroppedMessages++;
+            if (noDroppedMessages%10000 == 0) {
+                if (LOGGER.isInfoEnabled()) {
+                    String msg = "UDP read queue full, dropping messages, consider increasing udp read queue size " +
+                            "using system property " + UDP_CHANNEL_READ_QUEUE_SIZE.getPropertyName();
+                    LOGGER.info(msg);
+                }
+            }
         }
 
         // Wake up the selector so the event gets processed immediately by the worker thread
