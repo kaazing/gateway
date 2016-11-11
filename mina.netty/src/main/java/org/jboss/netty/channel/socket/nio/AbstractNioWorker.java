@@ -593,10 +593,6 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
         registerTask(new Runnable() {
             @Override
             public void run() {
-                if (channel instanceof NioChildDatagramChannel) {
-                    return;
-                }
-
                 SelectionKey key = channel.channel.keyFor(selector);
                 if (key != null) {
                     key.cancel();
@@ -624,10 +620,6 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
             @Override
             public void run() {
                 try {
-                    if (channel instanceof NioChildDatagramChannel) {
-                        return;
-                    }
-
                     // ensure channel.writeSuspended cannot remain true due to race
                     // note: setOpWrite is a no-op before selectionKey is registered w/ selector
                     int interestOps = channel.getInternalInterestOps();

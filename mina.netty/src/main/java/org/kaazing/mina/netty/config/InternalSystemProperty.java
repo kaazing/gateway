@@ -33,9 +33,9 @@ public enum InternalSystemProperty {
     // not to waste too much time if there are no ready ops.
     QUICK_SELECT_TIMEOUT("org.kaazing.netty.QUICK_SELECT_TIMEOUT", "0"), // use selectNow by default
 
-    // A worker is serving multiple UDP child channels and they share an Agrona buffer.
-    // This configures the buffer size in bytes. It must be a positive power of 2
-    UDP_CHANNEL_READ_QUEUE_SIZE("org.kaazing.netty.UDP_CHANNEL_READ_QUEUE_SIZE", "1048576");
+    // A worker is serving multiple UDP child channels and they share an Agrona read queue.
+    // Agrona uses the next power of 2 greater than or equal to the supplied value
+    UDP_CHANNEL_READ_QUEUE_SIZE("org.kaazing.netty.UDP_CHANNEL_READ_QUEUE_SIZE", "16384");
 
     private final String name;
     private final String defaultValue;
