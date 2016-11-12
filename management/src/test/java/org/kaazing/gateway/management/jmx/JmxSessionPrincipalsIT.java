@@ -42,6 +42,7 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.ITUtil;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
  * This test verifies the correct functioning of the configured user principal classes. Each test opens three
@@ -127,10 +128,10 @@ public class JmxSessionPrincipalsIT {
 
     private JmxRule jmxConnection = new JmxRule(JMX_URI);
     public TestRule timeout = ITUtil.timeoutRule(20, SECONDS);
+    public TestRule trace = new MethodExecutionTrace();
 
     @Rule
-    //public TestRule chain = RuleChain.outerRule(gateway).around(k3po).around(jmxConnection).around(timeout);
-    public TestRule chain = ITUtil.createRuleChain(RuleChain.outerRule(gateway).around(jmxConnection), k3po, 20, SECONDS);
+    public TestRule chain = RuleChain.outerRule(trace).around(gateway).around(k3po).around(jmxConnection).around(timeout);
 
     @Specification({
         "wsn.session.with.user.principal.joe",
@@ -161,7 +162,6 @@ public class JmxSessionPrincipalsIT {
         "wsn.session.with.user.principal.ann" })
     @Test
     public void shouldKillSessionsByUserPrincipal() throws Exception {
-        long start = System.currentTimeMillis();
         k3po.finish();
         ObjectName echoServiceMbeanName = null;
 
@@ -170,8 +170,6 @@ public class JmxSessionPrincipalsIT {
         String MBeanPrefix = "subtype=services,serviceType=echo,serviceId=\"" + ECHO_WS_SERVICE + "\",name=summary";
         for (ObjectName name : mbeanNames) {
             if (name.toString().indexOf(MBeanPrefix) > 0) {
-                System.out.println("Time to find service MBean: " + (System.currentTimeMillis() - start));
-                start = System.currentTimeMillis();
                 echoServiceMbeanName = name;
 
                 ObjectName targetService = new ObjectName(name.toString());
@@ -181,18 +179,15 @@ public class JmxSessionPrincipalsIT {
                 mbeanServerConn.invoke(targetService, "closeSessions", params, signature);
             }
         }
-        System.out.println("closeSessions took: " + (System.currentTimeMillis() - start));
-        start = System.currentTimeMillis();
 
         long startTime = currentTimeMillis();
         Long numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
-        while (numberOfCurrentSessions > 1 && (currentTimeMillis() - startTime) < 5000) {
+        while (numberOfCurrentSessions > 1 && (currentTimeMillis() - startTime) < 10000) {
             Thread.sleep(500);
             numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
         }
 
         assertEquals("Ann Wsn session should still be alive", (Long) 1L, numberOfCurrentSessions);
-        System.out.println("Elapsed time: " + (System.currentTimeMillis() - start));
     }
 
     // Test should kill all sessions that have "TEST" as a role Principal
@@ -222,7 +217,7 @@ public class JmxSessionPrincipalsIT {
 
         long startTime = currentTimeMillis();
         Long numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
-        while (numberOfCurrentSessions > 0 && (currentTimeMillis() - startTime) < 5000) {
+        while (numberOfCurrentSessions > 0 && (currentTimeMillis() - startTime) < 10000) {
             Thread.sleep(500);
             numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
         }

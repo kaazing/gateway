@@ -42,6 +42,7 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.ITUtil;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
  * Variant of JmxSessionPrincipalsIT which refers to the principal classes by an interface they implement
@@ -124,9 +125,10 @@ public class JmxSessionPrincipalsSupertypeIT {
 
     private JmxRule jmxConnection = new JmxRule(JMX_URI);
     public TestRule timeout = ITUtil.timeoutRule(20, SECONDS);
+    public TestRule trace = new MethodExecutionTrace();
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(gateway).around(k3po).around(jmxConnection).around(timeout);
+    public TestRule chain = RuleChain.outerRule(trace).around(gateway).around(k3po).around(jmxConnection).around(timeout);
 
     @Specification({
         "wsn.session.with.user.principal.joe",
@@ -176,7 +178,7 @@ public class JmxSessionPrincipalsSupertypeIT {
 
         long startTime = currentTimeMillis();
         Long numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
-        while (numberOfCurrentSessions > 1 && (currentTimeMillis() - startTime) < 5000) {
+        while (numberOfCurrentSessions > 1 && (currentTimeMillis() - startTime) < 10000) {
             Thread.sleep(500);
             numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
         }
@@ -211,7 +213,7 @@ public class JmxSessionPrincipalsSupertypeIT {
 
         long startTime = currentTimeMillis();
         Long numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
-        while (numberOfCurrentSessions > 0 && (currentTimeMillis() - startTime) < 5000) {
+        while (numberOfCurrentSessions > 0 && (currentTimeMillis() - startTime) < 10000) {
             Thread.sleep(500);
             numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
         }
