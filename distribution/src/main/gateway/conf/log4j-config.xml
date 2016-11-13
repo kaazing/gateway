@@ -18,44 +18,12 @@
 -->
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
-    <appender name="AccessFile" class="org.apache.log4j.RollingFileAppender">
-        <param name="File" value="${GATEWAY_LOG_DIRECTORY}/access.log"/>
-        <param name="Append" value="true"/>
-        <!-- max file size default is 10MB -->
-        <!--param name="MaxFileSize" value="100000"/-->
-
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %-5p %m%n"/>
-        </layout>
-    </appender>
-
-    <appender name="EventsFile" class="org.apache.log4j.RollingFileAppender">
-        <param name="File" value="${GATEWAY_LOG_DIRECTORY}/events.log"/>
-        <param name="Append" value="true"/>
-        <!-- max file size default is 10MB -->
-        <!--param name="MaxFileSize" value="100000"/-->
-
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %-5p %m%n"/>
-        </layout>
-    </appender>
-
-    <appender name="ProxyFile" class="org.apache.log4j.RollingFileAppender">
-        <param name="File" value="${GATEWAY_LOG_DIRECTORY}/proxy.log"/>
-        <param name="Append" value="true"/>
-        <!-- max file size default is 10MB -->
-        <!--param name="MaxFileSize" value="100000"/-->
-
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %-5p %m%n"/>
-        </layout>
-    </appender>
-
     <appender name="ErrorFile" class="org.apache.log4j.RollingFileAppender">
         <param name="File" value="${GATEWAY_LOG_DIRECTORY}/error.log"/>
         <param name="Append" value="true"/>
-        <!-- max file size default is 10MB -->
-        <!--param name="MaxFileSize" value="100000"/-->
+        <!-- Increase either of the following to preserve more log messages -->
+        <param name="MaxFileSize" value="50MB"/>
+        <param name="MaxBackupIndex" value="2"/>
 
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d [%t] %-5p %m%n"/>
@@ -81,28 +49,25 @@
 
     <logger name="transport.http">
         <level value="info"/>
-        <appender-ref ref="AccessFile"/>
     </logger>
 
     <logger name="transport.wsn">
         <level value="info"/>
-        <appender-ref ref="AccessFile"/>
     </logger>
 
     <logger name="transport.wseb">
         <level value="info"/>
-        <appender-ref ref="AccessFile"/>
     </logger>
 
     <logger name="org.kaazing.gateway.service.proxy">
         <level value="info"/>
-        <appender-ref ref="ProxyFile"/>
     </logger>
 
     <logger name="org.kaazing.gateway.server">
         <level value="warn"/>
     </logger>
 
+    <!-- Used for Gateway startup -->
     <logger name="org.kaazing.gateway.server.Gateway">
         <level value="info"/> 
         <appender-ref ref="STDOUT"/>             
