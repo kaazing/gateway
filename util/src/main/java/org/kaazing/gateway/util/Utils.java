@@ -858,28 +858,10 @@ public final class Utils {
         return rand.nextInt();
     }
 
-    public static void log(Logger logger, LogLevel eventLevel, String message) {
-        switch (eventLevel) {
-            case TRACE : logger.trace(message); return;
-            case DEBUG : logger.debug(message); return;
-            case INFO  : logger.info(message); return;
-            case WARN  : logger.warn(message); return;
-            case ERROR : logger.error(message); return;
-            default    : return;
-        }
-    }
-
-    public static void log(Logger logger, LogLevel eventLevel, String message, Throwable cause) {
-        switch (eventLevel) {
-            case TRACE : logger.trace(message, cause); return;
-            case DEBUG : logger.debug(message, cause); return;
-            case INFO  : logger.info(message, cause); return;
-            case WARN  : logger.warn(message, cause); return;
-            case ERROR : logger.error(message, cause); return;
-            default    : return;
-        }
-    }
-
+    /**
+     * @deprecated  Use LoggingUtil methods instead (or LoggingFilter)
+     */
+    @Deprecated
     public static void log(Logger logger, LogLevel eventLevel, String message, Object param) {
         switch (eventLevel) {
             case TRACE : logger.trace(message, param); return;
@@ -887,28 +869,6 @@ public final class Utils {
             case INFO  : logger.info(message, param); return;
             case WARN  : logger.warn(message, param); return;
             case ERROR : logger.error(message, param); return;
-            default    : return;
-        }
-    }
-
-    public static void log(Logger logger, LogLevel eventLevel, String message, Object param1, Object param2) {
-        switch (eventLevel) {
-            case TRACE : logger.trace(message, param1, param2); return;
-            case DEBUG : logger.debug(message, param1, param2); return;
-            case INFO  : logger.info(message, param1, param2); return;
-            case WARN  : logger.warn(message, param1, param2); return;
-            case ERROR : logger.error(message, param1, param2); return;
-            default    : return;
-        }
-    }
-
-    public static void log(Logger logger, LogLevel eventLevel, String message, Object param1, Object param2, Object param3) {
-        switch (eventLevel) {
-            case TRACE : logger.trace(message, param1, param2, param3); return;
-            case DEBUG : logger.debug(message, param1, param2, param3); return;
-            case INFO  : logger.info(message, param1, param2, param3); return;
-            case WARN  : logger.warn(message, param1, param2, param3); return;
-            case ERROR : logger.error(message, param1, param2, param3); return;
             default    : return;
         }
     }
