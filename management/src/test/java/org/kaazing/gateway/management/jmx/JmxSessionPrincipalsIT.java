@@ -54,77 +54,82 @@ import org.kaazing.test.util.MethodExecutionTrace;
  */
 public class JmxSessionPrincipalsIT {
 
-    private static final String JMX_URI = "service:jmx:rmi:///jndi/rmi://localhost:2020/jmxrmi";
-    private static final String WS_URI = "ws://localhost:8001/echo";
+    protected static final String JMX_URI = "service:jmx:rmi:///jndi/rmi://localhost:2020/jmxrmi";
+    protected static final String WS_URI = "ws://localhost:8001/echo";
 
     protected static final String ADMIN = "AUTHORIZED";
     protected static final String ECHO_WS_SERVICE = "echoWS";
 
-    private final KeyStore keyStore = keyStore();
-    private final char[] password = password();
-    private final KeyStore trustStore = trustStore();
+    protected final KeyStore keyStore = keyStore();
+    protected final char[] password = password();
+    protected final KeyStore trustStore = trustStore();
 
     private K3poRule k3po = new K3poRule();
 
     private GatewayRule gateway = new GatewayRule() {
         {
-            // @formatter:off
-            @SuppressWarnings("deprecation")
-            GatewayConfiguration configuration =
-                    new GatewayConfigurationBuilder()
-                        .property("org.kaazing.gateway.transport.ws.CLOSE_TIMEOUT",  "1s") // speed up the test
-                        .service()
-                            .accept(WS_URI)
-                            .type("echo")
-                            .name(ECHO_WS_SERVICE)
-                            .crossOrigin()
-                                .allowOrigin("*")
-                            .done()
-                            .realmName("demo")
-                            .authorization()
-                                .requireRole("TEST")
-                            .done()
-                        .done()
-                        .service()
-                            .property("connector.server.address", "jmx://localhost:2020/")
-                            .type("management.jmx")
-                            .authorization()
-                                .requireRole(ADMIN)
-                            .done()
-                            .realmName("jmxrealm")
-                        .done()
-                        .security()
-                            .trustStore(trustStore)
-                            .keyStore(keyStore)
-                            .keyStorePassword(password)
-                            .keyStoreFile(getKeystoreFileLocation())
-                            .realm()
-                                .name("demo")
-                                .description("Kaazing WebSocket Gateway Demo")
-                                .httpChallengeScheme("Application Token")
-                                .httpQueryParameter("token")
-                                .userPrincipalClass("org.kaazing.gateway.management.test.util.TokenCustomLoginModule$RolePrincipal")
-                                .userPrincipalClass("org.kaazing.gateway.management.test.util.TokenCustomLoginModule$UserPrincipal")
-                                .loginModule()
-                                    .type("class:org.kaazing.gateway.management.test.util.TokenCustomLoginModule")
-                                    .success("required")
-                                .done()
-                            .done()
-                            .realm()
-                                .name("jmxrealm")
-                                .description("realm for jmx")
-                                .httpChallengeScheme("Application Basic")
-                                .loginModule()
-                                    .type("class:org.kaazing.gateway.management.test.util.TestLoginModule")
-                                    .success("required")
-                                .done()
-                            .done()
-                        .done()
-                    .done();
-            // @formatter:on
-            init(configuration);
+
+            init(getGatewayConfiguration());
         }
     };
+
+    protected GatewayConfiguration getGatewayConfiguration() {
+        // @formatter:off
+        @SuppressWarnings("deprecation")
+        GatewayConfiguration configuration =
+                new GatewayConfigurationBuilder()
+                    .property("org.kaazing.gateway.transport.ws.CLOSE_TIMEOUT",  "1s") // speed up the test
+                    .service()
+                        .accept(WS_URI)
+                        .type("echo")
+                        .name(ECHO_WS_SERVICE)
+                        .crossOrigin()
+                            .allowOrigin("*")
+                        .done()
+                        .realmName("demo")
+                        .authorization()
+                            .requireRole("TEST")
+                        .done()
+                    .done()
+                    .service()
+                        .property("connector.server.address", "jmx://localhost:2020/")
+                        .type("management.jmx")
+                        .authorization()
+                            .requireRole(ADMIN)
+                        .done()
+                        .realmName("jmxrealm")
+                    .done()
+                    .security()
+                        .trustStore(trustStore)
+                        .keyStore(keyStore)
+                        .keyStorePassword(password)
+                        .keyStoreFile(getKeystoreFileLocation())
+                        .realm()
+                            .name("demo")
+                            .description("Kaazing WebSocket Gateway Demo")
+                            .httpChallengeScheme("Application Token")
+                            .httpQueryParameter("token")
+                            .userPrincipalClass("org.kaazing.gateway.management.test.util.TokenCustomLoginModule$RolePrincipal")
+                            .userPrincipalClass("org.kaazing.gateway.management.test.util.TokenCustomLoginModule$UserPrincipal")
+                            .loginModule()
+                                .type("class:org.kaazing.gateway.management.test.util.TokenCustomLoginModule")
+                                .success("required")
+                            .done()
+                        .done()
+                        .realm()
+                            .name("jmxrealm")
+                            .description("realm for jmx")
+                            .httpChallengeScheme("Application Basic")
+                            .loginModule()
+                                .type("class:org.kaazing.gateway.management.test.util.TestLoginModule")
+                                .success("required")
+                            .done()
+                        .done()
+                    .done()
+                .done();
+        // @formatter:on
+        return configuration;
+    }
 
     private JmxRule jmxConnection = new JmxRule(JMX_URI);
     public TestRule timeout = ITUtil.timeoutRule(20, SECONDS);
@@ -162,32 +167,7 @@ public class JmxSessionPrincipalsIT {
         "wsn.session.with.user.principal.ann" })
     @Test
     public void shouldKillSessionsByUserPrincipal() throws Exception {
-        k3po.finish();
-        ObjectName echoServiceMbeanName = null;
-
-        MBeanServerConnection mbeanServerConn = jmxConnection.getConnection();
-        Set<ObjectName> mbeanNames = mbeanServerConn.queryNames(null, null);
-        String MBeanPrefix = "subtype=services,serviceType=echo,serviceId=\"" + ECHO_WS_SERVICE + "\",name=summary";
-        for (ObjectName name : mbeanNames) {
-            if (name.toString().indexOf(MBeanPrefix) > 0) {
-                echoServiceMbeanName = name;
-
-                ObjectName targetService = new ObjectName(name.toString());
-                Object[] params = {"joe", "org.kaazing.gateway.management.test.util.TokenCustomLoginModule$UserPrincipal"};
-                String[] signature = {String.class.getName(), String.class.getName()};
-
-                mbeanServerConn.invoke(targetService, "closeSessions", params, signature);
-            }
-        }
-
-        long startTime = currentTimeMillis();
-        Long numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
-        while (numberOfCurrentSessions > 1 && (currentTimeMillis() - startTime) < 10000) {
-            Thread.sleep(500);
-            numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
-        }
-
-        assertEquals("Ann Wsn session should still be alive", (Long) 1L, numberOfCurrentSessions);
+        shouldKillSessionsByUserPrincipal("org.kaazing.gateway.management.test.util.TokenCustomLoginModule$UserPrincipal");
     }
 
     // Test should kill all sessions that have "TEST" as a role Principal
@@ -197,6 +177,11 @@ public class JmxSessionPrincipalsIT {
         "wsn.session.with.user.principal.ann" })
     @Test
     public void shouldKillSessionsByRolePrincipal() throws Exception {
+        shouldKillSessionsByRolePrincipal("org.kaazing.gateway.management.test.util.TokenCustomLoginModule$RolePrincipal");
+    }
+
+    // Test should only kill sessions that have the "joe" user Principal
+    protected final void shouldKillSessionsByUserPrincipal(String userPrincipalClassName) throws Exception {
         k3po.finish();
         ObjectName echoServiceMbeanName = null;
 
@@ -206,17 +191,66 @@ public class JmxSessionPrincipalsIT {
         for (ObjectName name : mbeanNames) {
             if (name.toString().indexOf(MBeanPrefix) > 0) {
                 echoServiceMbeanName = name;
-
-                ObjectName targetService = new ObjectName(name.toString());
-                Object[] params = {"TEST", "org.kaazing.gateway.management.test.util.TokenCustomLoginModule$RolePrincipal"};
-                String[] signature = {String.class.getName(), String.class.getName()};
-
-                mbeanServerConn.invoke(targetService, "closeSessions", params, signature);
+                break;
             }
         }
 
+        // Wait for all three sessions to be open
         long startTime = currentTimeMillis();
         Long numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
+        while (numberOfCurrentSessions < 3 && (currentTimeMillis() - startTime) < 10000) {
+            Thread.sleep(500);
+            numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
+        }
+        assertEquals("All three sessions should be alive", (Long) 3L, numberOfCurrentSessions);
+
+        ObjectName targetService = new ObjectName(echoServiceMbeanName.toString());
+        Object[] params = {"joe", userPrincipalClassName};
+        String[] signature = {String.class.getName(), String.class.getName()};
+        mbeanServerConn.invoke(targetService, "closeSessions", params, signature);
+
+        startTime = currentTimeMillis();
+        numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
+        while (numberOfCurrentSessions > 1 && (currentTimeMillis() - startTime) < 10000) {
+            Thread.sleep(500);
+            numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
+        }
+
+        assertEquals("Ann Wsn session should still be alive", (Long) 1L, numberOfCurrentSessions);
+    }
+
+    // Test should kill all sessions that have "TEST" as a role Principal
+    // please see "Jmx should KillSessions By Role Principal can fail if invoked early in session initialization #448"
+    protected final void shouldKillSessionsByRolePrincipal(String rolePrincipalClassName) throws Exception {
+        k3po.finish();
+        ObjectName echoServiceMbeanName = null;
+        MBeanServerConnection mbeanServerConn = jmxConnection.getConnection();
+        Set<ObjectName> mbeanNames = mbeanServerConn.queryNames(null, null);
+        String MBeanPrefix = "subtype=services,serviceType=echo,serviceId=\"" + ECHO_WS_SERVICE + "\",name=summary";
+        for (ObjectName name : mbeanNames) {
+            if (name.toString().indexOf(MBeanPrefix) > 0) {
+                echoServiceMbeanName = name;
+                break;
+            }
+        }
+
+        // Wait for all three sessions to be open
+        long startTime = currentTimeMillis();
+        Long numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
+        while (numberOfCurrentSessions > 0 && (currentTimeMillis() - startTime) < 10000) {
+            Thread.sleep(500);
+            numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
+        }
+        assertEquals("All three sessions should be alive", (Long) 3L, numberOfCurrentSessions);
+
+        ObjectName targetService = new ObjectName(echoServiceMbeanName.toString());
+        Object[] params = {"TEST", rolePrincipalClassName};
+        String[] signature = {String.class.getName(), String.class.getName()};
+
+        mbeanServerConn.invoke(targetService, "closeSessions", params, signature);
+
+        startTime = currentTimeMillis();
+        numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
         while (numberOfCurrentSessions > 0 && (currentTimeMillis() - startTime) < 10000) {
             Thread.sleep(500);
             numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
