@@ -233,7 +233,11 @@ class DefaultOptionsContext {
                         // Skip over other node types
                     }
                 }
-                optionsMap.put(node.getLocalName(), nodeValue);
+                String localName = node.getLocalName();
+                if (localName.contains("tls")) {
+                    localName = localName.replace("tls", "ssl");
+                }
+                optionsMap.put(localName, nodeValue);
             }
         }
         return optionsMap;
