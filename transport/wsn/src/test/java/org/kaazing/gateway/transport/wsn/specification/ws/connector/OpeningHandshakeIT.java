@@ -101,10 +101,8 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Specification({
-        "request.headers.random.case/handshake.response"
-        })
-    public void shouldEstablishConnectionWithRandomCaseRequestHeaders() throws Exception {
+    @Specification("response.header.upgrade.case.insensitive.websocket/handshake.response")
+    public void shouldEstablishConnectionWithRandomCaseUpgradeRequestHeader() throws Exception {
 
         final IoHandler handler = context.mock(IoHandler.class);
 
@@ -123,10 +121,48 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Specification({
-        "response.headers.random.case/handshake.response"
-        })
-    public void shouldEstablishConnectionWithRandomCaseResponseHeaders() throws Exception {
+    @Specification("response.header.connection.case.insensitive.upgrade/handshake.response")
+    public void shouldEstablishConnectionWithRandomCaseConnectionRequestHeader() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).sessionOpened(with(any(IoSessionEx.class)));
+            }
+        });
+
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
+        connectFuture.awaitUninterruptibly();
+        assertTrue(connectFuture.isConnected());
+
+
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("response.header.connection.case.insensitive.upgrade/handshake.response")
+    public void shouldEstablishConnectionWithRandomCaseUpgradeResponseHeader() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).sessionOpened(with(any(IoSessionEx.class)));
+            }
+        });
+
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
+        connectFuture.awaitUninterruptibly();
+        assertTrue(connectFuture.isConnected());
+
+
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("response.header.connection.case.insensitive.upgrade/handshake.response")
+    public void shouldEstablishConnectionWithRandomCaseConnectionResponseHeader() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 
         context.checking(new Expectations() {
