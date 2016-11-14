@@ -31,7 +31,6 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.CODEC_REQUIRED;
-import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.MAX_MESSAGE_SIZE;
@@ -40,7 +39,6 @@ import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.SUPPORTE
 
 import java.net.URI;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
@@ -102,7 +100,6 @@ public class WssResourceAddressFactorySpiTest {
         assertNull(address.getOption(TRANSPORT));
         assertTrue(address.getOption(CODEC_REQUIRED));
         assertFalse(address.getOption(LIGHTWEIGHT));
-        assertEmpty(address.getOption(EXTENSIONS));
         assertEquals(0, address.getOption(MAX_MESSAGE_SIZE).intValue());
         assertEquals(0L, address.getOption(INACTIVITY_TIMEOUT).longValue());
         assertEmpty(address.getOption(SUPPORTED_PROTOCOLS));
@@ -117,7 +114,6 @@ public class WssResourceAddressFactorySpiTest {
         assertNull(address.getOption(TRANSPORT));
         assertFalse(address.getOption(CODEC_REQUIRED));
         assertTrue(address.getOption(LIGHTWEIGHT));
-        assertEquals(asList("x-kaazing-alpha", "x-kaazing-beta"), address.getOption(EXTENSIONS));
         assertEquals(1024, address.getOption(MAX_MESSAGE_SIZE).intValue());
         assertEquals(SECONDS.toMillis(5), address.getOption(INACTIVITY_TIMEOUT).longValue());
         assertArrayEquals(new String[] { "amqp/0.91", "amqp/1.0" }, address.getOption(SUPPORTED_PROTOCOLS));
@@ -160,12 +156,6 @@ public class WssResourceAddressFactorySpiTest {
     private void assertEmpty(String[] objects) {
         if (objects != null) {
             assertEquals(0, objects.length);
-        }
-    }
-
-    private void assertEmpty(List<String> objects) {
-        if (objects != null) {
-            assertEquals(0, objects.size());
         }
     }
     

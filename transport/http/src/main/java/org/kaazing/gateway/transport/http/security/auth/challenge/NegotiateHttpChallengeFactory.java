@@ -22,6 +22,7 @@ import static org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecuri
 import java.net.URI;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 
 public class NegotiateHttpChallengeFactory extends HttpChallengeFactoryAdapter {
@@ -32,8 +33,8 @@ public class NegotiateHttpChallengeFactory extends HttpChallengeFactoryAdapter {
     }
 
     @Override
-    protected String makeChallengeString(ResourceAddress address, Object... params) {
-        String challengeScheme = address.getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
+    protected String makeChallengeString(ResourceAddress address, HttpRealmInfo realm, Object... params) {
+        String challengeScheme = realm.getChallengeScheme();
 
         boolean application = isApplication(challengeScheme);
 

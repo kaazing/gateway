@@ -28,7 +28,9 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.BIND_ADDRESS;
+import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.LOGIN_CONTEXT_FACTORY;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.MAXIMUM_OUTBOUND_RATE;
+import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.REALM;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -41,14 +43,22 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.resource.address.NameResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.security.LoginContextFactory;
+import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 import org.kaazing.test.util.ResolutionTestUtils;
 
 @RunWith(Parameterized.class)
@@ -58,6 +68,20 @@ public class TcpResourceAddressFactorySpiTest {
 
     private TcpResourceAddressFactorySpi factory;
     private Map<String,Object> options;
+    private LoginContextFactory loginContextFactory = new LoginContextFactory() {
+        @Override
+        public LoginContext createLoginContext(TypedCallbackHandlerMap additionalCallbacks) throws LoginException {
+            return null;
+        }
+
+        @Override
+        public LoginContext createLoginContext(Subject subject, String username, char[] password) throws LoginException {
+            return null;
+        }
+    };
+
+    @Rule
+    public ExpectedException thrown= ExpectedException.none();
 
     @Parameters
     public static Collection<Object[]> data() {
@@ -77,6 +101,8 @@ public class TcpResourceAddressFactorySpiTest {
         options.put("tcp.maximumOutboundRate", 534L);
         options.put("tcp.qualifier", "random");
         options.put("tcp.bind", new InetSocketAddress(2222));
+        options.put(REALM.name(), "demo");
+        options.put(LOGIN_CONTEXT_FACTORY.name(), loginContextFactory);
     }
 
     @Test
@@ -93,6 +119,27 @@ public class TcpResourceAddressFactorySpiTest {
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPort() throws Exception {
         factory.newResourceAddress("tcp://127.0.0.1");
+    }
+
+    @Test
+    public void shouldThrowSpecificNICExceptionNoBrackets() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("The interface name @ethh is not recognized");
+        factory.newResourceAddress("tcp://@ethh:8080");
+    }
+
+    @Test
+    public void shouldThrowSpecificNICExceptionBrackets() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("The interface name [@ethh] is not recognized");
+        factory.newResourceAddress("tcp://[@ethh]:8080");
+    }
+
+    @Test
+    public void shouldThrowGenericResolutionException() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Unable to resolve DNS name: ethh");
+        factory.newResourceAddress("tcp://ethh:8080");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -136,6 +183,8 @@ public class TcpResourceAddressFactorySpiTest {
         assertNull(address.getOption(QUALIFIER));
         assertNull(address.getOption(BIND_ADDRESS));
         assertEquals(0xFFFFFFFFL, address.getOption(MAXIMUM_OUTBOUND_RATE).longValue());
+        assertNull(address.getOption(REALM));
+        assertNull(address.getOption(LOGIN_CONTEXT_FACTORY));
     }
 
     @Test
@@ -145,6 +194,8 @@ public class TcpResourceAddressFactorySpiTest {
         assertEquals("random", address.getOption(QUALIFIER));
         assertEquals(new InetSocketAddress(2222), address.getOption(BIND_ADDRESS));
         assertEquals(534L, address.getOption(MAXIMUM_OUTBOUND_RATE).longValue());
+        assertEquals("demo", address.getOption(REALM));
+        assertEquals(loginContextFactory, address.getOption(LOGIN_CONTEXT_FACTORY));
     }
 
     @Test
@@ -212,6 +263,5 @@ public class TcpResourceAddressFactorySpiTest {
         alternate = alternate.getOption(ALTERNATE);
         assertNull(alternate);
     }
-    
 
 }

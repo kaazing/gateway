@@ -36,6 +36,7 @@ import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.http.HttpConnector;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
+import org.kaazing.gateway.transport.ws.WsConnector;
 import org.kaazing.gateway.transport.wseb.WsebConnector;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
@@ -100,6 +101,7 @@ public class WsebConnectorRule implements TestRule {
         private NioSocketAcceptor tcpAcceptor;
         private HttpConnector httpConnector;
         private SchedulerProvider schedulerProvider;
+        private WsConnector wsConnector;
 
         public ConnectorStatement(Statement base) {
             this.base = base;
@@ -127,6 +129,8 @@ public class WsebConnectorRule implements TestRule {
                     configuration.setProperty(WSE_SPECIFICATION.getPropertyName(), "true");
                 }
                 wseConnector.setConfiguration(configuration);
+                wsConnector = (WsConnector)transportFactory.getTransport("ws").getConnector();
+                wseConnector.setWsConnector(wsConnector);
 
                 httpConnector.setBridgeServiceFactory(bridgeServiceFactory);
                 httpConnector.setResourceAddressFactory(resourceAddressFactory);
@@ -137,6 +141,7 @@ public class WsebConnectorRule implements TestRule {
                 tcpAcceptor.dispose();
                 httpConnector.dispose();
                 wseConnector.dispose();
+                wsConnector.dispose();
                 schedulerProvider.shutdownNow();
             }
         }

@@ -70,6 +70,7 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
+import org.kaazing.gateway.server.ExpiringState;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
 import org.kaazing.gateway.transport.Bindings;
 import org.kaazing.gateway.transport.BridgeAcceptor;
@@ -79,6 +80,7 @@ import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpBindings.HttpBinding;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
@@ -93,7 +95,6 @@ import org.kaazing.gateway.transport.http.bridge.filter.HttpSerializeRequestsFil
 import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
 import org.kaazing.gateway.transport.http.resource.HttpDynamicResource;
 import org.kaazing.gateway.transport.http.resource.HttpDynamicResourceFactory;
-import org.kaazing.gateway.util.LoggingUtils;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
@@ -124,6 +125,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
     private SchedulerProvider schedulerProvider;
 
+	private ExpiringState expiringState;
+
     private Properties configuration;
 
     private boolean httpxeSpecCompliant;
@@ -131,6 +134,11 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
     @Resource(name = "schedulerProvider")
     public void setSchedulerProvider(SchedulerProvider provider) {
         this.schedulerProvider = provider;
+    }
+
+    @Resource(name = "expiringState")
+    public void setExpiringState(ExpiringState expiringState) {
+        this.expiringState = expiringState;
     }
 
     @Resource(name = "configuration")
@@ -371,7 +379,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                     session.close(false);
 
                     String message = String.format("Unexpected HTTP exception: %s", cause);
-                    LoggingUtils.log(logger, message, cause);
+                    LoggingUtils.log(session, logger, message, cause);
                 }
 
                 // Note: we must trigger doSessionClosed here to avoid recursion of exceptionCaught
@@ -381,7 +389,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 if (logger.isDebugEnabled()) {
                 // handle malformed HTTP scenario
                     String message = format("Error on HTTP connection, closing connection: %s", cause);
-                    LoggingUtils.log(logger, message, cause);
+                    LoggingUtils.log(session, logger, message, cause);
                 }
 
                 if (!session.isClosing() && cause instanceof HttpProtocolDecoderException) {
@@ -566,7 +574,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 break;
             case SUBJECT_SECURITY:
                 // One instance of HttpSubjectSecurityFilter per session
-                HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter(LoggerFactory.getLogger(SECURITY_LOGGER_NAME));
+                HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter(LoggerFactory.getLogger(SECURITY_LOGGER_NAME), expiringState);
                 filter.setSchedulerProvider(schedulerProvider);
                 chain.addLast(acceptFilter.filterName(), filter);
                 break;

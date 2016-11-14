@@ -38,6 +38,11 @@
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
+            <artifactId>gateway.server.api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
             <artifactId>gateway.server.spi</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -166,6 +171,11 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>specification.http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.security</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

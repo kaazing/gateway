@@ -30,20 +30,24 @@ import org.kaazing.gateway.transport.http.HttpVersion;
 import org.kaazing.gateway.util.turn.TurnException;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TurnRestServiceHandler.class);
     private TurnRestCredentialsGenerator credentialGenerator;
-    private String turnUrls;
-    private String stunUrls;
+    private String urls;
 
     private String ttl;
 
-    TurnRestServiceHandler(String ttl, TurnRestCredentialsGenerator credentialGenerator, String turnUrls, String stunUrls) {
+    TurnRestServiceHandler(String ttl, TurnRestCredentialsGenerator credentialGenerator,
+            String urls) {
+
         this.ttl = ttl;
         this.credentialGenerator = credentialGenerator;
-        this.turnUrls = turnUrls;
-        this.stunUrls = stunUrls;
+        this.urls = urls;
+
     }
 
     @Override
@@ -75,9 +79,10 @@ class TurnRestServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
             TurnRestCredentials credentials = credentialGenerator.generate(subject);
             username = credentials.getUsername();
             password = credentials.getPassword();
+            LOGGER.info(String.format("%s Generated username: %s", session, username));
         }
 
-        String response = TurnRestJSONResponse.createResponse(username, password, ttl, turnUrls, stunUrls);
+        String response = TurnRestJSONResponse.createResponse(username, password, ttl, this.urls);
 
         if (password != null) {
             Arrays.fill(password, '0');

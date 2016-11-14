@@ -201,16 +201,21 @@
                 <configuration>
                     <dependencyReducedPomLocation>${basedir}/target/dependency-reduced-pom.xml</dependencyReducedPomLocation>
                     <createSourcesJar>${create.shaded.sources}</createSourcesJar>
-                       <filters>
-                            <filter>
-                               <artifact>*:*</artifact>
-                               <excludes>
-                                  <exclude>org/slf4j/*</exclude>
-                                  <exclude>org/slf4j/helpers/*</exclude>
-                                  <exclude>org/slf4j/spi/*</exclude>
-                               </excludes>
-                            </filter>
-                         </filters>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>org/slf4j/*</exclude>
+                                <exclude>org/slf4j/helpers/*</exclude>
+                                <exclude>org/slf4j/spi/*</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                    <artifactSet>
+                        <excludes>
+                            <exclude>uk.co.real-logic:Agrona</exclude>
+                        </excludes>
+                    </artifactSet>
                 </configuration>
                 <executions>
                     <execution>

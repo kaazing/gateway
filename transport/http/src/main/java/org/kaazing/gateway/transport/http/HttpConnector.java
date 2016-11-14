@@ -30,6 +30,7 @@ import static org.kaazing.gateway.transport.http.HttpConnectFilter.CONTENT_LENGT
 import static org.kaazing.gateway.transport.http.HttpConnectFilter.PROTOCOL_HTTPXE;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_AUTHORIZATION;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_PROXY_AUTHORIZATION;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_SEC_CHALLENGE_IDENTITY;
 import static org.kaazing.gateway.transport.http.HttpUtils.hasCloseHeader;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolHeaderFilter.PROTOCOL_HTTPXE_1_1;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter.PROTOCOL_HTTP_1_1;
@@ -511,6 +512,10 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                 httpSession.setWriteHeader(HEADER_AUTHORIZATION, authorizationValue);
             } else {
                 httpSession.setWriteHeader(HEADER_PROXY_AUTHORIZATION, authorizationValue);
+            }
+            final String challengeIdentity = httpSession.getReadHeader(HEADER_SEC_CHALLENGE_IDENTITY);
+            if (challengeIdentity != null) {
+                httpSession.setWriteHeader(HEADER_SEC_CHALLENGE_IDENTITY, challengeIdentity);
             }
             return retryConnect(httpSession, session, newConnectAddress);
         }

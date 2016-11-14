@@ -15,11 +15,6 @@
  */
 package org.kaazing.gateway.transport.wsn.specification.ws.connector;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.kaazing.test.util.ITUtil.timeoutRule;
-
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -35,6 +30,11 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.test.util.ITUtil;
 import org.kaazing.test.util.MethodExecutionTrace;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 public class OpeningHandshakeIT {
     private final WsnConnectorRule connector = new WsnConnectorRule();
@@ -101,10 +101,8 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Specification({
-        "request.headers.random.case/handshake.response"
-        })
-    public void shouldEstablishConnectionWithRandomCaseRequestHeaders() throws Exception {
+    @Specification("response.header.upgrade.case.insensitive.websocket/handshake.response")
+    public void shouldEstablishConnectionWithRandomCaseUpgradeRequestHeader() throws Exception {
 
         final IoHandler handler = context.mock(IoHandler.class);
 
@@ -123,10 +121,48 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Specification({
-        "response.headers.random.case/handshake.response"
-        })
-    public void shouldEstablishConnectionWithRandomCaseResponseHeaders() throws Exception {
+    @Specification("response.header.connection.case.insensitive.upgrade/handshake.response")
+    public void shouldEstablishConnectionWithRandomCaseConnectionRequestHeader() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).sessionOpened(with(any(IoSessionEx.class)));
+            }
+        });
+
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
+        connectFuture.awaitUninterruptibly();
+        assertTrue(connectFuture.isConnected());
+
+
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("response.header.connection.case.insensitive.upgrade/handshake.response")
+    public void shouldEstablishConnectionWithRandomCaseUpgradeResponseHeader() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).sessionOpened(with(any(IoSessionEx.class)));
+            }
+        });
+
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
+        connectFuture.awaitUninterruptibly();
+        assertTrue(connectFuture.isConnected());
+
+
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("response.header.connection.case.insensitive.upgrade/handshake.response")
+    public void shouldEstablishConnectionWithRandomCaseConnectionResponseHeader() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 
         context.checking(new Expectations() {
@@ -185,72 +221,6 @@ public class OpeningHandshakeIT {
 
         String [] protocols = {"primary", " secondary"}; // Need the space to honor the script.
         ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", protocols, null, handler);
-        connectFuture.awaitUninterruptibly();
-        assertTrue(connectFuture.isConnected());
-
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "request.header.sec.websocket.extensions/handshake.response"
-        })
-    public void shouldEstablishConnectionWithRequestHeaderSecWebSocketExtensions() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                atMost(1).of(handler).sessionOpened(with(any(IoSessionEx.class)));
-            }
-        });
-
-        String[] extensions = {"primary", " secondary"}; // Need the space to honor the script.
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, extensions, handler);
-        connectFuture.awaitUninterruptibly();
-        assertTrue(connectFuture.isConnected());
-
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.header.sec.websocket.extensions.partial.agreement/handshake.response"
-        })
-    public void shouldEstablishConnectionWithSomeExtensionsNegotiated() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                atMost(1).of(handler).sessionOpened(with(any(IoSessionEx.class)));
-            }
-        });
-
-        String[] extensions = {"valid", " invalid"}; // Need the space to honor the script.
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, extensions, handler);
-        connectFuture.awaitUninterruptibly();
-        assertTrue(connectFuture.isConnected());
-
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.header.sec.websocket.extensions.reordered/handshake.response"
-        })
-    public void shouldEstablishConnectionWhenOrderOfExtensionsNegotiatedChanged() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                atMost(1).of(handler).sessionOpened(with(any(IoSessionEx.class)));
-            }
-        });
-
-        String[] extensions = {"primary", " secondary"}; // Need the space to honor the script.
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, extensions, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
 
@@ -382,29 +352,6 @@ public class OpeningHandshakeIT {
         });
 
         ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
-        connectFuture.awaitUninterruptibly();
-        assertFalse(connectFuture.isConnected());
-
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.header.sec.websocket.extensions.not.negotiated/handshake.response" })
-    public void shouldFailConnectionWhenResponseHeaderSecWebSocketExtensionsNotNegotiated() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-
-        context.checking(new Expectations() {
-            {
-                never(handler).sessionCreated(with(any(IoSessionEx.class)));
-                never(handler).sessionOpened(with(any(IoSessionEx.class)));
-                never(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                never(handler).sessionClosed(with(any(IoSessionEx.class)));
-            }
-        });
-
-        String[] extensions = {"primary", " secondary"};  // Need space to honor the script.
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, extensions, handler);
         connectFuture.awaitUninterruptibly();
         assertFalse(connectFuture.isConnected());
 
