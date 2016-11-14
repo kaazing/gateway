@@ -20,7 +20,6 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.BIND_ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceFactories.changeSchemeOnly;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.CODEC_REQUIRED;
-import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.MAX_MESSAGE_SIZE;
@@ -95,11 +94,6 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
         Boolean lightweight = (Boolean) optionsByName.remove(LIGHTWEIGHT.name());
         if (lightweight != null) {
             options.setOption(LIGHTWEIGHT, lightweight);
-        }
-        
-        List<String> extensions = (List<String>) optionsByName.remove(EXTENSIONS.name());
-        if (extensions != null) {
-            options.setOption(EXTENSIONS, extensions);
         }
         
         Integer maxMessageSize = (Integer) optionsByName.remove(MAX_MESSAGE_SIZE.name());
@@ -214,7 +208,6 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
 
         address.setOption0(CODEC_REQUIRED, options.getOption(CODEC_REQUIRED));
         address.setOption0(LIGHTWEIGHT, options.getOption(LIGHTWEIGHT));
-        address.setOption0(EXTENSIONS, options.getOption(EXTENSIONS));
         address.setOption0(MAX_MESSAGE_SIZE, options.getOption(MAX_MESSAGE_SIZE));
         address.setOption0(INACTIVITY_TIMEOUT, options.getOption(INACTIVITY_TIMEOUT));
         address.setOption0(SUPPORTED_PROTOCOLS, options.getOption(SUPPORTED_PROTOCOLS));

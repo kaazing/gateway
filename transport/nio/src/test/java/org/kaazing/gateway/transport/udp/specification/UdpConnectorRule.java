@@ -31,6 +31,7 @@ import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.nio.internal.NioDatagramAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioDatagramConnector;
+import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
 
@@ -71,6 +72,7 @@ public class UdpConnectorRule implements TestRule {
 
         @Override
         public void evaluate() throws Throwable {
+            NioSocketAcceptor tcpAcceptor = null;
             try {
                 // Connector setup
                 schedulerProvider = new SchedulerProvider();
@@ -79,18 +81,26 @@ public class UdpConnectorRule implements TestRule {
                 TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.emptyMap());
                 BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
 
+                tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
+                tcpAcceptor.setResourceAddressFactory(addressFactory);
+                tcpAcceptor.setBridgeServiceFactory(serviceFactory);
+                tcpAcceptor.setSchedulerProvider(schedulerProvider);
+
                 udpAcceptor = (NioDatagramAcceptor) transportFactory.getTransport("udp").getAcceptor();
                 udpAcceptor.setResourceAddressFactory(addressFactory);
                 udpAcceptor.setBridgeServiceFactory(serviceFactory);
                 udpAcceptor.setSchedulerProvider(schedulerProvider);
+                udpAcceptor.setTcpAcceptor(tcpAcceptor);
 
                 udpConnector = (NioDatagramConnector) transportFactory.getTransport("udp").getConnector();
                 udpConnector.setResourceAddressFactory(addressFactory);
                 udpConnector.setBridgeServiceFactory(serviceFactory);
+                udpConnector.setTcpAcceptor(tcpAcceptor);
 
 
                 base.evaluate();
             } finally {
+                tcpAcceptor.dispose();
                 udpAcceptor.dispose();
                 udpConnector.dispose();
                 schedulerProvider.shutdownNow();

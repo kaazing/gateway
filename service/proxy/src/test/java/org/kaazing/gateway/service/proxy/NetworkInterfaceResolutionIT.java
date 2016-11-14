@@ -49,7 +49,7 @@ public class NetworkInterfaceResolutionIT {
                         .done()
                         .service()
                             .accept("tcp://localhost:8003")
-                             .acceptOption("tcp.bind", "[@" + networkInterface + "]:7082")
+                                .acceptOption("tcp.bind", "[@" + networkInterface + "]:7082")
                             .connect("tcp://localhost:8004")
                             .type("proxy")
                         .done()
@@ -59,6 +59,12 @@ public class NetworkInterfaceResolutionIT {
                             .connect("http://localhost:8080")
                             .type("proxy")
                         .done()
+                        .service()
+                            .accept("http://localhost:8017")
+                            .connect("http://localhost:8027")
+                                .connectOption("http.transport", "tcp://[@" + networkInterface + "]:8037")
+                            .type("proxy")
+                            .done()
                     .done();
             // @formatter:on
             init(configuration);
@@ -91,6 +97,14 @@ public class NetworkInterfaceResolutionIT {
     @Specification("network.interface.accept.option.http.transport")
     @Test
     public void networkInterfaceAcceptOptionHttpTransport() throws Exception {
+        robot.finish();
+    }
+
+    @Specification({
+        "network.interface.connect.option.http.transport.request"
+        })
+    @Test
+    public void networkInterfaceConnectOptionHttpTransport() throws Exception {
         robot.finish();
     }
 }

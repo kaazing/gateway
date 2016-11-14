@@ -15,8 +15,6 @@
  */
 package org.kaazing.gateway.transport.wsn.specification.ws.connector;
 
-import static java.util.Arrays.asList;
-import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.SUPPORTED_PROTOCOLS;
 
 import java.util.Collections;
@@ -36,6 +34,7 @@ import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.http.HttpConnector;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
+import org.kaazing.gateway.transport.ws.WsConnector;
 import org.kaazing.gateway.transport.wsn.WsnConnector;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
@@ -79,10 +78,6 @@ public class WsnConnectorRule implements TestRule {
             connectOptions.put(SUPPORTED_PROTOCOLS.name(), protocols);
         }
 
-        if (extensions != null) {
-            connectOptions.put(EXTENSIONS.name(), asList(extensions));
-        }
-
         ResourceAddress connectAddress =
                 addressFactory.newResourceAddress(connect, connectOptions);
         return wsnConnector.connect(connectAddress, connectHandler, null);
@@ -96,6 +91,7 @@ public class WsnConnectorRule implements TestRule {
         private NioSocketAcceptor tcpAcceptor;
         private HttpConnector httpConnector;
         private SchedulerProvider schedulerProvider;
+        private WsConnector wsConnector;
 
         public ConnectorStatement(Statement base) {
             this.base = base;
@@ -111,25 +107,28 @@ public class WsnConnectorRule implements TestRule {
                 TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.emptyMap());
                 BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
 
-                tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
+                tcpAcceptor = (NioSocketAcceptor) transportFactory.getTransport("tcp").getAcceptor();
                 tcpAcceptor.setResourceAddressFactory(addressFactory);
                 tcpAcceptor.setBridgeServiceFactory(serviceFactory);
                 tcpAcceptor.setSchedulerProvider(schedulerProvider);
 
-                tcpConnector = (NioSocketConnector)transportFactory.getTransport("tcp").getConnector();
+                tcpConnector = (NioSocketConnector) transportFactory.getTransport("tcp").getConnector();
                 tcpConnector.setResourceAddressFactory(addressFactory);
                 tcpConnector.setBridgeServiceFactory(serviceFactory);
                 tcpConnector.setTcpAcceptor(tcpAcceptor);
 
-                httpConnector = (HttpConnector)transportFactory.getTransport("http").getConnector();
+                httpConnector = (HttpConnector) transportFactory.getTransport("http").getConnector();
                 httpConnector.setBridgeServiceFactory(serviceFactory);
                 httpConnector.setResourceAddressFactory(addressFactory);
 
-                wsnConnector = (WsnConnector)transportFactory.getTransport("wsn").getConnector();
+                wsConnector = (WsConnector) transportFactory.getTransport("ws").getConnector();
+
+                wsnConnector = (WsnConnector) transportFactory.getTransport("wsn").getConnector();
                 wsnConnector.setConfiguration(new Properties());
                 wsnConnector.setBridgeServiceFactory(serviceFactory);
                 wsnConnector.setSchedulerProvider(schedulerProvider);
                 wsnConnector.setResourceAddressFactory(addressFactory);
+                wsnConnector.setWsConnector(wsConnector);
 
                 base.evaluate();
             } finally {
@@ -137,6 +136,7 @@ public class WsnConnectorRule implements TestRule {
                 tcpAcceptor.dispose();
                 httpConnector.dispose();
                 wsnConnector.dispose();
+                wsConnector.dispose();
                 schedulerProvider.shutdownNow();
             }
         }

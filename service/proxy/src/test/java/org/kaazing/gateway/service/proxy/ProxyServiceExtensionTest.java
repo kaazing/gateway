@@ -16,24 +16,48 @@
 package org.kaazing.gateway.service.proxy;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URI;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.netx.URLConnectionHelper;
 import org.kaazing.test.util.ITUtil;
 
 public class ProxyServiceExtensionTest {
+
+    private static ClassLoader classLoader;
+
+    @BeforeClass
+    public static void before() throws Exception {
+        classLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(new TestClassLoader(TestExtension.class.getName()));
+    }
+
+    @AfterClass
+    public static void after() {
+        Thread.currentThread().setContextClassLoader(classLoader);
+    }
 
     private GatewayRule gateway = new GatewayRule() {
         {
@@ -83,6 +107,35 @@ public class ProxyServiceExtensionTest {
         } catch (Exception ex) {
             fail("Unexpected exception in client connecting to server: " + ex);
         }
+
+        Thread.currentThread().setContextClassLoader(new TestClassLoader());
+
+    }
+
+    /**
+     * A classloader whose getResources("META-INF/services/org.kaazing.gateway.service.proxy.ProxyServiceExtensionSpi")
+     * method will return a URL whose contents will be the list of class names supplied in the constructor.
+     * This avoids the need for test meta-info resources files to be available on the test class path.
+     */
+    private static class TestClassLoader extends ClassLoader {
+        private final List<URL> urls;
+
+        TestClassLoader(String... factorySpiClassNames) throws IOException {
+            URLConnectionHelper helper = URLConnectionHelper.newInstance();
+            String contents = Arrays.stream(factorySpiClassNames).collect(joining("\n"));
+            URI uri = URI.create("data:," + contents);
+            URL url = helper.toURL(uri);
+            urls = Collections.singletonList(url);
+        }
+
+        @Override
+        public Enumeration<URL> getResources(String name) throws IOException {
+            if (name.equals("META-INF/services/" + ProxyServiceExtensionSpi.class.getName())) {
+                return Collections.enumeration(urls);
+            }
+            return super.getResources(name);
+        }
+
     }
 
 }
