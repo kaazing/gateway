@@ -101,8 +101,4 @@ public interface SessionManagementBean extends ManagementBean {
 
     long getLastRoundTripLatencyTimestamp();
 
-    Object getAttachment();
-
-    void setAttachment(Object attached);
-
 }
