@@ -94,8 +94,8 @@ public class JmxSessionPrincipalsSupertypeIT extends JmxSessionPrincipalsIT {
         "wse.session.with.user.principal.joe",
         "wsn.session.with.user.principal.ann" })
     @Test
-    public void shouldKillSessionsByUserPrincipal() throws Exception {
-        shouldKillSessionsByUserPrincipal("org.kaazing.gateway.management.test.util.TokenCustomLoginModule$UserInterface");
+    public void shouldCloseSessionsByUserPrincipal() throws Exception {
+        shouldCloseSessionsByUserPrincipal("org.kaazing.gateway.management.test.util.TokenCustomLoginModule$UserInterface");
     }
 
     // Test should kill all sessions that have "TEST" as a role Principal
@@ -105,8 +105,8 @@ public class JmxSessionPrincipalsSupertypeIT extends JmxSessionPrincipalsIT {
         "wse.session.with.user.principal.joe",
         "wsn.session.with.user.principal.ann" })
     @Test
-    public void shouldKillSessionsByRolePrincipal() throws Exception {
-        shouldKillSessionsByRolePrincipal("org.kaazing.gateway.management.test.util.TokenCustomLoginModule$RoleInterface");
+    public void shouldCloseSessionsByRolePrincipal() throws Exception {
+        shouldCloseSessionsByRolePrincipal("org.kaazing.gateway.management.test.util.TokenCustomLoginModule$RoleInterface");
     }
 
 }

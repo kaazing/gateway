@@ -23,10 +23,13 @@ import static org.kaazing.gateway.management.test.util.TlsTestUtil.trustStore;
 
 import java.security.KeyStore;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
  * This test contains a negative tests for the configuration of user principle classes.
@@ -41,6 +44,10 @@ public class BadUserPrincipalsIT {
     private final KeyStore keyStore = keyStore();
     private final char[] password = password();
     private final KeyStore trustStore = trustStore();
+
+    @Rule
+    public TestRule trace = new MethodExecutionTrace();
+
 
     @Test(expected=IllegalArgumentException.class)
     public void shouldFailGatewayStartWhenCantLoadUserPrincipalClass() throws Exception {
