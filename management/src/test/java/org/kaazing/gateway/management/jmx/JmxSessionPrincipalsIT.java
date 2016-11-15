@@ -297,7 +297,7 @@ public class JmxSessionPrincipalsIT {
 
         startTime = currentTimeMillis();
         numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
-        while (numberOfCurrentSessions > 1 && (currentTimeMillis() - startTime) < 10000) {
+        while (numberOfCurrentSessions > 0 && (currentTimeMillis() - startTime) < 10000) {
             Thread.sleep(500);
             numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
         }
