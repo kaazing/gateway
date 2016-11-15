@@ -1322,6 +1322,9 @@
             <element name="tcp.transport" maxOccurs="1" minOccurs="0" type="anyURI">
                 <annotation/>
             </element>
+            <element name="udp.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+                <annotation/>
+            </element>
             <element name="ssl.transport" maxOccurs="1" minOccurs="0" type="anyURI">
                 <annotation/>
             </element>
@@ -1387,6 +1390,9 @@
                 <annotation/>
             </element>
             <element name="tcp.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+                <annotation/>
+            </element>
+            <element name="udp.transport" maxOccurs="1" minOccurs="0" type="anyURI">
                 <annotation/>
             </element>
             <element name="ssl.transport" maxOccurs="1" minOccurs="0" type="anyURI">
