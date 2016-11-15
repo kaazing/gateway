@@ -723,13 +723,6 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     }
 
     @Override
-    public void removeSessionManagementBean(SessionManagementBean sessionBean) {
-        for (ManagementServiceHandler handler : managementServiceHandlers) {
-            handler.removeSessionManagementBean(sessionBean);
-        }
-    }
-
-    @Override
     public void updateManagementContext(SecurityContext securityContext) {
         if (managementConfigured.compareAndSet(false, true)) {
             GatewayManagementBean gatewayBean = getLocalGatewayManagementBean();

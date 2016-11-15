@@ -16,7 +16,6 @@
 package org.kaazing.gateway.management.jmx;
 
 import java.lang.management.ManagementFactory;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -188,8 +187,7 @@ class JmxManagementServiceHandler implements ManagementServiceHandler {
         }
     }
 
-    @Override
-    public void removeSessionManagementBean(SessionManagementBean sessionManagementBean) {
+    public SessionMXBean removeSessionMXBean(SessionManagementBean sessionManagementBean) {
         try {
             SessionMXBean sessionMXBean = sessionBeanMap.remove(sessionManagementBean.getId());
             if (sessionMXBean != null) {
@@ -198,6 +196,7 @@ class JmxManagementServiceHandler implements ManagementServiceHandler {
                     mbeanServer.unregisterMBean(name);
                 }
             }
+            return sessionMXBean;
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }

@@ -26,6 +26,7 @@ import static org.kaazing.gateway.management.test.util.TlsTestUtil.password;
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.trustStore;
 
 import java.security.KeyStore;
+import java.util.Arrays;
 import java.util.Set;
 
 import javax.management.MBeanServerConnection;
@@ -42,6 +43,7 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.ITUtil;
+import org.kaazing.test.util.MemoryAppender;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
@@ -132,8 +134,8 @@ public class JmxSessionPrincipalsIT {
     }
 
     private JmxRule jmxConnection = new JmxRule(JMX_URI);
-    public TestRule timeout = ITUtil.timeoutRule(20, SECONDS);
-    public TestRule trace = new MethodExecutionTrace();
+    private TestRule timeout = ITUtil.timeoutRule(20, SECONDS);
+    private TestRule trace = new MethodExecutionTrace();
 
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(gateway).around(k3po).around(jmxConnection).around(timeout);
@@ -166,8 +168,8 @@ public class JmxSessionPrincipalsIT {
         "wse.session.with.user.principal.joe",
         "wsn.session.with.user.principal.ann" })
     @Test
-    public void shouldKillSessionsByUserPrincipal() throws Exception {
-        shouldKillSessionsByUserPrincipal("org.kaazing.gateway.management.test.util.TokenCustomLoginModule$UserPrincipal");
+    public void shouldCloseSessionsByUserPrincipal() throws Exception {
+        shouldCloseSessionsByUserPrincipal("org.kaazing.gateway.management.test.util.TokenCustomLoginModule$UserPrincipal");
     }
 
     // Test should kill all sessions that have "TEST" as a role Principal
@@ -176,12 +178,12 @@ public class JmxSessionPrincipalsIT {
         "wse.session.with.user.principal.joe",
         "wsn.session.with.user.principal.ann" })
     @Test
-    public void shouldKillSessionsByRolePrincipal() throws Exception {
-        shouldKillSessionsByRolePrincipal("org.kaazing.gateway.management.test.util.TokenCustomLoginModule$RolePrincipal");
+    public void shouldCloseSessionsByRolePrincipal() throws Exception {
+        shouldCloseSessionsByRolePrincipal("org.kaazing.gateway.management.test.util.TokenCustomLoginModule$RolePrincipal");
     }
 
     // Test should only kill sessions that have the "joe" user Principal
-    protected final void shouldKillSessionsByUserPrincipal(String userPrincipalClassName) throws Exception {
+    protected final void shouldCloseSessionsByUserPrincipal(String userPrincipalClassName) throws Exception {
         k3po.finish();
         ObjectName echoServiceMbeanName = null;
 
@@ -216,12 +218,12 @@ public class JmxSessionPrincipalsIT {
             numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
         }
 
-        assertEquals("Ann Wsn session should still be alive", (Long) 1L, numberOfCurrentSessions);
+        assertEquals("Just Ann's Wsn session should still be alive", (Long) 1L, numberOfCurrentSessions);
     }
 
     // Test should kill all sessions that have "TEST" as a role Principal
     // please see "Jmx should KillSessions By Role Principal can fail if invoked early in session initialization #448"
-    protected final void shouldKillSessionsByRolePrincipal(String rolePrincipalClassName) throws Exception {
+    protected final void shouldCloseSessionsByRolePrincipal(String rolePrincipalClassName) throws Exception {
         k3po.finish();
         ObjectName echoServiceMbeanName = null;
         MBeanServerConnection mbeanServerConn = jmxConnection.getConnection();
@@ -257,6 +259,57 @@ public class JmxSessionPrincipalsIT {
         }
 
         assertEquals("Not all sessions have been closed", (Long) 0L, numberOfCurrentSessions);
+    }
+
+
+
+    // Test case for issue #783: closeSessions (by principal) service bean method causes NPEs
+    @Specification({
+        "wsn.session.with.user.principal.joe"})
+    @Test
+    public void shouldNotThrowNullPointerExceptionWhenCloseSessionsIsExecuted() throws Exception {
+        k3po.finish();
+        ObjectName echoServiceMbeanName = null;
+
+        MBeanServerConnection mbeanServerConn = jmxConnection.getConnection();
+        Set<ObjectName> mbeanNames = mbeanServerConn.queryNames(null, null);
+        String MBeanPrefix = "subtype=services,serviceType=echo,serviceId=\"" + ECHO_WS_SERVICE + "\",name=summary";
+        for (ObjectName name : mbeanNames) {
+            if (name.toString().indexOf(MBeanPrefix) > 0) {
+                echoServiceMbeanName = name;
+                break;
+            }
+        }
+
+        // Wait for the session to be open
+        long startTime = currentTimeMillis();
+        Long numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
+        while (numberOfCurrentSessions < 1 && (currentTimeMillis() - startTime) < 10000) {
+            Thread.sleep(500);
+            numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
+        }
+        assertEquals("One session should be alive", (Long) 1L, numberOfCurrentSessions);
+
+        ObjectName targetService = new ObjectName(echoServiceMbeanName.toString());
+        Object[] params = {"joe", "org.kaazing.gateway.management.test.util.TokenCustomLoginModule$UserPrincipal"};
+        String[] signature = {String.class.getName(), String.class.getName()};
+        mbeanServerConn.invoke(targetService, "closeSessions", params, signature);
+
+        startTime = currentTimeMillis();
+        numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
+        while (numberOfCurrentSessions > 1 && (currentTimeMillis() - startTime) < 10000) {
+            Thread.sleep(500);
+            numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
+        }
+
+        assertEquals("Wsn session should have been killed", (Long) 0L, numberOfCurrentSessions);
+        MemoryAppender.assertLogMessages(
+                null,
+                Arrays.asList("Error during doSessionClosed session listener notifications"), // forbidden patterns
+                null,
+                Arrays.asList(NullPointerException.class), // forbidden exceptions
+                null,
+                false);
     }
 
 }

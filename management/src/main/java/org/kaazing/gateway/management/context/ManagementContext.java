@@ -117,8 +117,6 @@ public interface ManagementContext {
      */
     SessionManagementBean addSessionManagementBean(ServiceManagementBean serviceManagementBean, IoSessionEx session);
 
-    void removeSessionManagementBean(SessionManagementBean sessionBean);
-
     void updateManagementContext(SecurityContext securityContext);
 
     ClusterContext getCluster();
