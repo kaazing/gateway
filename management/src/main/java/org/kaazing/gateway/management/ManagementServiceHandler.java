@@ -24,12 +24,6 @@ import org.kaazing.gateway.management.config.ServiceDefaultsConfigurationBean;
 import org.kaazing.gateway.management.gateway.GatewayManagementBean;
 import org.kaazing.gateway.management.service.ServiceManagementBean;
 import org.kaazing.gateway.management.session.SessionManagementBean;
-import org.kaazing.gateway.management.system.CpuListManagementBean;
-import org.kaazing.gateway.management.system.CpuManagementBean;
-import org.kaazing.gateway.management.system.HostManagementBean;
-import org.kaazing.gateway.management.system.JvmManagementBean;
-import org.kaazing.gateway.management.system.NicListManagementBean;
-import org.kaazing.gateway.management.system.NicManagementBean;
 import org.kaazing.gateway.service.ServiceContext;
 
 /**
@@ -78,18 +72,4 @@ public interface ManagementServiceHandler {
     void addServiceDefaultsConfigurationBean(ServiceDefaultsConfigurationBean serviceDefaultsConfigurationBean);
 
     void addVersionInfo(GatewayManagementBean gatewayBean);
-
-    void addSystemManagementBean(HostManagementBean systemManagementBean);
-
-    void addCpuListManagementBean(CpuListManagementBean cpuListManagementBean);
-
-    void addNicListManagementBean(NicListManagementBean nicListManagementBean);
-
-    void addJvmManagementBean(JvmManagementBean jvmManagementBean);
-
-    // Because the following two are actually contained within other management beans,
-    // they're treated somewhat differently, and are not directly ManagementBean instances.
-    void addCpuManagementBean(CpuManagementBean cpuManagementBean, String hostAndPid);
-
-    void addNicManagementBean(NicManagementBean nicManagementBean, String hostAndPid);
 }
