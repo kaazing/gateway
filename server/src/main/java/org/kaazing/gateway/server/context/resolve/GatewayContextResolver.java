@@ -395,6 +395,9 @@ public class GatewayContextResolver {
     private SchemeConfig supplySchemeConfig(String schemeName) {
         SchemeConfig schemeConfig = schemeConfigsByName.get(schemeName);
         if (schemeConfig == null) {
+            if (schemeName.contains("tls")) {
+                schemeName = schemeName.replace("tls", "ssl");
+            }
             schemeConfig = findSchemeConfig(schemeName);
             if (schemeConfig == null) {
                 throw new IllegalArgumentException("Missing scheme \"" + schemeName + "\"");
@@ -763,6 +766,12 @@ public class GatewayContextResolver {
         Collection<String> urisWithPort = new HashSet<>();
         for (String uri : acceptURIs) {
             String resolvedURI = resolveURI(getCanonicalURI(uri, true));
+            if (resolvedURI.contains("tls://")) {
+                resolvedURI = resolvedURI.replace("tls://", "ssl://");
+                if (resolvedURI.endsWith("/")) {
+                    resolvedURI = resolvedURI.substring(0, resolvedURI.length() - 1);
+                }
+            }
             urisWithPort.add(resolvedURI);
         }
         return urisWithPort;

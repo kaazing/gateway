@@ -85,18 +85,26 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Specification({
-        "request.headers.random.case/handshake.request"
-        })
-    public void shouldEstablishConnectionWithRandomCaseRequestHeaders() throws Exception {
+    @Specification("request.header.upgrade.case.insensitive.websocket/handshake.request")
+    public void shouldEstablishConnectionWithRandomCaseUpgradeRequestHeader() throws Exception {
         k3po.finish();
     }
 
     @Test
-    @Specification({
-        "response.headers.random.case/handshake.request"
-        })
-    public void shouldEstablishConnectionWithRandomCaseResponseHeaders() throws Exception {
+    @Specification("request.header.connection.case.insensitive.upgrade/handshake.request")
+    public void shouldEstablishConnectionWithRandomCaseConnectionRequestHeader() throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("response.header.upgrade.case.insensitive.websocket/handshake.request")
+    public void shouldEstablishConnectionWithRandomCaseUpgradeResponseHeader() throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("response.header.connection.case.insensitive.upgrade/handshake.request")
+    public void shouldEstablishConnectionWithRandomCaseConnectionResponseHeader() throws Exception {
         k3po.finish();
     }
 

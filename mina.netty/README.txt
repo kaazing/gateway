@@ -32,6 +32,9 @@ AbstractNioWorker
 - mina.netty version reduces GC by using a single writeCompletionEvent object
 - mina.netty version checks worker != null in isIoThread for migration support
 
+InternalLoggerFactory
+- Changed default logger factory from JdkLoggerFactory to Slf4jLoggerFactory
+
 NioClientBoss
 - mina.netty version adds int return from process (workDone)
 

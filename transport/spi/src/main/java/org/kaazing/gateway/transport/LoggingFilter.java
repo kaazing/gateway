@@ -15,38 +15,21 @@
  */
 package org.kaazing.gateway.transport;
 
-import static java.lang.String.format;
-
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-
-import javax.security.auth.Subject;
 
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.filterchain.IoFilterChain.Entry;
-import org.apache.mina.core.service.IoAcceptor;
-import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.filter.logging.LogLevel;
-import org.slf4j.Logger;
-
-import static org.kaazing.gateway.resource.address.ResourceAddress.IDENTITY_RESOLVER;
-
-import org.kaazing.gateway.resource.address.IdentityResolver;
-import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.transport.BridgeAcceptor;
 import org.kaazing.gateway.transport.bridge.Message;
-import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
-import org.kaazing.gateway.util.Utils;
+import org.slf4j.Logger;
 
 public class LoggingFilter extends IoFilterAdapter {
 
-    private static final String HOST_PORT_FORMAT = "%s:%d";
     private final Logger logger;
     private final String format;
 
@@ -81,27 +64,28 @@ public class LoggingFilter extends IoFilterAdapter {
 
         void log(Logger logger, String message, Throwable t) {
             if (shouldLog(logger)) {
-                // Include stack trace except for IOException, where we only log stack trace of the cause,
-                // if there is one, to avoid overkill in this common case which can be caused by abrupt
-                // client connection close or inactivity timeout.
-                Throwable stack = t instanceof IOException ? t.getCause() : t;
+                // Include stack trace if log level is info, except for IOException, where we only log stack trace
+                // of the cause, if there is one, and we only log if logger level is info or finer, to avoid overkill
+                // in this common case which can be caused by abrupt client network connection close or inactivity timeout.
+                boolean isIOException = t instanceof IOException;
+                Throwable stack = isIOException ? t.getCause() : t;
                 if (stack != null) {
-                    Utils.log(logger, level, message, stack);
+                    LoggingFilter.log(logger, level, message, stack);
                 } else {
-                    Utils.log(logger, level, message);
+                    LoggingFilter.log(logger, level, message);
                 }
             }
         }
 
         void log(Logger logger, String message, Object param1) {
             if (shouldLog(logger)) {
-                Utils.log(logger, level, message, param1);
+                LoggingFilter.log(logger, level, message, param1);
             }
         }
 
         void log(Logger logger, String message, Object param1, Object param2) {
             if (shouldLog(logger)) {
-                Utils.log(logger, level, message, param1, param2);
+                LoggingFilter.log(logger, level, message, param1, param2);
             }
         }
     }
@@ -110,25 +94,25 @@ public class LoggingFilter extends IoFilterAdapter {
         this(logger, "%s");
     }
 
-    public LoggingFilter(Logger logger, String format) {
+    public LoggingFilter(Logger logger, String sessionIdFormat) {
         if (logger == null) {
             throw new NullPointerException("logger");
         }
 
-        if (format == null) {
-            throw new NullPointerException("format");
+        if (sessionIdFormat == null) {
+            throw new NullPointerException("sessionIdFormat");
         }
 
         this.logger = logger;
-        this.format = format;
-        this.createdFormat = String.format("[%s] CREATED: {}", String.format(format, "{}"));
-        this.openedFormat = String.format("[%s] OPENED: {}", String.format(format, "{}"));
-        this.receivedFormat = String.format("[%s] RECEIVED: {}", String.format(format, "{}", "{}"));
-        this.sentFormat = String.format("[%s] SENT: {}", String.format(format, "{}", "{}"));
-        this.idleFormat = String.format("[%s] IDLE", String.format(format, "{}"));
-        this.exceptionFormat = String.format("[%s] EXCEPTION: %s", String.format(format, "%s"), "%s");
-        this.closedFormat = String.format("[%s] CLOSED: {}", String.format(format, "{}"));
-        this.writeFormat = String.format("[%s] WRITE: {}", String.format(format, "{}", "{}"));
+        this.format = sessionIdFormat;
+        this.createdFormat = String.format("[%s] CREATED: {}", String.format(sessionIdFormat, "{}"));
+        this.openedFormat = String.format("[%s] OPENED: {}", String.format(sessionIdFormat, "{}"));
+        this.receivedFormat = String.format("[%s] RECEIVED: {}", String.format(sessionIdFormat, "{}", "{}"));
+        this.sentFormat = String.format("[%s] SENT: {}", String.format(sessionIdFormat, "{}", "{}"));
+        this.idleFormat = String.format("[%s] IDLE", String.format(sessionIdFormat, "{}"));
+        this.exceptionFormat = String.format("[%s] EXCEPTION: %s", String.format(sessionIdFormat, "%s"), "%s");
+        this.closedFormat = String.format("[%s] CLOSED: {}", String.format(sessionIdFormat, "{}"));
+        this.writeFormat = String.format("[%s] WRITE: {}", String.format(sessionIdFormat, "{}", "{}"));
     }
 
     public static boolean addIfNeeded(Logger logger, IoSession session, String transportName) {
@@ -294,10 +278,14 @@ public class LoggingFilter extends IoFilterAdapter {
 
     protected Strategy getExceptionCaughtStrategy(Throwable exception) {
         // Up to 4.0.9 we were only logging exceptions at debug level.
-        // Ultimately we should treat unexpected exceptions as ERROR level
+        // Up to 5.3.0 we were logging exceptions at info level
+        // We are now logging them at warn level, except for IOExceptions,
+        // and including stack trace only when the logger level is info
+        // (and when there's a cause in case of IOException)
+        // Ultimately we should arguably log unexpected exceptions at error level
         // but we are cautious for now since we don't want customers to suddenly
-        // see lots of exception stacks in the logs
-        return Strategy.INFO;
+        // see lots of exception stacks in the logs.
+        return exception instanceof IOException ? Strategy.INFO : Strategy.WARN;
     }
 
     protected Strategy getSessionClosedStrategy() {
@@ -363,7 +351,7 @@ public class LoggingFilter extends IoFilterAdapter {
     }
 
     protected static String getLoggingFormat(IoSession session, String transportName) {
-        String user = getUserIdentifier(session);
+        String user = LoggingUtils.getUserIdentifier(session);
         String format = transportName + "#%s";
         if (user != null) {
             // Escape % in user in case it contains a scoped ipv6 address like "fe80:0:0:0:90ea:3ee4:77ad:77ec%15:61641"
@@ -371,90 +359,6 @@ public class LoggingFilter extends IoFilterAdapter {
             format = format + " " + user.replace("%", "%%");
         }
         return format;
-    }
-
-    /**
-     * Get a suitable identification for the user. For now this just consists of the TCP endpoint.
-     * the HTTP-layer auth principal, etc.
-     * @param session
-     * @return
-     */
-    static String getUserIdentifier(IoSession session) {
-        IoService service = session.getService();
-        boolean isAcceptor = service instanceof IoAcceptor || service instanceof BridgeAcceptor;
-        SocketAddress hostPortAddress = isAcceptor ? session.getRemoteAddress() : session.getLocalAddress();
-        SocketAddress identityAddress = isAcceptor ? session.getLocalAddress() : session.getRemoteAddress();
-        String identity = resolveIdentity(identityAddress, (IoSessionEx)session);
-        String hostPort = getHostPort(hostPortAddress);
-        return identity == null ? hostPort : format("%s %s", identity, hostPort);
-    }
-
-    /**
-     * Method performing identity resolution - attempts to extract a subject from the current
-     * IoSessionEx session
-     * @param address
-     * @param session
-     * @return
-     */
-    private static String resolveIdentity(SocketAddress address, IoSessionEx session) {
-        if (address instanceof ResourceAddress) {
-            Subject subject = session.getSubject();
-            if (subject == null) {
-                subject = new Subject();
-            }
-            return resolveIdentity((ResourceAddress) address, subject);
-        }
-        return null;
-    }
-
-    /**
-     * Method attempting to perform identity resolution based on the provided subject parameter and transport
-     * It is attempted to perform the resolution from the highest to the lowest layer, recursively.
-     * @param address
-     * @param subject
-     * @return
-     */
-    private static String resolveIdentity(ResourceAddress address, Subject subject) {
-        IdentityResolver resolver = address.getOption(IDENTITY_RESOLVER);
-        ResourceAddress transport = address.getTransport();
-        if (resolver != null) {
-            return resolver.resolve(subject);
-        }
-        if (transport != null) {
-            return resolveIdentity(transport, subject);
-        }
-        return null;
-    }
-
-    /**
-     * Method attempting to retrieve host port identifier
-     * @param address
-     * @return
-     */
-    private static String getHostPort(SocketAddress address) {
-        if (address instanceof ResourceAddress) {
-            ResourceAddress lowest = getLowestTransportLayer((ResourceAddress)address);
-            return format(HOST_PORT_FORMAT, lowest.getResource().getHost(), lowest.getResource().getPort());
-        }
-        if (address instanceof InetSocketAddress) {
-            InetSocketAddress inet = (InetSocketAddress)address;
-            // we don't use inet.toString() because it would include a leading /, for example "/127.0.0.1:21345"
-            // use getHostString() to avoid a reverse DNS lookup
-            return format(HOST_PORT_FORMAT, inet.getHostString(), inet.getPort());
-        }
-        return null;
-    }
-
-    /**
-     * Method returning lowest transport layer
-     * @param transport
-     * @return
-     */
-    private static ResourceAddress getLowestTransportLayer(ResourceAddress transport) {
-        if (transport.getTransport() != null) {
-            return getLowestTransportLayer(transport.getTransport());
-        }
-        return transport;
     }
 
     private static boolean shouldLog(Logger logger, LogLevel level) {
@@ -475,7 +379,18 @@ public class LoggingFilter extends IoFilterAdapter {
         return false;
     }
 
-    public static void log(Logger logger, LogLevel eventLevel, String message, Throwable cause) {
+    private static void log(Logger logger, LogLevel eventLevel, String message) {
+        switch (eventLevel) {
+            case TRACE : logger.trace(message); return;
+            case DEBUG : logger.debug(message); return;
+            case INFO  : logger.info(message); return;
+            case WARN  : logger.warn(message); return;
+            case ERROR : logger.error(message); return;
+            default    : return;
+        }
+    }
+
+    private static void log(Logger logger, LogLevel eventLevel, String message, Throwable cause) {
         switch (eventLevel) {
             case TRACE : logger.trace(message, cause); return;
             case DEBUG : logger.debug(message, cause); return;
@@ -486,7 +401,7 @@ public class LoggingFilter extends IoFilterAdapter {
         }
     }
 
-    public static void log(Logger logger, LogLevel eventLevel, String message, Object param) {
+    protected static void log(Logger logger, LogLevel eventLevel, String message, Object param) {
         switch (eventLevel) {
             case TRACE : logger.trace(message, param); return;
             case DEBUG : logger.debug(message, param); return;
@@ -497,24 +412,13 @@ public class LoggingFilter extends IoFilterAdapter {
         }
     }
 
-    public static void log(Logger logger, LogLevel eventLevel, String message, Object param1, Object param2) {
+    private static void log(Logger logger, LogLevel eventLevel, String message, Object param1, Object param2) {
         switch (eventLevel) {
             case TRACE : logger.trace(message, param1, param2); return;
             case DEBUG : logger.debug(message, param1, param2); return;
             case INFO  : logger.info(message, param1, param2); return;
             case WARN  : logger.warn(message, param1, param2); return;
             case ERROR : logger.error(message, param1, param2); return;
-            default    : return;
-        }
-    }
-
-    public static void log(Logger logger, LogLevel eventLevel, String message, Object param1, Object param2, Object param3) {
-        switch (eventLevel) {
-            case TRACE : logger.trace(message, param1, param2, param3); return;
-            case DEBUG : logger.debug(message, param1, param2, param3); return;
-            case INFO  : logger.info(message, param1, param2, param3); return;
-            case WARN  : logger.warn(message, param1, param2, param3); return;
-            case ERROR : logger.error(message, param1, param2, param3); return;
             default    : return;
         }
     }

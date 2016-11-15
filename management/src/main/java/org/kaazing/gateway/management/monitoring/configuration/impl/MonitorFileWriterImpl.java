@@ -65,9 +65,9 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
     private static final int GW_DATA_OFFSET = GW_ID_OFFSET;
 
     private static final int GATEWAY_COUNTER_VALUES_BUFFER_LENGTH = ENTRIES_COUNT * SIZEOF_ENTRY;
-    private static final int GATEWAY_COUNTER_LABELS_BUFFER_LENGTH = GATEWAY_COUNTER_VALUES_BUFFER_LENGTH;
+    private static final int GATEWAY_COUNTER_LABELS_BUFFER_LENGTH = 2 * GATEWAY_COUNTER_VALUES_BUFFER_LENGTH;
     private static final int SERVICE_COUNTER_VALUES_BUFFER_LENGTH = ENTRIES_COUNT * SIZEOF_ENTRY;
-    private static final int SERVICE_COUNTER_LABELS_BUFFER_LENGTH = SERVICE_COUNTER_VALUES_BUFFER_LENGTH;
+    private static final int SERVICE_COUNTER_LABELS_BUFFER_LENGTH = 2 * SERVICE_COUNTER_VALUES_BUFFER_LENGTH;
 
     private int gwCountersLblBuffersReferenceOffset;
     private int gwCountersLblBuffersLengthOffset;
