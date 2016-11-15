@@ -52,7 +52,7 @@ public class HttpProxyChunkingIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-    @Specification("completeChunkedEncoding")
+    @Specification("http.proxy.payload.complete.chunked.encoding")
     @Test
     public void completeChunkedEncoding() throws Exception {
         robot.finish();
@@ -61,6 +61,18 @@ public class HttpProxyChunkingIT {
     @Specification("http.proxy.gzip.chunked.encoding")
     @Test
     public void gzipChunkedEncoding() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("http.proxy.payload.image.encoding")
+    @Test
+    public void imageChunkedEncoding() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("http.proxy.payload.binary.encoding")
+    @Test
+    public void binaryDataChunkedEncoding() throws Exception {
         robot.finish();
     }
 

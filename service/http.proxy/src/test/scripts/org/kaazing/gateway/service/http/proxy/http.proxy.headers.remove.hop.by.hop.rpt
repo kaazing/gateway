@@ -14,6 +14,10 @@
 # limitations under the License.
 #
 
+#
+# client
+#
+
 connect tcp://localhost:8110
 connected
 
@@ -41,7 +45,7 @@ close
 closed
 
 #
-# Origin server
+# server
 #
 
 accept tcp://localhost:8080
