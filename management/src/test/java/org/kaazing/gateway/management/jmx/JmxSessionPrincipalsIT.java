@@ -237,7 +237,7 @@ public class JmxSessionPrincipalsIT {
         // Wait for all three sessions to be open
         long startTime = currentTimeMillis();
         Long numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
-        while (numberOfCurrentSessions > 0 && (currentTimeMillis() - startTime) < 10000) {
+        while (numberOfCurrentSessions < 3 && (currentTimeMillis() - startTime) < 10000) {
             Thread.sleep(500);
             numberOfCurrentSessions = (Long) mbeanServerConn.getAttribute(echoServiceMbeanName, "NumberOfCurrentSessions");
         }
