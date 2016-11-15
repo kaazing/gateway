@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.management.system;
 
-import org.hyperic.sigar.SigarException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -73,7 +72,7 @@ public class CpuListManagementBeanImpl extends AbstractSystemManagementBean impl
      * Do the type-specific gathering of stats, called from 'gatherStats' in AbstractSummaryDataProvider.
      */
     @Override
-    public void doGatherStats(JSONObject jsonObj, long readTime) throws SigarException, JSONException {
+    public void doGatherStats(JSONObject jsonObj, long readTime) throws JSONException {
         // Get the CPU percentage. The value is actually given as a
         // real value (e.g. 0.04) instead of a percentage (4%) so
         // multiply by 100 so the value is really a percentage (4%).

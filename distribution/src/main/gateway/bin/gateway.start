@@ -84,9 +84,6 @@ if [[ "$_java" ]]; then
   fi
 fi
 
-# Add a directory for management support
-JAVA_LIBRARY_PATH="$GW_HOME/lib/sigar"
-
 # Set the gateway identifier (Required by multiple gateway instances)
 GW_ID=""
 if [ "$GATEWAY_IDENTIFIER" != "" ]; then

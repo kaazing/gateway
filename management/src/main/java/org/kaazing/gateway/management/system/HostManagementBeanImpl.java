@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.management.system;
 
-import org.hyperic.sigar.SigarException;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.kaazing.gateway.management.gateway.GatewayManagementBean;
@@ -107,7 +106,7 @@ public class HostManagementBeanImpl extends AbstractSystemManagementBean impleme
      * Do the type-specific gathering of stats, called from 'gatherStats' in AbstractSummaryDataProvider.
      */
     @Override
-    public void doGatherStats(JSONObject jsonObj, long readTime) throws SigarException, JSONException {
+    public void doGatherStats(JSONObject jsonObj, long readTime) throws JSONException {
         SystemDataProvider systemDataProvider = managementContext.getSystemDataProvider();
 
         uptimeSeconds = systemDataProvider.getUptimeSeconds();

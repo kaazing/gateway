@@ -21,7 +21,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.hyperic.sigar.SigarException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -167,11 +166,6 @@ public abstract class AbstractSystemManagementBean extends AbstractManagementBea
                         }
                     }
 
-                } catch (SigarException ex) {
-                    if (!errorShown) {
-                        logger.warn("Caught SIGAR exception trying to get " + dataTypeStr, ex);
-                        errorShown = true;
-                    }
                 } catch (JSONException ex) {
                     // We should really never get here
                     if (!errorShown) {
@@ -228,5 +222,5 @@ public abstract class AbstractSystemManagementBean extends AbstractManagementBea
      * The portion of 'gatherStats' that's specific to the particular stats (e.g., storing the relevant stats locally in the
      * object. The object is supposed to gather and store the summary data values as needed. We'll add the readTime.
      */
-    public abstract void doGatherStats(JSONObject jsonObj, long readTime) throws SigarException, JSONException;
+    public abstract void doGatherStats(JSONObject jsonObj, long readTime) throws JSONException;
 }

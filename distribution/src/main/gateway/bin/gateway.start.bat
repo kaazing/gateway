@@ -49,9 +49,6 @@ if not "%GATEWAY_FEATURES%" == "" (
 
 rem Create the classpath.
 
-rem Add a directory for management support
-set JAVA_LIBRARY_PATH=%GW_HOME%\lib\sigar
-
 rem Set the gateway identifier (required by multiple gateway instances)
 set GW_ID=
 if "%GATEWAY_IDENTIFIER%" NEQ "" (

@@ -22,8 +22,6 @@ package org.kaazing.gateway.management.system;
  */
 
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class NicManagementBeanImpl implements NicManagementBean {
 
@@ -52,9 +50,7 @@ public class NicManagementBeanImpl implements NicManagementBean {
 
     private long updateTimeMillis = -1;  // last time the update occurred
 
-    private static final Logger logger = LoggerFactory.getLogger(NicManagementBeanImpl.class);
-
-    /**
+        /**
      * Constructor.
      */
     public NicManagementBeanImpl(int id, String interfaceName) {

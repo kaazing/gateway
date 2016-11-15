@@ -16,7 +16,7 @@
 package org.kaazing.gateway.management.system;
 
 /**
- * The SystemDataProvider for when SIGAR is not available or doesn't work. Generally we'll just do things like return empty
+ * The SystemDataProvider now always used because we no longer include SIGAR. Generally wejust do things like return empty
  * arrays of NIC names, only 1 CPU, 0 for various statistics values, etc. Later we might be able to return some actual reasonable
  * information if we can find another (non-SIGAR) source for the data.
  */
@@ -27,7 +27,7 @@ public class NonSigarSystemDataProvider implements SystemDataProvider {
 
     @Override
     public int getNumberOfCpus() {
-        return 1;  // just return a bogus value;
+        return Runtime.getRuntime().availableProcessors();
     }
 
     @Override

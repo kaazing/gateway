@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.management.system;
 
-import org.hyperic.sigar.SigarException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,7 +78,7 @@ public class NicListManagementBeanImpl extends AbstractSystemManagementBean impl
      * Do the type-specific gathering of stats, called from 'gatherStats' in AbstractSummaryDataProvider.
      */
     @Override
-    public void doGatherStats(JSONObject jsonObj, long readTime) throws SigarException, JSONException {
+    public void doGatherStats(JSONObject jsonObj, long readTime) throws JSONException {
         // Get the NIC information.
         JSONArray nicData = new JSONArray();
 

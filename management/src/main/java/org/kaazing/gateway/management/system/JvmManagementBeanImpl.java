@@ -20,7 +20,6 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.ThreadMXBean;
-import org.hyperic.sigar.SigarException;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.kaazing.gateway.management.gateway.GatewayManagementBean;
@@ -74,7 +73,7 @@ public class JvmManagementBeanImpl extends AbstractSystemManagementBean implemen
      * Do the type-specific gathering of stats, called from 'gatherStats' in AbstractSummaryDataProvider.
      */
     @Override
-    public void doGatherStats(JSONObject jsonObj, long readTime) throws SigarException, JSONException {
+    public void doGatherStats(JSONObject jsonObj, long readTime) throws JSONException {
         ClassLoadingMXBean classLoadingBean = ManagementFactory.getClassLoadingMXBean();
         classesLoaded = classLoadingBean.getLoadedClassCount();
         totalClassesLoaded = classLoadingBean.getTotalLoadedClassCount();
