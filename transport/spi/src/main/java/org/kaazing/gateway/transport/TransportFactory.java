@@ -78,6 +78,9 @@ public class TransportFactory {
     }
 
     public Transport getTransportForScheme(String schemeName) {
+        if (schemeName.contains("tls")) {
+            schemeName = schemeName.replace("tls", "ssl");
+        }
         Transport transport = transportsBySchemeName.get(schemeName);
         if (transport == null) {
             throw new IllegalArgumentException("Unrecognized scheme:" + schemeName);
