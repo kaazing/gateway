@@ -20,11 +20,9 @@ import org.kaazing.gateway.management.gateway.GatewayManagementBean;
 
 public class VersionInfoMXBeanImpl implements VersionInfoMXBean {
 
-    private final ObjectName name;
     private final GatewayManagementBean gatewayManagementBean;
 
     public VersionInfoMXBeanImpl(ObjectName name, GatewayManagementBean gatewayManagementBean) {
-        this.name = name;
         this.gatewayManagementBean = gatewayManagementBean;
     }
 

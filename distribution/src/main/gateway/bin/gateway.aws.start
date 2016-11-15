@@ -99,9 +99,6 @@ if [[ "$_java" ]]; then
   fi
 fi
 
-# Add a directory for management support
-JAVA_LIBRARY_PATH="$GW_HOME/lib/sigar"
-
 if [ $INSTALLED_LINUX == "true" ]; then
     exec java $GATEWAY_OPTS $FEATURE_OPTS -Djava.library.path="$JAVA_LIBRARY_PATH" -Dgateway.hostname=$HOSTNAME -cp "$GW_HOME/lib/*" org.kaazing.gateway.server.InstalledLinuxMain $*
 else

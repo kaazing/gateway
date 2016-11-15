@@ -20,12 +20,10 @@ import org.kaazing.gateway.management.config.ServiceDefaultsConfigurationBean;
 
 public class ServiceDefaultsConfigurationMXBeanImpl implements ServiceDefaultsConfigurationMXBean {
 
-    private final ObjectName name;
     private final ServiceDefaultsConfigurationBean serviceDefaultsConfigurationBean;
 
     public ServiceDefaultsConfigurationMXBeanImpl(ObjectName name, ServiceDefaultsConfigurationBean
             serviceDefaultsConfigurationBean) {
-        this.name = name;
         this.serviceDefaultsConfigurationBean = serviceDefaultsConfigurationBean;
     }
 

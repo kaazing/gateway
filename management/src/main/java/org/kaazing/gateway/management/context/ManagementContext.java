@@ -30,8 +30,6 @@ import org.kaazing.gateway.management.service.ServiceManagementListener;
 import org.kaazing.gateway.management.session.ManagementSessionStrategy;
 import org.kaazing.gateway.management.session.SessionManagementBean;
 import org.kaazing.gateway.management.session.SessionManagementListener;
-import org.kaazing.gateway.management.system.ManagementSystemStrategy;
-import org.kaazing.gateway.management.system.SystemDataProvider;
 import org.kaazing.gateway.security.SecurityContext;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
@@ -57,8 +55,6 @@ public interface ManagementContext {
     void decrementOverallSessionCount();
 
     SchedulerProvider getSchedulerProvider();
-
-    SystemDataProvider getSystemDataProvider();
 
     List<GatewayManagementListener> getGatewayManagementListeners();
 
@@ -101,8 +97,6 @@ public interface ManagementContext {
 
     ManagementSessionStrategy getManagementSessionStrategy();
 
-    ManagementSystemStrategy getManagementSystemStrategy();
-
     /**
      * Create and register a session management bean. The list of active session management beans is kept within the management
      * context. We also keep the resource address within the management bean itself, as we can use it later for
@@ -126,22 +120,6 @@ public interface ManagementContext {
     SummaryManagementInterval getServiceSummaryDataNotificationInterval();
 
     SummaryManagementInterval getSessionSummaryDataNotificationInterval();
-
-    SummaryManagementInterval getSystemSummaryDataGatherInterval();
-
-    SummaryManagementInterval getSystemSummaryDataNotificationInterval();
-
-    SummaryManagementInterval getCpuListSummaryDataGatherInterval();
-
-    SummaryManagementInterval getCpuListSummaryDataNotificationInterval();
-
-    SummaryManagementInterval getNicListSummaryDataGatherInterval();
-
-    SummaryManagementInterval getNicListSummaryDataNotificationInterval();
-
-    SummaryManagementInterval getJvmSummaryDataGatherInterval();
-
-    SummaryManagementInterval getJvmSummaryDataNotificationInterval();
 
     /**
      * When a management service is initialized, the management context will be flagged as active.
