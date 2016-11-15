@@ -49,7 +49,6 @@ public class HttpProxyPersistenceIT {
         }
     };
 
-
     @Rule
     public TestRule chain = createRuleChain(gateway, k3po);
 
