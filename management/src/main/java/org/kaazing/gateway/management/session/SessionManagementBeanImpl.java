@@ -56,6 +56,8 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
 
     private boolean notificationsEnabled;
 
+    private volatile Object attachment;
+
     public SessionManagementBeanImpl(ServiceManagementBean serviceManagementBean,
                                      IoSessionEx session) {
         super(serviceManagementBean.getGatewayManagementBean().getManagementContext(),
@@ -418,6 +420,16 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
             }
         }
         return -1;
+    }
+
+    @Override
+    public Object getAttachment() {
+        return attachment;
+    }
+
+    @Override
+    public void setAttachment(Object attached) {
+        attachment = attached;
     }
 
 }

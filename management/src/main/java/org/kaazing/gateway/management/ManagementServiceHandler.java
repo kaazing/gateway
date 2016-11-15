@@ -65,14 +65,6 @@ public interface ManagementServiceHandler {
      */
     void addSessionManagementBean(SessionManagementBean sessionManagementBean);
 
-    /**
-     * Clean up state related to a specific session management bean.  For example, unregister the MXBean associated with the
-     * session.
-     *
-     * @param sessionManagementBean
-     */
-    void removeSessionManagementBean(SessionManagementBean sessionManagementBean);
-
     void addClusterConfigurationBean(ClusterConfigurationBean clusterConfig);
 
     void addNetworkConfigurationBean(NetworkConfigurationBean networkMappingBean);
