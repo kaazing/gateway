@@ -303,6 +303,7 @@
                 <configuration>
                     <excludes combine.children="append">
                         <exclude>src/main/gateway/web/**/*</exclude>
+                        <exclude>src/main/gateway/README.txt</exclude>
                     </excludes>
                 </configuration>
             </plugin>
