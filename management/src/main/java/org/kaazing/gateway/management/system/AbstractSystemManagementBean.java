@@ -52,7 +52,7 @@ public abstract class AbstractSystemManagementBean extends AbstractManagementBea
 
     private ScheduledExecutorService gatherScheduler;
 
-    private ScheduledFuture gatherSchedulerFuture;
+    private ScheduledFuture<?> gatherSchedulerFuture;
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractSystemManagementBean.class);
     public AbstractSystemManagementBean(ManagementContext managementContext,

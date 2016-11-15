@@ -15,16 +15,12 @@
  */
 package org.kaazing.gateway.management.system;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * The SystemDataProvider for when SIGAR is not available or doesn't work. Generally we'll just do things like return empty
  * arrays of NIC names, only 1 CPU, 0 for various statistics values, etc. Later we might be able to return some actual reasonable
  * information if we can find another (non-SIGAR) source for the data.
  */
 public class NonSigarSystemDataProvider implements SystemDataProvider {
-    private static final Logger logger = LoggerFactory.getLogger(NonSigarSystemDataProvider.class);
 
     public NonSigarSystemDataProvider() {
     }
