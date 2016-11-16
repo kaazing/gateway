@@ -1,5 +1,46 @@
 # Change Log
 
+## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
+
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.3.2...HEAD)
+
+**Fixed bugs:**
+
+- JMX management service: closeSessions \(by principal\) service bean method causes NPEs [\#783](https://github.com/kaazing/gateway/issues/783)
+- management.jmx service:  user principals are not visible in jconsole in our mxbeans unless concrete class is named in gateway config [\#773](https://github.com/kaazing/gateway/issues/773)
+- ClassCastException in ServiceManagementBean$DefaultServiceManagementBean.doSessionCreated [\#733](https://github.com/kaazing/gateway/issues/733)
+- OOTB log4j-config.xml and gateway-config.xml improvements are needed \(does not document MaxBackupIndex, etc\) [\#709](https://github.com/kaazing/gateway/issues/709)
+
+**Closed issues:**
+
+- TLS should be supported as scheme, like SSL [\#602](https://github.com/kaazing/gateway/issues/602)
+
+**Merged pull requests:**
+
+- Removed some remaining vestiges of sigar from NOTICE.txt and ... [\#794](https://github.com/kaazing/gateway/pull/794) ([cmebarrow](https://github.com/cmebarrow))
+- Fixed a trivial error in JmxSessionPrincipalsIT which was causing occasional test failures \(in that test or subclass JmxSessionPrincipalsSupertypeIT\) [\#793](https://github.com/kaazing/gateway/pull/793) ([cmebarrow](https://github.com/cmebarrow))
+- Remove sigar dependency, remove system MBeans [\#792](https://github.com/kaazing/gateway/pull/792) ([cmebarrow](https://github.com/cmebarrow))
+- \(management\) Change junit and \(especially\) jmock-junit dependencies … [\#791](https://github.com/kaazing/gateway/pull/791) ([cmebarrow](https://github.com/cmebarrow))
+- Issue 783: NullPointerExceptions after calling closeSessions on ServiceMXBean [\#790](https://github.com/kaazing/gateway/pull/790) ([cmebarrow](https://github.com/cmebarrow))
+- tls scheme [\#788](https://github.com/kaazing/gateway/pull/788) ([jitsni](https://github.com/jitsni))
+- Management fixes [\#784](https://github.com/kaazing/gateway/pull/784) ([cmebarrow](https://github.com/cmebarrow))
+- Using a queue instead of ring buffer to pass messages to udp child channels [\#782](https://github.com/kaazing/gateway/pull/782) ([jitsni](https://github.com/jitsni))
+- Add README [\#768](https://github.com/kaazing/gateway/pull/768) ([robinzimmermann](https://github.com/robinzimmermann))
+- Added new k3po tests for HTTP proxy story [\#622](https://github.com/kaazing/gateway/pull/622) ([vstratan](https://github.com/vstratan))
+
+## [5.3.2](https://github.com/kaazing/gateway/tree/5.3.2) (2016-11-14)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.3.1...5.3.2)
+
+**Merged pull requests:**
+
+- Http proxy [\#787](https://github.com/kaazing/gateway/pull/787) ([claudiaop](https://github.com/claudiaop))
+- Adding new websocket specification tests for case-insensiitve headers [\#786](https://github.com/kaazing/gateway/pull/786) ([jitsni](https://github.com/jitsni))
+- If there is transport for udp, udp's host address is not resolved. [\#780](https://github.com/kaazing/gateway/pull/780) ([jitsni](https://github.com/jitsni))
+- Logging improvements and metrics fix [\#779](https://github.com/kaazing/gateway/pull/779) ([cmebarrow](https://github.com/cmebarrow))
+- Ticket\#434 fix frame masking check [\#775](https://github.com/kaazing/gateway/pull/775) ([danibusu](https://github.com/danibusu))
+- Udp benchmarks [\#772](https://github.com/kaazing/gateway/pull/772) ([jitsni](https://github.com/jitsni))
+- Configuring mina.netty logging factory [\#762](https://github.com/kaazing/gateway/pull/762) ([jitsni](https://github.com/jitsni))
+
 ## [5.3.1](https://github.com/kaazing/gateway/tree/5.3.1) (2016-11-03)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.2.5...5.3.1)
 
@@ -94,6 +135,7 @@
 - WebSocket extensions decide whether to be part of handshake or not [\#705](https://github.com/kaazing/gateway/pull/705) ([jitsni](https://github.com/jitsni))
 - Fixed typo in early access feature description [\#704](https://github.com/kaazing/gateway/pull/704) ([dpwspoon](https://github.com/dpwspoon))
 - Changed turn.rest json response to include stun URLs [\#701](https://github.com/kaazing/gateway/pull/701) ([mgherghe](https://github.com/mgherghe))
+- TLS support added [\#653](https://github.com/kaazing/gateway/pull/653) ([justinma246](https://github.com/justinma246))
 
 ## [5.2.2](https://github.com/kaazing/gateway/tree/5.2.2) (2016-09-09)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.2.1...5.2.2)
