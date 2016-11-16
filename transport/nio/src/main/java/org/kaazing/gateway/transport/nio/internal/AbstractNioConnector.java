@@ -234,8 +234,8 @@ public abstract class AbstractNioConnector implements BridgeConnector {
                 }
             }
         });
-        
-        
+
+
         return future;
     }
 
@@ -246,7 +246,7 @@ public abstract class AbstractNioConnector implements BridgeConnector {
         String transport = format(addressFormat, transportName, pipeName);
         return addressFactory.newResourceAddress(transport, nextProtocol);
     }
-    
+
     private ResourceAddress createResourceAddress(InetSocketAddress inetSocketAddress, String nextProtocol) {
         String transportName = getTransportName();
         InetAddress inetAddress = inetSocketAddress.getAddress();
@@ -256,11 +256,11 @@ public abstract class AbstractNioConnector implements BridgeConnector {
         String transport = format(addressFormat, transportName, hostAddress, port);
         return addressFactory.newResourceAddress(transport, nextProtocol);
     }
-    
+
     protected abstract IoConnectorEx initConnector();
-    
+
     protected abstract String getTransportName();
-    
+
     final Properties getConfiguration() {
         return configuration;
     }
@@ -399,7 +399,7 @@ public abstract class AbstractNioConnector implements BridgeConnector {
                         tcpBridgeSession.setRemoteAddress(connectAddress);
                         tcpBridgeSession.setAttribute(PARENT_KEY, parent);
                         tcpBridgeSession.setTransportMetadata(connector.getTransportMetadata());
-                        
+
                         // Propagate changes to idle time to the parent session
                         tcpBridgeSession.getConfig().setChangeListener(new ChangeListener() {
                             @Override
@@ -407,7 +407,7 @@ public abstract class AbstractNioConnector implements BridgeConnector {
                                 parentEx.getConfig().setIdleTimeInMillis(status, idleTime);
                             }
                         });
-                        
+
                         parent.setAttribute(TCP_SESSION_KEY, tcpBridgeSession);
 
                         tcpBridgeSession.setAttribute(DefaultIoFilterChain.SESSION_CREATED_FUTURE, bridgeConnectFuture);
@@ -471,7 +471,7 @@ public abstract class AbstractNioConnector implements BridgeConnector {
         @Override
         public void doSessionCreated(IoSessionEx session) throws Exception {
             LoggingFilter.addIfNeeded(logger, session, getTransportName());
-            
+
             super.doSessionCreated(session);
         }
 

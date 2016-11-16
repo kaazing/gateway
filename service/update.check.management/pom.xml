@@ -42,13 +42,6 @@
                 <configuration>
                     <projectHints>
                         <projectDescription>
-                            <projectName>sigar.dist</projectName>
-                            <licenseName>Apache 2 License</licenseName>
-                            <licenseUrl>https://github.com/hyperic/sigar/blob/master/LICENSE</licenseUrl>
-                            <homePage>http://sigar.hyperic.com</homePage>
-                            <version>1.6.4</version>
-                        </projectDescription>
-                        <projectDescription>
                             <projectName>Java Native Access</projectName>
                             <licenseName>LGPL</licenseName>
                             <licenseUrl>http://www.gnu.org/licenses/licenses.html</licenseUrl>

@@ -1,0 +1,49 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+#
+# client
+#
+
+connect tcp://localhost:8110
+connected
+
+write "HEAD /examples/jsp/num/numguess.jsp HTTP/1.1\r\n"
+write "User-Agent: curl/7.37.1\r\n"
+write "Host: localhost:8110\r\n"
+write "Accept: */*\r\n"
+write "\r\n"
+
+close
+closed
+
+#
+# server
+#
+
+accept tcp://localhost:8080
+accepted
+connected
+
+read "HEAD /examples/jsp/num/numguess.jsp HTTP/1.1\r\n"
+read /Via: 1.1 kaazing-.+/ "\r\n"
+read "User-Agent: curl/7.37.1\r\n"
+read "Host: localhost:8080\r\n"
+read "Connection: close\r\n"
+read "Accept: */*\r\n"
+read "\r\n"
+
+closed

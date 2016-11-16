@@ -26,6 +26,7 @@ import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.http.DefaultHttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.security.auth.token.DefaultAuthenticationToken;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
@@ -41,36 +42,21 @@ public class CustomAuthenticationTokenHeadersTest {
         Mockery context = new Mockery();
         context.setImposteriser(ClassImposteriser.INSTANCE);
         final ResourceAddress address = context.mock(ResourceAddress.class);
-        context.checking(getExpectations(address, "Basic", null, null, null, "challenge"));
+        context.checking(getExpectations(address));
 
         HttpRequestMessage requestMessage = new HttpRequestMessage();
         requestMessage.setLocalAddress(address);
-        DefaultAuthenticationToken token = (DefaultAuthenticationToken) extractor.extract(requestMessage);
+        DefaultAuthenticationToken token = (DefaultAuthenticationToken) extractor.extract(requestMessage,
+                new DefaultHttpRealmInfo(null, "Basic", null, null, new String[]{}, new String[]{}, null, null));
         assertEquals("Expecting empty token", 0, token.size());
 
         context.assertIsSatisfied();
     }
 
-    private Expectations getExpectations(final ResourceAddress address,
-                                         final String challengeScheme, final String[] headerNames,
-                                         final String[] parameterNames,
-                                         final String[] cookieNames,
-                                         final String authorizationMode) {
+    private Expectations getExpectations(final ResourceAddress address) {
         return new Expectations() {{
-            allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES);
-            will(returnValue(headerNames));
-
-            allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_PARAMETER_NAMES);
-            will(returnValue(parameterNames));
-
-            allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES);
-            will(returnValue(cookieNames));
-
-            allowing(address).getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
-            will(returnValue(authorizationMode));
-
-            allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
-            will(returnValue(challengeScheme));
+            allowing(address).getOption(HttpResourceAddress.REALMS);
+            will(returnValue(null));
         }
         };
     }
@@ -80,14 +66,14 @@ public class CustomAuthenticationTokenHeadersTest {
         Mockery context = new Mockery();
         context.setImposteriser(ClassImposteriser.INSTANCE);
         final ResourceAddress address = context.mock(ResourceAddress.class);
-        context.checking(getExpectations(address, "Basic", new String[]{"foo"}, null, null, "challenge"));
+        context.checking(getExpectations(address));
 
 
         HttpRequestMessage requestMessage = new HttpRequestMessage();
         requestMessage.setLocalAddress(address);
 
         requestMessage.setHeader("foo", "bar");
-        DefaultAuthenticationToken token = (DefaultAuthenticationToken) extractor.extract(requestMessage);
+        DefaultAuthenticationToken token = (DefaultAuthenticationToken) extractor.extract(requestMessage,  new DefaultHttpRealmInfo(null, "Basic", null, new String[]{"foo"},  new String[]{}, new String[]{}, null, null));
         assertEquals("Expecting single sized token", 1, token.size());
         assertEquals("Expecting value 'bar'", "bar", token.get());
 
@@ -99,7 +85,7 @@ public class CustomAuthenticationTokenHeadersTest {
         Mockery context = new Mockery();
         context.setImposteriser(ClassImposteriser.INSTANCE);
         final ResourceAddress address = context.mock(ResourceAddress.class);
-        context.checking(getExpectations(address, "Basic", new String[]{"foo"}, null, null, "challenge"));
+        context.checking(getExpectations(address));
 
         HttpRequestMessage requestMessage = new HttpRequestMessage();
         requestMessage.setLocalAddress(address);
@@ -109,7 +95,7 @@ public class CustomAuthenticationTokenHeadersTest {
         newHeaderValues.add("baz");
         newHeaders.put("foo", newHeaderValues);
         requestMessage.setHeaders(newHeaders);
-        DefaultAuthenticationToken token = (DefaultAuthenticationToken) extractor.extract(requestMessage);
+        DefaultAuthenticationToken token = (DefaultAuthenticationToken) extractor.extract(requestMessage,  new DefaultHttpRealmInfo(null, "Basic", null, new String[]{"foo"},  new String[]{}, new String[]{}, null, null));
         assertEquals("Expecting single sized token", 1, token.size());
         assertEquals("Expecting value 'bar'", "bar", token.get());
 

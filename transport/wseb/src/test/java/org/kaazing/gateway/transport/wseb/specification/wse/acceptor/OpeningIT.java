@@ -199,6 +199,13 @@ public class OpeningIT {
         k3po.finish();
     }
 
+    @Test
+    @Specification({ "connection.established.no.websocket.extensions/handshake.request" })
+    public void shouldEstablishConnectionWithNoXWebSocketExtensions() throws Exception {
+        acceptor.bind("wse://localhost:8080/path", mockHandler());
+        k3po.finish();
+    }
+
     // Client test only
     @Specification("response.status.code.not.201/handshake.request")
     void shouldFailConnectionWhenResponseStatusCodeNot201()

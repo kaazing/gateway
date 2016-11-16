@@ -20,11 +20,9 @@ import org.kaazing.gateway.management.config.ServiceConfigurationBean;
 
 public class ServiceConfigurationMXBeanImpl implements ServiceConfigurationMXBean {
 
-    private final ObjectName name;
     private final ServiceConfigurationBean serviceConfigurationBean;
 
     public ServiceConfigurationMXBeanImpl(ObjectName name, ServiceConfigurationBean serviceConfigurationBean) {
-        this.name = name;
         this.serviceConfigurationBean = serviceConfigurationBean;
     }
 

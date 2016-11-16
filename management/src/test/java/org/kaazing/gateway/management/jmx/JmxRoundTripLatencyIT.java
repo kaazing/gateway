@@ -59,6 +59,7 @@ public class JmxRoundTripLatencyIT {
     private GatewayRule gateway = new GatewayRule() {
         {
             // @formatter:off
+            @SuppressWarnings("deprecation")
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()

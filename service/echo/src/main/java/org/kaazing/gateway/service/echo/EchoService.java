@@ -44,7 +44,7 @@ public class EchoService implements Service {
         ServiceProperties properties = serviceContext.getProperties();
         int repeatCount = getOptionalIntProperty(properties, "repeat", EchoServiceHandler.DEFAULT_REPEAT_COUNT);
 
-        handler = new EchoServiceHandler(repeatCount);
+        handler = new EchoServiceHandler(repeatCount, serviceContext.getLogger());
     }
 
     @Override

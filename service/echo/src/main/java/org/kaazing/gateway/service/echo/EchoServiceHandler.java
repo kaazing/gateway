@@ -20,25 +20,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.util.LoggingUtils;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class EchoServiceHandler extends IoHandlerAdapter<IoSessionEx> {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger;
 
     static final int DEFAULT_REPEAT_COUNT = 1;
 
     private final int repeatCount;
 
-    EchoServiceHandler() {
-        this(DEFAULT_REPEAT_COUNT);
-    }
-
-    EchoServiceHandler(int repeatCount) {
+    EchoServiceHandler(int repeatCount, Logger logger) {
         this.repeatCount = repeatCount;
+        this.logger = logger;
     }
 
     @Override
@@ -59,11 +55,11 @@ class EchoServiceHandler extends IoHandlerAdapter<IoSessionEx> {
                             }
                         }
                     }
-                    
+
                     if (listenerPendingCount.decrementAndGet() <= 0) {
                         listenerInvocationCount.set(0);
                         listenerPendingCount.set(maximumStackDepth);
-                        
+
                         if (remainingMessages.decrementAndGet() >= 0) {
                             session.write(buf).addListener(this);
                         }
@@ -85,6 +81,6 @@ class EchoServiceHandler extends IoHandlerAdapter<IoSessionEx> {
 
     @Override
     protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
-        LoggingUtils.log(logger, cause);
+        LoggingUtils.log(session, logger, cause);
     }
 }

@@ -84,6 +84,7 @@ public class Gateway {
     private final GatewayObserver gatewayObserver = GatewayObserver.newInstance();
     private final Launcher launcher = new Launcher(gatewayObserver);
     private volatile State state = State.STOPPED;
+    private GatewayConfigDocument gatewayConfigXml;
 
     public void start(GatewayConfiguration configuration) throws Exception {
         switch (state) {
@@ -99,6 +100,10 @@ public class Gateway {
             state = State.STARTED;
             break;
         }
+    }
+
+    public GatewayConfigDocument getGatewayConfigXml() {
+        return gatewayConfigXml;
     }
 
     public GatewayContext createGatewayContext(GatewayConfiguration configuration) throws Exception {
@@ -126,6 +131,7 @@ public class Gateway {
         properties.putAll(configuration.getProperties());
         gatewayObserver.initingGateway(properties, resolver.getInjectables());
         GatewayContext context = resolver.resolve(gatewayConfigDocument, properties);
+        this.gatewayConfigXml = gatewayConfigDocument;
         return context;
     }
 
@@ -136,12 +142,14 @@ public class Gateway {
         if (securityConfiguration.getTrustStore() != null) {
             SecurityStoreType trustStore = security.addNewTruststore();
             trustStore.setFile(securityConfiguration.getTrustStoreFile());
-            if (securityConfiguration.getTrustStore().getType().equalsIgnoreCase("JCECKS")) {
+            if (securityConfiguration.getTrustStore().getType().equalsIgnoreCase("JCEKS")) {
                 trustStore.setType(Type.JCEKS);
             } else if (securityConfiguration.getTrustStore().getType().equalsIgnoreCase("JKS")) {
                 trustStore.setType(Type.JKS);
             }
-            trustStore.setPasswordFile(securityConfiguration.getTrustStorePasswordFile());
+            if (securityConfiguration.getTrustStorePasswordFile() != null) {
+                trustStore.setPasswordFile(securityConfiguration.getTrustStorePasswordFile());
+            }
         }
 
         // keyStore
@@ -476,12 +484,14 @@ public class Gateway {
         }
     }
 
-    private void appendSimpleProperties(Map<String, String> properties, Node domNode, Document ownerDocument) {
-        for (Entry<String, String> property : properties.entrySet()) {
-            Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(), property.getKey());
-            Text newTextNode = ownerDocument.createTextNode(property.getValue());
-            newElement.appendChild(newTextNode);
-            domNode.appendChild(newElement);
+    private void appendSimpleProperties(Map<String, List<String>> properties, Node domNode, Document ownerDocument) {
+        for (Entry<String, List<String>> property : properties.entrySet()) {
+            for (String p : property.getValue()) {    
+                Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(), property.getKey());
+                Text newTextNode = ownerDocument.createTextNode(p);
+                newElement.appendChild(newTextNode);
+                domNode.appendChild(newElement);
+            }
         }
     }
 
