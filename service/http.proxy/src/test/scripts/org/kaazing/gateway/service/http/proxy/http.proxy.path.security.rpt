@@ -14,6 +14,9 @@
 # limitations under the License.
 #
 
+#
+# client
+#
 
 connect http://localhost:8110/a/../../example/../jsp/num/file.html
 connected
@@ -35,4 +38,10 @@ read header "Content-Type" "text/html"
 close
 closed
 
+#
+# server
+#
+
 accept http://localhost:8080/
+
+closed

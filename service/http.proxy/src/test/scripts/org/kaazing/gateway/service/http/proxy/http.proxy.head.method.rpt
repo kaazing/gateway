@@ -14,7 +14,9 @@
 # limitations under the License.
 #
 
-# curl 7.37.1 <---> Gateway <---> tomcat 8.0.1
+#
+# client
+#
 
 connect tcp://localhost:8110
 connected
@@ -34,7 +36,7 @@ read "Set-Cookie: JSESSIONID=A2DA686DD40F58A3344B63CE81146785; Path=/examples/; 
 read "\r\n"
 
 #
-# tomcat server
+# server
 #
 
 accept tcp://localhost:8080

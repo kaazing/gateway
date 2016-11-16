@@ -22,18 +22,15 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.kaazing.gateway.management.context.ManagementContext;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Superclass for all the beans that generate summary data on a timed interval and send that data out to summaryDataListeners,
  * which can then send it out.
  */
 public abstract class AbstractManagementBean implements ManagementBean {
-    private static final Logger logger = LoggerFactory.getLogger(AbstractManagementBean.class);
-
     protected final List<SummaryDataListener> summaryDataListeners;
 
     protected final ManagementContext managementContext;
