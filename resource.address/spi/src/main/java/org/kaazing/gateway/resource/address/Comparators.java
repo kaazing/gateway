@@ -15,6 +15,7 @@
  */
 package org.kaazing.gateway.resource.address;
 
+import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_URI;
@@ -134,7 +135,7 @@ public final class Comparators {
             String authority1 = location1.getAuthority();
             String authority2 = location2.getAuthority();
             
-            int compareAuthority = STRING_COMPARATOR.compare(authority1, authority2);
+            int compareAuthority = CASE_INSENSITIVE_ORDER.compare(authority1, authority2);
             if (compareAuthority != 0) {
                 return compareAuthority;
             }

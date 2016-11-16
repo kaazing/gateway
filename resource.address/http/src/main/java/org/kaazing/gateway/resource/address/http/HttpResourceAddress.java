@@ -133,8 +133,8 @@ public final class HttpResourceAddress extends ResourceAddress {
             }
         }
 
-		return super.getOption0(option);
-	}
+        return super.getOption0(option);
+    }
 
     @Override
 	@SuppressWarnings({ "unchecked" })
