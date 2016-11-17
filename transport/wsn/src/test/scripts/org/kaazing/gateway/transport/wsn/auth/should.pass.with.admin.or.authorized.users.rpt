@@ -1,0 +1,33 @@
+#Normal gateway configuration but authorization constraints allow for any authorized credentials
+connect http://localhost:8000/echo
+connected
+
+write method "GET"
+write version "HTTP/1.1"
+write header "Upgrade" "websocket"
+write header "Connection" "Upgrade"
+write header "Sec-WebSocket-Key" "dGhlIHNhbXBsZSBub25jZQ=="
+write header "Sec-WebSocket-Version" "13"
+write header "Authorization" "Basic am9lOndlbGNvbWU=" #login joe:welcome
+write close
+
+read status "101" "Web Socket Protocol"
+read version "HTTP/1.1"
+write notify DONE
+
+read await DONE
+connect http://localhost:8000/echo
+connected
+
+write method "GET"
+write version "HTTP/1.1"
+write header "Upgrade" "websocket"
+write header "Connection" "Upgrade"
+write header "Sec-WebSocket-Key" "dGhlIHNhbXBsZSBub25jZQ=="
+write header "Sec-WebSocket-Version" "13"
+write header "Authorization" "Basic YWRtaW46YWRtaW4=" #login admin:admin (ADMINISTRATOR user)
+write close
+
+read status "101" "Web Socket Protocol"
+read version "HTTP/1.1"
+

@@ -102,6 +102,12 @@
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
+            <artifactId>specification.http</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.wsxdraft</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -147,6 +153,12 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.service.echo</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.service.http.directory</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

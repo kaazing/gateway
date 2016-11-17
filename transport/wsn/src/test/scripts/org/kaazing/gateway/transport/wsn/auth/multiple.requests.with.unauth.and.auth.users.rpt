@@ -1,0 +1,31 @@
+#Normal gateway configuration with realm and authorization constraints
+connect http://localhost:8000/echo
+connected
+
+write method "GET"
+write version "HTTP/1.1"
+write header "Upgrade" "websocket"
+write header "Connection" "Upgrade"
+write header "Sec-WebSocket-Key" "dGhlIHNhbXBsZSBub25jZQ=="
+write header "Sec-WebSocket-Version" "13"
+write header "Authorization" "Basic YmFkdXNlcjpiYWRwYXNz" #login baduser:badpass
+write close
+
+read status "401" "Unauthorized"
+read header "WWW-Authenticate" "Basic realm=\"Kaazing WebSocket Gateway Demo\"" #Read any realm value (assumes no constraints)
+
+connect http://localhost:8000/echo
+connected
+
+write method "GET"
+write version "HTTP/1.1"
+write header "Upgrade" "websocket"
+write header "Connection" "Upgrade"
+write header "Sec-WebSocket-Key" "dGhlIHNhbXBsZSBub25jZQ=="
+write header "Sec-WebSocket-Version" "13"
+write header "Authorization" "Basic am9lOndlbGNvbWU=" #login joe:welcome
+write close
+
+read status "101" "Web Socket Protocol"
+read version "HTTP/1.1"
+

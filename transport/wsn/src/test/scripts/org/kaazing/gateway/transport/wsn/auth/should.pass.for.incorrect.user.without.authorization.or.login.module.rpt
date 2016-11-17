@@ -1,0 +1,16 @@
+#Gateway configuration with realm but no authorization configuration
+connect http://localhost:8000/echo
+connected
+
+write method "GET"
+write version "HTTP/1.1"
+write header "Upgrade" "websocket"
+write header "Connection" "Upgrade"
+write header "Sec-WebSocket-Key" "dGhlIHNhbXBsZSBub25jZQ=="
+write header "Sec-WebSocket-Version" "13" 
+write header "Authorization" "Basic YmFkdXNlcjpiYWRwYXNz" #login baduser:badpass
+write close
+
+read status "101" "Web Socket Protocol"
+read version "HTTP/1.1"
+
