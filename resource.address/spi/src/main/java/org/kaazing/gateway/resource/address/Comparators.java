@@ -28,6 +28,7 @@ import java.util.List;
 public final class Comparators {
 
     private static final Comparator<String> STRING_COMPARATOR = compareComparable(String.class);
+    private static final Comparator<String> STRING_INSENSITIVE_COMPARATOR = compareNonNull(CASE_INSENSITIVE_ORDER);
     private static final Comparator<ResourceAddress> ORIGIN_COMPARATOR = compareNonNull(new ResourceOriginComparator());
     private static final Comparator<ResourceAddress> LOCATION_COMPARATOR = compareNonNull(new ResourceLocationComparator());
     private static final Comparator<ResourceAddress> PROTOCOL_STACK_COMPARATOR = compareNonNull(new ResourceProtocolStackComparator());
@@ -135,7 +136,7 @@ public final class Comparators {
             String authority1 = location1.getAuthority();
             String authority2 = location2.getAuthority();
             
-            int compareAuthority = CASE_INSENSITIVE_ORDER.compare(authority1, authority2);
+            int compareAuthority = STRING_INSENSITIVE_COMPARATOR.compare(authority1, authority2);
             if (compareAuthority != 0) {
                 return compareAuthority;
             }
