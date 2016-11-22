@@ -391,40 +391,39 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
 
         TypedCallbackHandlerMap additionalCallbacks = null;
         if (realmIndex > 0) {
-        	additionalCallbacks = new TypedCallbackHandlerMap();
-        	Function<String, Subject> subjects = name -> findNamedSubject(name, realms, realmIndex, loginContexts);
-        	NamedSubjectCallbackHandler callbackHandler = new NamedSubjectCallbackHandler(subjects);
-			additionalCallbacks.put(NamedSubjectCallback.class, callbackHandler);
+            additionalCallbacks = new TypedCallbackHandlerMap();
+            Function<String, Subject> subjects = name -> findNamedSubject(name, realms, realmIndex, loginContexts);
+            NamedSubjectCallbackHandler callbackHandler = new NamedSubjectCallbackHandler(subjects);
+            additionalCallbacks.put(NamedSubjectCallback.class, callbackHandler);
         }
 
-		// Schedule LoginContext.login() execution using a separate thread
+        // Schedule LoginContext.login() execution using a separate thread
         LoginContextTask loginContextTask = new LoginContextTask(nextFilter, session, httpRequest, authToken, additionalCallbacks, realms, realmIndex, loginContexts);
         scheduler.execute(loginContextTask);
     }
 
-	private Subject findNamedSubject(String name, HttpRealmInfo[] realms, int realmIndex, LoginContext[] loginContexts) {
-		for (int i=realmIndex-1; i >= 0; i--) {
-			if (realms[i].getName().equals(name)) {
-				return loginContexts[i].getSubject();
-			}
-		}
-		return null;
-	}
+    private Subject findNamedSubject(String name, HttpRealmInfo[] realms, int realmIndex, LoginContext[] loginContexts) {
+        for (int i = realmIndex - 1; i >= 0; i--) {
+            if (realms[i].getName().equals(name)) {
+                return loginContexts[i].getSubject();
+            }
+        }
+        return null;
+    }
 
-	protected static int findCurrentRealm(LoginContext[] loginContexts) {
-    	if (loginContexts == null || loginContexts.length == 0) {
-    		return 0;
-    	}
+    protected static int findCurrentRealm(LoginContext[] loginContexts) {
+        if (loginContexts == null || loginContexts.length == 0) {
+            return 0;
+        }
 
-    	for (int i=0; i < loginContexts.length; i++)
-    	{
-    		if (loginContexts[i] == null) {
-    			return i;
-    		}
-    	}
+        for (int i = 0; i < loginContexts.length; i++) {
+            if (loginContexts[i] == null) {
+                return i;
+            }
+        }
 
-    	return 0;
-	}
+        return 0;
+    }
 
 	// Task for running LoginContext.login() in a separate thread(other than I/O thread)
     private final class LoginContextTask implements Runnable {
@@ -435,8 +434,8 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         private final TypedCallbackHandlerMap additionalCallbacks;
         private final long createdTime;
         private final HttpRealmInfo[] realms;
-		private final int realmStartAt;
-		private final LoginContext[] loginContexts;
+        private final int realmStartAt;
+        private final LoginContext[] loginContexts;
 
         LoginContextTask(NextFilter nextFilter, IoSession session, HttpRequestMessage httpRequest,
                          DefaultAuthenticationToken authToken, TypedCallbackHandlerMap additionalCallbacks,
@@ -461,9 +460,9 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
 
             boolean succeeded = true;
             for (int realmIndex = realmStartAt; succeeded && realmIndex < realms.length; realmIndex++) {
-				succeeded &= login(nextFilter, session, httpRequest, authToken, additionalCallbacks, realms, realmIndex, loginContexts);
+                succeeded &= login(nextFilter, session, httpRequest, authToken, additionalCallbacks, realms, realmIndex, loginContexts);
             }
-            
+
             //
             try {
                 if (succeeded) {

@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 package org.kaazing.gateway.server.context.resolve;
+import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.util.Utils;
@@ -21,13 +27,6 @@ import org.kaazing.gateway.util.ssl.SslCipherSuites;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static java.lang.String.format;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 class DefaultOptionsContext {
 
@@ -234,7 +233,11 @@ class DefaultOptionsContext {
                         // Skip over other node types
                     }
                 }
-                optionsMap.put(node.getLocalName(), nodeValue);
+                String localName = node.getLocalName();
+                if (localName.contains("tls")) {
+                    localName = localName.replace("tls", "ssl");
+                }
+                optionsMap.put(localName, nodeValue);
             }
         }
         return optionsMap;

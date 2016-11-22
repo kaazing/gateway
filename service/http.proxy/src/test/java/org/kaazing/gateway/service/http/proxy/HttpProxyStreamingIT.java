@@ -64,7 +64,6 @@ public class HttpProxyStreamingIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(gateway).around(k3po).around(timeoutRule);
 
-
     @Test
     @Specification("http.proxy.origin.server.response.streaming")
     public void originServerResponseStreaming() throws Exception {

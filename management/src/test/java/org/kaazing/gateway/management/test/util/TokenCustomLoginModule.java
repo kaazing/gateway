@@ -226,14 +226,22 @@ public class TokenCustomLoginModule implements LoginModule {
         this.subject.getPrincipals().remove(this.rolePrincipal);
     }
 
-    static class RolePrincipal implements Principal {
+    public interface RoleInterface extends Principal {
+
+    }
+
+    static class RolePrincipal implements RoleInterface {
         @Override
         public String getName() {
             return "TEST";
         }
     }
 
-    static class UserPrincipal implements Principal {
+    public interface UserInterface extends Principal {
+
+    }
+
+    static class UserPrincipal implements UserInterface {
         String username;
 
         public UserPrincipal(String username) {

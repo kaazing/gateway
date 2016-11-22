@@ -277,17 +277,6 @@
 
     <!-- for testing purposes only -->
     <dependencies>
-        <dependency>
-                <groupId>org.kaazing</groupId>
-                <artifactId>sigar.dist</artifactId>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>org.kaazing</groupId>
-                <artifactId>sigar.dist</artifactId>
-                <classifier>distribution</classifier>
-                <type>zip</type>
-            </dependency>
             <dependency>
                 <groupId>org.json</groupId>
                 <artifactId>json</artifactId>

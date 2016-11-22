@@ -610,7 +610,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
 
                     newTcpBridgeSession.setAttribute(PARENT_KEY, session);
                     newTcpBridgeSession.setTransportMetadata(acceptor.getTransportMetadata());
-                    
+
                     // Propagate changes to idle time to the parent session
                     newTcpBridgeSession.getConfig().setChangeListener(new ChangeListener() {
                         @Override
@@ -618,7 +618,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
                             session.getConfig().setIdleTimeInMillis(status, idleTime);
                         }
                     });
-                    
+
                     session.setAttribute(TCP_SESSION_KEY, newTcpBridgeSession);
 
                     if ( binding.initializer() != null ) {

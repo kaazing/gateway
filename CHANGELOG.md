@@ -1,18 +1,62 @@
 # Change Log
 
-## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
+## [5.3.1](https://github.com/kaazing/gateway/tree/5.3.1) (2016-11-03)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.5...5.3.1)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.4...HEAD)
+**Fixed bugs:**
+
+- Issue with finer to coarser granularity conversion of time unit in config file  [\#595](https://github.com/kaazing/gateway/issues/595)
+
+**Closed issues:**
+
+- UDP processing may be slowed by select, we should call selector.wakeup when udp events come in [\#752](https://github.com/kaazing/gateway/issues/752)
 
 **Merged pull requests:**
 
+- Catchup merge from release branch [\#776](https://github.com/kaazing/gateway/pull/776) ([dpwspoon](https://github.com/dpwspoon))
+- \(service/proxy\) Make AbstractProxyHandler.setMaximumPendingBytes public [\#770](https://github.com/kaazing/gateway/pull/770) ([cmebarrow](https://github.com/cmebarrow))
+- Support for configuring http.realm [\#765](https://github.com/kaazing/gateway/pull/765) ([dpwspoon](https://github.com/dpwspoon))
+- shutdown causes selector loop not terminate [\#763](https://github.com/kaazing/gateway/pull/763) ([jitsni](https://github.com/jitsni))
+- Fixing udp server boss thread names [\#761](https://github.com/kaazing/gateway/pull/761) ([jitsni](https://github.com/jitsni))
+- 5.3.1 nioworker perf fix selector wakeup [\#760](https://github.com/kaazing/gateway/pull/760) ([cmebarrow](https://github.com/cmebarrow))
+- Catchup develop from release [\#758](https://github.com/kaazing/gateway/pull/758) ([dpwspoon](https://github.com/dpwspoon))
+- Sync with netty 3.5.10 \(apply to release/5.3.1\) [\#757](https://github.com/kaazing/gateway/pull/757) ([cmebarrow](https://github.com/cmebarrow))
+- Enhance ITUtil.toTestRule\(...\) to support @Mock and @Auto annotations… [\#756](https://github.com/kaazing/gateway/pull/756) ([jfallows](https://github.com/jfallows))
+- Skip transport factories for disabled transports [\#754](https://github.com/kaazing/gateway/pull/754) ([jfallows](https://github.com/jfallows))
+- Http acceptor multi factor acceptor tests [\#753](https://github.com/kaazing/gateway/pull/753) ([dpwspoon](https://github.com/dpwspoon))
+- Removed Agrona from the mina.netty jar [\#751](https://github.com/kaazing/gateway/pull/751) ([mgherghe](https://github.com/mgherghe))
+- Make mock handler tolerant of call to sessionClosed [\#750](https://github.com/kaazing/gateway/pull/750) ([jfallows](https://github.com/jfallows))
+- Relax count on number of IDLE events [\#749](https://github.com/kaazing/gateway/pull/749) ([jfallows](https://github.com/jfallows))
+- Reduced number of follows in ConnectorMultiFactorAuthIT such that tes… [\#748](https://github.com/kaazing/gateway/pull/748) ([dpwspoon](https://github.com/dpwspoon))
+
+## [5.2.5](https://github.com/kaazing/gateway/tree/5.2.5) (2016-10-19)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.4...5.2.5)
+
+**Closed issues:**
+
+- WsxAcceptorLoggingIT.shouldLogOpenAndInactivityTimeoutClose fails [\#737](https://github.com/kaazing/gateway/issues/737)
+- Occasional build failure in wseb acceptor spec test ControlIT.shouldCloseConnectionOnReceivingInvalidPingFromClient [\#580](https://github.com/kaazing/gateway/issues/580)
+
+**Merged pull requests:**
+
+- catchup develop from release [\#747](https://github.com/kaazing/gateway/pull/747) ([dpwspoon](https://github.com/dpwspoon))
+- Altered NioWorker.select and AbstractNioSelector.select to use 10ms select timeout [\#746](https://github.com/kaazing/gateway/pull/746) ([cmebarrow](https://github.com/cmebarrow))
+- Add "connect.strategy" property to proxy service\(s\) [\#745](https://github.com/kaazing/gateway/pull/745) ([jfallows](https://github.com/jfallows))
+- add check for mux scheme when adding trailing slash [\#744](https://github.com/kaazing/gateway/pull/744) ([danibusu](https://github.com/danibusu))
+- Changed turn.rest response to use json library instead of string formatting [\#743](https://github.com/kaazing/gateway/pull/743) ([mgherghe](https://github.com/mgherghe))
+- Adjusting IdleStrategy's parking times [\#741](https://github.com/kaazing/gateway/pull/741) ([jitsni](https://github.com/jitsni))
+- Created GrantLoginModule. [\#739](https://github.com/kaazing/gateway/pull/739) ([nemigaservices](https://github.com/nemigaservices))
+- add early access feature for tcp security extensions [\#736](https://github.com/kaazing/gateway/pull/736) ([danibusu](https://github.com/danibusu))
+- Add support for proxy service connect.strategy … [\#735](https://github.com/kaazing/gateway/pull/735) ([jfallows](https://github.com/jfallows))
+- Http.multi.auth [\#734](https://github.com/kaazing/gateway/pull/734) ([dpwspoon](https://github.com/dpwspoon))
+- Add convenience methods and tidy POM [\#732](https://github.com/kaazing/gateway/pull/732) ([jfallows](https://github.com/jfallows))
+- Modified DefaultExpiringState.putIfAbsent to accept ttl [\#731](https://github.com/kaazing/gateway/pull/731) ([apirvu](https://github.com/apirvu))
 - Selector.selectNow is triggered by passing timeout=0L [\#728](https://github.com/kaazing/gateway/pull/728) ([jitsni](https://github.com/jitsni))
+- Tcp.ip.whitelist [\#727](https://github.com/kaazing/gateway/pull/727) ([danibusu](https://github.com/danibusu))
+- Network interface syntax enhancements [\#626](https://github.com/kaazing/gateway/pull/626) ([irina-mitrea-luxoft](https://github.com/irina-mitrea-luxoft))
 
 ## [5.2.4](https://github.com/kaazing/gateway/tree/5.2.4) (2016-10-03)
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.4-RC003...5.2.4)
-
-## [5.2.4-RC003](https://github.com/kaazing/gateway/tree/5.2.4-RC003) (2016-10-03)
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.3...5.2.4-RC003)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.3...5.2.4)
 
 **Fixed bugs:**
 
@@ -36,10 +80,7 @@
 - Worker threads are going to PARK state unnecessarily [\#711](https://github.com/kaazing/gateway/pull/711) ([jitsni](https://github.com/jitsni))
 
 ## [5.2.3](https://github.com/kaazing/gateway/tree/5.2.3) (2016-09-20)
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.3-RC003...5.2.3)
-
-## [5.2.3-RC003](https://github.com/kaazing/gateway/tree/5.2.3-RC003) (2016-09-20)
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.2...5.2.3-RC003)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.2...5.2.3)
 
 **Fixed bugs:**
 

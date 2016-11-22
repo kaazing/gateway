@@ -53,8 +53,6 @@ import javax.rmi.ssl.SslRMIServerSocketFactory;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import org.hyperic.sigar.Sigar;
-import org.hyperic.sigar.Uptime;
 import org.kaazing.gateway.management.ManagementService;
 import org.kaazing.gateway.management.context.ManagementContext;
 import org.kaazing.gateway.security.RealmContext;
@@ -64,7 +62,6 @@ import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.util.InternalSystemProperty;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
@@ -73,14 +70,11 @@ import static java.util.Arrays.asList;
  */
 public class JmxManagementService implements ManagementService, NotificationListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(JmxManagementService.class);
-
     private DefaultSecurityContext securityContext;
     private ManagementContext managementContext;
     private JMXConnectorServer connectorServer;
     private MBeanServer mbeanServer;
     private Properties configuration;
-    private boolean systemStatsSupported = true;
 
     private static Registry sRMIRegistry;
 
@@ -133,15 +127,6 @@ public class JmxManagementService implements ManagementService, NotificationList
 
     @Override
     public void init(ServiceContext serviceContext) throws Exception {
-        try {
-            Sigar sigar = new Sigar();
-            Uptime uptime = sigar.getUptime();
-        } catch (Throwable t) {
-            logger.info("JMX management service: Unable to access system-level management statistics");
-            logger.info("   (CPU, NIC, System data). Management will continue without them.");
-            systemStatsSupported = false;
-        }
-
         this.serviceContext = serviceContext;
         handler = new JmxManagementServiceHandler(serviceContext, managementContext, getMBeanServer());
         managementContext.setManagementSessionThreshold(InternalSystemProperty.MANAGEMENT_SESSION_THRESHOLD

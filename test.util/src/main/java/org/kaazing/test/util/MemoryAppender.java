@@ -32,6 +32,7 @@ import java.util.TreeSet;
 
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.spi.LoggingEvent;
+import org.apache.log4j.spi.ThrowableInformation;
 
 /**
  * This class is a subclass of log4j ConsoleAppender. It stores all logged messages in memory until (and if) static method
@@ -70,34 +71,63 @@ public class MemoryAppender extends ConsoleAppender {
         return eventsList;
     }
 
-    public static void assertMessagesLogged(Collection<String> expectedPatternsRO,
-                                            Collection<String> unexpectedPatterns,
-                                            String filterPattern,
-                                            boolean verbose) {
+    public static void assertLogMessages(Collection<String> expectedPatternsRO,
+                                         Collection<String> unexpectedPatterns,
+                                         Collection<Class<? extends Throwable>> expectedExceptionsRO,
+                                         Collection<Class<? extends Throwable>> unexpectedExceptions,
+                                         String filterPattern,
+                                         boolean verbose) {
         Set<String> encounteredPatterns = new TreeSet<>();
         List<String> encounteredUnexpectedMessages = new ArrayList<>();
-        List<String> expectedPatterns = new ArrayList<>(expectedPatternsRO);
-        Collection<String> unexpected = unexpectedPatterns == null ? Collections.emptyList() : unexpectedPatterns;
+        List<String> expectedPatterns = expectedPatternsRO == null ? Collections.emptyList() :
+            new ArrayList<>(expectedPatternsRO);
+        unexpectedPatterns = unexpectedPatterns == null ? Collections.emptyList() : unexpectedPatterns;
+
+        Set<Throwable> encounteredExceptions = new TreeSet<>();
+        List<Throwable> encounteredUnexpectedExceptions = new ArrayList<>();
+        List<Class<? extends Throwable>> expectedExceptions = expectedExceptionsRO == null ? Collections.emptyList() :
+            new ArrayList<>(expectedExceptionsRO);
+        unexpectedExceptions = unexpectedExceptions == null ? Collections.emptyList() : unexpectedExceptions;
 
         for (LoggingEvent event : MemoryAppender.getEvents()) {
             String message = event.getMessage().toString();
             if (filterPattern == null || message.matches(filterPattern)) {
+                ThrowableInformation ti = event.getThrowableInformation();
+                Throwable t = (ti != null && ti.getThrowable() != null) ? ti.getThrowable() : null;
                 if (verbose) {
-                    System.out.println(event.getLevel() + " " + message);
+                    System.out.println(event.getLevel() + " " + message + " " + t);
                 }
                 Iterator<String> iterator = expectedPatterns.iterator();
                 while (iterator.hasNext()) {
                     String pattern = iterator.next();
-                    if (message.matches(".*" + pattern + ".*")) {
+                    // The (?s) portion allows .* to match newlines in addition to other characters
+                    if (message.matches("(?s).*" + pattern + ".*")) {
                         encounteredPatterns.add(pattern);
                         iterator.remove();
                     }
                 }
-                iterator = unexpected.iterator();
+                iterator = unexpectedPatterns.iterator();
                 while (iterator.hasNext()) {
                     String pattern = iterator.next();
-                    if (message.matches(".*" + pattern + ".*")) {
+                    if (message.matches("(?s).*" + pattern + ".*")) {
                         encounteredUnexpectedMessages.add(message);
+                    }
+                }
+                if (t != null) {
+                    Iterator<Class<? extends Throwable>> exceptionIterator = expectedExceptions.iterator();
+                    while (exceptionIterator.hasNext()) {
+                        Class<? extends Throwable> expected = exceptionIterator.next();
+                        if (expected == t.getClass()) {
+                            encounteredExceptions.add(t);
+                            iterator.remove();
+                        }
+                    }
+                    exceptionIterator = unexpectedExceptions.iterator();
+                    while (exceptionIterator.hasNext()) {
+                        Class<? extends Throwable> expected = exceptionIterator.next();
+                        if (expected == t.getClass()) {
+                            encounteredUnexpectedExceptions.add(t);
+                        }
                     }
                 }
             }
@@ -113,8 +143,26 @@ public class MemoryAppender extends ConsoleAppender {
             errorMessage.append("\n- the following patterns of log messages were not logged: " + expectedPatterns
                     + (verbose ? ",\nonly these were logged: " + encounteredPatterns : ""));
         }
+        if (!encounteredUnexpectedExceptions.isEmpty()) {
+            errorMessage.append("\n- the following unexpected exceptions were encountered: ");
+            for (Throwable exception : encounteredUnexpectedExceptions) {
+                errorMessage.append("\n  " + exception);
+            }
+        }
+        if (!expectedExceptions.isEmpty()) {
+            errorMessage.append("\n- the following exceptions were not logged: " + expectedPatterns
+                    + (verbose ? ",\nonly these were logged: " + encounteredExceptions : ""));
+        }
         assertTrue("Log messages were not as expected" + errorMessage.toString(),
-                expectedPatterns.isEmpty() && encounteredUnexpectedMessages.isEmpty());
+                expectedPatterns.isEmpty() && encounteredUnexpectedMessages.isEmpty() &&
+                expectedExceptions.isEmpty() && encounteredUnexpectedExceptions.isEmpty());
+    }
+
+    public static void assertMessagesLogged(Collection<String> expectedPatternsRO,
+                                            Collection<String> unexpectedPatterns,
+                                            String filterPattern,
+                                            boolean verbose) {
+        assertLogMessages(expectedPatternsRO, unexpectedPatterns, null, null, filterPattern, verbose);
     }
 
     public static void printAllMessages() {

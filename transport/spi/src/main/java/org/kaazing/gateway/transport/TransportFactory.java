@@ -15,9 +15,9 @@
  */
 package org.kaazing.gateway.transport;
 
-import org.kaazing.gateway.resource.address.Protocol;
-import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.transport.dispatch.ProtocolDispatcher;
+import static java.lang.String.format;
+import static java.util.Collections.unmodifiableMap;
+import static java.util.ServiceLoader.load;
 
 import java.lang.reflect.Method;
 import java.net.Proxy;
@@ -31,9 +31,9 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import static java.lang.String.format;
-import static java.util.Collections.unmodifiableMap;
-import static java.util.ServiceLoader.load;
+import org.kaazing.gateway.resource.address.Protocol;
+import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.transport.dispatch.ProtocolDispatcher;
 
 public class TransportFactory {
 
@@ -78,6 +78,9 @@ public class TransportFactory {
     }
 
     public Transport getTransportForScheme(String schemeName) {
+        if (schemeName.contains("tls")) {
+            schemeName = schemeName.replace("tls", "ssl");
+        }
         Transport transport = transportsBySchemeName.get(schemeName);
         if (transport == null) {
             throw new IllegalArgumentException("Unrecognized scheme:" + schemeName);
@@ -97,6 +100,11 @@ public class TransportFactory {
         Map<String, ProtocolDispatcher> dispatchersByProtocolName = new HashMap<>();
 
         for (TransportFactorySpi transportFactory : transportFactories) {
+
+            if (!transportFactory.isEnabled(configuration)) {
+                continue;
+            }
+
             String transportName = transportFactory.getTransportName();
             if (transportsByName.containsKey(transportName)) {
                 throw new RuntimeException(format("Duplicate transport name transport factory: %s", transportName));

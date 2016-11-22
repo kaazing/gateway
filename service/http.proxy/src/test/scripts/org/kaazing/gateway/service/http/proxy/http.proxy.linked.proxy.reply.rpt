@@ -15,7 +15,7 @@
 #
 
 #
-# Origin server
+# server
 #
 
 accept http://localhost:8030/proxy2

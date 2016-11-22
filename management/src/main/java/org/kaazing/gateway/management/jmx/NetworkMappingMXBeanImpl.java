@@ -20,11 +20,9 @@ import org.kaazing.gateway.management.config.NetworkConfigurationBean;
 
 public class NetworkMappingMXBeanImpl implements NetworkMappingMXBean {
 
-    private final ObjectName name;
     private final NetworkConfigurationBean networkMappingBean;
 
     public NetworkMappingMXBeanImpl(ObjectName name, NetworkConfigurationBean networkMappingBean) {
-        this.name = name;
         this.networkMappingBean = networkMappingBean;
     }
 

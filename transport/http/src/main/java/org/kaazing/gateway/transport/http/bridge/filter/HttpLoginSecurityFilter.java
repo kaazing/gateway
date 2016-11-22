@@ -20,6 +20,7 @@ import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REQUIRED_ROLES;
+import static org.kaazing.gateway.server.spi.security.LoginResult.Type.SUCCESS;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_FORWARDED;
@@ -78,7 +79,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
     private static final String FORWARDED_URI = "scheme://%s";
     private static final String HEADER_FORWARDED_UNKNOWN_VALUE = "unknown";
 
-	private final ExpiringState expiringState;
+    private final ExpiringState expiringState;
 
 	public HttpLoginSecurityFilter() {
         super();
@@ -371,6 +372,17 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                             }
                         }
                     }
+                    if (realmIndex + 1 < realms.length && resultType == SUCCESS) {
+                        // we only enforce subject at the end of the realm chain, otherwise we skip to the next realm
+                        loginContexts[realmIndex] = loginContext;
+
+                        // remember login context
+                        httpRequest.setLoginContext(loginContext);
+
+                        // remember subject
+                        httpRequest.setSubject((loginContext == null || loginContext == LOGIN_CONTEXT_OK) ? subject : loginContext.getSubject());
+                        return true;
+                    }
                     // Login was successful, but the subject identified does not have required roles
                     // to create the web socket.  We re-issue a challenge here.
                     String challenge = sendChallengeResponse(nextFilter, session, httpRequest, loginResult, realms, realmIndex, loginContexts);
@@ -409,8 +421,8 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         if (loginOK) {
             // store information into the session
             try {
-            	loginContexts[realmIndex] = loginContext;
-            	
+                loginContexts[realmIndex] = loginContext;
+
                 // remember login context
                 httpRequest.setLoginContext(loginContext);
 
@@ -433,30 +445,24 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         return loginOK;
     }
 
-    private String sendChallengeResponse(
-    		NextFilter nextFilter,
-    		IoSession session,
-    		HttpRequestMessage httpRequest,
-    		DefaultLoginResult loginResult,
-    		HttpRealmInfo[] realms,
-    		int realmIndex,
-    		LoginContext[] loginContexts) {
+    private String sendChallengeResponse(NextFilter nextFilter, IoSession session, HttpRequestMessage httpRequest,
+        DefaultLoginResult loginResult, HttpRealmInfo[] realms, int realmIndex, LoginContext[] loginContexts) {
 
-    	HttpRealmInfo realm = realms[realmIndex];
-    	Object[] challengeData = loginResult != null && loginResult.getType() == LoginResult.Type.CHALLENGE ? loginResult.getLoginChallengeData() : null;
+        HttpRealmInfo realm = realms[realmIndex];
+        Object[] challengeData = loginResult != null && loginResult.getType() == LoginResult.Type.CHALLENGE
+                ? loginResult.getLoginChallengeData() : null;
         HttpResponseMessage httpResponse = challengeFactory.createChallenge(httpRequest, realm, challengeData);
 
         if (realmIndex > 0) {
-        	String challengeIdentity;
-        	do {
-        		challengeIdentity = HttpUtils.newSessionId();
-        		httpResponse.setHeader(HEADER_SEC_CHALLENGE_IDENTITY, challengeIdentity);
-        	}
-        	while (expiringState != null && expiringState.putIfAbsent(challengeIdentity, loginContexts, 30, SECONDS) != null);
+            String challengeIdentity;
+            do {
+                challengeIdentity = HttpUtils.newSessionId();
+                httpResponse.setHeader(HEADER_SEC_CHALLENGE_IDENTITY, challengeIdentity);
+            } while (expiringState != null && expiringState.putIfAbsent(challengeIdentity, loginContexts, 30, SECONDS) != null);
         }
-        
+
         writeChallenge(httpResponse, nextFilter, session, realm.getChallengeScheme());
-        
+
         return httpResponse.getHeader(HEADER_WWW_AUTHENTICATE);
     }
 
@@ -551,9 +557,9 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
     protected void writeSessionCookie(IoSession session, HttpRequestMessage httpRequest, DefaultLoginResult loginResult) {
     }
 
-	protected LoginContext[] getLoginContexts(String challengeIdentity) {
-		return expiringState != null && challengeIdentity != null ? (LoginContext[]) expiringState.get(challengeIdentity) : null;
-	}
+    protected LoginContext[] getLoginContexts(String challengeIdentity) {
+        return expiringState != null && challengeIdentity != null ? (LoginContext[]) expiringState.get(challengeIdentity) : null;
+    }
 
     private boolean authTokenIsMissing(AuthenticationToken authToken) {
         return authToken == null || authToken.isEmpty();

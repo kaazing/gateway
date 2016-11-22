@@ -42,6 +42,7 @@ import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.util.Utils;
 
+@SuppressWarnings("deprecation")
 public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
 
     //    private static final AtomicInteger serviceConfigurationIds = new AtomicInteger(0);

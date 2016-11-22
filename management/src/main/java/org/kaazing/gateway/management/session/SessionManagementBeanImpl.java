@@ -56,8 +56,6 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
 
     private boolean notificationsEnabled;
 
-    private long exceptionCount;
-
     public SessionManagementBeanImpl(ServiceManagementBean serviceManagementBean,
                                      IoSessionEx session) {
         super(serviceManagementBean.getGatewayManagementBean().getManagementContext(),
@@ -158,13 +156,6 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
 
     @Override
     public String getSummaryData() {
-        long start = System.nanoTime();
-
-//        String val = String.format("[%d,%f,%d,%f]",
-//                                   getReadBytes(),
-//                                   getReadBytesThroughput(),
-//                                   getWrittenBytes(),
-//                                   getWrittenBytesThroughput());
         JSONArray jsonArray = null;
 
         try {
@@ -181,12 +172,6 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
         }
 
         String val = jsonArray.toString();
-
-        long stop = System.nanoTime();
-
-//        System.out.println("### Gathering summaries for SESSION ID " + getId() +
-//                           " took " + ((stop - start) / 1000) + " us for " + val.length() + " chars [" + val + "]");
-
         return val;
     }
 
@@ -202,7 +187,7 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
 
     @Override
     public void incrementExceptionCount() {
-        exceptionCount++;
+
     }
 
     @Override
@@ -235,7 +220,7 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
     public void doSessionCreated() throws Exception {
         // establish the user principals.
         // XXX There's a question about what to do if they are changed on revalidate
-        Set<String> userPrincipalClasses = serviceManagementBean.getUserPrincipalClasses();
+        Set<Class<Principal>> userPrincipalClasses = serviceManagementBean.getUserPrincipalClasses();
 
         if (userPrincipalClasses != null && !userPrincipalClasses.isEmpty()) {
             Map<String, String> userPrincipals = new HashMap<>();
@@ -244,9 +229,10 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
                 Set<Principal> principals = subject.getPrincipals();
                 for (Principal principal : principals) {
                     String principalName = principal.getName();
-                    String principalClass = principal.getClass().getName();
-                    if (userPrincipalClasses.contains(principalClass)) {
-                        userPrincipals.put(principalName, principalClass);
+                    for (Class<Principal> userPrincipal : userPrincipalClasses) {
+                        if (userPrincipal.isInstance(principal)) {
+                            userPrincipals.put(principalName, principal.getClass().getName());
+                        }
                     }
                 }
 
@@ -373,7 +359,7 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
 
     @Override
     public void doExceptionCaught(final Throwable cause) throws Exception {
-        incrementExceptionCount();
+
     }
 
     /**
