@@ -234,8 +234,13 @@ class DefaultOptionsContext {
                     }
                 }
                 String localName = node.getLocalName();
+                // convert options like tls.ciphers converted to ssl.ciphers
                 if (localName.contains("tls")) {
                     localName = localName.replace("tls", "ssl");
+                }
+                // convert options like pipe.transport=socks+tls://foo to pipe.transport=socks+ssl://foo
+                if (localName.contains(".transport") && nodeValue.contains("tls://")) {
+                    nodeValue = nodeValue.replace("tls://", "ssl://");
                 }
                 optionsMap.put(localName, nodeValue);
             }
