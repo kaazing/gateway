@@ -268,11 +268,6 @@ This product depends on Mina Netty Adapter 1.5
 	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/mina.netty.git
 
-This product depends on sigar.dist 1.6
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
-	Homepage:	http://sigar.hyperic.com/
-
 This product depends on SLF4J API Module 1.7
 
 	License:	http://www.opensource.org/licenses/mit-license.php (MIT License)

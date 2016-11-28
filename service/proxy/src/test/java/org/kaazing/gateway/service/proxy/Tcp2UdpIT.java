@@ -37,7 +37,7 @@ public class Tcp2UdpIT {
 
     private final TestRule timeout = new DisableOnDebug(new Timeout(10, TimeUnit.SECONDS));
 
-    private final GatewayRule gaateway = new GatewayRule() {
+    private final GatewayRule gateway = new GatewayRule() {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                     .service()
@@ -54,7 +54,7 @@ public class Tcp2UdpIT {
     private final TestRule trace = new MethodExecutionTrace();
 
     @Rule
-    public final TestRule chain = outerRule(trace).around(k3po).around(gaateway).around(timeout);
+    public final TestRule chain = outerRule(trace).around(k3po).around(gateway).around(timeout);
 
     @Test
     @Specification({

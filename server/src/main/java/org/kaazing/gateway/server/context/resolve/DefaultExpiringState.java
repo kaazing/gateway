@@ -17,33 +17,41 @@
 package org.kaazing.gateway.server.context.resolve;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import org.kaazing.gateway.server.ExpiringState;
-import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 
 import com.hazelcast.core.IMap;
 
 final class DefaultExpiringState implements ExpiringState {
-    private final IMap<Object, Object> delegate;
+    private final Supplier<IMap<Object, Object>> supplier;
+    private IMap<Object, Object> delegate;
 
-    DefaultExpiringState(CollectionsFactory collectionsFactory, String expiringStateName) {
-        this.delegate = collectionsFactory.getMap(expiringStateName);
+    DefaultExpiringState(Supplier<IMap<Object, Object>> supplier) {
+        this.supplier = supplier;
     }
 
     @Override
     public Object putIfAbsent(String key, Object value, long ttl, TimeUnit timeunit) {
-        return delegate.putIfAbsent(key, value, ttl, timeunit);
+        return delegate().putIfAbsent(key, value, ttl, timeunit);
     }
 
     @Override
     public Object get(String key) {
-        return delegate.get(key);
+        return delegate().get(key);
     }
 
     @Override
     public Object remove(String key, Object value) {
-        return delegate.remove(key, value);
+        return delegate().remove(key, value);
     }
+
+	private IMap<Object, Object> delegate() {
+		if (delegate == null) {
+			delegate = supplier.get();
+		}
+		return delegate;
+	}
 }
 
 

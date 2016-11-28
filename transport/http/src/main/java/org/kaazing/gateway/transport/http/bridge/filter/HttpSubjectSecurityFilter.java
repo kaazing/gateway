@@ -15,27 +15,34 @@
  */
 package org.kaazing.gateway.transport.http.bridge.filter;
 
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_SEC_CHALLENGE_IDENTITY;
+
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Function;
 
 import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
 
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 import org.kaazing.gateway.security.auth.DefaultLoginResult;
+import org.kaazing.gateway.security.auth.NamedSubjectCallbackHandler;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.security.auth.token.DefaultAuthenticationToken;
+import org.kaazing.gateway.server.ExpiringState;
+import org.kaazing.gateway.server.spi.security.NamedSubjectCallback;
 import org.kaazing.gateway.transport.http.DefaultHttpSession;
 import org.kaazing.gateway.transport.http.HttpCookie;
-import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.bridge.HttpMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
@@ -48,10 +55,6 @@ import org.slf4j.Logger;
 
 
 public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
-
-    public static final String NAME = HttpProtocol.NAME + "#security";
-    public static final String AUTHORIZATION_HEADER = "Authorization";
-    public static final String WWW_AUTHENTICATE_HEADER = "WWW-Authenticate";
 
     /**
      * Prefix to the authentication scheme to indicate that the Kaazing client application will handle the challenge rather than
@@ -68,11 +71,15 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
     private ScheduledExecutorService scheduler;
 
     public HttpSubjectSecurityFilter() {
-        this(null);
+        this(null, null);
     }
 
     public HttpSubjectSecurityFilter(Logger logger) {
-        super(logger);
+    	this(logger, null);
+    }
+
+    public HttpSubjectSecurityFilter(Logger logger, ExpiringState expiringState) {
+        super(logger, expiringState);
         // Each filter has it's own map.  There's only one filter though.
         // Reset the map when the filter is constructed to allow an embedded gateway to repeatedly launch
         // (e.g. for integration tests)
@@ -94,7 +101,6 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         if (! httpRequestMessageReceived(nextFilter, session, message)) return;
 
         HttpRequestMessage httpRequest = (HttpRequestMessage) message;
-        final boolean loggerIsEnabled = logger != null && logger.isTraceEnabled();
 
         // Make sure we start with the subject from the underlying transport session in case it already has an authenticated subject
         // (e.g. we are httpxe and our transport is http or transport is SSL with a client certificate)
@@ -103,9 +109,8 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         }
 
         ResourceAddress httpAddress = httpRequest.getLocalAddress();
-        String realmName = httpAddress.getOption(HttpResourceAddress.REALM_NAME);
-
-        if ( realmName == null ) {
+        HttpRealmInfo[] realms = httpAddress.getOption(HttpResourceAddress.REALMS);
+        if (realms.length == 0) {
             ResultAwareLoginContext loginContext = null;
             // Make sure we propagate the login context from the layer below in httpxe case
             if (session instanceof DefaultHttpSession) {
@@ -118,6 +123,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
                 setUnprotectedLoginContext(httpRequest);
             }
 
+            final boolean loggerIsEnabled = logger != null && logger.isTraceEnabled();
             if (loggerIsEnabled) {
                 logger.trace("HttpSubjectSecurityFilter skipped because no realm is configured.");
             }
@@ -311,13 +317,9 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         if (! httpRequestMessageReceived(nextFilter, session, message)) return;
 
         HttpRequestMessage httpRequest = (HttpRequestMessage) message;
-
         ResourceAddress httpAddress = httpRequest.getLocalAddress();
-
-        String realmName = httpAddress.getOption(HttpResourceAddress.REALM_NAME);
-        String realmChallengeScheme = httpAddress.getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
-
-        if ( alreadyLoggedIn(session, httpAddress)) {
+        
+        if (alreadyLoggedIn(httpRequest)) {
             // KG-3232, KG-3267: we should never leave the login context unset
             // for unprotected services.
             if (httpRequest.getLoginContext() == null) {
@@ -331,7 +333,8 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
             return;
         }
 
-        if ( realmName == null ) {
+        HttpRealmInfo[] realms = httpAddress.getOption(HttpResourceAddress.REALMS);
+        if (realms.length == 0) {
             setUnprotectedLoginContext(httpRequest);
             if (loggerIsEnabled) {
                 logger.trace("HttpSecurityStandardFilter skipped because no realm is configured.");
@@ -339,6 +342,11 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
             super.doMessageReceived(nextFilter, session, message);
             return;
         }
+        
+        String challengeIdentity = httpRequest.getHeader(HEADER_SEC_CHALLENGE_IDENTITY);
+        LoginContext[] loginContexts = getLoginContexts(challengeIdentity);
+        int realmIndex = findCurrentRealm(loginContexts);
+        HttpRealmInfo realm = realms[realmIndex];
 
         AuthenticationTokenExtractor tokenExtractor = DefaultAuthenticationTokenExtractor.INSTANCE;
 
@@ -347,7 +355,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         // so stop the filter chain here.
         //
 
-        DefaultAuthenticationToken authToken = (DefaultAuthenticationToken) tokenExtractor.extract(httpRequest);
+        DefaultAuthenticationToken authToken = (DefaultAuthenticationToken) tokenExtractor.extract(httpRequest, realm);
 
         // If the client request provided authentication data which has
         // a challenge scheme, make sure that the client-sent challenge
@@ -355,7 +363,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         // request, and the client should be informed of this.
 
         String clientChallengeScheme = authToken.getScheme();
-        String expectedChallengeScheme = getBaseAuthScheme(realmChallengeScheme);
+        String expectedChallengeScheme = getBaseAuthScheme(realm.getChallengeScheme());
 
         if (clientChallengeScheme != null &&
                 clientChallengeScheme.equals(expectedChallengeScheme) == false) {
@@ -379,12 +387,43 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         // Suspend incoming events into this filter. Will resume after LoginContext.login() completion
         suspendIncoming(session);
 
+        TypedCallbackHandlerMap additionalCallbacks = null;
+        if (realmIndex > 0) {
+            additionalCallbacks = new TypedCallbackHandlerMap();
+            Function<String, Subject> subjects = name -> findNamedSubject(name, realms, realmIndex, loginContexts);
+            NamedSubjectCallbackHandler callbackHandler = new NamedSubjectCallbackHandler(subjects);
+            additionalCallbacks.put(NamedSubjectCallback.class, callbackHandler);
+        }
+
         // Schedule LoginContext.login() execution using a separate thread
-        LoginContextTask loginContextTask = new LoginContextTask(nextFilter, session, httpRequest, authToken, null);
+        LoginContextTask loginContextTask = new LoginContextTask(nextFilter, session, httpRequest, authToken, additionalCallbacks, realms, realmIndex, loginContexts);
         scheduler.execute(loginContextTask);
     }
 
-    // Task for running LoginContext.login() in a separate thread(other than I/O thread)
+    private Subject findNamedSubject(String name, HttpRealmInfo[] realms, int realmIndex, LoginContext[] loginContexts) {
+        for (int i = realmIndex - 1; i >= 0; i--) {
+            if (realms[i].getName().equals(name)) {
+                return loginContexts[i].getSubject();
+            }
+        }
+        return null;
+    }
+
+    protected static int findCurrentRealm(LoginContext[] loginContexts) {
+        if (loginContexts == null || loginContexts.length == 0) {
+            return 0;
+        }
+
+        for (int i = 0; i < loginContexts.length; i++) {
+            if (loginContexts[i] == null) {
+                return i;
+            }
+        }
+
+        return 0;
+    }
+
+	// Task for running LoginContext.login() in a separate thread(other than I/O thread)
     private final class LoginContextTask implements Runnable {
         private final NextFilter nextFilter;
         private final IoSession session;
@@ -392,15 +431,22 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         private final DefaultAuthenticationToken authToken;
         private final TypedCallbackHandlerMap additionalCallbacks;
         private final long createdTime;
+        private final HttpRealmInfo[] realms;
+        private final int realmStartAt;
+        private final LoginContext[] loginContexts;
 
         LoginContextTask(NextFilter nextFilter, IoSession session, HttpRequestMessage httpRequest,
-                         DefaultAuthenticationToken authToken, TypedCallbackHandlerMap additionalCallbacks) {
+                         DefaultAuthenticationToken authToken, TypedCallbackHandlerMap additionalCallbacks,
+                         HttpRealmInfo[] realms, int realmIndex, LoginContext[] loginContexts) {
             this.nextFilter = nextFilter;
             this.session = session;
             this.httpRequest = httpRequest;
             this.authToken = authToken;
             this.additionalCallbacks = additionalCallbacks;
             this.createdTime = System.currentTimeMillis();
+            this.realms = realms;
+            this.realmStartAt = realmIndex;
+            this.loginContexts = loginContexts != null ? loginContexts : new LoginContext[realms.length];
         }
 
         @Override
@@ -409,7 +455,13 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
                 logger.trace("Executing login task %d ms after scheduling for session %s",
                         (System.currentTimeMillis() - createdTime) , session);
             }
-            boolean succeeded = login(nextFilter, session, httpRequest, authToken, additionalCallbacks);
+
+            boolean succeeded = true;
+            for (int realmIndex = realmStartAt; succeeded && realmIndex < realms.length; realmIndex++) {
+                succeeded &= login(nextFilter, session, httpRequest, authToken, additionalCallbacks, realms, realmIndex, loginContexts);
+            }
+
+            //
             try {
                 if (succeeded) {
                     // Complete the rest of the filter chain

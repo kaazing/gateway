@@ -74,6 +74,10 @@ final class SelectorUtil {
         }
     }
 
+    static Selector open() throws IOException {
+        return Selector.open();
+    }
+
     static int select(Selector selector) throws IOException {
         return select(selector, SELECT_TIMEOUT);
     }

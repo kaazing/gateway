@@ -40,7 +40,7 @@ See Kaazing Gateway on [Docker Hub](https://registry.hub.docker.com/u/kaazing/ga
 * Java 8 JDK or higher
 * Apache Maven 3.2.3 or higher, with the recommended settings:
 
-  `MAVEN_OPTS="-Xms768m -Xmx768m -XX:MaxPermSize=768m"`
+  `MAVEN_OPTS="-Xms1024m -Xmx1024m -XX:MaxPermSize=1024m"`
 
 ## Steps for building this project
 

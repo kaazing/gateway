@@ -26,9 +26,9 @@ import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.util.ConcurrentHashSet;
-import org.kaazing.gateway.util.LoggingUtils;
 import org.slf4j.Logger;
 import org.kaazing.gateway.service.broadcast.BroadcastService.OnClientMessage;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.io.filter.IoMessageCodecFilter;
 
 class BroadcastServiceHandler extends IoHandlerAdapter {
@@ -79,7 +79,7 @@ class BroadcastServiceHandler extends IoHandlerAdapter {
             }
         }
         else {
-            LoggingUtils.log(logger, "Unexpected exception in broadcast service handler", cause);
+            LoggingUtils.log(session, logger, "Unexpected exception in broadcast service handler", cause);
         }
     }
 

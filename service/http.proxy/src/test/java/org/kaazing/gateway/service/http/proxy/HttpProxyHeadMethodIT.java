@@ -52,7 +52,6 @@ public class HttpProxyHeadMethodIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-
     @Specification( "http.proxy.head.method")
     @Test
     public void headMethod() throws Exception {

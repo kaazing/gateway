@@ -30,6 +30,7 @@ import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.ConnectOptionsContext;
 import org.kaazing.gateway.util.Utils;
 
+@SuppressWarnings("deprecation")
 public class ServiceDefaultsConfigurationBeanImpl implements ServiceDefaultsConfigurationBean {
 
     private static final AtomicInteger serviceDefaultsIds = new AtomicInteger(0);

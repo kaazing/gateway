@@ -17,6 +17,10 @@ package org.kaazing.gateway.util;
 
 import org.slf4j.Logger;
 
+/**
+ * @deprecated Use org.kaazing.gateway.transport.LoggingUtils instead
+ */
+@Deprecated
 public final class LoggingUtils {
 
     private LoggingUtils() {
