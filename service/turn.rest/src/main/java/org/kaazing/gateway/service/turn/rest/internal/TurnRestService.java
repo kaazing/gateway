@@ -68,9 +68,8 @@ public class TurnRestService implements Service {
         String urls = properties.get("url");
         TurnRestCredentialsGenerator credentialGeneratorInstance = setUpCredentialsGenerator(properties);
 
-        String ttl = properties.get("credentials.ttl") != null ? properties.get("credentials.ttl") : DEFAULT_CREDENTIALS_TTL;
-        handler = new TurnRestServiceHandler(Long.toString(Utils.parseTimeInterval(ttl, TimeUnit.SECONDS, 0)),
-                        credentialGeneratorInstance, urls);
+        long ttl = Utils.parseTimeInterval(properties.get("credentials.ttl"), TimeUnit.SECONDS, DEFAULT_CREDENTIALS_TTL);
+        handler = new TurnRestServiceHandler(Long.toString(ttl), credentialGeneratorInstance, urls);
     }
 
     private TurnRestCredentialsGenerator setUpCredentialsGenerator(ServiceProperties properties)
