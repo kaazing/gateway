@@ -14,6 +14,8 @@
 # limitations under the License.
 #
 
+property writeMask ${ws:randomBytes(4)}
+
 connect tcp://127.0.0.1:8001
 connected
 
@@ -43,14 +45,16 @@ read [0x82 0x04 0xEF 0x83 0xBF 0x4E]
 # Read PING
 read [0x89 0x00]
 
-# Send PONG response
-write [0x8a 0x00]
+# Send masked PONG response
+write [0x8a 0x80]
+write ${writeMask}
 
 # Read PING
 read [0x89 0x00]
 
-# Send PONG response
-write [0x8a 0x00]
+# Send masked PONG response
+write [0x8a 0x80]
+write ${writeMask}
 
 read notify SESSION_ESTABLISHED
 

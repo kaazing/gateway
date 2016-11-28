@@ -17,6 +17,7 @@ package org.kaazing.gateway.resource.address.udp;
 
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.BIND_ADDRESS;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.INTERFACE;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.MAXIMUM_OUTBOUND_RATE;
@@ -33,6 +34,7 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -128,6 +130,11 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
             String newAuthority = format(authorityFormat, newHost, newPort);
             location = modifyURIAuthority(location, newAuthority);
         }
+
+        // if udp has a transport, do not resolve the authority.
+        if (options.getOption(TRANSPORT) != null) {
+            return Collections.singletonList(super.newResourceAddress0(original, location, options));
+        }
         
         // ensure that DNS name is resolved in transport address
         NameResolver resolver = options.getOption(RESOLVER);
@@ -193,7 +200,17 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
             }
         }
         catch (UnknownHostException e) {
-            throw new IllegalArgumentException(format("Unable to resolve DNS name: %s", getHost(location)), e);
+            String host = getHost(location);
+            Pattern pattern = Pattern.compile(URIUtils.NETWORK_INTERFACE_AUTHORITY);
+            Matcher matcher = pattern.matcher(host);
+            // Test for network interface syntax and throw specific error message if found
+            if (matcher.find()) {
+                throw new IllegalArgumentException(format("The interface name %s is not recognized", host), e);
+            }
+            // Network interface syntax format not detected so generic error message can be thrown
+            else {
+                throw new IllegalArgumentException(format("Unable to resolve DNS name: %s", host), e);
+            }
         }
 
         if (udpAddresses.isEmpty()) {

@@ -15,8 +15,9 @@
 #
 
 #
-# ============= client <-> gateway request 1
+# client
 #
+
 connect tcp://localhost:8110
 connected
 
@@ -84,10 +85,11 @@ read "<html>Helloo3</html>\r\n"
 read "0\r\n"
 read "\r\n"
 
+close
 closed
 
 #
-# ============= gateway <-> origin server
+# server
 #
 
 accept tcp://localhost:8080
@@ -122,7 +124,6 @@ write "<html>Helloo1</html>\r\n"
 write "0\r\n"
 write "\r\n"
 
-
 read "GET / HTTP/1.1\r\n"
 read /Via: 1.1 kaazing-.+/ "\r\n"
 read "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
@@ -150,7 +151,6 @@ write "14\r\n"
 write "<html>Helloo2</html>\r\n"
 write "0\r\n"
 write "\r\n"
-
 
 read "GET / HTTP/1.1\r\n"
 read /Via: 1.1 kaazing-.+/ "\r\n"
@@ -180,5 +180,4 @@ write "<html>Helloo3</html>\r\n"
 write "0\r\n"
 write "\r\n"
 
-# Gateway should close afer the persistence connection timeout
 closed

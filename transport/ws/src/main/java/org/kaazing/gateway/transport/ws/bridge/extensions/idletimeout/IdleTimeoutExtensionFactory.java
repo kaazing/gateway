@@ -31,6 +31,12 @@ public final class IdleTimeoutExtensionFactory extends WebSocketExtensionFactory
     }
 
     @Override
+    public WebSocketExtension offer(ExtensionHelper extensionHelper, WsResourceAddress address) {
+        // connectors are not sending this extension in handshake request
+        return null;
+    }
+
+    @Override
     public WebSocketExtension negotiate(ExtensionHeader header, ExtensionHelper extensionHelper, WsResourceAddress address) throws ProtocolException {
         long inactivityTimeout = address.getOption(WsResourceAddress.INACTIVITY_TIMEOUT);
         return inactivityTimeout > 0 ?

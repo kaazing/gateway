@@ -38,11 +38,8 @@ public final class JmxGatewayManagementListener extends NotificationBroadcasterS
 
     // The following must all run OFF the IO threads
 
-    private JmxManagementServiceHandler managementServiceHandler;
-
     public JmxGatewayManagementListener(JmxManagementServiceHandler managementServiceHandler) {
         super(executor);
-        this.managementServiceHandler = managementServiceHandler;
     }
 
     @Override

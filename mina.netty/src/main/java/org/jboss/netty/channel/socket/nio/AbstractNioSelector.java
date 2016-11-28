@@ -31,6 +31,8 @@
 package org.jboss.netty.channel.socket.nio;
 
 import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import java.io.IOException;
 import java.nio.channels.CancelledKeyException;
@@ -59,15 +61,19 @@ import org.jboss.netty.util.ThreadRenamingRunnable;
 import org.jboss.netty.util.internal.DeadLockProofWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.co.real_logic.agrona.concurrent.BackoffIdleStrategy;
+import uk.co.real_logic.agrona.concurrent.IdleStrategy;
 
 abstract class AbstractNioSelector implements NioSelector {
     protected static final Logger PERF_LOGGER = LoggerFactory.getLogger("performance.tcp");
 
     private static final AtomicInteger nextId = new AtomicInteger();
-    protected static final long LATENCY_BEFORE_LOG_PROCESS_SELECT = TimeUnit.MILLISECONDS.toNanos(100);
-    private static final long LATENCY_BEFORE_LOG_TASK = TimeUnit.MILLISECONDS.toNanos(100);
+    protected static final long LATENCY_BEFORE_LOG_PROCESS_SELECT = MILLISECONDS.toNanos(100);
+    private static final long LATENCY_BEFORE_LOG_TASK = MILLISECONDS.toNanos(100);
 
     private final int id = nextId.incrementAndGet();
+    private final IdleStrategy idleStrategy = new BackoffIdleStrategy(50, 50,
+            NANOSECONDS.toNanos(100), MILLISECONDS.toNanos(10));
 
     /**
      * Internal Netty logger.
@@ -171,7 +177,7 @@ abstract class AbstractNioSelector implements NioSelector {
         }
 
         try {
-            newSelector = Selector.open();
+            newSelector = SelectorUtil.open();
         } catch (Exception e) {
             logger.warn("Failed to create a new Selector.", e);
             return;
@@ -240,6 +246,11 @@ abstract class AbstractNioSelector implements NioSelector {
             try {
                 long beforeSelect = System.nanoTime();
                 int selected = select(selector, quickSelect);
+                // The SelectorUtil.EPOLL_BUG_WORKAROUND condition was removed in Netty 3.10.5 and instead
+                // added to the if (selectReturnsImmediately == 1024) condition later on. This seems inefficient
+                // for the (common) case where the workaround is not enabled since in that case there's no point
+                // in looping through the selector keys, so we are keeping the condition here. There's no risk
+                // of a busy loop (https://github.com/netty/netty/issues/2426) when the workaround is not enabled.
                 if (SelectorUtil.EPOLL_BUG_WORKAROUND && selected == 0 && !wakenupFromLoop && !wakenUp.get()) {
                     long timeBlocked = System.nanoTime() - beforeSelect;
 
@@ -249,8 +260,11 @@ abstract class AbstractNioSelector implements NioSelector {
                         for (SelectionKey key: selector.keys()) {
                             SelectableChannel ch = key.channel();
                             try {
-                                if (ch instanceof DatagramChannel && !((DatagramChannel) ch).isConnected() ||
-                                        ch instanceof SocketChannel && !((SocketChannel) ch).isConnected()) {
+                                if (ch instanceof DatagramChannel && !ch.isOpen() ||
+                                        ch instanceof SocketChannel && !((SocketChannel) ch).isConnected() &&
+                                                // Only cancel if the connection is not pending
+                                                // See https://github.com/netty/netty/issues/2931
+                                                !((SocketChannel) ch).isConnectionPending()) {
                                     notConnected = true;
                                     // cancel the key just to be on the safe side
                                     key.cancel();
@@ -262,10 +276,23 @@ abstract class AbstractNioSelector implements NioSelector {
                         if (notConnected) {
                             selectReturnsImmediately = 0;
                         } else {
-                            // returned before the minSelectTimeout elapsed with nothing select.
-                            // this may be the cause of the jdk epoll(..) bug, so increment the counter
-                            // which we use later to see if its really the jdk bug.
-                            selectReturnsImmediately ++;
+                            if (Thread.interrupted() && !shutdown) {
+                                // Thread was interrupted but NioSelector was not shutdown.
+                                // As this is most likely a bug in the handler of the user or it's client
+                                // library we will log it.
+                                //
+                                // See https://github.com/netty/netty/issues/2426
+                                if (logger.isDebugEnabled()) {
+                                    logger.debug("Selector.select() returned prematurely because the I/O thread " +
+                                            "has been interrupted. Use shutdown() to shut the NioSelector down.");
+                                }
+                                selectReturnsImmediately = 0;
+                            } else {
+                                // Returned before the minSelectTimeout elapsed with nothing selected.
+                                // This may be because of a bug in JDK NIO Selector provider, so increment the counter
+                                // which we will use later to see if it's really the bug in JDK.
+                                selectReturnsImmediately ++;
+                            }
                         }
                     } else {
                         selectReturnsImmediately = 0;
@@ -339,12 +366,16 @@ abstract class AbstractNioSelector implements NioSelector {
                     processTaskQueue();
 
                     for (SelectionKey k: selector.keys()) {
-                        close(k);
+                        try {
+                            close(k);
+                        } catch (Throwable e) {
+                            logger.warn("Failed to close a selection key.", e);
+                        }
                     }
 
                     try {
                         selector.close();
-                    } catch (IOException e) {
+                    } catch (Throwable e) {
                         logger.warn(
                                 "Failed to close a selector.", e);
                     }
@@ -376,7 +407,7 @@ abstract class AbstractNioSelector implements NioSelector {
      */
     private void openSelector(ThreadNameDeterminer determiner) {
         try {
-            selector = Selector.open();
+            selector = SelectorUtil.open();
         } catch (Throwable t) {
             throw new ChannelException("Failed to create a selector.", t);
         }
@@ -407,7 +438,7 @@ abstract class AbstractNioSelector implements NioSelector {
             if (task == null) {
                 break;
             }
-            task.run();
+            task.run();;
 
             try {
                 cleanUpCancelledKeys();
@@ -418,7 +449,7 @@ abstract class AbstractNioSelector implements NioSelector {
     }
 
     private boolean processTaskQueue(long deadLineNanos) {
-        long numTasks = 0;
+        int numTasks = 0;
         boolean perfLogEnabled = PERF_LOGGER.isInfoEnabled();
         long startTime = perfLogEnabled ? System.nanoTime() : 0;
         boolean quickSelect;
@@ -489,7 +520,6 @@ abstract class AbstractNioSelector implements NioSelector {
     protected abstract void process(Selector selector) throws IOException;
 
     protected void processRead() throws IOException {
-
     }
 
     protected int select(Selector selector, boolean quickSelect) throws IOException {

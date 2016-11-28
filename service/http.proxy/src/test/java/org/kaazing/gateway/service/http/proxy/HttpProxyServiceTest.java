@@ -37,7 +37,7 @@ public class HttpProxyServiceTest {
     }
 
     @Test
-    public void shouldFailGatewayStartupAccepAndConnectDifferentEndingSlashes() throws Exception {
+    public void shouldFailGatewayStartupAcceptAndConnectDifferentEndingSlashes() throws Exception {
         Gateway gateway = new Gateway();
         // @formatter:off
         GatewayConfiguration configuration =

@@ -14,6 +14,10 @@
 # limitations under the License.
 #
 
+#
+# client
+#
+
 connect tcp://localhost:8110
 connected
 
@@ -43,12 +47,11 @@ read "<html>Hellooo</html>\r\n"
 read "0\r\n"
 read "\r\n"
 
-
 close
 closed
 
 #
-# Origin server
+# server
 #
 
 accept tcp://localhost:8080

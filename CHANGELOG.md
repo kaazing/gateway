@@ -1,24 +1,179 @@
 # Change Log
 
-## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
-
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.1.2...HEAD)
+## [5.3.1](https://github.com/kaazing/gateway/tree/5.3.1) (2016-11-03)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.5...5.3.1)
 
 **Fixed bugs:**
 
+- Issue with finer to coarser granularity conversion of time unit in config file  [\#595](https://github.com/kaazing/gateway/issues/595)
+
+**Closed issues:**
+
+- UDP processing may be slowed by select, we should call selector.wakeup when udp events come in [\#752](https://github.com/kaazing/gateway/issues/752)
+
+**Merged pull requests:**
+
+- Catchup merge from release branch [\#776](https://github.com/kaazing/gateway/pull/776) ([dpwspoon](https://github.com/dpwspoon))
+- \(service/proxy\) Make AbstractProxyHandler.setMaximumPendingBytes public [\#770](https://github.com/kaazing/gateway/pull/770) ([cmebarrow](https://github.com/cmebarrow))
+- Support for configuring http.realm [\#765](https://github.com/kaazing/gateway/pull/765) ([dpwspoon](https://github.com/dpwspoon))
+- shutdown causes selector loop not terminate [\#763](https://github.com/kaazing/gateway/pull/763) ([jitsni](https://github.com/jitsni))
+- Fixing udp server boss thread names [\#761](https://github.com/kaazing/gateway/pull/761) ([jitsni](https://github.com/jitsni))
+- 5.3.1 nioworker perf fix selector wakeup [\#760](https://github.com/kaazing/gateway/pull/760) ([cmebarrow](https://github.com/cmebarrow))
+- Catchup develop from release [\#758](https://github.com/kaazing/gateway/pull/758) ([dpwspoon](https://github.com/dpwspoon))
+- Sync with netty 3.5.10 \(apply to release/5.3.1\) [\#757](https://github.com/kaazing/gateway/pull/757) ([cmebarrow](https://github.com/cmebarrow))
+- Enhance ITUtil.toTestRule\(...\) to support @Mock and @Auto annotations… [\#756](https://github.com/kaazing/gateway/pull/756) ([jfallows](https://github.com/jfallows))
+- Skip transport factories for disabled transports [\#754](https://github.com/kaazing/gateway/pull/754) ([jfallows](https://github.com/jfallows))
+- Http acceptor multi factor acceptor tests [\#753](https://github.com/kaazing/gateway/pull/753) ([dpwspoon](https://github.com/dpwspoon))
+- Removed Agrona from the mina.netty jar [\#751](https://github.com/kaazing/gateway/pull/751) ([mgherghe](https://github.com/mgherghe))
+- Make mock handler tolerant of call to sessionClosed [\#750](https://github.com/kaazing/gateway/pull/750) ([jfallows](https://github.com/jfallows))
+- Relax count on number of IDLE events [\#749](https://github.com/kaazing/gateway/pull/749) ([jfallows](https://github.com/jfallows))
+- Reduced number of follows in ConnectorMultiFactorAuthIT such that tes… [\#748](https://github.com/kaazing/gateway/pull/748) ([dpwspoon](https://github.com/dpwspoon))
+
+## [5.2.5](https://github.com/kaazing/gateway/tree/5.2.5) (2016-10-19)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.4...5.2.5)
+
+**Closed issues:**
+
+- WsxAcceptorLoggingIT.shouldLogOpenAndInactivityTimeoutClose fails [\#737](https://github.com/kaazing/gateway/issues/737)
+- Occasional build failure in wseb acceptor spec test ControlIT.shouldCloseConnectionOnReceivingInvalidPingFromClient [\#580](https://github.com/kaazing/gateway/issues/580)
+
+**Merged pull requests:**
+
+- catchup develop from release [\#747](https://github.com/kaazing/gateway/pull/747) ([dpwspoon](https://github.com/dpwspoon))
+- Altered NioWorker.select and AbstractNioSelector.select to use 10ms select timeout [\#746](https://github.com/kaazing/gateway/pull/746) ([cmebarrow](https://github.com/cmebarrow))
+- Add "connect.strategy" property to proxy service\(s\) [\#745](https://github.com/kaazing/gateway/pull/745) ([jfallows](https://github.com/jfallows))
+- add check for mux scheme when adding trailing slash [\#744](https://github.com/kaazing/gateway/pull/744) ([danibusu](https://github.com/danibusu))
+- Changed turn.rest response to use json library instead of string formatting [\#743](https://github.com/kaazing/gateway/pull/743) ([mgherghe](https://github.com/mgherghe))
+- Adjusting IdleStrategy's parking times [\#741](https://github.com/kaazing/gateway/pull/741) ([jitsni](https://github.com/jitsni))
+- Created GrantLoginModule. [\#739](https://github.com/kaazing/gateway/pull/739) ([nemigaservices](https://github.com/nemigaservices))
+- add early access feature for tcp security extensions [\#736](https://github.com/kaazing/gateway/pull/736) ([danibusu](https://github.com/danibusu))
+- Add support for proxy service connect.strategy … [\#735](https://github.com/kaazing/gateway/pull/735) ([jfallows](https://github.com/jfallows))
+- Http.multi.auth [\#734](https://github.com/kaazing/gateway/pull/734) ([dpwspoon](https://github.com/dpwspoon))
+- Add convenience methods and tidy POM [\#732](https://github.com/kaazing/gateway/pull/732) ([jfallows](https://github.com/jfallows))
+- Modified DefaultExpiringState.putIfAbsent to accept ttl [\#731](https://github.com/kaazing/gateway/pull/731) ([apirvu](https://github.com/apirvu))
+- Selector.selectNow is triggered by passing timeout=0L [\#728](https://github.com/kaazing/gateway/pull/728) ([jitsni](https://github.com/jitsni))
+- Tcp.ip.whitelist [\#727](https://github.com/kaazing/gateway/pull/727) ([danibusu](https://github.com/danibusu))
+- Network interface syntax enhancements [\#626](https://github.com/kaazing/gateway/pull/626) ([irina-mitrea-luxoft](https://github.com/irina-mitrea-luxoft))
+
+## [5.2.4](https://github.com/kaazing/gateway/tree/5.2.4) (2016-10-03)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.3...5.2.4)
+
+**Fixed bugs:**
+
+- RC releases: Gateway fails to start up due to error in Update service concerning version format [\#715](https://github.com/kaazing/gateway/issues/715)
+
+**Merged pull requests:**
+
+- Configure Agrona's buffer size for udp child channels [\#726](https://github.com/kaazing/gateway/pull/726) ([jitsni](https://github.com/jitsni))
+- Release 5.2.4 branch merge [\#725](https://github.com/kaazing/gateway/pull/725) ([jitsni](https://github.com/jitsni))
+- Syncing netty changes w.r.t interestops [\#724](https://github.com/kaazing/gateway/pull/724) ([jitsni](https://github.com/jitsni))
+- Set UDP receive buffer size to 2048 [\#723](https://github.com/kaazing/gateway/pull/723) ([dpwspoon](https://github.com/dpwspoon))
+- Revert "Changed turn.rest json response to include stun URLs" [\#722](https://github.com/kaazing/gateway/pull/722) ([dpwspoon](https://github.com/dpwspoon))
+- Revert "Changed turn.rest json response to include stun URLs" [\#721](https://github.com/kaazing/gateway/pull/721) ([dpwspoon](https://github.com/dpwspoon))
+- Fixing IdleStrategy compilation issue [\#720](https://github.com/kaazing/gateway/pull/720) ([jitsni](https://github.com/jitsni))
+- Parking the thread for 10mills instead of 10micros [\#719](https://github.com/kaazing/gateway/pull/719) ([jitsni](https://github.com/jitsni))
+- Bugfix/870 update parent [\#717](https://github.com/kaazing/gateway/pull/717) ([ahousing](https://github.com/ahousing))
+- Add support for release candidates. [\#716](https://github.com/kaazing/gateway/pull/716) ([Anisotrop](https://github.com/Anisotrop))
+- Added annotation for the turn.rest service in xsd file [\#714](https://github.com/kaazing/gateway/pull/714) ([mgherghe](https://github.com/mgherghe))
+- Turn Proxy - Unify Logging Output [\#713](https://github.com/kaazing/gateway/pull/713) ([mgherghe](https://github.com/mgherghe))
+- Added maximum.redirects to accept/connect options [\#712](https://github.com/kaazing/gateway/pull/712) ([dpwspoon](https://github.com/dpwspoon))
+- Worker threads are going to PARK state unnecessarily [\#711](https://github.com/kaazing/gateway/pull/711) ([jitsni](https://github.com/jitsni))
+
+## [5.2.3](https://github.com/kaazing/gateway/tree/5.2.3) (2016-09-20)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.2...5.2.3)
+
+**Fixed bugs:**
+
+- WSN Connector: Connection should fail when the negotiated extension is not in the list of supported extensions [\#314](https://github.com/kaazing/gateway/issues/314)
+- WSN Connector: Missing Sec-WebSocket-Extensions header in the handshake request [\#309](https://github.com/kaazing/gateway/issues/309)
+
+**Merged pull requests:**
+
+- add getter for GatewayConfigurationDocument: [\#708](https://github.com/kaazing/gateway/pull/708) ([dpwspoon](https://github.com/dpwspoon))
+- Update test.Gateway to allow fetching of generated xml configuration [\#707](https://github.com/kaazing/gateway/pull/707) ([danibusu](https://github.com/danibusu))
+- WebSocket extensions decide whether to be part of handshake or not [\#705](https://github.com/kaazing/gateway/pull/705) ([jitsni](https://github.com/jitsni))
+- Fixed typo in early access feature description [\#704](https://github.com/kaazing/gateway/pull/704) ([dpwspoon](https://github.com/dpwspoon))
+- Changed turn.rest json response to include stun URLs [\#701](https://github.com/kaazing/gateway/pull/701) ([mgherghe](https://github.com/mgherghe))
+
+## [5.2.2](https://github.com/kaazing/gateway/tree/5.2.2) (2016-09-09)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.1...5.2.2)
+
+**Fixed bugs:**
+
+- wsn transport is reacting incorrectly to case where maximum ws message size is exceeded [\#463](https://github.com/kaazing/gateway/issues/463)
+- WSN Connector: Connection should fail when the value of the `Connection` header in handshake response is not `Upgrade` [\#310](https://github.com/kaazing/gateway/issues/310)
+
+**Merged pull requests:**
+
+- Removed turn.proxy module [\#703](https://github.com/kaazing/gateway/pull/703) ([mgherghe](https://github.com/mgherghe))
+- Apirvu param prot [\#702](https://github.com/kaazing/gateway/pull/702) ([dpwspoon](https://github.com/dpwspoon))
+- Turn proxy support for turn data message [\#699](https://github.com/kaazing/gateway/pull/699) ([dpwspoon](https://github.com/dpwspoon))
+- Tweak comment in configuration [\#698](https://github.com/kaazing/gateway/pull/698) ([robinzimmermann](https://github.com/robinzimmermann))
+- Update schema to latest. Add update.check service [\#697](https://github.com/kaazing/gateway/pull/697) ([robinzimmermann](https://github.com/robinzimmermann))
+- Http Connector authenticating to 401 and Login Module expiring state [\#696](https://github.com/kaazing/gateway/pull/696) ([dpwspoon](https://github.com/dpwspoon))
+- Using tcp acceptor's worker pool for udp child sessions [\#694](https://github.com/kaazing/gateway/pull/694) ([jitsni](https://github.com/jitsni))
+- Parameterized test classes to run with TCP and UDP [\#693](https://github.com/kaazing/gateway/pull/693) ([apirvu](https://github.com/apirvu))
+- Changes for MESSAGE-INTEGRITY generation [\#692](https://github.com/kaazing/gateway/pull/692) ([Anisotrop](https://github.com/Anisotrop))
+- Added tests for webRTC turn rest service [\#691](https://github.com/kaazing/gateway/pull/691) ([vstratan](https://github.com/vstratan))
+- Adding proxy service tests [\#689](https://github.com/kaazing/gateway/pull/689) ([jitsni](https://github.com/jitsni))
+- Ignored symlink tests if the user has no OS access to create symlinks [\#686](https://github.com/kaazing/gateway/pull/686) ([mgherghe](https://github.com/mgherghe))
+- Refactor turn.rest API to match feedback [\#684](https://github.com/kaazing/gateway/pull/684) ([mgherghe](https://github.com/mgherghe))
+- Mask XOR-RELAY-ADDRESS and unmask XOR-PEER-ADDRESS [\#681](https://github.com/kaazing/gateway/pull/681) ([Anisotrop](https://github.com/Anisotrop))
+- Removed echoing of java path and version on startup [\#680](https://github.com/kaazing/gateway/pull/680) ([mgherghe](https://github.com/mgherghe))
+- add ws extensions functionality in WsnConnector [\#657](https://github.com/kaazing/gateway/pull/657) ([danibusu](https://github.com/danibusu))
+- Changes for time unit conversion. [\#649](https://github.com/kaazing/gateway/pull/649) ([vmaraloiu](https://github.com/vmaraloiu))
+- Add the port of the remote client to HEADER\_X\_FORWARDED\_FOR and FORWARDED\_FOR headers. Perform changes in k3po scripts for the new changes. [\#630](https://github.com/kaazing/gateway/pull/630) ([vmaraloiu](https://github.com/vmaraloiu))
+
+## [5.2.1](https://github.com/kaazing/gateway/tree/5.2.1) (2016-08-19)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.2.0...5.2.1)
+
+**Merged pull requests:**
+
+- Turn.proxy implementation [\#679](https://github.com/kaazing/gateway/pull/679) ([Anisotrop](https://github.com/Anisotrop))
+- Implementation of turn.rest authentication service [\#674](https://github.com/kaazing/gateway/pull/674) ([DoruM](https://github.com/DoruM))
+- HTTP Proxy Issue 648 [\#672](https://github.com/kaazing/gateway/pull/672) ([a-zuckut](https://github.com/a-zuckut))
+- Remove copyright info from log4j xml/properties files [\#668](https://github.com/kaazing/gateway/pull/668) ([ahousing](https://github.com/ahousing))
+- Fix for issue 310: WSN Connector: Connection should fail when the value of the  header in handshake response is not  \#310 [\#665](https://github.com/kaazing/gateway/pull/665) ([vmaraloiu](https://github.com/vmaraloiu))
+- Help written from file [\#656](https://github.com/kaazing/gateway/pull/656) ([DoruM](https://github.com/DoruM))
+
+## [5.2.0](https://github.com/kaazing/gateway/tree/5.2.0) (2016-08-08)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.1.2...5.2.0)
+
+**Fixed bugs:**
+
+- Gateway not specification compliant for invalid headers [\#637](https://github.com/kaazing/gateway/issues/637)
 - RFC 7232: Directory Service responds with 200 OK when If-Modified-Since matches Last-Modified from previous response [\#383](https://github.com/kaazing/gateway/issues/383)
 - WSN Connector: Missing `Connection` header in handshake response should not result in a successful connection [\#311](https://github.com/kaazing/gateway/issues/311)
 - WsnConnector does not reject a masked text or binary frame from the server [\#308](https://github.com/kaazing/gateway/issues/308)
 - WSN Connector: Gateway sends back invalid UTF-8 reason instead of just the CLOSE code 1002 [\#307](https://github.com/kaazing/gateway/issues/307)
+- WSN Connector, WSE connector: IllegalArgumentException is thrown when sending a frame with empty payload [\#306](https://github.com/kaazing/gateway/issues/306)
+- WSN Transport Bug : shouldEchoBinaryFrameWithPayloadLength0 and shouldEchoTextFrameWithPayloadLength0 [\#254](https://github.com/kaazing/gateway/issues/254)
+
+**Closed issues:**
+
+- Remove all but hostname must match gateway-config.xml balancer check [\#615](https://github.com/kaazing/gateway/issues/615)
 
 **Merged pull requests:**
 
+- reset all changes made by the revert commit\(https://github.com/kaazin… [\#671](https://github.com/kaazing/gateway/pull/671) ([AdrianCozma](https://github.com/AdrianCozma))
+- reset version to develop-SNAPSHOT, it was changed during a revert on … [\#670](https://github.com/kaazing/gateway/pull/670) ([AdrianCozma](https://github.com/AdrianCozma))
+- Implemented the new \<symbolic-link\> property for the Directory Service [\#669](https://github.com/kaazing/gateway/pull/669) ([msalavastru](https://github.com/msalavastru))
+- Update copyright stored in server.?pi/pom.xml [\#667](https://github.com/kaazing/gateway/pull/667) ([ahousing](https://github.com/ahousing))
+- Removing http transport dependency in proxy service [\#666](https://github.com/kaazing/gateway/pull/666) ([jitsni](https://github.com/jitsni))
+- Corrected namespace for management.xsd [\#664](https://github.com/kaazing/gateway/pull/664) ([DoruM](https://github.com/DoruM))
+- Revert "Corrected namespace for management.xsd" [\#663](https://github.com/kaazing/gateway/pull/663) ([AdrianCozma](https://github.com/AdrianCozma))
+- Corrected namespace for management.xsd [\#662](https://github.com/kaazing/gateway/pull/662) ([DoruM](https://github.com/DoruM))
+- Corrected namespace for management.xsd [\#659](https://github.com/kaazing/gateway/pull/659) ([DoruM](https://github.com/DoruM))
+- Disable TcpConnectorIT.shouldHandleServerClose [\#654](https://github.com/kaazing/gateway/pull/654) ([ahousing](https://github.com/ahousing))
+- Added validation for empty space after HTTP header field name [\#652](https://github.com/kaazing/gateway/pull/652) ([DoruM](https://github.com/DoruM))
 - Updated license for log4j-config [\#650](https://github.com/kaazing/gateway/pull/650) ([vishalsatish](https://github.com/vishalsatish))
 - reject masked frames sent by the server in a websocket connection [\#647](https://github.com/kaazing/gateway/pull/647) ([danibusu](https://github.com/danibusu))
+- Udp impl using netty [\#646](https://github.com/kaazing/gateway/pull/646) ([jitsni](https://github.com/jitsni))
 - Add checks for invalid UTF-8 reason on Close frame [\#641](https://github.com/kaazing/gateway/pull/641) ([DoruM](https://github.com/DoruM))
+- \[Work in progress\] add support for sending empty payload frame \(gateway issue \#254\) [\#640](https://github.com/kaazing/gateway/pull/640) ([danibusu](https://github.com/danibusu))
 
 ## [5.1.2](https://github.com/kaazing/gateway/tree/5.1.2) (2016-07-20)
-[Full Changelog](https://github.com/kaazing/gateway/compare/1.1.1...5.1.2)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.1.1...5.1.2)
 
 **Fixed bugs:**
 
@@ -28,7 +183,6 @@
 
 **Closed issues:**
 
-- Command center requires to relogin every time the page is refereshed [\#321](https://github.com/kaazing/gateway/issues/321)
 - WsnInactivityTimeoutIT.shouldInactivityTimeoutWithPingPongExtensionAndExtendedHandshakePort80\(\) failing [\#300](https://github.com/kaazing/gateway/issues/300)
 
 **Merged pull requests:**
@@ -49,9 +203,6 @@
 - SNMP and sessionServiceType no longer supported [\#618](https://github.com/kaazing/gateway/pull/618) ([justinma246](https://github.com/justinma246))
 - Http connector follow redirect for maximum.redirects, also http acceptor send 302 for wsn and wsx [\#611](https://github.com/kaazing/gateway/pull/611) ([dpwspoon](https://github.com/dpwspoon))
 - Login Module passes when there is a realm and login module [\#604](https://github.com/kaazing/gateway/pull/604) ([justinma246](https://github.com/justinma246))
-
-## [1.1.1](https://github.com/kaazing/gateway/tree/1.1.1) (2016-06-27)
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.1.1...1.1.1)
 
 ## [5.1.1](https://github.com/kaazing/gateway/tree/5.1.1) (2016-06-27)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.1.0...5.1.1)
@@ -787,7 +938,7 @@
 - Added timeout back into WsnConnectorTest [\#86](https://github.com/kaazing/gateway/pull/86) ([dpwspoon](https://github.com/dpwspoon))
 
 ## [5.0.1.21](https://github.com/kaazing/gateway/tree/5.0.1.21) (2015-04-03)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.1.20...5.0.1.21)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.20...5.0.1.21)
 
 **Fixed bugs:**
 
@@ -805,8 +956,8 @@
 - Wseb sequencing [\#82](https://github.com/kaazing/gateway/pull/82) ([jitsni](https://github.com/jitsni))
 - Added exec to linux startup script [\#81](https://github.com/kaazing/gateway/pull/81) ([dpwspoon](https://github.com/dpwspoon))
 
-## [gateway.distribution-5.0.1.20](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.1.20) (2015-03-26)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.1.19...gateway.distribution-5.0.1.20)
+## [5.0.1.20](https://github.com/kaazing/gateway/tree/5.0.1.20) (2015-03-26)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.19...5.0.1.20)
 
 **Fixed bugs:**
 
@@ -856,18 +1007,18 @@
 - Add a Gitter chat badge to README.md [\#21](https://github.com/kaazing/gateway/pull/21) ([gitter-badger](https://github.com/gitter-badger))
 - Fixed README nits [\#19](https://github.com/kaazing/gateway/pull/19) ([vjwang](https://github.com/vjwang))
 
-## [gateway.distribution-5.0.1.19](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.1.19) (2015-01-09)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.1.18...gateway.distribution-5.0.1.19)
+## [5.0.1.19](https://github.com/kaazing/gateway/tree/5.0.1.19) (2015-01-09)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.18...5.0.1.19)
 
-## [gateway.distribution-5.0.1.18](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.1.18) (2014-12-20)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.1.17...gateway.distribution-5.0.1.18)
+## [5.0.1.18](https://github.com/kaazing/gateway/tree/5.0.1.18) (2014-12-20)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.17...5.0.1.18)
 
 **Merged pull requests:**
 
 - Got rid of copyright in pom because they are not auto updated from licen... [\#25](https://github.com/kaazing/gateway/pull/25) ([dpwspoon](https://github.com/dpwspoon))
 
-## [gateway.distribution-5.0.1.17](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.1.17) (2014-12-18)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.1.16...gateway.distribution-5.0.1.17)
+## [5.0.1.17](https://github.com/kaazing/gateway/tree/5.0.1.17) (2014-12-18)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.16...5.0.1.17)
 
 **Closed issues:**
 
@@ -878,20 +1029,20 @@
 - Apply fix for http://jira.codehaus.org/browse/MASSEMBLY-728  [\#24](https://github.com/kaazing/gateway/pull/24) ([nowucca](https://github.com/nowucca))
 - Updated project to appendAssemblyId false so that artifacts don't need v... [\#22](https://github.com/kaazing/gateway/pull/22) ([dpwspoon](https://github.com/dpwspoon))
 
-## [gateway.distribution-5.0.1.16](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.1.16) (2014-12-17)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.1.15...gateway.distribution-5.0.1.16)
+## [5.0.1.16](https://github.com/kaazing/gateway/tree/5.0.1.16) (2014-12-17)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.15...5.0.1.16)
 
-## [gateway.distribution-5.0.1.15](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.1.15) (2014-12-17)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.1.14...gateway.distribution-5.0.1.15)
+## [5.0.1.15](https://github.com/kaazing/gateway/tree/5.0.1.15) (2014-12-17)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.14...5.0.1.15)
 
-## [gateway.distribution-5.0.1.14](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.1.14) (2014-12-16)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.0.16...gateway.distribution-5.0.1.14)
+## [5.0.1.14](https://github.com/kaazing/gateway/tree/5.0.1.14) (2014-12-16)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.0.16...5.0.1.14)
 
-## [gateway.distribution-5.0.0.16](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.0.16) (2014-12-16)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.0.15...gateway.distribution-5.0.0.16)
+## [5.0.0.16](https://github.com/kaazing/gateway/tree/5.0.0.16) (2014-12-16)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.0.15...5.0.0.16)
 
-## [gateway.distribution-5.0.0.15](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.0.15) (2014-12-12)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.0.14...gateway.distribution-5.0.0.15)
+## [5.0.0.15](https://github.com/kaazing/gateway/tree/5.0.0.15) (2014-12-12)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.0.14...5.0.0.15)
 
 **Merged pull requests:**
 
@@ -899,31 +1050,31 @@
 - Changed filenames and port \# [\#16](https://github.com/kaazing/gateway/pull/16) ([vjwang](https://github.com/vjwang))
 - Updated naming and content [\#13](https://github.com/kaazing/gateway/pull/13) ([vjwang](https://github.com/vjwang))
 
-## [gateway.distribution-5.0.0.14](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.0.14) (2014-12-11)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.0.13...gateway.distribution-5.0.0.14)
+## [5.0.0.14](https://github.com/kaazing/gateway/tree/5.0.0.14) (2014-12-11)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.0.13...5.0.0.14)
 
 **Merged pull requests:**
 
 - KG-13558:  Add an echo service, update the 'It Works' page to connect to... [\#11](https://github.com/kaazing/gateway/pull/11) ([krismcqueen](https://github.com/krismcqueen))
 - Updated project to use kaazing sigar dist [\#7](https://github.com/kaazing/gateway/pull/7) ([dpwspoon](https://github.com/dpwspoon))
 
-## [gateway.distribution-5.0.0.13](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.0.13) (2014-12-10)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.0.12...gateway.distribution-5.0.0.13)
+## [5.0.0.13](https://github.com/kaazing/gateway/tree/5.0.0.13) (2014-12-10)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.0.12...5.0.0.13)
 
-## [gateway.distribution-5.0.0.12](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.0.12) (2014-12-10)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.0.11...gateway.distribution-5.0.0.12)
+## [5.0.0.12](https://github.com/kaazing/gateway/tree/5.0.0.12) (2014-12-10)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.0.11...5.0.0.12)
 
 **Merged pull requests:**
 
 - Updated name of bower-maven-plugin [\#6](https://github.com/kaazing/gateway/pull/6) ([dpwspoon](https://github.com/dpwspoon))
 
-## [gateway.distribution-5.0.0.11](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.0.11) (2014-12-04)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.0.10...gateway.distribution-5.0.0.11)
+## [5.0.0.11](https://github.com/kaazing/gateway/tree/5.0.0.11) (2014-12-04)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.0.10...5.0.0.11)
 
-## [gateway.distribution-5.0.0.10](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.0.10) (2014-12-04)
-[Full Changelog](https://github.com/kaazing/gateway/compare/gateway.distribution-5.0.0.9...gateway.distribution-5.0.0.10)
+## [5.0.0.10](https://github.com/kaazing/gateway/tree/5.0.0.10) (2014-12-04)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.0.9...5.0.0.10)
 
-## [gateway.distribution-5.0.0.9](https://github.com/kaazing/gateway/tree/gateway.distribution-5.0.0.9) (2014-12-04)
+## [5.0.0.9](https://github.com/kaazing/gateway/tree/5.0.0.9) (2014-12-04)
 **Merged pull requests:**
 
 - Updated project to use bower-dependency-maven-plugin to get bower compon... [\#5](https://github.com/kaazing/gateway/pull/5) ([dpwspoon](https://github.com/dpwspoon))

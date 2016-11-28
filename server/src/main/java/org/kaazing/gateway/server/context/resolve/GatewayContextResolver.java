@@ -24,6 +24,9 @@ import static org.kaazing.gateway.resource.address.uri.URIUtils.getPort;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getQuery;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getUserInfo;
+import static org.kaazing.gateway.service.util.ServiceUtils.LIST_SEPARATOR;
+import static org.kaazing.gateway.util.feature.EarlyAccessFeatures.LOGIN_MODULE_EXPIRING_STATE;
+import static org.kaazing.gateway.util.feature.EarlyAccessFeatures.TCP_REALM_EXTENSION;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -44,6 +47,7 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import javax.annotation.Resource;
 import javax.management.MBeanServer;
@@ -59,10 +63,10 @@ import org.kaazing.gateway.security.SecurityContext;
 import org.kaazing.gateway.security.auth.BasicLoginModule;
 import org.kaazing.gateway.security.auth.NegotiateLoginModule;
 import org.kaazing.gateway.security.auth.TimeoutLoginModule;
+import org.kaazing.gateway.server.ExpiringState;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.config.SchemeConfig;
-import org.kaazing.gateway.server.config.parse.DefaultSchemeConfig;
 import org.kaazing.gateway.server.config.june2016.AuthenticationType;
 import org.kaazing.gateway.server.config.june2016.AuthorizationConstraintType;
 import org.kaazing.gateway.server.config.june2016.ClusterConnectOptionsType;
@@ -79,6 +83,7 @@ import org.kaazing.gateway.server.config.june2016.ServiceConnectOptionsType;
 import org.kaazing.gateway.server.config.june2016.ServiceDefaultsType;
 import org.kaazing.gateway.server.config.june2016.ServicePropertiesType;
 import org.kaazing.gateway.server.config.june2016.ServiceType;
+import org.kaazing.gateway.server.config.parse.DefaultSchemeConfig;
 import org.kaazing.gateway.server.context.DependencyContext;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.service.ServiceRegistry;
@@ -99,13 +104,15 @@ import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.aws.AwsUtils;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
-import org.kaazing.gateway.util.ssl.SslCipherSuites;
 import org.slf4j.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.hazelcast.core.IMap;
+
 public class GatewayContextResolver {
-    public static final String AUTHORIZATION_MODE_CHALLENGE = "challenge";
+
+	public static final String AUTHORIZATION_MODE_CHALLENGE = "challenge";
 
     /**
      * Prefix to the authentication scheme to indicate that the Kaazing client application will handle the challenge rather than
@@ -131,6 +138,9 @@ public class GatewayContextResolver {
 
     private static final String SERVICE_TYPE_CLASS_PREFIX = "class:";
     private static final String LOGIN_MODULE_TYPE_CLASS_PREFIX = "class:";
+
+    private static final String EXPIRING_STATE_NAME = "ExpiringState";
+    private static final String EXPIRING_STATE_OPTIONS_KEY = "ExpiringState";
 
     // a map of file-extension to mime-type.  For backward compatibility, we'll
     // hardcode this initial set based on the values in Dragonfire HttpUtils.getContentType().
@@ -221,12 +231,13 @@ public class GatewayContextResolver {
         ClusterType[] clusterConfigs = gatewayConfig.getClusterArray();
         ClusterType clusterConfig = (clusterConfigs.length > 0) ? clusterConfigs[clusterConfigs.length - 1] : null;
 
-        DefaultSecurityContext securityContext = securityResolver.resolve(securityConfig);
-        RealmsContext realmsContext = resolveRealms(securityConfig, securityContext, configuration);
-        DefaultServiceDefaultsContext serviceDefaultsContext = resolveServiceDefaults(serviceDefaults);
-        // Map<String, DefaultSessionContext> sessionContexts = resolveSessions(sessionConfigs, securityContext, realmsContext);
+
         SchedulerProvider schedulerProvider = new SchedulerProvider(configuration);
         ClusterContext clusterContext = resolveCluster(clusterConfig, schedulerProvider);
+        DefaultSecurityContext securityContext = securityResolver.resolve(securityConfig);
+        ExpiringState expiringState = resolveExpiringState(clusterContext);
+        RealmsContext realmsContext = resolveRealms(securityConfig, securityContext, configuration, clusterContext, expiringState);
+        DefaultServiceDefaultsContext serviceDefaultsContext = resolveServiceDefaults(serviceDefaults, realmsContext);
         ServiceRegistry servicesByURI = new ServiceRegistry();
         Map<String, Object> dependencyContexts = resolveDependencyContext();
         ResourceAddressFactory resourceAddressFactory = resolveResourceAddressFactories();
@@ -271,6 +282,7 @@ public class GatewayContextResolver {
         injectables.put("bridgeServiceFactory", bridgeServiceFactory);
         injectables.put("resourceAddressFactory", resourceAddressFactory);
         injectables.put("transportFactory", transportFactory);
+        injectables.put("expiringState", expiringState);
         gatewayContext.getInjectables().putAll(injectables);
 
         injectResources(services,
@@ -383,6 +395,9 @@ public class GatewayContextResolver {
     private SchemeConfig supplySchemeConfig(String schemeName) {
         SchemeConfig schemeConfig = schemeConfigsByName.get(schemeName);
         if (schemeConfig == null) {
+            if (schemeName.contains("tls")) {
+                schemeName = schemeName.replace("tls", "ssl");
+            }
             schemeConfig = findSchemeConfig(schemeName);
             if (schemeConfig == null) {
                 throw new IllegalArgumentException("Missing scheme \"" + schemeName + "\"");
@@ -396,7 +411,7 @@ public class GatewayContextResolver {
 
     // Resolve service defaults into a config object so we can expose it as its
     // own object to management.
-    private DefaultServiceDefaultsContext resolveServiceDefaults(ServiceDefaultsType serviceDefaults) {
+    private DefaultServiceDefaultsContext resolveServiceDefaults(ServiceDefaultsType serviceDefaults, RealmsContext realmsContext) {
 
         if (serviceDefaults == null) {
             return null;
@@ -645,6 +660,9 @@ public class GatewayContextResolver {
             ServiceAcceptOptionsType defaultOptionsConfig =
                     (defaultServiceConfig != null) ? defaultServiceConfig.getAcceptOptions() : null;
             AcceptOptionsContext acceptOptionsContext = new DefaultAcceptOptionsContext(acceptOptions, defaultOptionsConfig);
+            if (acceptOptionsContext.asOptionsMap().containsKey("tcp.realm")) {
+                TCP_REALM_EXTENSION.assertEnabled(configuration, LOGGER);
+            }
 
             ServiceConnectOptionsType connectOptions = serviceConfig.getConnectOptions();
 
@@ -655,13 +673,6 @@ public class GatewayContextResolver {
                     new DefaultConnectOptionsContext(connectOptions, defaultConnectOptions);
 
             Key encryptionKey = null;
-
-            if (serviceRealmContext == null &&
-                    requireRolesCollection.size() > 0) {
-
-                throw new IllegalArgumentException("Authorization constraints require a " +
-                        "specified realm-name for service \"" + serviceDescription + "\"");
-            }
 
             DefaultServiceContext serviceContext =
                     new DefaultServiceContext(serviceType, serviceName, serviceDescription, serviceInstance, webDir,
@@ -675,7 +686,9 @@ public class GatewayContextResolver {
                             supportsMimeMappings(serviceType),
                             InternalSystemProperty.TCP_PROCESSOR_COUNT.getIntProperty(configuration),
                             transportFactory,
-                            resourceAddressFactory);
+                            resourceAddressFactory,
+                            realmsContext,
+                            configuration);
 
             serviceContexts.add(serviceContext);
 
@@ -735,7 +748,15 @@ public class GatewayContextResolver {
                     }
                 }
                 if (isSimpleProperty) {
-                    properties.put(node.getLocalName(), nodeValue);
+                    // TODO; consider going to dynamically typed objects
+                    // (i.e. allowing Object as properties value)
+                    // For now if we see a property that is a list, we convert to comma separated list
+                    String existingValue = properties.get(node.getLocalName());
+                    if (existingValue == null) {
+                        properties.put(node.getLocalName(), nodeValue);
+                    } else {
+                        properties.put(node.getLocalName(), existingValue + LIST_SEPARATOR + nodeValue);
+                    }
                 }
             }
         }
@@ -745,6 +766,12 @@ public class GatewayContextResolver {
         Collection<String> urisWithPort = new HashSet<>();
         for (String uri : acceptURIs) {
             String resolvedURI = resolveURI(getCanonicalURI(uri, true));
+            if (resolvedURI.contains("tls://")) {
+                resolvedURI = resolvedURI.replace("tls://", "ssl://");
+                if (resolvedURI.endsWith("/")) {
+                    resolvedURI = resolvedURI.substring(0, resolvedURI.length() - 1);
+                }
+            }
             urisWithPort.add(resolvedURI);
         }
         return urisWithPort;
@@ -919,8 +946,13 @@ public class GatewayContextResolver {
         }
     }
 
+	private ExpiringState resolveExpiringState(ClusterContext clusterContext) {
+        Supplier<IMap<Object, Object>> supplier = () -> clusterContext.getCollectionsFactory().getMap(EXPIRING_STATE_NAME);
+		return new DefaultExpiringState(supplier);
+	}
 
-    private RealmsContext resolveRealms(SecurityType securityConfig, SecurityContext securityContext, Properties configuration) {
+    private RealmsContext resolveRealms(SecurityType securityConfig, SecurityContext securityContext, Properties configuration,
+        ClusterContext clusterContext, ExpiringState expiringState) {
         Map<String, DefaultRealmContext> realmContexts = new HashMap<>();
 
         if (securityConfig != null) {
@@ -959,12 +991,15 @@ public class GatewayContextResolver {
                 for (LoginModuleType loginModule : loginModulesArray) {
                     String type = loginModule.getType();
                     String success = loginModule.getSuccess().toString();
-                    Map<String, String> options = new HashMap<>();
+                    Map<String, Object> options = new HashMap<>();
 
                     // add the GATEWAY_CONFIG_DIRECTORY to the options so it can be used from various login modules
                     // (see FileLoginModule for an example)
                     options.put(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY, configuration
                             .getProperty(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY));
+                    if (LOGIN_MODULE_EXPIRING_STATE.isEnabled(configuration)) {
+                        options.put(EXPIRING_STATE_OPTIONS_KEY, expiringState);
+                    }
 
                     LoginModuleOptionsType rawOptions = loginModule.getOptions();
                     if (rawOptions != null) {
@@ -1065,14 +1100,6 @@ public class GatewayContextResolver {
             return null;
         }
         return String.valueOf(l);
-    }
-
-    private String resolveAuthorizationMode(AuthenticationType.AuthorizationMode.Enum authorizationMode) {
-        if (authorizationMode == null) {
-            return AUTHORIZATION_MODE_CHALLENGE;
-        } else {
-            return authorizationMode.toString();
-        }
     }
 
     // NOTE: Code between the previous and next methods was moved from here to SecurityContextResolver
@@ -1310,8 +1337,8 @@ public class GatewayContextResolver {
             final boolean noPathToCanonicalize = canonicalizePath && (path == null || emptyPath);
             final boolean trailingSlashPath = "/".equals(path);
             final String scheme = getScheme(uri);
-            final boolean pathlessScheme =
-                    "ssl".equals(scheme) || "tcp".equals(scheme) || "pipe".equals(scheme) || "udp".equals(scheme);
+            final boolean pathlessScheme = "ssl".equals(scheme) || "tcp".equals(scheme) || "pipe".equals(scheme)
+                    || "udp".equals(scheme) || "mux".equals(scheme);
             final boolean trailingSlashWithPathlessScheme = trailingSlashPath && pathlessScheme;
             String newPath = trailingSlashWithPathlessScheme ? "" :
                              noPathToCanonicalize ? (pathlessScheme ? null : "/") : null;

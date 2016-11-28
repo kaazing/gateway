@@ -17,11 +17,9 @@ package org.kaazing.gateway.resource.address.ws;
 
 import static java.lang.Integer.valueOf;
 import static java.lang.Long.valueOf;
-import static java.util.Collections.emptyList;
 
 import java.net.URI;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
@@ -35,14 +33,12 @@ public class WsResourceAddress extends ResourceAddress {
     static final String TRANSPORT_NAME = "ws";
     
     private static final int MAX_MESSAGE_SIZE_DEFAULT = 0;
-    private static final List<String> EXTENSIONS_DEFAULT = emptyList();
     public static final long INACTIVITY_TIMEOUT_DEFAULT =  0L;
     private static final String[] SUPPORTED_PROTOCOLS_DEFAULT = new String[0];
     private static final String[] REQUIRED_PROTOCOLS_DEFAULT = new String[0];
 
     public static final ResourceOption<Boolean> CODEC_REQUIRED = new WsCodecRequiredOption();
     public static final ResourceOption<Boolean> LIGHTWEIGHT = new WsLightweightOption();
-    public static final ResourceOption<List<String>> EXTENSIONS = new WsExtensionsOption();
     public static final ResourceOption<Integer> MAX_MESSAGE_SIZE = new WsMaxMessageSizeOption();
     public static final ResourceOption<Long> INACTIVITY_TIMEOUT = new WsInactivityTimeoutOption();
     public static final ResourceOption<String[]> SUPPORTED_PROTOCOLS = new WsSupportedProtocolsOption();
@@ -50,7 +46,6 @@ public class WsResourceAddress extends ResourceAddress {
 
     private Boolean codecRequired;
     private Boolean lightweight;
-    private List<String> extensions = EXTENSIONS.defaultValue();
     private int maxMessageSize = MAX_MESSAGE_SIZE.defaultValue();
     private long inactivityTimeout = INACTIVITY_TIMEOUT.defaultValue();
     private String[] supportedProtocols;
@@ -70,8 +65,6 @@ public class WsResourceAddress extends ResourceAddress {
                     return (V) codecRequired;
                 case LIGHTWEIGHT:
                     return (V) lightweight;
-                case EXTENSIONS:
-                    return (V) extensions;
                 case MAX_MESSAGE_SIZE:
                     return (V) valueOf(maxMessageSize);
                 case INACTIVITY_TIMEOUT:
@@ -98,9 +91,6 @@ public class WsResourceAddress extends ResourceAddress {
                 case LIGHTWEIGHT:
                     lightweight = (Boolean) value;
                     return;
-                case EXTENSIONS:
-                    extensions = (List<String>) value;
-                    return;
                 case MAX_MESSAGE_SIZE:
                     maxMessageSize = (Integer) value;
                     return;
@@ -121,7 +111,7 @@ public class WsResourceAddress extends ResourceAddress {
 
     static class WsResourceOption<T> extends ResourceOption<T> {
 
-        protected enum Kind { CODEC_REQUIRED, LIGHTWEIGHT, EXTENSIONS, MAX_MESSAGE_SIZE,
+        protected enum Kind { CODEC_REQUIRED, LIGHTWEIGHT, MAX_MESSAGE_SIZE,
                                      INACTIVITY_TIMEOUT, SUPPORTED_PROTOCOLS,
                                      REQUIRED_PROTOCOLS }
         
@@ -148,12 +138,6 @@ public class WsResourceAddress extends ResourceAddress {
     private static final class WsLightweightOption extends WsResourceOption<Boolean> {
         private WsLightweightOption() {
             super(Kind.LIGHTWEIGHT, "lightweight", Boolean.FALSE);
-        }
-    }
-    
-    private static final class WsExtensionsOption extends WsResourceOption<List<String>> {
-        private WsExtensionsOption() {
-            super(Kind.EXTENSIONS, "extensions", EXTENSIONS_DEFAULT);
         }
     }
     

@@ -82,12 +82,14 @@ public class AuthorizationIT {
 
     @Test
     @Specification("framework/invalid.then.valid.credentials/request")
+    @Ignore
     public void authorizedInvalidThenValidCredentials() throws Exception {
         authorizationStart();
     }
 
     @Test
     @Specification("framework/missing.then.valid.credentials/request")
+    @Ignore
     public void authorizedMissingThenValidCredentials() throws Exception {
         authorizationStart();
     }
@@ -108,6 +110,7 @@ public class AuthorizationIT {
 
     @Test
     @Specification("framework/partial.then.valid.credentials/request")
+    @Ignore
     public void unauthorizedInvalidUsernameValidPassword() throws Exception {
         authorizationStart();
     }

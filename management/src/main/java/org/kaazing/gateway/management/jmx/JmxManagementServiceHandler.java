@@ -16,13 +16,15 @@
 package org.kaazing.gateway.management.jmx;
 
 import java.lang.management.ManagementFactory;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+
 import javax.management.JMException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+
 import org.kaazing.gateway.management.ManagementServiceHandler;
 import org.kaazing.gateway.management.config.ClusterConfigurationBean;
 import org.kaazing.gateway.management.config.NetworkConfigurationBean;
@@ -34,16 +36,8 @@ import org.kaazing.gateway.management.context.ManagementContext;
 import org.kaazing.gateway.management.gateway.GatewayManagementBean;
 import org.kaazing.gateway.management.service.ServiceManagementBean;
 import org.kaazing.gateway.management.session.SessionManagementBean;
-import org.kaazing.gateway.management.system.CpuListManagementBean;
-import org.kaazing.gateway.management.system.CpuManagementBean;
-import org.kaazing.gateway.management.system.HostManagementBean;
-import org.kaazing.gateway.management.system.JvmManagementBean;
-import org.kaazing.gateway.management.system.NicListManagementBean;
-import org.kaazing.gateway.management.system.NicManagementBean;
-import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.service.ServiceContext;
-import org.kaazing.gateway.transport.BridgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,21 +64,14 @@ class JmxManagementServiceHandler implements ManagementServiceHandler {
             "%s:root=gateways,gatewayId=%s,subtype=configuration,name=realms,realm=%s";
     private static final String SERVICE_CONFIG_MBEAN_FORMAT_STR =
             "%s:root=gateways,gatewayId=%s,subtype=configuration,name=services,serviceType=%s,id=%d";
-    private static final String SYSTEM_MBEAN_FORMAT_STR = "%s:root=gateways,gatewayId=%s,subtype=system,name=summary";
-    private static final String CPU_LIST_MBEAN_FORMAT_STR = "%s:root=gateways,gatewayId=%s,subtype=system,name=CPUs/cores";
-    private static final String NIC_LIST_MBEAN_FORMAT_STR = "%s:root=gateways,gatewayId=%s,subtype=system,name=NICs";
-    private static final String JVM_MBEAN_FORMAT_STR = "%s:root=gateways,gatewayId=%s,subtype=jvm,name=summary";
     private static final String SERVICE_DEFAULTS_CONFIG_MBEAN_FORMAT_STR =
             "%s:root=gateways,gatewayId=%s,subtype=configuration,name=service-defaults";
     private static final String VERSION_INFO_MBEAN_FORMAT_STR =
             "%s:root=gateways,gatewayId=%s,subtype=configuration,name=version-info";
-    private static final String CPU_MBEAN_FORMAT_STR = "%s:root=gateways,gatewayId=%s,subtype=system,name=CPUs/cores,id=%d";
-    private static final String NIC_MBEAN_FORMAT_STR = "%s:root=gateways,gatewayId=%s,subtype=system,name=NICs,interfaceName=%s";
 
     private final AtomicLong notificationSequenceNumber = new AtomicLong(0);
     // For performance, I need to pass this to the agent
     protected final ServiceContext serviceContext;
-    private final ManagementContext managementContext;
     private final MBeanServer mbeanServer;
 
     private final Map<Integer, ServiceMXBean> serviceBeanMap;
@@ -93,10 +80,9 @@ class JmxManagementServiceHandler implements ManagementServiceHandler {
     public JmxManagementServiceHandler(ServiceContext serviceContext, ManagementContext managementContext, MBeanServer
             mbeanServer) {
         this.serviceContext = serviceContext;
-        this.managementContext = managementContext;
         this.mbeanServer = mbeanServer;
-        serviceBeanMap = new HashMap<>();
-        sessionBeanMap = new HashMap<>();
+        serviceBeanMap = new ConcurrentHashMap<>();
+        sessionBeanMap = new ConcurrentHashMap<>();
 
         managementContext.addGatewayManagementListener(new JmxGatewayManagementListener(this));
         managementContext.addServiceManagementListener(new JmxServiceManagementListener(this));
@@ -171,7 +157,6 @@ class JmxManagementServiceHandler implements ManagementServiceHandler {
         try {
             ServiceManagementBean serviceManagementBean = sessionManagementBean.getServiceManagementBean();
             GatewayManagementBean gatewayManagementBean = serviceManagementBean.getGatewayManagementBean();
-            ResourceAddress address = BridgeSession.LOCAL_ADDRESS.get(sessionManagementBean.getSession());
 
             ObjectName name =
                     new ObjectName(String.format(SESSION_MBEAN_FORMAT_STR,
@@ -192,8 +177,7 @@ class JmxManagementServiceHandler implements ManagementServiceHandler {
         }
     }
 
-    @Override
-    public void removeSessionManagementBean(SessionManagementBean sessionManagementBean) {
+    public SessionMXBean removeSessionMXBean(SessionManagementBean sessionManagementBean) {
         try {
             SessionMXBean sessionMXBean = sessionBeanMap.remove(sessionManagementBean.getId());
             if (sessionMXBean != null) {
@@ -202,6 +186,7 @@ class JmxManagementServiceHandler implements ManagementServiceHandler {
                     mbeanServer.unregisterMBean(name);
                 }
             }
+            return sessionMXBean;
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -349,131 +334,6 @@ class JmxManagementServiceHandler implements ManagementServiceHandler {
                 VersionInfoMXBean versionInfoMXBean =
                         new VersionInfoMXBeanImpl(name, gatewayManagementBean);
                 mbeanServer.registerMBean(versionInfoMXBean, name);
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    @Override
-    public void addSystemManagementBean(HostManagementBean systemManagementBean) {
-        try {
-            GatewayManagementBean gatewayManagementBean = systemManagementBean.getGatewayManagementBean();
-            ObjectName name =
-                    new ObjectName(String.format(SYSTEM_MBEAN_FORMAT_STR,
-                            JMX_OBJECT_NAME,
-                            gatewayManagementBean.getHostAndPid()));
-            if (mbeanServer.isRegistered(name)) {
-                LOGGER.warn(String.format("Gateway system MBean name %s already registered", name));
-
-            } else {
-                HostMXBeanImpl systemMXBean = new HostMXBeanImpl(name, systemManagementBean);
-                mbeanServer.registerMBean(systemMXBean, name);
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    @Override
-    public void addCpuListManagementBean(CpuListManagementBean cpuListManagementBean) {
-        try {
-            GatewayManagementBean gatewayManagementBean = cpuListManagementBean.getGatewayManagementBean();
-            ObjectName name =
-                    new ObjectName(String.format(CPU_LIST_MBEAN_FORMAT_STR,
-                            JMX_OBJECT_NAME,
-                            gatewayManagementBean.getHostAndPid()));
-            if (mbeanServer.isRegistered(name)) {
-                LOGGER.warn(String.format("Gateway system MBean name %s already registered", name));
-
-            } else {
-                CpuListMXBeanImpl cpuListMXBean = new CpuListMXBeanImpl(name, cpuListManagementBean);
-                mbeanServer.registerMBean(cpuListMXBean, name);
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    @Override
-    public void addNicListManagementBean(NicListManagementBean nicListManagementBean) {
-        try {
-            GatewayManagementBean gatewayManagementBean = nicListManagementBean.getGatewayManagementBean();
-            ObjectName name =
-                    new ObjectName(String.format(NIC_LIST_MBEAN_FORMAT_STR,
-                            JMX_OBJECT_NAME,
-                            gatewayManagementBean.getHostAndPid()));
-            if (mbeanServer.isRegistered(name)) {
-                LOGGER.warn(String.format("Gateway system MBean name %s already registered", name));
-
-            } else {
-                NicListMXBeanImpl nicListMXBean = new NicListMXBeanImpl(name, nicListManagementBean);
-                mbeanServer.registerMBean(nicListMXBean, name);
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    @Override
-    public void addCpuManagementBean(CpuManagementBean cpuManagementBean, String hostAndPid) {
-        try {
-            ObjectName name =
-                    new ObjectName(String.format(CPU_MBEAN_FORMAT_STR,
-                            JMX_OBJECT_NAME,
-                            hostAndPid,
-                            cpuManagementBean.getId()));
-            if (mbeanServer.isRegistered(name)) {
-                LOGGER.warn(String.format("Gateway system CPU MBean name %s already registered", name));
-
-            } else {
-                CpuMXBeanImpl cpuMXBean = new CpuMXBeanImpl(name, cpuManagementBean);
-                mbeanServer.registerMBean(cpuMXBean, name);
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    @Override
-    public void addNicManagementBean(NicManagementBean nicManagementBean, String hostAndPid) {
-        try {
-            // The NIC interface name may contain a ':' (for sub-interfaces, like eth0:1).
-            // That's illegal for JMX names, so we have to change it to not contain colons.
-            // We'll substitute a '_' for ':'.
-            String nicName = nicManagementBean.getName().replace(':', '_');
-
-            ObjectName name =
-                    new ObjectName(String.format(NIC_MBEAN_FORMAT_STR,
-                            JMX_OBJECT_NAME,
-                            hostAndPid,
-                            nicName));
-            if (mbeanServer.isRegistered(name)) {
-                LOGGER.warn(String.format("Gateway system NetInterface MBean name %s already registered", name));
-
-            } else {
-                NicMXBeanImpl nicMXBean = new NicMXBeanImpl(name, nicManagementBean);
-                mbeanServer.registerMBean(nicMXBean, name);
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    @Override
-    public void addJvmManagementBean(JvmManagementBean jvmManagementBean) {
-        try {
-            GatewayManagementBean gatewayManagementBean = jvmManagementBean.getGatewayManagementBean();
-            ObjectName name =
-                    new ObjectName(String.format(JVM_MBEAN_FORMAT_STR,
-                            JMX_OBJECT_NAME,
-                            gatewayManagementBean.getHostAndPid()));
-            if (mbeanServer.isRegistered(name)) {
-                LOGGER.warn(String.format("Gateway JVM MBean name %s already registered", name));
-
-            } else {
-                JvmMXBeanImpl jvmMXBean = new JvmMXBeanImpl(name, jvmManagementBean);
-                mbeanServer.registerMBean(jvmMXBean, name);
             }
         } catch (Exception ex) {
             throw new RuntimeException(ex);

@@ -29,7 +29,6 @@ import org.kaazing.gateway.resource.address.IdentityResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceOption;
-import org.kaazing.gateway.security.LoginContextFactory;
 
 public final class HttpResourceAddress extends ResourceAddress {
 	
@@ -44,14 +43,6 @@ public final class HttpResourceAddress extends ResourceAddress {
     public static final ResourceOption<Integer> KEEP_ALIVE_TIMEOUT = new HttpKeepAliveTimeoutOption();
     public static final ResourceOption<Integer> KEEP_ALIVE_CONNECTIONS = new HttpKeepAliveConnectionsOption();
 
-    public static final ResourceOption<String> REALM_NAME = new HttpRealmNameOption();
-    public static final ResourceOption<String> REALM_AUTHORIZATION_MODE = new HttpRealmAuthorizationModeOption();
-    public static final ResourceOption<String> REALM_CHALLENGE_SCHEME = new HttpRealmChallengeSchemeOption();
-    public static final ResourceOption<String> REALM_DESCRIPTION = new HttpRealmDescriptionOption();
-    public static final ResourceOption<String[]> REALM_AUTHENTICATION_HEADER_NAMES = new HttpRealmAuthenticationHeaderNamesOption();
-    public static final ResourceOption<String[]> REALM_AUTHENTICATION_PARAMETER_NAMES = new HttpRealmAuthenticationParameterNamesOption();
-    public static final ResourceOption<String[]> REALM_AUTHENTICATION_COOKIE_NAMES = new HttpRealmAuthenticationCookieNamesOption();
-    public static final ResourceOption<LoginContextFactory> LOGIN_CONTEXT_FACTORY = new HttpLoginContextFactoryOption();
     public static final ResourceOption<String[]> REQUIRED_ROLES = new HttpRequiredRolesOption();
     public static final ResourceOption<Set<HttpInjectableHeader>> INJECTABLE_HEADERS = new HttpInjectableHeadersOption();
     public static final ResourceOption<HttpOriginSecurity> ORIGIN_SECURITY = new HttpOriginSecurityOption();
@@ -65,7 +56,10 @@ public final class HttpResourceAddress extends ResourceAddress {
     public static final ResourceOption<String> SERVICE_DOMAIN = new ServiceDomainOption();
     public static final HttpResourceOption<Boolean> SERVER_HEADER_ENABLED = new HttpServerHeaderOption();
     public static final HttpResourceOption<Boolean> DATE_HEADER_ENABLED = new HttpServerDateHeaderOption();
-    public static final HttpResourceOption<Collection<Class<? extends Principal>>> REALM_USER_PRINCIPAL_CLASSES = new HttpRealmAuthenticationUserPrincipalClassesOption();
+
+    public static final ResourceOption<Integer> MAX_AUTHENTICATION_ATTEMPTS = new MaxAuthenticationAttemptsOption();
+
+    public static final ResourceOption<HttpRealmInfo[]> REALMS = new HttpRealmsOption();
 
     private Boolean serverHeaderEnabled = SERVER_HEADER_ENABLED.defaultValue();
     private Boolean dateHeaderEnabled = DATE_HEADER_ENABLED.defaultValue();
@@ -74,26 +68,23 @@ public final class HttpResourceAddress extends ResourceAddress {
     private Integer keepAliveTimeout = KEEP_ALIVE_TIMEOUT.defaultValue();
     private Integer keepAliveMaxConnections = KEEP_ALIVE_CONNECTIONS.defaultValue();
     private String[] requiredRoles = REQUIRED_ROLES.defaultValue();
-    private String realmName;
-    private String realmAuthorizationMode = REALM_AUTHORIZATION_MODE.defaultValue();
-    private String realmChallengeScheme;
-    private String realmDescription;
-    private String[] realmAuthenticationHeaderNames;
-    private String[] realmAuthenticationParameterNames;
-    private String[] realmAuthenticationCookieNames;
-    private LoginContextFactory loginContextFactory;
     private Set<HttpInjectableHeader> injectableHeaders = INJECTABLE_HEADERS.defaultValue();
     private HttpOriginSecurity originSecurity;
     private File tempDirectory;
     private GatewayHttpOriginSecurity gatewayOriginSecurity;
     private Collection<String> balanceOrigins;
+    private Integer maxAuthenticationAttempts;
+    
 
     private String authenticationConnect;
     private String authenticationIdentifier;
     private String encryptionKeyAlias;
     private String serviceDomain;
 
+    private HttpRealmInfo[] realms;
+
     private Collection<Class<? extends Principal>> realmUserPrincipalClasses;
+
 
 	HttpResourceAddress(ResourceAddressFactorySpi factory, String original, URI resource) {
 		super(factory, original, resource);
@@ -115,22 +106,6 @@ public final class HttpResourceAddress extends ResourceAddress {
                     return (V) keepAliveMaxConnections;
                 case REQUIRED_ROLES:
                     return (V) requiredRoles;
-                case REALM_NAME:
-                    return (V) realmName;
-                case REALM_AUTHORIZATION_MODE:
-                    return (V) realmAuthorizationMode;
-                case REALM_CHALLENGE_SCHEME:
-                    return (V) realmChallengeScheme;
-                case REALM_DESCRIPTION:
-                    return (V) realmDescription;
-                case REALM_AUTHENTICATION_HEADER_NAMES:
-                    return (V) realmAuthenticationHeaderNames;
-                case REALM_AUTHENTICATION_PARAMETER_NAMES:
-                    return (V) realmAuthenticationParameterNames;
-                case REALM_AUTHENTICATION_COOKIE_NAMES:
-                    return (V) realmAuthenticationCookieNames;
-                case LOGIN_CONTEXT_FACTORY:
-                    return (V) loginContextFactory;
                 case INJECTABLE_HEADERS:
                     return (V) injectableHeaders;
                 case ORIGIN_SECURITY:
@@ -153,8 +128,12 @@ public final class HttpResourceAddress extends ResourceAddress {
                     return (V) serverHeaderEnabled;
                 case DATE_HEADER:
                     return (V) dateHeaderEnabled;
+                case MAX_AUTHENTICATION_ATTEMPTS:
+                    return (V) maxAuthenticationAttempts;
                 case REALM_USER_PRINCIPAL_CLASSES:
                     return (V) realmUserPrincipalClasses;
+                case REALMS:
+                    return (V) realms;
             }
         }
 
@@ -181,30 +160,6 @@ public final class HttpResourceAddress extends ResourceAddress {
                     return;
                 case REQUIRED_ROLES:
                     requiredRoles = (String[]) value;
-                    return;
-                case REALM_NAME:
-                    realmName = (String) value;
-                    return;
-                case REALM_AUTHORIZATION_MODE:
-                    realmAuthorizationMode = (String) value;
-                    return;
-                case REALM_CHALLENGE_SCHEME:
-                    realmChallengeScheme = (String) value;
-                    return;
-                case REALM_DESCRIPTION:
-                    realmDescription = (String) value;
-                    return;
-                case REALM_AUTHENTICATION_HEADER_NAMES:
-                    realmAuthenticationHeaderNames = (String[]) value;
-                    return;
-                case REALM_AUTHENTICATION_PARAMETER_NAMES:
-                    realmAuthenticationParameterNames = (String[]) value;
-                    return;
-                case REALM_AUTHENTICATION_COOKIE_NAMES:
-                    realmAuthenticationCookieNames = (String[]) value;
-                    return;
-                case LOGIN_CONTEXT_FACTORY:
-                    loginContextFactory = (LoginContextFactory) value;
                     return;
                 case AUTHENTICATION_CONNECT:
                     authenticationConnect = (String) value;
@@ -242,6 +197,12 @@ public final class HttpResourceAddress extends ResourceAddress {
                 case REALM_USER_PRINCIPAL_CLASSES:
                     realmUserPrincipalClasses = (Collection<Class<? extends Principal>>) value;
                     return;
+                case MAX_AUTHENTICATION_ATTEMPTS:
+                    maxAuthenticationAttempts = (Integer) value;
+                    return;
+                case REALMS:
+                    realms = (HttpRealmInfo[]) value;
+                    return;
             }
         }
 
@@ -260,13 +221,28 @@ public final class HttpResourceAddress extends ResourceAddress {
 
     public static class HttpResourceOption<T> extends ResourceOption<T> {
 
-	    protected enum Kind { KEEP_ALIVE, KEEP_ALIVE_TIMEOUT, KEEP_ALIVE_CONNECTIONS, REQUIRED_ROLES, REALM_NAME,
-            REALM_AUTHORIZATION_MODE, REALM_CHALLENGE_SCHEME, REALM_DESCRIPTION,
-            REALM_AUTHENTICATION_HEADER_NAMES, REALM_AUTHENTICATION_PARAMETER_NAMES, REALM_AUTHENTICATION_COOKIE_NAMES,
-            LOGIN_CONTEXT_FACTORY, INJECTABLE_HEADERS,
-            ORIGIN_SECURITY, TEMP_DIRECTORY, GATEWAY_ORIGIN_SECURITY, BALANCE_ORIGINS,
-            AUTHENTICATION_CONNECT, AUTHENTICATION_IDENTIFIER, ENCRYPTION_KEY_ALIAS, SERVICE_DOMAIN, SERVER_HEADER, DATE_HEADER,
-            REALM_USER_PRINCIPAL_CLASSES ,MAX_REDIRECTS
+        protected enum Kind {
+            //@formatter:off
+            KEEP_ALIVE,
+            KEEP_ALIVE_TIMEOUT,
+            KEEP_ALIVE_CONNECTIONS,
+            REQUIRED_ROLES,
+            INJECTABLE_HEADERS,
+            ORIGIN_SECURITY,
+            TEMP_DIRECTORY,
+            GATEWAY_ORIGIN_SECURITY,
+            BALANCE_ORIGINS,
+            AUTHENTICATION_CONNECT,
+            AUTHENTICATION_IDENTIFIER,
+            ENCRYPTION_KEY_ALIAS,
+            SERVICE_DOMAIN,
+            SERVER_HEADER,
+            REALM_USER_PRINCIPAL_CLASSES,
+            MAX_REDIRECTS,
+            MAX_AUTHENTICATION_ATTEMPTS,
+            REALMS,
+            DATE_HEADER
+          //@formatter:on
         }
 
         private static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
@@ -294,6 +270,7 @@ public final class HttpResourceAddress extends ResourceAddress {
             super(Kind.KEEP_ALIVE_CONNECTIONS, "keepalive.connections", DEFAULT_HTTP_KEEPALIVE_CONNECTIONS);
         }
     }
+
     private static final class HttpMaxRedirectOption extends HttpResourceOption<Integer> {
         private HttpMaxRedirectOption() {
             super(Kind.MAX_REDIRECTS, "maximum.redirects", 0);
@@ -309,55 +286,6 @@ public final class HttpResourceAddress extends ResourceAddress {
     private static final class HttpRequiredRolesOption extends HttpResourceOption<String[]> {
         private HttpRequiredRolesOption() {
             super(Kind.REQUIRED_ROLES, "requiredRoles", new String[0]);
-        }
-    }
-    
-    private static final class HttpRealmNameOption extends HttpResourceOption<String> {
-        private HttpRealmNameOption() {
-            super(Kind.REALM_NAME, "realmName");
-        }
-    }
-
-    private static final class HttpRealmAuthorizationModeOption extends HttpResourceOption<String> {
-        private HttpRealmAuthorizationModeOption() {
-            super(Kind.REALM_AUTHORIZATION_MODE, "realmAuthorizationMode", "challenge");
-        }
-    }
-
-    private static final class HttpRealmChallengeSchemeOption extends HttpResourceOption<String> {
-        private HttpRealmChallengeSchemeOption() {
-            super(Kind.REALM_CHALLENGE_SCHEME, "realmChallengeScheme");
-        }
-    }
-
-    private static final class HttpRealmAuthenticationHeaderNamesOption extends HttpResourceOption<String[]> {
-        private HttpRealmAuthenticationHeaderNamesOption() {
-            super(Kind.REALM_AUTHENTICATION_HEADER_NAMES, "realmAuthenticationHeaderNames", new String[0]);
-        }
-    }
-
-    private static final class HttpRealmAuthenticationParameterNamesOption extends HttpResourceOption<String[]> {
-        private HttpRealmAuthenticationParameterNamesOption() {
-            super(Kind.REALM_AUTHENTICATION_PARAMETER_NAMES, "realmAuthenticationParameterNames", new String[0]);
-        }
-    }
-
-    private static final class HttpRealmAuthenticationCookieNamesOption extends HttpResourceOption<String[]> {
-        private HttpRealmAuthenticationCookieNamesOption() {
-            super(Kind.REALM_AUTHENTICATION_COOKIE_NAMES, "realmAuthenticationCookieNames", new String[0]);
-        }
-    }
-
-
-    private static final class HttpRealmDescriptionOption extends HttpResourceOption<String> {
-        private HttpRealmDescriptionOption() {
-            super(Kind.REALM_DESCRIPTION, "realmDescription");
-        }
-    }
-
-    private static final class HttpLoginContextFactoryOption extends HttpResourceOption<LoginContextFactory> {
-        private HttpLoginContextFactoryOption() {
-            super(Kind.LOGIN_CONTEXT_FACTORY, "loginContextFactory");
         }
     }
 
@@ -421,6 +349,12 @@ public final class HttpResourceAddress extends ResourceAddress {
             super(Kind.SERVER_HEADER, "serverHeaderEnabled", Boolean.TRUE);
         }
     }
+ 
+    private static final class MaxAuthenticationAttemptsOption extends HttpResourceOption<Integer> {
+        private MaxAuthenticationAttemptsOption() {
+            super(Kind.MAX_AUTHENTICATION_ATTEMPTS, "max.authentication.attempts", 0);
+        }
+    }
 
     private static final class HttpServerDateHeaderOption extends HttpResourceOption<Boolean> {
         private HttpServerDateHeaderOption() {
@@ -431,6 +365,12 @@ public final class HttpResourceAddress extends ResourceAddress {
     private static final class HttpRealmAuthenticationUserPrincipalClassesOption extends HttpResourceOption<Collection<Class<? extends Principal>>> {
         private HttpRealmAuthenticationUserPrincipalClassesOption() {
             super(Kind.REALM_USER_PRINCIPAL_CLASSES, "realmAuthenticationUserPrincipalClasses", new ArrayList<>());
+        }
+    }
+
+    private static final class HttpRealmsOption extends HttpResourceOption<HttpRealmInfo[]> {
+        private HttpRealmsOption() {
+            super(Kind.REALMS, "realms", new HttpRealmInfo[0]);
         }
     }
 
