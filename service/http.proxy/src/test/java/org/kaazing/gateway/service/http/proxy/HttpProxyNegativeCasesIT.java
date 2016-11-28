@@ -58,7 +58,6 @@ public class HttpProxyNegativeCasesIT {
         robot.finish();
     }
 
-    @Ignore
     @Specification("http.proxy.http.2.0.request")
     @Test
     public void sendHttp_2_0_Request() throws Exception {
