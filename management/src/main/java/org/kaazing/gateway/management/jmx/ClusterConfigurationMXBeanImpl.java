@@ -21,11 +21,9 @@ import org.kaazing.gateway.management.config.ClusterConfigurationBean;
 
 public class ClusterConfigurationMXBeanImpl implements ClusterConfigurationMXBean {
 
-    private final ObjectName name;
     private final ClusterConfigurationBean clusterConfigBean;
 
     public ClusterConfigurationMXBeanImpl(ObjectName name, ClusterConfigurationBean clusterConfigBean) {
-        this.name = name;
         this.clusterConfigBean = clusterConfigBean;
     }
 

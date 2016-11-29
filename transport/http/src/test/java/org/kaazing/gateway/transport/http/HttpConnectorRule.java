@@ -18,6 +18,7 @@ package org.kaazing.gateway.transport.http;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
@@ -45,21 +46,23 @@ public class HttpConnectorRule implements TestRule {
     private ResourceAddressFactory addressFactory;
     private HttpConnector httpConnector;
     private Map<String, Object> connectOptions = new HashMap<>();
+    private final Properties props = new Properties();
 
     @Override
     public Statement apply(Statement base, Description description) {
         return new ConnectorStatement(base);
     }
 
-    public ConnectFuture connect(String connect, IoHandler connectHandler, IoSessionInitializer<? extends ConnectFuture> initializer) {
+    public ConnectFuture connect(String connect, IoHandler connectHandler, IoSessionInitializer<? extends ConnectFuture> initializer, Map<String, Object> connectOptions) {
         ResourceAddress connectAddress =
                 addressFactory.newResourceAddress(connect, getConnectOptions());
 
         return httpConnector.connect(connectAddress, connectHandler, initializer);
     }
 
-    public Map<String, Object> getConnectOptions() {
-        return connectOptions;
+    public ConnectFuture connect(String connect, IoHandler connectHandler, IoSessionInitializer<? extends ConnectFuture> initializer) {
+        Map<String, Object> connectOptions = new HashMap<>();
+        return this.connect(connect, connectHandler, initializer, connectOptions);
     }
 
     private final class ConnectorStatement extends Statement {
@@ -98,6 +101,8 @@ public class HttpConnectorRule implements TestRule {
                 httpConnector.setBridgeServiceFactory(serviceFactory);
                 httpConnector.setResourceAddressFactory(addressFactory);
 
+                httpConnector.setConfiguration(props);
+
                 base.evaluate();
             } finally {
                 tcpConnector.dispose();
@@ -107,5 +112,14 @@ public class HttpConnectorRule implements TestRule {
             }
         }
 
+    }
+
+    public Map<String, Object> getConnectOptions() {
+        return connectOptions;
+    }
+
+    public HttpConnectorRule addProperty(String key, String value) {
+        props.put(key, value);
+        return this;
     }
 }

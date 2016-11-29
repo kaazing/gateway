@@ -15,10 +15,8 @@
  */
 package org.kaazing.gateway.transport.http.bridge.filter;
 
-import static java.lang.System.currentTimeMillis;
 import static org.kaazing.gateway.resource.address.http.HttpInjectableHeader.DATE;
 import static org.kaazing.gateway.resource.address.http.HttpInjectableHeader.SERVER;
-import static org.kaazing.gateway.transport.http.HttpUtils.formatDateHeader;
 
 import java.util.Set;
 
@@ -45,7 +43,7 @@ public class HttpProtocolFilter extends HttpFilterAdapter {
         }
 
         if (injectableHeaders.contains(DATE) && !httpResponse.hasHeader(HttpHeaders.HEADER_DATE)) {
-            httpResponse.setHeader(HttpHeaders.HEADER_DATE, formatDateHeader(currentTimeMillis()));
+            HttpAcceptProcessor.setDateHeader(session, httpResponse);
         }
         
         super.filterWriteHttpResponse(nextFilter, session, writeRequest, httpResponse);

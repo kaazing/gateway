@@ -51,10 +51,3 @@ read header "Content-Type" /(?!text\/plain;charset=windows-1252)/
 read header "Connection" "close"
 read [0x01 0x30 0x30 0xFF] # NO-OP
 
-read notify JOE_WSE_SESSION_ESTABLISHED
-
-# read close frames
-read [0x01 0x30 0x32 0xFF]
-read [0x01 0x30 0x31 0xFF]
-
-read closed

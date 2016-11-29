@@ -29,19 +29,16 @@ import org.jboss.netty.channel.ServerChannelFactory;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.channel.socket.nio.AbstractNioWorker;
 import org.jboss.netty.channel.socket.nio.NioChildDatagramChannel;
-import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
-import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
+import org.jboss.netty.channel.socket.nio.NioServerDatagramChannelFactory;
 import org.kaazing.mina.netty.IoAcceptorChannelHandler;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 import static org.jboss.netty.channel.Channels.fireChannelConnected;
 import static org.jboss.netty.channel.Channels.fireChannelOpen;
-import static org.jboss.netty.channel.Channels.fireMessageReceived;
 import static org.jboss.netty.channel.Channels.pipeline;
 
 class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements ServerBootstrap {
@@ -116,7 +113,6 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
         public void childChannelClosed(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
             NioChildDatagramChannel childChannel = (NioChildDatagramChannel) e.getChildChannel();
             childChannels.remove(childChannel.getRemoteAddress());
-            childChannel.getWorker().deregister(childChannel);
         }
 
         @Override
@@ -153,11 +149,10 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
                 }
 
                 ChannelFactory channelFactory = channel.getFactory();
-                NioChildDatagramChannel childChannel = ((NioDatagramChannelFactory)channelFactory).newChildChannel(channel, childPipeline);
+                NioChildDatagramChannel childChannel = ((NioServerDatagramChannelFactory)channelFactory).newChildChannel(channel, childPipeline);
                 childChannel.setLocalAddress((InetSocketAddress) channel.getLocalAddress());
                 childChannel.setRemoteAddress((InetSocketAddress) remoteAddress);
                 fireChannelOpen(childChannel);
-                childChannel.getWorker().register(childChannel);
 
                 return childChannel;
             });

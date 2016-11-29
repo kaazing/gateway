@@ -26,6 +26,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
@@ -35,6 +36,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.core.IsEqual;
 import org.jmock.api.Action;
 import org.jmock.api.Invocation;
+import org.jmock.internal.State;
 import org.jmock.lib.action.CustomAction;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 
@@ -209,6 +211,14 @@ public class Expectations extends org.jmock.Expectations {
         return clazz.cast(variables.get(variableName));
     }
 
+    public IoFutureListener<?> onfuture(State success) {
+        return f -> {
+            if (f.isDone()) {
+                 success.activate();
+            }
+        };
+    }
+
     public Action saveParameter(final String variableName, final int parameterIndex) {
         return new CustomAction("save parameter") {
 
@@ -242,6 +252,27 @@ public class Expectations extends org.jmock.Expectations {
         };
     }
 
+    public void will(final Runnable runnable) {
+        currentBuilder().setAction(new Action() {
+
+            @Override
+            public void describeTo(
+                Description description) {
+
+                // no-op
+            }
+
+            @Override
+            public Object invoke(
+                Invocation invocation) throws Throwable {
+
+                runnable.run();
+                return null;
+            }
+
+        });
+    }
+
     private static final class HasMessage extends BaseMatcher<WriteRequest> {
 
         private final Matcher<Object> message;
@@ -268,4 +299,3 @@ public class Expectations extends org.jmock.Expectations {
     }
 
 }
-

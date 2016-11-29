@@ -17,34 +17,31 @@ package org.kaazing.gateway.management.jmx;
 
 import static org.junit.Assert.assertEquals;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.management.ObjectName;
 
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.jmock.api.Invocation;
+import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.jmock.lib.legacy.ClassImposteriser;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-
 import org.kaazing.gateway.management.service.ServiceManagementBean;
 
 public class ServiceMXBeanTest {
-    private Mockery context;
 
-    @Before
-    public void setUp() throws Exception {
-        context = new Mockery() {
+    @Rule
+    public JUnitRuleMockery context = new JUnitRuleMockery() {
             {
                 setImposteriser(ClassImposteriser.INSTANCE);
+                setThreadingPolicy(new Synchroniser());
             }
         };
-        context.setThreadingPolicy(new Synchroniser());
-    }
 
     @Test
     public void shouldCleanSessionsByPrincipal() throws Exception {
@@ -90,17 +87,17 @@ public class ServiceMXBeanTest {
             }
         });
 
-        s1Principals.put("joe", "com.kaazing.demo.auth.MyUserPrincipal");
-        s1Principals.put("SALES", "com.kaazing.demo.auth.MyRolePrincipal");
+        s1Principals.put("joe", UserPrincipal.class.getName());
+        s1Principals.put("SALES", RolePrincipal.class.getName());
 
-        s2Principals.put("jane", "com.kaazing.demo.auth.MyUserPrincipal");
-        s2Principals.put("SALES", "com.kaazing.demo.auth.MyRolePrincipal");
+        s2Principals.put("jane", UserPrincipal.class.getName());
+        s2Principals.put("SALES", RolePrincipal.class.getName());
 
-        s3Principals.put("jane", "com.kaazing.demo.auth.MyUserPrincipal");
-        s3Principals.put("joe", "com.kaazing.demo.auth.MyAnotherUserPrincipal");
+        s3Principals.put("jane", UserPrincipal.class.getName());
+        s3Principals.put("joe", AnotherUserPrincipal.class.getName());
 
-        s4Principals.put("joe", "com.kaazing.demo.auth.MyUserPrincipal");
-        s4Principals.put("MARKETING", "com.kaazing.demo.auth.MyRolePrincipal");
+        s4Principals.put("joe", UserPrincipal.class.getName());
+        s4Principals.put("MARKETING", RolePrincipal.class.getName());
 
         sessionPrincipalMap.put(1L, s1Principals);
         sessionPrincipalMap.put(2L, s2Principals);
@@ -110,8 +107,7 @@ public class ServiceMXBeanTest {
         activeSessionPrincipalMap.putAll(sessionPrincipalMap);
 
         final ServiceMXBean jmxServiceBean = new ServiceMXBeanImpl(handler, objectName, serviceManagementBean);
-        jmxServiceBean.closeSessions("joe", "com.kaazing.demo.auth.MyUserPrincipal");
-        context.assertIsSatisfied();
+        jmxServiceBean.closeSessions("joe", UserPrincipal.class.getName());
         assertEquals(2, activeSessionPrincipalMap.size());
     }
 
@@ -145,17 +141,17 @@ public class ServiceMXBeanTest {
             }
         });
 
-        s1Principals.put("joe", "com.kaazing.demo.auth.MyUserPrincipal");
-        s1Principals.put("SALES", "com.kaazing.demo.auth.MyRolePrincipal");
+        s1Principals.put("joe", UserPrincipal.class.getName());
+        s1Principals.put("SALES", RolePrincipal.class.getName());
 
-        s2Principals.put("jane", "com.kaazing.demo.auth.MyUserPrincipal");
-        s2Principals.put("SALES", "com.kaazing.demo.auth.MyRolePrincipal");
+        s2Principals.put("jane", UserPrincipal.class.getName());
+        s2Principals.put("SALES", RolePrincipal.class.getName());
 
-        s3Principals.put("jane", "com.kaazing.demo.auth.MyUserPrincipal");
-        s3Principals.put("joe", "com.kaazing.demo.auth.MyAnotherUserPrincipal");
+        s3Principals.put("jane", UserPrincipal.class.getName());
+        s3Principals.put("joe", AnotherUserPrincipal.class.getName());
 
-        s4Principals.put("joe", "com.kaazing.demo.auth.MyUserPrincipal");
-        s4Principals.put("MARKETING", "com.kaazing.demo.auth.MyRolePrincipal");
+        s4Principals.put("joe", UserPrincipal.class.getName());
+        s4Principals.put("MARKETING", RolePrincipal.class.getName());
 
         sessionPrincipalMap.put(1L, s1Principals);
         sessionPrincipalMap.put(2L, s2Principals);
@@ -165,8 +161,7 @@ public class ServiceMXBeanTest {
         activeSessionPrincipalMap.putAll(sessionPrincipalMap);
 
         final ServiceMXBean jmxServiceBean = new ServiceMXBeanImpl(handler, objectName, serviceManagementBean);
-        jmxServiceBean.closeSessions(null, "com.kaazing.demo.auth.MyUserPrincipal");
-        context.assertIsSatisfied();
+        jmxServiceBean.closeSessions(null, UserPrincipal.class.getName());
         assertEquals(4, activeSessionPrincipalMap.size());
     }
 
@@ -200,17 +195,17 @@ public class ServiceMXBeanTest {
             }
         });
 
-        s1Principals.put("joe", "com.kaazing.demo.auth.MyUserPrincipal");
-        s1Principals.put("SALES", "com.kaazing.demo.auth.MyRolePrincipal");
+        s1Principals.put("joe", UserPrincipal.class.getName());
+        s1Principals.put("SALES", RolePrincipal.class.getName());
 
-        s2Principals.put("jane", "com.kaazing.demo.auth.MyUserPrincipal");
-        s2Principals.put("SALES", "com.kaazing.demo.auth.MyRolePrincipal");
+        s2Principals.put("jane", UserPrincipal.class.getName());
+        s2Principals.put("SALES", RolePrincipal.class.getName());
 
-        s3Principals.put("jane", "com.kaazing.demo.auth.MyUserPrincipal");
-        s3Principals.put("joe", "com.kaazing.demo.auth.MyAnotherUserPrincipal");
+        s3Principals.put("jane", UserPrincipal.class.getName());
+        s3Principals.put("joe", AnotherUserPrincipal.class.getName());
 
-        s4Principals.put("joe", "com.kaazing.demo.auth.MyUserPrincipal");
-        s4Principals.put("MARKETING", "com.kaazing.demo.auth.MyRolePrincipal");
+        s4Principals.put("joe", UserPrincipal.class.getName());
+        s4Principals.put("MARKETING", RolePrincipal.class.getName());
 
         sessionPrincipalMap.put(1L, s1Principals);
         sessionPrincipalMap.put(2L, s2Principals);
@@ -221,7 +216,6 @@ public class ServiceMXBeanTest {
 
         final ServiceMXBean jmxServiceBean = new ServiceMXBeanImpl(handler, objectName, serviceManagementBean);
         jmxServiceBean.closeSessions("joe", null);
-        context.assertIsSatisfied();
         assertEquals(4, activeSessionPrincipalMap.size());
     }
 
@@ -255,17 +249,17 @@ public class ServiceMXBeanTest {
             }
         });
 
-        s1Principals.put("joe", "com.kaazing.demo.auth.MyUserPrincipal");
-        s1Principals.put("SALES", "com.kaazing.demo.auth.MyRolePrincipal");
+        s1Principals.put("joe", UserPrincipal.class.getName());
+        s1Principals.put("SALES", RolePrincipal.class.getName());
 
-        s2Principals.put("jane", "com.kaazing.demo.auth.MyUserPrincipal");
-        s2Principals.put("SALES", "com.kaazing.demo.auth.MyRolePrincipal");
+        s2Principals.put("jane", UserPrincipal.class.getName());
+        s2Principals.put("SALES", RolePrincipal.class.getName());
 
-        s3Principals.put("jane", "com.kaazing.demo.auth.MyUserPrincipal");
-        s3Principals.put("joe", "com.kaazing.demo.auth.MyAnotherUserPrincipal");
+        s3Principals.put("jane", UserPrincipal.class.getName());
+        s3Principals.put("joe", AnotherUserPrincipal.class.getName());
 
-        s4Principals.put("joe", "com.kaazing.demo.auth.MyUserPrincipal");
-        s4Principals.put("MARKETING", "com.kaazing.demo.auth.MyRolePrincipal");
+        s4Principals.put("joe", UserPrincipal.class.getName());
+        s4Principals.put("MARKETING", RolePrincipal.class.getName());
 
         sessionPrincipalMap.put(1L, s1Principals);
         sessionPrincipalMap.put(2L, s2Principals);
@@ -275,8 +269,7 @@ public class ServiceMXBeanTest {
         activeSessionPrincipalMap.putAll(sessionPrincipalMap);
 
         final ServiceMXBean jmxServiceBean = new ServiceMXBeanImpl(handler, objectName, serviceManagementBean);
-        jmxServiceBean.closeSessions("", "com.kaazing.demo.auth.MyUserPrincipal");
-        context.assertIsSatisfied();
+        jmxServiceBean.closeSessions("", UserPrincipal.class.getName());
         assertEquals(4, activeSessionPrincipalMap.size());
     }
 
@@ -310,17 +303,17 @@ public class ServiceMXBeanTest {
             }
         });
 
-        s1Principals.put("joe", "com.kaazing.demo.auth.MyUserPrincipal");
-        s1Principals.put("SALES", "com.kaazing.demo.auth.MyRolePrincipal");
+        s1Principals.put("joe", UserPrincipal.class.getName());
+        s1Principals.put("SALES", RolePrincipal.class.getName());
 
-        s2Principals.put("jane", "com.kaazing.demo.auth.MyUserPrincipal");
-        s2Principals.put("SALES", "com.kaazing.demo.auth.MyRolePrincipal");
+        s2Principals.put("jane", UserPrincipal.class.getName());
+        s2Principals.put("SALES", RolePrincipal.class.getName());
 
-        s3Principals.put("jane", "com.kaazing.demo.auth.MyUserPrincipal");
-        s3Principals.put("joe", "com.kaazing.demo.auth.MyAnotherUserPrincipal");
+        s3Principals.put("jane", UserPrincipal.class.getName());
+        s3Principals.put("joe", AnotherUserPrincipal.class.getName());
 
-        s4Principals.put("joe", "com.kaazing.demo.auth.MyUserPrincipal");
-        s4Principals.put("MARKETING", "com.kaazing.demo.auth.MyRolePrincipal");
+        s4Principals.put("joe", UserPrincipal.class.getName());
+        s4Principals.put("MARKETING", RolePrincipal.class.getName());
 
         sessionPrincipalMap.put(1L, s1Principals);
         sessionPrincipalMap.put(2L, s2Principals);
@@ -331,8 +324,34 @@ public class ServiceMXBeanTest {
 
         final ServiceMXBean jmxServiceBean = new ServiceMXBeanImpl(handler, objectName, serviceManagementBean);
         jmxServiceBean.closeSessions("joe", "");
-        context.assertIsSatisfied();
         assertEquals(4, activeSessionPrincipalMap.size());
+    }
+
+    public static class AnotherUserPrincipal implements Principal {
+
+        @Override
+        public String getName() {
+            return " ";
+        }
+
+    }
+
+    public static class UserPrincipal implements Principal {
+
+        @Override
+        public String getName() {
+            return "Jane";
+        }
+
+    }
+
+    public static class RolePrincipal implements Principal {
+
+        @Override
+        public String getName() {
+            return "Jane";
+        }
+
     }
 }
 

@@ -46,6 +46,10 @@ public abstract class AbstractIoBufferAllocatorEx<T extends AbstractIoBufferEx> 
     @Override
     public abstract ByteBuffer allocate(int capacity, int flags);
 
+    public T wrap(byte[] array)
+    {
+        return wrap(ByteBuffer.wrap(array));
+    }
 
     @Override
     public T wrap(ByteBuffer nioBuffer) {

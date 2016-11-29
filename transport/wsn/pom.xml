@@ -134,7 +134,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.test.ca</artifactId>
-            <version>1.0.0.24</version>
+            <version>[1.0.0.0,1.1.0.0)</version>
             <classifier>keystore</classifier>
             <scope>test</scope>
         </dependency>
@@ -161,6 +161,10 @@
             <artifactId>specification.x-kaazing-ping-pong</artifactId>
             <version>${k3po.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>netx.data</artifactId>
         </dependency>
     </dependencies>
 

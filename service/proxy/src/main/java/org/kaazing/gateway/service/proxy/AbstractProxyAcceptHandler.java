@@ -70,6 +70,17 @@ public abstract class AbstractProxyAcceptHandler extends AbstractProxyHandler {
     }
 
     @Override
+    public void sessionCreated(IoSession session)
+    {
+        super.sessionCreated(session);
+
+        if (isDeferredConnectStrategy()) {
+            IoFilterChain filterChain = session.getFilterChain();
+            filterChain.addLast("proxy#deferred", new DeferredConnectStrategyFilter());
+        }
+    }
+
+    @Override
     public void sessionOpened(IoSession session) {
         // guarantee strongly-typed buffers; this is the accept-side so the
         // service is not a client.
@@ -84,7 +95,7 @@ public abstract class AbstractProxyAcceptHandler extends AbstractProxyHandler {
     }
 
     @Override
-    void setMaximumPendingBytes(int maximumPendingBytes) {
+    public void setMaximumPendingBytes(int maximumPendingBytes) {
         super.setMaximumPendingBytes(maximumPendingBytes);
         connectHandler.setMaximumPendingBytes(maximumPendingBytes);
     }

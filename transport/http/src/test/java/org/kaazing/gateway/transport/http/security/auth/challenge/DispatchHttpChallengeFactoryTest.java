@@ -28,7 +28,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
+import org.kaazing.gateway.resource.address.http.DefaultHttpRealmInfo;
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 
@@ -95,15 +96,9 @@ public class DispatchHttpChallengeFactoryTest {
         final ResourceAddress address = context.mock(ResourceAddress.class);
         request.setLocalAddress(address);
 
-        context.checking(new Expectations() {
-            {
-
-                allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
-                will(returnValue("Basic"));
-            }
-        });
+        final HttpRealmInfo realm = new DefaultHttpRealmInfo("demo", "Basic", null, new String[]{"foo"},  new String[]{}, new String[]{}, null, null);
         try {
-            factory.createChallenge(request);
+            factory.createChallenge(request, realm);
             fail("Expecting an Illegal State Exception because no factories are registered.");
         } catch (IllegalStateException e) {
             context.assertIsSatisfied();
@@ -130,17 +125,14 @@ public class DispatchHttpChallengeFactoryTest {
 
         request.setLocalAddress(address);
         factory.register(authScheme, basicFactory);
+        final HttpRealmInfo realm = new DefaultHttpRealmInfo("demo", authScheme, null, new String[]{"foo"},  new String[]{}, new String[]{}, null, null);
         context.checking(new Expectations() {
             {
-
-                allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
-                will(returnValue(authScheme));
-
-                oneOf(basicFactory).createChallenge(request);
+                oneOf(basicFactory).createChallenge(request, realm);
                 will(returnValue(response));
             }
         });
-        assertSame(response, factory.createChallenge(request));
+        assertSame(response, factory.createChallenge(request, realm));
         context.assertIsSatisfied();
     }
 }

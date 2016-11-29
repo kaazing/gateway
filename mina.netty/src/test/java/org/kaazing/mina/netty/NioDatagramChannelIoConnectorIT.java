@@ -15,12 +15,15 @@
  */
 package org.kaazing.mina.netty;
 
+import static java.util.concurrent.Executors.newCachedThreadPool;
 import static org.kaazing.mina.netty.PortUtil.nextPort;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -39,6 +42,9 @@ import org.apache.mina.core.service.IoConnector;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.logging.LoggingFilter;
+import org.jboss.netty.channel.socket.nio.NioClientDatagramChannelFactory;
+import org.jboss.netty.channel.socket.nio.NioServerDatagramChannelFactory;
+import org.jboss.netty.channel.socket.nio.NioWorkerPool;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -63,7 +69,9 @@ public class NioDatagramChannelIoConnectorIT {
         executor = Executors.newFixedThreadPool(1);
         acceptor = new ServerSocket();
         acceptor.setReuseAddress(true);
-        connector = new NioDatagramChannelIoConnector(new DefaultDatagramChannelIoSessionConfig());
+        NioWorkerPool workerPool = new NioWorkerPool(newCachedThreadPool(), 4);
+        NioClientDatagramChannelFactory channelFactory = new NioClientDatagramChannelFactory(workerPool);
+        connector = new NioDatagramChannelIoConnector(new DefaultDatagramChannelIoSessionConfig(), channelFactory);
         connector.getFilterChain().addLast("logger", new LoggingFilter());
     }
 

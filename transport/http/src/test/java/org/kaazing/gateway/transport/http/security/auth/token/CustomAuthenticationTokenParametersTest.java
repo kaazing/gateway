@@ -26,6 +26,7 @@ import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.http.DefaultHttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.security.auth.token.DefaultAuthenticationToken;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
@@ -46,7 +47,8 @@ public class CustomAuthenticationTokenParametersTest {
 
         HttpRequestMessage requestMessage = new HttpRequestMessage();
         requestMessage.setLocalAddress(address);
-        DefaultAuthenticationToken token = (DefaultAuthenticationToken) extractor.extract(requestMessage);
+        DefaultAuthenticationToken token = (DefaultAuthenticationToken) extractor.extract(requestMessage,
+                new DefaultHttpRealmInfo("demo", "Basic", null, null, new String[]{}, null, null, null));
         assertEquals("Expecting empty token", 0, token.size());
 
         context.assertIsSatisfied();
@@ -58,11 +60,12 @@ public class CustomAuthenticationTokenParametersTest {
         context.setImposteriser(ClassImposteriser.INSTANCE);
         final ResourceAddress address = context.mock(ResourceAddress.class);
         context.checking(getExpectations(address, "Basic", null, new String[]{"foo"}, null, "challenge"));
-
+        
         HttpRequestMessage requestMessage = new HttpRequestMessage();
         requestMessage.setLocalAddress(address);
         requestMessage.setParameter("foo", "bar");
-        DefaultAuthenticationToken token = (DefaultAuthenticationToken) extractor.extract(requestMessage);
+        DefaultAuthenticationToken token = (DefaultAuthenticationToken) extractor.extract(requestMessage,
+                new DefaultHttpRealmInfo("demo", "Basic", null, null, new String[]{"foo"}, null, null, null));
         assertEquals("Expecting single sized token", 1, token.size());
         assertEquals("Expecting value 'bar'", "bar", token.get());
         assertEquals("Expecting value 'bar'", "bar", token.get("foo"));
@@ -85,7 +88,8 @@ public class CustomAuthenticationTokenParametersTest {
         newParamValues.add("baz");
         newParams.put("foo", newParamValues);
         requestMessage.setParameters(newParams);
-        DefaultAuthenticationToken token = (DefaultAuthenticationToken) extractor.extract(requestMessage);
+        DefaultAuthenticationToken token = (DefaultAuthenticationToken) extractor.extract(requestMessage,
+                new DefaultHttpRealmInfo("demo", "Basic", null, null, new String[]{"foo"}, null, null, null));
         assertEquals("Expecting single sized token", 1, token.size());
         assertEquals("Expecting value 'bar'", "bar", token.get("foo"));
 
@@ -94,26 +98,17 @@ public class CustomAuthenticationTokenParametersTest {
 
 
     private Expectations getExpectations(final ResourceAddress address,
-                                         final String challengeScheme, final String[] headerNames,
+                                         final String challengeScheme,
+                                         final String[] headerNames,
                                          final String[] parameterNames,
                                          final String[] cookieNames,
                                          final String authorizationMode) {
-        return new Expectations() {{
-            allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES);
-            will(returnValue(headerNames));
-
-            allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_PARAMETER_NAMES);
-            will(returnValue(parameterNames));
-
-            allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES);
-            will(returnValue(cookieNames));
-
-            allowing(address).getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
-            will(returnValue(authorizationMode));
-
-            allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
-            will(returnValue(challengeScheme));
-        }
+        return new Expectations() {
+            {
+                allowing(address).getOption(HttpResourceAddress.REALMS);
+                will(returnValue(new DefaultHttpRealmInfo("demo", challengeScheme, null, headerNames, parameterNames,
+                        cookieNames, null, null)));
+            }
         };
     }
 

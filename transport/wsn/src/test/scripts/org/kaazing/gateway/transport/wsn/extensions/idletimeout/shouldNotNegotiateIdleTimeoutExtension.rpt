@@ -14,6 +14,8 @@
 # limitations under the License.
 #
 
+property writeMask ${ws:randomBytes(4)}
+
 connect tcp://127.0.0.1:8001
 connected
 
@@ -42,7 +44,8 @@ read "\r\n"
 read [0x82 0x04 0xEF 0x83 0xBF 0x4E]
 
 # Do clean close
-write [0x88 0x00]
+write [0x88 0x80]
+write ${writeMask}
 read [0x88 0x00]
 
 close

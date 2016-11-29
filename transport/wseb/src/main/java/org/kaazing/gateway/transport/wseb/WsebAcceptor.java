@@ -68,6 +68,7 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOption;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
@@ -775,7 +776,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             noSecurityOptions.setOption(ALTERNATE, httpxeAddressNoSecurity);
 
             noSecurityOptions.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
-            noSecurityOptions.setOption(HttpResourceAddress.REALM_USER_PRINCIPAL_CLASSES, null);
+            noSecurityOptions.setOption(HttpResourceAddress.REALMS, new HttpRealmInfo[0]);
             return resourceAddressFactory.newResourceAddress(httpAddress.getExternalURI(),
                     noSecurityOptions, httpAddress.getOption(ResourceAddress.QUALIFIER));
         }
@@ -1018,19 +1019,19 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
             @Override
             public <T> T setOption(ResourceOption<T> key, T value) {
-                if (key == HttpResourceAddress.REALM_NAME) return null;
+                if (key == HttpResourceAddress.REALMS) return null;
                 return options.setOption(key,value);
             }
 
             @Override
             public <T> T getOption(ResourceOption<T> key) {
-                if (key == HttpResourceAddress.REALM_NAME) return null;
+                if (key == HttpResourceAddress.REALMS) return null;
                 return options.getOption(key);
             }
 
             @Override
             public <T> boolean hasOption(ResourceOption<T> key) {
-                if (key == HttpResourceAddress.REALM_NAME) return false;
+                if (key == HttpResourceAddress.REALMS) return false;
                 return options.hasOption(key);
             }
         }

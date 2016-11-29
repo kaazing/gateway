@@ -113,6 +113,11 @@
             </dependency>
             <dependency>
                 <groupId>org.kaazing</groupId>
+                <artifactId>gateway.service.turn.rest</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
                 <artifactId>gateway.service.update.check</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -121,7 +126,6 @@
                 <artifactId>gateway.service.update.check.management</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
             <!-- transport dependencies -->
             <dependency>
                 <groupId>org.kaazing</groupId>
@@ -273,17 +277,6 @@
 
     <!-- for testing purposes only -->
     <dependencies>
-        <dependency>
-                <groupId>org.kaazing</groupId>
-                <artifactId>sigar.dist</artifactId>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>org.kaazing</groupId>
-                <artifactId>sigar.dist</artifactId>
-                <classifier>distribution</classifier>
-                <type>zip</type>
-            </dependency>
             <dependency>
                 <groupId>org.json</groupId>
                 <artifactId>json</artifactId>

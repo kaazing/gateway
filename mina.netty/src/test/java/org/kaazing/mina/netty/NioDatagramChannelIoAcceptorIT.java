@@ -15,6 +15,7 @@
  */
 package org.kaazing.mina.netty;
 
+import static java.util.concurrent.Executors.newCachedThreadPool;
 import static org.kaazing.mina.netty.PortUtil.nextPort;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -32,6 +33,8 @@ import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.logging.LoggingFilter;
+import org.jboss.netty.channel.socket.nio.NioServerDatagramChannelFactory;
+import org.jboss.netty.channel.socket.nio.NioWorkerPool;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -48,7 +51,6 @@ import org.kaazing.mina.netty.socket.nio.NioDatagramChannelIoAcceptor;
 /**
  * Integration test for mina.netty layer. Similar to IT, but for datagram transport.
  */
-@Ignore // Not yet working. gateway.server is still using Mina for UDP.
 public class NioDatagramChannelIoAcceptorIT {
 
     @Rule
@@ -61,7 +63,9 @@ public class NioDatagramChannelIoAcceptorIT {
     public void initResources() throws Exception {
         DatagramChannelIoSessionConfig sessionConfig = new DefaultDatagramChannelIoSessionConfig();
         sessionConfig.setReuseAddress(true);
-        acceptor = new NioDatagramChannelIoAcceptor(sessionConfig);
+        NioWorkerPool workerPool = new NioWorkerPool(newCachedThreadPool(), 4);
+        NioServerDatagramChannelFactory channelFactory = new NioServerDatagramChannelFactory(newCachedThreadPool(), 1, workerPool);
+        acceptor = new NioDatagramChannelIoAcceptor(sessionConfig, channelFactory);
         acceptor.getFilterChain().addLast("logger", new LoggingFilter());
         socket = new DatagramSocket();
         socket.setReuseAddress(true);

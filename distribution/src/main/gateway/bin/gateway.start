@@ -60,11 +60,11 @@ then
    for feature in $GATEWAY_FEATURES; do
       FEATURE_OPTS="$FEATURE_OPTS -Dfeature.$feature"
    done
-   set =f; unset IFS
+   set +f; unset IFS
 fi
 
 # Check if Java exists
-if type -p java; then
+if [[ -x `type -p java` ]]; then
   _java=java
 elif [[ -n "$JAVA_HOME" ]] && [[ -x "$JAVA_HOME/bin/java" ]]; then
   _java="JAVA_HOME/bin/java"
@@ -78,16 +78,11 @@ if [[ "$_java" ]]; then
  # Does not work when JAVA_OPTIONS is set
  # JAVA_VER=$(java -version 2>&1 | sed 's/.*version "\(.*\)\.\(.*\)\..*"/\1\2/; 1q')
  JAVA_VER=$(java -version 2>&1 | grep -i version | cut -d'"' -f2 | cut -d'.' -f1-2)
-  if [[ "$JAVA_VER" > "1.7" ]]; then
-    echo version "$JAVA_VER"
-  else
+  if [[ "$JAVA_VER" < "1.8" ]]; then
     echo "Java 8 or higher must be installed to start the Gateway"
     exit 1
   fi
 fi
-
-# Add a directory for management support
-JAVA_LIBRARY_PATH="$GW_HOME/lib/sigar"
 
 # Set the gateway identifier (Required by multiple gateway instances)
 GW_ID=""

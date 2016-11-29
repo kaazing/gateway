@@ -27,6 +27,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
+import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.BIND_ADDRESS;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.MAXIMUM_OUTBOUND_RATE;
 
@@ -51,6 +52,7 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.resource.address.NameResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.test.util.ResolutionTestUtils;
 
 @RunWith(Parameterized.class)
@@ -97,6 +99,27 @@ public class UdpResourceAddressFactorySpiTest {
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPort() throws Exception {
         factory.newResourceAddress("udp://127.0.0.1");
+    }
+
+    @Test
+    public void shouldThrowSpecificNICExceptionNoBrackets() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("The interface name @ethh is not recognized");
+        factory.newResourceAddress("udp://@ethh:8080");
+    }
+
+    @Test
+    public void shouldThrowSpecificNICExceptionBrackets() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("The interface name [@ethh] is not recognized");
+        factory.newResourceAddress("udp://[@ethh]:8080");
+    }
+
+    @Test
+    public void shouldThrowGenericResolutionException() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Unable to resolve DNS name: ethh");
+        factory.newResourceAddress("udp://ethh:8080");
     }
 
     @Test
@@ -154,6 +177,21 @@ public class UdpResourceAddressFactorySpiTest {
         ResourceAddress address = factory.newResourceAddress(addressURI, options);
         // transport not overriden
         assertEquals(2020, address.getResource().getPort());
+    }
+
+    @Test
+    public void shouldNotResolveHostName() {
+        Map<String, Object> options = new HashMap<>();
+        options.put("udp.transport", "udp://localhost:8080");
+        String addressStr = "udp://no.dns.example.com:8888";
+
+        UdpResourceAddressFactorySpi factory = new UdpResourceAddressFactorySpi();
+        ResourceAddressFactory addressFactory = newResourceAddressFactory();
+        factory.setResourceAddressFactory(addressFactory);
+        ResourceAddress address = factory.newResourceAddress(addressStr, options);
+
+        assertEquals(8888, address.getResource().getPort());
+        assertEquals(8080, address.getTransport().getResource().getPort());
     }
 
     @Test

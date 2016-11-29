@@ -20,6 +20,7 @@ import java.util.Map;
 import javax.management.ObjectName;
 import org.kaazing.gateway.management.service.ServiceManagementBean;
 import org.kaazing.gateway.transport.TypedAttributeKey;
+import org.kaazing.gateway.util.Utils;
 
 public class ServiceMXBeanImpl implements ServiceMXBean {
     /*
@@ -242,6 +243,7 @@ public class ServiceMXBeanImpl implements ServiceMXBean {
 
         principalName = principalName.trim();
         principalClassName = principalClassName.trim();
+        Class<?> principalClass = Utils.loadClass(principalClassName);
 
         Map<Long, Map<String, String>> sessionPrincipalMap = serviceManagementBean.getLoggedInSessions();
 
@@ -251,10 +253,10 @@ public class ServiceMXBeanImpl implements ServiceMXBean {
 
             for (Map.Entry<String, String> principal : userPrincipals.entrySet()) {
                 String key = principal.getKey();
-                String value = principal.getValue();
+                Class<?> userPrincipalClass = Utils.loadClass(principal.getValue());
 
                 // Case sensitive for both name and class-name.
-                if (key.equals(principalName) && (value.equals(principalClassName))) {
+                if (key.equals(principalName) && (principalClass.isAssignableFrom(userPrincipalClass))) {
                     SessionMXBean sessionBean = managementServiceHandler.getSessionMXBean(sessionId);
                     sessionBean.close();
                     serviceManagementBean.removeSessionManagementBean(sessionId);

@@ -24,19 +24,6 @@
         <dependencies>
         <dependency>
             <groupId>org.kaazing</groupId>
-            <artifactId>sigar.dist</artifactId>
-            <version>1.0.0.0</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.kaazing</groupId>
-            <artifactId>sigar.dist</artifactId>
-            <classifier>distribution</classifier>
-            <type>zip</type>
-            <version>1.0.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kaazing</groupId>
             <artifactId>snmp4j</artifactId>
             <version>1.11.3</version>
         </dependency>
@@ -140,15 +127,17 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jmock</groupId>
             <artifactId>jmock</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.kaazing</groupId>
-            <artifactId>sigar.dist</artifactId>
-            <type>jar</type>
+            <groupId>org.jmock</groupId>
+            <artifactId>jmock-junit4</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
@@ -169,7 +158,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.test.ca</artifactId>
-            <version>1.0.0.24</version>
+            <version>[1.0.0.0,1.1.0.0)</version>
             <classifier>keystore</classifier>
             <scope>test</scope>
         </dependency>
@@ -208,35 +197,6 @@
                         </projectDescription>
                     </projectHints>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.11</version>
-                <executions>
-                    <execution>
-                        <id>validate</id>
-                        <phase>validate</phase>
-                        <configuration>
-                            <encoding>UTF-8</encoding>
-                            <!-- checkstyle doesn't like lambdas and· exceptions 
-                                and bails -->
-                            <consoleOutput>true</consoleOutput>
-                            <failsOnError>true</failsOnError>
-                            <failOnViolation>true</failOnViolation>
-                        </configuration>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.kaazing</groupId>
-                        <artifactId>code.quality</artifactId>
-                        <version>1.1</version>
-                    </dependency>
-                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -339,7 +299,7 @@
     </reporting>
 
     <properties>
-        <failsafeArgLine>-Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Djava.rmi.server.hostname=localhost -Djava.library.path=target/sigar -Djavax.net.ssl.truststore=${project.basedir}/target/truststore/truststore.db</failsafeArgLine>
+        <failsafeArgLine>-Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Djava.rmi.server.hostname=localhost -Djavax.net.ssl.truststore=${project.basedir}/target/truststore/truststore.db</failsafeArgLine>
         <xmlbeans.debug>false</xmlbeans.debug>
         <checkstyle.config.location>org/kaazing/code/quality/checkstyle.xml</checkstyle.config.location>
     </properties>

@@ -29,6 +29,7 @@ import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.BridgeConnector;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 
 public class WsConnector implements BridgeConnector {
 
@@ -36,6 +37,7 @@ public class WsConnector implements BridgeConnector {
     private static final String WS_DRAFT_PROTOCOL_NAME = "ws/draft-7x";
     private static final String WS_NATIVE_PROTOCOL_NAME = "ws/rfc6455";
 
+    private final WebSocketExtensionFactory extensionFactory;
     private BridgeConnector wsnConnector;
     private BridgeConnector wsebConnector;
 
@@ -53,7 +55,12 @@ public class WsConnector implements BridgeConnector {
     }
 
 
-    public WsConnector() {
+    public WsConnector(WebSocketExtensionFactory extensionFactory) {
+        this.extensionFactory = extensionFactory;
+    }
+
+    public WebSocketExtensionFactory getWebSocketExtensionFactory() {
+        return extensionFactory;
     }
 
     @Override
