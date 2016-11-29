@@ -26,6 +26,7 @@ import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
 
+import org.kaazing.mina.core.session.DummySessionEx;
 import org.kaazing.mina.core.session.IoSessionConfigEx;
 import org.kaazing.mina.core.session.IoSessionConfigEx.ChangeListener;
 import org.kaazing.mina.core.session.IoSessionEx;
@@ -33,6 +34,7 @@ import org.kaazing.mina.core.session.IoSessionEx;
 public final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
 
     static final long PRECISION = 100L;
+    public static final IoSessionEx DUMMY_SESSION = new DummySessionEx();
 
     private final Timer timer;
 
@@ -123,7 +125,7 @@ public final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
         private volatile Timeout timeout = NULL_TIMEOUT;
 
         public NotifyIdleTask(IoSessionEx session) {
-            this.session = session;
+            this.session = DUMMY_SESSION;//session;
         }
 
         public final void reschedule(long idleTime, TimeUnit unit)  {

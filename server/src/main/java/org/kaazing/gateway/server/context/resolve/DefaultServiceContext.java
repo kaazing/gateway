@@ -170,13 +170,13 @@ public class DefaultServiceContext implements ServiceContext {
             session.getFilterChain().addLast(SESSION_FILTER_NAME, new IoFilterAdapter<IoSessionEx>() {
                 @Override
                 protected void doSessionOpened(NextFilter nextFilter, IoSessionEx session) throws Exception {
-                    addActiveSession(session);
+                    // addActiveSession(session);
                     super.doSessionOpened(nextFilter, session);
                 }
 
                 @Override
                 protected void doSessionClosed(NextFilter nextFilter, IoSessionEx session) throws Exception {
-                    removeActiveSession(session);
+                    // removeActiveSession(session);
                     super.doSessionClosed(nextFilter, session);
                 }
             });
@@ -1041,7 +1041,7 @@ public class DefaultServiceContext implements ServiceContext {
         @Override
         public void initializeSession(IoSession session, ConnectFuture future) {
             super.initializeSession(session, future);
-            session.getFilterChain().addLast(SESSION_FILTER_NAME, new ServiceSessionFilter());
+            // session.getFilterChain().addLast(SESSION_FILTER_NAME, new ServiceSessionFilter());
         }
     }
 
