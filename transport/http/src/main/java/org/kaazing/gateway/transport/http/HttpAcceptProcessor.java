@@ -18,6 +18,7 @@ package org.kaazing.gateway.transport.http;
 import static java.lang.String.valueOf;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.INJECTABLE_HEADERS;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
+import static org.kaazing.gateway.transport.http.HttpUtils.formatDateHeader;
 
 import java.util.Queue;
 
@@ -355,6 +356,17 @@ public class HttpAcceptProcessor extends BridgeAcceptProcessor<DefaultHttpSessio
     public static void setServerHeader(IoSession session, HttpResponseMessage response) {
         DefaultHttpSession httpSession = HttpAcceptor.SESSION_KEY.get(session);
         setServerHeader(httpSession, response);
+    }
+
+    public static void setDateHeader(IoSession session, HttpResponseMessage response) {
+        DefaultHttpSession httpSession = HttpAcceptor.SESSION_KEY.get(session);
+        if(httpSession != null) {
+            ResourceAddress address = httpSession.getLocalAddress();
+            boolean dateHeaderEnabled = address.getOption(HttpResourceAddress.DATE_HEADER_ENABLED);
+            if(dateHeaderEnabled && !response.hasHeader("Date")) {
+                response.setHeader(HttpHeaders.HEADER_DATE, formatDateHeader(System.currentTimeMillis()));
+            }
+        }
     }
 
     public static void setServerHeader(DefaultHttpSession httpSession, HttpResponseMessage httpResponse) {
