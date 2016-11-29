@@ -17,13 +17,13 @@ package org.kaazing.gateway.server.context.resolve;
 
 import static org.kaazing.gateway.resource.address.uri.URIUtils.buildURIAsString;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getAuthority;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getCanonicalURI;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getFragment;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getHost;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getPath;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getPort;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getQuery;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
-import static org.kaazing.gateway.resource.address.uri.URIUtils.getUserInfo;
 import static org.kaazing.gateway.service.util.ServiceUtils.LIST_SEPARATOR;
 import static org.kaazing.gateway.util.feature.EarlyAccessFeatures.LOGIN_MODULE_EXPIRING_STATE;
 import static org.kaazing.gateway.util.feature.EarlyAccessFeatures.TCP_REALM_EXTENSION;
@@ -1295,64 +1295,6 @@ public class GatewayContextResolver {
                 }
             }
         }
-    }
-
-    /**
-     * Create a canonical URI from a given URI.   A canonical URI is a URI with:<ul> <li>the host part of the authority
-     * lower-case since URI semantics dictate that hostnames are case insensitive <li>(optionally, NOT appropriate for Origin
-     * headers) the path part set to "/" if there was no path in the input URI (this conforms to the WebSocket and HTTP protocol
-     * specifications and avoids us having to do special handling for path throughout the server code). </ul>
-     *
-     * @param uriString        the URI to canonicalize, in string form
-     * @param canonicalizePath if true, append trailing '/' when missing
-     * @return a URI with the host part of the authority lower-case and (optionally) trailing / added, or null if the uri is null
-     * @throws IllegalArgumentException if the uriString is not valid syntax
-     */
-    public static String getCanonicalURI(String uriString, boolean canonicalizePath) {
-        if ((uriString != null) && !"".equals(uriString)) {
-            return getCanonicalizedURI(uriString, canonicalizePath);
-        }
-        return null;
-    }
-
-    /**
-     * Create a canonical URI from a given URI.   A canonical URI is a URI with:<ul> <li>the host part of the authority
-     * lower-case since URI semantics dictate that hostnames are case insensitive <li>(optionally, NOT appropriate for Origin
-     * headers) the path part set to "/" except for tcp uris if there was no path in the input URI (this conforms to the
-     * WebSocket and HTTP protocol specifications and avoids us having to do special handling for path throughout the server
-     * code). </ul>
-     *
-     * @param uri              the URI to canonicalize
-     * @param canonicalizePath if true, append trailing '/' when missing
-     * @return a URI with the host part of the authority lower-case and (optionally if not tcp) trailing / added, or null if the
-     * uri is null
-     * @throws IllegalArgumentException if the uri is not valid syntax
-     */
-    public static String getCanonicalizedURI(String uri, boolean canonicalizePath) {
-        String canonicalURI = uri;
-        if (uri != null) {
-            String host = getHost(uri);
-            String path = getPath(uri);
-            final boolean emptyPath = "".equals(path);
-            final boolean noPathToCanonicalize = canonicalizePath && (path == null || emptyPath);
-            final boolean trailingSlashPath = "/".equals(path);
-            final String scheme = getScheme(uri);
-            final boolean pathlessScheme = "ssl".equals(scheme) || "tcp".equals(scheme) || "pipe".equals(scheme)
-                    || "udp".equals(scheme) || "mux".equals(scheme);
-            final boolean trailingSlashWithPathlessScheme = trailingSlashPath && pathlessScheme;
-            String newPath = trailingSlashWithPathlessScheme ? "" :
-                             noPathToCanonicalize ? (pathlessScheme ? null : "/") : null;
-            if (((host != null) && !host.equals(host.toLowerCase())) || newPath != null) {
-                path = newPath == null ? path : newPath;
-                try {
-                    canonicalURI = buildURIAsString(scheme, getUserInfo(uri), host == null ?
-                            null : host.toLowerCase(), getPort(uri), path, getQuery(uri), getFragment(uri));
-                } catch (URISyntaxException ex) {
-                    throw new IllegalArgumentException("Invalid URI: " + uri + " in Gateway configuration file", ex);
-                }
-            }
-        }
-        return canonicalURI;
     }
 
     public void addInjectable(String key, Object value) {
