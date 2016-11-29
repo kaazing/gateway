@@ -26,16 +26,14 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
-
 import org.junit.Before;
 import org.junit.Test;
 
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
-import com.hazelcast.query.SqlPredicate;
+import com.hazelcast.query.Predicates;
 
 public class MemoryCollectionsFactoryTest {
     private static final String MAP_NAME = "TestMap";
@@ -46,7 +44,7 @@ public class MemoryCollectionsFactoryTest {
     // MemoryCollectionsFactory's IMap implementation needs to handle
     // querying for keys, values, entries using Predicates.
 
-    private class TestObject {
+    private static class TestObject {
         private final String value;
 
         public TestObject(String value) {
@@ -130,7 +128,7 @@ public class MemoryCollectionsFactoryTest {
         throws Exception {
 
         IMap<String, TestObject> map = factory.getMap(MAP_NAME);
-        map.addIndex("value", false);
+        //map.addIndex("value", false);
 
         // Add three keys
         String k1 = "foo";
@@ -149,8 +147,7 @@ public class MemoryCollectionsFactoryTest {
         expected.add(k1);
         expected.add(k2);
 
-        Predicate query = new SqlPredicate("value = '1' OR value = '2'");
-        Set<String> keys = map.localKeySet(query);
+        Set<String> keys = map.localKeySet(Predicates.or(new TestObjectEqualPredicate("1"), new TestObjectEqualPredicate("2")));
         Assert.assertTrue("Expected key set, got null", keys != null);
         Assert.assertTrue(String.format("Expected keys %s, got %s", expected, keys), keys.equals(expected));
     }
@@ -160,7 +157,7 @@ public class MemoryCollectionsFactoryTest {
         throws Exception {
 
         IMap<String, TestObject> map = factory.getMap(MAP_NAME);
-        map.addIndex("value", false);
+        //map.addIndex("value", false);
 
         // Add three keys
         String k1 = "foo";
@@ -179,8 +176,7 @@ public class MemoryCollectionsFactoryTest {
         expected.add(k1);
         expected.add(k2);
 
-        Predicate query = new SqlPredicate("value = '1' OR value = '2'");
-        Set<String> keys = map.keySet(query);
+        Set<String> keys = map.keySet(Predicates.or(new TestObjectEqualPredicate("1"), new TestObjectEqualPredicate("2")));
         Assert.assertTrue("Expected key set, got null", keys != null);
         Assert.assertTrue(String.format("Expected keys %s, got %s", expected, keys), keys.equals(expected));
     }
@@ -190,7 +186,7 @@ public class MemoryCollectionsFactoryTest {
         throws Exception {
 
         IMap<String, TestObject> map = factory.getMap(MAP_NAME);
-        map.addIndex("value", false);
+        //map.addIndex("value", false);
 
         // Add three keys
         String k1 = "foo";
@@ -209,8 +205,7 @@ public class MemoryCollectionsFactoryTest {
         expected.add(v1);
         expected.add(v2);
 
-        Predicate query = new SqlPredicate("value = '1' OR value = '2'");
-        Collection<TestObject> values = map.values(query);
+        Collection<TestObject> values = map.values(Predicates.or(new TestObjectEqualPredicate("1"), new TestObjectEqualPredicate("2")));
         Assert.assertTrue("Expected values, got null", values != null);
         Assert.assertTrue(String.format("Expected values %s, got %s", expected, values), values.equals(expected));
     }
@@ -236,11 +231,37 @@ public class MemoryCollectionsFactoryTest {
         map.put(k3, v3);
 
         Set<Map.Entry<String, TestObject>> expected = map.entrySet();
-
-        Predicate query = new SqlPredicate("value != '4'");
-        Set<Map.Entry<String, TestObject>> entries = map.entrySet(query);
+        Set<Map.Entry<String, TestObject>> entries = map.entrySet(new TestObjectNotEqualPredicate("4"));
         Assert.assertTrue("Expected entries, got null", entries != null);
         Assert.assertTrue(String.format("Expected entries %s, got %s", expected, entries), entries.equals(expected));
+    }
+
+    public static class TestObjectNotEqualPredicate implements Predicate<String, TestObject> {
+
+        private TestObject value;
+
+        public TestObjectNotEqualPredicate(String value) {
+            this.value = new TestObject(value);
+        }
+
+        @Override
+        public boolean apply(Map.Entry<String, TestObject> mapEntry) {
+            return !value.equals(mapEntry.getValue());
+        }
+    }
+
+    public static class TestObjectEqualPredicate implements Predicate<String, TestObject> {
+
+        private TestObject value;
+
+        public TestObjectEqualPredicate(String value) {
+            this.value = new TestObject(value);
+        }
+
+        @Override
+        public boolean apply(Map.Entry<String, TestObject> mapEntry) {
+            return value.equals(mapEntry.getValue());
+        }
     }
 
     @Test
@@ -251,7 +272,7 @@ public class MemoryCollectionsFactoryTest {
         map.putIfAbsent("two", "2", 10000, MILLISECONDS);
         map.putIfAbsent("three", "3", 2, MILLISECONDS);
 
-        sleep(5);
+        sleep(10);
 
         assertNull(map.putIfAbsent("one", "10", 1, MILLISECONDS));
         assertEquals("2", map.putIfAbsent("two", "20", 1000, MILLISECONDS));

@@ -15,61 +15,95 @@
  */
 package org.kaazing.gateway.service.cluster;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import static java.lang.String.format;
+
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
+import com.hazelcast.core.MapEvent;
 
-public class EntryListenerSupport<K, V> implements EntryListener<K, V>  {
-    private List<EntryListenerEntry<K,V>> listenerEntries;
+public class EntryListenerSupport<K, V> implements EntryListener<K, V> {
+    private static final String NULL_NOT_ALLOWED_MESSAGE = "%s cannot be null";
+    private Map<String, EntryListenerEntry<K,V>> listenerEntries;
 
     public EntryListenerSupport() {
-    	listenerEntries = new CopyOnWriteArrayList<>();
+        listenerEntries = new ConcurrentHashMap<>();
     }
     
-    public void addEntryListener(EntryListener<K, V> listener, K key, boolean includeValue) {
-        listenerEntries.add(new EntryListenerEntry<>(listener, key, includeValue));
+    public String addEntryListener(EntryListener<K, V> listener, K key, boolean includeValue) {
+        if (listener == null) {
+            throw new NullPointerException(format(NULL_NOT_ALLOWED_MESSAGE, "listener"));
+        }
+
+        if (key == null) {
+            throw new NullPointerException(format(NULL_NOT_ALLOWED_MESSAGE, "key"));
+        }
+
+        String registrationId = UUID.randomUUID().toString();
+        listenerEntries.put(registrationId, new EntryListenerEntry<>(listener, key, includeValue));
+        return registrationId;
     }
 
-    public void removeEntryListener(EntryListener<K, V> listener, Object key) {
-        EntryListenerEntry<K,V> entry = getListenerEntry(listener, key);
-        if (entry != null)
-            listenerEntries.remove(entry);
+    public boolean removeEntryListener(String id) {
+       if (listenerEntries.remove(id) != null) {
+           return true;
+       }
+
+       return false;
     }
 
-    public void addEntryListener(EntryListener<K, V> listener, boolean includeValue) {
-        listenerEntries.add(new EntryListenerEntry<>(listener, includeValue));
+    public String addEntryListener(EntryListener<K, V> listener, boolean includeValue) {
+        if (listener == null) {
+            throw new NullPointerException(format(NULL_NOT_ALLOWED_MESSAGE, "listener"));
+        }
+
+        String registrationId = UUID.randomUUID().toString();
+        listenerEntries.put(registrationId, new EntryListenerEntry<>(listener, includeValue));
+
+        return registrationId;
     }
 
-    public void removeEntryListener(EntryListener<K, V> listener) {
-        listenerEntries.remove(listener);
+    public void removeAllListeners() {
+        listenerEntries.clear();
     }
 
     @Override
-	public void entryAdded(EntryEvent<K, V> event) {
-    	entryMethod(event, Method.ADDED);
-	}
+    public void entryAdded(EntryEvent<K, V> event) {
+        entryMethod(event, Method.ADDED);
+    }
 
-	@Override
-	public void entryEvicted(EntryEvent<K, V> event) {
-    	entryMethod(event, Method.EVICTED);
-	}
+    @Override
+    public void entryEvicted(EntryEvent<K, V> event) {
+        entryMethod(event, Method.EVICTED);
+    }
 
-	@Override
-	public void entryRemoved(EntryEvent<K, V> event) {
-    	entryMethod(event, Method.REMOVED);
-	}
+    @Override
+    public void entryRemoved(EntryEvent<K, V> event) {
+        entryMethod(event, Method.REMOVED);
+    }
 
-	@Override
-	public void entryUpdated(EntryEvent<K, V> event) {
-    	entryMethod(event, Method.UPDATED);
-	}
+    @Override
+    public void entryUpdated(EntryEvent<K, V> event) {
+        entryMethod(event, Method.UPDATED);
+    }
+
+    @Override
+    public void mapCleared(MapEvent event) {
+        // TODO check if support is needed
+    }
+
+    @Override
+    public void mapEvicted(MapEvent event) {
+        // TODO check if support is needed
+    }
 
     private void entryMethod(EntryEvent<K, V> event, Method method) {
-    	//TODO MEMBER
+        //TODO MEMBER
         EntryEvent<K,V> copyNoValue = new EntryEvent<>(event.getName(), null, event.getEventType().hashCode(), event.getKey(), null);
-        for (EntryListenerEntry<K, V> listenerEntry : listenerEntries) {
+        for (EntryListenerEntry<K, V> listenerEntry : listenerEntries.values()) {
             if (listenerEntry.key == null || (event.getKey() != null && listenerEntry.key.equals(event.getKey()))) {
                 switch (method) {
                 case ADDED:
@@ -87,15 +121,6 @@ public class EntryListenerSupport<K, V> implements EntryListener<K, V>  {
                 }
             }
         }
-    }
-
-    private EntryListenerEntry<K, V> getListenerEntry(EntryListener<K, V> listener, Object key) {
-        for (EntryListenerEntry<K, V> entry : listenerEntries) {
-            if (entry.listener.equals(listener) && ((entry.key == null && key == null) || (entry.key != null && key != null && entry.key.equals(key)))) {
-                return entry;
-            }
-        }
-        return null;
     }
 
     private enum Method {

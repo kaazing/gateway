@@ -16,53 +16,63 @@
 package org.kaazing.gateway.service.messaging.collections;
 
 import static java.lang.System.currentTimeMillis;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
+
+import org.kaazing.gateway.service.cluster.EntryListenerSupport;
+import org.kaazing.gateway.util.AtomicCounter;
 
 import com.hazelcast.core.EntryEvent;
+import com.hazelcast.core.EntryEventType;
 import com.hazelcast.core.EntryListener;
+import com.hazelcast.core.EntryView;
+import com.hazelcast.core.ExecutionCallback;
 import com.hazelcast.core.ICollection;
+import com.hazelcast.core.ICompletableFuture;
+import com.hazelcast.core.ICondition;
 import com.hazelcast.core.IList;
 import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 import com.hazelcast.core.ITopic;
-import com.hazelcast.core.Instance;
+import com.hazelcast.core.ItemEvent;
+import com.hazelcast.core.ItemEventType;
 import com.hazelcast.core.ItemListener;
-import com.hazelcast.core.MapEntry;
-import com.hazelcast.monitor.LocalLockStats;
+import com.hazelcast.core.MapEvent;
+import com.hazelcast.map.EntryProcessor;
+import com.hazelcast.map.MapInterceptor;
+import com.hazelcast.map.listener.MapListener;
+import com.hazelcast.map.listener.MapPartitionLostListener;
+import com.hazelcast.mapreduce.JobTracker;
+import com.hazelcast.mapreduce.aggregation.Aggregation;
+import com.hazelcast.mapreduce.aggregation.Supplier;
 import com.hazelcast.monitor.LocalMapStats;
 import com.hazelcast.monitor.LocalQueueStats;
-import com.hazelcast.query.Expression;
 import com.hazelcast.query.Predicate;
-import org.kaazing.gateway.service.cluster.EntryListenerSupport;
-import org.kaazing.gateway.util.AtomicCounter;
 
 public class MemoryCollectionsFactory implements CollectionsFactory {
 
     private final ConcurrentMap<String, IMapImpl<?, ?>> maps;
     private final ConcurrentMap<String, IListImpl<?>> lists;
-    private final Map<Object, ILockImpl> locks;
+    private final Map<String, ILockImpl> locks;
     private final ConcurrentMap<String, AtomicCounter> atomicCounters;
 
     public MemoryCollectionsFactory() {
@@ -113,12 +123,12 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
     }
 
     @Override
-    public ILock getLock(Object owner) {
+    public ILock getLock(String name) {
         synchronized (locks) {
-            ILock lock = locks.get(owner);
+            ILock lock = locks.get(name);
             if (lock == null) {
-                ILockImpl newLock = new ILockImpl(owner);
-                locks.put(owner, newLock);
+                ILockImpl newLock = new ILockImpl(name);
+                locks.put(name, newLock);
                 lock = newLock;
             }
             assert (lock != null);
@@ -174,110 +184,9 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
     }
 
-    private class MapEntryImpl<K, V> implements MapEntry<K, V> {
-        private final K key;
-        private final V value;
-
-        public MapEntryImpl(K key, V value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        @Override
-        public long getCost() {
-            return 0;
-        }
-
-        @Override
-        public long getCreationTime() {
-            return 0;
-        }
-
-        @Override
-        public int getHits() {
-            return 1;
-        }
-
-        @Override
-        public long getExpirationTime() {
-            return Long.MAX_VALUE;
-        }
-
-        @Override
-        public long getLastAccessTime() {
-            return Long.MAX_VALUE;
-        }
-
-        @Override
-        public long getLastStoredTime() {
-            return 0;
-        }
-
-        @Override
-        public long getLastUpdateTime() {
-            return 0;
-        }
-
-        @Override
-        public long getVersion() {
-            return 1;
-        }
-
-        @Override
-        public boolean isValid() {
-            return true;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null ||
-                    !(o instanceof MapEntry)) {
-                return false;
-            }
-
-            MapEntry that = (MapEntry) o;
-
-            return that.getKey().equals(getKey()) && that.getValue().equals(getValue());
-
-        }
-
-        @Override
-        public K getKey() {
-            return key;
-        }
-
-        @Override
-        public V getValue() {
-            return value;
-        }
-
-        @Override
-        public V setValue(V value) {
-            // This method isn't supported, and really should not be.
-            // To change a value, simply call setValue() on the map itself,
-            // not on this MapEntry object.
-            throw new UnsupportedOperationException("setValue");
-        }
-
-        @Override
-        public int hashCode() {
-            int hashCode = key.hashCode();
-            hashCode ^= value.hashCode();
-            return hashCode;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("{ ");
-            sb.append("key=").append(key);
-            sb.append(", value=").append(value);
-            sb.append(" }");
-            return sb.toString();
-        }
-    }
-
     private class IMapImpl<K, V> implements IMap<K, V> {
+
+        private static final String OPERATION_NOT_SUPPORTED_MESSAGE = "Operation %s not supported";
 
         private final ConcurrentHashMap<K, V> map;
         private final ConcurrentHashMap<K, Long> keyExpirations;
@@ -294,20 +203,20 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public void addEntryListener(EntryListener<K, V> listener, boolean includeValue) {
-            listenerSupport.addEntryListener(listener, includeValue);
+        public int size() {
+            removeExpiredEntries();
+            return map.size();
         }
 
         @Override
-        public void addEntryListener(EntryListener<K, V> listener, K key, boolean includeValue) {
-            listenerSupport.addEntryListener(listener, key, includeValue);
-
+        public boolean isEmpty() {
+            removeExpiredEntries();
+            return map.isEmpty();
         }
 
         @Override
-        public MapEntry<K, V> getMapEntry(K key) {
-            V value = map.get(key);
-            return new MapEntryImpl<>(key, value);
+        public String getPartitionKey() {
+            return null;
         }
 
         @Override
@@ -316,150 +225,23 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public void lock(K key) {
-            supplyLock(key).lock();
+        public String getServiceName() {
+            return null;
         }
 
         @Override
-        public void removeEntryListener(EntryListener<K, V> listener) {
-            listenerSupport.removeEntryListener(listener);
-        }
-
-        @Override
-        public void removeEntryListener(EntryListener<K, V> listener, K key) {
-            listenerSupport.removeEntryListener(listener, key);
-        }
-
-        @Override
-        public boolean tryLock(K key) {
-            return supplyLock(key).tryLock();
-        }
-
-        @Override
-        public boolean tryLock(K key, long time, TimeUnit timeunit) {
-            try {
-                return supplyLock(key).tryLock(time, timeunit);
-            }
-            catch (InterruptedException e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
-
-        @Override
-        public void unlock(K key) {
-            supplyLock(key).unlock();
-        }
-
-        @Override
-        public V putIfAbsent(K key, V value) {
-            V oldValue = map.putIfAbsent(key, value);
-            if (oldValue == null) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_ADDED, key, value);
-                listenerSupport.entryAdded(event);
-            }
-            else {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_UPDATED, key, value);
-                listenerSupport.entryUpdated(event);
-            }
-            return oldValue;
-        }
-
-        @SuppressWarnings("unchecked")
-		@Override
-        public boolean remove(Object key, Object value) {
-            boolean wasRemoved = map.remove(key, value);
-            if (wasRemoved) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_REMOVED, (K)key, (V)value);
-                listenerSupport.entryRemoved(event);
-            }
-            return wasRemoved;
-        }
-
-        @Override
-        public V replace(K key, V value) {
-            V oldValue = map.replace(key, value);
-            if (oldValue != null) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_UPDATED, key, value);
-                listenerSupport.entryUpdated(event);
-            }
-            else {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_ADDED, key, value);
-                listenerSupport.entryAdded(event);
-            }
-            return oldValue;
-        }
-
-        @Override
-        public boolean replace(K key, V oldValue, V newValue) {
-            boolean wasReplaced = map.replace(key, oldValue, newValue);
-            if (wasReplaced) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_UPDATED, key, newValue);
-                listenerSupport.entryUpdated(event);
-            }
-            return wasReplaced;
-        }
-
-        @Override
-        public void clear() {
-            Set<Map.Entry<K, V>> entries = map.entrySet(); 
-
-            // Rather than calling "map.clear()", we do it the hard way,
-            // so that the EntryListeners get invoked properly.
-            Iterator<Map.Entry<K, V>> iter = entries.iterator();
-            while (iter.hasNext()) {
-                Map.Entry<K, V> entry = iter.next();
-                remove(entry.getKey(), entry.getValue());
-            }
-        }
-
-        @Override
-        public boolean containsKey(Object key) {
-            return map.contains(key);
-        }
-
-        @Override
-        public boolean containsValue(Object value) {
-            return map.containsValue(value);
-        }
-
-        @Override
-        public Set<Map.Entry<K, V>> entrySet() {
-            return map.entrySet();
-        }
-
-        @Override
-        public V get(Object key) {
-            removeExpiredEntries();
-            return map.get(key);
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return map.isEmpty();
-        }
-
-        @Override
-        public Set<K> keySet() {
-            return map.keySet();
-        }
-
-        @Override
-        public V put(K key, V value) {
-            V oldValue = map.put(key, value);
-            if (oldValue != null) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_UPDATED, key, value);
-                listenerSupport.entryUpdated(event);
-            }
-            else {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_ADDED, key, value);
-                listenerSupport.entryAdded(event);
-            }
-            return oldValue;
+        public void destroy() {
+            maps.remove(getName());
+            listenerSupport.removeAllListeners();
+            keyExpirations.clear();
+            map.clear();
+            locks.clear();
         }
 
         @Override
         public void putAll(Map<? extends K, ? extends V> m) {
+            removeExpiredEntries();
+            // No need to remove from keyExpirations if updating an expiring key
             Set<? extends K> keys = m.keySet();
             for (K key : keys) {
                 put(key, m.get(key));
@@ -467,154 +249,50 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public int size() {
-            return map.size();
+        public boolean containsKey(Object key) {
+            return !evictEntryIfExpired(key) && map.containsKey(key);
+            //return map.containsKey(key);
         }
 
         @Override
-        public Collection<V> values() {
-            return map.values();
+        public boolean containsValue(Object value) {
+            removeExpiredEntries();
+            return map.containsValue(value);
         }
 
         @Override
-        public void destroy() {
-            map.clear();
-        }
-
-        @Override
-        public Object getId() {
-            return this;
-        }
-
-        @Override
-        public InstanceType getInstanceType() {
-            return InstanceType.MAP;
-        }
-
-        private Lock supplyLock(Object key) {
-            Lock lock = locks.get(key);
-            if (lock == null) {
-                Lock newLock = new ReentrantLock();
-                lock = locks.putIfAbsent(key, newLock);
-                if (lock == null) {
-                    lock = newLock;
-                }
+        public V get(Object key) {
+            if (evictEntryIfExpired(key)) {
+                return null;
+            } else {
+                return map.get(key);
             }
-            assert (lock != null);
-            return lock;
+            //return map.get(key);
         }
 
         @Override
-        public void addIndex(String attribute, boolean ordered) {
-            // Indices are used to speed up queries across the cluster;
-            // as an in-memory collection, we don't need to support queries.
-        }
-
-        @Override
-        public Set<Map.Entry<K, V>> entrySet(Predicate predicate) {
-            Set<Map.Entry<K, V>> entrySet = new LinkedHashSet<>();
-            for (Map.Entry<K, V> entry : map.entrySet()) {
-                MapEntry me = getMapEntry(entry.getKey());
-                if (predicate.apply(me)) {
-                    entrySet.add(entry);
-                }
+        public V put(K key, V value) {
+            V oldValue = map.put(key, value);
+            if (oldValue != null) {
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED.getType(), key, value);
+                listenerSupport.entryUpdated(event);
             }
-
-            return entrySet;
+            else {
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.ADDED.getType(), key, value);
+                listenerSupport.entryAdded(event);
+            }
+            return oldValue;
         }
 
         @SuppressWarnings("unchecked")
         @Override
-        public boolean evict(Object key) {
-            Object value = map.remove(key);
-            boolean removed = (value !=  null);
-            if (removed) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_EVICTED, (K)key, (V) value);
-                listenerSupport.entryEvicted(event);
-            }
-            return removed;
-        }
-
-        @Override
-        public LocalMapStats getLocalMapStats() {
-            throw new UnsupportedOperationException("getLocalMapStats");
-        }
-
-        @Override
-        public Set<K> keySet(Predicate predicate) {
-            Set<K> keySet = new LinkedHashSet<>();
-            for (K key : map.keySet()) {
-                MapEntry me = getMapEntry(key);
-                if (predicate.apply(me)) {
-                    keySet.add(key);
-                }
-            }
-
-            return keySet;
-        }
-
-        @Override
-        public Set<K> localKeySet() {
-            return map.keySet();
-        }
-
-        @Override
-        public Set<K> localKeySet(Predicate predicate) {
-            return keySet(predicate);
-        }
-
-        @Override
-        public boolean lockMap(long time, TimeUnit unit) {
-            throw new UnsupportedOperationException("lockMap");
-        }
-
-        @Override
-        public V put(K key, V value, long ttl, TimeUnit unit) {
-            throw new UnsupportedOperationException("put");
-        }
-
-        @Override
-        public V putIfAbsent(K key, V value, long ttl, TimeUnit unit) {
-            removeExpiredEntries();
-            V result = this.map.putIfAbsent(key, value);
-            if(result == null){
-                this.keyExpirations.put(key, currentTimeMillis() + unit.toMillis(ttl));
-            }
-            return result;
-        }
-
-        @Override
-        public boolean tryPut(K key, V value, long timeout, TimeUnit timeunit) {
-            throw new UnsupportedOperationException("tryPut");
-        }
-
-        @Override
-        public void unlockMap() {
-            throw new UnsupportedOperationException("unlockMap");
-        }
-
-        @Override
-        public Collection<V> values(Predicate predicate) {
-            Set<V> values = new LinkedHashSet<>();
-            for (Map.Entry<K, V> entry : map.entrySet()) {
-                MapEntry me = getMapEntry(entry.getKey());
-                if (predicate.apply(me)) {
-                    values.add(entry.getValue());
-                }
-            }
-
-            return values;
-        }
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public V remove(Object key) {
+        public V remove(Object key) {
             removeExpiredEntries();
             V value = map.remove(key);
             boolean removed = (value !=  null);
             if (removed) {
                 this.keyExpirations.remove(key);
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_REMOVED, (K)key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.REMOVED.getType(), (K) key, value);
                 listenerSupport.entryRemoved(event);
             }
             return value;
@@ -632,93 +310,450 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             });
         }
 
+        private boolean evictEntryIfExpired(Object key) {
+            long currentMillis = currentTimeMillis();
+            final Long expiration = keyExpirations.get(key);
+            if (expiration != null) {
+                if (currentMillis >= expiration.longValue()) {
+                    V value = map.remove(key);
+                    keyExpirations.remove(key);
+                    listenerSupport.entryEvicted(new EntryEvent<>(name, null, EntryEventType.EVICTED.getType(), (K) key, (V) value));
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @SuppressWarnings("unchecked")
         @Override
-        public Future<V> getAsync(K key) {
-            throw new UnsupportedOperationException("getAsync");
+        public boolean remove(Object key, Object value) {
+            boolean wasRemoved = map.remove(key, value);
+            if (wasRemoved) {
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.REMOVED.getType(), (K) key, (V) value);
+                listenerSupport.entryRemoved(event);
+            }
+            return wasRemoved;
         }
 
         @Override
-        public Future<V> putAsync(K key, V value) {
-            throw new UnsupportedOperationException("putAsync");
-        }
-
-        @Override
-        public void addIndex(Expression<?> arg0, boolean arg1) {
-            throw new UnsupportedOperationException("addIndex");
-        }
-
-        @Override
-        public void addLocalEntryListener(EntryListener<K, V> arg0) {
-            throw new UnsupportedOperationException("addLocalEntryListener");
+        public void delete(Object key) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "delete"));
         }
 
         @Override
         public void flush() {
-            throw new UnsupportedOperationException("flush");
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "flush"));
         }
 
         @Override
-        public Map<K, V> getAll(Set<K> arg0) {
-            throw new UnsupportedOperationException("getAll");
+        public Map<K, V> getAll(Set<K> keys) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "getAll"));
+/*            removeExpiredEntries();
+            if (keys == null || keys.isEmpty()) {
+                return emptyMap();
+            }
+
+            if (keys.contains(null)) {
+                throw new NullPointerException("Null key is not allowed");
+            }
+
+            return keys.stream()
+                .filter(map::containsKey)
+                .collect(Collectors.toMap(Function.identity(), map::get));*/
         }
 
         @Override
-        public void putAndUnlock(K arg0, V arg1) {
-            throw new UnsupportedOperationException("putAndLock");
+        public void loadAll(boolean replaceExistingValues) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "loadAll"));
         }
 
         @Override
-        public void putTransient(K arg0, V arg1, long arg2, TimeUnit arg3) {
-            throw new UnsupportedOperationException("putTransient");
+        public void loadAll(Set<K> keys, boolean replaceExistingValues) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "loadAll"));
         }
 
         @Override
-        public Future<V> removeAsync(K arg0) {
-            throw new UnsupportedOperationException("removeAsync");
+        public void clear() {
+            if (map.isEmpty()) {
+                return;
+            }
+
+            MapEvent event = new MapEvent(name, null, EntryEventType.CLEAR_ALL.getType(), map.size());
+            map.clear();
+            listenerSupport.mapCleared(event);
         }
 
         @Override
-        public V tryLockAndGet(K arg0, long arg1, TimeUnit arg2)
-                throws TimeoutException {
-            throw new UnsupportedOperationException("tryLockAndGet");
+        public ICompletableFuture<V> getAsync(K key) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "getAsync"));
         }
 
         @Override
-        public Object tryRemove(K arg0, long arg1, TimeUnit arg2)
-                throws TimeoutException {
-            throw new UnsupportedOperationException("tryRemove");
+        public ICompletableFuture<V> putAsync(K key, V value) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "putAsync"));
         }
+
+        @Override
+        public ICompletableFuture<V> putAsync(K key, V value, long ttl, TimeUnit timeunit) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "putAsync"));
+        }
+
+        @Override
+        public ICompletableFuture<Void> setAsync(K key, V value) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "setAsync"));
+        }
+
+        @Override
+        public ICompletableFuture<Void> setAsync(K key, V value, long ttl, TimeUnit timeunit) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "setAsync"));
+        }
+
+        @Override
+        public ICompletableFuture<V> removeAsync(K key) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "removeAsync"));
+        }
+
+        @Override
+        public boolean tryRemove(K key, long timeout, TimeUnit timeunit) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "tryRemove"));
+        }
+
+        @Override
+        public boolean tryPut(K key, V value, long timeout, TimeUnit timeunit) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "tryPut"));
+        }
+
+        @Override
+        public V put(K key, V value, long ttl, TimeUnit timeunit) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "put"));
+        }
+
+        @Override
+        public void putTransient(K key, V value, long ttl, TimeUnit timeunit) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "putTransient"));
+        }
+
+        @Override
+        public V putIfAbsent(K key, V value) {
+            removeExpiredEntries();
+            V oldValue = map.putIfAbsent(key, value);
+            if (oldValue == null) {
+                listenerSupport.entryAdded(new EntryEvent<>(name, null, EntryEventType.ADDED.getType(), (K) key, (V) value));
+            }
+            return oldValue;
+        }
+
+        @Override
+        public V putIfAbsent(K key, V value, long ttl, TimeUnit timeunit) {
+            removeExpiredEntries();
+            V oldValue = map.putIfAbsent(key, value);
+            if (oldValue == null) {
+                keyExpirations.put(key, currentTimeMillis() + timeunit.toMillis(ttl));
+                listenerSupport.entryAdded(new EntryEvent<>(name, null, EntryEventType.ADDED.getType(), (K) key, (V) value));
+            }
+            return oldValue;
+        }
+
+        @Override
+        public boolean replace(K key, V oldValue, V newValue) {
+            return map.replace(key, oldValue, newValue);
+        }
+
+        @Override
+        public V replace(K key, V value) {
+            return map.replace(key, value);
+        }
+
+        @Override
+        public void set(K key, V value) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "set"));
+        }
+
+        @Override
+        public void set(K key, V value, long ttl, TimeUnit timeunit) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "set"));
+        }
+
+        @Override
+        public void lock(K key) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "lock"));
+        }
+
+        @Override
+        public void lock(K key, long leaseTime, TimeUnit timeUnit) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "lock"));
+        }
+
+        @Override
+        public boolean isLocked(K key) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "isLocked"));
+        }
+
+        @Override
+        public boolean tryLock(K key) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "tryLock"));
+        }
+
+        @Override
+        public boolean tryLock(K key, long time, TimeUnit timeunit) throws InterruptedException {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "tryLock"));
+        }
+
+        @Override
+        public boolean tryLock(K key, long time, TimeUnit timeunit, long leaseTime, TimeUnit leaseTimeunit)
+                throws InterruptedException {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "tryLock"));
+        }
+
+        @Override
+        public void unlock(K key) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "unlock"));
+        }
+
+        @Override
+        public void forceUnlock(K key) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "forceUnlock"));
+        }
+
+        @Override
+        public String addLocalEntryListener(MapListener listener) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addLocalEntryListener"));
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        public String addLocalEntryListener(EntryListener listener) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addLocalEntryListener"));
+        }
+
+        @Override
+        public String addLocalEntryListener(MapListener listener, Predicate<K, V> predicate, boolean includeValue) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addLocalEntryListener"));
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        public String addLocalEntryListener(EntryListener listener, Predicate<K, V> predicate, boolean includeValue) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addLocalEntryListener"));
+        }
+
+        @Override
+        public String addLocalEntryListener(MapListener listener, Predicate<K, V> predicate, K key, boolean includeValue) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addLocalEntryListener"));
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        public String addLocalEntryListener(EntryListener listener, Predicate<K, V> predicate, K key, boolean includeValue) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addLocalEntryListener"));
+        }
+
+        @Override
+        public String addInterceptor(MapInterceptor interceptor) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addInterceptor"));
+        }
+
+        @Override
+        public void removeInterceptor(String id) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "removeInterceptor"));
+        }
+
+        @Override
+        public String addEntryListener(MapListener listener, boolean includeValue) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        public String addEntryListener(EntryListener listener, boolean includeValue) {
+            return listenerSupport.addEntryListener(listener, includeValue);
+        }
+
+        @Override
+        public boolean removeEntryListener(String id) {
+            return listenerSupport.removeEntryListener(id);
+        }
+
+        @Override
+        public String addPartitionLostListener(MapPartitionLostListener listener) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addPartitionLostListener"));
+        }
+
+        @Override
+        public boolean removePartitionLostListener(String id) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "removePartitionLostListener"));
+        }
+
+        @Override
+        public String addEntryListener(MapListener listener, K key, boolean includeValue) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        public String addEntryListener(EntryListener listener, K key, boolean includeValue) {
+            return listenerSupport.addEntryListener(listener, key, includeValue);
+        }
+
+        @Override
+        public String addEntryListener(MapListener listener, Predicate<K, V> predicate, boolean includeValue) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        public String addEntryListener(EntryListener listener, Predicate<K, V> predicate, boolean includeValue) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
+        }
+
+        @Override
+        public String addEntryListener(MapListener listener, Predicate<K, V> predicate, K key, boolean includeValue) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        public String addEntryListener(EntryListener listener, Predicate<K, V> predicate, K key, boolean includeValue) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
+        }
+
+        @Override
+        public EntryView<K, V> getEntryView(K key) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "getEntryView"));
+        }
+
+        @Override
+        public boolean evict(K key) {
+            //throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "evict"));
+            V value = map.remove(key);
+            if (value != null) {
+                    keyExpirations.remove(key);
+                    listenerSupport.entryEvicted(new EntryEvent<>(name, null, EntryEventType.EVICTED.getType(), (K) key, (V) value));
+                    return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void evictAll() {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "evictAll"));
+        }
+
+        @Override
+        public Set<K> keySet() {
+            removeExpiredEntries();
+            return map.keySet();
+        }
+
+        @Override
+        public Collection<V> values() {
+            removeExpiredEntries();
+            return map.values();
+        }
+
+        @Override
+        public Set<java.util.Map.Entry<K, V>> entrySet() {
+            removeExpiredEntries();
+            return map.entrySet();
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        public Set<K> keySet(Predicate predicate) {
+            return entrySet().stream().filter(predicate::apply).map(e -> e.getKey()).collect(Collectors.toSet());
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        public Set<java.util.Map.Entry<K, V>> entrySet(Predicate predicate) {
+            return entrySet().stream().filter(predicate::apply).collect(Collectors.toSet());
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        public Collection<V> values(Predicate predicate) {
+            return entrySet().stream().filter(predicate::apply).map(e -> e.getValue()).collect(Collectors.toSet());
+        }
+
+        @Override
+        public Set<K> localKeySet() {
+            return keySet();
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        public Set<K> localKeySet(Predicate predicate) {
+            return keySet(predicate);
+        }
+
+        @Override
+        public void addIndex(String attribute, boolean ordered) {
+            //throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addIndex"));
+        }
+
+        @Override
+        public LocalMapStats getLocalMapStats() {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "getLocalMapStats"));
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        public Object executeOnKey(K key, EntryProcessor entryProcessor) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "executeOnKey"));
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        public Map<K, Object> executeOnKeys(Set<K> keys, EntryProcessor entryProcessor) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "executeOnKeys"));
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        public void submitToKey(K key, EntryProcessor entryProcessor, ExecutionCallback callback) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "submitToKey"));
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        public ICompletableFuture submitToKey(K key, EntryProcessor entryProcessor) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "submitToKey"));
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        public Map<K, Object> executeOnEntries(EntryProcessor entryProcessor) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "executeOnEntries"));
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        public Map<K, Object> executeOnEntries(EntryProcessor entryProcessor, Predicate predicate) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "executeOnEntries"));
+        }
+
+        @Override
+        public <SuppliedValue, Result> Result aggregate(Supplier<K, V, SuppliedValue> supplier,
+            Aggregation<K, SuppliedValue, Result> aggregation) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "aggregate"));
+        }
+
+        @Override
+        public <SuppliedValue, Result> Result aggregate(Supplier<K, V, SuppliedValue> supplier,
+            Aggregation<K, SuppliedValue, Result> aggregation, JobTracker jobTracker) {
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "aggregate"));
+        }
+
     }
 
-    private abstract class InstanceImpl implements Instance {
+    private class ILockImpl implements ILock {
 
-        @Override
-        public abstract InstanceType getInstanceType();
-
-        @Override
-        public Object getId() {
-            return this;
-        }
-
-        @Override
-        public void destroy() {
-        }
-
-    }
-
-    private class ILockImpl extends InstanceImpl implements ILock {
-
-        private final Object owner;
+        private final String name;
         private final Lock lock;
 
-        public ILockImpl(Object owner) {
-            this.owner = owner;
+        public ILockImpl(String name) {
+            this.name = name;
             this.lock = new ReentrantLock();
-        }
-
-        @Override
-        public void lock() {
-            lock.lock();
         }
 
         @Override
@@ -727,8 +762,34 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public Condition newCondition() {
-            return lock.newCondition();
+        public String getPartitionKey() {
+            return null;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public String getServiceName() {
+            return null;
+        }
+
+        @Override
+        public void destroy() {
+            locks.remove(name);
+        }
+
+        @Override
+        @Deprecated
+        public Object getKey() {
+            return getName();
+        }
+
+        @Override
+        public void lock() {
+            lock.lock();
         }
 
         @Override
@@ -742,34 +803,58 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
+        public boolean tryLock(long time, TimeUnit unit, long leaseTime, TimeUnit leaseUnit) throws InterruptedException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public void unlock() {
             lock.unlock();
         }
 
         @Override
-        public InstanceType getInstanceType() {
-            return InstanceType.LOCK;
+        public void lock(long leaseTime, TimeUnit timeUnit) {
+            throw new UnsupportedOperationException();
         }
 
         @Override
-        public Object getLockObject() {
-            return owner;
+        public void forceUnlock() {
+            throw new UnsupportedOperationException();
         }
 
         @Override
-        public void destroy() {
-            locks.remove(owner);
+        public Condition newCondition() {
+            return lock.newCondition();
         }
 
         @Override
-        public LocalLockStats getLocalLockStats() {
-            // TODO Auto-generated method stub
-            return null;
+        public ICondition newCondition(String name) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean isLocked() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean isLockedByCurrentThread() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int getLockCount() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public long getRemainingLeaseTime() {
+            throw new UnsupportedOperationException();
         }
 
     }
 
-    private abstract class ICollectionImpl<E> extends InstanceImpl implements ICollection<E> {
+    private abstract class ICollectionImpl<E> implements ICollection<E> {
 
         private final String name;
         protected final ItemListenerSupport<E> listenerSupport;
@@ -785,19 +870,21 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public void addItemListener(ItemListener<E> listener, boolean includeValue) {
-            listenerSupport.addItemListener(listener, includeValue);
+        public String addItemListener(ItemListener<E> listener, boolean includeValue) {
+            return listenerSupport.addItemListener(listener, includeValue);
         }
 
         @Override
-        public void removeItemListener(ItemListener<E> listener) {
-            listenerSupport.removeItemListener(listener);
+        public boolean removeItemListener(String registrationId) {
+            return listenerSupport.removeItemListener(registrationId);
         }
 
     }
 
     private class IListImpl<E> extends ICollectionImpl<E> implements IList<E> {
+
         private List<E> list;
+        // TODO: use read/write locks to synchronize?
 
         public IListImpl(String name) {
             super(name);
@@ -805,36 +892,45 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public InstanceType getInstanceType() {
-            return InstanceType.LIST;
-        }
-
-        @Override
-        public boolean add(E e) {
-            return list.add(e);
+        public boolean add(E element) {
+            if (list.add(element)) {
+                listenerSupport.fireItemAdded(getName(), element);
+                return true;
+            }
+            return false;
         }
 
         @Override
         public void add(int index, E element) {
             list.add(index, element);
-            listenerSupport.fireItemAdded(element);
+            listenerSupport.fireItemAdded(getName(), element);
         }
 
         @Override
         public boolean addAll(Collection<? extends E> c) {
-            return list.addAll(c);
+            boolean result = false;
+            for (E element : c) {
+                result |= add(element);
+            }
+            return result;
         }
 
         @Override
         public boolean addAll(int index, Collection<? extends E> c) {
-            return list.addAll(index, c);
+            for (E element : c) {
+                add(index++, element);
+            }
+            return true;
         }
 
         @Override
         public void clear() {
             Iterator<E> iterator = list.iterator();
-            listenerSupport.fireItemRemoved(iterator);
-            list = new LinkedList<>();
+            while (iterator.hasNext()) {
+                E element = iterator.next();
+                iterator.remove();
+                listenerSupport.fireItemRemoved(getName(), element);
+            }
         }
 
         @Override
@@ -885,41 +981,59 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @Override
         public E remove(int index) {
             E element = list.remove(index);
-            listenerSupport.fireItemRemoved(element);
+            listenerSupport.fireItemRemoved(getName(), element);
             return element;
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public boolean remove(Object o) {
-            boolean wasRemoved = list.remove(o);
-            if (wasRemoved) {
-                listenerSupport.fireItemRemoved(o);
+            if (list.remove(o)) {
+                listenerSupport.fireItemRemoved(getName(), (E) o);
+                return true;
             }
-            return wasRemoved;
+
+            return false;
         }
 
         @Override
         public boolean removeAll(Collection<?> c) {
-            boolean wasAnyRemoved = false;
-            for (Object o : c) {
-                wasAnyRemoved |= remove(o);
+            boolean modified = false;
+            Iterator<E> iterator = list.iterator();
+            while (iterator.hasNext()) {
+                E element = iterator.next();
+                if (c.contains(element)) {
+                    iterator.remove();
+                    listenerSupport.fireItemRemoved(getName(), element);
+                    modified = true;
+                }
             }
-            return wasAnyRemoved;
+
+            return modified;
         }
 
         @Override
         public boolean retainAll(Collection<?> c) {
-            //return list.retainAll(c);
-            throw new UnsupportedOperationException("retainAll does not support notifications");
+            boolean modified = false;
+            Iterator<E> iterator = list.iterator();
+            while (iterator.hasNext()) {
+                E element = iterator.next();
+                if (!c.contains(element)) {
+                    iterator.remove();
+                    listenerSupport.fireItemRemoved(getName(), element);
+                    modified = true;
+                }
+            }
+
+            return modified;
         }
 
         @Override
         public E set(int index, E element) {
             E oldValue = list.set(index, element);
-            if (oldValue != element) {
-                listenerSupport.fireItemRemoved(oldValue);
-                listenerSupport.fireItemAdded(element);
-            }
+            listenerSupport.fireItemRemoved(getName(), oldValue);
+            listenerSupport.fireItemAdded(getName(), element);
+
             return oldValue;
         }
 
@@ -943,11 +1057,29 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             return list.toArray(a);
         }
 
+        @Override
+        public String getPartitionKey() {
+            return null;
+        }
+
+        @Override
+        public String getServiceName() {
+            return null;
+        }
+
+        @Override
+        public void destroy() {
+            lists.remove(getName(), this);
+            list = new LinkedList<>();
+            listenerSupport.destroy();
+        }
+
     }
 
     private class IQueueImpl<E> implements IQueue<E> {
 
         private ArrayBlockingQueue<E> queue;
+        //private ReentrantLock lock;
         private static final long serialVersionUID = 1L;
         private final String name;
         private final int capacity;
@@ -957,12 +1089,13 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             this.name = name;
             this.capacity = capacity;
             this.queue = new ArrayBlockingQueue<>(capacity);
+            //this.lock = new ReentrantLock();
             this.itemListenerSupport = new ItemListenerSupport<>();
         }
 
         @Override
-        public void addItemListener(ItemListener<E> listener, boolean includeValue) {
-            this.itemListenerSupport.addItemListener(listener, includeValue);
+        public String addItemListener(ItemListener<E> listener, boolean includeValue) {
+            return this.itemListenerSupport.addItemListener(listener, includeValue);
         }
 
         @Override
@@ -971,121 +1104,161 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
 
         @Override
-        public void removeItemListener(ItemListener<E> listener) {
-            this.itemListenerSupport.removeItemListener(listener);
+        public boolean removeItemListener(String registrationId) {
+            return this.itemListenerSupport.removeItemListener(registrationId);
         }
 
         @Override
         public void destroy() {
-            queue.clear();
-        }
-
-        @Override
-        public Object getId() {
-            return this.name;
-        }
-
-        @Override
-        public InstanceType getInstanceType() {
-            return InstanceType.QUEUE;
+            /*final ReentrantLock lock = this.lock;
+            try {
+                lock.lock();*/
+                itemListenerSupport.destroy();
+                queue.clear();
+                /*this.lock = new ReentrantLock();
+            } finally {
+                lock.unlock();
+            }*/
         }
 
         @Override
         public boolean add(E e) {
-            boolean added = queue.add(e);
-            itemListenerSupport.fireItemAdded(e);
-            return added;
+            if (queue.add(e)) {
+                itemListenerSupport.fireItemAdded(name, e);
+                return true;
+            }
+            return false;
         }
 
         @Override
         public void clear() {
-            ArrayBlockingQueue<E> oldQueue = queue;
-            queue = new ArrayBlockingQueue<>(capacity);
-            itemListenerSupport.fireItemRemoved(oldQueue.iterator());
-            oldQueue.clear();
+            /*final ReentrantLock lock = this.lock;
+            try {
+                lock.lock();*/
+                Iterator<E> iterator = queue.iterator();
+                while (iterator.hasNext()) {
+                    E element = iterator.next();
+                    iterator.remove();
+                    itemListenerSupport.fireItemRemoved(name, element);
+                }
+            /*} finally {
+                lock.unlock();
+            }*/
         }
 
         @Override
         public int drainTo(Collection<? super E> c, int maxElements) {
-            int drained = queue.drainTo(c, maxElements);
-            itemListenerSupport.fireItemRemoved(c.iterator());
-            return drained;
+            /*ReentrantLock lock = this.lock;
+            try {
+                lock.lock();*/
+                Iterator<E> iterator = queue.iterator();
+                int i = 0;
+                while (iterator.hasNext() && i < maxElements) {
+                    E element = iterator.next();
+                    iterator.remove();
+                    c.add(element);
+                    itemListenerSupport.fireItemRemoved(name, element);
+                    i++;
+                }
+                return i;
+            /*} finally {
+                lock.unlock();
+            }*/
         }
 
         @Override
         public int drainTo(Collection<? super E> c) {
-            int drained = queue.drainTo(c);
-            itemListenerSupport.fireItemRemoved(c.iterator());
-            return drained;
+            return drainTo(c, Integer.MAX_VALUE);
         }
 
         @Override
         public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException {
-            boolean offered = queue.offer(e, timeout, unit);
-            itemListenerSupport.fireItemAdded(e);
-            return offered;
+            if (queue.offer(e, timeout, unit)) {
+                itemListenerSupport.fireItemAdded(name, e);
+                return true;
+            }
+            return false;
         }
 
         @Override
         public boolean offer(E e) {
-            boolean offered = queue.offer(e);
-            itemListenerSupport.fireItemAdded(e);
-            return offered;
+            if (queue.offer(e)) {
+                itemListenerSupport.fireItemAdded(name, e);
+                return true;
+            }
+            return false;
         }
 
         @Override
         public E poll() {
             E item = queue.poll();
-            itemListenerSupport.fireItemRemoved(item);
+            if (item != null) {
+                itemListenerSupport.fireItemRemoved(name, item);
+            }
             return item;
         }
 
         @Override
         public E poll(long timeout, TimeUnit unit) throws InterruptedException {
             E item = queue.poll(timeout, unit);
-            itemListenerSupport.fireItemRemoved(item);
+            if (item != null) {
+                itemListenerSupport.fireItemRemoved(name, item);
+            }
             return item;
         }
 
         @Override
         public void put(E e) throws InterruptedException {
             queue.put(e);
-            itemListenerSupport.fireItemAdded(e);
+            itemListenerSupport.fireItemAdded(name, e);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public boolean remove(Object o) {
-            boolean removed = queue.remove(o);
-            itemListenerSupport.fireItemRemoved(o);
-            return removed;
+            if (queue.remove(o)) {
+                itemListenerSupport.fireItemRemoved(name, (E) o);
+                return true;
+            }
+            return false;
         }
 
         @Override
         public E take() throws InterruptedException {
             E item = queue.take();
-            itemListenerSupport.fireItemRemoved(item);
+            itemListenerSupport.fireItemRemoved(name, item);
             return item;
         }
 
         @Override
         public boolean addAll(Collection<? extends E> c) {
-            boolean allAdded = queue.addAll(c);
-            itemListenerSupport.fireItemAdded(c.iterator());
-            return allAdded;
+            boolean modified = false;
+            for (E element : c) {
+                modified |= add(element);
+            }
+            return modified;
         }
 
         @Override
         public E remove() {
             E item = queue.remove();
-            itemListenerSupport.fireItemRemoved(item);
+            itemListenerSupport.fireItemRemoved(name, item);
             return item;
         }
 
         @Override
         public boolean removeAll(Collection<?> c) {
-            boolean allRemoved = queue.removeAll(c);
-            itemListenerSupport.fireItemRemoved(c.iterator());
-            return allRemoved;
+            boolean modified = false;
+            Iterator<E> iterator = queue.iterator();
+            while (iterator.hasNext()) {
+                E element = iterator.next();
+                if (c.contains(element)) {
+                    iterator.remove();
+                    itemListenerSupport.fireItemRemoved(name, element);
+                    modified = true;
+                }
+            }
+            return modified;
         }
 
         @Override
@@ -1125,7 +1298,17 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         @Override
         public boolean retainAll(Collection<?> c) {
-            return queue.retainAll(c);
+            boolean modified = false;
+            Iterator<E> iterator = queue.iterator();
+            while (iterator.hasNext()) {
+                E element = iterator.next();
+                if (!c.contains(element)) {
+                    iterator.remove();
+                    itemListenerSupport.fireItemRemoved(name, element);
+                    modified = true;
+                }
+            }
+            return modified;
         }
 
         @Override
@@ -1148,43 +1331,64 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             throw new UnsupportedOperationException("getLocalQueueStats");
         }
 
+        @Override
+        public String getPartitionKey() {
+            return null;
+        }
+
+        @Override
+        public String getServiceName() {
+            return null;
+        }
+
     }
 
     private class ItemListenerSupport<E> {
 
-        private ConcurrentHashMap<ItemListener<E>, Boolean> listenersMap = new ConcurrentHashMap<>();
+        private ConcurrentHashMap<String, ItemListenerEntry<E>> listenersMap = new ConcurrentHashMap<>();
 
-        public void addItemListener(ItemListener<E> listener, boolean includeValue) {
-            listenersMap.put(listener, includeValue);
+        public String addItemListener(ItemListener<E> listener, boolean includeValue) {
+            String registrationId = UUID.randomUUID().toString();
+            listenersMap.put(registrationId, new ItemListenerEntry<>(listener, includeValue));
+            return registrationId;
         }
 
-        public void removeItemListener(ItemListener<E> listener) {
-            listenersMap.remove(listener);
+        public boolean removeItemListener(String registrationId) {
+            return listenersMap.remove(registrationId) != null;
         }
 
-        public void fireItemAdded(Iterator<? extends E> iterator) {
-            while (iterator.hasNext()) {
-                fireItemAdded(iterator.next());
+        public void fireItemAdded(String listName, E element) {
+            ItemEvent<E> addedEventWithValue =
+                    new ItemEvent<E>(listName, ItemEventType.ADDED, element, null);
+            ItemEvent<E> addedEventWithoutValue =
+                    new ItemEvent<E>(listName, ItemEventType.ADDED, null, null);
+            for (ItemListenerEntry<E> listenerEntry : listenersMap.values()) {
+                listenerEntry.itemListener.itemAdded(listenerEntry.includeValue ? addedEventWithValue : addedEventWithoutValue);
             }
         }
 
-        public void fireItemAdded(E item) {
-            for (ItemListener<E> listener : listenersMap.keySet()) {
-                listener.itemAdded(listenersMap.get(listener) ? item : null);
+        public void fireItemRemoved(String listName, E element) {
+            ItemEvent<E> removedEventWithValue = new ItemEvent<E>(listName, ItemEventType.REMOVED, element, null);
+            ItemEvent<E> removedEventWithoutValue = new ItemEvent<E>(listName, ItemEventType.REMOVED, null, null);
+            for (ItemListenerEntry<E> listenerEntry : listenersMap.values()) {
+                listenerEntry.itemListener
+                        .itemRemoved(listenerEntry.includeValue ? removedEventWithValue : removedEventWithoutValue);
             }
         }
 
-        public void fireItemRemoved(Iterator<? super E> iterator) {
-            while (iterator.hasNext()) {
-                fireItemRemoved(iterator.next());
-            }
+        public void destroy() {
+            listenersMap.clear();
         }
+    }
 
-        @SuppressWarnings("unchecked")
-        public void fireItemRemoved(Object item) {
-            for (ItemListener<E> listener : listenersMap.keySet()) {
-                listener.itemRemoved(listenersMap.get(listener) ? (E)item : null);
-            }
+    private static class ItemListenerEntry<E> {
+
+        private ItemListener<E> itemListener;
+        private boolean includeValue;
+
+        public ItemListenerEntry(ItemListener<E> listener, boolean includeValue) {
+            this.itemListener = listener;
+            this.includeValue = includeValue;
         }
 
     }

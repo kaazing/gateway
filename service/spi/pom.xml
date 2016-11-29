@@ -35,7 +35,7 @@
         </dependency>
         <dependency>
             <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-cloud</artifactId>
+            <artifactId>hazelcast-aws</artifactId>
         </dependency>
 
         <!-- test scope dependencies -->

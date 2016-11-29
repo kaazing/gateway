@@ -21,6 +21,7 @@ import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 import com.hazelcast.core.ITopic;
+
 import org.kaazing.gateway.util.AtomicCounter;
 
 public interface CollectionsFactory {
@@ -33,7 +34,7 @@ public interface CollectionsFactory {
 
     <E> ITopic<E> getTopic(String name);
 
-    ILock getLock(Object obj);
+    ILock getLock(String name);
 
     <K, V> void addEntryListener(EntryListener<K, V> listener, String name);
 

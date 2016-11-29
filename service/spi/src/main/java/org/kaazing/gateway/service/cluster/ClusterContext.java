@@ -45,7 +45,7 @@ public interface ClusterContext {
     ClusterConnectOptionsContext getConnectOptions();
 
     // cluster collections
-    Lock getLock(Object obj);
+    Lock getLock(String name);
     IdGenerator getIdGenerator(String name);
 
     // cluster messaging

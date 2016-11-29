@@ -47,7 +47,7 @@ public class StandaloneClusterContext implements ClusterContext {
 
     private final MessageBufferFactory messageBufferFactory;
     private final CollectionsFactory collectionsFactory;
-    private final ConcurrentMap<Object, Lock> locks;
+    private final ConcurrentMap<String, Lock> locks;
     private final ConcurrentMap<String, IdGeneratorImpl> idGenerators;
     private final String localInstanceKey = Utils.randomHexString(16);
 
@@ -156,11 +156,11 @@ public class StandaloneClusterContext implements ClusterContext {
     }
 
     @Override
-    public Lock getLock(Object obj) {
-        Lock lock = locks.get(obj);
+    public Lock getLock(String name) {
+        Lock lock = locks.get(name);
         if (lock == null) {
             lock = new ReentrantLock();
-            Lock oldLock = locks.putIfAbsent(obj, lock);
+            Lock oldLock = locks.putIfAbsent(name, lock);
             if (oldLock != null) {
                 lock = oldLock;
             }
@@ -249,13 +249,22 @@ public class StandaloneClusterContext implements ClusterContext {
         }
 
         @Override
-        public Object getId() {
-            return this.name;
+        public String getPartitionKey() {
+            return null;
         }
 
         @Override
-        public InstanceType getInstanceType() {
-            return InstanceType.ID_GENERATOR;
+        public String getServiceName() {
+            return null;
+        }
+
+        @Override
+        public boolean init(long id) {
+            if (id < 0) {
+                return false;
+            }
+
+            return currentId.compareAndSet(Long.MIN_VALUE, id);
         }
     }
 }

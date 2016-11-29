@@ -18,6 +18,11 @@ package org.kaazing.gateway.server.cluster;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.MapEvent;
+import com.hazelcast.map.listener.EntryAddedListener;
+import com.hazelcast.map.listener.EntryRemovedListener;
+import com.hazelcast.map.listener.EntryUpdatedListener;
+
 import org.junit.Test;
 import org.kaazing.gateway.server.context.resolve.StandaloneClusterContext;
 import static org.junit.Assert.assertEquals;
@@ -123,22 +128,21 @@ public class StandaloneClusterContextTest {
         IMap<String, String> imap = context.getCollectionsFactory().getMap("test");
         final String value1 = "value1";
         final String value2 = "value2";
-        imap.addEntryListener(new EntryListener<String, String>() {
-
+        imap.addEntryListener(new EntryAddedListener<String, String>() {
             @Override
             public void entryAdded(EntryEvent<String, String> event) {
                 assertEquals(event.getValue(), value1);
             }
+        }, true);
 
-            @Override
-            public void entryEvicted(EntryEvent<String, String> event) {
-            }
-
+        imap.addEntryListener(new EntryRemovedListener<String, String>() {
             @Override
             public void entryRemoved(EntryEvent<String, String> event) {
                 assertEquals(event.getValue(), value2);
             }
+        }, true);
 
+        imap.addEntryListener(new EntryUpdatedListener<String, String>() {
             @Override
             public void entryUpdated(EntryEvent<String, String> event) {
                 assertEquals(event.getValue(), value2);
@@ -156,22 +160,21 @@ public class StandaloneClusterContextTest {
         IMap<String, String> imap = context.getCollectionsFactory().getMap("test");
         final String value1 = "value1";
         final String value2 = "value2";
-        imap.addEntryListener(new EntryListener<String, String>() {
-
+        imap.addEntryListener(new EntryAddedListener<String, String>() {
             @Override
             public void entryAdded(EntryEvent<String, String> event) {
                 assertEquals(event.getValue(), null);
             }
+        }, false);
 
-            @Override
-            public void entryEvicted(EntryEvent<String, String> event) {
-            }
-
+        imap.addEntryListener(new EntryRemovedListener<String, String>() {
             @Override
             public void entryRemoved(EntryEvent<String, String> event) {
                 assertEquals(event.getValue(), null);
             }
+        }, false);
 
+        imap.addEntryListener(new EntryUpdatedListener<String, String>() {
             @Override
             public void entryUpdated(EntryEvent<String, String> event) {
                 assertEquals(event.getValue(), null);
@@ -209,7 +212,16 @@ public class StandaloneClusterContextTest {
         @Override
         public void entryUpdated(EntryEvent<K, V> event) {
             udpatedCount++;
+        }
 
+        @Override
+        public void mapCleared(MapEvent event) {
+            removedCount += event.getNumberOfEntriesAffected();
+        }
+
+        @Override
+        public void mapEvicted(MapEvent event) {
+            evictedCount += event.getNumberOfEntriesAffected();
         }
     }
 }

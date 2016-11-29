@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
+import com.hazelcast.core.MapEvent;
 
 /**
  * Implementation of the management 'data' bean for a session. This just contains the data. Wrappers for different management
@@ -451,6 +452,16 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
 
     @Override
     public void entryUpdated(EntryEvent<MemberId, Collection<String>> event) {
+        // this listener is here to track when new management services are added, so we can ignore this
+    }
+
+    @Override
+    public void mapCleared(MapEvent event) {
+        // this listener is here to track when new management services are added, so we can ignore this
+    }
+
+    @Override
+    public void mapEvicted(MapEvent event) {
         // this listener is here to track when new management services are added, so we can ignore this
     }
 
