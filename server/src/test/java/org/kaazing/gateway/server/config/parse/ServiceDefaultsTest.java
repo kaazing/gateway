@@ -69,8 +69,7 @@ public class ServiceDefaultsTest {
         Assert.assertTrue("TLSv1".equals(sslProtocols[0]));
 
         Assert.assertTrue("en0".equals(connectOptionsMap.get("udp.interface")));
-        System.out.println(connectOptionsMap.get("tcp.transport"));
-        Assert.assertTrue("socks://localhost:8000".equals(connectOptionsMap.get("tcp.transport").toString().trim()));
+        Assert.assertEquals("socks://localhost:8000", connectOptionsMap.get("tcp.transport").toString().trim());
         Assert.assertFalse((Boolean)connectOptionsMap.get("ssl.encryptionEnabled"));
 
         Assert.assertEquals(5, connectOptionsMap.get("http[http/1.1]."+HTTP_KEEP_ALIVE_TIMEOUT_KEY));
