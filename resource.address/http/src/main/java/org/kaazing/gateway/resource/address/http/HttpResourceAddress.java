@@ -55,6 +55,11 @@ public final class HttpResourceAddress extends ResourceAddress {
     public static final ResourceOption<String> ENCRYPTION_KEY_ALIAS = new EncryptionKeyAliasOption();
     public static final ResourceOption<String> SERVICE_DOMAIN = new ServiceDomainOption();
     public static final HttpResourceOption<Boolean> SERVER_HEADER_ENABLED = new HttpServerHeaderOption();
+    public static final HttpResourceOption<Boolean> USER_AGENT_HEADER_ENABLED = new HttpUserAgentHeaderOption();
+    public static final HttpResourceOption<Boolean> HOST_HEADER_ENABLED = new HttpHostHeaderOption();
+
+    private Boolean userAgentHeaderEnabled = USER_AGENT_HEADER_ENABLED.defaultValue();
+    private Boolean hostHeaderEnabled = HOST_HEADER_ENABLED.defaultValue();
     public static final HttpResourceOption<Boolean> DATE_HEADER_ENABLED = new HttpServerDateHeaderOption();
 
     public static final ResourceOption<Integer> MAX_AUTHENTICATION_ATTEMPTS = new MaxAuthenticationAttemptsOption();
@@ -126,6 +131,10 @@ public final class HttpResourceAddress extends ResourceAddress {
                     return (V) serviceDomain;
                 case SERVER_HEADER:
                     return (V) serverHeaderEnabled;
+                case USER_AGENT_HEADER:
+                    return (V) userAgentHeaderEnabled;
+                case HOST_HEADER:
+                    return (V) hostHeaderEnabled;
                 case DATE_HEADER:
                     return (V) dateHeaderEnabled;
                 case MAX_AUTHENTICATION_ATTEMPTS:
@@ -137,8 +146,8 @@ public final class HttpResourceAddress extends ResourceAddress {
             }
         }
 
-        return super.getOption0(option);
-    }
+		return super.getOption0(option);
+	}
 
     @Override
 	@SuppressWarnings({ "unchecked" })
@@ -191,6 +200,11 @@ public final class HttpResourceAddress extends ResourceAddress {
                 case SERVER_HEADER:
                     serverHeaderEnabled = (Boolean) value;
                     return;
+                case USER_AGENT_HEADER:
+                    userAgentHeaderEnabled = (Boolean) value;
+                    return;
+                case HOST_HEADER:
+                    hostHeaderEnabled = (Boolean) value;
                 case DATE_HEADER:
                     dateHeaderEnabled = (Boolean) value;
                     return;
@@ -241,7 +255,9 @@ public final class HttpResourceAddress extends ResourceAddress {
             MAX_REDIRECTS,
             MAX_AUTHENTICATION_ATTEMPTS,
             REALMS,
-            DATE_HEADER
+            DATE_HEADER,
+            HOST_HEADER,
+            USER_AGENT_HEADER
           //@formatter:on
         }
 
@@ -359,6 +375,18 @@ public final class HttpResourceAddress extends ResourceAddress {
     private static final class HttpServerDateHeaderOption extends HttpResourceOption<Boolean> {
         private HttpServerDateHeaderOption() {
             super(Kind.DATE_HEADER, "dateHeaderEnabled", Boolean.TRUE);
+        }
+    }
+
+    private static final class HttpUserAgentHeaderOption extends HttpResourceOption<Boolean> {
+        private HttpUserAgentHeaderOption() {
+            super(Kind.USER_AGENT_HEADER, "userAgentHeaderEnabled", Boolean.TRUE);
+        }
+    }
+
+    private static final class HttpHostHeaderOption extends HttpResourceOption<Boolean> {
+        private HttpHostHeaderOption() {
+            super(Kind.HOST_HEADER, "hostHeaderEnabled", Boolean.TRUE);
         }
     }
 
