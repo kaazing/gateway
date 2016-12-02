@@ -124,7 +124,7 @@ public class SslConnector extends AbstractBridgeConnector<SslSession> {
             // avoid caching SSLSession in shared SSLContextFactory instance
             // Note: SSLSessionContext.setSessionCacheSize(0) means unlimited,
             // so we use 1 instead
-            sslContextFactory.setServerSessionCacheSize(1);
+            sslContextFactory.setClientSessionCacheSize(1);
         } catch (NoSuchAlgorithmException ne) {
             throw new RuntimeException(ne);
         }
