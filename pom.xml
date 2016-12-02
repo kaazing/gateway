@@ -376,7 +376,7 @@
         </pluginManagement>
 
         <plugins>
-            <plugin>
+            <!--<plugin>
                 <groupId>org.kaazing</groupId>
                 <artifactId>license-maven-plugin</artifactId>
                 <version>1.0.0.11</version>
@@ -390,7 +390,7 @@
                 <configuration>
                     <matchWithExisting>false</matchWithExisting>
                     <strict>false</strict>
-                    <!-- Project hints go here -->
+                    <!- Project hints go here ->
                     <projectHints>
                         <projectDescription>
                             <projectName>JDOM</projectName>
@@ -409,6 +409,24 @@
                         </projectDescription>
                     </projectHints>
                 </configuration>
+            </plugin> -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>1.10</version>
+                <configuration>
+                    <outputDirectory>target</outputDirectory>
+                    <thirdPartyFilename>Notice.txt</thirdPartyFilename>
+                    <fileTemplate>${project.basedir}/third-party-template.ftl</fileTemplate>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>aggregate-add-third-party</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                   </execution>
+                </executions>
             </plugin>
             <plugin>
                 <dependencies>
