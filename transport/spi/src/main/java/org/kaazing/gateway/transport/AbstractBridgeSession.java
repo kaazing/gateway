@@ -122,8 +122,7 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
         
         this.service = service;
         this.processor = processor;
-        final AtomicReference<IoSessionEx> parentReference = new AtomicReference<>(parent);
-        this.parent = parentReference;
+        this.parent = new AtomicReference<>(parent);
         this.allocator = allocator;
 
         this.metadata = service.getTransportMetadata();
@@ -135,7 +134,7 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
         config.setAll(service.getSessionConfig());
 
         // KG-1466: only wrap config if it's an instance of DefaultSessionConfigEx, to avoid defeating downcast
-        this.sessionConfig = config.getClass() == DefaultIoSessionConfigEx.class ? new BridgeSessionConfigEx(config, parentReference) : config;
+        this.sessionConfig = config.getClass() == DefaultIoSessionConfigEx.class ? new BridgeSessionConfigEx(config, this.parent) : config;
 
         this.direction = direction;
     }
