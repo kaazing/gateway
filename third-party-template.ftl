@@ -37,7 +37,7 @@
         <#assign mvnLicense = mvnLicense + "null (null)\n"/>
     <#else>
         <#list p.getLicenses() as license>
-            <#assign mvnLicense = mvnLicense + license.url + " (" + license.name + ")\n"/>
+            <#assign mvnLicense = mvnLicense + (license.url!"null") + " (" + license.name + ")\n"/>
         </#list>
     </#if>
     <#assign homepage = "\tHomepage:\t" + (p.url!"null") + "\n"/>

@@ -416,8 +416,8 @@
                 <version>1.10</version>
                 <configuration>
                     <outputDirectory>target</outputDirectory>
-                    <thirdPartyFilename>Notice.txt</thirdPartyFilename>
-                    <fileTemplate>${project.basedir}/third-party-template.ftl</fileTemplate>
+                    <thirdPartyFilename>NOTICE.txt</thirdPartyFilename>
+                    <fileTemplate>${session.executionRootDirectory}/third-party-template.ftl</fileTemplate>
                 </configuration>
                 <executions>
                     <execution>
