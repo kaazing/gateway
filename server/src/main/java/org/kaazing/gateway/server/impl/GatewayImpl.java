@@ -402,7 +402,7 @@ final class GatewayImpl implements Gateway {
     // Since the Gateway does not set System properties, we need to do our own variable
     // substitution by looking for these variable strings and replacing them with values
     // from the Gateway's configured properties.
-    private class KaazingDOMConfigurator extends DOMConfigurator {
+    private static class KaazingDOMConfigurator extends DOMConfigurator {
         private Properties properties;
 
         KaazingDOMConfigurator(Properties properties) {
@@ -418,7 +418,7 @@ final class GatewayImpl implements Gateway {
         }
     }
 
-    private class KaazingFileWatchdog extends FileWatchdog {
+    private static class KaazingFileWatchdog extends FileWatchdog {
         private File log4jConfigFile;
         private Properties properties;
 

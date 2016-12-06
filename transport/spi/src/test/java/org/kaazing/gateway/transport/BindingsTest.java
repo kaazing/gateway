@@ -72,6 +72,35 @@ public class BindingsTest {
             assertSame(newBinding, binding);
             assertEquals("Binding found does not equal binding added.", newBinding, binding);
             assertEquals(0, BINDINGS_COMPARATOR.compare(bindAddress, binding.bindAddress()));
+            final ResourceAddress addressTWO = makeResourceAddress("tcp://LOCALHOST:8000");
+            assertEquals(0, BINDINGS_COMPARATOR.compare(addressTWO, binding.bindAddress()));
+        }
+    }
+
+    @Test
+    public void canAddAHttpBindingAndSeeItIsAddedProperly() throws Exception {
+
+        IoHandler handler = new IoHandlerAdapter();
+        BridgeSessionInitializer<? extends IoFuture> initializer = new BridgeSessionInitializerAdapter<>();
+
+        String location = "http://localhost:8000/";
+        ResourceAddress bindAddress = makeResourceAddress(location);
+        Bindings.Binding newBinding = new Bindings.Binding(bindAddress, handler, initializer);
+        bindings.addBinding(newBinding);
+
+        Set<Map.Entry<ResourceAddress, Bindings.Binding>> entries = bindings.entrySet();
+
+        assertEquals("Failed to add a binding.", 1, entries.size());
+
+        for (Map.Entry<ResourceAddress, Bindings.Binding> entry : entries) {
+            Bindings.Binding binding = entry.getValue();
+            assertEquals(1, binding.referenceCount());
+            assertSame(newBinding, binding);
+            assertEquals("Binding found does not equal binding added.", newBinding, binding);
+            assertEquals(0, BINDINGS_COMPARATOR.compare(bindAddress, binding.bindAddress()));
+            final ResourceAddress addressTWO = makeResourceAddress("http://LOCALHOST:8000/");
+            // TCP resource will match on ip address, where HTTP forces case-sensitive check on authority
+            assertEquals(0, BINDINGS_COMPARATOR.compare(addressTWO, binding.bindAddress()));
         }
     }
 

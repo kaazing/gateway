@@ -34,6 +34,9 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.ORIG
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALMS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REQUIRED_ROLES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.SERVER_HEADER_ENABLED;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.USER_AGENT_HEADER_ENABLED;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.HOST_HEADER_ENABLED;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.DATE_HEADER_ENABLED;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.SERVICE_DOMAIN;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.TEMP_DIRECTORY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.TRANSPORT_NAME;
@@ -190,6 +193,21 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         if (serverHeaderEnabled != null) {
             options.setOption(SERVER_HEADER_ENABLED, serverHeaderEnabled);
         }
+        
+        Boolean dateHeaderEnabled = (Boolean) optionsByName.remove(DATE_HEADER_ENABLED.name());
+        if (serverHeaderEnabled != null) {
+            options.setOption(DATE_HEADER_ENABLED, dateHeaderEnabled);
+        }
+
+        Boolean userAgentHeaderEnabled = (Boolean) optionsByName.remove(USER_AGENT_HEADER_ENABLED.name());
+        if (userAgentHeaderEnabled != null) {
+            options.setOption(USER_AGENT_HEADER_ENABLED, userAgentHeaderEnabled);
+        }
+
+        Boolean hostHeaderEnabled = (Boolean) optionsByName.remove(HOST_HEADER_ENABLED.name());
+        if (hostHeaderEnabled != null) {
+            options.setOption(HOST_HEADER_ENABLED, hostHeaderEnabled);
+        }
 
         Object maxAuthenticationAttempts = optionsByName.remove(MAX_AUTHENTICATION_ATTEMPTS.name());
         if (maxAuthenticationAttempts != null) {
@@ -207,8 +225,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         IdentityResolver httpIdentityResolver = (IdentityResolver) optionsByName.remove(IDENTITY_RESOLVER.name());
         if (httpIdentityResolver != null) {
             options.setOption(IDENTITY_RESOLVER, httpIdentityResolver);
-        }
-        else {
+        } else {
             Collection<Class<? extends Principal>> userPrincipalClasses =
                     getUserPrincipalClasses((HttpRealmInfo[]) optionsByName.remove(REALMS.name()));
             if (userPrincipalClasses != null && !userPrincipalClasses.isEmpty()) {
@@ -307,6 +324,9 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         address.setOption0(ENCRYPTION_KEY_ALIAS, options.getOption(ENCRYPTION_KEY_ALIAS));
         address.setOption0(SERVICE_DOMAIN, options.getOption(SERVICE_DOMAIN));
         address.setOption0(SERVER_HEADER_ENABLED, options.getOption(SERVER_HEADER_ENABLED));
+        address.setOption0(USER_AGENT_HEADER_ENABLED, options.getOption(USER_AGENT_HEADER_ENABLED));
+        address.setOption0(HOST_HEADER_ENABLED, options.getOption(HOST_HEADER_ENABLED));
+        address.setOption0(DATE_HEADER_ENABLED, options.getOption(DATE_HEADER_ENABLED));
         address.setOption0(MAX_AUTHENTICATION_ATTEMPTS, options.getOption(MAX_AUTHENTICATION_ATTEMPTS));
         address.setOption0(REALMS, options.getOption(REALMS));
         if (address.getOption(IDENTITY_RESOLVER) == null) {
