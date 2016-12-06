@@ -417,8 +417,21 @@
                 <configuration>
                     <outputDirectory>target</outputDirectory>
                     <thirdPartyFilename>NOTICE.txt</thirdPartyFilename>
-                    <fileTemplate>${session.executionRootDirectory}/third-party-template.ftl</fileTemplate>
+                    <fileTemplate>org/kaazing/community/notice/third-party-template.ftl</fileTemplate>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <!-- includes common copyright headers for sources -->
+                        <groupId>org.kaazing</groupId>
+                        <artifactId>community.notice</artifactId>
+                        <type>jar</type>
+                        <!-- Note: the following approach
+                                 <version>{project.version}</version>
+                             remains dynamic even after release, so resolves *incorrectly*
+                             to the version of the project where the plugin is being used -->
+                         <version>develop-SNAPSHOT</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <goals>
