@@ -48,27 +48,9 @@ public interface ClusterContext {
     Lock getLock(String name);
     IdGenerator getIdGenerator(String name);
 
-    // cluster messaging
-    void addReceiveTopic(String name);
-    void addReceiveQueue(String name);
-    <T> T send(Object msg, MemberId member) throws Exception;
-    <T> T send(Object msg, String name) throws Exception;
-    void send(Object msg, final SendListener listener, MemberId member);
-    void send(Object msg, final SendListener listener, String name);
-    <T> void setReceiver(Class<T> type, ReceiveListener<T> receiveListener);
-    <T> void removeReceiver(Class<T> type);
-
     // event listener
     void addMembershipEventListener(MembershipEventListener eventListener);
     void removeMembershipEventListener(MembershipEventListener eventListener);
-
-    // instanceKey listener
-    void addInstanceKeyListener(InstanceKeyListener instanceKeyListener);
-    void removeInstanceKeyListener(InstanceKeyListener instanceKeyListener);
-
-    // balancermap listener
-    void addBalancerMapListener(BalancerMapListener balancerMapListener);
-    void removeBalancerMapListener(BalancerMapListener balancerMapListener);
 
     MessageBufferFactory getMessageBufferFactory();
     CollectionsFactory getCollectionsFactory();

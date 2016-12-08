@@ -37,9 +37,7 @@ import org.kaazing.gateway.management.update.check.ManagementUpdateCheck;
 import org.kaazing.gateway.management.update.check.ManagementUpdateCheckFactory;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.impl.VersionUtils;
-import org.kaazing.gateway.service.cluster.BalancerMapListener;
 import org.kaazing.gateway.service.cluster.ClusterContext;
-import org.kaazing.gateway.service.cluster.InstanceKeyListener;
 import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
 import org.kaazing.gateway.service.http.balancer.HttpBalancerService;
@@ -57,8 +55,7 @@ import com.hazelcast.core.MapEvent;
  * protocols define the use of those data.
  */
 public class GatewayManagementBeanImpl extends AbstractManagementBean
-        implements GatewayManagementBean, MembershipEventListener, InstanceKeyListener, BalancerMapListener,
-        EntryListener<MemberId, Collection<String>> {
+        implements GatewayManagementBean, MembershipEventListener, EntryListener<MemberId, Collection<String>> {
 
     private static final Logger logger = LoggerFactory.getLogger(GatewayManagementBeanImpl.class);
 
@@ -224,8 +221,6 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
         this.clusterContext = clusterContext;
         if (clusterContext != null) {
             clusterContext.addMembershipEventListener(this);
-            clusterContext.addInstanceKeyListener(this);
-            clusterContext.addBalancerMapListener(this);
         }
     }
 
@@ -393,42 +388,6 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
         Map<MemberId, Collection<String>> managementServiceUriMap = factory.
                 getMap(ManagementService.MANAGEMENT_SERVICE_MAP_NAME);
         managementServiceUriMap.remove(removedMember);
-    }
-
-    @Override
-    public void instanceKeyAdded(String instanceKey) {
-        for (ClusterManagementListener listener : clusterManagementListeners) {
-            listener.membershipChanged("join", instanceKey);
-        }
-    }
-
-    @Override
-    public void instanceKeyRemoved(String instanceKey) {
-        for (ClusterManagementListener listener : clusterManagementListeners) {
-            listener.membershipChanged("leave", instanceKey);
-        }
-    }
-
-
-    @Override
-    public void balancerEntryAdded(String balancerURI, Collection<String> balanceeURIs) {
-        for (ClusterManagementListener listener : clusterManagementListeners) {
-            listener.balancerMapChanged("add", balancerURI, balanceeURIs);
-        }
-    }
-
-    @Override
-    public void balancerEntryRemoved(String balancerURI, Collection<String> balanceeURIs) {
-        for (ClusterManagementListener listener : clusterManagementListeners) {
-            listener.balancerMapChanged("remove", balancerURI, balanceeURIs);
-        }
-    }
-
-    @Override
-    public void balancerEntryUpdated(String balancerURI, Collection<String> balanceeURIs) {
-        for (ClusterManagementListener listener : clusterManagementListeners) {
-            listener.balancerMapChanged("update", balancerURI, balanceeURIs);
-        }
     }
 
     @Override

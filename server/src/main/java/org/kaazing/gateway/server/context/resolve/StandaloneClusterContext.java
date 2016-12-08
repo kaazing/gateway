@@ -26,14 +26,10 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.kaazing.gateway.server.messaging.buffer.MemoryMessageBufferFactory;
-import org.kaazing.gateway.service.cluster.BalancerMapListener;
 import org.kaazing.gateway.service.cluster.ClusterConnectOptionsContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
-import org.kaazing.gateway.service.cluster.InstanceKeyListener;
 import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
-import org.kaazing.gateway.service.cluster.ReceiveListener;
-import org.kaazing.gateway.service.cluster.SendListener;
 import org.kaazing.gateway.service.messaging.buffer.MessageBufferFactory;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 import org.kaazing.gateway.service.messaging.collections.MemoryCollectionsFactory;
@@ -66,36 +62,6 @@ public class StandaloneClusterContext implements ClusterContext {
     @Override
     public void removeMembershipEventListener(MembershipEventListener eventListener) {
         // this is a no-op
-    }
-
-    @Override
-    public void addInstanceKeyListener(InstanceKeyListener instanceKeyListener) {
-        // this is a no-op
-    }
-
-    @Override
-    public void removeInstanceKeyListener(InstanceKeyListener instanceKeyListener) {
-        // this is a no-op
-    }
-
-    @Override
-    public void addBalancerMapListener(BalancerMapListener balancerMapListener) {
-        // this is a no-op
-    }
-
-    @Override
-    public void removeBalancerMapListener(BalancerMapListener balancerMapListener) {
-        // this is a no-op
-    }
-
-    @Override
-    public void addReceiveQueue(String name) {
-        throw new UnsupportedOperationException("addReceiveQueue");
-    }
-
-    @Override
-    public void addReceiveTopic(String name) {
-        throw new UnsupportedOperationException("addReceiveTopic");
     }
 
     @Override
@@ -166,36 +132,6 @@ public class StandaloneClusterContext implements ClusterContext {
             }
         }
         return lock;
-    }
-
-    @Override
-    public <T> void removeReceiver(Class<T> type) {
-        throw new UnsupportedOperationException("removeReceiver");
-    }
-
-    @Override
-    public <T> T send(Object msg, MemberId member) throws Exception {
-        throw new UnsupportedOperationException("send");
-    }
-
-    @Override
-    public <T> T send(Object msg, String name) throws Exception {
-        throw new UnsupportedOperationException("send");
-    }
-
-    @Override
-    public void send(Object msg, SendListener listener, MemberId member) {
-        throw new UnsupportedOperationException("send");
-    }
-
-    @Override
-    public void send(Object msg, SendListener listener, String name) {
-        throw new UnsupportedOperationException("send");
-    }
-
-    @Override
-    public <T> void setReceiver(Class<T> type, ReceiveListener<T> receiveListener) {
-        throw new UnsupportedOperationException("setReceiver");
     }
 
     @Override

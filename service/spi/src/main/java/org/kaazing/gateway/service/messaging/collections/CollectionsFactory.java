@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.service.messaging.collections;
 
-import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.IList;
 import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
@@ -35,8 +34,6 @@ public interface CollectionsFactory {
     <E> ITopic<E> getTopic(String name);
 
     ILock getLock(String name);
-
-    <K, V> void addEntryListener(EntryListener<K, V> listener, String name);
 
     AtomicCounter getAtomicCounter(String name);
 }

@@ -36,21 +36,15 @@ import java.util.logging.LogRecord;
 import org.kaazing.gateway.resource.address.ResolutionUtils;
 import org.kaazing.gateway.server.messaging.buffer.ClusterMemoryMessageBufferFactory;
 import org.kaazing.gateway.server.messaging.collections.ClusterCollectionsFactory;
-import org.kaazing.gateway.service.cluster.BalancerMapListener;
 import org.kaazing.gateway.service.cluster.ClusterConnectOptionsContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
-import org.kaazing.gateway.service.cluster.ClusterMessaging;
-import org.kaazing.gateway.service.cluster.InstanceKeyListener;
 import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
-import org.kaazing.gateway.service.cluster.ReceiveListener;
-import org.kaazing.gateway.service.cluster.SendListener;
 import org.kaazing.gateway.service.messaging.buffer.MessageBufferFactory;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 import org.kaazing.gateway.util.GL;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.aws.AwsUtils;
-import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +61,6 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
-import com.hazelcast.core.MapEvent;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
@@ -79,8 +72,6 @@ import com.hazelcast.map.listener.EntryAddedListener;
 import com.hazelcast.map.listener.EntryEvictedListener;
 import com.hazelcast.map.listener.EntryRemovedListener;
 import com.hazelcast.map.listener.EntryUpdatedListener;
-import com.hazelcast.map.listener.MapClearedListener;
-import com.hazelcast.map.listener.MapEvictedListener;
 
 /**
  * ClusterContext for KEG
@@ -106,32 +97,25 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     private List<MemberId> localInterfaces = new ArrayList<>();
     private final List<MemberId> clusterMembers = new ArrayList<>();
     private final List<MembershipEventListener> membershipEventListeners = new ArrayList<>();
-    private final List<InstanceKeyListener> instanceKeyListeners = new ArrayList<>();
-    private final List<BalancerMapListener> balancerMapListeners = new ArrayList<>();
-    private ClusterMessaging clusterMessaging;
     private MemberId localNodeId;
     private final String clusterName;
     private HazelcastInstance clusterInstance;
-    private final SchedulerProvider schedulerProvider;
     private final ClusterConnectOptionsContext connectOptions;
     private final AtomicBoolean clusterInitialized = new AtomicBoolean(false);
 
     public DefaultClusterContext(String name,
                                  List<MemberId> interfaces,
-                                 List<MemberId> members,
-                                 SchedulerProvider schedulerProvider) {
-        this(name, interfaces, members, schedulerProvider, null);
+                                 List<MemberId> members) {
+        this(name, interfaces, members, null);
     }
 
     public DefaultClusterContext(String name,
                                  List<MemberId> interfaces,
                                  List<MemberId> members,
-                                 SchedulerProvider schedulerProvider,
                                  ClusterConnectOptionsContext connectOptions) {
         this.clusterName = name;
         this.localInterfaces.addAll(interfaces);
         this.clusterMembers.addAll(members);
-        this.schedulerProvider = schedulerProvider;
         this.connectOptions = connectOptions;
     }
 
@@ -169,13 +153,6 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
     @Override
     public void dispose() {
-        // If we're in client mode, then we may not have this clusterMessaging
-        // object.  So don't try to destroy it if it is not there at all
-        // (KG-3496).
-        if (clusterMessaging != null) {
-            clusterMessaging.destroy();
-        }
-
         if (clusterInstance != null) {
             // KG-5837: do not call Hazelcast.shutdownAll() since that will hobble all in-process gateways
             clusterInstance.getLifecycleService().shutdown();
@@ -595,8 +572,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
         @Override
         public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
-            // TODO Auto-generated method stub
-            
+            // Member attributes are not used 
         }
     };
 
@@ -610,103 +586,6 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         return instanceKeyMap.get(memberId);
     }
 
-    private void addInstanceKeyEntryListeners(IMap<MemberId, String> instanceKeyMap) {
-        // WE're supporting the idea of 'instance keys' (i.e. random strings that are supposed
-        // to be unique per instance of a gateway) solely for management to be able to tell the
-        // difference between two instances of a gateway accessed through the same management URL.
-        // The Console supports displaying history, and it needs to know when reconnecting to a
-        // given management URL whether or not the configuration might have changed. Because
-        // member IDs generally don't change (for now they're based on the cluster accept URL),
-        // they're a bad indicator of an instance stopping and being restarted. Thus the need for the
-        // instance key. When a member is added or removed, the instanceKey is also added or
-        // removed, and we can trigger events for management to update their cluster state.
-
-        instanceKeyMap.addEntryListener(new EntryAddedListener<MemberId, String>() {
-            @Override
-            public void entryAdded(EntryEvent<MemberId, String> newEntryEvent) {
-                fireInstanceKeyAdded(newEntryEvent.getValue());
-            }
-        }, true);
-
-        instanceKeyMap.addEntryListener(new EntryEvictedListener<MemberId, String>() {
-            @Override
-            public void entryEvicted(EntryEvent<MemberId, String> evictedEntryEvent) {
-                throw new RuntimeException("Instance keys should not be evicted, only added or removed.");
-            }
-        }, false);
-
-        instanceKeyMap.addEntryListener(new EntryRemovedListener<MemberId, String>() {
-            @Override
-            public void entryRemoved(EntryEvent<MemberId, String> removedEntryEvent) {
-                fireInstanceKeyRemoved(removedEntryEvent.getValue());
-            }
-        }, true);
-
-        instanceKeyMap.addEntryListener(new EntryUpdatedListener<MemberId, String>() {
-            @Override
-            public void entryUpdated(EntryEvent<MemberId, String> updatedEntryEvent) {
-                throw new RuntimeException("Instance keys can not be updated, only added or removed.");
-            }
-        }, false);
-
-        instanceKeyMap.addEntryListener(new MapClearedListener() {
-            @Override
-            public void mapCleared(MapEvent event) {
-                // TODO Auto-generated method stub
-                
-            }
-        }, false);
-
-        instanceKeyMap.addEntryListener(new MapEvictedListener() {
-            
-            @Override
-            public void mapEvicted(MapEvent event) {
-                // TODO Auto-generated method stub
-                
-            }
-        }, false);
-
-    }
-
-/*    private EntryListener<String, Collection<String>> balancerMapEntryListener = new
-            EntryListener<String, Collection<String>>() {
-        @Override
-        public void entryAdded(EntryEvent<String, Collection<String>> newEntryEvent) {
-            GL.trace(GL.CLUSTER_LOGGER_NAME, "New entry for balance URI: {}   value: {}", newEntryEvent.getKey(), newEntryEvent
-                    .getValue());
-            fireBalancerEntryAdded(newEntryEvent);
-        }
-
-        @Override
-        public void entryEvicted(EntryEvent<String, Collection<String>> evictedEntryEvent) {
-            throw new RuntimeException("Balancer map entries should not be evicted, only added or removed.");
-        }
-
-        @Override
-        public void entryRemoved(EntryEvent<String, Collection<String>> removedEntryEvent) {
-            GL.trace(GL.CLUSTER_LOGGER_NAME, "Entry removed for balance URI: {}   value: {}", removedEntryEvent
-                    .getKey(), removedEntryEvent.getValue());
-            fireBalancerEntryRemoved(removedEntryEvent);
-        }
-
-        @Override
-        public void entryUpdated(EntryEvent<String, Collection<String>> updatedEntryEvent) {
-            GL.trace(GL.CLUSTER_LOGGER_NAME, "Entry updated for balance URI: {}   value: {}", updatedEntryEvent
-                    .getKey(), updatedEntryEvent.getValue());
-            fireBalancerEntryUpdated(updatedEntryEvent);
-        }
-
-        @Override
-        public void mapCleared(MapEvent event) {
-            throw new RuntimeException("Balancer map should not be cleared, only adding or removing entries is allowed.");
-        }
-
-        @Override
-        public void mapEvicted(MapEvent event) {
-            throw new RuntimeException("Balancer map entries should not be evicted, only added or removed.");
-        }
-    };*/
-
     // cluster collections
 
     @Override
@@ -719,69 +598,6 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         return clusterInstance.getIdGenerator(name);
     }
 
-    // cluster communication
-
-    @Override
-    public void addReceiveQueue(String name) {
-        if (clusterMessaging != null) {
-            clusterMessaging.addReceiveQueue(name);
-        }
-    }
-
-    @Override
-    public void addReceiveTopic(String name) {
-        if (clusterMessaging != null) {
-            clusterMessaging.addReceiveTopic(name);
-        }
-    }
-
-    @Override
-    public void send(Object msg, SendListener listener, MemberId member) {
-        if (clusterMessaging != null) {
-            clusterMessaging.send(msg, listener, member);
-        }
-    }
-
-    @Override
-    public void send(Object msg, SendListener listener, String name) {
-        if (clusterMessaging != null) {
-            clusterMessaging.send(msg, listener, name);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Object send(Object msg, MemberId member) throws Exception {
-        if (clusterMessaging != null) {
-            return clusterMessaging.send(msg, member);
-        }
-
-        return null;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Object send(Object msg, String name) throws Exception {
-        if (clusterMessaging != null) {
-            return clusterMessaging.send(msg, name);
-        }
-
-        return null;
-    }
-
-    @Override
-    public <T> void setReceiver(Class<T> type, ReceiveListener<T> receiveListener) {
-        if (clusterMessaging != null) {
-            clusterMessaging.setReceiver(type, receiveListener);
-        }
-    }
-
-    @Override
-    public <T> void removeReceiver(Class<T> type) {
-        if (clusterMessaging != null) {
-            clusterMessaging.removeReceiver(type);
-        }
-    }
 
     @Override
     public void addMembershipEventListener(MembershipEventListener eventListener) {
@@ -796,38 +612,6 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         if (eventListener != null) {
             membershipEventListeners.remove(eventListener);
         }
-    }
-
-    @Override
-    public void addInstanceKeyListener(InstanceKeyListener instanceKeyListener) {
-        if (instanceKeyListener != null) {
-            instanceKeyListeners.add(instanceKeyListener);
-        }
-    }
-
-    @Override
-    public void removeInstanceKeyListener(InstanceKeyListener instanceKeyListener) {
-        if (instanceKeyListener != null) {
-            instanceKeyListeners.remove(instanceKeyListener);
-        }
-    }
-
-    @Override
-    public void addBalancerMapListener(BalancerMapListener balancerMapListener) {
-        if (balancerMapListener != null) {
-            balancerMapListeners.add(balancerMapListener);
-            GL.debug(GL.CLUSTER_LOGGER_NAME, "Add balancerMapListener");
-        }
-        GL.debug(GL.CLUSTER_LOGGER_NAME, "Exit Add balancerMapListener");
-    }
-
-    @Override
-    public void removeBalancerMapListener(BalancerMapListener balancerMapListener) {
-        if (balancerMapListener != null) {
-            balancerMapListeners.remove(balancerMapListener);
-            GL.debug(GL.CLUSTER_LOGGER_NAME, "Remove balancerMapListener");
-        }
-        GL.debug(GL.CLUSTER_LOGGER_NAME, "Exit Remove balancerMapListener");
     }
 
     @Override
@@ -953,79 +737,6 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         }
     }
 
-    /**
-     * Fire instanceKeyAdded event
-     */
-    private void fireInstanceKeyAdded(String instanceKey) {
-        GL.debug(GL.CLUSTER_LOGGER_NAME, "Firing instanceKeyAdded for: {}", instanceKey);
-        for (InstanceKeyListener listener : instanceKeyListeners) {
-            try {
-                listener.instanceKeyAdded(instanceKey);
-            } catch (Throwable e) {
-                GL.error(GL.CLUSTER_LOGGER_NAME, "Error in instanceKeyAdded event {}", e);
-            }
-        }
-    }
-
-    /**
-     * Fire instanceKeyRemoved event
-     */
-    private void fireInstanceKeyRemoved(String instanceKey) {
-        GL.debug(GL.CLUSTER_LOGGER_NAME, "Firing instanceKeyRemoved for: {}", instanceKey);
-        for (InstanceKeyListener listener : instanceKeyListeners) {
-            try {
-                listener.instanceKeyRemoved(instanceKey);
-            } catch (Throwable e) {
-                GL.error(GL.CLUSTER_LOGGER_NAME, "Error in instanceKeyRemoved event {}", e);
-            }
-        }
-    }
-
-    /**
-     * Fire balancerEntryAdded event
-     */
-    private void fireBalancerEntryAdded(EntryEvent<String, Collection<String>> entryEvent) {
-        String balancerURI = entryEvent.getKey();
-        GL.debug(GL.CLUSTER_LOGGER_NAME, "Firing balancerEntryAdded for: {}", balancerURI);
-        for (BalancerMapListener listener : balancerMapListeners) {
-            try {
-                listener.balancerEntryAdded(balancerURI, entryEvent.getValue());
-            } catch (Throwable e) {
-                GL.error(GL.CLUSTER_LOGGER_NAME, "Error in balancerEntryAdded event {}", e);
-            }
-        }
-    }
-
-    /**
-     * Fire balancerEntryRemoved event
-     */
-    private void fireBalancerEntryRemoved(EntryEvent<String, Collection<String>> entryEvent) {
-        String balancerURI = entryEvent.getKey();
-        GL.debug(GL.CLUSTER_LOGGER_NAME, "Firing balancerEntryRemoved for: {}", balancerURI);
-        for (BalancerMapListener listener : balancerMapListeners) {
-            try {
-                listener.balancerEntryRemoved(balancerURI, entryEvent.getValue());
-            } catch (Throwable e) {
-                GL.error(GL.CLUSTER_LOGGER_NAME, "Error in balancerEntryRemoved event {}", e);
-            }
-        }
-    }
-
-    /**
-     * Fire balancerEntryUpdated event
-     */
-    private void fireBalancerEntryUpdated(EntryEvent<String, Collection<String>> entryEvent) {
-        String balancerURI = entryEvent.getKey();
-        GL.debug(GL.CLUSTER_LOGGER_NAME, "Firing balancerEntryUpdated for: {}", balancerURI);
-        for (BalancerMapListener listener : balancerMapListeners) {
-            try {
-                listener.balancerEntryUpdated(balancerURI, entryEvent.getValue());
-            } catch (Throwable e) {
-                GL.error(GL.CLUSTER_LOGGER_NAME, "Error in balancerEntryUpdated event {}", e);
-            }
-        }
-    }
-
     @Override
     public CollectionsFactory getCollectionsFactory() {
         initializeCluster(null);
@@ -1048,15 +759,11 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             this.collectionsFactory = new ClusterCollectionsFactory(clusterInstance);
             this.messageBufferFactory = new ClusterMemoryMessageBufferFactory(clusterInstance);
             localNodeId = getMemberId(cluster.getLocalMember());
-            clusterMessaging = new ClusterMessaging(this, clusterInstance, schedulerProvider);
 
             IMap<MemberId, String> instanceKeyMap = collectionsFactory.getMap(INSTANCE_KEY_MAP);
             instanceKeyMap.put(localNodeId, localInstanceKey);
-            //instanceKeyMap.addEntryListener(instanceKeyEntryListener, true);
-            addInstanceKeyEntryListeners(instanceKeyMap);
 
             IMap<String, Collection<String>> balancerMap = collectionsFactory.getMap(BALANCER_MAP_NAME);
-            //balancerMap.addEntryListener(balancerMapEntryListener, true);
             addBalancerMapEntryListeners(balancerMap);
         }
     }
@@ -1066,7 +773,6 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             @Override
             public void entryAdded(EntryEvent<String, Collection<String>> event) {
                 GL.trace(GL.CLUSTER_LOGGER_NAME, "New entry for balance URI: {}   value: {}", event.getKey(), event.getValue());
-                fireBalancerEntryAdded(event);
             }
         }, true);
 
@@ -1082,7 +788,6 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             public void entryRemoved(EntryEvent<String, Collection<String>> removedEntryEvent) {
                 GL.trace(GL.CLUSTER_LOGGER_NAME, "Entry removed for balance URI: {}   value: {}", removedEntryEvent
                         .getKey(), removedEntryEvent.getValue());
-                fireBalancerEntryRemoved(removedEntryEvent);
             }
         }, true);
 
@@ -1091,23 +796,9 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             public void entryUpdated(EntryEvent<String, Collection<String>> updatedEntryEvent) {
                 GL.trace(GL.CLUSTER_LOGGER_NAME, "Entry updated for balance URI: {}   value: {}", updatedEntryEvent
                         .getKey(), updatedEntryEvent.getValue());
-                fireBalancerEntryUpdated(updatedEntryEvent);
             }
         }, true);
 
-/*        balancerMap.addEntryListener(new MapClearedListener() {
-            @Override
-            public void mapCleared(MapEvent event) {
-                throw new RuntimeException("Balancer map should not be cleared, only adding or removing entries is allowed.");
-            }
-        }, true);
-
-        balancerMap.addEntryListener(new MapEvictedListener() {
-            @Override
-            public void mapEvicted(MapEvent event) {
-                throw new RuntimeException("Balancer map entries should not be evicted, only added or removed.");
-            }
-        }, true);*/
     }
 
     @Override

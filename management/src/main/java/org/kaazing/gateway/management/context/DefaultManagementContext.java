@@ -31,7 +31,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Resource;
 
-import org.kaazing.gateway.management.ManagementService;
 import org.kaazing.gateway.management.ManagementServiceHandler;
 import org.kaazing.gateway.management.ManagementStrategy;
 import org.kaazing.gateway.management.ManagementStrategyChangeListener;
@@ -422,10 +421,6 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
         // Note: per current 4.0 implementation, clusterContext will never be null
         ClusterConfigurationBean clusterConfigBean = new ClusterConfigurationBeanImpl(clusterContext, gatewayBean);
         gatewayBean.setClusterContext(clusterContext);
-        if (gatewayBean instanceof GatewayManagementBeanImpl) {
-            clusterContext.getCollectionsFactory()
-                    .addEntryListener((GatewayManagementBeanImpl) gatewayBean, ManagementService.MANAGEMENT_SERVICE_MAP_NAME);
-        }
 
         for (ManagementServiceHandler handler : managementServiceHandlers) {
             handler.addClusterConfigurationBean(clusterConfigBean);

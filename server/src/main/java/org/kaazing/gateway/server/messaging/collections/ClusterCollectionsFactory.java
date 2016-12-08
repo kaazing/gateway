@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.server.messaging.collections;
 
-import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IAtomicLong;
 import com.hazelcast.core.IList;
@@ -59,14 +58,6 @@ public class ClusterCollectionsFactory implements CollectionsFactory {
     @Override
     public ILock getLock(String name) {
         return cluster.getLock(name);
-    }
-
-    @Override
-    public <K, V> void addEntryListener(EntryListener<K, V> listener, String name) {
-        IMap<K, V> map = cluster.getMap(name);
-        if (map != null) {
-            map.addEntryListener(listener, true);
-        }
     }
 
     @Override

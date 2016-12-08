@@ -35,13 +35,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 
-import org.kaazing.gateway.service.cluster.EntryListenerSupport;
 import org.kaazing.gateway.util.AtomicCounter;
 
-import com.hazelcast.core.EntryEvent;
-import com.hazelcast.core.EntryEventType;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.EntryView;
 import com.hazelcast.core.ExecutionCallback;
@@ -56,7 +52,6 @@ import com.hazelcast.core.ITopic;
 import com.hazelcast.core.ItemEvent;
 import com.hazelcast.core.ItemEventType;
 import com.hazelcast.core.ItemListener;
-import com.hazelcast.core.MapEvent;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.map.MapInterceptor;
 import com.hazelcast.map.listener.MapListener;
@@ -136,12 +131,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         }
     }
 
-    @Override @SuppressWarnings("unchecked")
-    public <K, V> void addEntryListener(EntryListener<K, V> listener, String name) {
-        IMapImpl<K ,V> map = (IMapImpl<K, V>)getMap(name);  // force create if not already created.
-        map.addEntryListener(listener, true);
-    }
-
     @Override
     public AtomicCounter getAtomicCounter(String name) {
         if (atomicCounters.containsKey(name)) {
@@ -190,15 +179,11 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         private final ConcurrentHashMap<K, V> map;
         private final ConcurrentHashMap<K, Long> keyExpirations;
-        private final EntryListenerSupport<K,V> listenerSupport;
-        private final ConcurrentMap<Object, Lock> locks;
         private final String name;
 
         public IMapImpl(String name) {
             this.name = name;
             this.map = new ConcurrentHashMap<>();
-            this.listenerSupport = new EntryListenerSupport<>();
-            this.locks = new ConcurrentHashMap<>();
             this.keyExpirations = new ConcurrentHashMap<>();
         }
 
@@ -232,7 +217,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @Override
         public void destroy() {
             maps.remove(getName());
-            listenerSupport.removeAllListeners();
             keyExpirations.clear();
             map.clear();
             locks.clear();
@@ -241,17 +225,12 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @Override
         public void putAll(Map<? extends K, ? extends V> m) {
             removeExpiredEntries();
-            // No need to remove from keyExpirations if updating an expiring key
-            Set<? extends K> keys = m.keySet();
-            for (K key : keys) {
-                put(key, m.get(key));
-            }
+            map.putAll(m);
         }
 
         @Override
         public boolean containsKey(Object key) {
             return !evictEntryIfExpired(key) && map.containsKey(key);
-            //return map.containsKey(key);
         }
 
         @Override
@@ -267,35 +246,19 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             } else {
                 return map.get(key);
             }
-            //return map.get(key);
         }
 
         @Override
         public V put(K key, V value) {
-            V oldValue = map.put(key, value);
-            if (oldValue != null) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.UPDATED.getType(), key, value);
-                listenerSupport.entryUpdated(event);
-            }
-            else {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.ADDED.getType(), key, value);
-                listenerSupport.entryAdded(event);
-            }
-            return oldValue;
+            removeExpiredEntries();
+            return map.put(key, value);
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public V remove(Object key) {
             removeExpiredEntries();
-            V value = map.remove(key);
-            boolean removed = (value !=  null);
-            if (removed) {
-                this.keyExpirations.remove(key);
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.REMOVED.getType(), (K) key, value);
-                listenerSupport.entryRemoved(event);
-            }
-            return value;
+            keyExpirations.remove(key);
+            return map.remove(key);
         }
 
         private void removeExpiredEntries() {
@@ -315,24 +278,18 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             final Long expiration = keyExpirations.get(key);
             if (expiration != null) {
                 if (currentMillis >= expiration.longValue()) {
-                    V value = map.remove(key);
+                    map.remove(key);
                     keyExpirations.remove(key);
-                    listenerSupport.entryEvicted(new EntryEvent<>(name, null, EntryEventType.EVICTED.getType(), (K) key, (V) value));
                     return true;
                 }
             }
             return false;
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public boolean remove(Object key, Object value) {
-            boolean wasRemoved = map.remove(key, value);
-            if (wasRemoved) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEventType.REMOVED.getType(), (K) key, (V) value);
-                listenerSupport.entryRemoved(event);
-            }
-            return wasRemoved;
+            keyExpirations.remove(key, value);
+            return map.remove(key, value);
         }
 
         @Override
@@ -348,18 +305,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @Override
         public Map<K, V> getAll(Set<K> keys) {
             throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "getAll"));
-/*            removeExpiredEntries();
-            if (keys == null || keys.isEmpty()) {
-                return emptyMap();
-            }
-
-            if (keys.contains(null)) {
-                throw new NullPointerException("Null key is not allowed");
-            }
-
-            return keys.stream()
-                .filter(map::containsKey)
-                .collect(Collectors.toMap(Function.identity(), map::get));*/
         }
 
         @Override
@@ -374,13 +319,8 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         @Override
         public void clear() {
-            if (map.isEmpty()) {
-                return;
-            }
-
-            MapEvent event = new MapEvent(name, null, EntryEventType.CLEAR_ALL.getType(), map.size());
             map.clear();
-            listenerSupport.mapCleared(event);
+            keyExpirations.clear();
         }
 
         @Override
@@ -436,11 +376,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @Override
         public V putIfAbsent(K key, V value) {
             removeExpiredEntries();
-            V oldValue = map.putIfAbsent(key, value);
-            if (oldValue == null) {
-                listenerSupport.entryAdded(new EntryEvent<>(name, null, EntryEventType.ADDED.getType(), (K) key, (V) value));
-            }
-            return oldValue;
+            return map.putIfAbsent(key, value);
         }
 
         @Override
@@ -449,18 +385,19 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             V oldValue = map.putIfAbsent(key, value);
             if (oldValue == null) {
                 keyExpirations.put(key, currentTimeMillis() + timeunit.toMillis(ttl));
-                listenerSupport.entryAdded(new EntryEvent<>(name, null, EntryEventType.ADDED.getType(), (K) key, (V) value));
             }
             return oldValue;
         }
 
         @Override
         public boolean replace(K key, V oldValue, V newValue) {
+            removeExpiredEntries();
             return map.replace(key, oldValue, newValue);
         }
 
         @Override
         public V replace(K key, V value) {
+            removeExpiredEntries();
             return map.replace(key, value);
         }
 
@@ -566,12 +503,12 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @SuppressWarnings("rawtypes")
         @Override
         public String addEntryListener(EntryListener listener, boolean includeValue) {
-            return listenerSupport.addEntryListener(listener, includeValue);
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
         }
 
         @Override
         public boolean removeEntryListener(String id) {
-            return listenerSupport.removeEntryListener(id);
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "removeEntryListener"));
         }
 
         @Override
@@ -592,7 +529,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @SuppressWarnings("rawtypes")
         @Override
         public String addEntryListener(EntryListener listener, K key, boolean includeValue) {
-            return listenerSupport.addEntryListener(listener, key, includeValue);
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
         }
 
         @Override
@@ -624,14 +561,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         @Override
         public boolean evict(K key) {
-            //throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "evict"));
-            V value = map.remove(key);
-            if (value != null) {
-                    keyExpirations.remove(key);
-                    listenerSupport.entryEvicted(new EntryEvent<>(name, null, EntryEventType.EVICTED.getType(), (K) key, (V) value));
-                    return true;
-            }
-            return false;
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "evict"));
         }
 
         @Override
@@ -660,19 +590,19 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @SuppressWarnings("rawtypes")
         @Override
         public Set<K> keySet(Predicate predicate) {
-            return entrySet().stream().filter(predicate::apply).map(e -> e.getKey()).collect(Collectors.toSet());
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "keySet"));
         }
 
         @SuppressWarnings("rawtypes")
         @Override
         public Set<java.util.Map.Entry<K, V>> entrySet(Predicate predicate) {
-            return entrySet().stream().filter(predicate::apply).collect(Collectors.toSet());
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "entrySet"));
         }
 
         @SuppressWarnings("rawtypes")
         @Override
         public Collection<V> values(Predicate predicate) {
-            return entrySet().stream().filter(predicate::apply).map(e -> e.getValue()).collect(Collectors.toSet());
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "values"));
         }
 
         @Override
@@ -683,12 +613,12 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @SuppressWarnings("rawtypes")
         @Override
         public Set<K> localKeySet(Predicate predicate) {
-            return keySet(predicate);
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "localKeySet"));
         }
 
         @Override
         public void addIndex(String attribute, boolean ordered) {
-            //throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addIndex"));
+            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addIndex"));
         }
 
         @Override
@@ -1082,12 +1012,10 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         //private ReentrantLock lock;
         private static final long serialVersionUID = 1L;
         private final String name;
-        private final int capacity;
         private final ItemListenerSupport<E> itemListenerSupport;
 
         public IQueueImpl(String name, int capacity) {
             this.name = name;
-            this.capacity = capacity;
             this.queue = new ArrayBlockingQueue<>(capacity);
             //this.lock = new ReentrantLock();
             this.itemListenerSupport = new ItemListenerSupport<>();
