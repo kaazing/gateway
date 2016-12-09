@@ -247,18 +247,12 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
 
         @Override
         public final long transferTo(WritableByteChannel ch) throws IOException {
-            System.out.println("JITU writing " + buffer + " ch = " + ch);
-            long tmp = ch.write(buffer);
-            System.out.println("JITU wrote " + tmp + " ch = " + ch);
-            return tmp;
+            return ch.write(buffer);
         }
 
         @Override
         public final long transferTo(DatagramChannel ch, SocketAddress raddr) throws IOException {
-            System.out.println("JITU writing " + buffer + " ch = " + ch);
-            long tmp =  ch.send(buffer, raddr);
-            System.out.println("JITU wrote " + tmp + " ch = " + ch);
-            return tmp;
+            return ch.send(buffer, raddr);
         }
 
         @Override
@@ -301,18 +295,12 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
 
         @Override
         public final long transferTo(WritableByteChannel ch) throws IOException {
-            System.out.println("JITU writing " + buffer + " ch = " + ch);
-            long tmp = ch.write(buffer);
-            System.out.println("JITU wrote " + tmp + " ch = " + ch);
-            return tmp;
+            return ch.write(buffer);
         }
 
         @Override
         public final long transferTo(DatagramChannel ch, SocketAddress raddr) throws IOException {
-            System.out.println("JITU writing " + buffer + " ch = " + ch);
-            long tmp = ch.send(buffer, raddr);
-            System.out.println("JITU wrote " + tmp + " ch = " + ch);
-            return tmp;
+            return ch.send(buffer, raddr);
         }
 
         @Override
