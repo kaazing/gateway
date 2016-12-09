@@ -71,7 +71,6 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
                     break;
             }
         } else if (e instanceof MessageEvent) {
-            System.out.println("JITU adding messageEvent " + e.hashCode() + " msg = " + ((MessageEvent) e).getMessage().hashCode() + " Th = " + Thread.currentThread());
             final MessageEvent childMessageEvent = (MessageEvent) e;
             ParentMessageEvent parentMessageEvent = new ParentMessageEvent(childMessageEvent);
 
