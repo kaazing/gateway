@@ -71,48 +71,51 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
                     break;
             }
         } else if (e instanceof MessageEvent) {
+            // Making sure that child channel WriteFuture is fired on child channel's worker thread
             final MessageEvent childMessageEvent = (MessageEvent) e;
             ParentMessageEvent parentMessageEvent = new ParentMessageEvent(childMessageEvent);
+            ChannelFuture parentFuture = parentMessageEvent.getFuture();
+            parentFuture.addListener(f -> {
+                childChannel.getWorker().executeInIoThread(() -> {
+                    if (f.isSuccess()) {
+                        childFuture.setSuccess();
+                    } else {
+                        childFuture.setFailure(f.getCause());
+                    }
+                });
+            });
 
             // Write to parent channel
             NioDatagramChannel parentChannel = (NioDatagramChannel) childChannel.getParent();
             boolean offered = parentChannel.writeBufferQueue.offer(parentMessageEvent);
             assert offered;
             parentChannel.worker.writeFromUserCode(parentChannel);
-
-            // No need to propagate parentMessageEvent.getFuture() to childFuture
-            // as UDP is unreliable.
-            childFuture.setSuccess();
         }
     }
 
     private static final class ParentMessageEvent implements MessageEvent {
 
+        private final MessageEvent delegate;
         private final ChannelFuture parentFuture;
-        private final Object message;
-        private final SocketAddress remoteAddress;
-        private final Channel channel;
 
         ParentMessageEvent(MessageEvent delegate) {
-            this.message = delegate.getMessage();
-            this.remoteAddress = delegate.getRemoteAddress();
-            this.channel = delegate.getChannel();
+            this.delegate = delegate;
             this.parentFuture = new DefaultChannelFutureEx();
         }
 
         @Override
         public Object getMessage() {
-            return message;
+            return delegate.getMessage();
         }
 
         @Override
         public SocketAddress getRemoteAddress() {
-            return remoteAddress;
+            return delegate.getRemoteAddress();
         }
 
         @Override
         public Channel getChannel() {
-            return channel;
+            return delegate.getChannel();
         }
 
         @Override
