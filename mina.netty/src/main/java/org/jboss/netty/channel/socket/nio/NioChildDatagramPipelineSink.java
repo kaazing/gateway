@@ -88,27 +88,31 @@ class NioChildDatagramPipelineSink extends AbstractNioChannelSink {
 
     private static final class ParentMessageEvent implements MessageEvent {
 
-        private final MessageEvent delegate;
         private final ChannelFuture parentFuture;
+        private final Object message;
+        private final SocketAddress remoteAddress;
+        private final Channel channel;
 
         ParentMessageEvent(MessageEvent delegate) {
-            this.delegate = delegate;
+            this.message = delegate.getMessage();
+            this.remoteAddress = delegate.getRemoteAddress();
+            this.channel = delegate.getChannel();
             this.parentFuture = new DefaultChannelFutureEx();
         }
 
         @Override
         public Object getMessage() {
-            return delegate.getMessage();
+            return message;
         }
 
         @Override
         public SocketAddress getRemoteAddress() {
-            return delegate.getRemoteAddress();
+            return remoteAddress;
         }
 
         @Override
         public Channel getChannel() {
-            return delegate.getChannel();
+            return channel;
         }
 
         @Override
