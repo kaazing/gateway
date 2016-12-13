@@ -15,6 +15,7 @@
  */
 package org.kaazing.gateway.service.messaging.collections;
 
+import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
 
 import java.util.Collection;
@@ -25,9 +26,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.WeakHashMap;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
@@ -49,8 +48,6 @@ import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 import com.hazelcast.core.ITopic;
-import com.hazelcast.core.ItemEvent;
-import com.hazelcast.core.ItemEventType;
 import com.hazelcast.core.ItemListener;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.map.MapInterceptor;
@@ -60,10 +57,11 @@ import com.hazelcast.mapreduce.JobTracker;
 import com.hazelcast.mapreduce.aggregation.Aggregation;
 import com.hazelcast.mapreduce.aggregation.Supplier;
 import com.hazelcast.monitor.LocalMapStats;
-import com.hazelcast.monitor.LocalQueueStats;
 import com.hazelcast.query.Predicate;
 
 public class MemoryCollectionsFactory implements CollectionsFactory {
+
+    private static final String OPERATION_NOT_SUPPORTED_MESSAGE = "Operation %s not supported";
 
     private final ConcurrentMap<String, IMapImpl<?, ?>> maps;
     private final ConcurrentMap<String, IListImpl<?>> lists;
@@ -81,10 +79,10 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
     @SuppressWarnings("unchecked")
     @Override
     public <E> IList<E> getList(String name) {
-        IListImpl<E> list = (IListImpl<E>)lists.get(name);
+        IListImpl<E> list = (IListImpl<E>) lists.get(name);
         if (list == null) {
             IListImpl<E> newList = new IListImpl<>(name);
-            list = (IListImpl<E>)lists.putIfAbsent(name, newList);
+            list = (IListImpl<E>) lists.putIfAbsent(name, newList);
             if (list == null) {
                 list = newList;
             }
@@ -94,22 +92,21 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
     @Override
     public <E> IQueue<E> getQueue(String name) {
-        // TODO: what should be the queue size
-        return new IQueueImpl<>(name, 100);
+        throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "getQueue"));
     }
 
     @Override
     public <E> ITopic<E> getTopic(String name) {
-        throw new UnsupportedOperationException("getTopic");
+        throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "getTopic"));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <K, V> IMap<K, V> getMap(String name) {
-        IMapImpl<K, V> map = (IMapImpl<K, V>)maps.get(name);
+        IMapImpl<K, V> map = (IMapImpl<K, V>) maps.get(name);
         if (map == null) {
             IMapImpl<K, V> newMap = new IMapImpl<>(name);
-            map = (IMapImpl<K, V>)maps.putIfAbsent(name, newMap);
+            map = (IMapImpl<K, V>) maps.putIfAbsent(name, newMap);
             if (map == null) {
                 map = newMap;
             }
@@ -175,8 +172,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
     private class IMapImpl<K, V> implements IMap<K, V> {
 
-        private static final String OPERATION_NOT_SUPPORTED_MESSAGE = "Operation %s not supported";
-
         private final ConcurrentHashMap<K, V> map;
         private final ConcurrentHashMap<K, Long> keyExpirations;
         private final String name;
@@ -219,7 +214,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             maps.remove(getName());
             keyExpirations.clear();
             map.clear();
-            locks.clear();
         }
 
         @Override
@@ -294,27 +288,27 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         @Override
         public void delete(Object key) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "delete"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "delete"));
         }
 
         @Override
         public void flush() {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "flush"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "flush"));
         }
 
         @Override
         public Map<K, V> getAll(Set<K> keys) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "getAll"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "getAll"));
         }
 
         @Override
         public void loadAll(boolean replaceExistingValues) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "loadAll"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "loadAll"));
         }
 
         @Override
         public void loadAll(Set<K> keys, boolean replaceExistingValues) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "loadAll"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "loadAll"));
         }
 
         @Override
@@ -325,52 +319,52 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         @Override
         public ICompletableFuture<V> getAsync(K key) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "getAsync"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "getAsync"));
         }
 
         @Override
         public ICompletableFuture<V> putAsync(K key, V value) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "putAsync"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "putAsync"));
         }
 
         @Override
         public ICompletableFuture<V> putAsync(K key, V value, long ttl, TimeUnit timeunit) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "putAsync"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "putAsync"));
         }
 
         @Override
         public ICompletableFuture<Void> setAsync(K key, V value) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "setAsync"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "setAsync"));
         }
 
         @Override
         public ICompletableFuture<Void> setAsync(K key, V value, long ttl, TimeUnit timeunit) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "setAsync"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "setAsync"));
         }
 
         @Override
         public ICompletableFuture<V> removeAsync(K key) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "removeAsync"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "removeAsync"));
         }
 
         @Override
         public boolean tryRemove(K key, long timeout, TimeUnit timeunit) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "tryRemove"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "tryRemove"));
         }
 
         @Override
         public boolean tryPut(K key, V value, long timeout, TimeUnit timeunit) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "tryPut"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "tryPut"));
         }
 
         @Override
         public V put(K key, V value, long ttl, TimeUnit timeunit) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "put"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "put"));
         }
 
         @Override
         public void putTransient(K key, V value, long ttl, TimeUnit timeunit) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "putTransient"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "putTransient"));
         }
 
         @Override
@@ -403,170 +397,170 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         @Override
         public void set(K key, V value) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "set"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "set"));
         }
 
         @Override
         public void set(K key, V value, long ttl, TimeUnit timeunit) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "set"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "set"));
         }
 
         @Override
         public void lock(K key) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "lock"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "lock"));
         }
 
         @Override
         public void lock(K key, long leaseTime, TimeUnit timeUnit) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "lock"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "lock"));
         }
 
         @Override
         public boolean isLocked(K key) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "isLocked"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "isLocked"));
         }
 
         @Override
         public boolean tryLock(K key) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "tryLock"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "tryLock"));
         }
 
         @Override
         public boolean tryLock(K key, long time, TimeUnit timeunit) throws InterruptedException {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "tryLock"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "tryLock"));
         }
 
         @Override
         public boolean tryLock(K key, long time, TimeUnit timeunit, long leaseTime, TimeUnit leaseTimeunit)
                 throws InterruptedException {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "tryLock"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "tryLock"));
         }
 
         @Override
         public void unlock(K key) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "unlock"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "unlock"));
         }
 
         @Override
         public void forceUnlock(K key) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "forceUnlock"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "forceUnlock"));
         }
 
         @Override
         public String addLocalEntryListener(MapListener listener) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addLocalEntryListener"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "addLocalEntryListener"));
         }
 
         @SuppressWarnings("rawtypes")
         @Override
         public String addLocalEntryListener(EntryListener listener) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addLocalEntryListener"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "addLocalEntryListener"));
         }
 
         @Override
         public String addLocalEntryListener(MapListener listener, Predicate<K, V> predicate, boolean includeValue) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addLocalEntryListener"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "addLocalEntryListener"));
         }
 
         @SuppressWarnings("rawtypes")
         @Override
         public String addLocalEntryListener(EntryListener listener, Predicate<K, V> predicate, boolean includeValue) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addLocalEntryListener"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "addLocalEntryListener"));
         }
 
         @Override
         public String addLocalEntryListener(MapListener listener, Predicate<K, V> predicate, K key, boolean includeValue) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addLocalEntryListener"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "addLocalEntryListener"));
         }
 
         @SuppressWarnings("rawtypes")
         @Override
         public String addLocalEntryListener(EntryListener listener, Predicate<K, V> predicate, K key, boolean includeValue) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addLocalEntryListener"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "addLocalEntryListener"));
         }
 
         @Override
         public String addInterceptor(MapInterceptor interceptor) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addInterceptor"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "addInterceptor"));
         }
 
         @Override
         public void removeInterceptor(String id) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "removeInterceptor"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "removeInterceptor"));
         }
 
         @Override
         public String addEntryListener(MapListener listener, boolean includeValue) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
         }
 
         @SuppressWarnings("rawtypes")
         @Override
         public String addEntryListener(EntryListener listener, boolean includeValue) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
         }
 
         @Override
         public boolean removeEntryListener(String id) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "removeEntryListener"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "removeEntryListener"));
         }
 
         @Override
         public String addPartitionLostListener(MapPartitionLostListener listener) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addPartitionLostListener"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "addPartitionLostListener"));
         }
 
         @Override
         public boolean removePartitionLostListener(String id) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "removePartitionLostListener"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "removePartitionLostListener"));
         }
 
         @Override
         public String addEntryListener(MapListener listener, K key, boolean includeValue) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
         }
 
         @SuppressWarnings("rawtypes")
         @Override
         public String addEntryListener(EntryListener listener, K key, boolean includeValue) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
         }
 
         @Override
         public String addEntryListener(MapListener listener, Predicate<K, V> predicate, boolean includeValue) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
         }
 
         @SuppressWarnings("rawtypes")
         @Override
         public String addEntryListener(EntryListener listener, Predicate<K, V> predicate, boolean includeValue) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
         }
 
         @Override
         public String addEntryListener(MapListener listener, Predicate<K, V> predicate, K key, boolean includeValue) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
         }
 
         @SuppressWarnings("rawtypes")
         @Override
         public String addEntryListener(EntryListener listener, Predicate<K, V> predicate, K key, boolean includeValue) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "addEntryListener"));
         }
 
         @Override
         public EntryView<K, V> getEntryView(K key) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "getEntryView"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "getEntryView"));
         }
 
         @Override
         public boolean evict(K key) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "evict"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "evict"));
         }
 
         @Override
         public void evictAll() {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "evictAll"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "evictAll"));
         }
 
         @Override
@@ -590,19 +584,19 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @SuppressWarnings("rawtypes")
         @Override
         public Set<K> keySet(Predicate predicate) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "keySet"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "keySet"));
         }
 
         @SuppressWarnings("rawtypes")
         @Override
         public Set<java.util.Map.Entry<K, V>> entrySet(Predicate predicate) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "entrySet"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "entrySet"));
         }
 
         @SuppressWarnings("rawtypes")
         @Override
         public Collection<V> values(Predicate predicate) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "values"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "values"));
         }
 
         @Override
@@ -613,65 +607,65 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @SuppressWarnings("rawtypes")
         @Override
         public Set<K> localKeySet(Predicate predicate) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "localKeySet"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "localKeySet"));
         }
 
         @Override
         public void addIndex(String attribute, boolean ordered) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "addIndex"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "addIndex"));
         }
 
         @Override
         public LocalMapStats getLocalMapStats() {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "getLocalMapStats"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "getLocalMapStats"));
         }
 
         @SuppressWarnings("rawtypes")
         @Override
         public Object executeOnKey(K key, EntryProcessor entryProcessor) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "executeOnKey"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "executeOnKey"));
         }
 
         @SuppressWarnings("rawtypes")
         @Override
         public Map<K, Object> executeOnKeys(Set<K> keys, EntryProcessor entryProcessor) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "executeOnKeys"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "executeOnKeys"));
         }
 
         @SuppressWarnings("rawtypes")
         @Override
         public void submitToKey(K key, EntryProcessor entryProcessor, ExecutionCallback callback) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "submitToKey"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "submitToKey"));
         }
 
         @SuppressWarnings("rawtypes")
         @Override
         public ICompletableFuture submitToKey(K key, EntryProcessor entryProcessor) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "submitToKey"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "submitToKey"));
         }
 
         @SuppressWarnings("rawtypes")
         @Override
         public Map<K, Object> executeOnEntries(EntryProcessor entryProcessor) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "executeOnEntries"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "executeOnEntries"));
         }
 
         @SuppressWarnings("rawtypes")
         @Override
         public Map<K, Object> executeOnEntries(EntryProcessor entryProcessor, Predicate predicate) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "executeOnEntries"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "executeOnEntries"));
         }
 
         @Override
         public <SuppliedValue, Result> Result aggregate(Supplier<K, V, SuppliedValue> supplier,
             Aggregation<K, SuppliedValue, Result> aggregation) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "aggregate"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "aggregate"));
         }
 
         @Override
         public <SuppliedValue, Result> Result aggregate(Supplier<K, V, SuppliedValue> supplier,
             Aggregation<K, SuppliedValue, Result> aggregation, JobTracker jobTracker) {
-            throw new UnsupportedOperationException(String.format(OPERATION_NOT_SUPPORTED_MESSAGE, "aggregate"));
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "aggregate"));
         }
 
     }
@@ -734,7 +728,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         @Override
         public boolean tryLock(long time, TimeUnit unit, long leaseTime, TimeUnit leaseUnit) throws InterruptedException {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "tryLock with lease time"));
         }
 
         @Override
@@ -744,12 +738,12 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         @Override
         public void lock(long leaseTime, TimeUnit timeUnit) {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "lock with lease time"));
         }
 
         @Override
         public void forceUnlock() {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "forceUnlock"));
         }
 
         @Override
@@ -759,27 +753,27 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         @Override
         public ICondition newCondition(String name) {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "newCondition"));
         }
 
         @Override
         public boolean isLocked() {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "isLocked"));
         }
 
         @Override
         public boolean isLockedByCurrentThread() {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "isLockedByCurrentThread"));
         }
 
         @Override
         public int getLockCount() {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "getLockCount"));
         }
 
         @Override
         public long getRemainingLeaseTime() {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "getRemainingLeaseTime"));
         }
 
     }
@@ -787,11 +781,9 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
     private abstract class ICollectionImpl<E> implements ICollection<E> {
 
         private final String name;
-        protected final ItemListenerSupport<E> listenerSupport;
 
         public ICollectionImpl(String name) {
             this.name = name;
-            this.listenerSupport = new ItemListenerSupport<>();
         }
 
         @Override
@@ -801,12 +793,12 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         @Override
         public String addItemListener(ItemListener<E> listener, boolean includeValue) {
-            return listenerSupport.addItemListener(listener, includeValue);
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "addItemListener"));
         }
 
         @Override
         public boolean removeItemListener(String registrationId) {
-            return listenerSupport.removeItemListener(registrationId);
+            throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "removeItemListener"));
         }
 
     }
@@ -814,7 +806,6 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
     private class IListImpl<E> extends ICollectionImpl<E> implements IList<E> {
 
         private List<E> list;
-        // TODO: use read/write locks to synchronize?
 
         public IListImpl(String name) {
             super(name);
@@ -823,44 +814,27 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         @Override
         public boolean add(E element) {
-            if (list.add(element)) {
-                listenerSupport.fireItemAdded(getName(), element);
-                return true;
-            }
-            return false;
+            return list.add(element);
         }
 
         @Override
         public void add(int index, E element) {
             list.add(index, element);
-            listenerSupport.fireItemAdded(getName(), element);
         }
 
         @Override
         public boolean addAll(Collection<? extends E> c) {
-            boolean result = false;
-            for (E element : c) {
-                result |= add(element);
-            }
-            return result;
+            return list.addAll(c);
         }
 
         @Override
         public boolean addAll(int index, Collection<? extends E> c) {
-            for (E element : c) {
-                add(index++, element);
-            }
-            return true;
+            return list.addAll(index, c);
         }
 
         @Override
         public void clear() {
-            Iterator<E> iterator = list.iterator();
-            while (iterator.hasNext()) {
-                E element = iterator.next();
-                iterator.remove();
-                listenerSupport.fireItemRemoved(getName(), element);
-            }
+            list.clear();
         }
 
         @Override
@@ -910,61 +884,27 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         @Override
         public E remove(int index) {
-            E element = list.remove(index);
-            listenerSupport.fireItemRemoved(getName(), element);
-            return element;
+            return list.remove(index);
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public boolean remove(Object o) {
-            if (list.remove(o)) {
-                listenerSupport.fireItemRemoved(getName(), (E) o);
-                return true;
-            }
-
-            return false;
+           return list.remove(o);
         }
 
         @Override
         public boolean removeAll(Collection<?> c) {
-            boolean modified = false;
-            Iterator<E> iterator = list.iterator();
-            while (iterator.hasNext()) {
-                E element = iterator.next();
-                if (c.contains(element)) {
-                    iterator.remove();
-                    listenerSupport.fireItemRemoved(getName(), element);
-                    modified = true;
-                }
-            }
-
-            return modified;
+            return list.removeAll(c);
         }
 
         @Override
         public boolean retainAll(Collection<?> c) {
-            boolean modified = false;
-            Iterator<E> iterator = list.iterator();
-            while (iterator.hasNext()) {
-                E element = iterator.next();
-                if (!c.contains(element)) {
-                    iterator.remove();
-                    listenerSupport.fireItemRemoved(getName(), element);
-                    modified = true;
-                }
-            }
-
-            return modified;
+            return list.retainAll(c);
         }
 
         @Override
         public E set(int index, E element) {
-            E oldValue = list.set(index, element);
-            listenerSupport.fireItemRemoved(getName(), oldValue);
-            listenerSupport.fireItemAdded(getName(), element);
-
-            return oldValue;
+            return list.set(index, element);
         }
 
         @Override
@@ -1001,323 +941,8 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public void destroy() {
             lists.remove(getName(), this);
             list = new LinkedList<>();
-            listenerSupport.destroy();
         }
 
     }
 
-    private class IQueueImpl<E> implements IQueue<E> {
-
-        private ArrayBlockingQueue<E> queue;
-        //private ReentrantLock lock;
-        private static final long serialVersionUID = 1L;
-        private final String name;
-        private final ItemListenerSupport<E> itemListenerSupport;
-
-        public IQueueImpl(String name, int capacity) {
-            this.name = name;
-            this.queue = new ArrayBlockingQueue<>(capacity);
-            //this.lock = new ReentrantLock();
-            this.itemListenerSupport = new ItemListenerSupport<>();
-        }
-
-        @Override
-        public String addItemListener(ItemListener<E> listener, boolean includeValue) {
-            return this.itemListenerSupport.addItemListener(listener, includeValue);
-        }
-
-        @Override
-        public String getName() {
-            return this.name;
-        }
-
-        @Override
-        public boolean removeItemListener(String registrationId) {
-            return this.itemListenerSupport.removeItemListener(registrationId);
-        }
-
-        @Override
-        public void destroy() {
-            /*final ReentrantLock lock = this.lock;
-            try {
-                lock.lock();*/
-                itemListenerSupport.destroy();
-                queue.clear();
-                /*this.lock = new ReentrantLock();
-            } finally {
-                lock.unlock();
-            }*/
-        }
-
-        @Override
-        public boolean add(E e) {
-            if (queue.add(e)) {
-                itemListenerSupport.fireItemAdded(name, e);
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public void clear() {
-            /*final ReentrantLock lock = this.lock;
-            try {
-                lock.lock();*/
-                Iterator<E> iterator = queue.iterator();
-                while (iterator.hasNext()) {
-                    E element = iterator.next();
-                    iterator.remove();
-                    itemListenerSupport.fireItemRemoved(name, element);
-                }
-            /*} finally {
-                lock.unlock();
-            }*/
-        }
-
-        @Override
-        public int drainTo(Collection<? super E> c, int maxElements) {
-            /*ReentrantLock lock = this.lock;
-            try {
-                lock.lock();*/
-                Iterator<E> iterator = queue.iterator();
-                int i = 0;
-                while (iterator.hasNext() && i < maxElements) {
-                    E element = iterator.next();
-                    iterator.remove();
-                    c.add(element);
-                    itemListenerSupport.fireItemRemoved(name, element);
-                    i++;
-                }
-                return i;
-            /*} finally {
-                lock.unlock();
-            }*/
-        }
-
-        @Override
-        public int drainTo(Collection<? super E> c) {
-            return drainTo(c, Integer.MAX_VALUE);
-        }
-
-        @Override
-        public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException {
-            if (queue.offer(e, timeout, unit)) {
-                itemListenerSupport.fireItemAdded(name, e);
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public boolean offer(E e) {
-            if (queue.offer(e)) {
-                itemListenerSupport.fireItemAdded(name, e);
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public E poll() {
-            E item = queue.poll();
-            if (item != null) {
-                itemListenerSupport.fireItemRemoved(name, item);
-            }
-            return item;
-        }
-
-        @Override
-        public E poll(long timeout, TimeUnit unit) throws InterruptedException {
-            E item = queue.poll(timeout, unit);
-            if (item != null) {
-                itemListenerSupport.fireItemRemoved(name, item);
-            }
-            return item;
-        }
-
-        @Override
-        public void put(E e) throws InterruptedException {
-            queue.put(e);
-            itemListenerSupport.fireItemAdded(name, e);
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public boolean remove(Object o) {
-            if (queue.remove(o)) {
-                itemListenerSupport.fireItemRemoved(name, (E) o);
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public E take() throws InterruptedException {
-            E item = queue.take();
-            itemListenerSupport.fireItemRemoved(name, item);
-            return item;
-        }
-
-        @Override
-        public boolean addAll(Collection<? extends E> c) {
-            boolean modified = false;
-            for (E element : c) {
-                modified |= add(element);
-            }
-            return modified;
-        }
-
-        @Override
-        public E remove() {
-            E item = queue.remove();
-            itemListenerSupport.fireItemRemoved(name, item);
-            return item;
-        }
-
-        @Override
-        public boolean removeAll(Collection<?> c) {
-            boolean modified = false;
-            Iterator<E> iterator = queue.iterator();
-            while (iterator.hasNext()) {
-                E element = iterator.next();
-                if (c.contains(element)) {
-                    iterator.remove();
-                    itemListenerSupport.fireItemRemoved(name, element);
-                    modified = true;
-                }
-            }
-            return modified;
-        }
-
-        @Override
-        public boolean contains(Object o) {
-            return queue.contains(o);
-        }
-
-        @Override
-        public int remainingCapacity() {
-            return queue.remainingCapacity();
-        }
-
-        @Override
-        public E element() {
-            return queue.element();
-        }
-
-        @Override
-        public E peek() {
-            return queue.peek();
-        }
-
-        @Override
-        public boolean containsAll(Collection<?> c) {
-            return queue.containsAll(c);
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return queue.isEmpty();
-        }
-
-        @Override
-        public Iterator<E> iterator() {
-            return queue.iterator();
-        }
-
-        @Override
-        public boolean retainAll(Collection<?> c) {
-            boolean modified = false;
-            Iterator<E> iterator = queue.iterator();
-            while (iterator.hasNext()) {
-                E element = iterator.next();
-                if (!c.contains(element)) {
-                    iterator.remove();
-                    itemListenerSupport.fireItemRemoved(name, element);
-                    modified = true;
-                }
-            }
-            return modified;
-        }
-
-        @Override
-        public int size() {
-            return queue.size();
-        }
-
-        @Override
-        public Object[] toArray() {
-            return queue.toArray();
-        }
-
-        @Override
-        public <T> T[] toArray(T[] a) {
-            return queue.toArray(a);
-        }
-
-        @Override
-        public LocalQueueStats getLocalQueueStats() {
-            throw new UnsupportedOperationException("getLocalQueueStats");
-        }
-
-        @Override
-        public String getPartitionKey() {
-            return null;
-        }
-
-        @Override
-        public String getServiceName() {
-            return null;
-        }
-
-    }
-
-    private class ItemListenerSupport<E> {
-
-        private ConcurrentHashMap<String, ItemListenerEntry<E>> listenersMap = new ConcurrentHashMap<>();
-
-        public String addItemListener(ItemListener<E> listener, boolean includeValue) {
-            String registrationId = UUID.randomUUID().toString();
-            listenersMap.put(registrationId, new ItemListenerEntry<>(listener, includeValue));
-            return registrationId;
-        }
-
-        public boolean removeItemListener(String registrationId) {
-            return listenersMap.remove(registrationId) != null;
-        }
-
-        public void fireItemAdded(String listName, E element) {
-            ItemEvent<E> addedEventWithValue =
-                    new ItemEvent<E>(listName, ItemEventType.ADDED, element, null);
-            ItemEvent<E> addedEventWithoutValue =
-                    new ItemEvent<E>(listName, ItemEventType.ADDED, null, null);
-            for (ItemListenerEntry<E> listenerEntry : listenersMap.values()) {
-                listenerEntry.itemListener.itemAdded(listenerEntry.includeValue ? addedEventWithValue : addedEventWithoutValue);
-            }
-        }
-
-        public void fireItemRemoved(String listName, E element) {
-            ItemEvent<E> removedEventWithValue = new ItemEvent<E>(listName, ItemEventType.REMOVED, element, null);
-            ItemEvent<E> removedEventWithoutValue = new ItemEvent<E>(listName, ItemEventType.REMOVED, null, null);
-            for (ItemListenerEntry<E> listenerEntry : listenersMap.values()) {
-                listenerEntry.itemListener
-                        .itemRemoved(listenerEntry.includeValue ? removedEventWithValue : removedEventWithoutValue);
-            }
-        }
-
-        public void destroy() {
-            listenersMap.clear();
-        }
-    }
-
-    private static class ItemListenerEntry<E> {
-
-        private ItemListener<E> itemListener;
-        private boolean includeValue;
-
-        public ItemListenerEntry(ItemListener<E> listener, boolean includeValue) {
-            this.itemListener = listener;
-            this.includeValue = includeValue;
-        }
-
-    }
 }

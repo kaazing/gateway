@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
-import com.hazelcast.core.IdGenerator;
 import org.kaazing.gateway.service.messaging.buffer.MessageBufferFactory;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 
@@ -46,7 +45,6 @@ public interface ClusterContext {
 
     // cluster collections
     Lock getLock(String name);
-    IdGenerator getIdGenerator(String name);
 
     // event listener
     void addMembershipEventListener(MembershipEventListener eventListener);

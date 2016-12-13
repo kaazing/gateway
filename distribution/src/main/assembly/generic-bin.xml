@@ -100,7 +100,7 @@
         <include>org.apache.xmlbeans:xmlbeans</include>
         <include>com.hazelcast:hazelcast</include>
         <include>com.hazelcast:hazelcast-client</include>
-        <include>com.hazelcast:hazelcast-cloud</include>
+        <include>com.hazelcast:hazelcast-aws</include>
         <include>commons-cli:commons-cli</include>
         <include>org.json:json</include>
         <include>org.apache.maven.shared:maven-shared-utils</include>

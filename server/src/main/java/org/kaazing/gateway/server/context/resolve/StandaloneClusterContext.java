@@ -15,13 +15,10 @@
  */
 package org.kaazing.gateway.server.context.resolve;
 
-import com.hazelcast.core.IdGenerator;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -44,14 +41,12 @@ public class StandaloneClusterContext implements ClusterContext {
     private final MessageBufferFactory messageBufferFactory;
     private final CollectionsFactory collectionsFactory;
     private final ConcurrentMap<String, Lock> locks;
-    private final ConcurrentMap<String, IdGeneratorImpl> idGenerators;
     private final String localInstanceKey = Utils.randomHexString(16);
 
     public StandaloneClusterContext() {
         this.messageBufferFactory = new MemoryMessageBufferFactory();
         this.collectionsFactory = new MemoryCollectionsFactory();
         this.locks = new ConcurrentHashMap<>();
-        this.idGenerators = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -89,20 +84,6 @@ public class StandaloneClusterContext implements ClusterContext {
     @Override
     public ClusterConnectOptionsContext getConnectOptions() {
         return null;
-    }
-
-    @Override
-    public IdGenerator getIdGenerator(String name) {
-        IdGeneratorImpl impl = idGenerators.get(name);
-        if (impl == null) {
-            IdGeneratorImpl newImpl = new IdGeneratorImpl(name);
-            impl = idGenerators.putIfAbsent(name, newImpl);
-            if (impl == null) {
-                impl = newImpl;
-            }
-        }
-
-        return impl;
     }
 
     @Override
@@ -157,50 +138,4 @@ public class StandaloneClusterContext implements ClusterContext {
         // no cluster state to log for standalone
     }
 
-    private class IdGeneratorImpl implements IdGenerator {
-        private final AtomicLong currentId;
-        private final String name;
-
-        public IdGeneratorImpl(String name) {
-            this.name = name;
-
-            // We start the current ID at the smallest possible long value,
-            // so that we have the entire range of values to use.
-            this.currentId = new AtomicLong(Long.MIN_VALUE);
-        }
-
-        @Override
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public long newId() {
-            return currentId.incrementAndGet();
-        }
-
-        @Override
-        public void destroy() {
-            currentId.set(Long.MIN_VALUE);
-        }
-
-        @Override
-        public String getPartitionKey() {
-            return null;
-        }
-
-        @Override
-        public String getServiceName() {
-            return null;
-        }
-
-        @Override
-        public boolean init(long id) {
-            if (id < 0) {
-                return false;
-            }
-
-            return currentId.compareAndSet(Long.MIN_VALUE, id);
-        }
-    }
 }

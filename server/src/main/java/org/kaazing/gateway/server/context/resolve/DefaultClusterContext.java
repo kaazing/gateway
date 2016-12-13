@@ -60,7 +60,6 @@ import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.IdGenerator;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
@@ -87,6 +86,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
     private static final String HAZELCAST_SOCKET_BIND_ANY_PROPERTY = "hazelcast.socket.bind.any";
     private static final String HAZELCAST_SHUTDOWNHOOK_ENABLED_PROPERTY = "hazelcast.shutdownhook.enabled";
+    private static final String HAZELCAST_PHONE_HOME_ENABLED_PROPERTY = "hazelcast.phone.home.enabled";
+    private static final String HAZELCAST_VERSION_CHECK_ENABLED_PROPERTY = "hazelcast.version.check.enabled";
 
     private final Logger logger = LoggerFactory.getLogger(GL.CLUSTER_LOGGER_NAME);
 
@@ -165,18 +166,16 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
         hazelCastConfig.getGroupConfig().setName(getClusterName());
         hazelCastConfig.getGroupConfig().setPassword("5942");
+        hazelCastConfig.setProperty(HAZELCAST_PHONE_HOME_ENABLED_PROPERTY, "false");
+        hazelCastConfig.setProperty(HAZELCAST_VERSION_CHECK_ENABLED_PROPERTY, "false");
 
         MapConfig mapConfig = hazelCastConfig.getMapConfig("serverSessions");
         mapConfig.setBackupCount(3);
 
         MapConfig sharedBalancerMapConfig = hazelCastConfig.getMapConfig(BALANCER_MAP_NAME);
-        // TODO: do we need maximum backup?
-        //sharedBalancerMapConfig.setBackupCount(Integer.MAX_VALUE);
-        sharedBalancerMapConfig.setBackupCount(6);
+        sharedBalancerMapConfig.setBackupCount(3);
         MapConfig memberBalancerMapConfig = hazelCastConfig.getMapConfig(MEMBERID_BALANCER_MAP_NAME);
-        // TODO: do we need maximum backup?
-        //memberBalancerMapConfig.setBackupCount(Integer.MAX_VALUE);
-        memberBalancerMapConfig.setBackupCount(6);
+        memberBalancerMapConfig.setBackupCount(3);
 
         // TO turn off logging in hazelcast API.
         // Note: must use Logger.getLogger, not LogManager.getLogger
@@ -592,12 +591,6 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     public Lock getLock(String name) {
         return clusterInstance.getLock(name);
     }
-
-    @Override
-    public IdGenerator getIdGenerator(String name) {
-        return clusterInstance.getIdGenerator(name);
-    }
-
 
     @Override
     public void addMembershipEventListener(MembershipEventListener eventListener) {
