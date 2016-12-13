@@ -376,40 +376,6 @@
         </pluginManagement>
 
         <plugins>
-            <!--<plugin>
-                <groupId>org.kaazing</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <version>1.0.0.11</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>verify-notice</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <matchWithExisting>false</matchWithExisting>
-                    <strict>false</strict>
-                    <!- Project hints go here ->
-                    <projectHints>
-                        <projectDescription>
-                            <projectName>JDOM</projectName>
-                            <licenseName>JDOM License</licenseName>
-                            <licenseUrl>https://github.com/hunterhacker/jdom/blob/master/LICENSE.txt</licenseUrl>
-                            <homePage>http://jdom.org</homePage>
-                            <version>1.1</version>
-                        </projectDescription>
-                        <projectDescription>
-                            <projectName>OGNL - Object Graph
-                                Navigation
-                                Library</projectName>
-                            <licenseName>Apache License 2</licenseName>
-                            <licenseUrl>http://www.apache.org/licenses/</licenseUrl>
-                            <homePage>http://commons.apache.org/proper/commons-ognl/</homePage>
-                        </projectDescription>
-                    </projectHints>
-                </configuration>
-            </plugin> -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>license-maven-plugin</artifactId>
@@ -421,14 +387,9 @@
                 </configuration>
                 <dependencies>
                     <dependency>
-                        <!-- includes common copyright headers for sources -->
                         <groupId>org.kaazing</groupId>
                         <artifactId>community.notice</artifactId>
                         <type>jar</type>
-                        <!-- Note: the following approach
-                                 <version>{project.version}</version>
-                             remains dynamic even after release, so resolves *incorrectly*
-                             to the version of the project where the plugin is being used -->
                          <version>develop-SNAPSHOT</version>
                     </dependency>
                 </dependencies>

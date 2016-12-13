@@ -242,6 +242,16 @@
 
         <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>1.10</version>
+                <configuration>
+                    <acceptPomPackaging>true</acceptPomPackaging>
+                    <useMissingFile>true</useMissingFile>
+                    <missingFile>src/license/THIRD-PARTY.properties</missingFile>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
@@ -275,6 +285,8 @@
                     <excludes combine.children="append">
                         <exclude>src/main/gateway/web/**/*</exclude>
                         <exclude>src/main/gateway/README.txt</exclude>
+                        <exclude>src/main/gateway/NOTICE.txt</exclude>
+                        <exclude>src/license/THIRD-PARTY.properties</exclude>
                     </excludes>
                 </configuration>
             </plugin>
