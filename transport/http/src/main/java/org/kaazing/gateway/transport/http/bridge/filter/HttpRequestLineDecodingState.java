@@ -16,7 +16,6 @@
 package org.kaazing.gateway.transport.http.bridge.filter;
 
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.regex.Pattern;
 
@@ -34,6 +33,9 @@ import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.filter.codec.statemachine.ConsumeToDynamicTerminatorDecodingState;
 import org.kaazing.mina.filter.codec.statemachine.ConsumeToLinearWhitespaceDecodingState;
 
+import static java.nio.charset.StandardCharsets.US_ASCII;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 
 public abstract class HttpRequestLineDecodingState extends DecodingStateMachine {
 
@@ -42,12 +44,8 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
     private static final String SINGLE_SLASH = "/";
     private static final int MAX_HTTP_URI_LENGTH_ALLOWED = 8192; // 8KB
 
-    private static final Charset US_ASCII = Charset.forName("US-ASCII");
-    private static final CharsetDecoder US_ASCII_DECODER = US_ASCII
-            .newDecoder();
-
-    private final Charset UTF_8 = Charset.forName("UTF-8");
-    private final CharsetDecoder UTF_8_DECODER = UTF_8.newDecoder();
+    private final CharsetDecoder asciiDecoder = US_ASCII.newDecoder();
+    private final CharsetDecoder utf8Decoder = UTF_8.newDecoder();
 
     private static final byte[] INITIAL_METHOD_BYTES;
     
@@ -93,7 +91,7 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
                 return this;
             }
 
-            String httpMethod = buffer.getString(US_ASCII_DECODER);
+            String httpMethod = buffer.getString(asciiDecoder);
             HttpMethod method;
             try
             {
@@ -120,7 +118,7 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
                 ProtocolDecoderOutput out) throws Exception {
 
             // extract the request string from the byte buffer
-            String request = buffer.getString(UTF_8_DECODER);
+            String request = buffer.getString(utf8Decoder);
 
             // check the length of the request
             if(request.length() > MAX_HTTP_URI_LENGTH_ALLOWED) {
@@ -164,7 +162,11 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
         @Override
         protected DecodingState finishDecode(IoBuffer buffer,
                 ProtocolDecoderOutput out) throws Exception {
-            String httpVersion = buffer.getString(US_ASCII_DECODER);
+            String httpVersion = buffer.getString(asciiDecoder);
+            if(httpVersion.startsWith("HTTP/") && httpVersion.length() == 8 && !(httpVersion.charAt(5)== '1')) {
+                httpVersion = "HTTP/1.1";
+                throw new HttpProtocolDecoderException(HttpStatus.SERVER_VERSION_NOT_SUPPORTED);
+            }
             HttpVersion version;
             try
             {

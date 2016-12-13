@@ -27,7 +27,7 @@ write "User-Agent: Mozilla/5.0\r\n"
 write "Connection: keep-alive\r\n"
 write "\r\n"
 
-read "HTTP/1.1 400 Bad Request"
+read "HTTP/1.1 505 Version Not Supported"
 
 #
 # server

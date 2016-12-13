@@ -17,6 +17,7 @@ package org.kaazing.gateway.server.context.resolve;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getCanonicalizedURI;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -97,6 +98,7 @@ class DefaultOptionsContext {
                 throw new IllegalArgumentException(format(
                         "%s must contain an absolute URI, not \"%s\"", transportKey, transport));
             }
+            transportURI = getCanonicalizedURI(transportURI, false);
         }
 
         return transportURI;
@@ -234,8 +236,13 @@ class DefaultOptionsContext {
                     }
                 }
                 String localName = node.getLocalName();
+                // convert options like tls.ciphers converted to ssl.ciphers
                 if (localName.contains("tls")) {
                     localName = localName.replace("tls", "ssl");
+                }
+                // convert options like pipe.transport=socks+tls://foo to pipe.transport=socks+ssl://foo
+                if (localName.contains(".transport") && nodeValue.contains("tls://")) {
+                    nodeValue = nodeValue.replace("tls://", "ssl://");
                 }
                 optionsMap.put(localName, nodeValue);
             }

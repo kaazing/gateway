@@ -60,6 +60,7 @@ public enum HttpStatus {
     CLIENT_UNSUPPORTED_MEDIA_TYPE(415, "Unsupported Media Type"),
     CLIENT_REQUEST_RANGE_NOT_SATISFIABLE(416, "Request Range Not Satisfiable"),
     CLIENT_EXPECTATION_FAILED(417, "Expectation Failed"),
+    CLIENT_UPGRADE_REQUIRED(426, "Upgrade Required"),
 
     // 5xx
     SERVER_INTERNAL_ERROR(500, "Internal Error"),
