@@ -202,8 +202,9 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
                         "with tcp://");
             }
 
-            // NOTE: The version of Hazelcast(1.9.4.8) that is being used does not support IPv6 address. The Hazelcast library
-            //       throws NumberFormatException when IPv6 address is specified as an interface to bind to.
+            // TODO: add IPv6 support when needed, as recent Hazelcast version have support for it
+            // NOTE: The version of Hazelcast(1.9.4.8) that was being used did not support IPv6 address. The Hazelcast library
+            //       threw NumberFormatException when IPv6 address was specified as an interface to bind to.
             String hostAddress = localInterface.getHost();
             InetAddress address = getResolvedAddressFromHost(hostAddress);
 
