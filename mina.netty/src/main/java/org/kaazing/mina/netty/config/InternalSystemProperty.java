@@ -31,7 +31,11 @@ public enum InternalSystemProperty {
     // The value used should be large enough to guarantee we do get socket readable/writable notification from
     // the kernel (selectNow, done if the value is 0, does not always seem to achieve this) but small enough
     // not to waste too much time if there are no ready ops.
-    QUICK_SELECT_TIMEOUT("org.kaazing.netty.QUICK_SELECT_TIMEOUT", "0"); // use selectNow by default
+    QUICK_SELECT_TIMEOUT("org.kaazing.netty.QUICK_SELECT_TIMEOUT", "0"), // use selectNow by default
+
+    // A worker is serving multiple UDP child channels and they share an Agrona read queue.
+    // Agrona uses the next power of 2 greater than or equal to the supplied value
+    UDP_CHANNEL_READ_QUEUE_SIZE("org.kaazing.netty.UDP_CHANNEL_READ_QUEUE_SIZE", "16384");
 
     private final String name;
     private final String defaultValue;

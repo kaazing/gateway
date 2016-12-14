@@ -17,12 +17,13 @@ package org.kaazing.gateway.transport.http.security.auth.token;
 
 import java.io.UnsupportedEncodingException;
 
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.server.spi.security.AuthenticationToken;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 
 public interface AuthenticationTokenExtractor {
 
-    AuthenticationToken extract(HttpRequestMessage httpRequest) throws UnsupportedEncodingException;
+    AuthenticationToken extract(HttpRequestMessage httpRequest, HttpRealmInfo realm) throws UnsupportedEncodingException;
 
 }
 

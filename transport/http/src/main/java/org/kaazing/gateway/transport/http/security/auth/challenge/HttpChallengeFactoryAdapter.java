@@ -15,11 +15,11 @@
  */
 package org.kaazing.gateway.transport.http.security.auth.challenge;
 
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_WWW_AUTHENTICATE;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter.AUTH_SCHEME_APPLICATION_PREFIX;
-import static org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter.WWW_AUTHENTICATE_HEADER;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
+import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
@@ -35,34 +35,35 @@ public abstract class HttpChallengeFactoryAdapter implements HttpChallengeFactor
 
     @Override
     public HttpResponseMessage createChallenge(HttpRequestMessage httpRequestMessage,
+                                               HttpRealmInfo realm,
                                                Object... params) {
-        return createChallenge0(httpRequestMessage,  params);
+        return createChallenge0(httpRequestMessage, realm, params);
     }
 
-    private HttpResponseMessage createChallenge0(HttpRequestMessage httpRequestMessage, Object... params) {
+    private HttpResponseMessage createChallenge0(HttpRequestMessage httpRequestMessage, HttpRealmInfo realm, Object... params) {
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(httpRequestMessage.getVersion());
         httpResponse.setStatus(HttpStatus.CLIENT_UNAUTHORIZED);
-        String challenge = makeChallengeString(httpRequestMessage.getLocalAddress(), params);
-        httpResponse.setHeader(WWW_AUTHENTICATE_HEADER, challenge);
+        String challenge = makeChallengeString(httpRequestMessage.getLocalAddress(), realm, params);
+        httpResponse.setHeader(HEADER_WWW_AUTHENTICATE, challenge);
         return httpResponse;
     }
 
     protected abstract String getAuthenticationScheme();
 
-    protected String makeChallengeString(ResourceAddress address, Object... params) {
+    protected String makeChallengeString(ResourceAddress address, HttpRealmInfo realm, Object... params) {
         StringBuilder builder = new StringBuilder();
 
         //-- existing clients expect 'Application Basic' in the challenge so we
         //-- cannot ye remove the block below that sometimes prepends 'Application'.
-        String challengeScheme = address.getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
+        String challengeScheme = realm.getChallengeScheme();
         if (isApplication(challengeScheme)) {
             // if you look like a directory service, skip adding application-prefix
             if (address.getOption(ResourceAddress.NEXT_PROTOCOL) != null || !"http/1.1".equals(address.getTransport().getOption(ResourceAddress.NEXT_PROTOCOL))) {
                 builder.append(AUTH_SCHEME_APPLICATION_PREFIX);
             }
         }
-        builder.append(getAuthenticationScheme()).append(" realm=\"").append(address.getOption(HttpResourceAddress.REALM_DESCRIPTION)).append("\"");
+        builder.append(getAuthenticationScheme()).append(" realm=\"").append(realm.getDescription()).append("\"");
 
         if (params != null) {
             // Don't forget the additional parameters (KG-2191)

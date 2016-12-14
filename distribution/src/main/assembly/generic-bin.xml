@@ -71,6 +71,7 @@
         <include>org.kaazing:gateway.service.http.proxy</include>
         <include>org.kaazing:gateway.service.amqp</include>
         <include>org.kaazing:gateway.service.update.check</include>
+        <include>org.kaazing:gateway.service.turn.rest</include>
 
         <!-- auth jars  -->
         <include>org.kaazing:gateway.security</include>
@@ -103,6 +104,7 @@
         <include>commons-cli:commons-cli</include>
         <include>org.json:json</include>
         <include>org.apache.maven.shared:maven-shared-utils</include>
+        <include>net.sf.opencsv:opencsv</include>
       </includes>
     </dependencySet>
 
@@ -164,25 +166,6 @@
       <excludes>
         <exclude>**/*</exclude>
       </excludes>
-    </fileSet>
-
-    <!-- Overlay the SIGAR lib directory (not Kaazing-generated). As it contains a 
-         number of native-code files from different architectures, put it in
-         a subdirectory under lib -->
-    <fileSet>
-      <outputDirectory>lib/sigar</outputDirectory>
-      <directory>target/sigar/sigar</directory>
-      <excludes>
-        <exclude>*.jar</exclude>  <!-- we get the sigar.jar here -->
-      </excludes>
-    </fileSet>
-
-    <fileSet>
-      <outputDirectory>lib</outputDirectory>
-      <directory>target/sigar/sigar</directory>
-      <includes>
-        <include>*.jar</include>  <!-- we get sigar.jar elsewhere -->
-      </includes>
     </fileSet>
 
   </fileSets>

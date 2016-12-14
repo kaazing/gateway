@@ -15,15 +15,18 @@
  */
 package org.kaazing.gateway.management.service;
 
+import static java.lang.String.format;
+
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.util.CopyOnWriteMap;
@@ -37,6 +40,7 @@ import org.kaazing.gateway.management.context.DefaultManagementContext;
 import org.kaazing.gateway.management.gateway.GatewayManagementBean;
 import org.kaazing.gateway.management.session.SessionManagementBean;
 import org.kaazing.gateway.security.RealmContext;
+import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.proxy.ProxyService;
@@ -124,7 +128,7 @@ public interface ServiceManagementBean extends ManagementBean {
 
     ServiceContext getServiceContext();
 
-    Set<String> getUserPrincipalClasses();
+    Set<Class<Principal>> getUserPrincipalClasses();
 
     String getServiceName();
 
@@ -228,6 +232,7 @@ public interface ServiceManagementBean extends ManagementBean {
         // ------------------------------------
 
         private static final Logger logger = LoggerFactory.getLogger(DefaultServiceManagementBean.class);
+        private static final Logger gatewayStartupLogger = LoggerFactory.getLogger(Gateway.class);
 
         // Map of the per-thread thread-local stats objects. Keyed on thread ID.
         private final CopyOnWriteMap<Thread, ThreadServiceStats> serviceStatsMap =
@@ -248,7 +253,7 @@ public interface ServiceManagementBean extends ManagementBean {
         private final ServiceContext serviceContext;
         private final ServiceConnectManager serviceConnectManager;
 
-        private final Set<String> userPrincipalClasses;
+        private final Set<Class<Principal>> userPrincipalClasses;
 
         /*
          * Various bundles (e.g. Stomp JMS and perhaps AMQP or another one) that need to do authentication handling can
@@ -272,7 +277,7 @@ public interface ServiceManagementBean extends ManagementBean {
          * @param beanId
          */
         protected DefaultServiceManagementBean(GatewayManagementBean gatewayManagementBean,
-                                            ServiceContext serviceContext) {
+                                               ServiceContext serviceContext) {
             super(gatewayManagementBean.getManagementContext(), gatewayManagementBean.getManagementContext()
                     .getServiceSummaryDataNotificationInterval(), SUMMARY_DATA_FIELD_LIST);
 
@@ -294,7 +299,32 @@ public interface ServiceManagementBean extends ManagementBean {
             if (realmContext != null) {
                 String[] upc = realmContext.getUserPrincipalClasses();
                 if (upc != null) {
-                    userPrincipalClasses.addAll(Arrays.asList(upc));
+                    for (String className : upc) {
+                        Class<?> untypedClass;
+                        try {
+                            untypedClass = org.kaazing.gateway.util.Utils.loadClass(className);
+                            if ( !(Principal.class.isAssignableFrom(untypedClass)) ) {
+                                String message = className + " is not of type Principal";
+                                gatewayStartupLogger.error(message);
+                                throw new IllegalArgumentException(message);
+                            }
+                        }
+                        catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
+                            String message = format("Unable to load user principal class \"%s\" due to exception \"%s\"",
+                                    className, e.toString());
+                            if (gatewayStartupLogger.isDebugEnabled()) {
+                                // Include stack trace
+                                gatewayStartupLogger.error(message, e);
+                            }
+                            else {
+                                gatewayStartupLogger.error(message);
+                            }
+                            throw new IllegalArgumentException(message);
+                        }
+                        @SuppressWarnings("unchecked")
+                        Class<Principal> principalClass = (Class<Principal>) untypedClass;
+                        userPrincipalClasses.add(principalClass);
+                    }
                 }
             }
         }
@@ -319,7 +349,7 @@ public interface ServiceManagementBean extends ManagementBean {
         }
 
         @Override
-        public Set<String> getUserPrincipalClasses() {
+        public Set<Class<Principal>> getUserPrincipalClasses() {
             return userPrincipalClasses;
         }
 
@@ -478,7 +508,7 @@ public interface ServiceManagementBean extends ManagementBean {
         @Override
         public String getSummaryData() {
 
-            long start = System.nanoTime();
+            //long start = System.nanoTime();
 
             JSONArray jsonArray = null;
 
@@ -516,10 +546,10 @@ public interface ServiceManagementBean extends ManagementBean {
                 // We should never be able to get here, as the summary data values are all legal
             }
 
-            long stop = System.nanoTime();
 
             String val = jsonArray.toString();
 
+            // long stop = System.nanoTime();
             // System.out.println("### Gathering summaries for SVC ID " + getId() +
             // " took " + ((stop - start) / 1000) + " us for " + val.length() + " chars [" + val + "]");
 
@@ -611,7 +641,7 @@ public interface ServiceManagementBean extends ManagementBean {
             // WsebSessions do not, for some reason, and it looks like their
             // reader and writer are null, too.
             while (session instanceof AbstractBridgeSession) {
-                IoSessionEx parentSession = ((AbstractBridgeSession) session).getParent();
+                IoSessionEx parentSession = ((AbstractBridgeSession<?, ?>) session).getParent();
                 if (parentSession == null) {
                     break;
                 }

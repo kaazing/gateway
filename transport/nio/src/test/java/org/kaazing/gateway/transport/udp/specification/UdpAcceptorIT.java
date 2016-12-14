@@ -22,18 +22,18 @@ import static org.kaazing.gateway.transport.nio.NioSystemProperty.UDP_IDLE_TIMEO
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.WriteFuture;
-import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -42,11 +42,10 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.transport.nio.NioSystemProperty;
+import org.kaazing.gateway.transport.udp.UdpAcceptorRule;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
-import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.test.util.ResolutionTestUtils;
 
@@ -57,7 +56,7 @@ import org.kaazing.test.util.ResolutionTestUtils;
 public class UdpAcceptorIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/udp/rfc768");
-    
+
     private final UdpAcceptorRule acceptor;
     {
         Properties config = new Properties();
@@ -70,9 +69,9 @@ public class UdpAcceptorIT {
 
     @Parameters
     public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][] {     
-                {"udp://127.0.0.1:8080"}//, {"udp://[@" + networkInterface + "]:8080"}
-           });
+        return Arrays.asList(new Object[][]{
+            {"udp://127.0.0.1:8080"}// , {"udp://[@" + networkInterface + "]:8080"}
+        });
     }
 
     @Parameter
@@ -155,7 +154,7 @@ public class UdpAcceptorIT {
     @Test
     @Specification("echo.data/client")
     public void bidirectionalData() throws Exception {
-        bindTo8080(new IoHandlerAdapter<IoSessionEx>(){
+        bindTo8080(new IoHandlerAdapter<IoSessionEx>() {
             private boolean first = true;
 
             @Override
@@ -171,7 +170,6 @@ public class UdpAcceptorIT {
                 }
             }
         });
-
 
         k3po.finish();
     }
@@ -249,6 +247,33 @@ public class UdpAcceptorIT {
     }
 
     @Test
+    @Specification("concurrent.writes.together/client")
+    public void concurrentWritesTogether() throws Exception {
+        class ConcurrentHandler extends IoHandlerAdapter<IoSessionEx> {
+
+            @Override
+            protected void doMessageReceived(IoSessionEx session, Object message) {
+                AtomicInteger counter = (AtomicInteger) session.getAttribute("test-counter");
+                List<Object> messages = (List<Object>) session.getAttribute("test-messages");
+                if (counter == null) {
+                    counter = new AtomicInteger();
+                    messages = new ArrayList<>();
+                    session.setAttribute("test-counter", counter);
+                    session.setAttribute("test-messages", messages);
+                }
+                int noreads = counter.incrementAndGet();
+                messages.add(message);
+                if (noreads == 3) {
+                    messages.forEach(session::write);
+                }
+            }
+        };
+
+        bindTo8080(new ConcurrentHandler());
+        k3po.finish();
+    }
+
+    @Test
     @Specification("idle.concurrent.connections/client")
     public void idleConcurrentConnections() throws Exception {
         class ConcurrentHandler extends IoHandlerAdapter<IoSessionEx> {
@@ -263,4 +288,32 @@ public class UdpAcceptorIT {
         k3po.finish();
     }
 
+    @Test
+    @Specification("additions/large.message.size/client")
+    public void largeData() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+
+        bindTo8080(new IoHandlerAdapter<IoSessionEx>() {
+            @Override
+            protected void doMessageReceived(IoSessionEx session, Object message) {
+                String decoded = new String(((IoBuffer) message).array());
+                System.out.println(decoded);
+                String expect = nTimes("abcdefghijklmnopqrstuvwxyz", 57);
+                assertEquals(expect, decoded);
+                latch.countDown();
+            }
+
+        });
+        k3po.finish();
+
+        latch.await(2, SECONDS);
+    }
+
+    private static String nTimes(String string, int n) {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < n; i++) {
+            result.append(string);
+        }
+        return result.toString();
+    }
 }

@@ -57,7 +57,7 @@ public final class JmxSessionManagementListener extends NotificationBroadcasterS
 
     @Override
     public void doSessionClosed(SessionManagementBean sessionBean) throws Exception {
-        SessionMXBean sessionMxBean = managementServiceHandler.getSessionMXBean(sessionBean.getId());
+        SessionMXBean sessionMxBean = managementServiceHandler.removeSessionMXBean(sessionBean);
 
         Map<String, String> userPrincipals = sessionBean.getUserPrincipalMap();
 

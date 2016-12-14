@@ -58,6 +58,7 @@ import org.kaazing.gateway.transport.http.HttpConnector;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
+import org.kaazing.gateway.transport.ws.WsConnector;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBufferAllocator;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
@@ -88,6 +89,7 @@ public class WsnConnectorTest {
     private NioSocketAcceptor tcpAcceptor;
     private HttpAcceptor httpAcceptor;
     private WsnAcceptor wsnAcceptor;
+    private WsConnector wsConnector;
 
     @Before
     public void init() {
@@ -130,6 +132,8 @@ public class WsnConnectorTest {
         wsnConnector.setBridgeServiceFactory(serviceFactory);
         wsnConnector.setSchedulerProvider(schedulerProvider);
         wsnConnector.setResourceAddressFactory(addressFactory);
+        wsConnector = (WsConnector) transportFactory.getTransport("ws").getConnector();
+        wsnConnector.setWsConnector(wsConnector);
     }
 
     @After
@@ -151,6 +155,9 @@ public class WsnConnectorTest {
         }
         if (wsnConnector != null) {
             wsnConnector.dispose();
+        }
+        if (wsConnector != null) {
+            wsConnector.dispose();
         }
     }
 

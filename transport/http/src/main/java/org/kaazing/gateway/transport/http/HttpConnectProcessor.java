@@ -71,7 +71,11 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
         if (isChunked) {
             session.setChunked(true);
         }
-        if (session.getMethod() == HttpMethod.GET || session.getMethod() == HttpMethod.HEAD || "0".equals(session.getWriteHeader(HEADER_CONTENT_LENGTH)) || isChunked) {
+
+        if (!session.getRemoteAddress().getOption(HttpResourceAddress.USER_AGENT_HEADER_ENABLED)
+                || !session.getRemoteAddress().getOption(HttpResourceAddress.HOST_HEADER_ENABLED)
+                || session.getMethod() == HttpMethod.GET || session.getMethod() == HttpMethod.HEAD
+                || "0".equals(session.getWriteHeader(HEADER_CONTENT_LENGTH)) || isChunked) {
             URI resource = session.getRemoteAddress().getResource();
 
             // create HttpRequestMessage
@@ -85,7 +89,8 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
             }
 
             // default headers
-            if (session.getWriteHeader(HttpHeaders.HEADER_USER_AGENT) == null) {
+            if (session.getWriteHeader(HttpHeaders.HEADER_USER_AGENT) == null
+                    && session.getRemoteAddress().getOption(HttpResourceAddress.USER_AGENT_HEADER_ENABLED) == Boolean.TRUE) {
                 httpRequest.setHeader("User-Agent", "Kaazing Gateway");
             }
 
@@ -94,7 +99,9 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
 
             httpRequest.setCookies(session.getWriteCookies());
 
-            httpRequest.setHeader(HttpHeaders.HEADER_HOST, resource.getAuthority());
+            if (session.getRemoteAddress().getOption(HttpResourceAddress.HOST_HEADER_ENABLED) == Boolean.TRUE) {
+                httpRequest.setHeader(HttpHeaders.HEADER_HOST, resource.getAuthority());
+            }
 
             if (isChunked) {
                 IoBufferAllocatorEx<? extends HttpBuffer> allocator = session.getBufferAllocator();
@@ -140,11 +147,10 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
                     // TODO: may want to fragment outbound buffer here in the future
                     if (session.isCommitting()) {
                         // create HttpContentMessage
-                        HttpContentMessage content = new HttpContentMessage(buf, buf == WRITE_COMPLETE,
-                                session.isChunked(), false);
+                        HttpContentMessage content =
+                                new HttpContentMessage(buf, buf == WRITE_COMPLETE, session.isChunked(), false);
                         flushNowInternal(parent, content, buf, filterChain, request);
-                    }
-                    else {
+                    } else {
                         // create HttpRequestMessage
                         HttpRequestMessage httpRequest = new HttpRequestMessage();
                         httpRequest.setMethod(session.getMethod());
@@ -172,8 +178,7 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
                     // increment session written bytes
                     int written = remaining;
                     session.increaseWrittenBytes(written, System.currentTimeMillis());
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     request.getFuture().setException(e);
                 }
             } else {
@@ -217,8 +222,7 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
                     IoHandler oldHandler = bridgeSession.getHandler();
                     oldHandler.sessionClosed(parent);
                     bridgeSession.setHandler(upgradeHandler);
-                }
-                else {
+                } else {
                     // this occurs for http
                     IoHandler oldHandler = (IoHandler) parent.getAttribute(BridgeConnectHandler.DELEGATE_KEY);
                     oldHandler.sessionClosed(parent);
@@ -261,7 +265,8 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
                 // write the empty chunk
                 IoBufferAllocatorEx<? extends HttpBuffer> allocator = session.getBufferAllocator();
                 HttpBuffer unsharedEmpty = allocator.wrap(allocator.allocate(0));
-                HttpContentMessage completeMessage = new HttpContentMessage(unsharedEmpty, true, session.isChunked(), session.isGzipped());
+                HttpContentMessage completeMessage =
+                        new HttpContentMessage(unsharedEmpty, true, session.isChunked(), session.isGzipped());
                 parent.write(completeMessage);
             }
 
@@ -272,8 +277,8 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
                     // Remove all the http filters on the transport session (including idleFilter)
                     IoFilterChain filterChain = parent.getFilterChain();
                     List<IoFilterChain.Entry> filterList = filterChain.getAll();
-                    for(IoFilterChain.Entry e : filterList) {
-                        if (e.getName().startsWith(FILTER_PREFIX)) {        // http# prefixed filter
+                    for (IoFilterChain.Entry e : filterList) {
+                        if (e.getName().startsWith(FILTER_PREFIX)) { // http# prefixed filter
                             filterChain.remove(e.getName());
                         }
                     }
@@ -300,20 +305,22 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
     }
 
     /*
-     * Server indicated that it would close transport session or server should response to a completed http request.
-     * In case it doesn't, this filter will close the connection.
+     * Server indicated that it would close transport session or server should response to a completed http request. In
+     * case it doesn't, this filter will close the connection.
      */
     private static class HttpConnectIdleFilter extends HttpFilterAdapter<IoSessionEx> {
         private final Logger logger;
 
-        HttpConnectIdleFilter( Logger logger) {
+        HttpConnectIdleFilter(Logger logger) {
             this.logger = logger;
         }
 
         @Override
         public void sessionIdle(NextFilter nextFilter, IoSession session, IdleStatus status) throws Exception {
             if (logger.isDebugEnabled()) {
-                logger.debug(String.format("Server didn't close the connection or respond to an http request within idle timeout. Closing %s", session));
+                logger.debug(String.format(
+                        "Server didn't close the connection or respond to an http request within idle timeout. Closing %s",
+                        session));
             }
             session.close(false);
             super.sessionIdle(nextFilter, session, status);

@@ -103,6 +103,26 @@ public final class WebSocketExtensionFactory {
         return result;
     }
 
+    /**
+     * Returns a list of extensions that want to be part of websocket request
+     *
+     * @param address WsResourceAddress to which a websocket connection is being attempted
+     * @param extensionHelper extension helper
+     * @return list of extensions that want to be part of the request
+     */
+    public List<WebSocketExtension> offerWebSocketExtensions(WsResourceAddress address,
+                                                             ExtensionHelper extensionHelper) {
+        List<WebSocketExtension> list = new ArrayList<>();
+
+        for(WebSocketExtensionFactorySpi factory : factoriesRO.values()) {
+            WebSocketExtension extension = factory.offer(extensionHelper, address);
+            if (extension != null) {
+                list.add(extension);
+            }
+        }
+        return list;
+    }
+
     private static List<ExtensionHeader> toWsExtensions(Collection<String> extensionTokens) {
         if (extensionTokens == null) {
             throw new NullPointerException("extensionTokens");

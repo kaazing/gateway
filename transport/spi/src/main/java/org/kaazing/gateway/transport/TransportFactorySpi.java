@@ -19,7 +19,11 @@ import java.util.Collection;
 import java.util.Map;
 
 public abstract class TransportFactorySpi {
-    
+
+    public boolean isEnabled(Map<String, ?> configuration) {
+        return true;
+    }
+
     public abstract String getTransportName();
 
     public abstract Collection<String> getSchemeNames();
