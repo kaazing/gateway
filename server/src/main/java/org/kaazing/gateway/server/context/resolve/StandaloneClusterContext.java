@@ -22,12 +22,10 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.kaazing.gateway.server.messaging.buffer.MemoryMessageBufferFactory;
 import org.kaazing.gateway.service.cluster.ClusterConnectOptionsContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
 import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
-import org.kaazing.gateway.service.messaging.buffer.MessageBufferFactory;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 import org.kaazing.gateway.service.messaging.collections.MemoryCollectionsFactory;
 import org.kaazing.gateway.util.Utils;
@@ -38,13 +36,11 @@ import org.kaazing.gateway.util.Utils;
  */
 public class StandaloneClusterContext implements ClusterContext {
 
-    private final MessageBufferFactory messageBufferFactory;
     private final CollectionsFactory collectionsFactory;
     private final ConcurrentMap<String, Lock> locks;
     private final String localInstanceKey = Utils.randomHexString(16);
 
     public StandaloneClusterContext() {
-        this.messageBufferFactory = new MemoryMessageBufferFactory();
         this.collectionsFactory = new MemoryCollectionsFactory();
         this.locks = new ConcurrentHashMap<>();
     }
@@ -84,11 +80,6 @@ public class StandaloneClusterContext implements ClusterContext {
     @Override
     public ClusterConnectOptionsContext getConnectOptions() {
         return null;
-    }
-
-    @Override
-    public MessageBufferFactory getMessageBufferFactory() {
-        return messageBufferFactory;
     }
 
     @Override

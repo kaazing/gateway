@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
-import org.kaazing.gateway.service.messaging.buffer.MessageBufferFactory;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 
 public interface ClusterContext {
@@ -50,7 +49,6 @@ public interface ClusterContext {
     void addMembershipEventListener(MembershipEventListener eventListener);
     void removeMembershipEventListener(MembershipEventListener eventListener);
 
-    MessageBufferFactory getMessageBufferFactory();
     CollectionsFactory getCollectionsFactory();
 
     void logClusterState();

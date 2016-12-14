@@ -34,13 +34,11 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 import org.kaazing.gateway.resource.address.ResolutionUtils;
-import org.kaazing.gateway.server.messaging.buffer.ClusterMemoryMessageBufferFactory;
 import org.kaazing.gateway.server.messaging.collections.ClusterCollectionsFactory;
 import org.kaazing.gateway.service.cluster.ClusterConnectOptionsContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
 import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
-import org.kaazing.gateway.service.messaging.buffer.MessageBufferFactory;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 import org.kaazing.gateway.util.GL;
 import org.kaazing.gateway.util.Utils;
@@ -93,7 +91,6 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
     private final String localInstanceKey = Utils.randomHexString(16);
 
-    private MessageBufferFactory messageBufferFactory;
     private CollectionsFactory collectionsFactory;
     private List<MemberId> localInterfaces = new ArrayList<>();
     private final List<MemberId> clusterMembers = new ArrayList<>();
@@ -629,11 +626,6 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     }
 
     @Override
-    public MessageBufferFactory getMessageBufferFactory() {
-        return messageBufferFactory;
-    }
-
-    @Override
     /*
      * Logs cluster state and balancer service maps contents when ha logging is enabled at trace level !
      */
@@ -751,7 +743,6 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             loggingService.addLogListener(Level.FINEST, this);
 
             this.collectionsFactory = new ClusterCollectionsFactory(clusterInstance);
-            this.messageBufferFactory = new ClusterMemoryMessageBufferFactory(clusterInstance);
             localNodeId = getMemberId(cluster.getLocalMember());
 
             IMap<MemberId, String> instanceKeyMap = collectionsFactory.getMap(INSTANCE_KEY_MAP);

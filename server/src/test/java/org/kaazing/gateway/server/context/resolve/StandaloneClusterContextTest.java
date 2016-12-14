@@ -56,11 +56,6 @@ public class StandaloneClusterContextTest {
     }
 
     @Test
-    public void shouldTestMessageBufferFactoryIsNotNull() {
-        assertNotNull(STANDALONE_CLUESTER_CONTEXT.getMessageBufferFactory());
-    }
-
-    @Test
     public void shouldTestStandaloneLocalMember() {
         assertEquals(STANDALONE_CLUSTER_MEMBER, STANDALONE_CLUESTER_CONTEXT.getLocalMember());
     }
