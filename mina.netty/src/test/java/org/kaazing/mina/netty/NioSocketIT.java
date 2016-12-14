@@ -19,6 +19,7 @@ import static org.kaazing.mina.netty.PortUtil.nextPort;
 import static java.lang.String.format;
 import static java.nio.ByteBuffer.wrap;
 import static java.util.concurrent.Executors.newCachedThreadPool;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jboss.netty.channel.Channels.pipeline;
 import static org.jboss.netty.channel.Channels.pipelineFactory;
 import static org.junit.Assert.assertEquals;
@@ -369,19 +370,24 @@ public class NioSocketIT {
 
         WriteFuture written = session.write(allocator.wrap(wrap(new byte[] { 0x00, 0x01, 0x02 })));
 
-        await(written, "session.write");
+        try {
+            await(written, "session.write");
 
-        await(echoedMessageReceived, "echoedMessageReceived");
+            await(echoedMessageReceived, "echoedMessageReceived");
 
-        assertEquals("Exceptions caught by connect handler", 0, connectExceptionsCaught.get());
-        assertEquals("Exceptions caught by accept handler", 0, acceptExceptionsCaught.get());
-        assertNull("acceptor.bind in acceptor IO thread threw exception " + bindException[0], bindException[0]);
-        boundInIoThread[0].await();
-        assertTrue("Bind in IO thread failed with exception " + boundInIoThread[0].getException(), boundInIoThread[0]
-                .isBound());
+            assertEquals("Exceptions caught by connect handler", 0, connectExceptionsCaught.get());
+            assertEquals("Exceptions caught by accept handler", 0, acceptExceptionsCaught.get());
+            assertNull("acceptor.bind in acceptor IO thread threw exception " + bindException[0], bindException[0]);
+            await(boundInIoThread[0], "asynchronous bind from I/O thread");
+            assertTrue("Bind in IO thread failed with exception " + boundInIoThread[0].getException(), boundInIoThread[0]
+                    .isBound());
+        }
+        finally {
+            session.close(true).await(10, SECONDS);
+            acceptor.unbind(bindTo);
+        }
 
-        await(session.close(true), "session close(true) future");
-        acceptor.unbind(bindTo);
+
     }
 
     @Test
