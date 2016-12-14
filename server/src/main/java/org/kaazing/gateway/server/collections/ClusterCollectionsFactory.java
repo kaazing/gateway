@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.server.messaging.collections;
+package org.kaazing.gateway.server.collections;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IAtomicLong;
@@ -23,7 +23,7 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 import com.hazelcast.core.ITopic;
 
-import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
+import org.kaazing.gateway.service.collections.CollectionsFactory;
 import org.kaazing.gateway.util.AtomicCounter;
 
 public class ClusterCollectionsFactory implements CollectionsFactory {

@@ -29,7 +29,7 @@ import java.util.concurrent.locks.Lock;
 
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.service.cluster.ClusterContext;
-import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
+import org.kaazing.gateway.service.collections.CollectionsFactory;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;

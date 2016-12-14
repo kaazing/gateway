@@ -30,6 +30,7 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.kaazing.gateway.service.collections.MemoryCollectionsFactory;
 import org.kaazing.gateway.util.AtomicCounter;
 
 import com.hazelcast.core.IList;

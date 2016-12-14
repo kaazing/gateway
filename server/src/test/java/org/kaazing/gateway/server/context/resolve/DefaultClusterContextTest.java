@@ -41,7 +41,7 @@ import org.junit.Test;
 import org.kaazing.gateway.service.cluster.ClusterContext;
 import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
-import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
+import org.kaazing.gateway.service.collections.CollectionsFactory;
 
 public class DefaultClusterContextTest {
 

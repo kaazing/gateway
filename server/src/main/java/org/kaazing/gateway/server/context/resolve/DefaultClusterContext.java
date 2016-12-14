@@ -34,12 +34,12 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 import org.kaazing.gateway.resource.address.ResolutionUtils;
-import org.kaazing.gateway.server.messaging.collections.ClusterCollectionsFactory;
+import org.kaazing.gateway.server.collections.ClusterCollectionsFactory;
 import org.kaazing.gateway.service.cluster.ClusterConnectOptionsContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
 import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
-import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
+import org.kaazing.gateway.service.collections.CollectionsFactory;
 import org.kaazing.gateway.util.GL;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.aws.AwsUtils;

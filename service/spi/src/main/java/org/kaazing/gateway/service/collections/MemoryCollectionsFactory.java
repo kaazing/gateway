@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.messaging.collections;
+package org.kaazing.gateway.service.collections;
 
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
