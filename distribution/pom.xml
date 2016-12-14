@@ -244,12 +244,22 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>1.10</version>
                 <configuration>
+                    <outputDirectory>target</outputDirectory>
+                    <thirdPartyFilename>NOTICE.txt</thirdPartyFilename>
                     <acceptPomPackaging>true</acceptPomPackaging>
+                    <fileTemplate>org/kaazing/community/notice/third-party-template.ftl</fileTemplate>
                     <useMissingFile>true</useMissingFile>
                     <missingFile>src/license/THIRD-PARTY.properties</missingFile>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>add-third-party</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                   </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
