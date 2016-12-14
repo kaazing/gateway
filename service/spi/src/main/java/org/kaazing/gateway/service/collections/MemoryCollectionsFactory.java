@@ -809,7 +809,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         public IListImpl(String name) {
             super(name);
-            list = new LinkedList<>();
+            list = Collections.synchronizedList(new LinkedList<>());
         }
 
         @Override
@@ -940,7 +940,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @Override
         public void destroy() {
             lists.remove(getName(), this);
-            list = new LinkedList<>();
+            list = Collections.synchronizedList(new LinkedList<>());
         }
 
     }
