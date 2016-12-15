@@ -82,7 +82,7 @@ public class DefaultConnectOptionsContext extends DefaultOptionsContext implemen
         if (wsInactivityTimeoutStr != null &&
                 MILLISECONDS.convert(httpKeepaliveTimeout, SECONDS) < wsInactivityTimeout) {
             LOGGER.warn("http.keealive.timeout={} should be greater than ws.inactivity.timeout={}",
-                    wsInactivityTimeoutStr, httpKeepaliveTimeoutStr);
+            		httpKeepaliveTimeoutStr, wsInactivityTimeoutStr);
         }
 
         boolean keepAlive = isHttpKeepaliveEnabled(optionsCopy.remove("http.keepalive"));
