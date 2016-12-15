@@ -104,6 +104,44 @@ public class URLUtils {
         }
     }
 
+    public static URI modifyURIQuery(URI uri, String newQuery) {
+        String query = uri.getPath();
+        if (newQuery.equals(query)) {
+            return uri;
+        }
+        String scheme = uri.getScheme();
+        String authority = uri.getAuthority();
+        String path = uri.getPath();
+        String fragment = uri.getFragment();
+
+        try {
+            return new URI(scheme, authority, path, newQuery, fragment);
+        } catch (URISyntaxException x) {
+            IllegalArgumentException y = new IllegalArgumentException();
+            y.initCause(x);
+            throw y;
+        }
+    }
+
+    public static URI modifyURIFragment(URI uri, String newFragment) {
+        String fragment = uri.getFragment();
+        if (newFragment.equals(fragment)) {
+            return uri;
+        }
+        String scheme = uri.getScheme();
+        String authority = uri.getAuthority();
+        String query = uri.getQuery();
+        String path = uri.getPath();
+
+        try {
+            return new URI(scheme, authority, path, query, newFragment);
+        } catch (URISyntaxException x) {
+            IllegalArgumentException y = new IllegalArgumentException();
+            y.initCause(x);
+            throw y;
+        }
+    }
+
     public static String modifyURIPath(String uri, String newPath) {
         String path = URIUtils.getPath(uri);
         if (newPath.equals(path)) {
@@ -244,6 +282,23 @@ public class URLUtils {
                            "/",
                            null,
                            null);
+        } catch (URISyntaxException e) {
+            IllegalArgumentException ex = new IllegalArgumentException(requestUri.toString());
+            ex.initCause(e);
+            throw ex;
+        }
+    }
+
+    public static URI getNonRootUri(URI requestUri)  {
+        if ( requestUri == null ) {
+            throw new NullPointerException("requestUri");
+        }
+        try {
+            return new URI(null,
+                           null,
+                           requestUri.getPath(),
+                           requestUri.getQuery(),
+                           requestUri.getFragment());
         } catch (URISyntaxException e) {
             IllegalArgumentException ex = new IllegalArgumentException(requestUri.toString());
             ex.initCause(e);
