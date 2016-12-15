@@ -36,8 +36,8 @@ public class HttpProxyServiceTest {
         Assert.assertNotNull("Failed to create http.proxy service", service);
     }
 
-    @Test
-    public void shouldFailGatewayStartupAcceptAndConnectDifferentEndingSlashes() throws Exception {
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailAsAcceptAndConnectDoesNotEndWithSlashes() throws Exception {
         Gateway gateway = new Gateway();
         // @formatter:off
         GatewayConfiguration configuration =
@@ -45,7 +45,7 @@ public class HttpProxyServiceTest {
                     .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
                     .service()
                         .accept("http://localhost:8080/a")
-                        .connect("http://localhost:8081/")
+                        .connect("http://localhost:8081/b/c")
                         .name("Proxy Service")
                         .type("http.proxy")
                         .connectOption("http.keepalive", "disabled")
@@ -55,10 +55,54 @@ public class HttpProxyServiceTest {
         try {
             gateway.start(configuration);
             throw new AssertionError("Gateway should fail to start. IllegalArgumentException was not thrown");
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue("Wrong error message", e.getMessage().contains(
-                    "The accept URI is 'http://localhost:8080/a' and the connect URI is 'http://localhost:8081/'. "
-                            + "One has a trailing slash and one doesn't. Both URIs either need to include a trailing slash or omit it."));
+        } finally {
+            gateway.stop();
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailAsAcceptDoesNotEndWithSlash() throws Exception {
+        Gateway gateway = new Gateway();
+        // @formatter:off
+        GatewayConfiguration configuration =
+                new GatewayConfigurationBuilder()
+                        .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
+                        .service()
+                            .accept("http://localhost:8080/a")
+                            .connect("http://localhost:8081/b/c/")
+                            .name("Proxy Service")
+                            .type("http.proxy")
+                            .connectOption("http.keepalive", "disabled")
+                        .done()
+                    .done();
+        // @formatter:on
+        try {
+            gateway.start(configuration);
+            throw new AssertionError("Gateway should fail to start. IllegalArgumentException was not thrown");
+        } finally {
+            gateway.stop();
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailAsConnectDoesNotEndWithSlash() throws Exception {
+        Gateway gateway = new Gateway();
+        // @formatter:off
+        GatewayConfiguration configuration =
+                new GatewayConfigurationBuilder()
+                        .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
+                        .service()
+                            .accept("http://localhost:8080/a/")
+                            .connect("http://localhost:8081/b/c")
+                            .name("Proxy Service")
+                            .type("http.proxy")
+                            .connectOption("http.keepalive", "disabled")
+                        .done()
+                    .done();
+        // @formatter:on
+        try {
+            gateway.start(configuration);
+            throw new AssertionError("Gateway should fail to start. IllegalArgumentException was not thrown");
         } finally {
             gateway.stop();
         }
