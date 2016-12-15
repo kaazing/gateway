@@ -18,7 +18,7 @@
 # server
 #
 
-accept http://localhost:8030/proxy2
+accept http://localhost:8030/
 accepted
 connected
 

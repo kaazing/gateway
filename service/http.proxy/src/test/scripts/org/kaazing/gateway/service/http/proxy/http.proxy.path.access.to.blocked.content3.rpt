@@ -34,11 +34,3 @@ read status "404" "Not Found"
 
 close
 closed
-
-#
-# server
-#
-
-accept http://localhost:8080/b
-
-closed
