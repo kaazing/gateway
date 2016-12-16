@@ -40,7 +40,7 @@ public class TurnRestService implements Service {
 
     private static final String CLASS_PREFIX = "class:";
     private static final char DEFAULT_USER_SEPARATOR = ':';
-    private static final String DEFAULT_CREDENTIALS_TTL = "86400";
+    private static final String DEFAULT_CREDENTIALS_TTL = "24 hours";
     private static final String DEFAULT_KEY_ALGORITHM = "HmacSHA1";
 
     private TurnRestServiceHandler handler;
@@ -68,9 +68,8 @@ public class TurnRestService implements Service {
         String urls = properties.get("url");
         TurnRestCredentialsGenerator credentialGeneratorInstance = setUpCredentialsGenerator(properties);
 
-        String ttl = properties.get("credentials.ttl") != null ? properties.get("credentials.ttl") : DEFAULT_CREDENTIALS_TTL;
-        handler = new TurnRestServiceHandler(Long.toString(Utils.parseTimeInterval(ttl, TimeUnit.SECONDS, 0)),
-                        credentialGeneratorInstance, urls);
+        long ttl = Utils.parseTimeInterval(properties.get("credentials.ttl"), TimeUnit.SECONDS, DEFAULT_CREDENTIALS_TTL);
+        handler = new TurnRestServiceHandler(Long.toString(ttl), credentialGeneratorInstance, urls);
     }
 
     private TurnRestCredentialsGenerator setUpCredentialsGenerator(ServiceProperties properties)
