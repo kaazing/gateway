@@ -68,8 +68,8 @@ public class WsnAcceptConnectOptionsIT {
         gateway.stop();
         
         expectedPatterns = Arrays.asList(
-            "http.keealive.timeout=4 seconds should be greater than ws.inactivity.timeout=30 seconds", 
-            "http.keealive.timeout=5 seconds should be greater than ws.inactivity.timeout=30 seconds"
+            "http.keepalive.timeout=4 seconds should be greater than ws.inactivity.timeout=30 seconds", 
+            "http.keepalive.timeout=5 seconds should be greater than ws.inactivity.timeout=30 seconds"
         );
     }
 }
