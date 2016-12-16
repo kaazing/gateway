@@ -18,53 +18,35 @@
 # client
 #
 
-connect tcp://localhost:8110
+connect http://localhost:8110/hello
 connected
 
-write "GET /get HTTP/1.1\r\n"
-write "Host: localhost:8110\r\n"
-write "User-Agent: Mozilla/5.0\r\n"
-write "Connection: keep-alive\r\n"
-write "Upgrade-Insecure-Requests: 1\r\n"
-write "\r\n"
+write method "PUT"
+write version "HTTP/1.1"
+write header host
+write header content-length
+write close
 
-read status "200" /.*/
+read status "200" "OK"
+read version "HTTP/1.1"
 
-write "PUT /hello.htm HTTP/1.1"
-write "User-Agent: Mozilla/5.0\r\n"
-write "Host: localhost:8080\r\n"
-write "Connection: close\r\n"
-write "\r\n"
-
-read status "200" /.*/
-
+close
 closed
 
 #
 # server
 #
 
-accept tcp://localhost:8080
+accept http://localhost:8080/hello
 accepted
 connected
 
-read "GET /get HTTP/1.1\r\n"
-read /Via: 1.1 kaazing-.+/ "\r\n"
-read "User-Agent: Mozilla/5.0\r\n"
-read "Upgrade-Insecure-Requests: 1\r\n"
-read "Host: localhost:8080\r\n"
-read "Connection: close\r\n"
-read "\r\n"
+read method "PUT"
+read closed
 
 write status "200" "OK"
-
-read "PUT /hello.htm HTTP/1.1"
-read "Host: localhost:8110\r\n"
-read "User-Agent: Mozilla/5.0\r\n"
-read "Connection: keep-alive\r\n"
-read "\r\n"
-
-write status "200" "OK"
+write header content-length
+write flush
 
 close
 closed
