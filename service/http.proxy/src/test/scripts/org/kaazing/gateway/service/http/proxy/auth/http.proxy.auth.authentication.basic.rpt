@@ -18,7 +18,7 @@
 # client
 #
 
-connect http://localhost:8110
+connect http://localhost:8110/hello
 connected
 
 write "GET /basic-auth/user/passwd HTTP/1.1\r\n"
@@ -62,7 +62,7 @@ closed
 # server
 #
 
-accept http://localhost:8080
+accept http://localhost:8080/hello
 accepted
 connected
 
