@@ -15,92 +15,50 @@
  */
 package org.kaazing.gateway.service.messaging.collections;
 
+import static java.lang.String.format;
 import static java.lang.Thread.sleep;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import org.junit.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.kaazing.gateway.service.collections.MemoryCollectionsFactory;
+import org.kaazing.gateway.util.AtomicCounter;
 
+import com.hazelcast.core.IList;
+import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
-import com.hazelcast.query.Predicate;
-import com.hazelcast.query.SqlPredicate;
 
 public class MemoryCollectionsFactoryTest {
-    private static final String MAP_NAME = "TestMap";
+    private static final String OBJECT_NAME = "TestObject";
+    private static final String ANOTHER_OBJECT_NAME = "anotherTestObject";
 
     private MemoryCollectionsFactory factory;
 
-    // In support of http://jira.kaazing.wan/browse/KG-5001, the
-    // MemoryCollectionsFactory's IMap implementation needs to handle
-    // querying for keys, values, entries using Predicates.
-
-    private class TestObject {
-        private final String value;
-
-        public TestObject(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        @Override
-        public int hashCode() {
-            return value.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null ||
-                !(o instanceof TestObject)) {
-                return false; 
-            }
-
-            TestObject that = (TestObject) o;
-            return that.hashCode() == hashCode();
-        }
-
-        @Override
-        public String toString() {
-            return String.format("{ value=%s }", value);
-        }
-    }
-
     @Before
-    public void setUp()
-        throws Exception {
-
+    public void setUp() throws Exception {
         factory = new MemoryCollectionsFactory();
     }
 
     @Test
-    public void shouldGetIMap()
-        throws Exception {
+    public void shouldGetIMap() throws Exception {
+        IMap<String, String> map = factory.getMap(OBJECT_NAME);
 
-        IMap<String, String> map = factory.getMap(MAP_NAME);
-        Assert.assertTrue("Expected map, got null", map != null);
-        Assert.assertTrue(String.format("Expected map name '%s', got '%s'",
-            MAP_NAME, map.getName()), map.getName().equals(MAP_NAME));
+        assertTrue("Expected map, got null", map != null);
+        assertTrue(format("Expected map name '%s', got '%s'", OBJECT_NAME, map.getName()), map.getName().equals(OBJECT_NAME));
     }
 
     @Test
-    public void shouldGetIMapLocalKeySet()
-        throws Exception {
-
-        IMap<String, String> map = factory.getMap(MAP_NAME);
+    public void shouldGetIMapLocalKeySet() throws Exception {
+        IMap<String, String> map = factory.getMap(OBJECT_NAME);
 
         // Add three keys
         String k1 = "foo";
@@ -121,131 +79,13 @@ public class MemoryCollectionsFactoryTest {
         expected.add(k3);
 
         Set<String> keys = map.localKeySet();
-        Assert.assertTrue("Expected key set, got null", keys != null);
-        Assert.assertTrue(String.format("Expected keys %s, got %s", expected, keys), keys.equals(expected));
+        assertTrue("Expected key set, got null", keys != null);
+        assertTrue(format("Expected keys %s, got %s", expected, keys), keys.equals(expected));
     }
 
     @Test
-    public void shouldGetIMapLocalKeySetByPredicate()
-        throws Exception {
-
-        IMap<String, TestObject> map = factory.getMap(MAP_NAME);
-        map.addIndex("value", false);
-
-        // Add three keys
-        String k1 = "foo";
-        String v1 = "1";
-        map.put(k1, new TestObject(v1));
-
-        String k2 = "bar";
-        String v2 = "2";
-        map.put(k2, new TestObject(v2));
-
-        String k3 = "baz";
-        String v3 = "3";
-        map.put(k3, new TestObject(v3));
-
-        Set<String> expected = new HashSet<>();
-        expected.add(k1);
-        expected.add(k2);
-
-        Predicate query = new SqlPredicate("value = '1' OR value = '2'");
-        Set<String> keys = map.localKeySet(query);
-        Assert.assertTrue("Expected key set, got null", keys != null);
-        Assert.assertTrue(String.format("Expected keys %s, got %s", expected, keys), keys.equals(expected));
-    }
-
-    @Test
-    public void shouldGetIMapKeySetByPredicate()
-        throws Exception {
-
-        IMap<String, TestObject> map = factory.getMap(MAP_NAME);
-        map.addIndex("value", false);
-
-        // Add three keys
-        String k1 = "foo";
-        String v1 = "1";
-        map.put(k1, new TestObject(v1));
-
-        String k2 = "bar";
-        String v2 = "2";
-        map.put(k2, new TestObject(v2));
-
-        String k3 = "baz";
-        String v3 = "3";
-        map.put(k3, new TestObject(v3));
-
-        Set<String> expected = new HashSet<>();
-        expected.add(k1);
-        expected.add(k2);
-
-        Predicate query = new SqlPredicate("value = '1' OR value = '2'");
-        Set<String> keys = map.keySet(query);
-        Assert.assertTrue("Expected key set, got null", keys != null);
-        Assert.assertTrue(String.format("Expected keys %s, got %s", expected, keys), keys.equals(expected));
-    }
-
-    @Test
-    public void shouldGetIMapValuesByPredicate()
-        throws Exception {
-
-        IMap<String, TestObject> map = factory.getMap(MAP_NAME);
-        map.addIndex("value", false);
-
-        // Add three keys
-        String k1 = "foo";
-        TestObject v1 = new TestObject("1");
-        map.put(k1, v1);
-
-        String k2 = "bar";
-        TestObject v2 = new TestObject("2");
-        map.put(k2, v2);
-
-        String k3 = "baz";
-        TestObject v3 = new TestObject("3");
-        map.put(k3, v3);
-
-        Collection<TestObject> expected = new HashSet<>();
-        expected.add(v1);
-        expected.add(v2);
-
-        Predicate query = new SqlPredicate("value = '1' OR value = '2'");
-        Collection<TestObject> values = map.values(query);
-        Assert.assertTrue("Expected values, got null", values != null);
-        Assert.assertTrue(String.format("Expected values %s, got %s", expected, values), values.equals(expected));
-    }
-
-    @Test
-    public void shouldGetIMapEntrySetByPredicate()
-        throws Exception {
-
-        IMap<String, TestObject> map = factory.getMap(MAP_NAME);
-        map.addIndex("value", false);
-
-        // Add three keys
-        String k1 = "foo";
-        TestObject v1 = new TestObject("1");
-        map.put(k1, v1);
-
-        String k2 = "bar";
-        TestObject v2 = new TestObject("2");
-        map.put(k2, v2);
-
-        String k3 = "baz";
-        TestObject v3 = new TestObject("3");
-        map.put(k3, v3);
-
-        Set<Map.Entry<String, TestObject>> expected = map.entrySet();
-
-        Predicate query = new SqlPredicate("value != '4'");
-        Set<Map.Entry<String, TestObject>> entries = map.entrySet(query);
-        Assert.assertTrue("Expected entries, got null", entries != null);
-        Assert.assertTrue(String.format("Expected entries %s, got %s", expected, entries), entries.equals(expected));
-    }
-
-    @Test
-    public void expiringMap() throws Exception {
-        IMap<String, String> map = factory.getMap(MAP_NAME);
+    public void shouldTestMapEntryExpiry() throws Exception {
+        IMap<String, String> map = factory.getMap(OBJECT_NAME);
 
         map.putIfAbsent("one", "1", 1, MILLISECONDS);
         map.putIfAbsent("two", "2", 10000, MILLISECONDS);
@@ -262,12 +102,56 @@ public class MemoryCollectionsFactoryTest {
         assertNull(map.get("one"));
         assertEquals("2", map.get("two"));
         assertEquals("30", map.get("three"));
-        
+
         sleep(5);
-        
+
         assertFalse(map.remove("one", "10"));
         assertTrue(map.remove("three", "30"));
         assertFalse(map.remove("three", "30"));
-        
+    }
+
+    @Test
+    public void shouldGetIList() throws Exception {
+        IList<String> list = factory.getList(OBJECT_NAME);
+
+        assertNotNull("Expected list, got null", list);
+        assertEquals(format("Expected list name '%s', got '%s'", OBJECT_NAME, list.getName()), OBJECT_NAME, list.getName());
+        assertEquals(format("Expected the same list instance for name \"%s\"", OBJECT_NAME), list, factory.getList(OBJECT_NAME));
+        assertNotEquals(format("Expected different list instance for name \"%s\"", ANOTHER_OBJECT_NAME), list,
+                factory.getList(ANOTHER_OBJECT_NAME));
+    }
+
+    @Test
+    public void shouldGetILock() throws Exception {
+        ILock lock = factory.getLock(OBJECT_NAME);
+
+        assertNotNull("Expected a lock, got null", lock);
+        assertEquals(format("Expected lock name '%s', got '%s'", OBJECT_NAME, lock.getName()), OBJECT_NAME, lock.getName());
+        assertEquals(format("Expected the same lock instance for name \"%s\"", OBJECT_NAME), lock, factory.getLock(OBJECT_NAME));
+        assertNotEquals(format("Expected different lock instance for name \"%s\"", ANOTHER_OBJECT_NAME), lock,
+                factory.getLock(ANOTHER_OBJECT_NAME));
+    }
+
+    @Test
+    public void shouldGetAtomicCounter() throws Exception {
+        AtomicCounter atomicCounter = factory.getAtomicCounter(OBJECT_NAME);
+
+        assertNotNull("Expected an atomic counter, got null", atomicCounter);
+        assertEquals(format("Expected the same atomic counter instance for name \"%s\"", OBJECT_NAME), atomicCounter,
+                factory.getAtomicCounter(OBJECT_NAME));
+        assertNotEquals(format("Expected different atomic counter instance for name \"%s\"", ANOTHER_OBJECT_NAME), atomicCounter,
+                factory.getAtomicCounter(ANOTHER_OBJECT_NAME));
+    }
+
+    @Test
+    public void shouldCheckAtomicCounterOperations() throws Exception {
+        AtomicCounter atomicCounter = factory.getAtomicCounter(OBJECT_NAME);
+
+        assertEquals(0, atomicCounter.get());
+        assertEquals(1, atomicCounter.incrementAndGet());
+        assertEquals(0, atomicCounter.decrementAndGet());
+        assertEquals(true, atomicCounter.compareAndSet(0, 1));
+        assertEquals(false, atomicCounter.compareAndSet(0, 1));
+        assertEquals(1, factory.getAtomicCounter(OBJECT_NAME).get());
     }
 }

@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.server.messaging.collections;
+package org.kaazing.gateway.server.collections;
 
-import com.hazelcast.core.AtomicNumber;
-import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IAtomicLong;
 import com.hazelcast.core.IList;
 import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 import com.hazelcast.core.ITopic;
-import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
+
+import org.kaazing.gateway.service.collections.CollectionsFactory;
 import org.kaazing.gateway.util.AtomicCounter;
 
 public class ClusterCollectionsFactory implements CollectionsFactory {
@@ -56,27 +56,19 @@ public class ClusterCollectionsFactory implements CollectionsFactory {
     }
 
     @Override
-    public ILock getLock(Object obj) {
-        return cluster.getLock(obj);
-    }
-
-    @Override
-    public <K, V> void addEntryListener(EntryListener<K, V> listener, String name) {
-        IMap<K, V> map = cluster.getMap(name);
-        if (map != null) {
-            map.addEntryListener(listener, true);
-        }
+    public ILock getLock(String name) {
+        return cluster.getLock(name);
     }
 
     @Override
     public AtomicCounter getAtomicCounter(String name) {
-        return new ClusterAtomicCounter(cluster.getAtomicNumber(name));
+        return new ClusterAtomicCounter(cluster.getAtomicLong(name));
     }
 
     private final class ClusterAtomicCounter implements AtomicCounter {
-        private AtomicNumber atomicNumber;
+        private IAtomicLong atomicNumber;
 
-        private ClusterAtomicCounter(AtomicNumber number) {
+        private ClusterAtomicCounter(IAtomicLong number) {
             atomicNumber = number;
         }
 
