@@ -390,14 +390,14 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                 case REDIRECT_MOVED_PERMANENTLY:
                     // TODO consider changing URI, to follow permanently (or perhaps just log info?)
                 case REDIRECT_FOUND:
-                    if (shouldFollowRedirects(httpSession)) {
-                        if (httpResponse.isComplete()) {
-                            followRedirect(httpSession, session);
-                        }
-                        break;
-                    }
-                case SUCCESS_NO_CONTENT:
+                case REDIRECT_MULTIPLE_CHOICES:
+                case REDIRECT_SEE_OTHER:
                 case REDIRECT_NOT_MODIFIED:
+                case REDIRECT_USE_PROXY:
+                case REDIRECT_TEMPORARY:
+                    doRedirectReceived(session, httpSession, httpResponse);
+                    break;
+                case SUCCESS_NO_CONTENT:
                     httpSession.close(false);
                     break;
                 case CLIENT_UNAUTHORIZED:
@@ -427,10 +427,14 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                 HttpContentMessage httpContent = (HttpContentMessage) httpMessage;
                 switch (httpSession.getStatus()) {
                 case REDIRECT_MOVED_PERMANENTLY:
+                    // TODO consider changing URI, to follow permanently (or perhaps just log info?)
                 case REDIRECT_FOUND:
-                    if (shouldFollowRedirects(httpSession) && httpContent.isComplete()) {
-                        followRedirect(httpSession, session);
-                    }
+                case REDIRECT_MULTIPLE_CHOICES:
+                case REDIRECT_SEE_OTHER:
+                case REDIRECT_NOT_MODIFIED:
+                case REDIRECT_USE_PROXY:
+                case REDIRECT_TEMPORARY:
+                    doRedirectReceived(session, httpSession, httpContent);
                     break;
                 default:
                     fireContentReceived(httpSession, httpContent);
@@ -439,6 +443,17 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                 break;
             default:
                 throw new IllegalArgumentException("Unexpected HTTP message: " + httpMessage.getKind());
+            }
+        }
+
+        private void doRedirectReceived(final IoSessionEx session, DefaultHttpSession httpSession, HttpMessage httpContent)
+                throws URISyntaxException {
+            if (httpContent.isComplete()) {
+                if (shouldFollowRedirects(httpSession)) {
+                    followRedirect(httpSession, session);
+                } else {
+                    httpSession.close(false);
+                }
             }
         }
 
