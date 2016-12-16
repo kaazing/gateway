@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.wsn.proxy;
+package org.kaazing.gateway.transport.wsn.logging;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,16 +32,15 @@ import org.kaazing.test.util.MethodExecutionTrace;
 /**
  * Unit tests for resolving gateway-config.xml.
  */
-public class AcceptConnectOptionsIT {
+public class WsnAcceptConnectOptionsIT {
 
-    private List<String> expectedPatterns = new ArrayList<>();
-    private List<String> forbiddenPatterns = new ArrayList<>();
-
+    private List<String> expectedPatterns;
+    
     private TestRule checkLogMessageRule = (base, description) -> new Statement() {
         @Override
         public void evaluate() throws Throwable {
             base.evaluate();
-            MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, null, true);
+            MemoryAppender.assertMessagesLogged(expectedPatterns, null, null, true);
         }
     };
 
@@ -69,10 +67,9 @@ public class AcceptConnectOptionsIT {
         gateway.start(gc);
         gateway.stop();
         
-        expectedPatterns = new ArrayList<>(Arrays.asList(
-            new String[]{
-                "http.keealive.timeout=4 seconds should be greater than ws.inactivity.timeout=30 seconds", 
-                "http.keealive.timeout=5 seconds should be greater than ws.inactivity.timeout=30 seconds"})
+        expectedPatterns = Arrays.asList(
+            "http.keealive.timeout=4 seconds should be greater than ws.inactivity.timeout=30 seconds", 
+            "http.keealive.timeout=5 seconds should be greater than ws.inactivity.timeout=30 seconds"
         );
     }
 }

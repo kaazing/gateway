@@ -19,7 +19,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -104,7 +103,7 @@ public class WsebAcceptorInfoLoggingIT {
     public void shouldLogProtocolException() throws Exception {
         k3po.finish();
 
-        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
+        expectedPatterns = Arrays.asList(
                 "tcp#.*OPENED",
                 "tcp#.*CLOSED",
                 "http#.*OPENED",
@@ -113,7 +112,7 @@ public class WsebAcceptorInfoLoggingIT {
                 "wseb#.*OPENED",
                 "wseb#.*IOException.*caused by.*Protocol.*Exception",
                 "wseb#.*CLOSED"
-        }));
+        );
 
         forbiddenPatterns = Collections.emptyList();
     }
@@ -125,7 +124,7 @@ public class WsebAcceptorInfoLoggingIT {
     public void shouldLogOpenWriteReceivedAndAbruptClose() throws Exception {
         k3po.finish();
 
-        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
+        expectedPatterns = Arrays.asList(
                 "\\[tcp#.* [^/]*:\\d*] OPENED",
                 "\\[tcp#.* [^/]*:\\d*] CLOSED",
                 "\\[http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] OPENED",
@@ -137,7 +136,7 @@ public class WsebAcceptorInfoLoggingIT {
                 "\\[wseb#.* [^/]*:\\d*] OPENED",
                 "\\[wseb#.* [^/]*:\\d*] EXCEPTION",
                 "\\[wseb#.* [^/]*:\\d*] CLOSED"
-        }));
+        );
 
         forbiddenPatterns = Collections.emptyList();
     }
@@ -149,14 +148,14 @@ public class WsebAcceptorInfoLoggingIT {
     public void shouldLogOpenAndCleanClientClose() throws Exception {
         k3po.finish();
 
-        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
-                "\\[tcp#.* [^/]*:\\d*] OPENED",
-                "\\[tcp#.* [^/]*:\\d*] CLOSED",
-                "\\[http#.* [^/]*:\\d*] OPENED",
-                "\\[http#.* [^/]*:\\d*] CLOSED",
-                "\\[wseb#.* [^/]*:\\d*] OPENED",
-                "\\[wseb#.* [^/]*:\\d*] CLOSED"
-        }));
+        expectedPatterns = Arrays.asList(
+            "\\[tcp#.* [^/]*:\\d*] OPENED",
+            "\\[tcp#.* [^/]*:\\d*] CLOSED",
+            "\\[http#.* [^/]*:\\d*] OPENED",
+            "\\[http#.* [^/]*:\\d*] CLOSED",
+            "\\[wseb#.* [^/]*:\\d*] OPENED",
+            "\\[wseb#.* [^/]*:\\d*] CLOSED"
+        );
 
         forbiddenPatterns = Collections.singletonList("#.*EXCEPTION");
     }
