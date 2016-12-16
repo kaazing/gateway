@@ -44,7 +44,7 @@ import org.jboss.netty.logging.InternalLoggerFactory;
 import org.jboss.netty.util.ThreadNameDeterminer;
 import org.jboss.netty.util.ThreadRenamingRunnable;
 import org.kaazing.mina.netty.channel.DefaultWriteCompletionEventEx;
-import uk.co.real_logic.agrona.concurrent.OneToOneConcurrentArrayQueue;
+import org.agrona.concurrent.OneToOneConcurrentArrayQueue;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousCloseException;

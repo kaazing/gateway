@@ -20,8 +20,8 @@ import org.kaazing.gateway.management.monitoring.entity.impl.AgronaMonitoringEnt
 import org.kaazing.gateway.management.monitoring.writer.ServiceWriter;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
-import uk.co.real_logic.agrona.concurrent.CountersManager;
-import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
+import org.agrona.concurrent.status.CountersManager;
+import org.agrona.concurrent.UnsafeBuffer;
 
 public class MMFServiceWriter implements ServiceWriter {
 

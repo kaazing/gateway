@@ -20,7 +20,7 @@ import java.io.File;
 import org.kaazing.gateway.management.monitoring.service.MonitoredService;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
-import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
+import org.agrona.concurrent.UnsafeBuffer;
 
 /**
  * MonitoringFileWriter interface responsible with writing data to monitoring files
