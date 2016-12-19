@@ -123,8 +123,14 @@ public class HttpProxyAuthenticationIT {
     }
 
     @Test
+    @Specification("auth/http.proxy.auth.authentication.basic.tcp")
+    public void authenticationBasicTcp() throws Exception {
+        robot.finish();
+    }
+
+    @Test
     @Specification("auth/http.proxy.auth.authentication.basic")
-    public void authenticationBasic() throws Exception {
+    public void authenticationBasicHttp() throws Exception {
         robot.finish();
     }
 

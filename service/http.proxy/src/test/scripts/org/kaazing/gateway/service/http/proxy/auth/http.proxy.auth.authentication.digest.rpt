@@ -18,7 +18,7 @@
 # client
 #
 
-connect http://localhost:8110/hello
+connect tcp://localhost:8110
 connected
 
 write "GET /digest-auth/auth/user/passwd HTTP/1.1\r\n"
@@ -57,7 +57,7 @@ write "Accept-Language: en-US,en;q=0.8\r\n"
 write "Cookie: fake=fake_value\r\n"
 write "\r\n"
 
-read status "200" "OK"
+read "HTTP/1.1 200 OK\r\n"
 
 close
 closed
@@ -66,7 +66,7 @@ closed
 # server
 #
 
-accept http://localhost:8080/hello
+accept tcp://localhost:8080
 accepted
 connected
 
@@ -117,8 +117,11 @@ read "Accept: text/html\r\n"
 read "Accept: application/xhtml+xml\r\n"
 read "Accept: application/xml;q=0.9\r\n"
 read "Accept: image/webp\r\n"
-read "Accept: */*;q=0.8\r\n"
+read "Accept: */*;q=0.8\r\n"git
 read "\r\n"
 
-write status "200" "OK"
-write close
+write "HTTP/1.1 200 OK\r\n"
+
+close
+closed
+

@@ -21,37 +21,25 @@
 connect http://localhost:8110/hello
 connected
 
-write "GET /basic-auth/user/passwd HTTP/1.1\r\n"
-write "Host: localhost:8110\r\n"
-write "Connection: keep-alive\r\n"
-write "Upgrade-Insecure-Requests: 1\r\n"
-write "User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36\r\n"
-write "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\n"
-write "DNT: 1\r\n"
-write "Accept-Encoding: gzip, deflate, sdch\r\n"
-write "Accept-Language: en-US,en;q=0.8\r\n"
-write "\r\n"
+write method "GET"
+write parameter "/basic-auth/user/passwd"
+write version "HTTP/1.1"
+write header  "User-Agent" "curl/7.37.1"
+write header "Host" "localhost:8110"
+write header "Accept" "*/*"
 
-read "HTTP/1.1 401 UNAUTHORIZED\r\n"
-read "Access-Control-Allow-Credentials: true\r\n"
-read "Access-Control-Allow-Origin: *\r\n"
-read "Content-Length: 0\r\n"
-read "Content-Type: text/html\r\n"
-read "Date: Mon, 04 Jul 2016 14:46:44 GMT\r\n"
-read "Server: nginx\r\n"
-read "WWW-Authenticate: Basic realm=\"Fake Realm\"\r\n"
-read "\r\n"
 
-write "GET /basic-auth/user/passwd HTTP/1.1\r\n"
-write "Host: localhost:8110\r\n"
-write "Connection: keep-alive\r\n"
-write "Authorization: Basic bmFtZUF1dGg6UGFzc0F1dGg=\r\n"
-write "Upgrade-Insecure-Requests: 1\r\n"
-write "User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36\r\n"
-write "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\n"
-write "Accept-Encoding: gzip, deflate, sdch\r\n"
-write "Accept-Language: en-US,en;q=0.8\r\n"
-write "\r\n"
+read status "401" "UNAUTHORIZED"
+read version "HTTP/1.1"
+
+
+
+write method "GET"
+write parameter "/basic-auth/user/passwd"
+write parameter "HTTP/1.1"
+write header  "User-Agent" "curl/7.37.1"
+write header "Host" "localhost:8110"
+write header "Accept" "*/*"
 
 read status "200" "OK"
 
@@ -62,55 +50,34 @@ closed
 # server
 #
 
+
+
 accept http://localhost:8080/hello
 accepted
 connected
 
-read "GET /basic-auth/user/passwd HTTP/1.1\r\n"
-read /Via: 1.1 kaazing-.+/ "\r\n"
-read "User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36\r\n"
-read "Upgrade-Insecure-Requests: 1\r\n"
-read "Host: localhost:8080\r\n"
-read "DNT: 1\r\n"
-read "Accept-Language: en-US\r\n"
-read "Accept-Language: en;q=0.8\r\n"
-read "Accept-Encoding: gzip\r\n"
-read "Accept-Encoding: deflate\r\n"
-read "Accept-Encoding: sdch\r\n"
-read "Accept: text/html\r\n"
-read "Accept: application/xhtml+xml\r\n"
-read "Accept: application/xml;q=0.9\r\n"
-read "Accept: image/webp\r\n"
-read "Accept: */*;q=0.8\r\n"
-read "\r\n"
 
-write "HTTP/1.1 401 UNAUTHORIZED\r\n"
-write "Access-Control-Allow-Credentials: true\r\n"
-write "Access-Control-Allow-Origin: *\r\n"
-write "Content-Length: 0\r\n"
-write "Content-Type: text/html\r\n"
-write "Date: Mon, 04 Jul 2016 14:46:44 GMT\r\n"
-write "Server: nginx\r\n"
-write "WWW-Authenticate: Basic realm=\"Fake Realm\"\r\n"
-write "\r\n"
 
-read "GET /basic-auth/user/passwd HTTP/1.1\r\n"
-read /Via: 1.1 kaazing-.+/ "\r\n"
-read "User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36\r\n"
-read "Upgrade-Insecure-Requests: 1\r\n"
-read "Host: localhost:8080\r\n"
-read "Authorization: Basic bmFtZUF1dGg6UGFzc0F1dGg=\r\n"
-read "Accept-Language: en-US\r\n"
-read "Accept-Language: en;q=0.8\r\n"
-read "Accept-Encoding: gzip\r\n"
-read "Accept-Encoding: deflate\r\n"
-read "Accept-Encoding: sdch\r\n"
-read "Accept: text/html\r\n"
-read "Accept: application/xhtml+xml\r\n"
-read "Accept: application/xml;q=0.9\r\n"
-read "Accept: image/webp\r\n"
-read "Accept: */*;q=0.8\r\n"
-read "\r\n"
+read method "GET"
+write parameter "/basic-auth/user/passwd"
+write version "HTTP/1.1"
+read header "Via" "1.1 kaazing"
+read header "User-Agent" "curl/7.37.1"
+read header "Host" "localhost:8080"
+read header "Accept" "*/*"
+read closed
+
+write status "401" "UNAUTHORIZED"
+write version "HTTP/1.1"
+
+read method "GET"
+write parameter "/basic-auth/user/passwd"
+write parameter "HTTP/1.1"
+read header "Via" "1.1 kaazing"
+read header "User-Agent" "curl/7.37.1"
+read header "Host" "localhost:8080"
+read header "Accept" "*/*"
+read closed
 
 write status "200" "OK"
 write close
