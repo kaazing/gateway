@@ -94,7 +94,7 @@ public enum InternalSystemProperty {
             ("org.kaazing.gateway.server.transport.tcp.IP_TOS"),
 
     CONNECT_FOLLOW_REDIRECT_WITH_QUERY
-            ("org.kaazing.gateway.transport.http.CONNECT_FOLLOW_REDIRECT_WITH_QUERY", "true"),
+            ("org.kaazing.gateway.transport.http.CONNECT_FOLLOW_REDIRECT_WITH_QUERY", "false"),
 
     // services
     BROADCAST_SERVICE_MAXIMUM_PENDING_BYTES
