@@ -551,7 +551,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
             if (oldQuery != null && appendQueryWhenFollowingRedirect) {
                 newLocation = URLUtils.modifyURIQuery(newLocation, oldQuery);
             }
-            httpSession.setRequestURI(URLUtils.getNonRootUri(newLocation));
+            httpSession.setRequestURI(URLUtils.getPathAndQueryURI(newLocation));
             ResourceAddress newConnectAddress = addressFactory.newResourceAddress(newLocation.toString(),
                     new WrappedResourceOptionsForConnectionRetry(httpSession, overrides));
             return retryConnect(httpSession, session, newConnectAddress);

@@ -289,7 +289,7 @@ public class URLUtils {
         }
     }
 
-    public static URI getNonRootUri(URI requestUri)  {
+    public static URI getPathAndQueryURI(URI requestUri)  {
         if ( requestUri == null ) {
             throw new NullPointerException("requestUri");
         }
@@ -298,7 +298,7 @@ public class URLUtils {
                            null,
                            requestUri.getPath(),
                            requestUri.getQuery(),
-                           requestUri.getFragment());
+                           null);
         } catch (URISyntaxException e) {
             IllegalArgumentException ex = new IllegalArgumentException(requestUri.toString());
             ex.initCause(e);
