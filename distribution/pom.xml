@@ -251,6 +251,7 @@
                     <fileTemplate>org/kaazing/community/notice/third-party-template.ftl</fileTemplate>
                     <useMissingFile>true</useMissingFile>
                     <missingFile>src/license/THIRD-PARTY.properties</missingFile>
+                    <failIfWarning>true</failIfWarning>
                 </configuration>
                 <executions>
                     <execution>
@@ -259,6 +260,37 @@
                         </goals>
                         <phase>generate-resources</phase>
                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.4.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.kaazing</groupId>
+                        <artifactId>community.enforcer</artifactId>
+                        <version>develop-SNAPSHOT</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>default-enforce</id>
+                        <configuration combine.self="override">
+                            <skip>false</skip>
+                            <rules>
+                                <myCustomRule implementation="org.kaazing.community.enforcer.rule.RequireSameFile">
+                                    <originalFilePath>src/main/gateway/NOTICE.txt</originalFilePath>
+                                    <revisedFilePath>target/NOTICE.txt</revisedFilePath>
+                                    <!--Custom error message can be added for the failure case-->
+                                </myCustomRule>
+                            </rules>
+                        </configuration>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>

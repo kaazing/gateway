@@ -61,7 +61,7 @@ This product depends on Apache Log4j 1.2.17
 This product depends on Java Native Access 3.3.0
 
 	License:	http://www.gnu.org/licenses/licenses.html (LGPL)
-	Homepage:	Home page is not included in maven artifact, and thus couldn't be referenced here
+	The project URL is not included in this dependency's pom, and thus could not be referenced here.
 
 This product depends on opencsv 2.3
 
