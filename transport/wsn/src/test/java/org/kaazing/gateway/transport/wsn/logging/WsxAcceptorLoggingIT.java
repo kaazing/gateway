@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.wsn.logging;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -94,18 +93,18 @@ public class WsxAcceptorLoggingIT {
         })
     public void shouldLogOpenWriteReceivedAndClose() throws Exception {
         k3po.finish();
-        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
-                "tcp#.*OPENED",
-                "tcp#.*WRITE",
-                "tcp#.*RECEIVED",
-                "tcp#.*CLOSED",
-                "http#.*OPENED",
-                "http#.*CLOSED",
-                "wsn#.*OPENED",
-                "wsn#.*WRITE",
-                "wsn#.*RECEIVED",
-                "wsn#.*CLOSED"
-        }));
+        expectedPatterns = Arrays.asList(
+            "tcp#.*OPENED",
+            "tcp#.*WRITE",
+            "tcp#.*RECEIVED",
+            "tcp#.*CLOSED",
+            "http#.*OPENED",
+            "http#.*CLOSED",
+            "wsn#.*OPENED",
+            "wsn#.*WRITE",
+            "wsn#.*RECEIVED",
+            "wsn#.*CLOSED"
+        );
 
         forbiddenPatterns = Collections.singletonList("#.*EXCEPTION");
     }
@@ -118,18 +117,18 @@ public class WsxAcceptorLoggingIT {
         k3po.start();
         Thread.sleep(2000);
         k3po.finish();
-        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
-                "tcp#.*OPENED",
-                "tcp#.*WRITE",
-                "tcp#.*RECEIVED",
-                "tcp#.*CLOSED",
-                "http#.*OPENED",
-                "http#.*CLOSED",
-                "wsn#.*OPENED",
-                "wsn#.*EXCEPTION.*IOException",
-                "wsn#.*CLOSED",
-                "wsn#.*] java.io.IOException" // from EchoServiceHandler
-        }));
+        expectedPatterns = Arrays.asList(
+            "tcp#.*OPENED",
+            "tcp#.*WRITE",
+            "tcp#.*RECEIVED",
+            "tcp#.*CLOSED",
+            "http#.*OPENED",
+            "http#.*CLOSED",
+            "wsn#.*OPENED",
+            "wsn#.*EXCEPTION.*IOException",
+            "wsn#.*CLOSED",
+            "wsn#.*] java.io.IOException" // from EchoServiceHandler
+        );
         forbiddenPatterns = null;
     }
 }

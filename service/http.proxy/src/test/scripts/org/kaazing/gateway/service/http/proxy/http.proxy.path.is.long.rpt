@@ -30,24 +30,7 @@ write header host
 write header "Accept" "*/*"
 write close
 
-close
-closed
-
-#
-# server
-#
-
-accept http://localhost:8080/a
-accepted
-connected
-
-read method "GET"
-read parameter "name" "value"
-read header "Via" /1.1 kaazing-.+/
-read header "User-Agent" "curl/7.37.1"
-read header "Host" "localhost:8080"
-read header "Accept" "*/*"
-read closed
+read status "404" "Not Found"
 
 close
 closed

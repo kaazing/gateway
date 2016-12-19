@@ -18,19 +18,35 @@
 # client
 #
 
-connect http://localhost:8110/../b
+connect http://localhost:8110/hello
 connected
 
-write method "GET"
-write parameter "name" "value"
+write method "PUT"
 write version "HTTP/1.1"
-
-write header "User-Agent" "curl/7.37.1"
 write header host
-write header "Accept" "*/*"
+write header content-length
 write close
 
-read status "404" "Not Found"
+read status "200" "OK"
+read version "HTTP/1.1"
+
+close
+closed
+
+#
+# server
+#
+
+accept http://localhost:8080/hello
+accepted
+connected
+
+read method "PUT"
+read closed
+
+write status "200" "OK"
+write header content-length
+write flush
 
 close
 closed

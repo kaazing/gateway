@@ -13,16 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.cluster;
+package org.kaazing.gateway.service.collections;
 
-import java.util.Collection;
+import com.hazelcast.core.IList;
+import com.hazelcast.core.ILock;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.IQueue;
+import com.hazelcast.core.ITopic;
 
-/**
- * Listener for changed to the global balancer map (balancer URI to collection or balancee URIs across the different gateways)
- */
-public interface BalancerMapListener {
+import org.kaazing.gateway.util.AtomicCounter;
 
-    void balancerEntryAdded(String balancerUri, Collection<String> balanceeURIs);
-    void balancerEntryRemoved(String balancerUri, Collection<String> balanceeURIs);
-    void balancerEntryUpdated(String balancerUri, Collection<String> balanceeURIs);
+public interface CollectionsFactory {
+
+    <K, V> IMap<K, V> getMap(String name);
+
+    <E> IQueue<E> getQueue(String name);
+
+    <E> IList<E> getList(String name);
+
+    <E> ITopic<E> getTopic(String name);
+
+    ILock getLock(String name);
+
+    AtomicCounter getAtomicCounter(String name);
 }
