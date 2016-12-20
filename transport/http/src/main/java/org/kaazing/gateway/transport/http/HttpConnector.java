@@ -451,7 +451,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
             }
         }
 
-        private void doRedirectReceived(final IoSessionEx session, DefaultHttpSession httpSession, HttpMessage httpContent) {
+        private void doRedirectReceived(final IoSessionEx session, DefaultHttpSession httpSession, HttpMessage httpContent) throws URISyntaxException {
             if (httpContent.isComplete()) {
                 if (shouldFollowRedirects(httpSession)) {
                     followRedirect(httpSession, session);
