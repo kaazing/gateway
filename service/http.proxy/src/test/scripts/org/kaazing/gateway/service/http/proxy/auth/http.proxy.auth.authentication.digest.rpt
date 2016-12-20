@@ -117,7 +117,7 @@ read "Accept: text/html\r\n"
 read "Accept: application/xhtml+xml\r\n"
 read "Accept: application/xml;q=0.9\r\n"
 read "Accept: image/webp\r\n"
-read "Accept: */*;q=0.8\r\n"git
+read "Accept: */*;q=0.8\r\n"
 read "\r\n"
 
 write "HTTP/1.1 200 OK\r\n"
