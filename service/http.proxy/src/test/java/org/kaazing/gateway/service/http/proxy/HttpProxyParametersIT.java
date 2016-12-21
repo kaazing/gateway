@@ -16,7 +16,6 @@
 
 package org.kaazing.gateway.service.http.proxy;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -39,8 +38,8 @@ public class HttpProxyParametersIT {
                 new GatewayConfigurationBuilder()
                     .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
                     .service()
-                        .accept("http://localhost:8110/a")
-                        .connect("http://localhost:8080/a")
+                        .accept("http://localhost:8110/")
+                        .connect("http://localhost:8080/")
                         .type("http.proxy")
                         .connectOption("http.keepalive", "disabled")
                     .done()
@@ -58,7 +57,6 @@ public class HttpProxyParametersIT {
         robot.finish();
     }
 
-    @Ignore("https://github.com/kaazing/tickets/issues/630")
     @Specification("http.proxy.parameter.wse.specific")
     @Test
     public void sendParameterWseSpecific() throws Exception {

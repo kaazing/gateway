@@ -33,6 +33,3 @@ read header "Content-Type" "text/html"
 
 close
 closed
-
-
-accept http://localhost:8081/b/c

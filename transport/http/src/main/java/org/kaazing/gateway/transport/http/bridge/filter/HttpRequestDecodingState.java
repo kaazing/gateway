@@ -38,6 +38,7 @@ import org.kaazing.gateway.transport.DecodingStateMachine;
 import org.kaazing.gateway.transport.http.DefaultHttpCookie;
 import org.kaazing.gateway.transport.http.HttpCookie;
 import org.kaazing.gateway.transport.http.HttpMethod;
+import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.http.HttpVersion;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
@@ -128,18 +129,27 @@ public class HttpRequestDecodingState extends DecodingStateMachine {
 					.get(3);
 			Set<HttpCookie> cookies = (Set<HttpCookie>) childProducts.get(4);
 
-            // KG-11218 - rfc2616 - 5.2: If Request-URI is an absoluteURI, the host is part of the 
-            // Request-URI. Any Host header field value in the request MUST be ignored.
-            List<String> hostHeaderValues = headers.get(HEADER_HOST);
+            final HttpRequestMessage httpRequest = new HttpRequestMessage();
+			List<String> hostHeaderValues = headers.get(HEADER_HOST);
             if (requestURI.isAbsolute()) {
+                httpRequest.setAbsoluteRequestURI(requestURI);
+                String expectedHostHeader = requestURI.getHost()
+                        + (requestURI.getPort() == -1 ? "" : ":" + requestURI.getPort());
+
                 if (hostHeaderValues != null) {
-                    hostHeaderValues.clear();
+                    String gotHostHeader = hostHeaderValues.get(0);
+                    if (!expectedHostHeader.equals(gotHostHeader)) {
+                        String msg = String.format("Request URI %s is in absolute-form, hence expecting Host header %s, but got %s",
+                                requestURI, expectedHostHeader, gotHostHeader);
+                        throw new HttpProtocolDecoderException(msg, HttpStatus.CLIENT_BAD_REQUEST);
+
+                    }
                 } else {
                     hostHeaderValues = new ArrayList<>(1);
-                }   
-                hostHeaderValues.add(requestURI.getHost()
-                        + (requestURI.getPort() == -1 ? "" : ":" + requestURI.getPort()));
-                headers.put(HEADER_HOST, hostHeaderValues);
+                    headers.put(HEADER_HOST, hostHeaderValues);
+                    hostHeaderValues.add(expectedHostHeader);
+                }
+
                 String query = requestURI.getQuery();
                 requestURI = (query == null)
                     ? URI.create(requestURI.getPath())
@@ -173,7 +183,6 @@ public class HttpRequestDecodingState extends DecodingStateMachine {
 
 			canonicalizeURIHeaders(headers, HEADER_REFERER);
 			
-			final HttpRequestMessage httpRequest = new HttpRequestMessage();
 			httpRequest.setSecure(secure);
 			httpRequest.setMethod(method);
 			httpRequest.setRequestURI(requestURI);

@@ -15,32 +15,67 @@
  */
 package org.kaazing.gateway.server.context.resolve;
 
-import com.hazelcast.core.IdGenerator;
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.util.Arrays;
+import java.util.concurrent.locks.Lock;
+
 import org.junit.Test;
-import org.kaazing.gateway.service.cluster.ClusterContext;
+import org.kaazing.gateway.service.cluster.MemberId;
 
 public class StandaloneClusterContextTest {
 
-    // In support of http://jira.kaazing.wan/browse/KG-5001, the
-    // StandaloneClusterContext class needs to return a Hazelcast
-    // IdGenerator, rather than throwing an UnsupportedOperationException.
+    private static final MemberId STANDALONE_CLUSTER_MEMBER = new MemberId("tcp", "standalone", 0);
+    private static final StandaloneClusterContext STANDALONE_CLUESTER_CONTEXT = new StandaloneClusterContext();
 
     @Test
-    public void shouldGetIdGenerator()
-            throws Exception {
+    public void shouldTestStandaloneClusterName() {
+        assertEquals(STANDALONE_CLUSTER_MEMBER.toString(), STANDALONE_CLUESTER_CONTEXT.getClusterName());
+    }
 
-        ClusterContext clusterContext = new StandaloneClusterContext();
+    @Test
+    public void shouldTestStandaloneClusterMemberList() {
+        assertEquals(Arrays.asList(STANDALONE_CLUSTER_MEMBER), STANDALONE_CLUESTER_CONTEXT.getMemberIds());
+    }
 
-        String name = "Standalone ID Generator";
-        IdGenerator idGenerator = clusterContext.getIdGenerator(name);
-        Assert.assertTrue("Expected ID generator, got null", idGenerator != null);
+    @Test
+    public void shouldTestAcceptsIsNull() {
+        assertNull(STANDALONE_CLUESTER_CONTEXT.getAccepts());
+    }
 
-        Assert.assertTrue(String.format("Expected ID generator name '%s', got '%s'", name, idGenerator.getName()), idGenerator
-                .getName().equals(name));
+    @Test
+    public void shouldTestConnectsIsNull() {
+        assertNull(STANDALONE_CLUESTER_CONTEXT.getConnects());
+    }
 
-        long id = idGenerator.newId();
-        long expected = Long.MIN_VALUE + 1;
-        Assert.assertTrue(String.format("Expected next ID of %d, got %d", expected, id), id == expected);
+    @Test
+    public void shouldTestConnectOptionssIsNull() {
+        assertNull(STANDALONE_CLUESTER_CONTEXT.getConnectOptions());
+    }
+
+    @Test
+    public void shouldTestStandaloneLocalMember() {
+        assertEquals(STANDALONE_CLUSTER_MEMBER, STANDALONE_CLUESTER_CONTEXT.getLocalMember());
+    }
+
+    @Test
+    public void shouldTestGetInstanceKeyAlwaysReturnsSameKey() {
+        String standaloneInstanceKey = STANDALONE_CLUESTER_CONTEXT.getInstanceKey(STANDALONE_CLUSTER_MEMBER);
+        assertNotNull(standaloneInstanceKey);
+        assertEquals(standaloneInstanceKey, STANDALONE_CLUESTER_CONTEXT.getInstanceKey(new MemberId("test_protocol", "test_host", 0)));
+    }
+
+    @Test
+    public void shouldTestGetLockReturnsSameObjectByName() {
+        Lock lock = STANDALONE_CLUESTER_CONTEXT.getLock("testLock");
+        assertNotNull(lock);
+        assertEquals(lock, STANDALONE_CLUESTER_CONTEXT.getLock("testLock"));
+    }
+
+    @Test
+    public void shouldTestCollectionsFactoryIsNotNull() {
+        assertNotNull(STANDALONE_CLUESTER_CONTEXT.getCollectionsFactory());
     }
 }

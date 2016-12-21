@@ -167,8 +167,8 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
         result.put("http[http/1.1].keepAliveTimeout", httpKeepaliveTimeout);
         if (wsInactivityTimeoutStr != null &&
             MILLISECONDS.convert(httpKeepaliveTimeout, SECONDS) < wsInactivityTimeout) {
-            LOGGER.warn("http.keealive.timeout={} should be greater than ws.inactivity.timeout={}",
-                    wsInactivityTimeoutStr, httpKeepaliveTimeoutStr);
+            LOGGER.warn("In accept option http.keepalive.timeout={} should be greater than ws.inactivity.timeout={}",
+            		httpKeepaliveTimeoutStr, wsInactivityTimeoutStr);
         }
 
         String[] sslCiphers = getSslCiphers(optionsCopy.remove("ssl.ciphers"));
