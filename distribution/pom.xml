@@ -276,7 +276,7 @@
                                 <myCustomRule implementation="org.kaazing.community.enforcer.rule.RequireSameFile">
                                     <originalFilePath>src/main/gateway/NOTICE.txt</originalFilePath>
                                     <revisedFilePath>target/NOTICE.txt</revisedFilePath>
-                                    <!--Custom error message can be added for the failure case with errorMessage property-->
+                                    <errorMessage>The Notice.txt file from src/main/gateway is not up-to-date. Update it and commit the changes.</errorMessage>
                                 </myCustomRule>
                             </rules>
                         </configuration>

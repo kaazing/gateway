@@ -3,20 +3,20 @@ This product depends on FindBugs-jsr305 2.0.1
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	http://findbugs.sourceforge.net/
 
-This product depends on hazelcast 1.9.4.8
+This product depends on hazelcast 3.7.4
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	http://www.hazelcast.com/hazelcast/
 
-This product depends on hazelcast-client 1.9.4.8
+This product depends on hazelcast-aws 1.1.1
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
+	Homepage:	http://www.hazelcast.com/
+
+This product depends on hazelcast-client 3.7.4
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	http://www.hazelcast.com/hazelcast-client/
-
-This product depends on hazelcast-cloud 1.9.4.8
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://www.hazelcast.com/hazelcast-cloud/
 
 This product depends on Commons CLI 1.2
 
@@ -363,12 +363,7 @@ This product depends on Gateway Utils develop-SNAPSHOT
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.util.git
 
-This product depends on k3po/junit 3.0.0-alpha-55
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/kaazing/k3po
-
-This product depends on k3po/lang 3.0.0-alpha-55
+This product depends on k3po/lang 3.0.0-alpha-58
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	https://github.com/kaazing/k3po
@@ -398,16 +393,6 @@ This product depends on Kaazing's Modified Mina Netty Adapter develop-SNAPSHOT
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	https://github.com/kaazing/mina.netty.git
 
-This product depends on Net API 1.1.0.9
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/kaazing/net.api/net.api
-
-This product depends on Net TCP Implementation 1.1.0.9
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/kaazing/net.api/net.tcp
-
 This product depends on SNMP4J 1.11.3
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (Apache 2)
@@ -417,11 +402,6 @@ This product depends on SNMP4J-Agent 1.4.3
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (Apache 2)
 	Homepage:	https://github.com/kaazing/snmp4j.agent
-
-This product depends on Test Utils develop-SNAPSHOT
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/kaazing/test.util.git
 
 This product depends on SLF4J API Module 1.7.21
 

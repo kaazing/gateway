@@ -427,7 +427,7 @@
                                 <myCustomRule implementation="org.kaazing.community.enforcer.rule.RequireSameFile">
                                     <originalFilePath>NOTICE.txt</originalFilePath>
                                     <revisedFilePath>target/NOTICE.txt</revisedFilePath>
-                                    <!--Custom error message can be added for the failure case with errorMessage property-->
+                                    <errorMessage>The top level Notice.txt file is not up-to-date. Update it and commit the changes.</errorMessage>
                                 </myCustomRule>
                             </rules>
                         </configuration>

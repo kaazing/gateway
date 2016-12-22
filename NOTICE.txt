@@ -43,20 +43,20 @@ This product depends on FindBugs-jsr305 2.0.1
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	http://findbugs.sourceforge.net/
 
-This product depends on hazelcast 1.9.4.8
+This product depends on hazelcast 3.7.4
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	http://www.hazelcast.com/hazelcast/
 
-This product depends on hazelcast-client 1.9.4.8
+This product depends on hazelcast-aws 1.1.1
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
+	Homepage:	http://www.hazelcast.com/
+
+This product depends on hazelcast-client 3.7.4
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	http://www.hazelcast.com/hazelcast-client/
-
-This product depends on hazelcast-cloud 1.9.4.8
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://www.hazelcast.com/hazelcast-cloud/
 
 This product depends on icu4j 2.6.1
 
@@ -568,12 +568,12 @@ This product depends on Gateway Utils develop-SNAPSHOT
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.util.git
 
-This product depends on k3po/junit 3.0.0-alpha-55
+This product depends on k3po/junit 3.0.0-alpha-58
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	https://github.com/kaazing/k3po
 
-This product depends on k3po/lang 3.0.0-alpha-55
+This product depends on k3po/lang 3.0.0-alpha-58
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	https://github.com/kaazing/k3po
@@ -633,52 +633,52 @@ This product depends on SNMP4J-Agent 1.4.3
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (Apache 2)
 	Homepage:	https://github.com/kaazing/snmp4j.agent
 
-This product depends on AMQP Protocol Specification 3.0.0-alpha-55
+This product depends on AMQP Protocol Specification 3.0.0-alpha-58
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	https://github.com/k3po/k3po/tree/develop/specification/specification.amqp.0.9.1
 
-This product depends on HTTP Protocol Specification 3.0.0-alpha-55
+This product depends on HTTP Protocol Specification 3.0.0-alpha-58
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	https://github.com/k3po/specification.http
 
-This product depends on HTTPX Protocol Specification 3.0.0-alpha-55
+This product depends on HTTPX Protocol Specification 3.0.0-alpha-58
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	https://github.com/k3po/k3po.git
 
-This product depends on HTTP Extension and Emulation Protocol Specification 3.0.0-alpha-55
+This product depends on HTTP Extension and Emulation Protocol Specification 3.0.0-alpha-58
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	https://github.com/kaazing/specification.httpxe
 
-This product depends on TCP Protocol Specification 3.0.0-alpha-55
+This product depends on TCP Protocol Specification 3.0.0-alpha-58
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	https://github.com/k3po/specification.tcp
 
-This product depends on UDP Protocol Specification 3.0.0-alpha-55
+This product depends on UDP Protocol Specification 3.0.0-alpha-58
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	https://github.com/k3po/specification.udp
 
-This product depends on Websocket Protocol (RFC-6455) Specification 3.0.0-alpha-55
+This product depends on Websocket Protocol (RFC-6455) Specification 3.0.0-alpha-58
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	https://github.com/kaazing/specification.ws
 
-This product depends on WebSocket Emulation Protocol Specification 3.0.0-alpha-55
+This product depends on WebSocket Emulation Protocol Specification 3.0.0-alpha-58
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	https://github.com/kaazing/specification.wse
 
-This product depends on WebSocket x-kaazing-idle-timeout Specification 3.0.0-alpha-55
+This product depends on WebSocket x-kaazing-idle-timeout Specification 3.0.0-alpha-58
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	https://github.com/kaazing/specification.x-kaazing-idle-timeout
 
-This product depends on WebSocket Extension: x-kaazing-ping-pong Specification 3.0.0-alpha-55
+This product depends on WebSocket Extension: x-kaazing-ping-pong Specification 3.0.0-alpha-58
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	https://github.com/k3po/k3po.git
