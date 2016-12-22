@@ -38,6 +38,9 @@
         <failsafeArgLine>-Xmx1024m</failsafeArgLine>
         <opencsv.version>2.3</opencsv.version>
         <jmh.version>1.14</jmh.version>
+        <community.version>2.24</community.version>
+        <codehaus.license.version>1.10</codehaus.license.version>
+        <maven.enforcer.version>1.4.1</maven.enforcer.version>
     </properties>
 
     <modules>
@@ -379,20 +382,18 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>1.10</version>
+                <version>${codehaus.license.version}</version>
                 <inherited>false</inherited>
                 <configuration>
-                    <outputDirectory>target</outputDirectory>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
                     <thirdPartyFilename>NOTICE.txt</thirdPartyFilename>
-                    <acceptPomPackaging>true</acceptPomPackaging>
                     <fileTemplate>org/kaazing/community/notice/third-party-template.ftl</fileTemplate>
                 </configuration>
                 <dependencies>
                     <dependency>
                         <groupId>org.kaazing</groupId>
                         <artifactId>community.notice</artifactId>
-                        <type>jar</type>
-                         <version>develop-SNAPSHOT</version>
+                        <version>${community.version}</version>
                     </dependency>
                 </dependencies>
                 <executions>
@@ -402,6 +403,38 @@
                         </goals>
                         <phase>generate-resources</phase>
                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven.enforcer.version}</version>
+                <inherited>false</inherited>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.kaazing</groupId>
+                        <artifactId>community.enforcer</artifactId>
+                        <version>${community.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>default-enforce</id>
+                        <configuration combine.self="override">
+                            <skip>false</skip>
+                            <rules>
+                                <myCustomRule implementation="org.kaazing.community.enforcer.rule.RequireSameFile">
+                                    <originalFilePath>NOTICE.txt</originalFilePath>
+                                    <revisedFilePath>target/NOTICE.txt</revisedFilePath>
+                                    <!--Custom error message can be added for the failure case with errorMessage property-->
+                                </myCustomRule>
+                            </rules>
+                        </configuration>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>

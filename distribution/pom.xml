@@ -244,8 +244,9 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>license-maven-plugin</artifactId>
+                <version>${codehaus.license.version}</version>
                 <configuration>
-                    <outputDirectory>target</outputDirectory>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
                     <thirdPartyFilename>NOTICE.txt</thirdPartyFilename>
                     <acceptPomPackaging>true</acceptPomPackaging>
                     <fileTemplate>org/kaazing/community/notice/third-party-template.ftl</fileTemplate>
@@ -265,14 +266,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.4.1</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.kaazing</groupId>
-                        <artifactId>community.enforcer</artifactId>
-                        <version>develop-SNAPSHOT</version>
-                    </dependency>
-                </dependencies>
+                <version>${maven.enforcer.version}</version>
                 <executions>
                     <execution>
                         <id>default-enforce</id>
@@ -282,7 +276,7 @@
                                 <myCustomRule implementation="org.kaazing.community.enforcer.rule.RequireSameFile">
                                     <originalFilePath>src/main/gateway/NOTICE.txt</originalFilePath>
                                     <revisedFilePath>target/NOTICE.txt</revisedFilePath>
-                                    <!--Custom error message can be added for the failure case-->
+                                    <!--Custom error message can be added for the failure case with errorMessage property-->
                                 </myCustomRule>
                             </rules>
                         </configuration>

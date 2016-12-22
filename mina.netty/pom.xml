@@ -9,7 +9,7 @@
     </parent>
     <artifactId>mina.netty</artifactId>
     <packaging>jar</packaging>
-    <name>Mina Netty Adapter</name>
+    <name>Kaazing's Modified Mina Netty Adapter</name>
     <description>Implementation of mina abstractions using netty</description>
 
     <url>https://github.com/kaazing/mina.netty.git</url>

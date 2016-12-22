@@ -393,7 +393,7 @@ This product depends on Apache MINA OGNL Integration develop-SNAPSHOT
 	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache 2.0 License)
 	Homepage:	https://github.com/kaazing/gateway/mina.core/parent/mina-integration-ognl
 
-This product depends on Mina Netty Adapter develop-SNAPSHOT
+This product depends on Kaazing's Modified Mina Netty Adapter develop-SNAPSHOT
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	https://github.com/kaazing/mina.netty.git
