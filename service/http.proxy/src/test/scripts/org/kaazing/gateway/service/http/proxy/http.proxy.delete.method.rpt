@@ -14,62 +14,36 @@
 # limitations under the License.
 #
 
- connect tcp://localhost:8110
- connected
- write "GET /get HTTP/1.1\r\n"
- write "Host: localhost:8110\r\n"
- write "User-Agent: Mozilla/5.0\r\n"
- write "Connection: keep-alive\r\n"
- write "Upgrade-Insecure-Requests: 1\r\n"
- write "\r\n"
+connect http://localhost:8110/hello
+connected
 
- read status "200" /.*/
+write method "DELETE"
+write version "HTTP/1.1"
+write header host
+write header content-length
+write close
 
- write "DELETE /examples/servlets/servlet/CookieExample HTTP/1.1\r\n"
- write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
- write "Host: localhost:8110\r\n"
- write "Accept-Language: en-US,en\r\n"
- write "Connection: keep-alive"
+read status "200" "OK"
+read version "HTTP/1.1"
 
- read "HTTP/1.1 200 OK\r\n"
- read "Content-Type: text/html;charset=UTF-8\r\n"
- read /Date: .*/ "\r\n"
- read "Server: Apache-Coyote/1.1\r\n"
- read "Transfer-Encoding: chunked\r\n"
- read "\r\n"
- read "14\r\n"
- read "0\r\n"
- read "\r\n"
-
- close
- closed
+close
+closed
 
 #
-# Origin server
+# server
 #
 
- accept tcp://localhost:8080
- accepted
- connected
+accept http://localhost:8080/hello
+accepted
+connected
 
- read "GET /get HTTP/1.1\r\n"
- read /Via: 1.1 kaazing-.+/ "\r\n"
- read "User-Agent: Mozilla/5.0\r\n"
- read "Upgrade-Insecure-Requests: 1\r\n"
- read "Host: localhost:8080\r\n"
- read "Connection: close\r\n"
- read "\r\n"
+read method "DELETE"
+read closed
 
- write status "200" "OK"
+write status "200" "OK"
+write header content-length
+write flush
 
- read "DELETE /examples/servlets/servlet/CookieExample HTTP/1.1\r\n"
- read "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
- read "Host: localhost:8110\r\n"
- read "Accept-Language: en-US,en\r\n"
- read "Connection: keep-alive"
-
- write status "200" "OK"
-
-# gateway(sender) closes the connection
+close
 closed
 

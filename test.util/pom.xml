@@ -32,11 +32,12 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.jmock</groupId>
             <artifactId>jmock</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>

@@ -81,7 +81,6 @@ public class HttpProxyMalformedRequestsIT {
         robot.finish();
     }
 
-    @Ignore("https://github.com/kaazing/tickets/issues/629")
     @Specification("http.proxy.malformed.hostname.not.match.uri")
     @Test
     public void hostnameDoesNotMatchUri() throws Exception {

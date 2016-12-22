@@ -41,15 +41,12 @@ import org.junit.Test;
 import org.kaazing.gateway.service.cluster.ClusterContext;
 import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
-import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
-import org.kaazing.gateway.util.scheduler.SchedulerProvider;
+import org.kaazing.gateway.service.collections.CollectionsFactory;
 
 public class DefaultClusterContextTest {
 
     public static final String BALANCER_MAP_NAME = "balancerMap";
     public static final String MEMBERID_BALANCER_MAP_NAME = "memberIdBalancerMap";
-
-    SchedulerProvider schedulerProvider;
 
     DefaultClusterContext clusterContext1;
     DefaultClusterContext clusterContext2;
@@ -121,14 +118,12 @@ public class DefaultClusterContextTest {
 
     @Before
     public void setUp() throws Exception {
-        schedulerProvider = new SchedulerProvider();
         memberTracker1 = new ClusterMemberTracker();
         memberTracker2 = new ClusterMemberTracker();
     }
 
     @After
     public void tearDown() throws Exception {
-        schedulerProvider.shutdownNow();
         memberTracker1.clear();
         memberTracker2.clear();
     }
@@ -145,13 +140,11 @@ public class DefaultClusterContextTest {
             clusterContext1 = new DefaultClusterContext(clusterName,
                     accepts,
                     connects,
-                    schedulerProvider,
                     null);
 
             clusterContext2 = new DefaultClusterContext(clusterName,
                     connects,
                     accepts,
-                    schedulerProvider,
                     null);
 
             clusterContext1.addMembershipEventListener(memberTracker1);
@@ -189,7 +182,6 @@ public class DefaultClusterContextTest {
             clusterContext1 = new DefaultClusterContext(clusterName,
                     acceptsMember1,
                     connectsMember1,
-                    schedulerProvider,
                     null);
 
             List<MemberId> acceptsMember2 = Collections.singletonList(acceptMember2);
@@ -197,7 +189,6 @@ public class DefaultClusterContextTest {
             clusterContext2 = new DefaultClusterContext(clusterName,
                     acceptsMember2,
                     connectsMember2,
-                    schedulerProvider,
                     null);
 
             clusterContext1.addMembershipEventListener(memberTracker1);
@@ -267,25 +258,21 @@ public class DefaultClusterContextTest {
             clusterContext1 = new DefaultClusterContext(clusterName,
                     accepts1,
                     connects1,
-                    schedulerProvider,
                     null);
 
             clusterContext2 = new DefaultClusterContext(clusterName,
                     accepts2,
                     connects2,
-                    schedulerProvider,
                     null);
 
             clusterContext3 = new DefaultClusterContext(clusterName,
                     accepts3,
                     connects3,
-                    schedulerProvider,
                     null);
 
             clusterContext4 = new DefaultClusterContext(clusterName,
                     accepts4,
                     connects4,
-                    schedulerProvider,
                     null);
 
             startClusterContext(clusterContext1);
@@ -321,13 +308,11 @@ public class DefaultClusterContextTest {
             clusterContext1 = new DefaultClusterContext(clusterName,
                     accepts1,
                     connects1,
-                    schedulerProvider,
                     null);
 
             clusterContext2 = new DefaultClusterContext(clusterName,
                     accepts2,
                     connects2,
-                    schedulerProvider,
                     null);
 
             startClusterContext(clusterContext1);
