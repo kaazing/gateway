@@ -15,12 +15,17 @@
  */
 package org.kaazing.gateway.transport;
 
+import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 
 public class ObjectLoggingFilter extends LoggingFilter {
 
     public ObjectLoggingFilter(Logger logger, String format) {
         super(logger, format);
+    }
+
+    public ObjectLoggingFilter(Logger logger, IoSession session, String transportName) {
+        super(logger, session, transportName);
     }
 
 }
