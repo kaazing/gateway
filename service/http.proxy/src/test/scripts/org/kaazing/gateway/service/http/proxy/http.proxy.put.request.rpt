@@ -14,10 +14,14 @@
 # limitations under the License.
 #
 
+#
+# client
+#
+
 connect http://localhost:8110/hello
 connected
 
-write method "DELETE"
+write method "PUT"
 write version "HTTP/1.1"
 write header host
 write header content-length
@@ -37,7 +41,7 @@ accept http://localhost:8080/hello
 accepted
 connected
 
-read method "DELETE"
+read method "PUT"
 read closed
 
 write status "200" "OK"
@@ -46,4 +50,3 @@ write flush
 
 close
 closed
-

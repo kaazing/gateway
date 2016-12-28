@@ -15,12 +15,11 @@
  */
 package org.kaazing.gateway.transport.wsn.logging;
 
-import static org.kaazing.test.util.ITUtil.timeoutRule;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
+import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -41,18 +40,18 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import org.kaazing.k3po.junit.annotation.Specification;
-import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.ITUtil;
-import org.kaazing.test.util.MemoryAppender;
-import org.kaazing.test.util.MethodExecutionTrace;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
-import org.kaazing.gateway.transport.wsn.specification.ws.connector.WsnConnectorRule;
 import org.kaazing.gateway.transport.wsn.WsnProtocol;
 import org.kaazing.gateway.transport.wsn.WsnSession;
+import org.kaazing.gateway.transport.wsn.specification.ws.connector.WsnConnectorRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.test.util.ITUtil;
+import org.kaazing.test.util.MemoryAppender;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 // This is a subset of BaseFramingIT (connector version) used to verify wsn transport level logging
 public class WsnConnectorLoggingIT {
@@ -113,7 +112,7 @@ public class WsnConnectorLoggingIT {
 
         k3po.finish();
 
-        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
+        expectedPatterns = Arrays.asList(
                 "tcp#.*OPENED",
                 "tcp#.*WRITE",
                 "tcp#.*RECEIVED",
@@ -124,7 +123,7 @@ public class WsnConnectorLoggingIT {
                 "tcp#.*EXCEPTION.*Protocol.*Exception",
                 "wsn#.*EXCEPTION.*IOException.*caused by.*Protocol.*Exception",
                 "wsn#.*CLOSED"
-        }));
+        );
 
         forbiddenPatterns = null;
     }
@@ -179,19 +178,19 @@ public class WsnConnectorLoggingIT {
 
         k3po.finish();
 
-        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
-                "tcp#.*OPENED",
-                "tcp#.*WRITE",
-                "tcp#.*RECEIVED",
-                "tcp#.*CLOSED",
-                "http#.*OPENED",
-                "http#.*CLOSED",
-                "wsn#.*OPENED",
-                "wsn#.*WRITE",
-                "wsn#.*RECEIVED",
-                "wsn#.*EXCEPTION", // because the script does not complete the WebSocket close handshake
-                "wsn#.*CLOSED"
-        }));
+        expectedPatterns = Arrays.asList(
+            "tcp#.*OPENED",
+            "tcp#.*WRITE",
+            "tcp#.*RECEIVED",
+            "tcp#.*CLOSED",
+            "http#.*OPENED",
+            "http#.*CLOSED",
+            "wsn#.*OPENED",
+            "wsn#.*WRITE",
+            "wsn#.*RECEIVED",
+            "wsn#.*EXCEPTION", // because the script does not complete the WebSocket close handshake
+            "wsn#.*CLOSED"
+        );
 
         forbiddenPatterns = null;
     }
@@ -225,16 +224,16 @@ public class WsnConnectorLoggingIT {
         k3po.finish();
         assertTrue(close.await(10, SECONDS));
 
-        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
-                "tcp#.* [^/]*:\\d*] OPENED",
-                "tcp#.* [^/]*:\\d*] WRITE",
-                "tcp#.* [^/]*:\\d*] RECEIVED",
-                "tcp#.* [^/]*:\\d*] CLOSED",
-                "http#.* [^/]*:\\d*] OPENED",
-                "http#.* [^/]*:\\d*] CLOSED",
-                "wsn#.* [^/]*:\\d*] OPENED",
-                "wsn#.* [^/]*:\\d*] CLOSED"
-        }));
+        expectedPatterns = Arrays.asList(
+            "tcp#.* [^/]*:\\d*] OPENED",
+            "tcp#.* [^/]*:\\d*] WRITE",
+            "tcp#.* [^/]*:\\d*] RECEIVED",
+            "tcp#.* [^/]*:\\d*] CLOSED",
+            "http#.* [^/]*:\\d*] OPENED",
+            "http#.* [^/]*:\\d*] CLOSED",
+            "wsn#.* [^/]*:\\d*] OPENED",
+            "wsn#.* [^/]*:\\d*] CLOSED"
+        );
 
         forbiddenPatterns = Collections.singletonList("#.*EXCEPTION");
     }
