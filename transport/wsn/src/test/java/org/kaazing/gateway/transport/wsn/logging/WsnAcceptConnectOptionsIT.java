@@ -68,8 +68,8 @@ public class WsnAcceptConnectOptionsIT {
         gateway.stop();
         
         expectedPatterns = Arrays.asList(
-            "In accept option http.keepalive.timeout=4 seconds should be greater than ws.inactivity.timeout=30 seconds", 
-            "In connect option http.keepalive.timeout=5 seconds should be greater than ws.inactivity.timeout=30 seconds"
+            "http.keepalive.timeout=4 seconds should be greater-than-or-equal-to ws.inactivity.timeout=30 seconds in accept-options", 
+            "http.keepalive.timeout=5 seconds should be greater-than-or-equal-to ws.inactivity.timeout=30 seconds in connect-options"
         );
     }
 }
