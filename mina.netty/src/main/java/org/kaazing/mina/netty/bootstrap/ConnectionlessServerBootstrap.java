@@ -106,16 +106,7 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
 
         @Override
         public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
-            System.out.println("JITU *** child channel open begin");
             ((IoAcceptorChannelHandler) parentHandler).childChannelOpen(ctx, e);
-            System.out.println("JITU *** child channel open done");
-
-            /*
-            NioChildDatagramChannel childChannel = (NioChildDatagramChannel) e.getChildChannel();
-            childChannel.getWorker().executeInIoThread(
-                    () -> fireChannelConnected(childChannel, childChannel.getRemoteAddress())
-            );
-            */
         }
 
         @Override
@@ -129,10 +120,10 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
             // lookup child channel based on local and remote addresses
             NioChildDatagramChannel childChannel = getChildChannel(e.getChannel(), e.getRemoteAddress());
 
-            UpstreamMessageEvent event = new UpstreamMessageEvent(childChannel, e.getMessage(), null);
+            UpstreamMessageEvent event = new UpstreamMessageEvent(childChannel, e.getMessage(), e.getRemoteAddress());
             AbstractNioWorker childWorker = childChannel.getWorker();
-            System.out.println("JITU *** Adding child channel message ");
 
+            // Queue child channel message event (as it needs to be run on child worker)
             childWorker.messageReceived(childChannel, event);
         }
 
@@ -164,16 +155,16 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
                 childChannel.setLocalAddress((InetSocketAddress) channel.getLocalAddress());
                 childChannel.setRemoteAddress((InetSocketAddress) remoteAddress);
 
-                System.out.println("JITU *** Firing child channel open on parent channel");
+                // fire child open on parent channel
                 channel.getPipeline().sendUpstream(new DefaultChildChannelStateEvent(channel, childChannel));
 
                 AbstractNioWorker childWorker = childChannel.getWorker();
 
-                System.out.println("JITU *** Adding child channel connected ");
+                // Queue child channel connected event (as it needs to be run on child worker)
                 ChannelStateEvent connected = new UpstreamChannelStateEvent(childChannel, ChannelState.CONNECTED, remoteAddress);
                 childWorker.messageReceived(childChannel, connected);
 
-                System.out.println("JITU *** Adding child channel open ");
+                // Queue child channel open event (as it needs to be run on child worker)
                 ChannelStateEvent open = new UpstreamChannelStateEvent(childChannel, ChannelState.OPEN, Boolean.TRUE);
                 childWorker.messageReceived(childChannel, open);
 
