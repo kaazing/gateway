@@ -166,7 +166,6 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                                       HttpRealmInfo[] realms,
                                       int realmIndex,
                                       LoginContext[] loginContexts) {
-        logger.debug("Entering loginMissingToken");
         HttpRealmInfo realm = realms[realmIndex];
 
         // We build a LoginContext here and call login() so that login
@@ -185,7 +184,6 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
             loginContext = (ResultAwareLoginContext) loginContextFactory.createLoginContext(callbackHandlerMap);
             if (loginContext == null) {
-                logger.debug("Exiting loginMissingToken1");
                 throw new LoginException("Login failed; cannot create a login context for authentication token '" + authToken + "\'.");
             }
 
@@ -212,38 +210,28 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                 // we will never able to handle the token, so return
                 // 403 now.
                 writeResponse(HttpStatus.CLIENT_FORBIDDEN, nextFilter, session, httpRequest);
-                logger.debug("Exiting loginMissingToken2");
                 return false;
             }
-            logger.debug("Exiting loginMissingToken3");
         } catch (Exception e) {
             if (loggerEnabled()) {
                 log("Login failed.", e);
             }
             writeResponse(HttpStatus.CLIENT_FORBIDDEN, nextFilter, session, httpRequest);
-            logger.debug("Exiting loginMissingToken4");
             return false;
         }
-        logger.debug("Trace loginMissingToken");
         DefaultLoginResult loginResult = loginContext.getLoginResult();
-        logger.debug("Trace loginMissingToken2");
         String challenge = sendChallengeResponse(nextFilter, session, httpRequest, loginResult, realms, realmIndex, loginContexts);
-        logger.debug("Trace loginMissingToken3");
         if (loggerEnabled()) {
             log(String.format("No authentication token was provided.  Issuing an authentication challenge '%s'.", challenge));
         }
-        logger.debug("Trace loginMissingToken4");
         // No matter what happens, we know that the roles currently present
         // are not sufficient for logging in, so return false.
         ResourceAddress localAddress = LOCAL_ADDRESS.get(session);
-        logger.debug("Trace loginMissingToken5");
         String nextProtocol = localAddress.getOption(NEXT_PROTOCOL);
-        logger.debug("Trace loginMissingToken6");
         if ("http/1.1".equals(nextProtocol)) {
-        	HttpMergeRequestFilter.INITIAL_HTTP_REQUEST_KEY.remove(session);
+            HttpMergeRequestFilter.INITIAL_HTTP_REQUEST_KEY.remove(session);
         }
-        
-        logger.debug("Exiting loginMissingToken5");
+
         return false;
     }
 

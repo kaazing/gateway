@@ -16,7 +16,6 @@
 package org.kaazing.gateway.server.context.resolve;
 
 import static org.kaazing.gateway.resource.address.uri.URIUtils.buildURIAsString;
-
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getAuthority;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getCanonicalURI;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getFragment;
@@ -145,11 +144,6 @@ public class GatewayContextResolver {
     private static final String OLD_EXPIRING_STATE_OPTIONS_KEY = "ExpiringState";
     
     
-//    private static final String EXPIRING_STATE_OPTIONS_KEY = "ExpiringState";
-//    private static final String EXPIRING_STATE_OPTIONS_KEY = "ExpiringState";
-//    private static final String EXPIRING_STATE_OPTIONS_KEY = "ExpiringState";
-//    private static final String EXPIRING_STATE_OPTIONS_KEY = "ExpiringState";
-
     // a map of file-extension to mime-type.  For backward compatibility, we'll
     // hardcode this initial set based on the values in Dragonfire HttpUtils.getContentType().
     // TODO: In 4.0 we may want to remove this and require explicit settings!
