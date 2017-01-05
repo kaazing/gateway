@@ -15,8 +15,11 @@
  */
 package org.kaazing.gateway.management.jmx;
 
+import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.getKeystoreFileLocation;
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.keyStore;
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.password;
@@ -51,7 +54,6 @@ public class JmxSessionIT {
     protected static final String ADMIN = "AUTHORIZED";
     private final KeyStore keyStore = keyStore();
     private final char[] password = password();
-    private final KeyStore trustStore = trustStore();
 
     private K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws/closing");
 
@@ -78,7 +80,6 @@ public class JmxSessionIT {
                             .realmName("jmxrealm")
                         .done()
                         .security()
-                            .trustStore(trustStore)
                             .keyStore(keyStore)
                             .keyStorePassword(password)
                             .keyStoreFile(getKeystoreFileLocation())
@@ -123,5 +124,11 @@ public class JmxSessionIT {
         ObjectName summaryBean = mbeanNames.iterator().next();
         assertEquals(Long.valueOf(1), (Long) mbeanServerConn.getAttribute(summaryBean, "NumberOfCumulativeSessions"));
         assertEquals(Long.valueOf(0), (Long) mbeanServerConn.getAttribute(summaryBean, "NumberOfCurrentSessions"));
+
+        mbeanNames = mbeanServerConn.queryNames(
+                ObjectName.getInstance("*:serviceType=echo,name=sessions,*"), null);
+        for (ObjectName name : mbeanNames) {
+            fail("There should be no sessions but found " + name);
+        }
     }
 }
