@@ -254,6 +254,13 @@
                     <missingFile>src/license/THIRD-PARTY.properties</missingFile>
                     <failIfWarning>true</failIfWarning>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.kaazing</groupId>
+                        <artifactId>community.notice</artifactId>
+                        <version>${community.version}</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <goals>
@@ -267,6 +274,13 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>${maven.enforcer.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.kaazing</groupId>
+                        <artifactId>community.enforcer</artifactId>
+                        <version>${community.version}</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <id>default-enforce</id>
@@ -274,9 +288,14 @@
                             <skip>false</skip>
                             <rules>
                                 <myCustomRule implementation="org.kaazing.community.enforcer.rule.RequireSameFile">
-                                    <originalFilePath>src/main/gateway/NOTICE.txt</originalFilePath>
-                                    <revisedFilePath>target/NOTICE.txt</revisedFilePath>
-                                    <errorMessage>The Notice.txt file from src/main/gateway is not up-to-date. Update it and commit the changes.</errorMessage>
+                                    <originalFilePath>../NOTICE.txt</originalFilePath>
+                                    <revisedFilePath>${project.build.directory}/NOTICE.txt</revisedFilePath>
+                                    <errorMessage>The top level Notice.txt file is not up-to-date. Update it and commit the changes.</errorMessage>
+                                </myCustomRule>
+                                <myCustomRule implementation="org.kaazing.community.enforcer.rule.RequireSameFile">
+                                    <originalFilePath>${project.basedir}/src/main/gateway/NOTICE.txt</originalFilePath>
+                                    <revisedFilePath>${project.build.directory}/NOTICE.txt</revisedFilePath>
+                                    <errorMessage>The Notice.txt file from distribution/src/main/gateway is not up-to-date. Update it and commit the changes.</errorMessage>
                                 </myCustomRule>
                             </rules>
                         </configuration>

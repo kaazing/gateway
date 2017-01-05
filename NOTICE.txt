@@ -1,43 +1,3 @@
-This product depends on Ant 1.6
-
-	License:	Unknown license
-	The project URL is not included in this dependency's pom, and thus could not be referenced here.
-
-This product depends on ASM Core 3.1
-
-	License:	Unknown license
-	Homepage:	http://asm.objectweb.org/asm/
-
-This product depends on ASM Commons 3.1
-
-	License:	Unknown license
-	Homepage:	http://asm.objectweb.org/asm-commons/
-
-This product depends on ASM Tree 3.1
-
-	License:	Unknown license
-	Homepage:	http://asm.objectweb.org/asm-tree/
-
-This product depends on ASM Util 3.1
-
-	License:	Unknown license
-	Homepage:	http://asm.objectweb.org/asm-util/
-
-This product depends on cglib 2.1_3
-
-	License:	Unknown license
-	Homepage:	http://cglib.sourceforge.net/
-
-This product depends on classworlds 1.1-alpha-2
-
-	License:	Unknown license
-	Homepage:	http://classworlds.codehaus.org/
-
-This product depends on RMock 2.0.0
-
-	License:	${basedir}/../tools/licenses/LICENSE.txt (RMock License)
-	Homepage:	http://rmock.sourceforge.net
-
 This product depends on FindBugs-jsr305 2.0.1
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
@@ -57,11 +17,6 @@ This product depends on hazelcast-client 3.7.4
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	http://www.hazelcast.com/hazelcast-client/
-
-This product depends on icu4j 2.6.1
-
-	License:	Unknown license
-	The project URL is not included in this dependency's pom, and thus could not be referenced here.
 
 This product depends on Commons CLI 1.2
 
@@ -83,44 +38,19 @@ This product depends on Java Unified Expression Language Implementation 2.2.7
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	http://juel.sourceforge.net/juel-impl/
 
-This product depends on dom4j 1.6.1
-
-	License:	Unknown license
-	Homepage:	http://dom4j.org
-
 This product depends on Netty 3.10.5.Final
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	http://netty.io/
-
-This product depends on jaxen 1.1.1
-
-	License:	Unknown license
-	Homepage:	http://jaxen.codehaus.org/
 
 This product depends on Javassist 3.7.ga
 
 	License:	http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/jboss/javassist/License.html?rev=HEAD&content-type=text/html (MPL 1.1)
 	Homepage:	http://labs.jboss.com/javassist/
 
-This product depends on jdom 1.0
-
-	License:	Unknown license
-	The project URL is not included in this dependency's pom, and thus could not be referenced here.
-
 This product depends on JUnit 4.12
 
 	License:	http://www.eclipse.org/legal/epl-v10.html (Eclipse Public License 1.0)
-	Homepage:	http://junit.org
-
-This product depends on JUnit 4.4
-
-	License:	http://www.opensource.org/licenses/cpl1.0.txt (Common Public License Version 1.0)
-	Homepage:	http://junit.org
-
-This product depends on JUnit 4.4
-
-	License:	http://www.opensource.org/licenses/cpl1.0.txt (Common Public License Version 1.0)
 	Homepage:	http://junit.org
 
 This product depends on Apache Log4j 1.2.17
@@ -130,13 +60,8 @@ This product depends on Apache Log4j 1.2.17
 
 This product depends on Java Native Access 3.3.0
 
-	License:	Unknown license
+	License:	http://www.gnu.org/licenses/licenses.html (LGPL)
 	The project URL is not included in this dependency's pom, and thus could not be referenced here.
-
-This product depends on JOpt Simple 4.6
-
-	License:	http://www.opensource.org/licenses/mit-license.php (The MIT License)
-	Homepage:	http://pholser.github.com/jopt-simple
 
 This product depends on opencsv 2.3
 
@@ -145,7 +70,7 @@ This product depends on opencsv 2.3
 
 This product depends on OGNL - Object Graph Navigation Library 2.7.2
 
-	License:	Unknown license
+	License:	http://www.apache.org/licenses/ (Apache License 2)
 	Homepage:	http://ognl.org
 
 This product depends on abego TreeLayout Core 1.0.1
@@ -163,155 +88,30 @@ This product depends on ANTLR 4 Runtime 4.2.2
 	License:	http://www.antlr.org/license.html (The BSD License)
 	Homepage:	http://www.antlr.org/antlr4-runtime
 
-This product depends on Commons Lang 3.1
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://commons.apache.org/lang/
-
-This product depends on Commons Math 3.2
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://commons.apache.org/proper/commons-math/
-
-This product depends on Maven Artifact 2.0.7
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://maven.apache.org/maven-artifact
-
-This product depends on Maven Artifact Manager 2.0.7
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://maven.apache.org/maven-artifact-manager
-
-This product depends on Maven Model 2.0.7
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://maven.apache.org/maven-model
-
-This product depends on Maven Plugin API 2.0.7
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://maven.apache.org/maven-plugin-api
-
-This product depends on Maven Plugin Registry Model 2.0.7
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://maven.apache.org/maven-plugin-registry
-
-This product depends on Maven Profile Model 2.0.7
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://maven.apache.org/maven-profile
-
-This product depends on Maven Project Builder 2.0.7
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://maven.apache.org/maven-project
-
-This product depends on Maven Repository Metadata Model 2.0.7
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://maven.apache.org/maven-repository-metadata
-
-This product depends on Maven Local Settings Model 2.0.7
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://maven.apache.org/maven-settings
-
-This product depends on Maven Shade Plugin 1.1
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://maven.apache.org/plugins/maven-shade-plugin/
-
-This product depends on Maven Dependency Tree 1.1
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://maven.apache.org/shared/maven-dependency-tree/
-
 This product depends on Apache Maven Shared Utils 3.0.0
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (Apache License, Version 2.0)
 	Homepage:	http://maven.apache.org/shared/maven-shared-utils/
-
-This product depends on Maven Wagon API 1.0-beta-2
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://maven.apache.org/wagon/wagon-provider-api
 
 This product depends on XmlBeans 2.4.0
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	http://xmlbeans.apache.org
 
-This product depends on BeanShell 2.0b4
-
-	License:	http://www.gnu.org/licenses/lgpl.txt (GNU LESSER GENERAL PUBLIC LICENSE)
-	The project URL is not included in this dependency's pom, and thus could not be referenced here.
-
-This product depends on Default Plexus Container 1.0-alpha-9-stable-1
-
-	License:	Unknown license
-	The project URL is not included in this dependency's pom, and thus could not be referenced here.
-
-This product depends on Plexus Common Utilities 1.4.4
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://plexus.codehaus.org/plexus-utils
-
-This product depends on EasyMock 2.3
-
-	License:	http://www.easymock.org/License.html (MIT License)
-	Homepage:	http://www.easymock.org
-
-This product depends on EasyMock class extension 2.3
-
-	License:	http://www.easymock.org/License.html (MIT License)
-	Homepage:	http://www.easymock.org
-
 This product depends on Hamcrest Core 1.3
 
 	License:	http://www.opensource.org/licenses/bsd-license.php (New BSD License)
 	Homepage:	https://github.com/hamcrest/JavaHamcrest/hamcrest-core
 
-This product depends on Hamcrest library 1.3
-
-	License:	http://www.opensource.org/licenses/bsd-license.php (New BSD License)
-	Homepage:	https://github.com/hamcrest/JavaHamcrest/hamcrest-library
-
 This product depends on JDOM 1.1
 
-	License:	Unknown license
+	License:	https://github.com/hunterhacker/jdom/blob/master/LICENSE.txt (JDOM License)
 	Homepage:	http://www.jdom.org/
-
-This product depends on jMock 2 Core 2.6.0
-
-	License:	http://jmock.org/license.html (BSD style)
-	Homepage:	http://nexus.sonatype.org/oss-repository-hosting.html/jmock-parent/jmock
-
-This product depends on jMock JUnit 4 Extension 2.6.0
-
-	License:	http://jmock.org/license.html (BSD style)
-	Homepage:	http://nexus.sonatype.org/oss-repository-hosting.html/jmock-parent/jmock-junit4
-
-This product depends on jMock Legacy Extension 2.6.0
-
-	License:	http://jmock.org/license.html (BSD style)
-	Homepage:	http://nexus.sonatype.org/oss-repository-hosting.html/jmock-parent/jmock-legacy
-
-This product depends on jMock Script Extension 2.6.0
-
-	License:	http://jmock.org/license.html (BSD style)
-	Homepage:	http://nexus.sonatype.org/oss-repository-hosting.html/jmock-parent/jmock-script
 
 This product depends on JSON (JavaScript Object Notation) 20090211
 
 	License:	http://www.json.org/license.html (provided without support or warranty)
 	Homepage:	http://www.json.org/java/index.html
-
-This product depends on Kaazing Corporation License 2.17
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/kaazing/community
 
 This product depends on Kaazing Corporation License 2.18
 
@@ -503,11 +303,6 @@ This product depends on Update Check Management Service develop-SNAPSHOT
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.service.update.check.management.git
 
-This product depends on Keystore and Truststore used for testing TLS 1.0.0.24
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/kaazing/gateway.test.ca.git
-
 This product depends on Transport Core develop-SNAPSHOT
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
@@ -568,11 +363,6 @@ This product depends on Gateway Utils develop-SNAPSHOT
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.util.git
 
-This product depends on k3po/junit 3.0.0-alpha-58
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/kaazing/k3po
-
 This product depends on k3po/lang 3.0.0-alpha-58
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
@@ -603,26 +393,6 @@ This product depends on Kaazing's Modified Mina Netty Adapter develop-SNAPSHOT
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	https://github.com/kaazing/mina.netty.git
 
-This product depends on Net API 1.1.0.9
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/kaazing/net.api/net.api
-
-This product depends on Net TCP Implementation 1.1.0.9
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/kaazing/net.api/net.tcp
-
-This product depends on Net Extensions Common 0.4.0
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/kaazing/netx
-
-This product depends on Net Data Implementation 0.4.0
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/kaazing/netx
-
 This product depends on SNMP4J 1.11.3
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (Apache 2)
@@ -633,87 +403,7 @@ This product depends on SNMP4J-Agent 1.4.3
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (Apache 2)
 	Homepage:	https://github.com/kaazing/snmp4j.agent
 
-This product depends on AMQP Protocol Specification 3.0.0-alpha-58
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/k3po/k3po/tree/develop/specification/specification.amqp.0.9.1
-
-This product depends on HTTP Protocol Specification 3.0.0-alpha-58
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/k3po/specification.http
-
-This product depends on HTTPX Protocol Specification 3.0.0-alpha-58
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/k3po/k3po.git
-
-This product depends on HTTP Extension and Emulation Protocol Specification 3.0.0-alpha-58
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/kaazing/specification.httpxe
-
-This product depends on TCP Protocol Specification 3.0.0-alpha-58
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/k3po/specification.tcp
-
-This product depends on UDP Protocol Specification 3.0.0-alpha-58
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/k3po/specification.udp
-
-This product depends on Websocket Protocol (RFC-6455) Specification 3.0.0-alpha-58
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/kaazing/specification.ws
-
-This product depends on WebSocket Emulation Protocol Specification 3.0.0-alpha-58
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/kaazing/specification.wse
-
-This product depends on WebSocket x-kaazing-idle-timeout Specification 3.0.0-alpha-58
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/kaazing/specification.x-kaazing-idle-timeout
-
-This product depends on WebSocket Extension: x-kaazing-ping-pong Specification 3.0.0-alpha-58
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/k3po/k3po.git
-
-This product depends on Test Utils develop-SNAPSHOT
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	https://github.com/kaazing/test.util.git
-
-This product depends on Objenesis 1.0
-
-	License:	http://objenesis.googlecode.com/svn/docs/license.html (MIT License)
-	Homepage:	http://objenesis.googlecode.com/svn/docs/index.html
-
-This product depends on JMH Core 1.14
-
-	License:	http://openjdk.java.net/legal/gplv2+ce.html (GNU General Public License (GPL), version 2, with the Classpath exception)
-	Homepage:	http://openjdk.java.net/projects/code-tools/jmh/jmh-core/
-
-This product depends on JMH Generators: Annotation Processors 1.14
-
-	License:	http://openjdk.java.net/legal/gplv2+ce.html (GNU General Public License (GPL), version 2, with the Classpath exception)
-	Homepage:	http://openjdk.java.net/projects/code-tools/jmh/jmh-generator-annprocess/
-
-This product depends on JCL 1.1.1 implemented over SLF4J 1.7.21
-
-	License:	http://www.opensource.org/licenses/mit-license.php (MIT License)
-	Homepage:	http://www.slf4j.org
-
 This product depends on SLF4J API Module 1.7.21
-
-	License:	http://www.opensource.org/licenses/mit-license.php (MIT License)
-	Homepage:	http://www.slf4j.org
-
-This product depends on SLF4J JDK14 Binding 1.7.21
 
 	License:	http://www.opensource.org/licenses/mit-license.php (MIT License)
 	Homepage:	http://www.slf4j.org
@@ -722,11 +412,6 @@ This product depends on SLF4J LOG4J-12 Binding 1.7.21
 
 	License:	http://www.opensource.org/licenses/mit-license.php (MIT License)
 	Homepage:	http://www.slf4j.org
-
-This product depends on PMD 4.2
-
-	License:	Unknown license
-	Homepage:	http://pmd.sourceforge.net/
 
 This product depends on StAX API 1.0.1
 
@@ -737,29 +422,4 @@ This product depends on Agrona 0.4.12
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache License, Version 2.0)
 	Homepage:	https://github.com/real-logic/Agrona
-
-This product depends on xalan 2.6.0
-
-	License:	Unknown license
-	The project URL is not included in this dependency's pom, and thus could not be referenced here.
-
-This product depends on xercesImpl 2.6.2
-
-	License:	Unknown license
-	The project URL is not included in this dependency's pom, and thus could not be referenced here.
-
-This product depends on xmlParserAPIs 2.6.2
-
-	License:	Unknown license
-	The project URL is not included in this dependency's pom, and thus could not be referenced here.
-
-This product depends on xml-apis 1.3.02
-
-	License:	Unknown license
-	Homepage:	http://xml.apache.org/commons/#external
-
-This product depends on xom 1.0
-
-	License:	null (LGPL)
-	Homepage:	http://www.xom.nu
 
