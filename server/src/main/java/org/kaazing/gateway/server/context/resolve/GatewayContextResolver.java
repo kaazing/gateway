@@ -141,9 +141,7 @@ public class GatewayContextResolver {
     private static final String LOGIN_MODULE_TYPE_CLASS_PREFIX = "class:";
 
     private static final String EXPIRING_STATE_NAME = "ExpiringState";
-    private static final String OLD_EXPIRING_STATE_OPTIONS_KEY = "ExpiringState";
-    
-    
+
     // a map of file-extension to mime-type.  For backward compatibility, we'll
     // hardcode this initial set based on the values in Dragonfire HttpUtils.getContentType().
     // TODO: In 4.0 we may want to remove this and require explicit settings!
@@ -1049,7 +1047,6 @@ public class GatewayContextResolver {
         options.put(LoginModuleOptions.CONFIG_DIRECTORY.propertyName(),
                 configuration.getProperty(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY));
         if (LOGIN_MODULE_EXPIRING_STATE.isEnabled(configuration)) {
-            options.put(OLD_EXPIRING_STATE_OPTIONS_KEY, expiringState);
             options.put(LoginModuleOptions.EXPIRING_STATE.propertyName(), expiringState);
         }
         options.put(LoginModuleOptions.KEYSTORE.propertyName(), securityConfig.getKeystore());
