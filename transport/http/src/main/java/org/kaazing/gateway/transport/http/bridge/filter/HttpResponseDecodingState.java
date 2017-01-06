@@ -26,7 +26,6 @@ import java.util.Set;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
-import org.apache.mina.filter.codec.statemachine.CrLfDecodingState;
 import org.apache.mina.filter.codec.statemachine.DecodingState;
 import org.kaazing.gateway.transport.DecodingStateMachine;
 import org.kaazing.gateway.transport.http.DefaultHttpCookie;
@@ -53,18 +52,6 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
         super(allocator);
         this.httpSession = httpSession;
     }
-
-    private final DecodingState SKIP_EMPTY_LINES = new CrLfDecodingState() {
-
-        @Override
-        protected DecodingState finishDecode(boolean foundCRLF, ProtocolDecoderOutput out) throws Exception {
-            if (foundCRLF) {
-                return this;
-            } else {
-                return READ_RESPONSE_MESSAGE;
-            }
-        }
-    };
 
     private final DecodingState READ_RESPONSE_MESSAGE = new DecodingStateMachine(allocator) {
 
@@ -354,7 +341,7 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
 
     @Override
     protected DecodingState init() throws Exception {
-        return SKIP_EMPTY_LINES;
+        return READ_RESPONSE_MESSAGE;
     }
 
     @Override
