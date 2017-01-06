@@ -15,15 +15,11 @@
  */
 package org.kaazing.gateway.management.jmx;
 
-import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.getKeystoreFileLocation;
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.keyStore;
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.password;
-import static org.kaazing.gateway.management.test.util.TlsTestUtil.trustStore;
 
 import java.security.KeyStore;
 import java.util.Set;
@@ -109,7 +105,7 @@ public class JmxSessionIT {
     @Specification("client.send.empty.close.frame/handshake.request.and.frame")
     @ScriptProperty("location 'http://localhost:8001/echo'")
     @Test
-    public void getActiveSessionCountFromJmx() throws Exception {
+    public void sessionWhichHasClosedShouldBeRemovedFromCurrentSessionCountAndActiveSessions() throws Exception {
         k3po.finish();
 
         // to make sure jmx is updated
@@ -127,8 +123,6 @@ public class JmxSessionIT {
 
         mbeanNames = mbeanServerConn.queryNames(
                 ObjectName.getInstance("*:serviceType=echo,name=sessions,*"), null);
-        for (ObjectName name : mbeanNames) {
-            fail("There should be no sessions but found " + name);
-        }
+        assertEquals("The set of sessions should be empty", 0, mbeanNames.size());
     }
 }
