@@ -31,7 +31,7 @@ write "Accept-Encoding: gzip, deflate, sdch\r\n"
 write "Accept-Language: en-US,en;q=0.8\r\n"
 write "\r\n"
 
-read "HTTP/1.1 504 Gateway Timeout\r\n"
+read "HTTP/1.1 200 OK\r\n"
 
 close
 closed

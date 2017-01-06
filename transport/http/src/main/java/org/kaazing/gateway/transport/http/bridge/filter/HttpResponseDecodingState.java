@@ -49,7 +49,7 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpResponseDecodingState.class);
     private final HttpSession httpSession;
 
-    public HttpResponseDecodingState(IoBufferAllocatorEx<?> allocator, HttpSession httpSession) {
+    HttpResponseDecodingState(IoBufferAllocatorEx<?> allocator, HttpSession httpSession) {
         super(allocator);
         this.httpSession = httpSession;
     }
@@ -64,20 +64,6 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
                 return READ_RESPONSE_MESSAGE;
             }
         }
-    };
-
-    protected final DecodingState FLUSH_MESSAGES = new DecodingState() {
-
-        @Override
-        public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out) throws Exception {
-            return SKIP_EMPTY_LINES;
-        }
-
-        @Override
-        public DecodingState finishDecode(ProtocolDecoderOutput out) throws Exception {
-            return SKIP_EMPTY_LINES;
-        }
-
     };
 
     private final DecodingState READ_RESPONSE_MESSAGE = new DecodingStateMachine(allocator) {
@@ -141,7 +127,7 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
                                     HttpContentMessage content = new HttpContentMessage((IoBufferEx) readData, true);
                                     httpResponse.setContent(content);
                                     out.write(httpResponse);
-                                    return FLUSH_MESSAGES;
+                                    return null;
                                 }
                             };
                         } else {
@@ -261,7 +247,7 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
                         // read the cookie properties
                         for (int i = 1; i < nvPairCount; i++) {
                             nvPair = nvPairs[i].split("=");
-                            boolean hasValue = nvPair.length > 1 ? true : false;
+                            boolean hasValue = nvPair.length > 1;
                             String avName = nvPair[0].trim();
                             if (avName.length() > 0) {
                                 switch (avName.charAt(0)) {
