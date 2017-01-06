@@ -253,6 +253,7 @@
                     <useMissingFile>true</useMissingFile>
                     <missingFile>src/license/THIRD-PARTY.properties</missingFile>
                     <failIfWarning>true</failIfWarning>
+                    <excludedGroups>org.kaazing.*</excludedGroups>
                 </configuration>
                 <dependencies>
                     <dependency>
