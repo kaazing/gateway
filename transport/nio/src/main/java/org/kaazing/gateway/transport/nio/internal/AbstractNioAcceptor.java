@@ -377,23 +377,19 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
         // a hang when there's a race with Gateway.destroy().
         if (!unbindScheduler.isShutdown()) {
             final UnbindFuture future = new DefaultUnbindFuture();
-            unbindScheduler.submit(new FutureTask<>(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        unbindInternal(address);
-                        future.setUnbound();
-                    } catch (ThreadDeath td) {
-                        throw td;
-                    } catch (Throwable t) {
-                        LOG.error("Exception during unbinding:\n"+address, t);
-                        //System.out.println("Exception during unbinding:\n"+address+"\n");
-                        //t.printStackTrace(System.out);
-                        future.setException(t);
-                        throw new RuntimeException(t);
-                    }
-                }
-            }, Boolean.TRUE));
+            try {
+                unbindInternal(address);
+                future.setUnbound();
+            } catch (ThreadDeath td) {
+                throw td;
+            } catch (Throwable t) {
+                LOG.error("Exception during unbinding:\n"+address, t);
+                //System.out.println("Exception during unbinding:\n"+address+"\n");
+                //t.printStackTrace(System.out);
+                future.setException(t);
+                throw new RuntimeException(t);
+            }
+
             return future;
         }
         else {
@@ -438,7 +434,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
                         if (removed) {
                             ResourceAddress bindAddress = nioBinding.bindAddress();
                             InetSocketAddress socketAddress = asSocketAddress(bindAddress);
-                            acceptor.unbind(socketAddress);
+                            acceptor.unbindAsync(socketAddress);
                             boundAuthorities.remove(bindAddress);
                         }
                     }
