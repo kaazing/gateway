@@ -63,7 +63,6 @@ import org.kaazing.gateway.security.SecurityContext;
 import org.kaazing.gateway.security.auth.BasicLoginModule;
 import org.kaazing.gateway.security.auth.NegotiateLoginModule;
 import org.kaazing.gateway.security.auth.TimeoutLoginModule;
-import org.kaazing.gateway.server.ExpiringState;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.config.SchemeConfig;
@@ -87,6 +86,8 @@ import org.kaazing.gateway.server.config.parse.DefaultSchemeConfig;
 import org.kaazing.gateway.server.context.DependencyContext;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.service.ServiceRegistry;
+import org.kaazing.gateway.server.spi.security.ExpiringState;
+import org.kaazing.gateway.server.spi.security.LoginModuleOptions;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.ConnectOptionsContext;
 import org.kaazing.gateway.service.Service;
@@ -140,7 +141,6 @@ public class GatewayContextResolver {
     private static final String LOGIN_MODULE_TYPE_CLASS_PREFIX = "class:";
 
     private static final String EXPIRING_STATE_NAME = "ExpiringState";
-    private static final String EXPIRING_STATE_OPTIONS_KEY = "ExpiringState";
 
     // a map of file-extension to mime-type.  For backward compatibility, we'll
     // hardcode this initial set based on the values in Dragonfire HttpUtils.getContentType().
@@ -989,15 +989,8 @@ public class GatewayContextResolver {
                 for (LoginModuleType loginModule : loginModulesArray) {
                     String type = loginModule.getType();
                     String success = loginModule.getSuccess().toString();
-                    Map<String, Object> options = new HashMap<>();
 
-                    // add the GATEWAY_CONFIG_DIRECTORY to the options so it can be used from various login modules
-                    // (see FileLoginModule for an example)
-                    options.put(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY, configuration
-                            .getProperty(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY));
-                    if (LOGIN_MODULE_EXPIRING_STATE.isEnabled(configuration)) {
-                        options.put(EXPIRING_STATE_OPTIONS_KEY, expiringState);
-                    }
+                    Map<String, Object> options = resolveOptions(configuration, securityContext, expiringState);
 
                     LoginModuleOptionsType rawOptions = loginModule.getOptions();
                     if (rawOptions != null) {
@@ -1043,6 +1036,22 @@ public class GatewayContextResolver {
         }
 
         return new DefaultRealmsContext(Collections.unmodifiableMap(realmContexts));
+    }
+
+    private Map<String, Object> resolveOptions(Properties configuration, SecurityContext securityContext,
+        ExpiringState expiringState) {
+        Map<String, Object> options = new HashMap<>();
+
+        options.put(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY,
+                configuration.getProperty(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY));
+        options.put(LoginModuleOptions.CONFIG_DIRECTORY_NAME,
+                configuration.getProperty(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY));
+        if (LOGIN_MODULE_EXPIRING_STATE.isEnabled(configuration)) {
+            options.put(LoginModuleOptions.EXPIRING_STATE_NAME, expiringState);
+        }
+        options.put(LoginModuleOptions.KEYSTORE_NAME, securityContext.getKeyStore());
+        options.put(LoginModuleOptions.TRUSTSTORE_NAME, securityContext.getTrustStore());
+        return options;
     }
 
     private void updateLoginModuleConfigurationEntries(SecurityType securityConfig, AuthenticationType authType,

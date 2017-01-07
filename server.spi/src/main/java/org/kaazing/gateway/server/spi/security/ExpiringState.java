@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.kaazing.gateway.server;
+package org.kaazing.gateway.server.spi.security;
 
 import java.util.concurrent.TimeUnit;
 
