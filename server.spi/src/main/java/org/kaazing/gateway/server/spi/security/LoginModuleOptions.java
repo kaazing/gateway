@@ -44,7 +44,7 @@ public abstract class LoginModuleOptions<T> {
 
     /**
      * Access to the ExpiringState.
-     * @see org.kaazing.gateway.server.ExpiringState
+     * @see org.kaazing.gateway.server.spi.security.ExpiringState
      */
     public static final LoginModuleOptions<ExpiringState> EXPIRING_STATE = new LoginModuleOptions<ExpiringState>() {
 
