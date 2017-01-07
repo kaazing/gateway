@@ -24,66 +24,57 @@ import java.util.Map;
  * @see javax.security.auth.spi.LoginModule#initialize(javax.security.auth.Subject, javax.security.auth.callback.CallbackHandler, Map, Map)
  *
  */
-public enum LoginModuleOptions {
+public abstract class LoginModuleOptions<T> {
+
+    public static final String CONFIG_DIRECTORY_NAME = "org.kaazing.gateway.CONFIG_DIRECTORY";
+    public static final String EXPIRING_STATE_NAME = "org.kaazing.gateway.EXPIRING_STATE";
+    public static final String KEYSTORE_NAME = "org.kaazing.gateway.KEYSTORE";
+    public static final String TRUSTSTORE_NAME = "org.kaazing.gateway.TRUSTSTORE";
 
     /**
      * GATEWAY_HOME/conf directory. This is often used to store login module configuration in the conf directory.
      */
-    CONFIG_DIRECTORY {
-        private String propertyName = "org.kaazing.gateway.CONFIG_DIRECTORY";
+    public static final LoginModuleOptions<String> CONFIG_DIRECTORY = new LoginModuleOptions<String>() {
 
+        @Override
         public String get(Map<String, ?> options) {
-            return (String) options.get(propertyName());
+            return (String) options.get(CONFIG_DIRECTORY_NAME);
         }
-
-        public String propertyName() {
-            return propertyName;
-        }
-    },
+    };
 
     /**
      * Access to the ExpiringState.
      * @see org.kaazing.gateway.server.ExpiringState
      */
-    EXPIRING_STATE {
-        private String propertyName = "org.kaazing.gateway.EXPIRING_STATE";
+    public static final LoginModuleOptions<ExpiringState> EXPIRING_STATE = new LoginModuleOptions<ExpiringState>() {
 
+        @Override
         public ExpiringState get(Map<String, ?> options) {
-            return (ExpiringState) options.get("org.kaazing.gateway.EXPIRING_STATE");
+            return (ExpiringState) options.get(EXPIRING_STATE_NAME);
         }
-
-        public String propertyName() {
-            return propertyName;
-        }
-    },
+    };
 
     /**
      * Provides the KeyStore used by the gateway, allowing login modules to access private keys in the KeyStore.
      */
-    KEYSTORE {
-        private String propertyName = "org.kaazing.gateway.KEYSTORE";
+    public static final LoginModuleOptions<KeyStore> KEYSTORE = new LoginModuleOptions<KeyStore>() {
 
+
+        @Override
         public KeyStore get(Map<String, ?> options) {
-            return (KeyStore) options.get("org.kaazing.gateway.KEYSTORE");
+            return (KeyStore) options.get(KEYSTORE_NAME);
         }
-
-        public String propertyName() {
-            return propertyName;
-        }
-    },
+    };
 
     /**
      * Provides the TrustStore used by the gateway, allowing login modules to access private keys in the TrustStore.
      */
-    TRUSTSTORE {
-        private String propertyName = "org.kaazing.gateway.TRUSTSTORE";
+    public static final LoginModuleOptions<KeyStore> TRUSTSTORE = new LoginModuleOptions<KeyStore>() {
 
+
+        @Override
         public KeyStore get(Map<String, ?> options) {
-            return (KeyStore) options.get("org.kaazing.gateway.TRUSTSTORE");
-        }
-
-        public String propertyName() {
-            return propertyName;
+            return (KeyStore) options.get(TRUSTSTORE_NAME);
         }
     };
 
@@ -92,11 +83,6 @@ public enum LoginModuleOptions {
      * @param options
      * @return
      */
-    public abstract Object get(Map<String, ?> options);
+    public abstract T get(Map<String, ?> options);
 
-    /**
-     * Name and key the option is saved as.
-     * @return
-     */
-    public abstract String propertyName();
 }

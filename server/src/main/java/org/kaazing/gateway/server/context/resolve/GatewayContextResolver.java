@@ -990,7 +990,7 @@ public class GatewayContextResolver {
                     String type = loginModule.getType();
                     String success = loginModule.getSuccess().toString();
 
-                    Map<String, Object> options = resolveOptions(configuration, securityConfig, expiringState);
+                    Map<String, Object> options = resolveOptions(configuration, securityContext, expiringState);
 
                     LoginModuleOptionsType rawOptions = loginModule.getOptions();
                     if (rawOptions != null) {
@@ -1038,19 +1038,19 @@ public class GatewayContextResolver {
         return new DefaultRealmsContext(Collections.unmodifiableMap(realmContexts));
     }
 
-    private Map<String, Object> resolveOptions(Properties configuration, SecurityType securityConfig,
+    private Map<String, Object> resolveOptions(Properties configuration, SecurityContext securityContext,
         ExpiringState expiringState) {
         Map<String, Object> options = new HashMap<>();
 
         options.put(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY,
                 configuration.getProperty(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY));
-        options.put(LoginModuleOptions.CONFIG_DIRECTORY.propertyName(),
+        options.put(LoginModuleOptions.CONFIG_DIRECTORY_NAME,
                 configuration.getProperty(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY));
         if (LOGIN_MODULE_EXPIRING_STATE.isEnabled(configuration)) {
-            options.put(LoginModuleOptions.EXPIRING_STATE.propertyName(), expiringState);
+            options.put(LoginModuleOptions.EXPIRING_STATE_NAME, expiringState);
         }
-        options.put(LoginModuleOptions.KEYSTORE.propertyName(), securityConfig.getKeystore());
-        options.put(LoginModuleOptions.TRUSTSTORE.propertyName(), securityConfig.getTruststore());
+        options.put(LoginModuleOptions.KEYSTORE_NAME, securityContext.getKeyStore());
+        options.put(LoginModuleOptions.TRUSTSTORE_NAME, securityContext.getTrustStore());
         return options;
     }
 
