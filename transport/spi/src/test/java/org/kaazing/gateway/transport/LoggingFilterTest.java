@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.net.Inet6Address;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.security.auth.Subject;
@@ -118,6 +119,25 @@ public class LoggingFilterTest {
 
         assertTrue(LoggingFilter.addIfNeeded(logger, sessionEx, "http"));
         assertEquals("http#%s 111.122.133.144:41234", filter.get().getFormat());
+    }
+
+    @Test
+    public void shouldIncludeIdentityInSessionIdFormat() throws Exception {
+        final IoAcceptorEx acceptor = context.mock(IoAcceptorEx.class, "acceptor");
+        SocketAddress remoteAddress = new InetSocketAddress("host", 12244);
+        SocketAddress localAddress = new InetSocketAddress("host", 8001);
+
+        context.checking(new Expectations() {
+            {
+                allowing(sessionEx).getService(); will(returnValue(acceptor));
+                oneOf(sessionEx).getRemoteAddress(); will(returnValue(remoteAddress));
+                oneOf(sessionEx).getLocalAddress(); will(returnValue(localAddress));
+            }
+        });
+
+        LoggingFilter filter = new ObjectLoggingFilter(logger, sessionEx, "service");
+        String format = filter.getFormat();
+        assertTrue("Format did not match expected pattern: " + format, format.matches("service#%s host:12244"));
     }
 
     @Test

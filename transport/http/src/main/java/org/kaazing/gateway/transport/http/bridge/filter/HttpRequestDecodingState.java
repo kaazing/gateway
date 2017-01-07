@@ -57,35 +57,6 @@ public class HttpRequestDecodingState extends DecodingStateMachine {
     private static final String QUERY_PARAM_DEFAULT_CONTENT_TYPE = ".kct";
     private final List<String> NULL_ORIGIN;
 
-    private final DecodingState SKIP_EMPTY_LINES = new CrLfDecodingState() {
-	    
-        @Override
-		protected DecodingState finishDecode(boolean foundCRLF,
-				ProtocolDecoderOutput out) throws Exception {
-			if (foundCRLF) {
-				return this;
-			} else {
-				return READ_REQUEST_MESSAGE;
-			}
-		}
-	};
-
-	protected final DecodingState FLUSH_MESSAGES = new DecodingState() {
-
-		@Override
-		public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out)
-				throws Exception {
-			return SKIP_EMPTY_LINES;
-		}
-
-		@Override
-		public DecodingState finishDecode(ProtocolDecoderOutput out)
-				throws Exception {
-			return SKIP_EMPTY_LINES;
-		}
-
-	};
-
     private static final DecodingState READ_CONTENT = new DecodingState() {
         @Override
         public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out) throws Exception {

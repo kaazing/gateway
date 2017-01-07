@@ -186,6 +186,7 @@ public class HttpProxyServiceTest {
         // @formatter:off
         GatewayConfiguration configuration =
                 new GatewayConfigurationBuilder()
+                    .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "false")
                     .service()
                         .accept("http://localhost:8080/a")
                         .connect("http://localhost:8081/")
