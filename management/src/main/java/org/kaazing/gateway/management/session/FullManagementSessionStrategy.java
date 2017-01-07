@@ -40,12 +40,6 @@ public class FullManagementSessionStrategy extends CollectOnlyManagementSessionS
     }
 
     @Override
-    public void doSessionClosed(final SessionManagementBean sessionBean) throws Exception {
-        super.doSessionClosed(sessionBean);
-        sessionBean.doSessionClosedListeners();
-    }
-
-    @Override
     public void doMessageReceived(final SessionManagementBean sessionBean, final Object message) throws Exception {
         super.doMessageReceived(sessionBean, message);
         sessionBean.doMessageReceivedListeners(message);
