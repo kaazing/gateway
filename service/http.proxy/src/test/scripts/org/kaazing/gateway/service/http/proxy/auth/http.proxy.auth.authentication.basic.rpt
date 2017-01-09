@@ -24,7 +24,7 @@ connected
 write method "GET"
 write parameter "/basic-auth/user/passwd"
 write version "HTTP/1.1"
-write header  "User-Agent" "curl/7.37.1"
+write header "User-Agent" "curl/7.37.1"
 write header "Host" "localhost:8110"
 write header "Accept" "*/*"
 
