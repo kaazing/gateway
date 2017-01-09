@@ -6,6 +6,8 @@
 
 #### Actual behavior
 
+#### Logs/Wiresharks
+
 #### Specifications 
 
 1) Gateway Java version
