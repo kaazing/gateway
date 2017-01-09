@@ -35,7 +35,7 @@ import org.kaazing.test.util.MethodExecutionTrace;
 public class WsnAcceptConnectOptionsIT {
 
     private List<String> expectedPatterns;
-    
+
     private TestRule checkLogMessageRule = (base, description) -> new Statement() {
         @Override
         public void evaluate() throws Throwable {
@@ -48,9 +48,10 @@ public class WsnAcceptConnectOptionsIT {
 
     @Rule
     public final TestRule chain = RuleChain.outerRule(trace).around(checkLogMessageRule);
-    
+
     @Test
-    public void testAcceptConnectOptions() throws Exception {       
+    public void testAcceptConnectOptions() throws Exception {
+        //@formatter:off
         GatewayConfiguration gc = new GatewayConfigurationBuilder()
             .service()
                 .type("proxy")
@@ -66,9 +67,10 @@ public class WsnAcceptConnectOptionsIT {
         Gateway gateway = new Gateway();
         gateway.start(gc);
         gateway.stop();
-        
+        //@formatter:on
+
         expectedPatterns = Arrays.asList(
-            "http.keepalive.timeout=4 seconds should be greater-than-or-equal-to ws.inactivity.timeout=30 seconds in accept-options", 
+            "http.keepalive.timeout=4 seconds should be greater-than-or-equal-to ws.inactivity.timeout=30 seconds in accept-options",
             "http.keepalive.timeout=5 seconds should be greater-than-or-equal-to ws.inactivity.timeout=30 seconds in connect-options"
         );
     }
