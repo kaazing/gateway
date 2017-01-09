@@ -36,13 +36,13 @@ public class HttpProxyAuthenticationIT {
         // @formatter:off
         GatewayConfiguration configuration =
                 new GatewayConfigurationBuilder()
-                        .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
-                        .service()
+                     .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
+                     .service()
                         .accept("http://localhost:8110")
                         .connect("http://localhost:8080")
                         .type("http.proxy")
-                        .done()
-                        .done();
+                     .done()
+                .done();
         // @formatter:on
         init(configuration);
     }};

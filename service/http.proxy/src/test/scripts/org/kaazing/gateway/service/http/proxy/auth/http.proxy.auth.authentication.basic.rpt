@@ -18,28 +18,25 @@
 # client
 #
 
-connect http://localhost:8110/hello
+
+connect http://localhost:8110/resource
 connected
 
 write method "GET"
-write parameter "/basic-auth/user/passwd"
-write version "HTTP/1.1"
-write header "User-Agent" "curl/7.37.1"
-write header "Host" "localhost:8110"
-write header "Accept" "*/*"
+write header "Authorization" "Basic"
+write close
 
+read status "401" "Unauthorized"
+read header "WWW-Authenticate" /Basic realm=.+/
+read notify FIRST_REQUEST_COMPLETE
 
-read status "401" "UNAUTHORIZED"
-read version "HTTP/1.1"
-
-
+connect await FIRST_REQUEST_COMPLETE
+connect http://localhost:8110/resource
+connected
 
 write method "GET"
-write parameter "/basic-auth/user/passwd"
-write parameter "HTTP/1.1"
-write header  "User-Agent" "curl/7.37.1"
-write header "Host" "localhost:8110"
-write header "Accept" "*/*"
+write header "Authorization" "am9lOndlbGNvbWUNCg=="
+write close
 
 read status "200" "OK"
 
@@ -50,34 +47,23 @@ closed
 # server
 #
 
-
-
-accept http://localhost:8080/hello
+accept http://localhost:8080/resource
 accepted
 connected
 
-
-
 read method "GET"
-write parameter "/basic-auth/user/passwd"
-write version "HTTP/1.1"
-read header "Via" "1.1 kaazing"
-read header "User-Agent" "curl/7.37.1"
-read header "Host" "localhost:8080"
-read header "Accept" "*/*"
+read header "Authorization" "Basic"
 read closed
 
-write status "401" "UNAUTHORIZED"
-write version "HTTP/1.1"
+write status "401" "Unauthorized"
+write header "WWW-Authenticate" "Basic realm=\"Kaazing Gateway Demo\""
+write flush
+
+accepted
+connected
 
 read method "GET"
-write parameter "/basic-auth/user/passwd"
-write parameter "HTTP/1.1"
-read header "Via" "1.1 kaazing"
-read header "User-Agent" "curl/7.37.1"
-read header "Host" "localhost:8080"
-read header "Accept" "*/*"
-read closed
+read header "Authorization" "am9lOndlbGNvbWUNCg=="
 
 write status "200" "OK"
 write close
