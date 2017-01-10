@@ -35,6 +35,8 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.MAX_
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALMS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REQUIRED_ROLES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.SERVER_HEADER_ENABLED;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.USER_AGENT_HEADER_ENABLED;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.HOST_HEADER_ENABLED;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.DATE_HEADER_ENABLED;
 
 import java.net.URI;
@@ -104,6 +106,8 @@ public class HttpResourceAddressFactorySpiTest {
         options.put("http.realmAuthenticationCookieNames",new String[] {"c1", "c2"});
         options.put("http.loginContextFactory", loginContextFactory);
         options.put("http.serverHeaderEnabled", Boolean.FALSE);
+        options.put("http.userAgentHeaderEnabled", Boolean.FALSE);
+        options.put("http.hostHeaderEnabled", Boolean.FALSE);
         options.put("http.dateHeaderEnabled", Boolean.FALSE);
         options.put("http.max.authentication.attempts", 5);
         options.put("http.realms", realms);
@@ -142,6 +146,8 @@ public class HttpResourceAddressFactorySpiTest {
         assertEquals(address.getOption(KEEP_ALIVE_CONNECTIONS).intValue(), DEFAULT_HTTP_KEEPALIVE_CONNECTIONS);
         assertEmpty(address.getOption(REQUIRED_ROLES));
         assertTrue(address.getOption(SERVER_HEADER_ENABLED));
+        assertTrue(address.getOption(USER_AGENT_HEADER_ENABLED));
+        assertTrue(address.getOption(HOST_HEADER_ENABLED));
         assertTrue(address.getOption(DATE_HEADER_ENABLED));
         assertArrayEquals(new HttpRealmInfo[0], address.getOption(REALMS));
         assertEquals(new Integer(0), address.getOption(MAX_AUTHENTICATION_ATTEMPTS));
@@ -160,6 +166,8 @@ public class HttpResourceAddressFactorySpiTest {
         assertArrayEquals(new String[] { "admin" }, address.getOption(REQUIRED_ROLES));
         assertEquals(realms, address.getOption(REALMS));
         assertFalse(address.getOption(SERVER_HEADER_ENABLED));
+        assertFalse(address.getOption(USER_AGENT_HEADER_ENABLED));
+        assertFalse(address.getOption(HOST_HEADER_ENABLED));
         assertFalse(address.getOption(DATE_HEADER_ENABLED));
         assertEquals(new Integer(5), address.getOption(MAX_AUTHENTICATION_ATTEMPTS));
     }

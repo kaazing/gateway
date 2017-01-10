@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.transport.http.bridge.filter;
 
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REQUIRED_ROLES;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_SEC_CHALLENGE_IDENTITY;
 
 import java.security.Principal;
@@ -40,7 +39,7 @@ import org.kaazing.gateway.security.auth.DefaultLoginResult;
 import org.kaazing.gateway.security.auth.NamedSubjectCallbackHandler;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.security.auth.token.DefaultAuthenticationToken;
-import org.kaazing.gateway.server.ExpiringState;
+import org.kaazing.gateway.server.spi.security.ExpiringState;
 import org.kaazing.gateway.server.spi.security.NamedSubjectCallback;
 import org.kaazing.gateway.transport.http.DefaultHttpSession;
 import org.kaazing.gateway.transport.http.HttpCookie;
@@ -327,7 +326,6 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
                 setUnprotectedLoginContext(httpRequest);
             }
             if (loggerIsEnabled) {
-                logger.trace("Required roles : " +httpRequest.getLocalAddress().getOption(REQUIRED_ROLES));
                 logger.trace("HttpSubjectSecurityFilter skipped because we are already allowed or logged in.");
             }
 

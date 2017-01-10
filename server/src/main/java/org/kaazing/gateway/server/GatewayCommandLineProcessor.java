@@ -160,8 +160,10 @@ public class GatewayCommandLineProcessor {
                 String[] nextLine;
 
                 while ((nextLine = script_options.readNext()) != null) {
-                    Option o = new Option(null, nextLine[0], Boolean.parseBoolean(nextLine[1]), nextLine[2]);
-                    all_opt.addOption(o);
+                    if (nextLine.length >= 3 ) {
+                        Option o = new Option(null, nextLine[0], Boolean.parseBoolean(nextLine[1]), nextLine[2]);
+                        all_opt.addOption(o);
+                    }
                 }
                 script_options.close();
             }

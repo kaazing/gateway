@@ -15,6 +15,13 @@
  */
 package org.kaazing.gateway.transport.wsn.logging;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+
 import org.apache.log4j.PropertyConfigurator;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,13 +38,6 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.MemoryAppender;
 import org.kaazing.test.util.MethodExecutionTrace;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * WsnAcceptorUserLoggingMultiplePrincipalsInConfigIT - verifies that if multiple Principals are defined in the config
@@ -124,19 +124,19 @@ public class WsnAcceptorUserLoggingMultiplePrincipalsInConfigIT {
     @Test
     public void verifyPrincipalNameLoggedWhenMultiplePrincipalsInConfig() throws Exception {
         k3po.finish();
-        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
-                "tcp#.* [^/]*:\\d*] OPENED",
-                "tcp#.* [^/]*:\\d*] WRITE",
-                "tcp#.* [^/]*:\\d*] RECEIVED",
-                "tcp#.* [^/]*:\\d*] CLOSED",
-                "http#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] OPENED",
-                "http#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] CLOSED",
-                "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] OPENED",
-                "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] WRITE",
-                "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] RECEIVED",
-                "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] EXCEPTION.*IOException",
-                "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] CLOSED"
-        }));
+        expectedPatterns = Arrays.asList(
+            "tcp#.* [^/]*:\\d*] OPENED",
+            "tcp#.* [^/]*:\\d*] WRITE",
+            "tcp#.* [^/]*:\\d*] RECEIVED",
+            "tcp#.* [^/]*:\\d*] CLOSED",
+            "http#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] OPENED",
+            "http#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] CLOSED",
+            "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] OPENED",
+            "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] WRITE",
+            "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] RECEIVED",
+            "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] EXCEPTION.*IOException",
+            "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] CLOSED"
+        );
         forbiddenPatterns = new ArrayList<>(Arrays.asList(new String[]{
                 TEST_PRINCIPAL_PASS
         }));

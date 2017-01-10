@@ -184,14 +184,6 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
             throws Exception {
         // GL.debug("http", getClass().getSimpleName() + " request received.");
 
-        if (!httpRequest.hasHeader(HttpHeaders.HEADER_X_SEQUENCE_NO)) {
-            String candidateSequenceNo = httpRequest.removeParameter(PARAMETER_X_SEQUENCE_NO);
-            if (candidateSequenceNo != null) {
-                // if ".ksn" parameter is present, use this value as "X-Sequence-No" header
-                httpRequest.setHeader(HttpHeaders.HEADER_X_SEQUENCE_NO, candidateSequenceNo);
-            }
-        }
-
         if (deferOriginSecurityToHttpxe(session, httpRequest)) {
             if (session.getFilterChain().contains(HttpAcceptFilter.ORIGIN_SECURITY.filterName())) {
                 session.getFilterChain().remove(HttpAcceptFilter.ORIGIN_SECURITY.filterName());
@@ -306,6 +298,14 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                             httpRequest.setHeader(HEADER_X_NEXT_PROTOCOL, PROTOCOL_HTTPXE_1_1);
                     }
 
+                }
+            }
+
+            if (PROTOCOL_HTTPXE_1_1.equals(httpRequest.getHeader(HEADER_X_NEXT_PROTOCOL)) && !httpRequest.hasHeader(HttpHeaders.HEADER_X_SEQUENCE_NO)) {
+                String candidateSequenceNo = httpRequest.removeParameter(PARAMETER_X_SEQUENCE_NO);
+                if (candidateSequenceNo != null) {
+                    // if ".ksn" parameter is present, use this value as "X-Sequence-No" header
+                    httpRequest.setHeader(HttpHeaders.HEADER_X_SEQUENCE_NO, candidateSequenceNo);
                 }
             }
 

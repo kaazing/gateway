@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.transport.http.bridge.filter;
 
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,8 +38,29 @@ public class HttpHostHeaderFilter extends HttpFilterAdapter<IoSessionEx> {
         // HTTP/1.1 request message that lacks a Host header field and to any
         // request message that contains more than one Host header field or a
         // Host header field with an invalid field-value.
-        if(hostHeaderValues == null || hostHeaderValues.size() != 1 || hostHeaderValues.get(0).isEmpty()) {
-            throw new HttpProtocolDecoderException(HttpStatus.CLIENT_BAD_REQUEST);  
+        URI requestURI = httpRequest.getRequestURI();
+        if (hostHeaderValues == null) {
+            String msg = String.format("HTTP request for URI %s doesn't have Host header", requestURI);
+            throw new HttpProtocolDecoderException(msg, HttpStatus.CLIENT_BAD_REQUEST);
+        } else if (hostHeaderValues.size() != 1) {
+            String msg = String.format("HTTP request for URI %s has multiple Host headers %s", requestURI, hostHeaderValues);
+            throw new HttpProtocolDecoderException(msg, HttpStatus.CLIENT_BAD_REQUEST);
+        } else if (hostHeaderValues.get(0).isEmpty()) {
+            String msg = String.format("HTTP request for URI %s has empty Host header field-value", requestURI);
+            throw new HttpProtocolDecoderException(msg, HttpStatus.CLIENT_BAD_REQUEST);
+        }
+
+        URI absoluteURI = httpRequest.getAbsoluteRequestURI();
+        if (absoluteURI != null) {
+            String expectedHostHeader = absoluteURI.getHost()
+                    + (absoluteURI.getPort() == -1 ? "" : ":" + absoluteURI.getPort());
+
+            String gotHostHeader = hostHeaderValues.get(0);
+            if (!expectedHostHeader.equalsIgnoreCase(gotHostHeader)) {
+                String msg = String.format("Request URI %s is in absolute-form, hence expecting Host header %s, but got %s",
+                        absoluteURI, expectedHostHeader, gotHostHeader);
+                throw new HttpProtocolDecoderException(msg, HttpStatus.CLIENT_BAD_REQUEST);
+            }
         }
         
         super.httpRequestReceived(nextFilter, session, httpRequest);

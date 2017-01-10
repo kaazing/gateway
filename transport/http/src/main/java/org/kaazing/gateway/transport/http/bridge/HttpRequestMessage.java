@@ -43,6 +43,8 @@ public class HttpRequestMessage extends HttpStartMessage {
 	private boolean secure;
 	private Map<String, List<String>> parameters;
 	private URI requestURI;
+	private URI absoluteRequestURI;
+
 	private HttpMethod method;
 	private ResourceAddress localAddress;
 	private Subject subject;
@@ -153,6 +155,14 @@ public class HttpRequestMessage extends HttpStartMessage {
 	public Map<String, List<String>> getParameters() {
 		Map<String, List<String>> parameters = getParameters(false);
 		return (parameters != null && !parameters.isEmpty()) ? Collections.unmodifiableMap(parameters) : EMPTY_PARAMETERS;
+	}
+
+	public void setAbsoluteRequestURI(URI absoluteRequestURI) {
+		this.absoluteRequestURI = absoluteRequestURI;
+	}
+
+	public URI getAbsoluteRequestURI() {
+		return absoluteRequestURI;
 	}
 
 	public void setRequestURI(URI requestURI) {

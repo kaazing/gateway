@@ -16,7 +16,6 @@
 package org.kaazing.gateway.server.context.resolve;
 
 import static org.kaazing.gateway.resource.address.uri.URIUtils.buildURIAsString;
-
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getAuthority;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getCanonicalURI;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getFragment;
@@ -64,10 +63,8 @@ import org.kaazing.gateway.security.SecurityContext;
 import org.kaazing.gateway.security.auth.BasicLoginModule;
 import org.kaazing.gateway.security.auth.NegotiateLoginModule;
 import org.kaazing.gateway.security.auth.TimeoutLoginModule;
-import org.kaazing.gateway.server.ExpiringState;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.Launcher;
-import org.kaazing.gateway.server.LoginModuleOptions;
 import org.kaazing.gateway.server.config.SchemeConfig;
 import org.kaazing.gateway.server.config.june2016.AuthenticationType;
 import org.kaazing.gateway.server.config.june2016.AuthorizationConstraintType;
@@ -89,6 +86,8 @@ import org.kaazing.gateway.server.config.parse.DefaultSchemeConfig;
 import org.kaazing.gateway.server.context.DependencyContext;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.service.ServiceRegistry;
+import org.kaazing.gateway.server.spi.security.ExpiringState;
+import org.kaazing.gateway.server.spi.security.LoginModuleOptions;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.ConnectOptionsContext;
 import org.kaazing.gateway.service.Service;
@@ -142,13 +141,6 @@ public class GatewayContextResolver {
     private static final String LOGIN_MODULE_TYPE_CLASS_PREFIX = "class:";
 
     private static final String EXPIRING_STATE_NAME = "ExpiringState";
-    private static final String OLD_EXPIRING_STATE_OPTIONS_KEY = "ExpiringState";
-    
-    
-//    private static final String EXPIRING_STATE_OPTIONS_KEY = "ExpiringState";
-//    private static final String EXPIRING_STATE_OPTIONS_KEY = "ExpiringState";
-//    private static final String EXPIRING_STATE_OPTIONS_KEY = "ExpiringState";
-//    private static final String EXPIRING_STATE_OPTIONS_KEY = "ExpiringState";
 
     // a map of file-extension to mime-type.  For backward compatibility, we'll
     // hardcode this initial set based on the values in Dragonfire HttpUtils.getContentType().
@@ -241,7 +233,7 @@ public class GatewayContextResolver {
 
 
         SchedulerProvider schedulerProvider = new SchedulerProvider(configuration);
-        ClusterContext clusterContext = resolveCluster(clusterConfig, schedulerProvider);
+        ClusterContext clusterContext = resolveCluster(clusterConfig);
         DefaultSecurityContext securityContext = securityResolver.resolve(securityConfig);
         ExpiringState expiringState = resolveExpiringState(clusterContext);
         RealmsContext realmsContext = resolveRealms(securityConfig, securityContext, configuration, clusterContext, expiringState);
@@ -812,8 +804,7 @@ public class GatewayContextResolver {
         return uri;
     }
 
-    private ClusterContext resolveCluster(ClusterType clusterConfig,
-                                          SchedulerProvider schedulerProvider) {
+    private ClusterContext resolveCluster(ClusterType clusterConfig) {
         if (clusterConfig == null) {
             return new StandaloneClusterContext();
         }
@@ -848,7 +839,6 @@ public class GatewayContextResolver {
         return new DefaultClusterContext(clusterConfig.getName(),
                 accepts,
                 connects,
-                schedulerProvider,
                 connectOptionsContext);
     }
 
@@ -1000,7 +990,7 @@ public class GatewayContextResolver {
                     String type = loginModule.getType();
                     String success = loginModule.getSuccess().toString();
 
-                    Map<String, Object> options = resolveOptions(configuration, securityConfig, expiringState);
+                    Map<String, Object> options = resolveOptions(configuration, securityContext, expiringState);
 
                     LoginModuleOptionsType rawOptions = loginModule.getOptions();
                     if (rawOptions != null) {
@@ -1048,20 +1038,19 @@ public class GatewayContextResolver {
         return new DefaultRealmsContext(Collections.unmodifiableMap(realmContexts));
     }
 
-    private Map<String, Object> resolveOptions(Properties configuration, SecurityType securityConfig,
+    private Map<String, Object> resolveOptions(Properties configuration, SecurityContext securityContext,
         ExpiringState expiringState) {
         Map<String, Object> options = new HashMap<>();
 
         options.put(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY,
                 configuration.getProperty(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY));
-        options.put(LoginModuleOptions.CONFIG_DIRECTORY.propertyName(),
+        options.put(LoginModuleOptions.CONFIG_DIRECTORY_NAME,
                 configuration.getProperty(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY));
         if (LOGIN_MODULE_EXPIRING_STATE.isEnabled(configuration)) {
-            options.put(OLD_EXPIRING_STATE_OPTIONS_KEY, expiringState);
-            options.put(LoginModuleOptions.EXPIRING_STATE.propertyName(), expiringState);
+            options.put(LoginModuleOptions.EXPIRING_STATE_NAME, expiringState);
         }
-        options.put(LoginModuleOptions.KEYSTORE.propertyName(), securityConfig.getKeystore());
-        options.put(LoginModuleOptions.TRUSTSTORE.propertyName(), securityConfig.getTruststore());
+        options.put(LoginModuleOptions.KEYSTORE_NAME, securityContext.getKeyStore());
+        options.put(LoginModuleOptions.TRUSTSTORE_NAME, securityContext.getTrustStore());
         return options;
     }
 
