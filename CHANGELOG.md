@@ -1,5 +1,90 @@
 # Change Log
 
+## [5.4.0-RC001](https://github.com/kaazing/gateway/tree/5.4.0-RC001) (2017-01-10)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.3.2...5.4.0-RC001)
+
+**Fixed bugs:**
+
+- UdpAcceptorIT.concurrentConnections is failing intermittently [\#796](https://github.com/kaazing/gateway/issues/796)
+- JMX management service: closeSessions \(by principal\) service bean method causes NPEs [\#783](https://github.com/kaazing/gateway/issues/783)
+- Exceptions reported by HttpAcceptor...doExceptionCaught do not include session id [\#777](https://github.com/kaazing/gateway/issues/777)
+- management.jmx service:  user principals are not visible in jconsole in our mxbeans unless concrete class is named in gateway config [\#773](https://github.com/kaazing/gateway/issues/773)
+- ClassCastException in ServiceManagementBean$DefaultServiceManagementBean.doSessionCreated [\#733](https://github.com/kaazing/gateway/issues/733)
+- OOTB log4j-config.xml and gateway-config.xml improvements are needed \(does not document MaxBackupIndex, etc\) [\#709](https://github.com/kaazing/gateway/issues/709)
+- java.io.IOException: Broken pipe causes incorrect event reporting in TCP layer [\#688](https://github.com/kaazing/gateway/issues/688)
+- Build failure in Http Directory Service: 3 tests systematically failing in HttpDirectoryServiceIT on my Windows laptop [\#682](https://github.com/kaazing/gateway/issues/682)
+- failure in WsnConnectorTest [\#655](https://github.com/kaazing/gateway/issues/655)
+- Need better diagnostics when a ProtocolDecoderException occurs or other unexpected transport exception [\#384](https://github.com/kaazing/gateway/issues/384)
+
+**Closed issues:**
+
+- HTTP request decoder exception during method decoding \(sporadic\) [\#806](https://github.com/kaazing/gateway/issues/806)
+- Remove sigar dependency [\#781](https://github.com/kaazing/gateway/issues/781)
+- test.util dependency should always be test scope [\#676](https://github.com/kaazing/gateway/issues/676)
+- net.sourceforge.cobertura.javancss.parser.ParseException [\#208](https://github.com/kaazing/gateway/issues/208)
+- Gateway 4.0.4.224: Text received as BLOB when connecting to an Echo service through a Proxy [\#154](https://github.com/kaazing/gateway/issues/154)
+
+**Merged pull requests:**
+
+- Not consuming extra CRLF after HTTP response [\#847](https://github.com/kaazing/gateway/pull/847) ([jitsni](https://github.com/jitsni))
+- Set early access feature http proxy test to be disabled [\#845](https://github.com/kaazing/gateway/pull/845) ([dpwspoon](https://github.com/dpwspoon))
+- Added keystore and truststore to LoginModule options [\#844](https://github.com/kaazing/gateway/pull/844) ([dpwspoon](https://github.com/dpwspoon))
+- Enabling http.proxy feature by default [\#842](https://github.com/kaazing/gateway/pull/842) ([jitsni](https://github.com/jitsni))
+- \(issue\#912, management\) Fixed a memory leak by altering CollectOnlyMa… [\#841](https://github.com/kaazing/gateway/pull/841) ([cmebarrow](https://github.com/cmebarrow))
+- Fix for issue 926. [\#840](https://github.com/kaazing/gateway/pull/840) ([vmaraloiu](https://github.com/vmaraloiu))
+- Ordering open and message events of UDP child channels [\#839](https://github.com/kaazing/gateway/pull/839) ([jitsni](https://github.com/jitsni))
+- Add logging filter constructor [\#838](https://github.com/kaazing/gateway/pull/838) ([cmebarrow](https://github.com/cmebarrow))
+- Fix the message in log warning [\#837](https://github.com/kaazing/gateway/pull/837) ([stanculescu](https://github.com/stanculescu))
+- Fix the message in connect and accept options. [\#835](https://github.com/kaazing/gateway/pull/835) ([stanculescu](https://github.com/stanculescu))
+- Improving the http.proxy service accept/connect uri validation message [\#834](https://github.com/kaazing/gateway/pull/834) ([jitsni](https://github.com/jitsni))
+- Http proxy redirect \(not following\) occasional test failure fix [\#833](https://github.com/kaazing/gateway/pull/833) ([dpwspoon](https://github.com/dpwspoon))
+- Fixing k3po scripts for http methods [\#831](https://github.com/kaazing/gateway/pull/831) ([jitsni](https://github.com/jitsni))
+- Fix ws.inactivity.timeout and http.keepalive.timeout logging order in connect and accept options. [\#828](https://github.com/kaazing/gateway/pull/828) ([stanculescu](https://github.com/stanculescu))
+- http.proxy service is changed to accept only with URIs ending with / [\#827](https://github.com/kaazing/gateway/pull/827) ([jitsni](https://github.com/jitsni))
+- Issue 676 test.util scope [\#826](https://github.com/kaazing/gateway/pull/826) ([cmebarrow](https://github.com/cmebarrow))
+- \(\#688\) Fixed NioWorker to ensure we don't incorrectly report a data received event after an exception... [\#823](https://github.com/kaazing/gateway/pull/823) ([cmebarrow](https://github.com/cmebarrow))
+- Reusing of downstream message event issue for udp [\#820](https://github.com/kaazing/gateway/pull/820) ([jitsni](https://github.com/jitsni))
+- .ksn parameter is converted into header only when httpxe is detected. [\#819](https://github.com/kaazing/gateway/pull/819) ([jitsni](https://github.com/jitsni))
+- Added license.txt to distribution [\#817](https://github.com/kaazing/gateway/pull/817) ([dpwspoon](https://github.com/dpwspoon))
+- Validating Host header when client sends a request in absolute-form [\#816](https://github.com/kaazing/gateway/pull/816) ([jitsni](https://github.com/jitsni))
+- \[DO NOT MERGE\] Kroadmap 1005 login module [\#815](https://github.com/kaazing/gateway/pull/815) ([DoruM](https://github.com/DoruM))
+- Memory Cleanup [\#814](https://github.com/kaazing/gateway/pull/814) ([dpwspoon](https://github.com/dpwspoon))
+- Fixed instance were SslConnector was limiting the TLS session cache o… [\#813](https://github.com/kaazing/gateway/pull/813) ([dpwspoon](https://github.com/dpwspoon))
+- Making usascii CharsetDecoder an instance variable [\#808](https://github.com/kaazing/gateway/pull/808) ([jitsni](https://github.com/jitsni))
+- HTTP Connector tests [\#807](https://github.com/kaazing/gateway/pull/807) ([jitsni](https://github.com/jitsni))
+- Hazelcast upgrade [\#804](https://github.com/kaazing/gateway/pull/804) ([danibusu](https://github.com/danibusu))
+- Forward port: Converting transport options that contain tls values  [\#803](https://github.com/kaazing/gateway/pull/803) ([sbadugu](https://github.com/sbadugu))
+- Http Acceptor tests [\#802](https://github.com/kaazing/gateway/pull/802) ([jitsni](https://github.com/jitsni))
+- Turn rest TTL service clarification [\#801](https://github.com/kaazing/gateway/pull/801) ([dpwspoon](https://github.com/dpwspoon))
+- Converting transport options that contain tls values [\#799](https://github.com/kaazing/gateway/pull/799) ([jitsni](https://github.com/jitsni))
+- Case sensative bug [\#797](https://github.com/kaazing/gateway/pull/797) ([dpwspoon](https://github.com/dpwspoon))
+- Simplify WsnAcceptorRule by removing the unused log4j related logic and using TransportFactory.injectResources [\#795](https://github.com/kaazing/gateway/pull/795) ([cmebarrow](https://github.com/cmebarrow))
+- Removed some remaining vestiges of sigar from NOTICE.txt and ... [\#794](https://github.com/kaazing/gateway/pull/794) ([cmebarrow](https://github.com/cmebarrow))
+- Fixed a trivial error in JmxSessionPrincipalsIT which was causing occasional test failures \(in that test or subclass JmxSessionPrincipalsSupertypeIT\) [\#793](https://github.com/kaazing/gateway/pull/793) ([cmebarrow](https://github.com/cmebarrow))
+- Remove sigar dependency, remove system MBeans [\#792](https://github.com/kaazing/gateway/pull/792) ([cmebarrow](https://github.com/cmebarrow))
+- \(management\) Change junit and \(especially\) jmock-junit dependencies … [\#791](https://github.com/kaazing/gateway/pull/791) ([cmebarrow](https://github.com/cmebarrow))
+- Issue 783: NullPointerExceptions after calling closeSessions on ServiceMXBean [\#790](https://github.com/kaazing/gateway/pull/790) ([cmebarrow](https://github.com/cmebarrow))
+- Added udp.tranport option to xsd [\#789](https://github.com/kaazing/gateway/pull/789) ([dpwspoon](https://github.com/dpwspoon))
+- tls scheme [\#788](https://github.com/kaazing/gateway/pull/788) ([jitsni](https://github.com/jitsni))
+- UDP child channel write future is fired as success always [\#785](https://github.com/kaazing/gateway/pull/785) ([jitsni](https://github.com/jitsni))
+- Management fixes [\#784](https://github.com/kaazing/gateway/pull/784) ([cmebarrow](https://github.com/cmebarrow))
+- Using a queue instead of ring buffer to pass messages to udp child channels [\#782](https://github.com/kaazing/gateway/pull/782) ([jitsni](https://github.com/jitsni))
+- Add README [\#768](https://github.com/kaazing/gateway/pull/768) ([robinzimmermann](https://github.com/robinzimmermann))
+- Added new k3po tests for HTTP proxy story [\#622](https://github.com/kaazing/gateway/pull/622) ([vstratan](https://github.com/vstratan))
+
+## [5.3.2](https://github.com/kaazing/gateway/tree/5.3.2) (2016-11-14)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.3.1...5.3.2)
+
+**Merged pull requests:**
+
+- Http proxy [\#787](https://github.com/kaazing/gateway/pull/787) ([claudiaop](https://github.com/claudiaop))
+- Adding new websocket specification tests for case-insensiitve headers [\#786](https://github.com/kaazing/gateway/pull/786) ([jitsni](https://github.com/jitsni))
+- If there is transport for udp, udp's host address is not resolved. [\#780](https://github.com/kaazing/gateway/pull/780) ([jitsni](https://github.com/jitsni))
+- Logging improvements and metrics fix [\#779](https://github.com/kaazing/gateway/pull/779) ([cmebarrow](https://github.com/cmebarrow))
+- Ticket\#434 fix frame masking check [\#775](https://github.com/kaazing/gateway/pull/775) ([danibusu](https://github.com/danibusu))
+- Udp benchmarks [\#772](https://github.com/kaazing/gateway/pull/772) ([jitsni](https://github.com/jitsni))
+- Configuring mina.netty logging factory [\#762](https://github.com/kaazing/gateway/pull/762) ([jitsni](https://github.com/jitsni))
+
 ## [5.3.1](https://github.com/kaazing/gateway/tree/5.3.1) (2016-11-03)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.2.5...5.3.1)
 
@@ -31,11 +116,6 @@
 
 ## [5.2.5](https://github.com/kaazing/gateway/tree/5.2.5) (2016-10-19)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.2.4...5.2.5)
-
-**Closed issues:**
-
-- WsxAcceptorLoggingIT.shouldLogOpenAndInactivityTimeoutClose fails [\#737](https://github.com/kaazing/gateway/issues/737)
-- Occasional build failure in wseb acceptor spec test ControlIT.shouldCloseConnectionOnReceivingInvalidPingFromClient [\#580](https://github.com/kaazing/gateway/issues/580)
 
 **Merged pull requests:**
 
@@ -94,6 +174,7 @@
 - WebSocket extensions decide whether to be part of handshake or not [\#705](https://github.com/kaazing/gateway/pull/705) ([jitsni](https://github.com/jitsni))
 - Fixed typo in early access feature description [\#704](https://github.com/kaazing/gateway/pull/704) ([dpwspoon](https://github.com/dpwspoon))
 - Changed turn.rest json response to include stun URLs [\#701](https://github.com/kaazing/gateway/pull/701) ([mgherghe](https://github.com/mgherghe))
+- TLS support added [\#653](https://github.com/kaazing/gateway/pull/653) ([justinma246](https://github.com/justinma246))
 
 ## [5.2.2](https://github.com/kaazing/gateway/tree/5.2.2) (2016-09-09)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.2.1...5.2.2)
@@ -135,6 +216,7 @@
 - Remove copyright info from log4j xml/properties files [\#668](https://github.com/kaazing/gateway/pull/668) ([ahousing](https://github.com/ahousing))
 - Fix for issue 310: WSN Connector: Connection should fail when the value of the  header in handshake response is not  \#310 [\#665](https://github.com/kaazing/gateway/pull/665) ([vmaraloiu](https://github.com/vmaraloiu))
 - Help written from file [\#656](https://github.com/kaazing/gateway/pull/656) ([DoruM](https://github.com/DoruM))
+- Http acceptor tests pulled from K3po [\#644](https://github.com/kaazing/gateway/pull/644) ([a-zuckut](https://github.com/a-zuckut))
 
 ## [5.2.0](https://github.com/kaazing/gateway/tree/5.2.0) (2016-08-08)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.1.2...5.2.0)
@@ -148,10 +230,6 @@
 - WSN Connector: Gateway sends back invalid UTF-8 reason instead of just the CLOSE code 1002 [\#307](https://github.com/kaazing/gateway/issues/307)
 - WSN Connector, WSE connector: IllegalArgumentException is thrown when sending a frame with empty payload [\#306](https://github.com/kaazing/gateway/issues/306)
 - WSN Transport Bug : shouldEchoBinaryFrameWithPayloadLength0 and shouldEchoTextFrameWithPayloadLength0 [\#254](https://github.com/kaazing/gateway/issues/254)
-
-**Closed issues:**
-
-- Remove all but hostname must match gateway-config.xml balancer check [\#615](https://github.com/kaazing/gateway/issues/615)
 
 **Merged pull requests:**
 
@@ -180,10 +258,6 @@
 - AcceptUriComparedToBalanceUriVisitor is comparing URIs prior to parameters being replaced, causing NPE that throws Parse Exception [\#612](https://github.com/kaazing/gateway/issues/612)
 - WSN Connector: Invalid value for the `Upgrade` header in handshake response must not result in a successful connection [\#312](https://github.com/kaazing/gateway/issues/312)
 - WsebAcceptorTest.shouldBindAWsAddress timeouts [\#287](https://github.com/kaazing/gateway/issues/287)
-
-**Closed issues:**
-
-- WsnInactivityTimeoutIT.shouldInactivityTimeoutWithPingPongExtensionAndExtendedHandshakePort80\(\) failing [\#300](https://github.com/kaazing/gateway/issues/300)
 
 **Merged pull requests:**
 
