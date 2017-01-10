@@ -1,7 +1,7 @@
 # Change Log
 
-## [5.4.0-RC001](https://github.com/kaazing/gateway/tree/5.4.0-RC001) (2017-01-10)
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.3.2...5.4.0-RC001)
+## [5.4.0-RC004](https://github.com/kaazing/gateway/tree/5.4.0-RC004) (2017-01-10)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.3.2...5.4.0-RC004)
 
 **Fixed bugs:**
 
