@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.kaazing</groupId>
+        <artifactId>gateway</artifactId>
+        <version>5.4.0-RC001</version>
+    </parent>
+
+    <artifactId>mina-build</artifactId>
+    <name>Apache MINA</name>
+    <packaging>pom</packaging>
+
+    <inceptionYear>2004</inceptionYear>
+
+    <url>https://github.com/kaazing/gateway/mina.core</url>
+
+    <scm>
+        <url>https://github.com/kaazing/gateway/mina.core</url>
+        <connection>scm:git:https://github.com/gateway/mina.core.git</connection>
+    </scm>
+
+    <description>Apache MINA is a network application framework which helps users develop high performance and highly scalable network applications easily.    It provides an abstract event-driven asynchronous API over various transports such as TCP/IP and UDP/IP via Java NIO.</description>
+
+    <licenses>
+        <license>
+            <name>Apache 2.0 License</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <modules>
+        <module>legal</module>
+        <module>parent</module>
+        <module>core</module>
+        <module>integration-beans</module>
+        <module>integration-ognl</module>
+        <module>integration-jmx</module>
+        <!-- <module>transport-apr</module> <module>filter-compression</module> 
+            <module>statemachine</module> <module>integration-xbean</module> <module>example</module> -->
+    </modules>
+
+    <profiles>
+        <profile>
+            <id>default</id>
+        </profile>
+        <profile>
+            <id>serial</id>
+            <activation>
+                <property>
+                    <name>with-LGPL-dependencies</name>
+                </property>
+            </activation>
+            <modules>
+                <module>transport-serial</module>
+            </modules>
+        </profile>
+    </profiles>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.kaazing</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <configuration>
+                    <matchWithExisting>false</matchWithExisting>
+                    <strict>false</strict>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.4.3</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/Abstract*</exclude>
+                        <exclude>**/*RegressionTest*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-source</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2-beta-3</version>
+                <configuration>
+                    <descriptors>
+                        <descriptor>release.xml</descriptor>
+                    </descriptors>
+                    <finalName>mina-${project.version}</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <tarLongFileMode>gnu</tarLongFileMode>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.4</version>
+                <inherited>false</inherited>
+                <configuration>
+                    <aggregate>true</aggregate>
+                    <breakiterator>true</breakiterator>
+                    <charset>UTF-8</charset>
+                    <docencoding>UTF-8</docencoding>
+                    <windowtitle>Apache MINA ${project.version} API
+                        Documentation</windowtitle>
+                    <doctitle>Apache MINA ${project.version} API
+                        Documentation</doctitle>
+                    <encoding>UTF-8</encoding>
+                    <excludePackageNames>*.example.*</excludePackageNames>
+                    <links>
+                        <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
+                        <link>http://www.slf4j.org/api/</link>
+                        <link>http://static.springframework.org/spring/docs/2.0.x/api/</link>
+                        <link>http://dcl.mathcs.emory.edu/util/backport-util-concurrent/doc/api/</link>
+                    </links>
+                    <locale>en_US</locale>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>2.1</version>
+                <inherited>false</inherited>
+                <configuration>
+                    <aggregate>true</aggregate>
+                    <inputEncoding>UTF-8</inputEncoding>
+                    <outputEncoding>UTF-8</outputEncoding>
+                    <windowTitle>Apache MINA ${project.version} Cross
+                        Reference</windowTitle>
+                    <docTitle>Apache MINA ${project.version} Cross
+                        Reference</docTitle>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>rat-maven-plugin</artifactId>
+                <version>1.0-alpha-3</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/target/**/*</exclude>
+                        <exclude>**/.*</exclude>
+                        <exclude>**/NOTICE.txt</exclude>
+                        <exclude>**/LICENSE*.txt</exclude>
+                    </excludes>
+                    <excludeSubProjects>false</excludeSubProjects>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+</project>

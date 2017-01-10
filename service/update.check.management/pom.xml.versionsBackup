@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.kaazing</groupId>
+        <artifactId>gateway</artifactId>
+        <version>5.4.0-RC001</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    <artifactId>gateway.service.update.check.management</artifactId>
+    <packaging>jar</packaging>
+    <name>Update Check Management Service</name>
+    <description>Management extension of update check service</description>
+
+    <url>https://github.com/kaazing/gateway.service.update.check.management.git</url>
+    <scm>
+        <connection>scm:git:${project.scm.url}</connection>
+        <developerConnection>scm:git:${project.scm.url}</developerConnection>
+        <url>git@github.com:kaazing/gateway.service.update.check.management.git</url>
+    </scm>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.service.update.check</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.management</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.kaazing</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <configuration>
+                    <projectHints>
+                        <projectDescription>
+                            <projectName>Java Native Access</projectName>
+                            <licenseName>LGPL</licenseName>
+                            <licenseUrl>http://www.gnu.org/licenses/licenses.html</licenseUrl>
+                            <homePage>https://github.com/twall/jna</homePage>
+                            <version>2.1</version>
+                        </projectDescription>
+                        <projectDescription>
+                            <projectName>JDOM</projectName>
+                            <licenseName>JDOM License</licenseName>
+                            <licenseUrl>https://github.com/hunterhacker/jdom/blob/master/LICENSE.txt</licenseUrl>
+                            <homePage>http://jdom.org</homePage>
+                            <version>1.1</version>
+                        </projectDescription>
+                    </projectHints>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
