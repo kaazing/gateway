@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.mina.core.RuntimeIoException;
 import org.apache.mina.core.service.IoAcceptor;
@@ -66,7 +69,7 @@ public abstract class AbstractIoAcceptor
      * Acquire this lock in your property setters which shouldn't be changed while
      * the service is bound.
      */
-    protected final Object bindLock = new Object();
+    protected final Semaphore bindLock = new Semaphore(1);
 
     /**
      * Constructor for {@link AbstractIoAcceptor}. You need to provide a default
@@ -106,8 +109,11 @@ public abstract class AbstractIoAcceptor
     @Override
     public final Set<SocketAddress> getLocalAddresses() {
         Set<SocketAddress> localAddresses = new HashSet<>();
-        synchronized (bindLock) {
+        bindLock.acquireUninterruptibly();
+        try {
             localAddresses.addAll(boundAddresses);
+        } finally {
+            bindLock.release();
         }
         return localAddresses;
     }
@@ -160,7 +166,8 @@ public abstract class AbstractIoAcceptor
             throw new NullPointerException("localAddresses");
         }
 
-        synchronized (bindLock) {
+        bindLock.acquireUninterruptibly();
+        try {
             if (!boundAddresses.isEmpty()) {
                 throw new IllegalStateException(
                         "localAddress can't be set while the acceptor is bound.");
@@ -179,6 +186,8 @@ public abstract class AbstractIoAcceptor
 
             this.defaultLocalAddresses.clear();
             this.defaultLocalAddresses.addAll(newLocalAddresses);
+        } finally {
+            bindLock.release();
         }
     }
 
@@ -285,7 +294,10 @@ public abstract class AbstractIoAcceptor
         }
 
         boolean activate = false;
-        synchronized (bindLock) {
+        System.out.println(Thread.currentThread() + "- bind getting lock - ");
+        bindLock.acquireUninterruptibly();
+        System.out.println(Thread.currentThread() + "- bind got lock - ");
+        try {
             if (boundAddresses.isEmpty()) {
                 activate = true;
             }
@@ -305,6 +317,11 @@ public abstract class AbstractIoAcceptor
             if (activate) {
                 getListeners().fireServiceActivated();
             }
+        } finally {
+            System.out.println(Thread.currentThread() + "- bind getting unlock -");
+            bindLock.release();
+            System.out.println(Thread.currentThread() + "- bind got unlock");
+
         }
 
     }
@@ -360,7 +377,11 @@ public abstract class AbstractIoAcceptor
         }
 
         boolean deactivate = false;
-        synchronized (bindLock) {
+        System.out.println(Thread.currentThread() + "- unbind getting lock - ");
+        bindLock.acquireUninterruptibly();
+        System.out.println(Thread.currentThread() + "- unbind got lock - ");
+
+        try {
             if (boundAddresses.isEmpty()) {
                 return;
             }
@@ -395,6 +416,12 @@ public abstract class AbstractIoAcceptor
             if (deactivate) {
                 getListeners().fireServiceDeactivated();
             }
+        } finally {
+            System.out.println(Thread.currentThread() + "- unbind getting unlock - ");
+
+            bindLock.release();
+            System.out.println(Thread.currentThread() + "- unbind got unlock - ");
+
         }
     }
 
