@@ -38,9 +38,6 @@ import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
-import org.kaazing.gateway.server.test.Gateway;
-import org.kaazing.gateway.server.test.config.GatewayConfiguration;
-import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.Transport;
@@ -424,29 +421,5 @@ public class ServiceConnectManagerTest {
             return null;
         }
     }
-
-    @Test
-    public void shouldStartWhenTcpRealmAcceptOptionSetAndFeatureEnabled() throws Exception {
-        Gateway gateway = new Gateway();
-
-        // @formatter:off
-        GatewayConfiguration configuration = new GatewayConfigurationBuilder()
-            .service()
-                .name("test")
-                .accept("tcp://localhost:8001")
-                .connect("tcp://localhost:8101")
-                .type("proxy")
-            .done()
-        .done();
-        // @formatter:on
-
-        try {
-            gateway.start(configuration);
-        } catch (Exception e) {
-            fail("Gateway should have started successfully");
-        }
-        gateway.stop();
-    }
-
 
 }

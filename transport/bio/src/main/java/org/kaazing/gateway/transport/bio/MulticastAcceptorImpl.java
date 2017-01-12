@@ -204,8 +204,7 @@ public class MulticastAcceptorImpl extends AbstractIoAcceptorEx {
         if (remoteAddress == null) {
             throw new NullPointerException("remoteAddress");
         }
-        bindLock.acquireUninterruptibly();
-        try {
+        synchronized (bindLock) {
             if (!isActive()) {
                 throw new IllegalStateException(
                         "Can't create a session from a unbound service.");
@@ -218,10 +217,8 @@ public class MulticastAcceptorImpl extends AbstractIoAcceptorEx {
             } catch (Exception e) {
                 throw new RuntimeIoException("Failed to create a session.", e);
             }
-        } finally {
-            bindLock.release();
         }
-	}
+    }
 
     private IoSessionEx newSessionWithoutLock(
             SocketAddress remoteAddress, SocketAddress localAddress) throws Exception {

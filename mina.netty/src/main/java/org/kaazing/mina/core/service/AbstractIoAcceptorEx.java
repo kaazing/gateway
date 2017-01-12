@@ -59,37 +59,22 @@ public abstract class AbstractIoAcceptorEx extends AbstractIoAcceptor implements
         if (getHandler() == null) {
             throw new IllegalStateException("handler is not set.");
         }
-        System.out.println(Thread.currentThread() + "- bindAsync getting lock - ");
-
-        bindLock.acquireUninterruptibly();
-        System.out.println(Thread.currentThread() + "- bindAsync got lock - ");
 
         BindFuture bound = bindAsyncInternal(localAddress);
         bound.addListener(new IoFutureListener<BindFuture>() {
             @Override
             public void operationComplete(BindFuture future) {
-                try {
-                    if (future.isBound()) {
-                        boolean activate = false;
+                if (future.isBound()) {
+                    boolean activate = false;
+                    synchronized (boundAddresses) {
                         if (boundAddresses.isEmpty()) {
                             activate = true;
                         }
                         boundAddresses.add(localAddress);
-                        if (activate) {
-                            System.out.println("bindAsync getListeners = " + getListeners());
-                            getListeners().fireServiceActivated();
-                            System.out.println("bindAsync getListeners done");
-
-                        }
                     }
-                } finally {
-                    System.out.println(Thread.currentThread() + "- bindAsync getting unlock - ");
-try {
-    bindLock.release();
-} catch (Throwable t) {
-    t.printStackTrace();
-}
-                    System.out.println(Thread.currentThread() + "- bindAsync got unlock - ");
+                    if (activate) {
+                        getListeners().fireServiceActivated();
+                    }
                 }
             }
         });
@@ -99,18 +84,13 @@ try {
     @Override
     // This is basically just an asynchronous version of AbstractNioAcceptor.unbind(Iterable... localAddresses)
     public UnbindFuture unbindAsync(final SocketAddress localAddress) {
-        System.out.println(Thread.currentThread() + "- unbindAsync getting lock - ");
-
-        bindLock.acquireUninterruptibly();
-        System.out.println(Thread.currentThread() + "- unbindAsync got lock - ");
-
         UnbindFuture unbound = unbindAsyncInternal(localAddress);
         unbound.addListener(new IoFutureListener<UnbindFuture>() {
             @Override
             public void operationComplete(UnbindFuture future) {
-                try {
-                    if (future.isUnbound()) {
-                        boolean deactivate = false;
+                if (future.isUnbound()) {
+                    boolean deactivate = false;
+                    synchronized (boundAddresses) {
                         if (boundAddresses.isEmpty()) {
                             return;
                         }
@@ -118,16 +98,10 @@ try {
                         if (boundAddresses.isEmpty()) {
                             deactivate = true;
                         }
-                        if (deactivate) {
-                            getListeners().fireServiceDeactivated();
-                        }
                     }
-                } finally {
-                    System.out.println(Thread.currentThread() + "- unbindAsync getting unlock - ");
-
-                    bindLock.release();
-                    System.out.println(Thread.currentThread() + "- unbindAsync got unlock - ");
-
+                    if (deactivate) {
+                        getListeners().fireServiceDeactivated();
+                    }
                 }
             }
         });
