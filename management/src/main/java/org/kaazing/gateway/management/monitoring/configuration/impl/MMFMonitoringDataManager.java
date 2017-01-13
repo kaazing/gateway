@@ -23,7 +23,7 @@ import org.kaazing.gateway.management.monitoring.entity.manager.impl.ServiceCoun
 import org.kaazing.gateway.management.monitoring.service.MonitoredService;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
-import uk.co.real_logic.agrona.IoUtil;
+import org.agrona.IoUtil;
 
 /**
  * Implementation of the monitoring MMF manager.
