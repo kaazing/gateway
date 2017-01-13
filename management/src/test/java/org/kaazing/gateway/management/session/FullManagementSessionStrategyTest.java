@@ -13,19 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport;
+package org.kaazing.gateway.management.session;
 
-import org.apache.mina.core.session.IoSession;
-import org.slf4j.Logger;
+public class FullManagementSessionStrategyTest extends CollectOnlyManagementSessionStrategyTest {
 
-public class ObjectLoggingFilter extends LoggingFilter {
-
-    public ObjectLoggingFilter(Logger logger, String format) {
-        super(logger, format);
-    }
-
-    public ObjectLoggingFilter(Logger logger, IoSession session, String transportName) {
-        super(logger, session, transportName);
+    protected ManagementSessionStrategy getManagementSessionStrategy() {
+        return new FullManagementSessionStrategy();
     }
 
 }
+

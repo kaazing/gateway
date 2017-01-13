@@ -56,7 +56,7 @@ public class HttpProxyServiceTest {
                 .done();
         // @formatter:on
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("The accept URI http://localhost:8080/a for service foo needs to end with /");
+        thrown.expectMessage("The path /a of accept URI http://localhost:8080/a for service foo needs to end with /");
         try {
             gateway.start(configuration);
         } finally {
@@ -80,7 +80,7 @@ public class HttpProxyServiceTest {
                     .done();
         // @formatter:on
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("The accept URI http://localhost:8080/a for service foo needs to end with /");
+        thrown.expectMessage("The path /a of accept URI http://localhost:8080/a for service foo needs to end with /");
         try {
             gateway.start(configuration);
         } finally {
@@ -104,7 +104,31 @@ public class HttpProxyServiceTest {
                     .done();
         // @formatter:on
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("The connect URI http://localhost:8081/b/c for service foo needs to end with /");
+        thrown.expectMessage("The path /b/c of connect URI http://localhost:8081/b/c for service foo needs to end with /");
+        try {
+            gateway.start(configuration);
+        } finally {
+            gateway.stop();
+        }
+    }
+
+    @Test
+    public void shouldFailAsConnectDoesNotEndWithSlash1() throws Exception {
+        Gateway gateway = new Gateway();
+        // @formatter:off
+        GatewayConfiguration configuration =
+                new GatewayConfigurationBuilder()
+                        .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
+                        .service()
+                            .accept("http://localhost:8080/")
+                            .connect("http://localhost:8111/user?tab/")
+                            .name("foo")
+                            .type("http.proxy")
+                        .done()
+                    .done();
+        // @formatter:on
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("The path /user of connect URI http://localhost:8111/user?tab/ for service foo needs to end with /");
         try {
             gateway.start(configuration);
         } finally {
@@ -162,6 +186,7 @@ public class HttpProxyServiceTest {
         // @formatter:off
         GatewayConfiguration configuration =
                 new GatewayConfigurationBuilder()
+                    .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "false")
                     .service()
                         .accept("http://localhost:8080/a")
                         .connect("http://localhost:8081/")
