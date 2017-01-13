@@ -206,6 +206,12 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             final DefaultHttpSession acceptSession = (DefaultHttpSession) session;
             // final Subject subject = ((IoSessionEx) acceptSession).getSubject();
 
+            // log warning first time we see Http 1.0 request
+            if (acceptSession.getVersion().toString().equals("HTTP/1.0")){
+                LOGGER.warn(String.format("http.proxy service %s received an HTTP 1.0 request. HTTP 1.0 is not"
+                         + " explicitly supported.", acceptSession.getService().toString()));
+            }
+
             if (!validateRequestPath(acceptSession)) {
                 acceptSession.setStatus(CLIENT_NOT_FOUND);
                 acceptSession.close(false);
