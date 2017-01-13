@@ -41,7 +41,7 @@ import org.apache.mina.core.session.IoSessionConfig;
  */
 /* This class (based on the Mina version) is needed for use in ChannelIoAcceptor in order to use our
  * AbstractIoSessionEx (which requires ChannelIoAcceptor to be derived from our version of AbstractIoService).
- * The following changes were made from the version in Mina 2.0.0-RC1g:
+ * The following changes were made from the version in Mina 2.0.16:
  * 1. Change package name
  * 2. Add imports of needed classes from the original package (org.apache.mina.core.service)
  * 3. Change checkAddressType, bindLock and boundAddresses from private to package-private so they can be used in
