@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.mina.util;
+package org.kaazing.gateway.transport;
 
 import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.session.IoSession;
+import org.kaazing.mina.util.ExceptionMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,16 +30,15 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
-public class DefaultExceptionMonitor extends ExceptionMonitor {
+public class TransportExceptionMonitor extends ExceptionMonitor {
     private static final Logger LOGGER = LoggerFactory
-            .getLogger(DefaultExceptionMonitor.class);
+            .getLogger(TransportExceptionMonitor.class);
 
     @Override
-    public void exceptionCaught(Throwable cause, IoSession s) {
+    public void exceptionCaught(Throwable cause, IoSession session) {
         if (cause instanceof Error) {
             throw (Error) cause;
         }
-
-        LOGGER.warn("Unexpected exception in session {}", s, cause);
+        LoggingUtils.log(session, LOGGER, cause);
     }
 }

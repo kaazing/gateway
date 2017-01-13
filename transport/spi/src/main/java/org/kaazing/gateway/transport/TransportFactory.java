@@ -34,6 +34,8 @@ import javax.annotation.Resource;
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.dispatch.ProtocolDispatcher;
+import org.kaazing.mina.util.ExceptionMonitor;
+
 
 public class TransportFactory {
 
@@ -42,6 +44,10 @@ public class TransportFactory {
     private final Map<Proxy.Type, ProxyHandler> proxyHandlersByType;
     private final Map<String, Protocol> protocolsBySchemeName;
     private final Map<String, ProtocolDispatcher> dispatchersByProtocolName;
+
+    static{
+        ExceptionMonitor.setInstance(new TransportExceptionMonitor());
+    }
 
     private TransportFactory(Map<String, Transport> transportsByName,
                              Map<String, Transport> transportsBySchemeName,
