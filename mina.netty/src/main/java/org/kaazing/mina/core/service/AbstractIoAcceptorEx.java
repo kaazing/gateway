@@ -65,7 +65,7 @@ public abstract class AbstractIoAcceptorEx extends AbstractIoAcceptor implements
             public void operationComplete(BindFuture future) {
                 if (future.isBound()) {
                     boolean activate = false;
-                    synchronized (bindLock) {
+                    synchronized (boundAddresses) {
                         if (boundAddresses.isEmpty()) {
                             activate = true;
                         }
