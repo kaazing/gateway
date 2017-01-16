@@ -309,10 +309,10 @@ public abstract class AbstractIoAcceptor
                 throw new RuntimeIoException(
                         "Failed to bind to: " + getLocalAddresses(), e);
             }
-        }
 
-        if (activate) {
-            getListeners().fireServiceActivated();
+            if (activate) {
+                getListeners().fireServiceActivated();
+            }
         }
 
     }
@@ -402,10 +402,12 @@ public abstract class AbstractIoAcceptor
                     }
                 }
             }
+
+            if (deactivate) {
+                getListeners().fireServiceDeactivated();
+            }
         }
-        if (deactivate) {
-            getListeners().fireServiceDeactivated();
-        }
+
     }
 
     /**
