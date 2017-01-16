@@ -64,7 +64,8 @@ public class HttpProxyNegativeCasesIT {
     }};
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(robot).around(checkLogMessageRule).around(gateway);
+    public TestRule chain =
+            RuleChain.outerRule(new MethodExecutionTrace()).around(robot).around(checkLogMessageRule).around(gateway);
 
     @Specification("http.proxy.http.1.0.request")
     @Test
