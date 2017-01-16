@@ -61,8 +61,8 @@ import org.jboss.netty.util.ThreadRenamingRunnable;
 import org.jboss.netty.util.internal.DeadLockProofWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.co.real_logic.agrona.concurrent.BackoffIdleStrategy;
-import uk.co.real_logic.agrona.concurrent.IdleStrategy;
+import org.agrona.concurrent.BackoffIdleStrategy;
+import org.agrona.concurrent.IdleStrategy;
 
 abstract class AbstractNioSelector implements NioSelector {
     protected static final Logger PERF_LOGGER = LoggerFactory.getLogger("performance.tcp");
