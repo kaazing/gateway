@@ -66,14 +66,16 @@ public abstract class AbstractIoAcceptorEx extends AbstractIoAcceptor implements
             public void operationComplete(BindFuture future) {
                 if (future.isBound()) {
                     boolean activate = false;
-                    synchronized (boundAddresses) {
-                        if (boundAddresses.isEmpty()) {
-                            activate = true;
+                    synchronized (bindLock) {
+                        synchronized (boundAddresses) {
+                            if (boundAddresses.isEmpty()) {
+                                activate = true;
+                            }
+                            boundAddresses.add(localAddress);
                         }
-                        boundAddresses.add(localAddress);
-                    }
-                    if (activate) {
-                        getListeners().fireServiceActivated();
+                        if (activate) {
+                            getListeners().fireServiceActivated();
+                        }
                     }
                 }
             }
@@ -90,17 +92,19 @@ public abstract class AbstractIoAcceptorEx extends AbstractIoAcceptor implements
             public void operationComplete(UnbindFuture future) {
                 if (future.isUnbound()) {
                     boolean deactivate = false;
-                    synchronized (boundAddresses) {
-                        if (boundAddresses.isEmpty()) {
-                            return;
+                    synchronized (bindLock) {
+                        synchronized (boundAddresses) {
+                            if (boundAddresses.isEmpty()) {
+                                return;
+                            }
+                            boundAddresses.remove(localAddress);
+                            if (boundAddresses.isEmpty()) {
+                                deactivate = true;
+                            }
                         }
-                        boundAddresses.remove(localAddress);
-                        if (boundAddresses.isEmpty()) {
-                            deactivate = true;
+                        if (deactivate) {
+                            getListeners().fireServiceDeactivated();
                         }
-                    }
-                    if (deactivate) {
-                        getListeners().fireServiceDeactivated();
                     }
                 }
             }
