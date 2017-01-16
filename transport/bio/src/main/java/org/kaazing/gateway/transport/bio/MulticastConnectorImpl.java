@@ -42,13 +42,13 @@ import org.apache.mina.core.session.IoSessionInitializer;
 import org.apache.mina.transport.socket.DatagramSessionConfigEx;
 import org.apache.mina.transport.socket.DefaultDatagramSessionConfigEx;
 import org.apache.mina.util.ConcurrentHashSet;
-import org.apache.mina.util.ExceptionMonitor;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.service.AbstractIoConnectorEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.mina.util.ExceptionMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -261,7 +261,7 @@ public class MulticastConnectorImpl extends AbstractIoConnectorEx {
 	                IoFilterChain filterChain = session.getFilterChain();
 	                filterChain.fireExceptionCaught(e);
 	            } else {
-	                ExceptionMonitor.getInstance().exceptionCaught(e);
+	                ExceptionMonitor.getInstance().exceptionCaught(e, session);
 	            }
 	        }
 		}
