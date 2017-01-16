@@ -27,7 +27,7 @@ import org.kaazing.gateway.management.monitoring.configuration.impl.MMFMonitorin
 import org.kaazing.gateway.service.LongMonitoringCounter;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
-import uk.co.real_logic.agrona.IoUtil;
+import org.agrona.IoUtil;
 
 @Ignore("doesn't work with latest Agrona 0.4.12")
 public class AgronaMonitoringEntityFactoryTest {
