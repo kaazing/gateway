@@ -32,6 +32,10 @@ public class ExceptionLoggingFilter
         super(logger, "%s");
     }
 
+    public ExceptionLoggingFilter(Logger logger, IoSession session, String transportName) {
+        super(logger, session, transportName);
+    }
+
     @Override
     protected void logSessionCreated(IoSession session) {
         // Do not log

@@ -18,44 +18,26 @@
 # client
 #
 
-connect tcp://localhost:8110
+connect http://localhost:8110/resource
 connected
 
-write "GET /digest-auth/auth/user/passwd HTTP/1.1\r\n"
-write "Host: localhost:8110\r\n"
-write "Connection: keep-alive\r\n"
-write "Upgrade-Insecure-Requests: 1\r\n"
-write "User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36\r\n"
-write "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\n"
-write "Accept-Encoding: gzip, deflate, sdch\r\n"
-write "Accept-Language: en-US,en;q=0.8\r\n"
-write "\r\n"
+write method "GET"
+write close
 
-read "HTTP/1.1 401 UNAUTHORIZED\r\n"
-read "Access-Control-Allow-Credentials: true\r\n"
-read "Access-Control-Allow-Origin: *\r\n"
-read "Content-Length: 0\r\n"
-read "Content-Type: text/html\r\n"
-read "Date: Mon, 04 Jul 2016 13:31:49 GMT\r\n"
-read "Server: nginx\r\n"
-read "Set-Cookie: fake=fake_value\r\n"
-read "WWW-Authenticate: Digest nonce=\"3e54b63ce55dbab8a04c253b99ab8417\"\r\n"
-read "WWW-Authenticate: opaque=\"e8729fa1f90b7f746723b56f180b9ec9\"\r\n"
-read "WWW-Authenticate: realm=\"me@kennethreitz.com\"\r\n"
-read "WWW-Authenticate: qop=auth\r\n"
-read "\r\n"
+read status "401" "UNAUTHORIZED"
+read header "WWW-Authenticate" "Digest nonce=\"3e54b63ce55dbab8a04c253b99ab8417\""
+read header "WWW-Authenticate" "opaque=\"e8729fa1f90b7f746723b56f180b9ec9\""
+read header "WWW-Authenticate" "realm=\"me@kennethreitz.com\""
+read header "WWW-Authenticate" "qop=auth"
+read notify FIRST_DONE
 
-write "GET /digest-auth/auth/user/passwd HTTP/1.1\r\n"
-write "Host: localhost:8110\r\n"
-write "Connection: keep-alive\r\n"
-write "Authorization: Digest username=\"userDigest\", realm=\"\", nonce=\"3e54b63ce55dbab8a04c253b99ab8417\", uri=\"/digest-auth/auth/user/passwd\", response=\"216349453d8c5b003b94bd875fe9c2d4\"\r\n"
-write "Upgrade-Insecure-Requests: 1\r\n"
-write "User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36\r\n"
-write "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\n"
-write "Accept-Encoding: gzip, deflate, sdch\r\n"
-write "Accept-Language: en-US,en;q=0.8\r\n"
-write "Cookie: fake=fake_value\r\n"
-write "\r\n"
+connect await FIRST_DONE
+connect http://localhost:8110/resource
+connected
+
+write method "GET"
+write header "Authorization" "Digest username=\"userDigest\", realm=\"\", nonce=\"3e54b63ce55dbab8a04c253b99ab8417\", uri=\"/resource\", response=\"216349453d8c5b003b94bd875fe9c2d4\""
+write close
 
 read status "200" "OK"
 
@@ -66,59 +48,25 @@ closed
 # server
 #
 
-accept tcp://localhost:8080
+accept http://localhost:8080/resource
 accepted
 connected
 
-read "GET /digest-auth/auth/user/passwd HTTP/1.1\r\n"
-read /Via: 1.1 kaazing-.+/ "\r\n"
-read "User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36\r\n"
-read "Upgrade-Insecure-Requests: 1\r\n"
-read "Host: localhost:8080\r\n"
-read "Accept-Language: en-US\r\n"
-read "Accept-Language: en;q=0.8\r\n"
-read "Accept-Encoding: gzip\r\n"
-read "Accept-Encoding: deflate\r\n"
-read "Accept-Encoding: sdch\r\n"
-read "Accept: text/html\r\n"
-read "Accept: application/xhtml+xml\r\n"
-read "Accept: application/xml;q=0.9\r\n"
-read "Accept: image/webp\r\n"
-read "Accept: */*;q=0.8\r\n"
-read "\r\n"
+read method "GET"
+read closed
 
-write "HTTP/1.1 401 UNAUTHORIZED\r\n"
-write "Access-Control-Allow-Credentials: true\r\n"
-write "Access-Control-Allow-Origin: *\r\n"
-write "Content-Length: 0\r\n"
-write "Content-Type: text/html\r\n"
-write "Date: Mon, 04 Jul 2016 13:31:49 GMT\r\n"
-write "Server: nginx\r\n"
-write "Set-Cookie: fake=fake_value\r\n"
-write "WWW-Authenticate: Digest nonce=\"3e54b63ce55dbab8a04c253b99ab8417\"\r\n"
-write "WWW-Authenticate: opaque=\"e8729fa1f90b7f746723b56f180b9ec9\"\r\n"
-write "WWW-Authenticate: realm=\"me@kennethreitz.com\"\r\n"
-write "WWW-Authenticate: qop=auth\r\n"
-write "\r\n"
+write status "401" "UNAUTHORIZED"
+write header "WWW-Authenticate" "Digest nonce=\"3e54b63ce55dbab8a04c253b99ab8417\""
+write header "WWW-Authenticate" "opaque=\"e8729fa1f90b7f746723b56f180b9ec9\""
+write header "WWW-Authenticate" "realm=\"me@kennethreitz.com\""
+write header "WWW-Authenticate" "qop=auth"
+write flush
 
-read "GET /digest-auth/auth/user/passwd HTTP/1.1\r\n"
-read /Via: 1.1 kaazing-.+/ "\r\n"
-read "User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36\r\n"
-read "Upgrade-Insecure-Requests: 1\r\n"
-read "Host: localhost:8080\r\n"
-read "Cookie: fake=fake_value\r\n"
-read "Authorization: Digest username=\"userDigest\", realm=\"\", nonce=\"3e54b63ce55dbab8a04c253b99ab8417\", uri=\"/digest-auth/auth/user/passwd\", response=\"216349453d8c5b003b94bd875fe9c2d4\"\r\n"
-read "Accept-Language: en-US\r\n"
-read "Accept-Language: en;q=0.8\r\n"
-read "Accept-Encoding: gzip\r\n"
-read "Accept-Encoding: deflate\r\n"
-read "Accept-Encoding: sdch\r\n"
-read "Accept: text/html\r\n"
-read "Accept: application/xhtml+xml\r\n"
-read "Accept: application/xml;q=0.9\r\n"
-read "Accept: image/webp\r\n"
-read "Accept: */*;q=0.8\r\n"
-read "\r\n"
+accepted
+connected
+
+read method "GET"
+read header "Authorization" "Digest username=\"userDigest\", realm=\"\", nonce=\"3e54b63ce55dbab8a04c253b99ab8417\", uri=\"/resource\", response=\"216349453d8c5b003b94bd875fe9c2d4\""
 
 write status "200" "OK"
 write close

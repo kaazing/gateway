@@ -33,25 +33,25 @@ import org.kaazing.gateway.transport.http.HttpVersion;
 
 public abstract class HttpStartMessage extends HttpMessage {
 
-	private static final Map<String, List<String>> EMPTY_HEADERS = Collections.emptyMap();
+    private static final Map<String, List<String>> EMPTY_HEADERS = Collections.emptyMap();
     private static final Set<String> EMPTY_HEADER_NAMES = Collections.emptySet();
     private static final List<String> EMPTY_HEADER = Collections.emptyList();
-	private static final Set<HttpCookie> EMPTY_COOKIES = Collections.emptySet();
-	
-	private Set<HttpCookie> cookies;
-	private Map<String, List<String>> headers;
-	private HttpVersion version;
-	private HttpContentMessage content;
+    private static final Set<HttpCookie> EMPTY_COOKIES = Collections.emptySet();
+
+    private Set<HttpCookie> cookies;
+    private Map<String, List<String>> headers;
+    private HttpVersion version;
+    private HttpContentMessage content;
     private boolean contentLengthImplicit;
 
-	public HttpStartMessage() {
-		content = null;
-	}
+    public HttpStartMessage() {
+        content = null;
+    }
 
-	@Override
-	public boolean isComplete() {
-		return (content == null) || content.isComplete();
-	}
+    @Override
+    public boolean isComplete() {
+        return (content == null) || content.isComplete();
+    }
 
     public boolean isContentLengthImplicit() {
         return contentLengthImplicit;

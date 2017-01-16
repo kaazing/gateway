@@ -77,13 +77,13 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
         boolean acceptPathIsSlash = acceptPath.endsWith("/");
         boolean connectPathIsSlash = connectPath.endsWith("/");
         if (!acceptPathIsSlash) {
-            String msg = String.format("The accept URI %s for service %s needs to end with /", acceptURI,
-                    serviceContext.getServiceName());
+            String msg = String.format("The path %s of accept URI %s for service %s needs to end with /",
+                    acceptPath, acceptURI, serviceContext.getServiceName());
             throw new IllegalArgumentException(msg);
         }
         if (!connectPathIsSlash) {
-            String msg = String.format("The connect URI %s for service %s needs to end with /", connectURI,
-                    serviceContext.getServiceName());
+            String msg = String.format("The path %s of connect URI %s for service %s needs to end with /",
+                    connectPath, connectURI, serviceContext.getServiceName());
             throw new IllegalArgumentException(msg);
         }
     }

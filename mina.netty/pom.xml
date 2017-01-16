@@ -71,7 +71,7 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>uk.co.real-logic</groupId>
+            <groupId>org.agrona</groupId>
             <artifactId>Agrona</artifactId>
         </dependency>
         <dependency>
@@ -213,7 +213,7 @@
                     </filters>
                     <artifactSet>
                         <excludes>
-                            <exclude>uk.co.real-logic:Agrona</exclude>
+                            <exclude>org.agrona:Agrona</exclude>
                         </excludes>
                     </artifactSet>
                 </configuration>

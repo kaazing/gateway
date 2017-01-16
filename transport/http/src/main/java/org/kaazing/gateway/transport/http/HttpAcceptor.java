@@ -70,7 +70,7 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
-import org.kaazing.gateway.server.ExpiringState;
+import org.kaazing.gateway.server.spi.security.ExpiringState;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
 import org.kaazing.gateway.transport.Bindings;
 import org.kaazing.gateway.transport.BridgeAcceptor;

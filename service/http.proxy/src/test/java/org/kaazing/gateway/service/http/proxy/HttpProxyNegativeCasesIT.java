@@ -71,7 +71,6 @@ public class HttpProxyNegativeCasesIT {
         robot.finish();
     }
 
-    @Ignore("https://github.com/kaazing/tickets/issues/631")
     @Specification("http.proxy.payload.no.match.content.length.smaller")
     @Test
     public void sendPayloadWithContentLengthSmaller() throws Exception {

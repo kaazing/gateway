@@ -46,7 +46,7 @@ import org.kaazing.gateway.resource.address.http.DefaultHttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.security.auth.context.DefaultLoginContextFactory;
-import org.kaazing.gateway.server.ExpiringState;
+import org.kaazing.gateway.server.spi.security.ExpiringState;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.TransportFactory;
