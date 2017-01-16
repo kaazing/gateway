@@ -9,7 +9,7 @@
     </parent>
     <artifactId>mina.netty</artifactId>
     <packaging>jar</packaging>
-    <name>Kaazing's Modified Mina Netty Adapter</name>
+    <name>Mina Netty Adapter</name>
     <description>Implementation of mina abstractions using netty</description>
 
     <url>https://github.com/kaazing/mina.netty.git</url>
@@ -199,7 +199,7 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.4.2</version>
                 <configuration>
-                    <dependencyReducedPomLocation>${basedir}/target/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
                     <createSourcesJar>${create.shaded.sources}</createSourcesJar>
                     <filters>
                         <filter>

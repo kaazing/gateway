@@ -40,7 +40,7 @@
         <opencsv.version>2.3</opencsv.version>
         <jmh.version>1.14</jmh.version>
         <community.version>2.25</community.version>
-        <codehaus.license.version>1.10</codehaus.license.version>
+        <codehaus.license.version>1.12</codehaus.license.version>
         <maven.enforcer.version>1.4.1</maven.enforcer.version>
     </properties>
 
