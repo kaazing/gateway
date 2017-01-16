@@ -129,7 +129,7 @@ public class TcpConnectorLoggingIT {
             protected void doSessionOpened(IoSessionEx session) throws Exception {
                 writeStringMessageToSession("client data " + counter, session);
                 InetSocketAddress socketAddress = (InetSocketAddress)session.getLocalAddress();
-                expectedPatterns = Arrays.asList(String.format("\\[niosocketchannel#%d 127.0.0.1:%d\\] java.lang.NullPointerException", session.getId(), socketAddress.getPort()));
+                expectedPatterns = Arrays.asList(String.format("\\[tcp#%d 127.0.0.1:%d\\] java.lang.NullPointerException", session.getId(), socketAddress.getPort()));
             }
 
             @Override
