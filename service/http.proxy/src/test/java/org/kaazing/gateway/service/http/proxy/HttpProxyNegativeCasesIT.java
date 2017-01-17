@@ -16,37 +16,23 @@
 
 package org.kaazing.gateway.service.http.proxy;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.junit.runners.model.Statement;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.MemoryAppender;
-import org.kaazing.test.util.MethodExecutionTrace;
+
+
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 public class HttpProxyNegativeCasesIT {
 
     private final K3poRule robot = new K3poRule();
-    private List<String> expectedPatterns;
-
-    private TestRule checkLogMessageRule = (base, description) -> new Statement() {
-        @Override
-        public void evaluate() throws Throwable {
-            base.evaluate();
-            MemoryAppender.assertMessagesLogged(expectedPatterns, null, null, true);
-        }
-    };
 
     private final GatewayRule gateway = new GatewayRule() {{
         // @formatter:off
@@ -64,16 +50,12 @@ public class HttpProxyNegativeCasesIT {
     }};
 
     @Rule
-    public TestRule chain =
-            RuleChain.outerRule(new MethodExecutionTrace()).around(robot).around(checkLogMessageRule).around(gateway);
+    public TestRule chain = createRuleChain(gateway, robot);
 
     @Specification("http.proxy.http.1.0.request")
     @Test
     public void sendHttp_1_0_Request() throws Exception {
         robot.finish();
-        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-                "http.proxy service .*. received an HTTP 1.0 request. HTTP 1.0 is not explicitly supported."
-            }));
     }
 
     @Specification("http.proxy.http.2.0.request")
