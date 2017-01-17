@@ -306,7 +306,7 @@ public abstract class AbstractIoService implements IoService {
                 try {
                     this.disposalFuture = disposalFuture = dispose0();
                 } catch (Exception e) {
-                    ExceptionMonitor.getInstance().exceptionCaught(e, null);
+                    ExceptionMonitor.getInstance().exceptionCaught(e, this.disposalFuture.getSession());
                 } finally {
                     if (disposalFuture == null) {
                         disposed = true;

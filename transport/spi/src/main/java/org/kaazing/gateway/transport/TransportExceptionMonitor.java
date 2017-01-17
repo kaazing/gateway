@@ -27,7 +27,7 @@ import org.slf4j.Logger;
  * All {@link IoService}s have this implementation as a default exception
  * monitor.
  *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a>
+ * ExceptionMonitor to be used with Kaazing Gateway transports
  */
 public class TransportExceptionMonitor extends ExceptionMonitor {
 

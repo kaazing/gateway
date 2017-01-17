@@ -16,23 +16,24 @@
 package org.kaazing.mina.netty;
 
 
-import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.mina.core.session.IoSession;
 import org.junit.Test;
+import org.kaazing.mina.util.DefaultExceptionMonitor;
 import org.kaazing.mina.util.ExceptionMonitor;
 
 
 public class ExceptionMonitorTest
 {
     @Test
-    public void testGetInstance(){
-        assertNotNull(ExceptionMonitor.getInstance());
+    public void getInstanceShouldReturnDefaultMonitorInitially(){
+        assertTrue(ExceptionMonitor.getInstance().getClass().isAssignableFrom(DefaultExceptionMonitor.class));
     }
 
     @Test
-    public void testSetInstance() {
+    public void getInstanceShouldReturnLastSetInstance () {
         ExceptionMonitor expectedMonitor = new ExceptionMonitor() {
             @Override
             public void exceptionCaught(Throwable cause, IoSession s) {

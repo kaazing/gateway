@@ -17,15 +17,11 @@ package org.kaazing.mina.netty;
 
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.mina.core.session.IoSession;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -58,29 +54,17 @@ public class DefaultExceptionMonitorTest
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(checkLogMessageRule);
 
-    @Test
-    public void testExceptionCaughtShouldRethrowError() throws Exception {
-
+    @Test(expected=Error.class)
+    public void exceptionCaughtShouldRethrowError() throws Exception {
         IoSession session = context.mock(IoSession.class);
-
-        try{
-            new DefaultExceptionMonitor().exceptionCaught(new Error(ERROR_MESSAGE), session);
-            Assert.fail("Should have thrown an error");
-        }catch (Throwable t){
-            assertTrue(t instanceof Error);
-            assertEquals(ERROR_MESSAGE, t.getMessage());
-        }
-
+        new DefaultExceptionMonitor().exceptionCaught(new Error(ERROR_MESSAGE), session);
     }
 
     @Test
-    public void testShouldLogMessageIncludingSession() throws Exception {
+    public void shouldLogMessageIncludingSession() throws Exception {
         IoSession session = context.mock(IoSession.class, "session");
 
         new DefaultExceptionMonitor().exceptionCaught(new NullPointerException(EXCEPTION_MESSAGE), session);
-
         expectedPatterns = Arrays.asList("Unexpected exception in session session");
     }
-
-
 }
