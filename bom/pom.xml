@@ -287,7 +287,7 @@
                 <artifactId>jdom</artifactId>
             </dependency>
             <dependency>
-                <groupId>org.kaazing</groupId>
+                <groupId>org.snmp4j</groupId>
                 <artifactId>snmp4j</artifactId>
             </dependency>
             <dependency>
