@@ -129,24 +129,23 @@ public class NioWorker extends AbstractNioWorker {
                 }
             }
             failure = false;
+            if (readBytes > 0) {
+                bb.flip();
+
+                final ChannelBuffer buffer = bufferFactory.getBuffer(readBytes);
+                buffer.setBytes(0, bb);
+                buffer.writerIndex(readBytes);
+
+                // Update the predictor.
+                predictor.previousReceiveBufferSize(readBytes);
+
+                // Fire the event.
+                fireMessageReceived(channel, buffer);
+            }
         } catch (ClosedChannelException e) {
             // Can happen, and does not need a user attention.
         } catch (Throwable t) {
             fireExceptionCaught(channel, t);
-        }
-
-        if (readBytes > 0) {
-            bb.flip();
-
-            final ChannelBuffer buffer = bufferFactory.getBuffer(readBytes);
-            buffer.setBytes(0, bb);
-            buffer.writerIndex(readBytes);
-
-            // Update the predictor.
-            predictor.previousReceiveBufferSize(readBytes);
-
-            // Fire the event.
-            fireMessageReceived(channel, buffer);
         }
 
         if (ret < 0 || failure) {
@@ -537,7 +536,7 @@ public class NioWorker extends AbstractNioWorker {
     }
 
     interface ReadDispatcher {
-        AbstractNioChannel channel();
+        AbstractNioChannel<?> channel();
         boolean dispatch(NioWorker worker, SelectionKey key);
     }
 
@@ -550,7 +549,7 @@ public class NioWorker extends AbstractNioWorker {
         }
 
         @Override
-        public AbstractNioChannel channel() {
+        public AbstractNioChannel<SocketChannel> channel() {
             return channel;
         }
 
@@ -569,7 +568,7 @@ public class NioWorker extends AbstractNioWorker {
         }
 
         @Override
-        public AbstractNioChannel channel() {
+        public AbstractNioChannel<DatagramChannel> channel() {
             return channel;
         }
 

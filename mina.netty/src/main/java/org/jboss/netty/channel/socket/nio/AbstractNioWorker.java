@@ -31,8 +31,12 @@
 package org.jboss.netty.channel.socket.nio;
 
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelState;
+import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.UpstreamChannelStateEvent;
 import org.jboss.netty.channel.UpstreamMessageEvent;
 import org.jboss.netty.channel.socket.Worker;
 import org.jboss.netty.channel.socket.nio.NioWorker.ReadDispatcher;
@@ -44,7 +48,7 @@ import org.jboss.netty.logging.InternalLoggerFactory;
 import org.jboss.netty.util.ThreadNameDeterminer;
 import org.jboss.netty.util.ThreadRenamingRunnable;
 import org.kaazing.mina.netty.channel.DefaultWriteCompletionEventEx;
-import uk.co.real_logic.agrona.concurrent.OneToOneConcurrentArrayQueue;
+import org.agrona.concurrent.OneToOneConcurrentArrayQueue;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousCloseException;
@@ -85,7 +89,7 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
     protected final SocketReceiveBufferAllocator recvBufferPool = new SocketReceiveBufferAllocator();
     protected final SocketSendBufferPool sendBufferPool = new SocketSendBufferPool();
     private final DefaultWriteCompletionEventEx writeCompletionEvent = new DefaultWriteCompletionEventEx();
-    private final Queue<UpstreamMessageEvent> readQueue = new OneToOneConcurrentArrayQueue<>(UDP_CHANNEL_READ_QUEUE_SIZE_PER_WORKER);
+    private final Queue<ChannelEvent> readQueue = new OneToOneConcurrentArrayQueue<>(UDP_CHANNEL_READ_QUEUE_SIZE_PER_WORKER);
 
     private int noDroppedMessages;
 
@@ -638,8 +642,7 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
     }
 
     // This method is called from the boss thread
-    public void messageReceived(AbstractNioChannel<?> channel, Object message) {
-        UpstreamMessageEvent event = new UpstreamMessageEvent(channel, message, null);
+    public void messageReceived(AbstractNioChannel<?> channel, ChannelEvent event) {
         boolean written = readQueue.offer(event);
         if (!written) {
             noDroppedMessages++;
@@ -664,7 +667,7 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
     protected void processRead() throws IOException {
         if (readQueue != null) {
             while (true) {
-                UpstreamMessageEvent event = readQueue.poll();
+                ChannelEvent event = readQueue.poll();
                 if (event == null) {
                     return;
                 }

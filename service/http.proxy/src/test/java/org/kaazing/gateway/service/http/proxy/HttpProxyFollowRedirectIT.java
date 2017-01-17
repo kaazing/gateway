@@ -38,10 +38,9 @@ public class HttpProxyFollowRedirectIT {
                     new GatewayConfigurationBuilder()
                         .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
                         .service()
-                            .accept("http://localhost:8110")
-                            .connect("http://localhost:8080")
+                            .accept("http://localhost:8111")
+                            .connect("http://localhost:8081")
                             .type("http.proxy")
-                            .connectOption("http.keepalive", "disabled")
                             .connectOption("http.maximum.redirects", "1")
                         .done()
                     .done();

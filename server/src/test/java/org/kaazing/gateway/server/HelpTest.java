@@ -89,6 +89,9 @@ public class HelpTest {
     private void writeArgsFile(String pathToArgsFile) throws IOException {
         FileWriter fw = new FileWriter(new File(pathToArgsFile));
         fw.write("\"broker\", true, \"the broker to be started with the Gateway. e.g.: \"--broker jms\" for ActiveMQ or \"--broker amqp\" for AMQP\"");
+        // reproduce the issue: https://github.com/kaazing/tickets/issues/926
+        fw.write("\n");
+        fw.write("\n");
         fw.flush();
         fw.close();
     }

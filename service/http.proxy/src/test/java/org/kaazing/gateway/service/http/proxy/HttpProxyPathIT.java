@@ -38,13 +38,6 @@ public class HttpProxyPathIT {
                     new GatewayConfigurationBuilder()
                         .property(EarlyAccessFeatures.HTTP_PROXY_SERVICE.getPropertyName(), "true")
                         .service()
-                            .accept("http://localhost:8110/a")
-                            .connect("http://localhost:8080/b/c")
-                            .name("Proxy Service 1")
-                            .type("http.proxy")
-                            .connectOption("http.keepalive", "disabled")
-                        .done()
-                        .service()
                             .accept("http://localhost:8111/a/")
                             .connect("http://localhost:8081/b/c/")
                             .name("Proxy Service 2")
@@ -60,29 +53,8 @@ public class HttpProxyPathIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-    @Specification("http.proxy.path.no.trailing.slashes.in.config.no.slash.in.request")
-    @Test
-    public void httpProxyPathNoTrailingSlashesInConfigNoSlashInRequest() throws Exception {
-        robot.finish();
-    }
 
-    @Specification("http.proxy.path.no.trailing.slashes.in.config.slash.in.request")
-    @Test
-    public void httpProxyPathNoTrailingSlashesInConfigSlashInRequest() throws Exception {
-        robot.finish();
-    }
 
-    @Specification("http.proxy.path.no.trailing.slashes.in.config.no.slash.in.request.path")
-    @Test
-    public void httpProxyPathNoTrailingSlashesInConfigNoSlashInRequestPath() throws Exception {
-        robot.finish();
-    }
-
-    @Specification("http.proxy.path.no.trailing.slashes.in.config.slash.in.request.path")
-    @Test
-    public void httpProxyPathNoTrailingSlashesInConfigSlashInRequestPath() throws Exception {
-        robot.finish();
-    }
 
     @Specification("http.proxy.path.with.trailing.slashes.in.config.no.slash.in.request")
     @Test

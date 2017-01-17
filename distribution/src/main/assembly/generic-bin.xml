@@ -90,7 +90,7 @@
       <outputDirectory>lib</outputDirectory>
       <useProjectArtifact>false</useProjectArtifact>
       <includes>
-        <include>uk.co.real-logic:Agrona</include>
+        <include>org.agrona:Agrona</include>
         <include>org.jdom:jdom</include>
         <include>org.slf4j:slf4j-api</include>
         <include>org.slf4j:slf4j-log4j12</include>
@@ -100,7 +100,7 @@
         <include>org.apache.xmlbeans:xmlbeans</include>
         <include>com.hazelcast:hazelcast</include>
         <include>com.hazelcast:hazelcast-client</include>
-        <include>com.hazelcast:hazelcast-cloud</include>
+        <include>com.hazelcast:hazelcast-aws</include>
         <include>commons-cli:commons-cli</include>
         <include>org.json:json</include>
         <include>org.apache.maven.shared:maven-shared-utils</include>

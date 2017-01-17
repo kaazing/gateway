@@ -134,7 +134,7 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
         config.setAll(service.getSessionConfig());
 
         // KG-1466: only wrap config if it's an instance of DefaultSessionConfigEx, to avoid defeating downcast
-        this.sessionConfig = config.getClass() == DefaultIoSessionConfigEx.class ? new BridgeSessionConfigEx(config) : config;
+        this.sessionConfig = config.getClass() == DefaultIoSessionConfigEx.class ? new BridgeSessionConfigEx(config, this.parent) : config;
 
         this.direction = direction;
     }
@@ -346,19 +346,22 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
     /**
      * This implementation of IoSessionConfig delegates set/getIdleTime methods to the parent session, if available.
      */
-    private class BridgeSessionConfigEx extends AbstractIoSessionConfigEx {
+    private static class BridgeSessionConfigEx extends AbstractIoSessionConfigEx {
         private boolean propagateIdleTime = false;
+        private final AtomicReference<IoSessionEx> parentReference;
 
-        BridgeSessionConfigEx(IoSessionConfigEx wrappedConfig) {
+        BridgeSessionConfigEx(IoSessionConfigEx wrappedConfig, AtomicReference<IoSessionEx> parentReference) {
             setAll(wrappedConfig);
+            // set propagate to true now, as setAll() should not be propagated
             propagateIdleTime = true;
+            this.parentReference = parentReference;
         }
 
         @Override
         public void setIdleTime(IdleStatus status, int idleTime) {
             // Don't allow setAll to overwrite idle time settings on the parent, grandparent, etc.
             if (propagateIdleTime) {
-                IoSessionEx parent = AbstractBridgeSession.this.parent.get();
+                IoSessionEx parent = parentReference.get();
                 if (parent != null) {
                     parent.getConfig().setIdleTime(status, idleTime);
                 }
@@ -372,7 +375,7 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
         public void setIdleTimeInMillis(IdleStatus status, long idleTimeMillis) {
             // Don't allow setAll to overwrite idle time settings on the parent, grandparent, etc.
             if (propagateIdleTime) {
-                IoSessionEx parent = AbstractBridgeSession.this.parent.get();
+                IoSessionEx parent = parentReference.get();
                 if (parent != null) {
                     IoSessionConfigEx config = parent.getConfig();
                     config.setIdleTimeInMillis(status, idleTimeMillis);
@@ -382,7 +385,7 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
 
         @Override
         public int getIdleTime(IdleStatus status) {
-            IoSessionEx parent = AbstractBridgeSession.this.parent.get();
+            IoSessionEx parent = parentReference.get();
             if (parent != null) {
                 return parent.getConfig().getIdleTime(status);
             }
@@ -393,7 +396,7 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
 
         @Override
         public long getIdleTimeInMillis(IdleStatus status) {
-            IoSessionEx parent = AbstractBridgeSession.this.parent.get();
+            IoSessionEx parent = parentReference.get();
             if (parent != null) {
                 IoSessionConfigEx config = parent.getConfig();
                 return config.getIdleTimeInMillis(status);

@@ -27,9 +27,9 @@ import org.kaazing.gateway.management.monitoring.writer.impl.MMFGatewayWriter;
 import org.kaazing.gateway.management.monitoring.writer.impl.MMFServiceWriter;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
-import uk.co.real_logic.agrona.BitUtil;
-import uk.co.real_logic.agrona.IoUtil;
-import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
+import org.agrona.BitUtil;
+import org.agrona.IoUtil;
+import org.agrona.concurrent.UnsafeBuffer;
 
 /**
  * Class responsible for storing/writing information in the appropriate the MMF format.

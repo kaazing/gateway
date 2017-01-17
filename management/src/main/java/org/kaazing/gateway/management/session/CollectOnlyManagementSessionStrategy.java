@@ -36,6 +36,7 @@ public class CollectOnlyManagementSessionStrategy implements ManagementSessionSt
     public void doSessionClosed(final SessionManagementBean sessionBean) throws Exception {
         if (sessionBean != null) {
             sessionBean.doSessionClosed();
+            sessionBean.doSessionClosedListeners();
         }
     }
 

@@ -82,20 +82,10 @@ public class MessageRoutingIT {
     @Test
     @Specification({"inbound.must.reject.request.with.400.if.host.header.does.not.match.uri/request"})
     public void inboundMustRejectRequestWith400IfHostHeaderDoesNotMatchURI() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-
-        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
-            @Override
-            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
-                latch.countDown();
-                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
-                session.close(true);
-            }
-        };
+        IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>();
         acceptor.bind(HTTP_ADDRESS, acceptHandler);
 
         k3po.finish();
-        assertTrue(latch.await(4, SECONDS));
     }
 
     @Test

@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.transport;
 
+import static java.lang.Thread.currentThread;
+
 import java.io.IOException;
 
 import org.apache.mina.core.filterchain.IoFilterAdapter;
@@ -25,6 +27,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.filter.logging.LogLevel;
 import org.kaazing.gateway.transport.bridge.Message;
+import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
 import org.slf4j.Logger;
 
@@ -94,6 +97,10 @@ public class LoggingFilter extends IoFilterAdapter {
         this(logger, "%s");
     }
 
+    public LoggingFilter(Logger logger, IoSession session, String transportName) {
+        this(logger, getLoggingFormat(session, transportName));
+    }
+
     public LoggingFilter(Logger logger, String sessionIdFormat) {
         if (logger == null) {
             throw new NullPointerException("logger");
@@ -120,12 +127,11 @@ public class LoggingFilter extends IoFilterAdapter {
             return false;
         }
         String loggingFilterName = transportName + "#logging";
-        String format = getLoggingFormat(session, transportName);
         if (logger.isTraceEnabled()) {
-            session.getFilterChain().addLast(loggingFilterName, new ObjectLoggingFilter(logger, format));
+            session.getFilterChain().addLast(loggingFilterName, new ObjectLoggingFilter(logger, session, transportName));
             return true;
         } else {
-            session.getFilterChain().addLast(loggingFilterName, new ExceptionLoggingFilter(logger, format));
+            session.getFilterChain().addLast(loggingFilterName, new ExceptionLoggingFilter(logger, session, transportName));
             return true;
         }
     }

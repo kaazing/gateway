@@ -35,6 +35,7 @@ import static org.kaazing.gateway.transport.http.HttpUtils.hasCloseHeader;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolHeaderFilter.PROTOCOL_HTTPXE_1_1;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter.PROTOCOL_HTTP_1_1;
 import static org.kaazing.gateway.transport.http.security.auth.WWWAuthenticateHeaderUtils.getChallenges;
+import static org.kaazing.gateway.util.InternalSystemProperty.CONNECT_FOLLOW_REDIRECT_WITH_QUERY;
 import static org.kaazing.gateway.util.feature.EarlyAccessFeatures.HTTP_AUTHENTICATOR;
 
 import java.io.IOException;
@@ -44,6 +45,7 @@ import java.net.InetAddress;
 import java.net.PasswordAuthentication;
 import java.net.SocketAddress;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +70,7 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOption;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.URLUtils;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.transport.AbstractBridgeConnector;
 import org.kaazing.gateway.transport.BridgeConnector;
@@ -94,6 +97,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     public static final TypedAttributeKey<DefaultHttpSession> HTTP_SESSION_KEY = new TypedAttributeKey<>(HttpConnector.class, "httpSession");
     private static final TypedAttributeKey<ConnectFuture> HTTP_CONNECT_FUTURE_KEY = new TypedAttributeKey<>(HttpConnector.class, "httpConnectFuture");
     private Properties configuration;
+    private boolean appendQueryWhenFollowingRedirect = true;
     
     private final Map<String, Set<HttpConnectFilter>> connectFiltersByProtocol;
     private final Set<HttpConnectFilter> allConnectFilters;
@@ -116,6 +120,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     @Resource(name = "configuration")
     public void setConfiguration(Properties configuration) {
         this.configuration = configuration;
+        appendQueryWhenFollowingRedirect = "true".equalsIgnoreCase(CONNECT_FOLLOW_REDIRECT_WITH_QUERY.getProperty(configuration));
     }
 
     @Resource(name = "bridgeServiceFactory")
@@ -390,14 +395,14 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                 case REDIRECT_MOVED_PERMANENTLY:
                     // TODO consider changing URI, to follow permanently (or perhaps just log info?)
                 case REDIRECT_FOUND:
-                    if (shouldFollowRedirects(httpSession)) {
-                        if (httpResponse.isComplete()) {
-                            followRedirect(httpSession, session);
-                        }
-                        break;
-                    }
-                case SUCCESS_NO_CONTENT:
+                case REDIRECT_MULTIPLE_CHOICES:
+                case REDIRECT_SEE_OTHER:
                 case REDIRECT_NOT_MODIFIED:
+                case REDIRECT_USE_PROXY:
+                case REDIRECT_TEMPORARY:
+                    doRedirectReceived(session, httpSession, httpResponse);
+                    break;
+                case SUCCESS_NO_CONTENT:
                     httpSession.close(false);
                     break;
                 case CLIENT_UNAUTHORIZED:
@@ -427,10 +432,14 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                 HttpContentMessage httpContent = (HttpContentMessage) httpMessage;
                 switch (httpSession.getStatus()) {
                 case REDIRECT_MOVED_PERMANENTLY:
+                    // TODO consider changing URI, to follow permanently (or perhaps just log info?)
                 case REDIRECT_FOUND:
-                    if (shouldFollowRedirects(httpSession) && httpContent.isComplete()) {
-                        followRedirect(httpSession, session);
-                    }
+                case REDIRECT_MULTIPLE_CHOICES:
+                case REDIRECT_SEE_OTHER:
+                case REDIRECT_NOT_MODIFIED:
+                case REDIRECT_USE_PROXY:
+                case REDIRECT_TEMPORARY:
+                    doRedirectReceived(session, httpSession, httpContent);
                     break;
                 default:
                     fireContentReceived(httpSession, httpContent);
@@ -439,6 +448,16 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                 break;
             default:
                 throw new IllegalArgumentException("Unexpected HTTP message: " + httpMessage.getKind());
+            }
+        }
+
+        private void doRedirectReceived(final IoSessionEx session, DefaultHttpSession httpSession, HttpMessage httpContent) throws URISyntaxException {
+            if (httpContent.isComplete()) {
+                if (shouldFollowRedirects(httpSession)) {
+                    followRedirect(httpSession, session);
+                } else {
+                    httpSession.close(false);
+                }
             }
         }
 
@@ -525,15 +544,43 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
          * @param httpSession
          * @param session
          * @return
+         * @throws URISyntaxException 
          */
-        private DefaultConnectFuture followRedirect(DefaultHttpSession httpSession, IoSessionEx session) {
+        private DefaultConnectFuture followRedirect(DefaultHttpSession httpSession, IoSessionEx session)
+                throws URISyntaxException {
             HashMap<ResourceOption<?>, Object> overrides = new HashMap<>();
-            String location = httpSession.getReadHeader("location");
+
+            // fix redirects
             Integer maxRedirects = new Integer((httpSession.getRemoteAddress().getOption(MAXIMUM_REDIRECTS)) - 1);
             overrides.put(MAXIMUM_REDIRECTS, maxRedirects);
-            ResourceAddress newConnectAddress =
-                    addressFactory.newResourceAddress(location.replaceFirst("ws","http"), new WrappedResourceOptionsForConnectionRetry(httpSession, overrides));
+
+            // fix location
+            URI newLocation = new URI(httpSession.getReadHeader("location"));
+            URI oldLocation = httpSession.getRequestURL();
+            newLocation = resolveFragement(newLocation, oldLocation);
+            if (!newLocation.isAbsolute()) {
+                newLocation = URLUtils.modifyURIPath(oldLocation, newLocation.getPath());
+            }
+            String oldQuery = oldLocation.getQuery();
+            if (oldQuery != null && appendQueryWhenFollowingRedirect) {
+                newLocation = URLUtils.modifyURIQuery(newLocation, oldQuery);
+            }
+            httpSession.setRequestURI(URLUtils.getPathAndQueryURI(newLocation));
+            ResourceAddress newConnectAddress = addressFactory.newResourceAddress(newLocation.toString(),
+                    new WrappedResourceOptionsForConnectionRetry(httpSession, overrides));
             return retryConnect(httpSession, session, newConnectAddress);
+        }
+
+        private URI resolveFragement(URI newLocation, URI oldLocation) {
+            if (newLocation.getRawFragment() != null) {
+                return newLocation;
+            }
+            String oldFragment = oldLocation.getRawFragment();
+            if (oldFragment == null) {
+                return newLocation;
+            } else {
+                return URLUtils.modifyURIFragment(newLocation, oldFragment);
+            }
         }
 
         private DefaultConnectFuture retryConnect(DefaultHttpSession httpSession, IoSessionEx session,
