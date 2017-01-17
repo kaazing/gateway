@@ -1,5 +1,5 @@
 /**
-s * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,17 +22,14 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.session.IoSession;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.junit.runners.model.Statement;
 import org.kaazing.mina.util.DefaultExceptionMonitor;
 import org.kaazing.test.util.MemoryAppender;
@@ -42,15 +39,13 @@ import org.kaazing.test.util.MethodExecutionTrace;
 public class DefaultExceptionMonitorTest
 {
     @Rule
-    JUnitRuleMockery context = new JUnitRuleMockery();
+    public JUnitRuleMockery context = new JUnitRuleMockery();
 
     private static final String ERROR_MESSAGE = "ERROR";
     private static final String EXCEPTION_MESSAGE = "EXCEPTION";
     private List<String> expectedPatterns;
 
     public TestRule trace = new MethodExecutionTrace();
-    public TestRule timeoutRule = new DisableOnDebug(Timeout.builder().withTimeout(10, TimeUnit.SECONDS)
-            .withLookingForStuckThread(true).build());
 
     private TestRule checkLogMessageRule = (base, description) -> new Statement() {
         @Override
@@ -61,7 +56,7 @@ public class DefaultExceptionMonitorTest
     };
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(checkLogMessageRule).around(timeoutRule);
+    public TestRule chain = RuleChain.outerRule(trace).around(checkLogMessageRule);
 
     @Test
     public void testExceptionCaughtShouldRethrowError() throws Exception {
@@ -80,11 +75,11 @@ public class DefaultExceptionMonitorTest
 
     @Test
     public void testShouldLogMessageIncludingSession() throws Exception {
-        IoSession session = context.mock(IoSession.class);
+        IoSession session = context.mock(IoSession.class, "session");
 
-        new DefaultExceptionMonitor().getInstance().exceptionCaught(new NullPointerException(EXCEPTION_MESSAGE), session);
+        new DefaultExceptionMonitor().exceptionCaught(new NullPointerException(EXCEPTION_MESSAGE), session);
 
-        expectedPatterns = Arrays.asList("Unexpected exception in session ioSession", EXCEPTION_MESSAGE);
+        expectedPatterns = Arrays.asList("Unexpected exception in session session");
     }
 
 

@@ -19,7 +19,6 @@ import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.mina.util.ExceptionMonitor;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A default {@link ExceptionMonitor} implementation that logs uncaught
@@ -31,14 +30,13 @@ import org.slf4j.LoggerFactory;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class TransportExceptionMonitor extends ExceptionMonitor {
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(TransportExceptionMonitor.class);
 
     @Override
     public void exceptionCaught(Throwable cause, IoSession session) {
         if (cause instanceof Error) {
             throw (Error) cause;
         }
-        LoggingUtils.log(session, LOGGER, cause);
+        LoggingUtils.log(session, cause);
     }
+
 }
