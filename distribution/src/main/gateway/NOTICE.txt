@@ -28,16 +28,6 @@ This product depends on Commons IO 2.4
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
 	Homepage:	http://commons.apache.org/io/
 
-This product depends on Java Unified Expression Language API 2.2.7
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://juel.sourceforge.net/juel-api/
-
-This product depends on Java Unified Expression Language Implementation 2.2.7
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://juel.sourceforge.net/juel-impl/
-
 This product depends on Netty 3.10.5.Final
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
@@ -73,25 +63,10 @@ This product depends on OGNL - Object Graph Navigation Library 2.7.2
 	License:	http://www.apache.org/licenses/ (Apache License 2)
 	Homepage:	http://ognl.org
 
-This product depends on abego TreeLayout Core 1.0.1
-
-	License:	http://treelayout.googlecode.com/files/LICENSE.TXT (BSD 3-Clause "New" or "Revised" License (BSD-3-Clause))
-	Homepage:	http://code.google.com/p/treelayout/
-
 This product depends on Agrona 0.9.1
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache License, Version 2.0)
 	Homepage:	https://github.com/real-logic/Agrona
-
-This product depends on ANTLR 4 Runtime Annotations 4.2.2
-
-	License:	http://www.antlr.org/license.html (The BSD License)
-	Homepage:	http://www.antlr.org/antlr4-annotations
-
-This product depends on ANTLR 4 Runtime 4.2.2
-
-	License:	http://www.antlr.org/license.html (The BSD License)
-	Homepage:	http://www.antlr.org/antlr4-runtime
 
 This product depends on Apache Maven Shared Utils 3.0.0
 

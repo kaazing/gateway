@@ -129,34 +129,6 @@
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
             </plugin>
-            <plugin>
-                <groupId>org.kaazing</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <configuration>
-                    <!-- Project hints go here -->
-                    <projectHints>
-                        <projectDescription>
-                            <projectName>cglib</projectName>
-                            <licenseName>APACHE 2</licenseName>
-                            <licenseUrl>https://github.com/kaazing/gateway.service.amqp/blob/develop/LICENSE.txt</licenseUrl>
-                        </projectDescription>
-                        <projectDescription>
-                            <projectName>JDOM</projectName>
-                            <licenseName>JDOM License</licenseName>
-                            <licenseUrl>https://github.com/hunterhacker/jdom/blob/master/LICENSE.txt</licenseUrl>
-                            <homePage>http://jdom.org</homePage>
-                            <version>1.1</version>
-                        </projectDescription>
-                        <projectDescription>
-                            <projectName>Java Native Access</projectName>
-                            <licenseName>LGPL</licenseName>
-                            <licenseUrl>http://www.gnu.org/licenses/licenses.html</licenseUrl>
-                            <homePage>https://github.com/twall/jna</homePage>
-                            <version>2.1</version>
-                        </projectDescription>
-                    </projectHints>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
