@@ -63,11 +63,11 @@
             <artifactId>gateway.management</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.snmp4j</groupId>
+            <groupId>org.kaazing</groupId>
             <artifactId>snmp4j</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.snmp4j</groupId>
+            <groupId>org.kaazing</groupId>
             <artifactId>snmp4j-agent</artifactId>
         </dependency>
         <!-- service dependencies -->
@@ -253,7 +253,7 @@
                     <useMissingFile>true</useMissingFile>
                     <missingFile>src/license/THIRD-PARTY.properties</missingFile>
                     <failIfWarning>true</failIfWarning>
-                    <excludedGroups>org.kaazing.*</excludedGroups>
+                    <excludedArtifacts>gateway.*|mina*</excludedArtifacts>
                 </configuration>
                 <dependencies>
                     <dependency>
