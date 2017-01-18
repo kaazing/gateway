@@ -1,0 +1,75 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+#
+# create request
+#
+connect http://localhost:8000/echo/;e/ctem?.kn=4125153693145155
+connected
+
+write method "GET"
+write version "HTTP/1.1"
+write header host
+write header "x-origin" "http://localhost:8000"
+write header "x-sequence-no" "0"
+write header "Content-Type" "text/plain; charset=utf-8"
+write header "x-accept-commands" "ping"
+write header "x-websocket-version" "wseb-1.0"
+write close
+
+read status "200" /.+/
+read version "HTTP/1.1"
+
+read "HTTP/1.1 201 Created\r\n"
+read "Content-Type: text/plain;charset=UTF-8\r\n"
+read "\r\n"
+#read /(?<upstream>http:\/\/localhost:8000\/echo\/.+)\n/
+#read /(?<downstream>http:\/\/localhost:8000\/echo\/.+)\n/
+read "http://localhost:8000" /(?<upstreamId>.*)\n/
+read "http://localhost:8000" /(?<downstreamId>.*)\n/
+
+read notify CREATED
+read closed
+
+# Downstream
+connect await CREATED
+#connect ${downstream}
+connect ${wse:append("http://localhost:8000", downstreamId)}
+connected
+
+write parameter ".ksn" "1"
+write parameter ".kns" "1"
+write parameter ".kf" "200"
+write parameter ".kp" "2048"
+write parameter ".kc" "text/plain;charset=windows-1252"
+write parameter ".kb" "4096"
+write parameter ".kid" "6104149433168159"
+write parameter ".kac" "ex"
+write parameter ".kct" "application/x-message-http"
+write method "POST"
+write version "HTTP/1.1"
+write header host
+write header content-length
+
+write "GET " ${downstreamId} "?.ksn=1&.kns=1&.kf=200&.kp=2048&.kc=text/plain;charset=windows-1252&.kb=4096&.kid=6104149433168159&.kac=ex HTTP/1.1\r\n"
+write "Content-Type: text/plain; charset=windows-1252\r\n"
+write "\r\n"
+write close
+
+read status "200" /.+/
+#read header "Connection" "close"
+
+read "HTTP/1.1 200 OK"
