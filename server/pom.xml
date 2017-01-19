@@ -176,18 +176,6 @@
             <artifactId>jdom</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna</artifactId>
-            <version>${jna.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna</artifactId>
-            <classifier>platform</classifier>
-            <version>${jna.version}</version>
-        </dependency>
-
         <!-- From core.common -->
         <dependency>
             <groupId>commons-cli</groupId>
@@ -391,7 +379,6 @@
     </reporting>
 
     <properties>
-        <jna.version>3.3.0</jna.version>
         <!-- remove this after next core.common release -->
         <commons-cli.version>1.2</commons-cli.version>
         <checkstyle.config.location>org/kaazing/code/quality/checkstyle.xml</checkstyle.config.location>
