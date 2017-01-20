@@ -25,13 +25,11 @@ import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.DefaultIoSessionDataStructureFactory;
 import org.apache.mina.core.session.IoSessionInitializer;
-import org.apache.mina.util.ExceptionMonitor;
-import org.slf4j.Logger;
-import org.kaazing.gateway.transport.LoggingFilter;
-
 import org.kaazing.mina.core.service.AbstractIoServiceEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionConfigEx;
+import org.kaazing.mina.util.ExceptionMonitor;
+import org.slf4j.Logger;
 
 public abstract class AbstractBridgeService<T extends AbstractBridgeSession<?, ?>> extends AbstractIoServiceEx implements BridgeService {
 
@@ -91,7 +89,7 @@ public abstract class AbstractBridgeService<T extends AbstractBridgeSession<?, ?
         try {
             this.getFilterChainBuilder().buildFilterChain(filterChain);
         } catch (Throwable t) {
-            ExceptionMonitor.getInstance().exceptionCaught(t);
+            ExceptionMonitor.getInstance().exceptionCaught(t, session);
         }
 
         addLoggerFilter(session, getLogger());

@@ -34,7 +34,7 @@ import org.kaazing.mina.netty.socket.SocketChannelIoAcceptor;
 public class NioSocketChannelIoAcceptor extends SocketChannelIoAcceptor {
 
     private static final TransportMetadata NIO_SOCKET_TRANSPORT_METADATA = new DefaultTransportMetadata(
-            "Kaazing", "NioSocketChannel", false, true, InetSocketAddress.class,
+            "Kaazing", "tcp", false, true, InetSocketAddress.class,
             SocketSessionConfig.class, Object.class);
 
     public NioSocketChannelIoAcceptor(NioSocketChannelIoSessionConfig sessionConfig) {

@@ -29,7 +29,7 @@ import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.polling.AbstractPollingIoProcessor;
 import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.util.ExceptionMonitor;
+import org.kaazing.mina.util.ExceptionMonitor;
 
 
 /**
@@ -422,7 +422,7 @@ public class DefaultIoFutureEx implements IoFutureEx {
         try {
             l.operationComplete(this);
         } catch (Throwable t) {
-            ExceptionMonitor.getInstance().exceptionCaught(t);
+            ExceptionMonitor.getInstance().exceptionCaught(t, this.session);
         }
     }
 }

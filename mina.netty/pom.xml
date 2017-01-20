@@ -66,11 +66,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-jdk14</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.agrona</groupId>
             <artifactId>Agrona</artifactId>
         </dependency>
@@ -270,7 +265,6 @@
     <properties>
         <checkstyle.config.location>org/kaazing/code/quality/checkstyle.xml</checkstyle.config.location>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <skipTests>true</skipTests>
     </properties>
 
 </project>
