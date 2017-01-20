@@ -127,6 +127,7 @@ public class UdpConnectorIT {
     @Test
     @Specification("client.sent.data/server")
     public void clientSentData() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
         k3po.start();
         k3po.awaitBarrier("BOUND");
         WriteFuture[] futures = new WriteFuture[1];
@@ -135,10 +136,12 @@ public class UdpConnectorIT {
             protected void doSessionOpened(IoSessionEx session) {
                 WriteFuture future = writeStringMessageToSession("client data", session);
                 futures[0] = future;
+                latch.countDown();
             }
         });
 
         k3po.finish();
+        latch.await(5, TimeUnit.SECONDS);   // since k3po may finish early
         futures[0].await(2, SECONDS);
         assertTrue(futures[0].isWritten());
     }
