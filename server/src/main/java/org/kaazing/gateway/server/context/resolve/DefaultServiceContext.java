@@ -83,7 +83,7 @@ import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.service.TransportOptionNames;
 import org.kaazing.gateway.service.cluster.ClusterContext;
 import org.kaazing.gateway.service.cluster.MemberId;
-import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
+import org.kaazing.gateway.service.collections.CollectionsFactory;
 import org.kaazing.gateway.transport.BridgeAcceptor;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;

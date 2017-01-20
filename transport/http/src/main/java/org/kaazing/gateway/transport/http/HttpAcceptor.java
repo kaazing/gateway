@@ -70,7 +70,7 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
-import org.kaazing.gateway.server.ExpiringState;
+import org.kaazing.gateway.server.spi.security.ExpiringState;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
 import org.kaazing.gateway.transport.Bindings;
 import org.kaazing.gateway.transport.BridgeAcceptor;
@@ -80,6 +80,7 @@ import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpBindings.HttpBinding;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
@@ -94,7 +95,6 @@ import org.kaazing.gateway.transport.http.bridge.filter.HttpSerializeRequestsFil
 import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
 import org.kaazing.gateway.transport.http.resource.HttpDynamicResource;
 import org.kaazing.gateway.transport.http.resource.HttpDynamicResourceFactory;
-import org.kaazing.gateway.util.LoggingUtils;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
@@ -379,7 +379,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                     session.close(false);
 
                     String message = String.format("Unexpected HTTP exception: %s", cause);
-                    LoggingUtils.log(logger, message, cause);
+                    LoggingUtils.log(session, logger, message, cause);
                 }
 
                 // Note: we must trigger doSessionClosed here to avoid recursion of exceptionCaught
@@ -389,7 +389,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 if (logger.isDebugEnabled()) {
                 // handle malformed HTTP scenario
                     String message = format("Error on HTTP connection, closing connection: %s", cause);
-                    LoggingUtils.log(logger, message, cause);
+                    LoggingUtils.log(session, logger, message, cause);
                 }
 
                 if (!session.isClosing() && cause instanceof HttpProtocolDecoderException) {

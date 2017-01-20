@@ -17,13 +17,13 @@ package org.kaazing.gateway.server.context.resolve;
 
 import static org.kaazing.gateway.resource.address.uri.URIUtils.buildURIAsString;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getAuthority;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getCanonicalURI;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getFragment;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getHost;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getPath;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getPort;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getQuery;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
-import static org.kaazing.gateway.resource.address.uri.URIUtils.getUserInfo;
 import static org.kaazing.gateway.service.util.ServiceUtils.LIST_SEPARATOR;
 import static org.kaazing.gateway.util.feature.EarlyAccessFeatures.LOGIN_MODULE_EXPIRING_STATE;
 import static org.kaazing.gateway.util.feature.EarlyAccessFeatures.TCP_REALM_EXTENSION;
@@ -63,7 +63,6 @@ import org.kaazing.gateway.security.SecurityContext;
 import org.kaazing.gateway.security.auth.BasicLoginModule;
 import org.kaazing.gateway.security.auth.NegotiateLoginModule;
 import org.kaazing.gateway.security.auth.TimeoutLoginModule;
-import org.kaazing.gateway.server.ExpiringState;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.config.SchemeConfig;
@@ -87,6 +86,8 @@ import org.kaazing.gateway.server.config.parse.DefaultSchemeConfig;
 import org.kaazing.gateway.server.context.DependencyContext;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.service.ServiceRegistry;
+import org.kaazing.gateway.server.spi.security.ExpiringState;
+import org.kaazing.gateway.server.spi.security.LoginModuleOptions;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.ConnectOptionsContext;
 import org.kaazing.gateway.service.Service;
@@ -140,7 +141,6 @@ public class GatewayContextResolver {
     private static final String LOGIN_MODULE_TYPE_CLASS_PREFIX = "class:";
 
     private static final String EXPIRING_STATE_NAME = "ExpiringState";
-    private static final String EXPIRING_STATE_OPTIONS_KEY = "ExpiringState";
 
     // a map of file-extension to mime-type.  For backward compatibility, we'll
     // hardcode this initial set based on the values in Dragonfire HttpUtils.getContentType().
@@ -233,7 +233,7 @@ public class GatewayContextResolver {
 
 
         SchedulerProvider schedulerProvider = new SchedulerProvider(configuration);
-        ClusterContext clusterContext = resolveCluster(clusterConfig, schedulerProvider);
+        ClusterContext clusterContext = resolveCluster(clusterConfig);
         DefaultSecurityContext securityContext = securityResolver.resolve(securityConfig);
         ExpiringState expiringState = resolveExpiringState(clusterContext);
         RealmsContext realmsContext = resolveRealms(securityConfig, securityContext, configuration, clusterContext, expiringState);
@@ -395,6 +395,9 @@ public class GatewayContextResolver {
     private SchemeConfig supplySchemeConfig(String schemeName) {
         SchemeConfig schemeConfig = schemeConfigsByName.get(schemeName);
         if (schemeConfig == null) {
+            if (schemeName.contains("tls")) {
+                schemeName = schemeName.replace("tls", "ssl");
+            }
             schemeConfig = findSchemeConfig(schemeName);
             if (schemeConfig == null) {
                 throw new IllegalArgumentException("Missing scheme \"" + schemeName + "\"");
@@ -763,6 +766,12 @@ public class GatewayContextResolver {
         Collection<String> urisWithPort = new HashSet<>();
         for (String uri : acceptURIs) {
             String resolvedURI = resolveURI(getCanonicalURI(uri, true));
+            if (resolvedURI.contains("tls://")) {
+                resolvedURI = resolvedURI.replace("tls://", "ssl://");
+                if (resolvedURI.endsWith("/")) {
+                    resolvedURI = resolvedURI.substring(0, resolvedURI.length() - 1);
+                }
+            }
             urisWithPort.add(resolvedURI);
         }
         return urisWithPort;
@@ -795,8 +804,7 @@ public class GatewayContextResolver {
         return uri;
     }
 
-    private ClusterContext resolveCluster(ClusterType clusterConfig,
-                                          SchedulerProvider schedulerProvider) {
+    private ClusterContext resolveCluster(ClusterType clusterConfig) {
         if (clusterConfig == null) {
             return new StandaloneClusterContext();
         }
@@ -831,7 +839,6 @@ public class GatewayContextResolver {
         return new DefaultClusterContext(clusterConfig.getName(),
                 accepts,
                 connects,
-                schedulerProvider,
                 connectOptionsContext);
     }
 
@@ -982,15 +989,8 @@ public class GatewayContextResolver {
                 for (LoginModuleType loginModule : loginModulesArray) {
                     String type = loginModule.getType();
                     String success = loginModule.getSuccess().toString();
-                    Map<String, Object> options = new HashMap<>();
 
-                    // add the GATEWAY_CONFIG_DIRECTORY to the options so it can be used from various login modules
-                    // (see FileLoginModule for an example)
-                    options.put(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY, configuration
-                            .getProperty(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY));
-                    if (LOGIN_MODULE_EXPIRING_STATE.isEnabled(configuration)) {
-                        options.put(EXPIRING_STATE_OPTIONS_KEY, expiringState);
-                    }
+                    Map<String, Object> options = resolveOptions(configuration, securityContext, expiringState);
 
                     LoginModuleOptionsType rawOptions = loginModule.getOptions();
                     if (rawOptions != null) {
@@ -1036,6 +1036,22 @@ public class GatewayContextResolver {
         }
 
         return new DefaultRealmsContext(Collections.unmodifiableMap(realmContexts));
+    }
+
+    private Map<String, Object> resolveOptions(Properties configuration, SecurityContext securityContext,
+        ExpiringState expiringState) {
+        Map<String, Object> options = new HashMap<>();
+
+        options.put(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY,
+                configuration.getProperty(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY));
+        options.put(LoginModuleOptions.CONFIG_DIRECTORY_NAME,
+                configuration.getProperty(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY));
+        if (LOGIN_MODULE_EXPIRING_STATE.isEnabled(configuration)) {
+            options.put(LoginModuleOptions.EXPIRING_STATE_NAME, expiringState);
+        }
+        options.put(LoginModuleOptions.KEYSTORE_NAME, securityContext.getKeyStore());
+        options.put(LoginModuleOptions.TRUSTSTORE_NAME, securityContext.getTrustStore());
+        return options;
     }
 
     private void updateLoginModuleConfigurationEntries(SecurityType securityConfig, AuthenticationType authType,
@@ -1286,64 +1302,6 @@ public class GatewayContextResolver {
                 }
             }
         }
-    }
-
-    /**
-     * Create a canonical URI from a given URI.   A canonical URI is a URI with:<ul> <li>the host part of the authority
-     * lower-case since URI semantics dictate that hostnames are case insensitive <li>(optionally, NOT appropriate for Origin
-     * headers) the path part set to "/" if there was no path in the input URI (this conforms to the WebSocket and HTTP protocol
-     * specifications and avoids us having to do special handling for path throughout the server code). </ul>
-     *
-     * @param uriString        the URI to canonicalize, in string form
-     * @param canonicalizePath if true, append trailing '/' when missing
-     * @return a URI with the host part of the authority lower-case and (optionally) trailing / added, or null if the uri is null
-     * @throws IllegalArgumentException if the uriString is not valid syntax
-     */
-    public static String getCanonicalURI(String uriString, boolean canonicalizePath) {
-        if ((uriString != null) && !"".equals(uriString)) {
-            return getCanonicalizedURI(uriString, canonicalizePath);
-        }
-        return null;
-    }
-
-    /**
-     * Create a canonical URI from a given URI.   A canonical URI is a URI with:<ul> <li>the host part of the authority
-     * lower-case since URI semantics dictate that hostnames are case insensitive <li>(optionally, NOT appropriate for Origin
-     * headers) the path part set to "/" except for tcp uris if there was no path in the input URI (this conforms to the
-     * WebSocket and HTTP protocol specifications and avoids us having to do special handling for path throughout the server
-     * code). </ul>
-     *
-     * @param uri              the URI to canonicalize
-     * @param canonicalizePath if true, append trailing '/' when missing
-     * @return a URI with the host part of the authority lower-case and (optionally if not tcp) trailing / added, or null if the
-     * uri is null
-     * @throws IllegalArgumentException if the uri is not valid syntax
-     */
-    public static String getCanonicalizedURI(String uri, boolean canonicalizePath) {
-        String canonicalURI = uri;
-        if (uri != null) {
-            String host = getHost(uri);
-            String path = getPath(uri);
-            final boolean emptyPath = "".equals(path);
-            final boolean noPathToCanonicalize = canonicalizePath && (path == null || emptyPath);
-            final boolean trailingSlashPath = "/".equals(path);
-            final String scheme = getScheme(uri);
-            final boolean pathlessScheme = "ssl".equals(scheme) || "tcp".equals(scheme) || "pipe".equals(scheme)
-                    || "udp".equals(scheme) || "mux".equals(scheme);
-            final boolean trailingSlashWithPathlessScheme = trailingSlashPath && pathlessScheme;
-            String newPath = trailingSlashWithPathlessScheme ? "" :
-                             noPathToCanonicalize ? (pathlessScheme ? null : "/") : null;
-            if (((host != null) && !host.equals(host.toLowerCase())) || newPath != null) {
-                path = newPath == null ? path : newPath;
-                try {
-                    canonicalURI = buildURIAsString(scheme, getUserInfo(uri), host == null ?
-                            null : host.toLowerCase(), getPort(uri), path, getQuery(uri), getFragment(uri));
-                } catch (URISyntaxException ex) {
-                    throw new IllegalArgumentException("Invalid URI: " + uri + " in Gateway configuration file", ex);
-                }
-            }
-        }
-        return canonicalURI;
     }
 
     public void addInjectable(String key, Object value) {

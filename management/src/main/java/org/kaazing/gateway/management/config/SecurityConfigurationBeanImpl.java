@@ -15,18 +15,16 @@
  */
 package org.kaazing.gateway.management.config;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.security.KeyStore;
-import java.security.MessageDigest;
-import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
+
 import javax.security.auth.x500.X500Principal;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kaazing.gateway.management.gateway.GatewayManagementBean;
@@ -110,11 +108,8 @@ public class SecurityConfigurationBeanImpl implements SecurityConfigurationBean 
                 }
                 Certificate cert = store.getCertificate(alias);
                 String type = null;
-                PublicKey publicKey = null;
                 if (cert != null) {
                     type = cert.getType();
-                    publicKey = cert.getPublicKey();
-
                 }
 
                 jsonObj = new JSONObject();
@@ -196,24 +191,5 @@ public class SecurityConfigurationBeanImpl implements SecurityConfigurationBean 
         }
 
         return altNames;
-    }
-
-    private String computeStoreHash(String storeFilePath) throws Exception {
-        MessageDigest digest = MessageDigest.getInstance("MD5");
-        FileInputStream in = new FileInputStream(new File(storeFilePath));
-        byte[] storeBytes = new byte[0];
-        int length = 1024;
-        while (length == 1024) {
-            byte[] b = new byte[1024];
-            length = in.read(b);
-            byte[] tmpStoreBytes = new byte[length + storeBytes.length];
-            System.arraycopy(storeBytes, 0, tmpStoreBytes, 0, storeBytes.length);
-            System.arraycopy(b, 0, tmpStoreBytes, storeBytes.length, length);
-            storeBytes = tmpStoreBytes;
-        }
-        in.close();
-
-        byte[] digestBytes = digest.digest(storeBytes);
-        return new String(digestBytes);
     }
 }

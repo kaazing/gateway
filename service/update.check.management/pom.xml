@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.3.2</version>
+        <version>5.4.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>gateway.service.update.check.management</artifactId>
@@ -41,13 +41,6 @@
                 <artifactId>license-maven-plugin</artifactId>
                 <configuration>
                     <projectHints>
-                        <projectDescription>
-                            <projectName>sigar.dist</projectName>
-                            <licenseName>Apache 2 License</licenseName>
-                            <licenseUrl>https://github.com/hyperic/sigar/blob/master/LICENSE</licenseUrl>
-                            <homePage>http://sigar.hyperic.com</homePage>
-                            <version>1.6.4</version>
-                        </projectDescription>
                         <projectDescription>
                             <projectName>Java Native Access</projectName>
                             <licenseName>LGPL</licenseName>

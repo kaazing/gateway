@@ -179,11 +179,6 @@ public class HttpDirectoryServiceIT {
     }
 
     // /////////////////// HOST HEADER ///////////////////////
-    @Specification("host/host.empty.header.with.absolute.uri")
-    @Test
-    public void testEmptyHostHeaderWithAbsoluteUri() throws Exception {
-        robot.finish();
-    }
 
     @Specification("host/host.empty.header.with.relative.uri")
     @Test

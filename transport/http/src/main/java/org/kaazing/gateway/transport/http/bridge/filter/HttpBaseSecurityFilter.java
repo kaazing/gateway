@@ -128,8 +128,6 @@ public abstract class HttpBaseSecurityFilter extends SuspendableIoFilterAdapter 
         return authorizedRoles;
     }
 
-
-
     protected boolean loggerEnabled() {
         return logger != null && logger.isTraceEnabled();
     }

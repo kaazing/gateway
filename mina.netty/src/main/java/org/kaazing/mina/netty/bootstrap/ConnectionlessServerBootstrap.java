@@ -21,12 +21,16 @@ import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.channel.ChannelState;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ChildChannelStateEvent;
+import org.jboss.netty.channel.DefaultChildChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.ServerChannelFactory;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.UpstreamChannelStateEvent;
+import org.jboss.netty.channel.UpstreamMessageEvent;
 import org.jboss.netty.channel.socket.nio.AbstractNioWorker;
 import org.jboss.netty.channel.socket.nio.NioChildDatagramChannel;
 import org.jboss.netty.channel.socket.nio.NioServerDatagramChannelFactory;
@@ -103,27 +107,24 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
         @Override
         public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
             ((IoAcceptorChannelHandler) parentHandler).childChannelOpen(ctx, e);
-            NioChildDatagramChannel childChannel = (NioChildDatagramChannel) e.getChildChannel();
-            childChannel.getWorker().executeInIoThread(
-                    () -> fireChannelConnected(childChannel, childChannel.getRemoteAddress())
-            );
         }
 
         @Override
         public void childChannelClosed(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
             NioChildDatagramChannel childChannel = (NioChildDatagramChannel) e.getChildChannel();
             childChannels.remove(childChannel.getRemoteAddress());
-            childChannel.getWorker().deregister(childChannel);
         }
 
         @Override
         public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
             // lookup child channel based on local and remote addresses
-            Channel channel = e.getChannel();
-            NioChildDatagramChannel childChannel = getChildChannel(channel, e.getRemoteAddress());
+            NioChildDatagramChannel childChannel = getChildChannel(e.getChannel(), e.getRemoteAddress());
 
+            UpstreamMessageEvent event = new UpstreamMessageEvent(childChannel, e.getMessage(), e.getRemoteAddress());
             AbstractNioWorker childWorker = childChannel.getWorker();
-            childWorker.messageReceived(childChannel, e.getMessage());
+
+            // Queue child channel message event (as it needs to be run on child worker)
+            childWorker.messageReceived(childChannel, event);
         }
 
         @Override
@@ -153,8 +154,19 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
                 NioChildDatagramChannel childChannel = ((NioServerDatagramChannelFactory)channelFactory).newChildChannel(channel, childPipeline);
                 childChannel.setLocalAddress((InetSocketAddress) channel.getLocalAddress());
                 childChannel.setRemoteAddress((InetSocketAddress) remoteAddress);
-                fireChannelOpen(childChannel);
-                childChannel.getWorker().register(childChannel);
+
+                // fire child open on parent channel
+                channel.getPipeline().sendUpstream(new DefaultChildChannelStateEvent(channel, childChannel));
+
+                AbstractNioWorker childWorker = childChannel.getWorker();
+
+                // Queue child channel connected event (as it needs to be run on child worker)
+                ChannelStateEvent connected = new UpstreamChannelStateEvent(childChannel, ChannelState.CONNECTED, remoteAddress);
+                childWorker.messageReceived(childChannel, connected);
+
+                // Queue child channel open event (as it needs to be run on child worker)
+                ChannelStateEvent open = new UpstreamChannelStateEvent(childChannel, ChannelState.OPEN, Boolean.TRUE);
+                childWorker.messageReceived(childChannel, open);
 
                 return childChannel;
             });

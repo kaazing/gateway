@@ -176,11 +176,11 @@ class ConnectionPool {
 
     static class PreConnectFilter extends IoFilterAdapter {
         private final ConnectionPool connectManager;
-        
+
         private PreConnectFilter(ConnectionPool connectManager) {
             this.connectManager = connectManager;
         }
-        
+
         @Override
         public void sessionClosed(NextFilter nextFilter, IoSession session) throws Exception {
             // if this is a pre-connected session, remove it from the ConnectManager's list

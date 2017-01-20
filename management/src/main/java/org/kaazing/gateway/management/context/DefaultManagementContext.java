@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
@@ -32,7 +31,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Resource;
 
-import org.kaazing.gateway.management.ManagementService;
 import org.kaazing.gateway.management.ManagementServiceHandler;
 import org.kaazing.gateway.management.ManagementStrategy;
 import org.kaazing.gateway.management.ManagementStrategyChangeListener;
@@ -70,21 +68,6 @@ import org.kaazing.gateway.management.session.ManagementSessionStrategy;
 import org.kaazing.gateway.management.session.SessionManagementBean;
 import org.kaazing.gateway.management.session.SessionManagementBeanImpl;
 import org.kaazing.gateway.management.session.SessionManagementListener;
-import org.kaazing.gateway.management.system.CpuListManagementBean;
-import org.kaazing.gateway.management.system.CpuListManagementBeanImpl;
-import org.kaazing.gateway.management.system.CpuManagementBean;
-import org.kaazing.gateway.management.system.FullManagementSystemStrategy;
-import org.kaazing.gateway.management.system.HostManagementBean;
-import org.kaazing.gateway.management.system.HostManagementBeanImpl;
-import org.kaazing.gateway.management.system.JvmManagementBean;
-import org.kaazing.gateway.management.system.JvmManagementBeanImpl;
-import org.kaazing.gateway.management.system.ManagementSystemStrategy;
-import org.kaazing.gateway.management.system.NicListManagementBean;
-import org.kaazing.gateway.management.system.NicListManagementBeanImpl;
-import org.kaazing.gateway.management.system.NicManagementBean;
-import org.kaazing.gateway.management.system.NullManagementSystemStrategy;
-import org.kaazing.gateway.management.system.SystemDataProvider;
-import org.kaazing.gateway.management.system.SystemDataProviderFactory;
 import org.kaazing.gateway.security.RealmContext;
 import org.kaazing.gateway.security.SecurityContext;
 import org.kaazing.gateway.server.context.DependencyContext;
@@ -92,7 +75,6 @@ import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.context.ServiceDefaultsContext;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
-import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.session.IoSessionEx;
 
@@ -119,25 +101,19 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     public static final ManagementSessionStrategy COLLECT_ONLY_SESSION_STRATEGY = new CollectOnlyManagementSessionStrategy();
     public static final ManagementSessionStrategy FULL_SESSION_STRATEGY = new FullManagementSessionStrategy();
 
-    public static final ManagementSystemStrategy COLLECT_ONLY_SYSTEM_STRATEGY = new NullManagementSystemStrategy();
-    public static final ManagementSystemStrategy FULL_SYSTEM_STRATEGY = new FullManagementSystemStrategy();
-
     // in the following lists, entries are: filter-level, gateway-level, service-level, session-level.
     private static final ManagementStrategy[] COLLECT_ONLY_STRATEGY = {FULL_FILTER_STRATEGY, // to allow creating session beans
             COLLECT_ONLY_GATEWAY_STRATEGY,
             COLLECT_ONLY_SERVICE_STRATEGY,
-            COLLECT_ONLY_SESSION_STRATEGY,
-            COLLECT_ONLY_SYSTEM_STRATEGY};
+            COLLECT_ONLY_SESSION_STRATEGY};
     private static final ManagementStrategy[] FULL_STRATEGY = {FULL_FILTER_STRATEGY,
             FULL_GATEWAY_STRATEGY,
             FULL_SERVICE_STRATEGY,
-            FULL_SESSION_STRATEGY,
-            FULL_SYSTEM_STRATEGY};
+            FULL_SESSION_STRATEGY};
     private final int FILTER_INDEX = 0;
     private final int GATEWAY_INDEX = 1;
     private final int SERVICE_INDEX = 2;
     private final int SESSION_INDEX = 3;
-    private final int SYSTEM_INDEX = 4;
 
     private static Map<ServiceContext, Integer> serviceIndexMap = new HashMap<>();
     private static Integer serviceIndexCount = 1;
@@ -148,15 +124,6 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     private final SummaryManagementInterval gatewaySummaryDataNotificationInterval;
     private final SummaryManagementInterval serviceSummaryDataNotificationInterval;
     private final SummaryManagementInterval sessionSummaryDataNotificationInterval;
-    private final SummaryManagementInterval systemSummaryDataGatherInterval;
-    private final SummaryManagementInterval systemSummaryDataNotificationInterval;
-    private final SummaryManagementInterval cpuListSummaryDataGatherInterval;
-    private final SummaryManagementInterval cpuListSummaryDataNotificationInterval;
-    private final SummaryManagementInterval nicListSummaryDataGatherInterval;
-    private final SummaryManagementInterval nicListSummaryDataNotificationInterval;
-    private final SummaryManagementInterval jvmSummaryDataGatherInterval;
-    private final SummaryManagementInterval jvmSummaryDataNotificationInterval;
-
     // The set of management strategies currently in force.
     private ManagementStrategy[] managementStrategy = COLLECT_ONLY_STRATEGY;
 
@@ -210,11 +177,6 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     // injected at startup
     private SchedulerProvider schedulerProvider;
     private GatewayContext gatewayContext;
-    private Properties configuration;
-
-    // The provider for system data. Depending on whether we have Sigar support or not,
-    // this may or may not return useful data.
-    private SystemDataProvider systemDataProvider;
 
     private ScheduledExecutorService managementExecutorService;
 
@@ -254,35 +216,12 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
         gatewaySummaryDataNotificationInterval = new SummaryManagementIntervalImpl(DEFAULT_SUMMARY_DATA_NOTIFICATION_INTERVAL);
         serviceSummaryDataNotificationInterval = new SummaryManagementIntervalImpl(DEFAULT_SUMMARY_DATA_NOTIFICATION_INTERVAL);
         sessionSummaryDataNotificationInterval = new SummaryManagementIntervalImpl(DEFAULT_SUMMARY_DATA_NOTIFICATION_INTERVAL);
-
-        systemSummaryDataGatherInterval = new SummaryManagementIntervalImpl(DEFAULT_SUMMARY_DATA_GATHER_INTERVAL);
-        systemSummaryDataNotificationInterval =
-                new SummaryManagementIntervalImpl(DEFAULT_SYSTEM_SUMMARY_DATA_NOTIFICATION_INTERVAL);
-
-        nicListSummaryDataGatherInterval = new SummaryManagementIntervalImpl(DEFAULT_SUMMARY_DATA_GATHER_INTERVAL);
-        nicListSummaryDataNotificationInterval =
-                new SummaryManagementIntervalImpl(DEFAULT_SYSTEM_SUMMARY_DATA_NOTIFICATION_INTERVAL);
-
-        cpuListSummaryDataGatherInterval = new SummaryManagementIntervalImpl(DEFAULT_SUMMARY_DATA_GATHER_INTERVAL);
-        cpuListSummaryDataNotificationInterval =
-                new SummaryManagementIntervalImpl(DEFAULT_SYSTEM_SUMMARY_DATA_NOTIFICATION_INTERVAL);
-
-        jvmSummaryDataGatherInterval = new SummaryManagementIntervalImpl(DEFAULT_SUMMARY_DATA_GATHER_INTERVAL);
-        jvmSummaryDataNotificationInterval =
-                new SummaryManagementIntervalImpl(DEFAULT_SYSTEM_SUMMARY_DATA_NOTIFICATION_INTERVAL);
-
-        systemDataProvider = SystemDataProviderFactory.createProvider();
     }
 
     @Resource(name = "schedulerProvider")
     public void setSchedulerProvider(SchedulerProvider schedulerProvider) {
         this.schedulerProvider = schedulerProvider;
         this.managementExecutorService = schedulerProvider.getScheduler("management", true);
-    }
-
-    @Resource(name = "configuration")
-    public void setConfiguration(Properties configuration) {
-        this.configuration = configuration;
     }
 
     @Override
@@ -311,11 +250,6 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     @Override
     public void setActive(boolean active) {
         this.active = active;
-    }
-
-    @Override
-    public SystemDataProvider getSystemDataProvider() {
-        return this.systemDataProvider;
     }
 
     @Override
@@ -487,10 +421,6 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
         // Note: per current 4.0 implementation, clusterContext will never be null
         ClusterConfigurationBean clusterConfigBean = new ClusterConfigurationBeanImpl(clusterContext, gatewayBean);
         gatewayBean.setClusterContext(clusterContext);
-        if (gatewayBean instanceof GatewayManagementBeanImpl) {
-            clusterContext.getCollectionsFactory()
-                    .addEntryListener((GatewayManagementBeanImpl) gatewayBean, ManagementService.MANAGEMENT_SERVICE_MAP_NAME);
-        }
 
         for (ManagementServiceHandler handler : managementServiceHandlers) {
             handler.addClusterConfigurationBean(clusterConfigBean);
@@ -533,89 +463,6 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
         for (ManagementServiceHandler handler : managementServiceHandlers) {
             handler.addVersionInfo(gatewayBean);
         }
-    }
-
-    private void addSystemInfo(GatewayManagementBean gatewayBean) {
-
-        final HostManagementBean systemManagementBean =
-                new HostManagementBeanImpl(gatewayBean,
-                        InternalSystemProperty.MANAGEMENT_SUMMARY_DATA_LIMIT.getIntProperty(configuration));
-
-        for (ManagementServiceHandler handler : managementServiceHandlers) {
-            handler.addSystemManagementBean(systemManagementBean);
-        }
-
-        // Get the bean 'started'. NOTE THAT THIS CALL STARTS ON THE IO THREAD!
-        systemManagementBean.managementStrategyChanged();
-    }
-
-    /**
-     * Add a controller management bean for the list of CPUs, and individual CPU management beans for the CPUs/cores in the
-     * gateway's system
-     */
-    private void addCpuListInfo(GatewayManagementBean gatewayBean) {
-
-        final CpuListManagementBean cpuListManagementBean =
-                new CpuListManagementBeanImpl(gatewayBean,
-                        InternalSystemProperty.MANAGEMENT_SUMMARY_DATA_LIMIT.getIntProperty(configuration));
-
-        for (ManagementServiceHandler handler : managementServiceHandlers) {
-            handler.addCpuListManagementBean(cpuListManagementBean);
-        }
-
-        CpuManagementBean[] cpuManagementBeans = cpuListManagementBean.getCpuManagementBeans();
-
-        String hostAndPid = gatewayBean.getHostAndPid();
-
-        for (CpuManagementBean cpuManagementBean : cpuManagementBeans) {
-            for (ManagementServiceHandler handler : managementServiceHandlers) {
-                handler.addCpuManagementBean(cpuManagementBean, hostAndPid);
-            }
-        }
-
-        // Get the bean 'started'. NOTE THAT THIS CALL STARTS ON THE IO THREAD!
-        cpuListManagementBean.managementStrategyChanged();
-    }
-
-    /**
-     * Add management beans for the entire set of NICs on the gateway's host system.
-     */
-    private void addNicListInfo(GatewayManagementBean gatewayBean) {
-
-        final NicListManagementBean nicListManagementBean =
-                new NicListManagementBeanImpl(gatewayBean,
-                        InternalSystemProperty.MANAGEMENT_SUMMARY_DATA_LIMIT.getIntProperty(configuration));
-
-        for (ManagementServiceHandler handler : managementServiceHandlers) {
-            handler.addNicListManagementBean(nicListManagementBean);
-        }
-
-        NicManagementBean[] nicManagementBeans = nicListManagementBean.getNicManagementBeans();
-
-        String hostAndPid = gatewayBean.getHostAndPid();
-
-        for (NicManagementBean nicManagementBean : nicManagementBeans) {
-            for (ManagementServiceHandler handler : managementServiceHandlers) {
-                handler.addNicManagementBean(nicManagementBean, hostAndPid);
-            }
-        }
-
-        // Get the bean 'started'. NOTE THAT THIS CALL STARTS ON THE IO THREAD!
-        nicListManagementBean.managementStrategyChanged();
-    }
-
-    private void addJvmInfo(GatewayManagementBean gatewayBean) {
-
-        final JvmManagementBean jvmManagementBean =
-                new JvmManagementBeanImpl(gatewayBean,
-                        InternalSystemProperty.MANAGEMENT_SUMMARY_DATA_LIMIT.getIntProperty(configuration));
-
-        for (ManagementServiceHandler handler : managementServiceHandlers) {
-            handler.addJvmManagementBean(jvmManagementBean);
-        }
-
-        // Get the bean 'started'. NOTE THAT THIS CALL STARTS ON THE IO THREAD!
-        jvmManagementBean.managementStrategyChanged();
     }
 
     private ServiceDefaultsConfigurationBean addServiceDefaultsConfigurationBean(ServiceDefaultsContext serviceDefaultsContext,
@@ -670,11 +517,6 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
         return (ManagementSessionStrategy) managementStrategy[SESSION_INDEX];
     }
 
-    @Override
-    public ManagementSystemStrategy getManagementSystemStrategy() {
-        return (ManagementSystemStrategy) managementStrategy[SYSTEM_INDEX];
-    }
-
     /**
      * Create a ServiceManagementBean for a resource address on the local Gateway instance.
      * <p/>
@@ -723,13 +565,6 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     }
 
     @Override
-    public void removeSessionManagementBean(SessionManagementBean sessionBean) {
-        for (ManagementServiceHandler handler : managementServiceHandlers) {
-            handler.removeSessionManagementBean(sessionBean);
-        }
-    }
-
-    @Override
     public void updateManagementContext(SecurityContext securityContext) {
         if (managementConfigured.compareAndSet(false, true)) {
             GatewayManagementBean gatewayBean = getLocalGatewayManagementBean();
@@ -743,10 +578,6 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
             }
 
             addVersionInfo(gatewayBean);
-            addSystemInfo(gatewayBean);
-            addCpuListInfo(gatewayBean);
-            addNicListInfo(gatewayBean);
-            addJvmInfo(gatewayBean);
 
             ClusterContext clusterContext = gatewayContext.getCluster();
             if (clusterContext != null) {
@@ -782,46 +613,6 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     @Override
     public SummaryManagementInterval getSessionSummaryDataNotificationInterval() {
         return sessionSummaryDataNotificationInterval;
-    }
-
-    @Override
-    public SummaryManagementInterval getSystemSummaryDataGatherInterval() {
-        return systemSummaryDataGatherInterval;
-    }
-
-    @Override
-    public SummaryManagementInterval getSystemSummaryDataNotificationInterval() {
-        return systemSummaryDataNotificationInterval;
-    }
-
-    @Override
-    public SummaryManagementInterval getCpuListSummaryDataGatherInterval() {
-        return cpuListSummaryDataGatherInterval;
-    }
-
-    @Override
-    public SummaryManagementInterval getCpuListSummaryDataNotificationInterval() {
-        return cpuListSummaryDataNotificationInterval;
-    }
-
-    @Override
-    public SummaryManagementInterval getNicListSummaryDataGatherInterval() {
-        return nicListSummaryDataGatherInterval;
-    }
-
-    @Override
-    public SummaryManagementInterval getNicListSummaryDataNotificationInterval() {
-        return nicListSummaryDataNotificationInterval;
-    }
-
-    @Override
-    public SummaryManagementInterval getJvmSummaryDataGatherInterval() {
-        return jvmSummaryDataGatherInterval;
-    }
-
-    @Override
-    public SummaryManagementInterval getJvmSummaryDataNotificationInterval() {
-        return jvmSummaryDataNotificationInterval;
     }
 
     private final class SummaryManagementIntervalImpl implements SummaryManagementInterval {

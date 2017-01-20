@@ -22,10 +22,13 @@ import static org.kaazing.gateway.transport.nio.NioSystemProperty.UDP_IDLE_TIMEO
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.future.CloseFuture;
@@ -39,6 +42,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.udp.UdpAcceptorRule;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -235,6 +239,33 @@ public class UdpAcceptorIT {
             @Override
             protected void doMessageReceived(IoSessionEx session, Object message) {
                 session.write(message);
+            }
+        };
+
+        bindTo8080(new ConcurrentHandler());
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("concurrent.writes.together/client")
+    public void concurrentWritesTogether() throws Exception {
+        class ConcurrentHandler extends IoHandlerAdapter<IoSessionEx> {
+
+            @Override
+            protected void doMessageReceived(IoSessionEx session, Object message) {
+                AtomicInteger counter = (AtomicInteger) session.getAttribute("test-counter");
+                List<Object> messages = (List<Object>) session.getAttribute("test-messages");
+                if (counter == null) {
+                    counter = new AtomicInteger();
+                    messages = new ArrayList<>();
+                    session.setAttribute("test-counter", counter);
+                    session.setAttribute("test-messages", messages);
+                }
+                int noreads = counter.incrementAndGet();
+                messages.add(message);
+                if (noreads == 3) {
+                    messages.forEach(session::write);
+                }
             }
         };
 

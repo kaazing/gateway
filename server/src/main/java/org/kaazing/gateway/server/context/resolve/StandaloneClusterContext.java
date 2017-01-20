@@ -15,28 +15,19 @@
  */
 package org.kaazing.gateway.server.context.resolve;
 
-import com.hazelcast.core.IdGenerator;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.kaazing.gateway.server.messaging.buffer.MemoryMessageBufferFactory;
-import org.kaazing.gateway.service.cluster.BalancerMapListener;
 import org.kaazing.gateway.service.cluster.ClusterConnectOptionsContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
-import org.kaazing.gateway.service.cluster.InstanceKeyListener;
 import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
-import org.kaazing.gateway.service.cluster.ReceiveListener;
-import org.kaazing.gateway.service.cluster.SendListener;
-import org.kaazing.gateway.service.messaging.buffer.MessageBufferFactory;
-import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
-import org.kaazing.gateway.service.messaging.collections.MemoryCollectionsFactory;
+import org.kaazing.gateway.service.collections.CollectionsFactory;
+import org.kaazing.gateway.service.collections.MemoryCollectionsFactory;
 import org.kaazing.gateway.util.Utils;
 
 /**
@@ -45,17 +36,13 @@ import org.kaazing.gateway.util.Utils;
  */
 public class StandaloneClusterContext implements ClusterContext {
 
-    private final MessageBufferFactory messageBufferFactory;
     private final CollectionsFactory collectionsFactory;
-    private final ConcurrentMap<Object, Lock> locks;
-    private final ConcurrentMap<String, IdGeneratorImpl> idGenerators;
+    private final ConcurrentMap<String, Lock> locks;
     private final String localInstanceKey = Utils.randomHexString(16);
 
     public StandaloneClusterContext() {
-        this.messageBufferFactory = new MemoryMessageBufferFactory();
         this.collectionsFactory = new MemoryCollectionsFactory();
         this.locks = new ConcurrentHashMap<>();
-        this.idGenerators = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -66,36 +53,6 @@ public class StandaloneClusterContext implements ClusterContext {
     @Override
     public void removeMembershipEventListener(MembershipEventListener eventListener) {
         // this is a no-op
-    }
-
-    @Override
-    public void addInstanceKeyListener(InstanceKeyListener instanceKeyListener) {
-        // this is a no-op
-    }
-
-    @Override
-    public void removeInstanceKeyListener(InstanceKeyListener instanceKeyListener) {
-        // this is a no-op
-    }
-
-    @Override
-    public void addBalancerMapListener(BalancerMapListener balancerMapListener) {
-        // this is a no-op
-    }
-
-    @Override
-    public void removeBalancerMapListener(BalancerMapListener balancerMapListener) {
-        // this is a no-op
-    }
-
-    @Override
-    public void addReceiveQueue(String name) {
-        throw new UnsupportedOperationException("addReceiveQueue");
-    }
-
-    @Override
-    public void addReceiveTopic(String name) {
-        throw new UnsupportedOperationException("addReceiveTopic");
     }
 
     @Override
@@ -126,25 +83,6 @@ public class StandaloneClusterContext implements ClusterContext {
     }
 
     @Override
-    public IdGenerator getIdGenerator(String name) {
-        IdGeneratorImpl impl = idGenerators.get(name);
-        if (impl == null) {
-            IdGeneratorImpl newImpl = new IdGeneratorImpl(name);
-            impl = idGenerators.putIfAbsent(name, newImpl);
-            if (impl == null) {
-                impl = newImpl;
-            }
-        }
-
-        return impl;
-    }
-
-    @Override
-    public MessageBufferFactory getMessageBufferFactory() {
-        return messageBufferFactory;
-    }
-
-    @Override
     public MemberId getLocalMember() {
         return new MemberId("tcp", "standalone", 0);
     }
@@ -156,46 +94,16 @@ public class StandaloneClusterContext implements ClusterContext {
     }
 
     @Override
-    public Lock getLock(Object obj) {
-        Lock lock = locks.get(obj);
+    public Lock getLock(String name) {
+        Lock lock = locks.get(name);
         if (lock == null) {
             lock = new ReentrantLock();
-            Lock oldLock = locks.putIfAbsent(obj, lock);
+            Lock oldLock = locks.putIfAbsent(name, lock);
             if (oldLock != null) {
                 lock = oldLock;
             }
         }
         return lock;
-    }
-
-    @Override
-    public <T> void removeReceiver(Class<T> type) {
-        throw new UnsupportedOperationException("removeReceiver");
-    }
-
-    @Override
-    public <T> T send(Object msg, MemberId member) throws Exception {
-        throw new UnsupportedOperationException("send");
-    }
-
-    @Override
-    public <T> T send(Object msg, String name) throws Exception {
-        throw new UnsupportedOperationException("send");
-    }
-
-    @Override
-    public void send(Object msg, SendListener listener, MemberId member) {
-        throw new UnsupportedOperationException("send");
-    }
-
-    @Override
-    public void send(Object msg, SendListener listener, String name) {
-        throw new UnsupportedOperationException("send");
-    }
-
-    @Override
-    public <T> void setReceiver(Class<T> type, ReceiveListener<T> receiveListener) {
-        throw new UnsupportedOperationException("setReceiver");
     }
 
     @Override
@@ -221,41 +129,4 @@ public class StandaloneClusterContext implements ClusterContext {
         // no cluster state to log for standalone
     }
 
-    private class IdGeneratorImpl implements IdGenerator {
-        private final AtomicLong currentId;
-        private final String name;
-
-        public IdGeneratorImpl(String name) {
-            this.name = name;
-
-            // We start the current ID at the smallest possible long value,
-            // so that we have the entire range of values to use.
-            this.currentId = new AtomicLong(Long.MIN_VALUE);
-        }
-
-        @Override
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public long newId() {
-            return currentId.incrementAndGet();
-        }
-
-        @Override
-        public void destroy() {
-            currentId.set(Long.MIN_VALUE);
-        }
-
-        @Override
-        public Object getId() {
-            return this.name;
-        }
-
-        @Override
-        public InstanceType getInstanceType() {
-            return InstanceType.ID_GENERATOR;
-        }
-    }
 }

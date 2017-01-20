@@ -78,6 +78,12 @@ public class AcceptOptionsTest {
     }
 
     @Test
+    public void testTlsCiphersOption() throws Exception {
+        expectSuccess("tls.ciphers", "  FOO,BAR ", "ssl.ciphers", new String[]{"FOO", "BAR"});
+        expectParseFailure("tls.ciphers", "FOO, BAR");
+    }
+
+    @Test
     public void testHttpKeepAliveTimeoutOption() throws Exception {
         // expect default if 0 is specified
         expectSuccess("http.keepalive.timeout", "0 minutes", "http[http/1.1].keepAliveTimeout", 30);
@@ -96,6 +102,12 @@ public class AcceptOptionsTest {
     public void testHttpTransportOption() throws Exception {
         expectSuccess("http.transport", "tcp://127.0.0.1:80", "http[http/1.1].transport", "tcp://127.0.0.1:80");
         expectSuccess("http.transport", "tcp://127.0.0.1:80", "http.transport", null);
+    }
+
+    @Test
+    public void testTlsTransportOption() throws Exception {
+        expectSuccess("tls.transport", "tcp://127.0.0.1:80", "ssl.transport", "tcp://127.0.0.1:80");
+        expectSuccess("tls.transport", "tcp://127.0.0.1:80", "tls.transport", null);
     }
 
     @Test

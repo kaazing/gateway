@@ -29,6 +29,11 @@ public class HttpProtocolDecoderException extends ProtocolDecoderException {
 	public HttpProtocolDecoderException(HttpStatus status) {
 		httpStatus = status;
 	}
+
+	public HttpProtocolDecoderException(String msg, HttpStatus status) {
+		super(msg);
+		httpStatus = status;
+	}
 	
 	public HttpStatus getHttpStatus() {
 		return httpStatus;

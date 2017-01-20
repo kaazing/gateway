@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.3.2</version>
+        <version>5.4.0</version>
     </parent>
 
     <artifactId>gateway.management</artifactId>
@@ -22,19 +22,6 @@
 
     <dependencyManagement>
         <dependencies>
-        <dependency>
-            <groupId>org.kaazing</groupId>
-            <artifactId>sigar.dist</artifactId>
-            <version>1.0.0.0</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.kaazing</groupId>
-            <artifactId>sigar.dist</artifactId>
-            <classifier>distribution</classifier>
-            <type>zip</type>
-            <version>1.0.0.0</version>
-        </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>snmp4j</artifactId>
@@ -138,17 +125,31 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>test.util</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>specification.ws</artifactId>
+            <version>${k3po.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jmock</groupId>
             <artifactId>jmock</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.kaazing</groupId>
-            <artifactId>sigar.dist</artifactId>
-            <type>jar</type>
+            <groupId>org.jmock</groupId>
+            <artifactId>jmock-junit4</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
@@ -310,7 +311,7 @@
     </reporting>
 
     <properties>
-        <failsafeArgLine>-Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Djava.rmi.server.hostname=localhost -Djava.library.path=target/sigar -Djavax.net.ssl.truststore=${project.basedir}/target/truststore/truststore.db</failsafeArgLine>
+        <failsafeArgLine>-Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Djava.rmi.server.hostname=localhost -Djavax.net.ssl.truststore=${project.basedir}/target/truststore/truststore.db</failsafeArgLine>
         <xmlbeans.debug>false</xmlbeans.debug>
         <checkstyle.config.location>org/kaazing/code/quality/checkstyle.xml</checkstyle.config.location>
     </properties>

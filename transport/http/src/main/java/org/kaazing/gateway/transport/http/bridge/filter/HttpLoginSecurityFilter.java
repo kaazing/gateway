@@ -52,9 +52,9 @@ import org.kaazing.gateway.security.auth.DefaultLoginResult;
 import org.kaazing.gateway.security.auth.InetAddressCallbackHandler;
 import org.kaazing.gateway.security.auth.YesLoginModule;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
-import org.kaazing.gateway.server.ExpiringState;
 import org.kaazing.gateway.server.spi.security.AuthenticationToken;
 import org.kaazing.gateway.server.spi.security.AuthenticationTokenCallback;
+import org.kaazing.gateway.server.spi.security.ExpiringState;
 import org.kaazing.gateway.server.spi.security.InetAddressCallback;
 import org.kaazing.gateway.server.spi.security.LoginResult;
 import org.kaazing.gateway.transport.http.HttpStatus;
@@ -166,7 +166,6 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                                       HttpRealmInfo[] realms,
                                       int realmIndex,
                                       LoginContext[] loginContexts) {
-
         HttpRealmInfo realm = realms[realmIndex];
 
         // We build a LoginContext here and call login() so that login
@@ -220,20 +219,19 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
             writeResponse(HttpStatus.CLIENT_FORBIDDEN, nextFilter, session, httpRequest);
             return false;
         }
-
         DefaultLoginResult loginResult = loginContext.getLoginResult();
         String challenge = sendChallengeResponse(nextFilter, session, httpRequest, loginResult, realms, realmIndex, loginContexts);
         if (loggerEnabled()) {
             log(String.format("No authentication token was provided.  Issuing an authentication challenge '%s'.", challenge));
         }
-
         // No matter what happens, we know that the roles currently present
         // are not sufficient for logging in, so return false.
         ResourceAddress localAddress = LOCAL_ADDRESS.get(session);
         String nextProtocol = localAddress.getOption(NEXT_PROTOCOL);
         if ("http/1.1".equals(nextProtocol)) {
-        	HttpMergeRequestFilter.INITIAL_HTTP_REQUEST_KEY.remove(session);
+            HttpMergeRequestFilter.INITIAL_HTTP_REQUEST_KEY.remove(session);
         }
+
         return false;
     }
 
@@ -336,7 +334,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                 if (loggerEnabled()) {
                     log("Login module login required; [%s].", authToken);
                 }
-
+                
                 loginContext.login();
                 loginResult = loginContext.getLoginResult();
                 final LoginResult.Type resultType = loginResult.getType();

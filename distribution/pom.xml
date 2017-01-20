@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.3.2</version>
+        <version>5.4.0</version>
     </parent>
 
     <artifactId>gateway.distribution</artifactId>
@@ -69,12 +69,6 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>snmp4j-agent</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.kaazing</groupId>
-            <artifactId>sigar.dist</artifactId>
-            <classifier>distribution</classifier>
-            <type>zip</type>
         </dependency>
         <!-- service dependencies -->
         <dependency>
@@ -248,29 +242,6 @@
 
         <plugins>
             <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <!-- We need to retrieve the system-dependent library parts of the SIGAR ZIP -->
-                    <execution>
-                        <id>unpack-sigar</id>
-                        <phase>process-sources</phase>
-                        <goals>
-                            <goal>unpack-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeArtifactIds>sigar.dist</includeArtifactIds>
-                            <includeTypes>zip</includeTypes>
-                            <overWriteReleases>true</overWriteReleases>
-                            <overWriteSnapshots>true</overWriteSnapshots>
-                            <silent>false</silent>
-                            <outputDirectory>target/sigar</outputDirectory>
-                            <excludes>**/log4j.jar</excludes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
@@ -303,6 +274,7 @@
                 <configuration>
                     <excludes combine.children="append">
                         <exclude>src/main/gateway/web/**/*</exclude>
+                        <exclude>src/main/gateway/README.txt</exclude>
                     </excludes>
                 </configuration>
             </plugin>

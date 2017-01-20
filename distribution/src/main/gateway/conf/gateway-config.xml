@@ -123,6 +123,8 @@
       <name>demo</name>
       <description>Sample realm for file-based authentication</description>
 
+      <user-principal-class>org.kaazing.gateway.security.auth.config.UserConfig</user-principal-class>
+
       <authentication>
         <http-challenge-scheme>Application Basic</http-challenge-scheme>
         <login-modules>

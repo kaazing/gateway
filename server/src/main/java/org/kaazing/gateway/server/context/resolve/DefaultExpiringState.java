@@ -19,7 +19,7 @@ package org.kaazing.gateway.server.context.resolve;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import org.kaazing.gateway.server.ExpiringState;
+import org.kaazing.gateway.server.spi.security.ExpiringState;
 
 import com.hazelcast.core.IMap;
 

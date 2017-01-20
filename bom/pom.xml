@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.3.2</version>
+        <version>5.4.0</version>
     </parent>
 
     <artifactId>gateway.bom</artifactId>
@@ -45,6 +45,7 @@
                 <groupId>org.kaazing</groupId>
                 <artifactId>test.util</artifactId>
                 <version>${project.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.kaazing</groupId>
@@ -277,17 +278,6 @@
 
     <!-- for testing purposes only -->
     <dependencies>
-        <dependency>
-                <groupId>org.kaazing</groupId>
-                <artifactId>sigar.dist</artifactId>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>org.kaazing</groupId>
-                <artifactId>sigar.dist</artifactId>
-                <classifier>distribution</classifier>
-                <type>zip</type>
-            </dependency>
             <dependency>
                 <groupId>org.json</groupId>
                 <artifactId>json</artifactId>

@@ -1,0 +1,1729 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<schema xmlns:gateway="http://xmlns.kaazing.org/2016/06/gateway"
+        elementFormDefault="qualified"
+        targetNamespace="http://xmlns.kaazing.org/2016/06/gateway"
+        xmlns="http://www.w3.org/2001/XMLSchema">
+    <annotation>
+        <documentation>Configuration for the Kaazing gateway.</documentation>
+    </annotation>
+
+    <element name="gateway-config">
+        <annotation>
+            <documentation>This is the top-level element of the gateway
+                configuration file.
+            </documentation>
+        </annotation>
+
+        <complexType>
+            <sequence>
+                <element maxOccurs="1" minOccurs="0" name="properties" type="gateway:PropertiesType">
+                    <annotation>
+                        <documentation>This is the element for specifying
+                            default values for parameters in the services.
+                        </documentation>
+                    </annotation>
+                </element>
+
+                <choice maxOccurs="unbounded" minOccurs="0">
+                    <element name="service" type="gateway:ServiceType">
+                        <annotation>
+                            <documentation>This is the element for configuring a
+                                service running on the gateway.
+                            </documentation>
+                        </annotation>
+                    </element>
+
+                    <element maxOccurs="1" minOccurs="0" name="service-defaults" type="gateway:ServiceDefaultsType">
+                        <annotation>
+                            <documentation>This is the element for configuring a
+                                set of default accept-options, connect-options, mime-mapping for all services running
+                                on the gateway.
+                            </documentation>
+                        </annotation>
+                    </element>
+
+                    <element name="security" type="gateway:SecurityType">
+                        <annotation>
+                            <documentation>This is the element for configuring
+                                gateway security.
+                            </documentation>
+                        </annotation>
+                    </element>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="cluster" type="gateway:ClusterType">
+                        <annotation>
+                            <documentation>This is the element for gateway
+                                cluster configuration.
+                            </documentation>
+                        </annotation>
+                    </element>
+
+                </choice>
+            </sequence>
+        </complexType>
+    </element>
+
+    <complexType name="ClusterType">
+        <annotation>
+            <documentation>This type describes the configuration of the
+                gateway's clustering behavior.
+            </documentation>
+        </annotation>
+
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" name="name"
+                     type="gateway:CollapsedString">
+                <annotation/>
+            </element>
+
+            <element maxOccurs="unbounded" minOccurs="0"
+                     name="accept">
+                <annotation>
+                    <documentation>
+                        The protocol, network interface (possibly
+                        internal), and the port number on which the
+                        cluster accepts connections.
+                    </documentation>
+                </annotation>
+                <simpleType>
+                    <restriction base="anyURI">
+                        <whiteSpace value="collapse"></whiteSpace>
+                    </restriction>
+                </simpleType>
+            </element>
+
+            <element maxOccurs="unbounded" minOccurs="0"
+                     name="connect">
+                <annotation/>
+                <simpleType>
+                    <restriction base="anyURI">
+                        <whiteSpace value="collapse"></whiteSpace>
+                    </restriction>
+                </simpleType>
+            </element>
+
+            <element maxOccurs="1" minOccurs="0" name="connect-options"
+                     type="gateway:ClusterConnectOptionsType"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="MimeMappingType">
+        <annotation>
+            <documentation>This type describes a mapping of a document filename extension
+                to a MIME content type string. The content type string would
+                typically be sent as a Content-Type header in an HTTP or other
+                response.
+            </documentation>
+        </annotation>
+
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" name="extension"
+                     type="gateway:CollapsedString">
+                <annotation>
+                    <documentation>The file extension.</documentation>
+                </annotation>
+            </element>
+            <element maxOccurs="1" minOccurs="1" name="mime-type"
+                     type="gateway:CollapsedString">
+                <annotation>
+                    <documentation>The MIME-type to send for the given extension.</documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+
+    <complexType name="AuthorizationConstraintType">
+        <annotation>
+            <documentation>This is the element for configuring the user roles
+                that are authorized to perform specific
+                operations.
+            </documentation>
+        </annotation>
+
+        <choice maxOccurs="unbounded" minOccurs="1">
+            <element name="require-role" type="string">
+                <annotation>
+                    <documentation>
+                        The name of the user role to be included in the
+                        authorization-constraint.
+                    </documentation>
+                </annotation>
+            </element>
+            <element name="require-valid-user">
+                <complexType>
+                    <complexContent>
+                        <restriction base="anyType"/>
+                    </complexContent>
+                </complexType>
+            </element>
+        </choice>
+    </complexType>
+
+
+    <complexType name="SecurityType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="0" name="keystore"
+                     type="gateway:SecurityStoreType">
+                <annotation>
+                    <documentation>This is the element for configuring the
+                        keystore that contains encryption keys for secure
+                        communications with the gateway.
+                    </documentation>
+                </annotation>
+            </element>
+
+            <element maxOccurs="1" minOccurs="0" name="truststore"
+                     type="gateway:SecurityStoreType">
+                <annotation>
+                    <documentation>This is the element for configuring the
+                        truststore that contains digital certificates for
+                        certificate authorities trusted by the
+                        gateway.
+                    </documentation>
+                </annotation>
+            </element>
+
+            <element maxOccurs="unbounded" minOccurs="0" name="realm"
+                     type="gateway:RealmType">
+                <annotation>
+                    <documentation>This is the element that associates an
+                        authenticated user with a set of authorized
+                        roles.
+                    </documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+
+    <complexType name="SecurityStoreType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="0" name="type">
+                <simpleType>
+                    <restriction base="string">
+                        <enumeration value="JKS"/>
+                        <enumeration value="JCEKS"/>
+                        <whiteSpace value="collapse"></whiteSpace>
+                    </restriction>
+                </simpleType>
+            </element>
+
+            <element maxOccurs="1" minOccurs="1" name="file" type="gateway:CollapsedString"/>
+
+            <element maxOccurs="1" minOccurs="0" name="password-file"
+                     type="gateway:CollapsedString"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="RealmType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" name="name" type="gateway:CollapsedString">
+                <annotation>
+                    <documentation>The name of the realm.</documentation>
+                </annotation>
+            </element>
+
+            <element maxOccurs="1" minOccurs="0" name="description"
+                     type="gateway:CollapsedString">
+                <annotation>
+                    <documentation>The description of the
+                        realm.
+                    </documentation>
+                </annotation>
+            </element>
+
+            <element maxOccurs="unbounded" minOccurs="0" name="user-principal-class"
+                     type="gateway:CollapsedString">
+                <annotation>
+                    <documentation>The name of the class that represents a user
+                        principal that an admin is interested in knowing about. When
+                        a principal of this class is authenticated, a notification of
+                        such will be sent via the management service. If no management
+                        service is configured, then this element will be ignored.
+                    </documentation>
+                </annotation>
+            </element>
+
+            <element maxOccurs="1" minOccurs="1" name="authentication"
+                     type="gateway:AuthenticationType">
+                <annotation>
+                    <documentation>The authentication for a realm defines how users
+                        authenticate and become authorized for activity within the realm.
+                    </documentation>
+                </annotation>
+
+            </element>
+        </sequence>
+    </complexType>
+
+    <complexType name="AuthenticationType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" name="http-challenge-scheme">
+                <annotation>
+                    <documentation>The scheme with which to challenge the client
+                        when a service is accessed with missing or invalid credentials.
+                    </documentation>
+                </annotation>
+                <simpleType>
+                    <restriction base="string">
+                        <enumeration value="Basic"/>
+                        <!-- Uncomment when Digest authentication is supported (TRAC-226)
+                            <enumeration value="Digest" />
+                        -->
+                        <enumeration value="Negotiate"/>
+                        <enumeration value="Application Basic"/>
+                        <enumeration value="Application Negotiate"/>
+                        <enumeration value="Application Token"/>
+                        <whiteSpace value="collapse"></whiteSpace>
+                    </restriction>
+                </simpleType>
+            </element>
+
+            <group maxOccurs="1" minOccurs="0" ref="gateway:CustomAuthenticationTokenGroup"/>
+
+            <element maxOccurs="1" minOccurs="0" name="authorization-mode">
+                <annotation>
+                    <documentation>
+                        The authorization mode under which realm services operate.
+                    </documentation>
+                </annotation>
+                <simpleType>
+                    <restriction base="string">
+                        <enumeration value="challenge"/>
+                        <enumeration value="validate"/>
+                        <whiteSpace value="collapse"></whiteSpace>
+                    </restriction>
+                </simpleType>
+            </element>
+
+            <element maxOccurs="1" minOccurs="0" name="session-timeout"
+                     type="gateway:TimeIntervalString">
+                <annotation>
+                    <documentation>
+                        The interval of time after which the web socket is closed.
+                    </documentation>
+                </annotation>
+            </element>
+
+            <element maxOccurs="1" minOccurs="0" name="login-modules" type="gateway:LoginModulesType"/>
+
+        </sequence>
+    </complexType>
+
+    <complexType name="LoginModulesType">
+        <sequence>
+            <element maxOccurs="unbounded" minOccurs="0" name="login-module"
+                     type="gateway:LoginModuleType"/>
+        </sequence>
+    </complexType>
+
+
+    <group name="CustomAuthenticationTokenGroup">
+        <sequence>
+            <element maxOccurs="unbounded" minOccurs="0" name="http-header"
+                     type="gateway:CollapsedString">
+                <annotation>
+                    <documentation>
+                        One or more headers containing authentication data.
+                    </documentation>
+                </annotation>
+            </element>
+            <element maxOccurs="unbounded" minOccurs="0" name="http-query-parameter"
+                     type="gateway:CollapsedString">
+                <annotation>
+                    <documentation>
+                        One or more query parameters containing authentication data.
+                    </documentation>
+                </annotation>
+            </element>
+            <element maxOccurs="unbounded" minOccurs="0" name="http-cookie"
+                     type="gateway:CollapsedString">
+                <annotation>
+                    <documentation>
+                        One or more cookies containing authentication data.
+                    </documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </group>
+
+    <complexType name="fileLoginModuleType">
+        <complexContent>
+            <restriction base="gateway:LoginModuleType">
+                <sequence>
+                    <element fixed="file" maxOccurs="1" minOccurs="1"
+                             name="type" type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="1" name="success"
+                             type="gateway:SuccessType"/>
+
+                    <element maxOccurs="1" minOccurs="1" name="options">
+                        <complexType>
+                            <complexContent>
+                                <restriction base="gateway:LoginModuleOptionsType">
+                                    <sequence>
+                                        <element maxOccurs="1" minOccurs="1" name="file"
+                                                 type="gateway:CollapsedString"/>
+                                    </sequence>
+                                </restriction>
+                            </complexContent>
+                        </complexType>
+                    </element>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="jndiLoginModuleType">
+        <complexContent>
+            <restriction base="gateway:LoginModuleType">
+                <sequence>
+                    <element fixed="jndi" maxOccurs="1" minOccurs="1"
+                             name="type" type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="1" name="success"
+                             type="gateway:SuccessType"/>
+
+                    <element maxOccurs="1" minOccurs="0" name="options"
+                             type="gateway:LoginModuleOptionsType"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="keystoreLoginModuleType">
+        <complexContent>
+            <restriction base="gateway:LoginModuleType">
+                <sequence>
+                    <element fixed="keystore" maxOccurs="1" minOccurs="1"
+                             name="type" type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="1" name="success"
+                             type="gateway:SuccessType"/>
+
+                    <element maxOccurs="1" minOccurs="0" name="options"
+                             type="gateway:LoginModuleOptionsType"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="ldapLoginModuleType">
+        <complexContent>
+            <restriction base="gateway:LoginModuleType">
+                <sequence>
+                    <element fixed="ldap" maxOccurs="1" minOccurs="1"
+                             name="type" type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="1" name="success"
+                             type="gateway:SuccessType"/>
+
+                    <element maxOccurs="1" minOccurs="1" name="options"
+                             type="gateway:LoginModuleOptionsType"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="CustomLoginModuleType">
+        <complexContent>
+            <restriction base="gateway:LoginModuleType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1" name="type">
+                        <simpleType>
+                            <restriction base="gateway:CollapsedString">
+                                <pattern
+                                        value="class:[a-zA-Z]([a-zA-Z0-9])*([\.][a-zA-Z]([a-zA-Z0-9])*)*"/>
+                                <whiteSpace value="collapse"></whiteSpace>
+                            </restriction>
+                        </simpleType>
+                    </element>
+
+                    <element maxOccurs="1" minOccurs="1" name="success"
+                             type="gateway:SuccessType"/>
+
+                    <element maxOccurs="1" minOccurs="0" name="options"
+                             type="gateway:LoginModuleOptionsType"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType abstract="true" name="ServiceType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" name="name"
+                     type="gateway:CollapsedString"/>
+
+            <element maxOccurs="1" minOccurs="0" name="description"
+                     type="gateway:CollapsedString"/>
+
+            <element maxOccurs="unbounded" minOccurs="0" name="accept"
+                     type="anyURI"/>
+
+            <element maxOccurs="unbounded" minOccurs="0" name="connect"
+                     type="anyURI"/>
+
+            <element maxOccurs="unbounded" minOccurs="0" name="balance"
+                     type="anyURI"/>
+
+            <element maxOccurs="unbounded" minOccurs="0" name="notify"
+                     type="anyURI"/>
+
+            <element maxOccurs="1" minOccurs="1" name="type"
+                     type="gateway:CollapsedString"/>
+
+            <element maxOccurs="1" minOccurs="0" name="properties"
+                     type="gateway:ServicePropertiesType"/>
+
+            <element maxOccurs="1" minOccurs="0" name="accept-options"
+                     type="gateway:ServiceAcceptOptionsType"/>
+
+            <element maxOccurs="1" minOccurs="0" name="connect-options"
+                     type="gateway:ServiceConnectOptionsType"/>
+
+            <element maxOccurs="1" minOccurs="0"
+                     name="realm-name"
+                     type="gateway:CollapsedString">
+                <annotation>
+                    <documentation>The name of the security realm used for
+                        authentication or * to indicate any valid
+                        user.
+                    </documentation>
+                </annotation>
+            </element>
+
+            <element maxOccurs="unbounded" minOccurs="0"
+                     name="authorization-constraint" type="gateway:AuthorizationConstraintType"/>
+
+            <element maxOccurs="unbounded" minOccurs="0"
+                     name="mime-mapping" type="gateway:MimeMappingType"/>
+
+            <element maxOccurs="unbounded" minOccurs="0"
+                     name="cross-site-constraint"
+                     type="gateway:CrossSiteConstraintType"/>
+
+
+        </sequence>
+    </complexType>
+
+    <complexType name="ServiceDefaultsType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="0" name="accept-options"
+                     type="gateway:ServiceAcceptOptionsType"/>
+            <element maxOccurs="1" minOccurs="0" name="connect-options"
+                     type="gateway:ServiceConnectOptionsType"/>
+            <element maxOccurs="unbounded" minOccurs="0"
+                     name="mime-mapping" type="gateway:MimeMappingType"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="CrossSiteConstraintType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" name="allow-origin">
+                <annotation>
+                    <documentation>The protocol scheme, fully qualified host
+                        name, and port number of the cross-origin site that is
+                        allowed to access this service. Specify the value * if you
+                        want to allow access to all cross-site origin sites.
+                        Specifying * may be for appropriate for services that
+                        restrict HTTP methods or custom headers, but not the
+                        origin of the request.
+                    </documentation>
+                </annotation>
+
+                <simpleType>
+                    <union memberTypes="anyURI">
+                        <simpleType>
+                            <restriction base="string">
+                                <enumeration value="*"/>
+                                <whiteSpace value="collapse"></whiteSpace>
+                            </restriction>
+                        </simpleType>
+                    </union>
+                </simpleType>
+            </element>
+
+            <element maxOccurs="1" minOccurs="0" name="allow-methods"
+                     type="gateway:CSVType">
+                <annotation>
+                    <documentation>A comma-separated list of methods that can
+                        be invoked by the cross-origin site.
+                    </documentation>
+                </annotation>
+            </element>
+
+            <element maxOccurs="1" minOccurs="0" name="allow-headers"
+                     type="gateway:CSVType">
+                <annotation>
+                    <documentation>A comma-separated list of custom header
+                        names that can be sent by the cross-origin site when it
+                        accesses the service.
+                    </documentation>
+                </annotation>
+            </element>
+
+            <element maxOccurs="1" minOccurs="0" name="maximum-age"
+                     type="nonNegativeInteger"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="broadcastServiceType">
+        <annotation>
+            <documentation>This type of service is used to broadcast
+                information from a back-end service.
+            </documentation>
+        </annotation>
+
+        <complexContent>
+            <restriction base="gateway:ServiceType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1"
+                             name="name"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="description"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="accept"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="connect"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="balance"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="notify"
+                             type="anyURI"/>
+
+                    <element fixed="broadcast" maxOccurs="1" minOccurs="1"
+                             name="type"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="properties"
+                             type="gateway:broadcastServicePropertiesType"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="accept-options"
+                             type="gateway:ServiceAcceptOptionsType"/>
+
+                    <element maxOccurs="1" minOccurs="0"  name="connect-options"
+                             type="gateway:ServiceConnectOptionsType" />
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="realm-name"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="authorization-constraint"
+                             type="gateway:AuthorizationConstraintType"/>
+
+                    <!-- mime-mapping is not supported for broadcast -->
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="cross-site-constraint"
+                             type="gateway:CrossSiteConstraintType"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="balancerServiceType">
+        <annotation>
+            <documentation>This type of service is used to load-balance WebSocket
+                requests.
+            </documentation>
+        </annotation>
+
+        <complexContent>
+            <restriction base="gateway:ServiceType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1"
+                             name="name"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="description"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="unbounded" minOccurs="1"
+                             name="accept"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="balance"
+                             type="anyURI"/>
+
+                    <element fixed="balancer" maxOccurs="1" minOccurs="1"
+                             name="type"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="properties"
+                             type="gateway:ServicePropertiesType"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="accept-options"
+                             type="gateway:ServiceAcceptOptionsType"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="realm-name"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="authorization-constraint"
+                             type="gateway:AuthorizationConstraintType"/>
+
+                    <!-- mime-mapping is not supported for balancer -->
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="cross-site-constraint"
+                             type="gateway:CrossSiteConstraintType"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="directoryServiceType">
+        <annotation>
+            <documentation>This type of service is used to expose directories
+                or files hosted on the gateway.
+            </documentation>
+        </annotation>
+
+        <complexContent>
+            <restriction base="gateway:ServiceType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1"
+                             name="name"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="description"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="unbounded" minOccurs="1"
+                             name="accept"
+                             type="anyURI"/>
+
+                    <!-- connect is not supported for directory -->
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="balance" type="anyURI"/>
+
+                    <element fixed="directory" maxOccurs="1" minOccurs="1"
+                             name="type"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="1"
+                             name="properties"
+                             type="gateway:directoryServicePropertiesType"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="accept-options"
+                             type="gateway:ServiceAcceptOptionsType"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="realm-name"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="authorization-constraint"
+                             type="gateway:AuthorizationConstraintType"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="mime-mapping"
+                             type="gateway:MimeMappingType"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="cross-site-constraint"
+                             type="gateway:CrossSiteConstraintType"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="echoServiceType">
+        <annotation>
+            <documentation>This service provides echoing of input. Useful for
+                testing.
+            </documentation>
+        </annotation>
+
+        <complexContent>
+            <restriction base="gateway:ServiceType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1"
+                             name="name"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="description"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="unbounded" minOccurs="1"
+                             name="accept"
+                             type="anyURI"/>
+
+                    <!-- connect is not supported for echo -->
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="balance"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="notify"
+                             type="anyURI"/>
+
+                    <element fixed="echo" maxOccurs="1" minOccurs="1"
+                             name="type"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="properties"
+                             type="gateway:echoServicePropertiesType"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="accept-options"
+                             type="gateway:ServiceAcceptOptionsType"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="realm-name"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="authorization-constraint"
+                             type="gateway:AuthorizationConstraintType"/>
+
+                    <!-- mime-mapping is not supported for balancer -->
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="cross-site-constraint"
+                             type="gateway:CrossSiteConstraintType"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="ExtensionServiceType">
+        <annotation>
+            <documentation>Represents extension services.</documentation>
+        </annotation>
+
+        <complexContent>
+            <restriction base="gateway:ServiceType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1" name="name"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0" name="description"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="unbounded" minOccurs="1" name="accept"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0" name="connect"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0" name="balance"
+                             type="anyURI"/>
+
+                    <element maxOccurs="1" minOccurs="1" name="type">
+                        <simpleType>
+                            <restriction base="gateway:CollapsedString">
+                                <pattern value=".+-extension"/>
+                            </restriction>
+                        </simpleType>
+                    </element>
+
+                    <element maxOccurs="1" minOccurs="0" name="properties"
+                             type="gateway:ServicePropertiesType"/>
+
+                    <element maxOccurs="1" minOccurs="0" name="accept-options"
+                             type="gateway:ServiceAcceptOptionsType" />
+
+                    <element maxOccurs="1" minOccurs="0"  name="connect-options"
+                             type="gateway:ServiceConnectOptionsType" />
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="realm-name"
+                             type="gateway:CollapsedString">
+                        <annotation>
+                            <documentation>
+                                The name of the security realm used for
+                                authentication or * to indicate any valid user.
+                            </documentation>
+                        </annotation>
+                    </element>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="authorization-constraint"
+                             type="gateway:AuthorizationConstraintType"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="cross-site-constraint"
+                             type="gateway:CrossSiteConstraintType"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="amqp.proxyServiceType">
+        <annotation>
+            <documentation>This type of service is used to expose the AMQP proxy
+            service.</documentation>
+        </annotation>
+
+        <complexContent>
+            <restriction base="gateway:ServiceType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1" name="name"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0" name="description"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="unbounded" minOccurs="1" name="accept"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0" name="connect"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0" name="balance"
+                             type="anyURI"/>
+
+                    <element fixed="amqp.proxy" maxOccurs="1" minOccurs="1"
+                             name="type" type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0" name="properties"
+                             type="gateway:ServicePropertiesType"/>
+
+                    <element maxOccurs="1" minOccurs="0" name="accept-options"
+                             type="gateway:ServiceAcceptOptionsType" />
+
+                    <element maxOccurs="1" minOccurs="0"  name="connect-options"
+                             type="gateway:ServiceConnectOptionsType" />
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="realm-name"
+                             type="gateway:CollapsedString">
+                        <annotation>
+                            <documentation>
+                                The name of the security realm used for
+                                authentication or * to indicate any valid user.
+                            </documentation>
+                        </annotation>
+                    </element>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="authorization-constraint"
+                             type="gateway:AuthorizationConstraintType"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="cross-site-constraint"
+                             type="gateway:CrossSiteConstraintType"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="http.proxyServiceType">
+        <annotation>
+            <documentation>This service provides reverse proxying of http requests.</documentation>
+        </annotation>
+
+        <complexContent>
+            <restriction base="gateway:ServiceType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1"
+                             name="name"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="description"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="unbounded" minOccurs="1"
+                             name="accept"
+                             type="anyURI"/>
+
+                    <element maxOccurs="1" minOccurs="1"
+                             name="connect"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="balance"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="notify"
+                             type="anyURI"/>
+
+                    <element fixed="http.proxy" maxOccurs="1" minOccurs="1"
+                             name="type"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="properties"
+                             type="gateway:ServicePropertiesType"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="accept-options"
+                             type="gateway:ServiceAcceptOptionsType" />
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="connect-options"
+                             type="gateway:ServiceConnectOptionsType" />
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="realm-name"
+                             type="gateway:CollapsedString" />
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="authorization-constraint"
+                             type="gateway:AuthorizationConstraintType"/>
+
+                    <!-- mime-mapping is not supported for balancer -->
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="cross-site-constraint"
+                             type="gateway:CrossSiteConstraintType"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="proxyServiceType">
+        <annotation>
+            <documentation>This type of service is used to proxy connections
+                to a back-end service.
+            </documentation>
+        </annotation>
+
+        <complexContent>
+            <restriction base="gateway:ServiceType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1"
+                             name="name"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="description"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="unbounded" minOccurs="1"
+                             name="accept"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="connect"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="balance"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="notify"
+                             type="anyURI"/>
+
+                    <element fixed="proxy" maxOccurs="1" minOccurs="1"
+                             name="type"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="properties"
+                             type="gateway:proxyServicePropertiesType"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="accept-options"
+                             type="gateway:ServiceAcceptOptionsType"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="connect-options"
+                             type="gateway:ServiceConnectOptionsType"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="realm-name"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="authorization-constraint"
+                             type="gateway:AuthorizationConstraintType"/>
+
+                    <!-- mime-mapping is not supported for proxy -->
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="cross-site-constraint"
+                             type="gateway:CrossSiteConstraintType"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="update.checkServiceType">
+        <annotation>
+            <documentation>This type of service is used to check for gateway updates</documentation>
+        </annotation>
+
+        <complexContent>
+            <restriction base="gateway:ServiceType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1"
+                             name="name"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="description"
+                             type="gateway:CollapsedString"/>
+
+                    <element fixed="update.check" maxOccurs="1" minOccurs="1"
+                             name="type"
+                             type="gateway:CollapsedString"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="turn.restServiceType">
+        <annotation>
+            <documentation>This service provides REST authentication to a TURN server.</documentation>
+        </annotation>
+
+        <complexContent>
+            <restriction base="gateway:ServiceType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1"
+                             name="name"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="description"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="unbounded" minOccurs="1"
+                             name="accept"
+                             type="anyURI"/>
+
+                    <!-- connect is not supported for echo -->
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="balance"
+                             type="anyURI"/>
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="notify"
+                             type="anyURI"/>
+
+                    <element fixed="turn.rest" maxOccurs="1" minOccurs="1"
+                             name="type"
+                             type="gateway:CollapsedString"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="properties"
+                             type="gateway:turn.restServicePropertiesType"/>
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="accept-options"
+                             type="gateway:ServiceAcceptOptionsType" />
+
+                    <element maxOccurs="1" minOccurs="0"
+                             name="realm-name"
+                             type="gateway:CollapsedString" />
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="authorization-constraint"
+                             type="gateway:AuthorizationConstraintType"/>
+
+                    <!-- mime-mapping is not supported for balancer -->
+
+                    <element maxOccurs="unbounded" minOccurs="0"
+                             name="cross-site-constraint"
+                             type="gateway:CrossSiteConstraintType"/>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="PropertiesType">
+        <sequence>
+            <element maxOccurs="unbounded" minOccurs="1" name="property"
+                     type="gateway:PropertyType"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="PropertyType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" name="name"
+                     type="gateway:CollapsedString"/>
+            <element maxOccurs="1" minOccurs="1" name="value"
+                     type="gateway:CollapsedString"/>
+        </sequence>
+    </complexType>
+
+    <simpleType name="SuccessType">
+        <annotation>
+            <documentation>
+                The behavior of the login module at the time it
+                validates the user's credentials.
+            </documentation>
+        </annotation>
+
+        <restriction base="string">
+            <enumeration value="required"/>
+            <enumeration value="requisite"/>
+            <enumeration value="sufficient"/>
+            <enumeration value="optional"/>
+            <whiteSpace value="collapse"></whiteSpace>
+        </restriction>
+    </simpleType>
+
+    <complexType abstract="true" name="LoginModuleType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1" name="type" type="gateway:CollapsedString"/>
+
+            <element maxOccurs="1" minOccurs="1" name="success"
+                     type="gateway:SuccessType"/>
+
+            <element maxOccurs="1" minOccurs="0" name="options"
+                     type="gateway:LoginModuleOptionsType"/>
+        </sequence>
+    </complexType>
+
+    <simpleType name="CSVType">
+        <restriction base="string">
+            <pattern value="[^,\s]+(,?[^,\s]+)*"/>
+            <whiteSpace value="collapse"></whiteSpace>
+        </restriction>
+    </simpleType>
+
+    <complexType name="LoginModuleOptionsType">
+        <sequence>
+            <any maxOccurs="unbounded" minOccurs="0" processContents="lax"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="broadcastServicePropertiesType">
+        <complexContent>
+            <restriction base="gateway:ServicePropertiesType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="0"
+                             name="on.client.message" type="gateway:CollapsedString">
+                        <annotation/>
+                    </element>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="ServicePropertiesType">
+        <sequence>
+            <any maxOccurs="unbounded" minOccurs="0" processContents="lax"/>
+        </sequence>
+    </complexType>
+
+
+
+    <complexType name="ServiceAcceptOptionsType">
+        <all>
+            <element name="ssl.ciphers" maxOccurs="1" minOccurs="0" type="gateway:CSVType">
+                <annotation>
+                    <documentation>A comma-separated list of
+                        SSL/TLS ciphersuite names to be used for this
+                        connection.
+                    </documentation>
+                </annotation>
+            </element>            
+            <element name="tls.ciphers" maxOccurs="1" minOccurs="0" type="gateway:CSVType">
+                <annotation>
+                    <documentation>A comma-separated list of
+                        SSL/TLS ciphersuite names to be used for this
+                        connection.
+                    </documentation>
+                </annotation>
+            </element>
+            <element name="ssl.protocols" maxOccurs="1" minOccurs="0" type="gateway:CSVType">
+                <annotation>
+                    <documentation>A comma-separated list of
+                        SSL/TLS protocol names to be used for this
+                        connection. The protocols names are SSLv2Hello, SSLv3, TLSv1, TLSv1.1,
+                        TLSv1.2. If not specified explicitly, SSLv3 protocol is not
+                        enabled by default (as it is known to have vulnerabilities).
+                    </documentation>
+                </annotation>
+            </element>
+            <element name="tls.protocols" maxOccurs="1" minOccurs="0" type="gateway:CSVType">
+                <annotation>
+                    <documentation>A comma-separated list of
+                        SSL/TLS protocol names to be used for this
+                        connection. The protocols names are SSLv2Hello, SSLv3, TLSv1, TLSv1.1,
+                        TLSv1.2. If not specified explicitly, SSLv3 protocol is not
+                        enabled by default (as it is known to have vulnerabilities).
+                    </documentation>
+                </annotation>
+            </element>
+            <element name="ssl.encryption" maxOccurs="1" minOccurs="0">
+                <simpleType>
+                    <restriction base="string">
+                        <enumeration value="enabled"></enumeration>
+                        <enumeration value="disabled"></enumeration>
+                        <whiteSpace value="collapse"></whiteSpace>
+                    </restriction>
+                </simpleType>
+            </element>
+            <element name="tls.encryption" maxOccurs="1" minOccurs="0">
+                <simpleType>
+                    <restriction base="string">
+                        <enumeration value="enabled"></enumeration>
+                        <enumeration value="disabled"></enumeration>
+                        <whiteSpace value="collapse"></whiteSpace>
+                    </restriction>
+                </simpleType>
+            </element>
+            <element name="ssl.verify-client" maxOccurs="1" minOccurs="0">
+                <simpleType>
+                    <restriction base="string">
+                        <enumeration value="none"></enumeration>
+                        <enumeration value="optional"></enumeration>
+                        <enumeration value="required"></enumeration>
+                        <whiteSpace value="collapse"></whiteSpace>
+                    </restriction>
+                </simpleType>
+            </element>
+            <element name="tls.verify-client" maxOccurs="1" minOccurs="0">
+                <simpleType>
+                    <restriction base="string">
+                        <enumeration value="none"></enumeration>
+                        <enumeration value="optional"></enumeration>
+                        <enumeration value="required"></enumeration>
+                        <whiteSpace value="collapse"></whiteSpace>
+                    </restriction>
+                </simpleType>
+            </element>
+            <element name="ws.bind" maxOccurs="1" minOccurs="0" type="gateway:CollapsedString">
+                <annotation/>
+            </element>
+            <element name="wss.bind" maxOccurs="1" minOccurs="0" type="gateway:CollapsedString">
+                <annotation/>
+            </element>
+            <element name="http.bind" maxOccurs="1" minOccurs="0" type="gateway:CollapsedString">
+                <annotation/>
+            </element>
+            <element name="https.bind" maxOccurs="1" minOccurs="0" type="gateway:CollapsedString">
+                <annotation/>
+            </element>
+            <element name="ssl.bind" maxOccurs="1" minOccurs="0" type="gateway:CollapsedString">
+                <annotation/>
+            </element>
+            <element name="tls.bind" maxOccurs="1" minOccurs="0" type="gateway:CollapsedString">
+                <annotation/>
+            </element>
+            <element name="tcp.bind" maxOccurs="1" minOccurs="0" type="gateway:CollapsedString">
+                <annotation/>
+            </element>
+            <element name="ws.maximum.message.size" maxOccurs="1" minOccurs="0" type="gateway:DataSizeString">
+                <annotation/>
+            </element>
+            <element name="ws.inactivity.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString">
+                <annotation/>
+            </element>
+            <element name="http.keepalive.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString" default="30">
+                <annotation/>
+            </element>
+            <element name="http.realm" maxOccurs="1" minOccurs="0" type="gateway:StringList">
+                <annotation/>
+            </element>
+            <element name="pipe.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+                <annotation/>
+            </element>
+            <element name="tcp.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+                <annotation/>
+            </element>
+            <element name="udp.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+                <annotation/>
+            </element>
+            <element name="ssl.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+                <annotation/>
+            </element>
+            <element name="tls.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+                <annotation/>
+            </element>
+            <element name="http.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+                <annotation/>
+            </element>
+            <element name="udp.interface" maxOccurs="1" minOccurs="0" type="anyURI">
+                <annotation>
+                    <documentation>Specifies an interface to use for udp so that the multicast traffic can be constrained to a
+                        specific interface.
+                    </documentation>
+                </annotation>
+            </element>
+            <element name="http.maximum.redirects" maxOccurs="1"
+                minOccurs="0" type="nonNegativeInteger">
+                <annotation>
+                    <documentation>The maximum redirects http connector follows</documentation>
+                </annotation>
+            </element>
+        </all>
+    </complexType>
+    
+    <simpleType name="StringList">
+      <list itemType="string" />
+    </simpleType>
+
+    <complexType name="ServiceConnectOptionsType">
+        <all>
+            <element name="ssl.ciphers" maxOccurs="1" minOccurs="0" type="gateway:CSVType">
+                <annotation>
+                    <documentation>A comma-separated list of
+                        SSL/TLS ciphersuite names to be used for this
+                        connection.
+                    </documentation>
+                </annotation>
+            </element>
+            <element name="tls.ciphers" maxOccurs="1" minOccurs="0" type="gateway:CSVType">
+                <annotation>
+                    <documentation>A comma-separated list of
+                        SSL/TLS ciphersuite names to be used for this
+                        connection.
+                    </documentation>
+                </annotation>
+            </element>
+            <element name="ssl.protocols" maxOccurs="1" minOccurs="0" type="gateway:CSVType">
+                <annotation>
+                    <documentation>A comma-separated list of
+                        SSL/TLS protocol names to be used for this
+                        connection. The protocols names are SSLv2Hello, SSLv3, TLSv1, TLSv1.1,
+                        TLSv1.2. If not specified explicitly, SSLv3 protocol is not
+                        enabled by default (as it is known to have vulnerabilities).
+                    </documentation>
+                </annotation>
+            </element>
+            <element name="tls.protocols" maxOccurs="1" minOccurs="0" type="gateway:CSVType">
+                <annotation>
+                    <documentation>A comma-separated list of
+                        SSL/TLS protocol names to be used for this
+                        connection. The protocols names are SSLv2Hello, SSLv3, TLSv1, TLSv1.1,
+                        TLSv1.2. If not specified explicitly, SSLv3 protocol is not
+                        enabled by default (as it is known to have vulnerabilities).
+                    </documentation>
+                </annotation>
+            </element>
+            <element name="ssl.encryption" maxOccurs="1" minOccurs="0">
+                <simpleType>
+                    <restriction base="string">
+                        <enumeration value="enabled"></enumeration>
+                        <enumeration value="disabled"></enumeration>
+                        <whiteSpace value="collapse"></whiteSpace>
+                    </restriction>
+                </simpleType>
+            </element>
+            <element name="tls.encryption" maxOccurs="1" minOccurs="0">
+                <simpleType>
+                    <restriction base="string">
+                        <enumeration value="enabled"></enumeration>
+                        <enumeration value="disabled"></enumeration>
+                        <whiteSpace value="collapse"></whiteSpace>
+                    </restriction>
+                </simpleType>
+            </element>
+            <element name="tcp.bind" maxOccurs="1" minOccurs="0" type="gateway:CollapsedString">
+                <annotation/>
+            </element>
+            <element name="ws.version" maxOccurs="1" minOccurs="0" type="gateway:CollapsedString">
+                <annotation/>
+            </element>
+            <element name="pipe.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+                <annotation/>
+            </element>
+            <element name="tcp.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+                <annotation/>
+            </element>
+            <element name="udp.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+                <annotation/>
+            </element>
+            <element name="ssl.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+                <annotation/>
+            </element>
+            <element name="tls.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+                <annotation/>
+            </element>
+            <element name="http.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+                <annotation/>
+            </element>
+            <element name="ws.inactivity.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString">
+                <annotation/>
+            </element>
+            <element name="http.keepalive" maxOccurs="1" minOccurs="0" default="enabled">
+                <annotation>
+                    <documentation>HTTP keep-alive (or persistent connections) allow reuse of same TCP
+                        connection for multiple HTTP request/responses. This will improve HTTP performance
+                        esp for services like http proxy. This is enabled by default.
+                    </documentation>
+                </annotation>
+                <simpleType>
+                    <restriction base="string">
+                        <enumeration value="enabled"></enumeration>
+                        <enumeration value="disabled"></enumeration>
+                        <whiteSpace value="collapse"></whiteSpace>
+                    </restriction>
+                </simpleType>
+            </element>
+            <element name="http.keepalive.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString" default="30">
+                <annotation>
+                    <documentation>HTTP keep-alive (or persistent connections) allow reuse of same TCP
+                        connection for multiple HTTP request/responses. If the TCP connection is idle
+                        for the specified time, the connection is closed and will not be reused for
+                        any further HTTP requests/responses.
+                    </documentation>
+                </annotation>
+            </element>
+            <element name="http.keepalive.connections" maxOccurs="1" minOccurs="0" type="nonNegativeInteger" default="2">
+                <annotation>
+                    <documentation>Gateway caches the specified number of idle keep-alive (or persistent) connections
+                        to upstream server in the cache of each worker. Those connections will timeout based on
+                        keep-alive timeout config option. It is recommended to keep this number small enough to let
+                        upstream servers process new incoming connections as well.
+
+                        This config option does not limit the max number of connections to upstream server that
+                        the gateway can open.
+                    </documentation>
+                </annotation>
+            </element>
+            <element name="udp.interface" maxOccurs="1" minOccurs="0" type="anyURI">
+                <annotation>
+                    <documentation>Specifies an interface to use for udp so that the multicast traffic can be constrained to a
+                        specific interface.
+                    </documentation>
+                </annotation>
+            </element>
+            <element name="http.maximum.redirects" maxOccurs="1" minOccurs="0" type="nonNegativeInteger">
+                <annotation>
+                    <documentation>The maximum redirects http connector follows</documentation>
+                </annotation>
+            </element>
+            <element name="http.max.authentication.attempts" maxOccurs="1" minOccurs="0" type="nonNegativeInteger">
+            <annotation>
+                <documentation>The number of attempts that the http connector
+                    will try while authenticating (i.e responding to a 401)
+                </documentation>
+            </annotation>
+            </element>
+        </all>
+    </complexType>
+
+    <complexType name="ClusterConnectOptionsType">
+        <sequence>
+            <element name="aws.access-key-id" maxOccurs="1" minOccurs="1" type="gateway:CollapsedString">
+                <annotation>
+                    <documentation>AWS AccessKeyId of the account owner.
+                    </documentation>
+                </annotation>
+            </element>
+            <element name="aws.secret-key" maxOccurs="1" minOccurs="1" type="gateway:CollapsedString">
+                <annotation>
+                    <documentation>AWS SecretKey.
+                    </documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+
+    <complexType name="directoryServicePropertiesType">
+        <complexContent>
+            <restriction base="gateway:ServicePropertiesType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1"
+                             name="directory" type="gateway:CollapsedString">
+                        <annotation/>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0"
+                             name="welcome-file" type="gateway:CollapsedString">
+                        <annotation/>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0"
+                             name="error-pages-directory" type="gateway:CollapsedString">
+                        <annotation/>
+                    </element>
+                    <element name="options" minOccurs="0"
+                             maxOccurs="1">
+                        <simpleType>
+                            <restriction base="string">
+                                <enumeration value="indexes"></enumeration>
+                                <whiteSpace value="collapse"></whiteSpace>
+                            </restriction>
+                        </simpleType>
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="0"
+                        name="location" type="gateway:locationType">
+                        <annotation />
+                    </element>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="locationType">
+        <sequence>
+            <element maxOccurs="1" minOccurs="1"
+                name="patterns" type="gateway:CollapsedString">
+                <annotation />
+            </element>
+            <element maxOccurs="1" minOccurs="1"
+                name="cache-control" type="gateway:CacheControlString">
+                <annotation />
+            </element>
+        </sequence>
+    </complexType>
+
+    <complexType name="simpleServicePropertiesType">
+        <complexContent>
+            <restriction base="gateway:ServicePropertiesType">
+                <all>
+                </all>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="proxyServicePropertiesType">
+        <complexContent>
+            <restriction base="gateway:ServicePropertiesType">
+                <all>
+                    <element maxOccurs="1" minOccurs="0" name="connect"
+                             type="anyURI">
+                        <annotation/>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="maximum.pending.bytes"
+                             type="gateway:DataSizeString">
+                        <annotation/>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="maximum.recovery.interval"
+                             type="nonNegativeInteger">
+                        <annotation/>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="prepared.connection.count"
+                             type="nonNegativeInteger">
+                        <annotation/>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="connect.strategy"
+                             type="string">
+                        <annotation/>
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="internal.maximum.transferred.bytes"
+                             type="gateway:DataSizeString">
+                        <annotation/>
+                    </element>
+                </all>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="echoServicePropertiesType">
+        <complexContent>
+            <restriction base="gateway:ServicePropertiesType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="0"
+                             name="repeat" type="gateway:CollapsedString">
+                        <annotation/>
+                    </element>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="turn.restServicePropertiesType">
+        <annotation>
+            <documentation>
+                Properties accepted by the turn.rest service configuration.
+            </documentation>
+        </annotation>
+        <complexContent>
+            <restriction base="gateway:ServicePropertiesType">
+                <sequence>
+                    <element maxOccurs="1" minOccurs="1" name="key.alias"
+                        type="gateway:CollapsedString">
+                        <annotation />
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="key.algorithm"
+                        type="gateway:CollapsedString">
+                        <annotation />
+                    </element>
+                    <element maxOccurs="1" minOccurs="1" name="credentials.generator"
+                         type="gateway:CollapsedString">
+                        <annotation />
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="credentials.ttl"
+                        type="gateway:TimeIntervalString">
+                        <annotation />
+                    </element>
+                    <element maxOccurs="1" minOccurs="0" name="username.separator"
+                        type="gateway:CollapsedString">
+                        <annotation />
+                    </element>
+                    <element maxOccurs="unbounded" minOccurs="1" name="url"
+                        type="gateway:CollapsedString">
+                        <annotation />
+                    </element>
+                </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <simpleType name="CollapsedString">
+        <restriction base="string">
+            <whiteSpace value="collapse"></whiteSpace>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="CacheControlString">
+        <restriction base="gateway:CollapsedString">
+            <!--<pattern value="((directive_name)((=[m+]?)(ms|milli|millis|millisecond|milliseconds|s|sec|secs|second|seconds|m|min|mins|minute|minutes|h|hour|hours|d|day|days|w|week|weeks|y|year|years)?)[,]?)+"/>-->
+            <pattern value="([a-zA-Z\-]+(=([mM]\s*\+\s*)?[0-9]+([Mm][Ss]|[Mm][Ii][Ll][Ll][Ii]|[Mm][Ii][Ll][Ll][Ii][Ss]|[Mm][Ii][Ll][Ll][Ii][Ss][Ee][Cc][Oo][Nn][Dd]|[Mm][Ii][Ll][Ll][Ii][Ss][Ee][Cc][Oo][Nn][Dd][Ss]|[Ss]|[Ss][Ee][Cc]|[Ss][Ee][Cc][Ss]|[Ss][Ee][Cc][Oo][Nn][Dd]|[Ss][Ee][Cc][Oo][Nn][Dd][Ss]|[Mm]|[Mm][Ii][Nn]|[Mm][Ii][Nn][Ss]|[Mm][Ii][Nn][Uu][Tt][Ee]|[Mm][Ii][Nn][Uu][Tt][Ee][Ss]|[Hh]|[Hh][Oo][Uu][Rr]|[Hh][Oo][Uu][Rr][Ss]|[dD]|[dD][aA][yY]|[dD][aA][yY][sS]|[wW]|[wW][eE][eE][kK]|[wW][eE][eE][kK][sS]|[yY]|[yY][eE][aA][rR]|[yY][eE][aA][rR][sS])?)?\s*[,]?\s*)+"/>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="DataSizeString">
+        <restriction base="gateway:CollapsedString">
+            <pattern value="([0-9])+([kKmM])?"/>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="DataRateString">
+        <restriction base="gateway:CollapsedString">
+            <pattern value="([0-9])+(B/s|kB/s|KiB/s|MB/s|MiB/s)?"/>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="TimeIntervalString">
+        <restriction base="gateway:CollapsedString">
+            <!--<pattern value="([0-9]+)(ms|milli|millis|millisecond|milliseconds|s|sec|secs|second|seconds|m|min|mins|minute|minutes|h|hour|hours)?"/>-->
+            <pattern
+                    value="([0-9\.]+)\s*([Mm][Ss]|[Mm][Ii][Ll][Ll][Ii]|[Mm][Ii][Ll][Ll][Ii][Ss]|[Mm][Ii][Ll][Ll][Ii][Ss][Ee][Cc][Oo][Nn][Dd]|[Mm][Ii][Ll][Ll][Ii][Ss][Ee][Cc][Oo][Nn][Dd][Ss]|[Ss]|[Ss][Ee][Cc]|[Ss][Ee][Cc][Ss]|[Ss][Ee][Cc][Oo][Nn][Dd]|[Ss][Ee][Cc][Oo][Nn][Dd][Ss]|[Mm]|[Mm][Ii][Nn]|[Mm][Ii][Nn][Ss]|[Mm][Ii][Nn][Uu][Tt][Ee]|[Mm][Ii][Nn][Uu][Tt][Ee][Ss]|[Hh]|[Hh][Oo][Uu][Rr]|[Hh][Oo][Uu][Rr][Ss])?"/>
+            <whiteSpace value="collapse"></whiteSpace>
+        </restriction>
+    </simpleType>
+
+</schema>

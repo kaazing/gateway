@@ -100,7 +100,7 @@
         <include>org.apache.xmlbeans:xmlbeans</include>
         <include>com.hazelcast:hazelcast</include>
         <include>com.hazelcast:hazelcast-client</include>
-        <include>com.hazelcast:hazelcast-cloud</include>
+        <include>com.hazelcast:hazelcast-aws</include>
         <include>commons-cli:commons-cli</include>
         <include>org.json:json</include>
         <include>org.apache.maven.shared:maven-shared-utils</include>
@@ -166,25 +166,6 @@
       <excludes>
         <exclude>**/*</exclude>
       </excludes>
-    </fileSet>
-
-    <!-- Overlay the SIGAR lib directory (not Kaazing-generated). As it contains a 
-         number of native-code files from different architectures, put it in
-         a subdirectory under lib -->
-    <fileSet>
-      <outputDirectory>lib/sigar</outputDirectory>
-      <directory>target/sigar/sigar</directory>
-      <excludes>
-        <exclude>*.jar</exclude>  <!-- we get the sigar.jar here -->
-      </excludes>
-    </fileSet>
-
-    <fileSet>
-      <outputDirectory>lib</outputDirectory>
-      <directory>target/sigar/sigar</directory>
-      <includes>
-        <include>*.jar</include>  <!-- we get sigar.jar elsewhere -->
-      </includes>
     </fileSet>
 
   </fileSets>

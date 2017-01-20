@@ -14,81 +14,33 @@
 # limitations under the License.
 #
 
+connect http://localhost:8111/
+connected
 
-#
-# tomcat server
-#
+write method "GET"
+write close
 
-accept tcp://localhost:8080
+read status "200" "OK"
+
+accept http://localhost:8081/
 accepted
 connected
 
-read "GET /examples HTTP/1.1\r\n"
-read /Via: 1.1 kaazing-.+/ "\r\n"
-read "User-Agent: curl/7.37.1\r\n"
-read "Host: localhost:8080\r\n"
-read "Connection: close\r\n"
-read "Accept: */*\r\n"
-read "\r\n"
+read method "GET"
+read closed
 
-write "HTTP/1.1 302 Found\r\n"
-write "Server: Apache-Coyote/1.1\r\n"
-write "Location: http://localhost:8081/examples/\r\n"
-write "Transfer-Encoding: chunked\r\n"
-write "Date: Sat, 14 Feb 2015 00:55:22 GMT\r\n"
-write "Connection: close\r\n"
-write "\r\n"
-write "0\r\n"
-write "\r\n"
+write status "302" "FOUND"
+write header "Location" "/resource2"
+write close
 
-# gateway(sender) closes the connection
-closed
-
-accept tcp://localhost:8081
+accept http://localhost:8081/resource2
 accepted
 connected
 
-read "GET /examples HTTP/1.1\r\n"
-read /Via: 1.1 kaazing-.+/ "\r\n"
-read "User-Agent: curl/7.37.1\r\n"
-read "Host: localhost:8081\r\n"
-read "Connection: close\r\n"
-read "Accept: */*\r\n"
-read "\r\n"
+read method "GET"
+read closed
 
-write "HTTP/1.1 302 Found\r\n"
-write "Server: Apache-Coyote/1.1\r\n"
-write "Location: http://localhost:8110/examples/\r\n"
-write "Transfer-Encoding: chunked\r\n"
-write "Date: Sat, 14 Feb 2015 00:55:22 GMT\r\n"
-write "Connection: close\r\n"
-write "\r\n"
-write "0\r\n"
-write "\r\n"
-
-# gateway(sender) closes the connection
-closed
-
-# curl 7.37.1 <---> Gateway <---> tomcat 8.0.1
-
-connect tcp://localhost:8110
-connected
-
-write "GET /examples HTTP/1.1\r\n"
-write "User-Agent: curl/7.37.1\r\n"
-write "Host: localhost:8110\r\n"
-write "Accept: */*\r\n"
-write "\r\n"
-
-read "HTTP/1.1 302 Found\r\n"
-read /Date: .*/ "\r\n"
-read "Location: http://localhost:8110/examples/\r\n"
-read "Server: Apache-Coyote/1.1\r\n"
-read "Transfer-Encoding: chunked\r\n"
-read "\r\n"
-read "0\r\n"
-read "\r\n"
-
-close
-closed
-
+write status "200" "OK"
+write header content-length
+write "Hello"
+write close

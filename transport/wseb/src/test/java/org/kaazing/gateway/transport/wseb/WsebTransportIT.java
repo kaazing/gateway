@@ -95,4 +95,10 @@ public class WsebTransportIT {
         robot.finish();
     }
 
+    @Specification("echo.javascript.downstream.with.sequence.number.ksn")
+    @Test
+    public void testJavascriptSequenceNumberKsn() throws Exception {
+        robot.finish();
+    }
+
 }

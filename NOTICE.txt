@@ -228,20 +228,20 @@ This product depends on Gateway Utils 1.0
 	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.util.git
 
-This product depends on hazelcast-client 1.9
+This product depends on hazelcast-client 3.7
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://www.hazelcast.com/hazelcast-client/
+	Homepage:	https://hazelcast.org/clients/java/
 
-This product depends on hazelcast-cloud 1.9
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://www.hazelcast.com/hazelcast-cloud/
-
-This product depends on hazelcast 1.9
+This product depends on hazelcast-aws 1.1
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
-	Homepage:	http://www.hazelcast.com/hazelcast/
+	Homepage:	https://hazelcast.org/plugins/#aws
+
+This product depends on hazelcast 3.7
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
+	Homepage:	http://www.hazelcast.org
 
 This product depends on JDOM 1.1
 
@@ -267,11 +267,6 @@ This product depends on Mina Netty Adapter 1.5
 
 	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/mina.netty.git
-
-This product depends on sigar.dist 1.6
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
-	Homepage:	http://sigar.hyperic.com/
 
 This product depends on SLF4J API Module 1.7
 

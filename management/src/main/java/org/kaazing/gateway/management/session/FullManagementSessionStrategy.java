@@ -16,9 +16,6 @@
 package org.kaazing.gateway.management.session;
 
 import org.apache.mina.core.write.WriteRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
  * Do full management processing for both service and session. This is only done on non-management session requests.
@@ -30,8 +27,6 @@ import org.slf4j.LoggerFactory;
  */
 public class FullManagementSessionStrategy extends CollectOnlyManagementSessionStrategy {
 
-    private static final Logger logger = LoggerFactory.getLogger(FullManagementSessionStrategy.class);
-
     public FullManagementSessionStrategy() {
     }
 
@@ -42,12 +37,6 @@ public class FullManagementSessionStrategy extends CollectOnlyManagementSessionS
     public void doSessionCreated(final SessionManagementBean sessionBean) throws Exception {
         super.doSessionCreated(sessionBean);
         sessionBean.doSessionCreatedListeners();
-    }
-
-    @Override
-    public void doSessionClosed(final SessionManagementBean sessionBean) throws Exception {
-        super.doSessionClosed(sessionBean);
-        sessionBean.doSessionClosedListeners();
     }
 
     @Override
