@@ -194,7 +194,7 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.4.2</version>
                 <configuration>
-                    <dependencyReducedPomLocation>${basedir}/target/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
                     <createSourcesJar>${create.shaded.sources}</createSourcesJar>
                     <filters>
                         <filter>
@@ -220,35 +220,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.kaazing</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <configuration>
-                    <projectHints>
-                        <projectDescription>
-                            <projectName>OGNL - Object Graph Navigation Library</projectName>
-                            <licenseName>Apache 2.0 License</licenseName>
-                            <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
-                            <homePage>http://ognl.org</homePage>
-                            <version>2.0</version>
-                        </projectDescription>
-                        <projectDescription>
-                            <projectName>SLF4J JDK14 Binding</projectName>
-                            <licenseName>MIT License</licenseName>
-                            <licenseUrl>http://www.opensource.org/licenses/mit-license.php</licenseUrl>
-                            <homePage>http://www.slf4j.org</homePage>
-                            <version>1.0</version>
-                        </projectDescription>
-                        <projectDescription>
-                            <projectName>SLF4J API Module</projectName>
-                            <licenseName>MIT License</licenseName>
-                            <licenseUrl>http://www.opensource.org/licenses/mit-license.php</licenseUrl>
-                            <homePage>http://www.slf4j.org</homePage>
-                            <version>1.0</version>
-                        </projectDescription>
-                    </projectHints>
-                </configuration>
             </plugin>
         </plugins>
     </build>

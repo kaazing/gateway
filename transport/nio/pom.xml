@@ -67,6 +67,7 @@
             <groupId>org.kaazing</groupId>
             <artifactId>k3po.lang</artifactId>
             <version>${k3po.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
