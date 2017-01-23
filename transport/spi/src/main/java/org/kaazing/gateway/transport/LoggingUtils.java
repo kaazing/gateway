@@ -31,11 +31,12 @@ import org.kaazing.gateway.resource.address.IdentityResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class LoggingUtils {
     private static final String HOST_PORT_FORMAT = "%s:%d";
     private static final TypedAttributeKey<String> LOG_ID_ATTRIBUTE
-                = new TypedAttributeKey<String>(LoggingUtils.class, "logId");
+                = new TypedAttributeKey<>(LoggingUtils.class, "logId");
 
     private LoggingUtils() {
         // so as not to be instantiated
@@ -68,6 +69,15 @@ public final class LoggingUtils {
             LOG_ID_ATTRIBUTE.set(session, result);
         }
         return result;
+    }
+
+    /**
+     * Logs an unexpected exception in the same way LoggingFilter would, using the transport
+     * logger for the transport of the given session.
+     */
+    public static void log(IoSession session, Throwable t) {
+        Logger logger = getTransportLogger(session);
+        log(session, logger, t);
     }
 
     /**
@@ -123,13 +133,17 @@ public final class LoggingUtils {
      * @return
      */
     static String getUserIdentifier(IoSession session) {
-        IoService service = session.getService();
-        boolean isAcceptor = service instanceof IoAcceptor || service instanceof BridgeAcceptor;
+        boolean isAcceptor = isAcceptor(session);
         SocketAddress hostPortAddress = isAcceptor ? session.getRemoteAddress() : session.getLocalAddress();
         SocketAddress identityAddress = isAcceptor ? session.getLocalAddress() : session.getRemoteAddress();
         String identity = resolveIdentity(identityAddress, (IoSessionEx)session);
         String hostPort = getHostPort(hostPortAddress);
         return identity == null ? hostPort : format("%s %s", identity, hostPort);
+    }
+
+    private static boolean isAcceptor(IoSession session) {
+        IoService service = session.getService();
+        return service instanceof IoAcceptor || service instanceof BridgeAcceptor;
     }
 
     /**
@@ -198,6 +212,12 @@ public final class LoggingUtils {
             return getLowestTransportLayer(transport.getTransport());
         }
         return transport;
+    }
+
+    private static Logger getTransportLogger(IoSession session) {
+        String loggerName = "transport." + session.getService().getTransportMetadata().getName()
+                + (isAcceptor(session) ? ".accept" : ".connect");
+        return LoggerFactory.getLogger(loggerName);
     }
 
 }
