@@ -255,7 +255,6 @@ public class MessageFormatIT {
         assertTrue(latch.await(4, SECONDS));
     }
 
-    @Ignore("Transfer Encoding Bug")
     @Test
     @Specification({"server.should.send.501.to.unknown.transfer.encoding/request"})
     public void serverShouldSend501ToUnknownTransferEncoding() throws Exception {
@@ -265,7 +264,7 @@ public class MessageFormatIT {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 latch.countDown();
-                session.setStatus(HttpStatus.SUCCESS_OK);
+                session.setStatus(HttpStatus.SERVER_NOT_IMPLEMENTED);
                 session.close(true);
             }
         };
