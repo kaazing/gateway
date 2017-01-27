@@ -90,11 +90,6 @@ public interface Gateway {
     String GATEWAY_USER_LIB_DIRECTORY_PROPERTY = "GATEWAY_USER_LIB_DIRECTORY";
 
     /**
-     * private property
-     */
-    String BYPASS_PLATFORM_CHECK_PROPERTY = "bypassPlatformCheck";
-
-    /**
      * The fully qualified path to a Log4J configuration file.  See http://logging.apache.org/log4j/ for more information
      * about configuring Log4J.  By default, the Gateway will look for log4j-config.xml in this directory.
      */
@@ -116,17 +111,6 @@ public interface Gateway {
      * is disabled and the Gateway will never check for changes in the log4j config file.
      */
     String LOG4J_CONFIG_REFRESH_INTERVAL = "LOG4J_CONFIG_REFRESH_INTERVAL";
-
-    String TCP_BACKLOG = "org.kaazing.gateway.server.transport.tcp.BACKLOG";
-    String TCP_MAXIMUM_READ_BUFFER_SIZE = "org.kaazing.gateway.server.transport.tcp.MAXIMUM_READ_BUFFER_SIZE";
-    String TCP_MINIMUM_READ_BUFFER_SIZE = "org.kaazing.gateway.server.transport.tcp.MINIMUM_READ_BUFFER_SIZE";
-    String TCP_NO_DELAY = "org.kaazing.gateway.server.transport.tcp.TCP_NO_DELAY";
-    String TCP_PROCESSOR_COUNT = "org.kaazing.gateway.server.transport.tcp.PROCESSOR_COUNT";
-    String TCP_READ_BUFFER_SIZE = "org.kaazing.gateway.server.transport.tcp.READ_BUFFER_SIZE";
-    String TCP_WRITE_TIMEOUT = "org.kaazing.gateway.server.transport.tcp.WRITE_TIMEOUT";
-    String UDP_MAXIMUM_READ_BUFFER_SIZE = "org.kaazing.gateway.server.transport.udp.MAXIMUM_READ_BUFFER_SIZE";
-    String UDP_MINIMUM_READ_BUFFER_SIZE = "org.kaazing.gateway.server.transport.udp.MINIMUM_READ_BUFFER_SIZE";
-    String UDP_READ_BUFFER_SIZE = "org.kaazing.gateway.server.transport.udp.READ_BUFFER_SIZE";
 
     /**
      * Set up the Gateway with the given properties.  Example of properties used by the Gateway are <code>GATEWAY_HOME</code> and
