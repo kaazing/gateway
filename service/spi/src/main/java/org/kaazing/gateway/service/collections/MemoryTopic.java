@@ -16,11 +16,17 @@
 package org.kaazing.gateway.service.collections;
 
 
+import java.sql.Time;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Message;
@@ -36,45 +42,93 @@ public class MemoryTopic<E> extends MemoryDistributedObject implements ITopic<E>
 
     private final LocalTopicStatsImpl localTopicStats;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MemoryTopic.class);
+
     public MemoryTopic(String name) {
         super(name);
         this.localTopicStats = new LocalTopicStatsImpl();
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Created topic: " + this.getName());
+        }
     }
 
     @Override
     public void publish(Object o) {
-        EXECUTOR.submit(() -> {
-            for (MessageListener messageListener : messageListeners.values()) {
-
-                messageListener.onMessage((Message)o);
-                localTopicStats.incrementReceives();
+        Message m = new Message(this.getName(), o, System.currentTimeMillis(), null);
+        try {
+            if (!EXECUTOR.awaitTermination(5, TimeUnit.SECONDS)) {
+                throw new MemoryCollectionsException("Deadlock!1");
             }
-        });
+        } catch (InterruptedException e) {
+            throw new MemoryCollectionsException("Interrupted", e);
+        }
+
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Publishing message on topic: " + MemoryTopic.this.getName() + ", notifying " + messageListeners.size() + " listener(s).");
+            }
+            for (Map.Entry<String, MessageListener> entry: messageListeners.entrySet()) {
+                EXECUTOR.submit(() -> {
+                    try {
+                        // onMessage can be executed and check on stats can be done after exiting the onMessage but
+                        // before the stats are actually updated
+                        localTopicStats.incrementReceives();
+                        entry.getValue().onMessage(m);
+                    } catch (Exception e) {
+                        LOGGER.debug("Message listener: " + entry.getKey()+ " failed.", e);
+                    }
+                });
+            }
+
         localTopicStats.incrementPublishes();
     }
 
     @Override
     public String addMessageListener(MessageListener messageListener) {
+        if (messageListener == null) {
+            throw new MemoryCollectionsException("messageListener must be not null");
+        }
+        try {
+            if (!EXECUTOR.awaitTermination(5, TimeUnit.SECONDS)) {
+                throw new MemoryCollectionsException("Deadlock!2");
+            }
+        } catch (InterruptedException e) {
+            throw new MemoryCollectionsException("Interrupted", e);
+        }
+
         try {
             return EXECUTOR.submit(() -> {
-                String key = "MemoryTopic_" + messageListener.hashCode();
+                String key = UUID.randomUUID().toString();
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("Adding message listener: " + key + " on topic: " + MemoryTopic.this.getName());
+                }
                 messageListeners.put(key, messageListener);
                 return key;
             }).get();
         } catch (InterruptedException|ExecutionException e) {
-            throw new RuntimeException("Unable to add message listener", e);
+            throw new MemoryCollectionsException("Unable to add message listener", e);
         }
     }
 
     @Override
     public boolean removeMessageListener(String s) {
         try {
+            if (!EXECUTOR.awaitTermination(5, TimeUnit.SECONDS)) {
+                throw new MemoryCollectionsException("Deadlock!3");
+            }
+        } catch (InterruptedException e) {
+            throw new MemoryCollectionsException("Interrupted", e);
+        }
+
+        try {
             return EXECUTOR.submit(() -> {
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("Removing message listener: " + s + " on topic: " + MemoryTopic.this.getName());
+                }
                 messageListeners.remove(s);
                 return true;
             }).get();
         } catch (InterruptedException|ExecutionException e) {
-            throw new RuntimeException("Unable to remove message listener", e);
+            throw new MemoryCollectionsException("Unable to remove message listener", e);
         }
     }
 
