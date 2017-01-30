@@ -16,13 +16,11 @@
 package org.kaazing.gateway.service.messaging.collections;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,6 +42,7 @@ public class MemoryTopicTest {
     @Before
     public void setUp() throws Exception {
         factory = new MemoryCollectionsFactory();
+        Thread.sleep(100);
     }
 
     @Test
@@ -71,10 +70,10 @@ public class MemoryTopicTest {
     @Test
     public void shouldNotifyListenersIfOneThrowsException() throws InterruptedException {
         ITopic<String> topic = factory.getTopic("topic");
-        CountDownLatch listenersCalled = new CountDownLatch(2);
+        CountDownLatch listenersCalled = new CountDownLatch(3);
 
         topic.addMessageListener(message -> listenersCalled.countDown());
-        topic.addMessageListener(message -> {throw new NullPointerException();});
+        topic.addMessageListener(message -> {listenersCalled.countDown(); throw new NullPointerException();});
         topic.addMessageListener(message -> listenersCalled.countDown());
         topic.publish("msg1");
         listenersCalled.await();
@@ -115,12 +114,10 @@ public class MemoryTopicTest {
         ITopic<String> topic = factory.getTopic("topic");
         CountDownLatch listenersCalled = new CountDownLatch(1);
         MessageListener m1 = message -> {
-            System.out.println("Called m1");
             listenersCalled.countDown();
         };
         String name = topic.addMessageListener(m1);
         MessageListener m2 = message -> {
-            System.out.println("Called m2");
             topic.removeMessageListener(name);
         };
         topic.addMessageListener(m2);
@@ -130,20 +127,49 @@ public class MemoryTopicTest {
 
 
     @Test
-    public void shouldNotDeadLock() throws InterruptedException, ExecutionException {
-        CountDownLatch latch = new CountDownLatch(1);
-        ExecutorService e = Executors.newSingleThreadExecutor(runnable -> new Thread(runnable, "memory-topics-test"));
-        Future f = e.submit(() -> {
-            try {
-                e.submit(() -> {System.out.println("got it"); latch.countDown();}).get();
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
-            } catch (ExecutionException e1) {
-                e1.printStackTrace();
-            }
-        });
-        // f.get();
+    public void shouldAddAndRemoveMessageListenerNoSideEffects() throws InterruptedException {
+        ITopic<String> topic = factory.getTopic("topic");
+        CountDownLatch listenersCalled = new CountDownLatch(2);
+        AtomicBoolean calledM3 = new AtomicBoolean(false);
+        MessageListener m1 = message -> {
+            listenersCalled.countDown();
+            topic.addMessageListener(message1 -> calledM3.set(true));
+        };
+        String name = topic.addMessageListener(m1);
+        MessageListener m2 = message -> {
+            topic.removeMessageListener(name);
+            listenersCalled.countDown();
+        };
+        topic.addMessageListener(m2);
+        topic.publish("msg1");
+        listenersCalled.await();
+        assertTrue("MessageListener m3 must not be called", calledM3.get() == false);
+    }
+
+    @Test
+    public void shouldPubSubFromMessageListeners() {
+        CountDownLatch listenersCalled = new CountDownLatch(1);
+        ITopic<String> topic1 = factory.getTopic("topic1");
+        ITopic<String> topic2 = factory.getTopic("topic2");
+        MessageListener m1 = message -> topic2.publish("Message sent to topic2");
+        MessageListener m2 = message -> listenersCalled.countDown();
+        topic1.addMessageListener(m1);
+        topic2.addMessageListener(m2);
+        topic1.publish("trigger m2");
     }
 
 
+    @Test
+    public void shouldNotOverflow() throws InterruptedException {
+        ITopic<String> topic = factory.getTopic("topic");
+        CountDownLatch latch = new CountDownLatch(10000);
+        topic.addMessageListener(message -> {
+            latch.countDown();
+            if (latch.getCount() > 0) {
+                topic.publish("Resend: " + message.getMessageObject());
+            }
+        });
+        topic.publish("KickOff");
+        latch.await();
+    }
 }

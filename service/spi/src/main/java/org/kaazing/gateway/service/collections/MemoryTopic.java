@@ -16,14 +16,12 @@
 package org.kaazing.gateway.service.collections;
 
 
-import java.sql.Time;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +34,10 @@ import com.hazelcast.monitor.impl.LocalTopicStatsImpl;
 
 public class MemoryTopic<E> extends MemoryDistributedObject implements ITopic<E> {
 
-    private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(runnable -> new Thread(runnable, "memory-topics-thread"));
+    private static final ExecutorService AR_EXECUTOR =
+        Executors.newSingleThreadExecutor(runnable -> new Thread(runnable, "memory-topics-add/remove"));
+    private static final ExecutorService P_EXECUTOR =
+        Executors.newSingleThreadExecutor(runnable -> new Thread(runnable, "memory-topics-publish"));
 
     private Map<String, MessageListener> messageListeners = new HashMap<>();
 
@@ -54,31 +55,37 @@ public class MemoryTopic<E> extends MemoryDistributedObject implements ITopic<E>
 
     @Override
     public void publish(Object o) {
-        Message m = new Message(this.getName(), o, System.currentTimeMillis(), null);
+        HashMap<String, MessageListener> currentListeners;
         try {
-            if (!EXECUTOR.awaitTermination(5, TimeUnit.SECONDS)) {
-                throw new MemoryCollectionsException("Deadlock!1");
-            }
-        } catch (InterruptedException e) {
-            throw new MemoryCollectionsException("Interrupted", e);
+            currentListeners = AR_EXECUTOR.submit(() -> {
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("Copying list of message listeners");
+                }
+                return new HashMap<>(messageListeners);
+            }).get();
+        } catch (InterruptedException|ExecutionException e) {
+            throw new MemoryCollectionsException("Unable to copy message listeners", e);
         }
 
+        Message m = new Message(this.getName(), o, System.nanoTime(), null);
+        P_EXECUTOR.submit(() -> {
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Publishing message on topic: " + MemoryTopic.this.getName() + ", notifying " + messageListeners.size() + " listener(s).");
             }
-            for (Map.Entry<String, MessageListener> entry: messageListeners.entrySet()) {
-                EXECUTOR.submit(() -> {
-                    try {
-                        // onMessage can be executed and check on stats can be done after exiting the onMessage but
-                        // before the stats are actually updated
-                        localTopicStats.incrementReceives();
-                        entry.getValue().onMessage(m);
-                    } catch (Exception e) {
-                        LOGGER.debug("Message listener: " + entry.getKey()+ " failed.", e);
+            for (Map.Entry<String, MessageListener> entry : currentListeners.entrySet()) {
+                try {
+                    if (LOGGER.isTraceEnabled()) {
+                        LOGGER.trace("Publishing message on topic: " + MemoryTopic.this.getName() + ", notifying listener: " + entry.getKey() + ".");
                     }
-                });
+                    // onMessage can be executed and check on stats can be done after exiting the onMessage but
+                    // before the stats are actually updated
+                    localTopicStats.incrementReceives();
+                    entry.getValue().onMessage(m);
+                } catch (Exception e) {
+                    LOGGER.debug("Message listener: " + entry.getKey() + " failed.", e);
+                }
             }
-
+        });
         localTopicStats.incrementPublishes();
     }
 
@@ -87,24 +94,16 @@ public class MemoryTopic<E> extends MemoryDistributedObject implements ITopic<E>
         if (messageListener == null) {
             throw new MemoryCollectionsException("messageListener must be not null");
         }
+        String key = UUID.randomUUID().toString();
         try {
-            if (!EXECUTOR.awaitTermination(5, TimeUnit.SECONDS)) {
-                throw new MemoryCollectionsException("Deadlock!2");
-            }
-        } catch (InterruptedException e) {
-            throw new MemoryCollectionsException("Interrupted", e);
-        }
-
-        try {
-            return EXECUTOR.submit(() -> {
-                String key = UUID.randomUUID().toString();
+            return AR_EXECUTOR.submit(() -> {
                 if (LOGGER.isTraceEnabled()) {
                     LOGGER.trace("Adding message listener: " + key + " on topic: " + MemoryTopic.this.getName());
                 }
                 messageListeners.put(key, messageListener);
                 return key;
             }).get();
-        } catch (InterruptedException|ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             throw new MemoryCollectionsException("Unable to add message listener", e);
         }
     }
@@ -112,22 +111,17 @@ public class MemoryTopic<E> extends MemoryDistributedObject implements ITopic<E>
     @Override
     public boolean removeMessageListener(String s) {
         try {
-            if (!EXECUTOR.awaitTermination(5, TimeUnit.SECONDS)) {
-                throw new MemoryCollectionsException("Deadlock!3");
-            }
-        } catch (InterruptedException e) {
-            throw new MemoryCollectionsException("Interrupted", e);
-        }
-
-        try {
-            return EXECUTOR.submit(() -> {
+            return AR_EXECUTOR.submit(() -> {
                 if (LOGGER.isTraceEnabled()) {
                     LOGGER.trace("Removing message listener: " + s + " on topic: " + MemoryTopic.this.getName());
                 }
                 messageListeners.remove(s);
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("Removed message listener: " + s + " on topic: " + MemoryTopic.this.getName());
+                }
                 return true;
             }).get();
-        } catch (InterruptedException|ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             throw new MemoryCollectionsException("Unable to remove message listener", e);
         }
     }
