@@ -24,10 +24,10 @@ import org.jboss.netty.channel.socket.DatagramChannelConfig;
 import org.jboss.netty.channel.socket.nio.AbstractNioWorker;
 import org.jboss.netty.channel.socket.nio.NioChildDatagramChannel;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
+import org.jboss.netty.channel.socket.nio.NioDatagramChannelConfig;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.netty.ChannelIoService;
 import org.kaazing.mina.netty.ChannelIoSession;
-import org.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,21 +41,21 @@ import static java.lang.Thread.currentThread;
  * It forces all operations of the session to be done in the worker thread (using worker.executeIntoThread if a call
  * is made in another thread).
  */
-class NioDatagramChannelIoSession extends ChannelIoSession<DatagramChannelConfig> {
+class NioDatagramChannelIoSession extends ChannelIoSession<NioDatagramChannelConfig> {
 
     private static final IoFilter IDLE_FILTER = new NioDatagramIdleFilter();
     private static final Logger LOGGER = LoggerFactory.getLogger(NioDatagramChannelIoSession.class);
 
     NioDatagramChannelIoSession(ChannelIoService service,
             IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor, NioDatagramChannel channel) {
-        super(service, processor, channel, new DefaultDatagramChannelIoSessionConfig(),
+        super(service, processor, channel, new NioDatagramChannelIoSessionConfig(channel.getConfig()),
                 currentThread(), asExecutor(channel.getWorker()));
         getFilterChain().addLast("udp#idle", IDLE_FILTER);
     }
 
     NioDatagramChannelIoSession(ChannelIoService service,
                                 IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor, NioChildDatagramChannel channel) {
-        super(service, processor, channel, new DefaultDatagramChannelIoSessionConfig(),
+        super(service, processor, channel, new NioDatagramChannelIoSessionConfig(channel.getConfig()),
                 currentThread(), asExecutor(channel.getWorker()));
         getFilterChain().addLast("udp#idle", IDLE_FILTER);
     }

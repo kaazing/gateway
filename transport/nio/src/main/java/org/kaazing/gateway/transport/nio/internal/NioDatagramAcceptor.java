@@ -29,7 +29,7 @@ import org.kaazing.gateway.transport.NioBindException;
 import org.kaazing.gateway.transport.bio.MulticastAcceptor;
 import org.kaazing.mina.core.service.IoAcceptorEx;
 import org.kaazing.mina.netty.socket.DatagramChannelIoSessionConfig;
-import org.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
+import org.kaazing.mina.netty.socket.nio.DefaultNioDatagramChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.nio.NioDatagramChannelIoAcceptor;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,11 @@ import java.net.InetAddress;
 import java.util.Properties;
 
 import static java.util.concurrent.Executors.newCachedThreadPool;
+import static org.kaazing.gateway.transport.nio.NioSystemProperty.UDP_CLIENT_RECEIVE_BUFFER_SIZE;
+import static org.kaazing.gateway.transport.nio.NioSystemProperty.UDP_CLIENT_SEND_BUFFER_SIZE;
 import static org.kaazing.gateway.transport.nio.NioSystemProperty.UDP_IDLE_TIMEOUT;
+import static org.kaazing.gateway.transport.nio.NioSystemProperty.UDP_SERVER_RECEIVE_BUFFER_SIZE;
+import static org.kaazing.gateway.transport.nio.NioSystemProperty.UDP_SERVER_SEND_BUFFER_SIZE;
 
 public class NioDatagramAcceptor extends AbstractNioAcceptor {
 
@@ -61,7 +65,7 @@ public class NioDatagramAcceptor extends AbstractNioAcceptor {
 
 	@Override
     protected IoAcceptorEx initAcceptor(final IoSessionInitializer<? extends IoFuture> initializer) {
-	    DatagramChannelIoSessionConfig config = new DefaultDatagramChannelIoSessionConfig();
+	    DatagramChannelIoSessionConfig config = new DefaultNioDatagramChannelIoSessionConfig();
         WorkerPool<NioWorker> workerPool = tcpAcceptor.initWorkerPool(logger, "UDP acceptor: {}", configuration);
         NioServerDatagramChannelFactory channelFactory = new NioServerDatagramChannelFactory(newCachedThreadPool(), 1, workerPool);
         NioDatagramChannelIoAcceptor acceptor = new NioDatagramChannelIoAcceptor(config, channelFactory);
@@ -84,6 +88,20 @@ public class NioDatagramAcceptor extends AbstractNioAcceptor {
             acceptor.getSessionConfig().setMaxReadBufferSize(Integer.parseInt(maximumReadBufferSize));
             logger.debug("MAXIMUM_READ_BUFFER_SIZE setting for UDP acceptor: {}", maximumReadBufferSize);
         }
+
+        String bossRecvBufferSize = UDP_SERVER_RECEIVE_BUFFER_SIZE.getProperty(configuration);
+        acceptor.setReceiveBufferSize(bossRecvBufferSize);
+        logger.debug("UDP_SERVER_RECEIVE_BUFFER_SIZE setting for UDP acceptor: {}", bossRecvBufferSize);
+
+        String bossSendBufferSize = UDP_SERVER_SEND_BUFFER_SIZE.getProperty(configuration);
+        acceptor.setSendBufferSize(bossSendBufferSize);
+        logger.debug("UDP_SERVER_SEND_BUFFER_SIZE setting for UDP acceptor: {}", bossSendBufferSize);
+
+        int workerRecvBufferSize = UDP_CLIENT_RECEIVE_BUFFER_SIZE.getIntProperty(configuration);
+        acceptor.getSessionConfig().setReceiveBufferSize(workerRecvBufferSize);
+
+        int workerSendBufferSize = UDP_CLIENT_SEND_BUFFER_SIZE.getIntProperty(configuration);
+        acceptor.getSessionConfig().setSendBufferSize(workerSendBufferSize);
 
         int idleTimeout = UDP_IDLE_TIMEOUT.getIntProperty(configuration);
         acceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, idleTimeout);
