@@ -194,7 +194,8 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.4.2</version>
                 <configuration>
-                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <!-- <createDependencyReducedPom>false</createDependencyReducedPom> -->
+                    <dependencyReducedPomLocation>${basedir}/target/dependency-reduced-pom.xml</dependencyReducedPomLocation>
                     <createSourcesJar>${create.shaded.sources}</createSourcesJar>
                     <filters>
                         <filter>
