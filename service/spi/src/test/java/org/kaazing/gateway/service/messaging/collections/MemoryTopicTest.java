@@ -16,22 +16,28 @@
 package org.kaazing.gateway.service.messaging.collections;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.kaazing.gateway.service.collections.MemoryCollectionsFactory;
+import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.test.util.ITUtil;
 
 import com.hazelcast.core.ITopic;
 import com.hazelcast.core.MessageListener;
 
+
+// TODO move this test to org.kaazing.gateway.server.context.resolve (standalone/default)
+//
+// Tests not covered:
+//    - topic publish will happen-before calling add/remove inside a message listener
+//    - add/remove inside a message listener guarantees topicStats having correct values
+//
 public class MemoryTopicTest {
 
     private MemoryCollectionsFactory factory;
@@ -41,7 +47,7 @@ public class MemoryTopicTest {
 
     @Before
     public void setUp() throws Exception {
-        factory = new MemoryCollectionsFactory();
+        factory = new MemoryCollectionsFactory(new SchedulerProvider());
         Thread.sleep(100);
     }
 
@@ -73,7 +79,10 @@ public class MemoryTopicTest {
         CountDownLatch listenersCalled = new CountDownLatch(3);
 
         topic.addMessageListener(message -> listenersCalled.countDown());
-        topic.addMessageListener(message -> {listenersCalled.countDown(); throw new NullPointerException();});
+        topic.addMessageListener(message -> {
+            listenersCalled.countDown();
+            throw new NullPointerException();
+        });
         topic.addMessageListener(message -> listenersCalled.countDown());
         topic.publish("msg1");
         listenersCalled.await();
@@ -108,33 +117,11 @@ public class MemoryTopicTest {
         assertEquals(1, topic.getLocalTopicStats().getReceiveOperationCount());
     }
 
-
     @Test
     public void shouldAddAndRemoveMessageListenerWithoutDeadlock() throws InterruptedException {
         ITopic<String> topic = factory.getTopic("topic");
         CountDownLatch listenersCalled = new CountDownLatch(1);
-        MessageListener m1 = message -> {
-            listenersCalled.countDown();
-        };
-        String name = topic.addMessageListener(m1);
-        MessageListener m2 = message -> {
-            topic.removeMessageListener(name);
-        };
-        topic.addMessageListener(m2);
-        topic.publish("msg1");
-        listenersCalled.await();
-    }
-
-
-    @Test
-    public void shouldAddAndRemoveMessageListenerNoSideEffects() throws InterruptedException {
-        ITopic<String> topic = factory.getTopic("topic");
-        CountDownLatch listenersCalled = new CountDownLatch(2);
-        AtomicBoolean calledM3 = new AtomicBoolean(false);
-        MessageListener m1 = message -> {
-            listenersCalled.countDown();
-            topic.addMessageListener(message1 -> calledM3.set(true));
-        };
+        MessageListener m1 = message -> {};
         String name = topic.addMessageListener(m1);
         MessageListener m2 = message -> {
             topic.removeMessageListener(name);
@@ -143,7 +130,6 @@ public class MemoryTopicTest {
         topic.addMessageListener(m2);
         topic.publish("msg1");
         listenersCalled.await();
-        assertTrue("MessageListener m3 must not be called", calledM3.get() == false);
     }
 
     @Test

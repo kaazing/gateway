@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.kaazing.gateway.service.collections.MemoryCollectionsFactory;
 import org.kaazing.gateway.util.AtomicCounter;
+import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
 import com.hazelcast.core.IList;
 import com.hazelcast.core.ILock;
@@ -46,7 +47,7 @@ public class MemoryCollectionsFactoryTest {
 
     @Before
     public void setUp() throws Exception {
-        factory = new MemoryCollectionsFactory();
+        factory = new MemoryCollectionsFactory(new SchedulerProvider());
     }
 
     @Test
