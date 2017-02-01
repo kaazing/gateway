@@ -158,7 +158,7 @@ public class MemoryCollectionsFactoryTest {
     }
 
     @Test
-    public void shouldGetITopic() throws InterruptedException {
+    public void shouldGetSameITopicFromMultipleThreads() throws InterruptedException {
         ITopic<Object> topic = factory.getTopic(OBJECT_NAME);
         topic.getLocalTopicStats();
         Thread t = new Thread(() -> {
