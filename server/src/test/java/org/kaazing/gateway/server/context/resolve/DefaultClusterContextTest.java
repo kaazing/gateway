@@ -17,6 +17,7 @@ package org.kaazing.gateway.server.context.resolve;
 
 import static java.lang.String.format;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -33,15 +34,22 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import org.kaazing.gateway.service.cluster.ClusterContext;
 import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
 import org.kaazing.gateway.service.collections.CollectionsFactory;
+import org.kaazing.test.util.ITUtil;
+
+import com.hazelcast.core.ITopic;
+import com.hazelcast.core.MessageListener;
 
 public class DefaultClusterContextTest {
 
@@ -53,6 +61,9 @@ public class DefaultClusterContextTest {
 
     ClusterMemberTracker memberTracker1;
     ClusterMemberTracker memberTracker2;
+
+    @Rule
+    public RuleChain chain = ITUtil.createRuleChain(60, TimeUnit.SECONDS);
 
     private class ClusterMemberTracker implements MembershipEventListener {
 
@@ -230,6 +241,143 @@ public class DefaultClusterContextTest {
                 clusterContext2.dispose();
             }
 
+        }
+    }
+
+    @Test
+    public void shouldSendAndReceiveMessagesOnTopics() throws Exception {
+        try {
+            MemberId member1 = new MemberId("tcp", "127.0.0.1", 46943);
+            MemberId member2 = new MemberId("tcp", "127.0.0.1", 46942);
+
+            List accepts = Collections.singletonList(member1);
+            List connects = Collections.singletonList(member2);
+            final String clusterName = this.getClass().getName() + "-cluster1";
+            clusterContext1 = new DefaultClusterContext(clusterName,
+                accepts,
+                connects,
+                null);
+
+            clusterContext2 = new DefaultClusterContext(clusterName,
+                connects,
+                accepts,
+                null);
+
+            clusterContext1.addMembershipEventListener(memberTracker1);
+            clusterContext1.start();
+
+            clusterContext2.addMembershipEventListener(memberTracker2);
+            clusterContext2.start();
+
+            CountDownLatch listenerCalledDifferentMembers = new CountDownLatch(1);
+            ITopic<String> topicMember1 = clusterContext1.getTopic("topic");
+            topicMember1.addMessageListener(m -> {
+                listenerCalledDifferentMembers.countDown();
+            });
+
+            ITopic<String> topicMember2 = clusterContext2.getTopic("topic");
+            topicMember2.publish("test");
+            listenerCalledDifferentMembers.await();
+
+
+
+            ITopic<String> topicMessageListenerMember1 = clusterContext1.getTopic("topic_message_listener_null_pointer");
+            CountDownLatch listenersCalledNullPointer = new CountDownLatch(3);
+            topicMessageListenerMember1.addMessageListener(message -> listenersCalledNullPointer.countDown());
+            topicMessageListenerMember1.addMessageListener(message -> {listenersCalledNullPointer.countDown(); throw new NullPointerException();});
+            topicMessageListenerMember1.addMessageListener(message -> listenersCalledNullPointer.countDown());
+            ITopic<String> topicMessageListenerMember2 = clusterContext2.getTopic("topic_message_listener_null_pointer");
+            topicMessageListenerMember2.publish("msg1");
+            listenersCalledNullPointer.await();
+            assertEquals(1, topicMessageListenerMember2.getLocalTopicStats().getPublishOperationCount());
+            assertEquals(3, topicMessageListenerMember1.getLocalTopicStats().getReceiveOperationCount());
+
+
+            ITopic<String> topicSameListenerMember1 = clusterContext1.getTopic("topic_same_listener");
+            CountDownLatch listenersCalledSameListener = new CountDownLatch(2);
+            MessageListener m = message -> listenersCalledSameListener.countDown();
+            topicSameListenerMember1.addMessageListener(m);
+            topicSameListenerMember1.addMessageListener(m);
+            ITopic<String> topicSameListenerMember2 = clusterContext2.getTopic("topic_same_listener");
+            topicSameListenerMember2.publish("msg1");
+            listenersCalledSameListener.await();
+            assertEquals(1, topicSameListenerMember2.getLocalTopicStats().getPublishOperationCount());
+            assertEquals(2, topicSameListenerMember1.getLocalTopicStats().getReceiveOperationCount());
+
+
+            ITopic<String> topicAddRemoveMember1 = clusterContext1.getTopic("topic_add_remove_listener");
+            ITopic<String> topicAddRemoveMember2 = clusterContext2.getTopic("topic_add_remove_listener");
+            CountDownLatch listenersCalledAddRemove = new CountDownLatch(1);
+            String name = topicAddRemoveMember1.addMessageListener(message -> listenersCalledAddRemove.countDown());
+            topicAddRemoveMember2.publish("msg1");
+            listenersCalledAddRemove.await();
+            topicAddRemoveMember1.removeMessageListener(name);
+            topicAddRemoveMember2.publish("msg2");
+            assertEquals(2, topicAddRemoveMember2.getLocalTopicStats().getPublishOperationCount());
+            assertEquals(1, topicAddRemoveMember1.getLocalTopicStats().getReceiveOperationCount());
+
+
+
+            ITopic<String> topicNoDeadlockOneMember = clusterContext1.getTopic("topic_no_deadlock_one_member");
+            CountDownLatch listenersCalledNoDeadlockOneMember = new CountDownLatch(1);
+            MessageListener m1 = message -> listenersCalledNoDeadlockOneMember.countDown();
+            String nameListenerNoDeadlock = topicNoDeadlockOneMember.addMessageListener(m1);
+            MessageListener m2 = message -> topicNoDeadlockOneMember.removeMessageListener(nameListenerNoDeadlock);
+            topicNoDeadlockOneMember.addMessageListener(m2);
+            topicNoDeadlockOneMember.publish("msg1");
+            listenersCalledNoDeadlockOneMember.await();
+
+
+            /* No guarantee of calling a message listener if removed in onMessage */
+            /* Does not deadlock but uses a concurrentHashMap of listeners that can be altered by the listeners */
+            for (int i = 0; i < 100; i++) {
+                ITopic<String> topicNoDeadlockMember1 = clusterContext1.getTopic("topic_no_deadlock_two_members");
+                ITopic<String> topicNoDeadlockMember2 = clusterContext2.getTopic("topic_no_deadlock_two_members");
+
+                CountDownLatch listenersCalledNoDeadlockTwoMembers = new CountDownLatch(1);
+                AtomicBoolean calledM1NoDeadlockTwoMembers = new AtomicBoolean(false);
+
+                m1 = message -> {
+                    System.out.println("[" + Thread.currentThread().getName() + "] setting calledM1NoDeadlockTwoMembers to true");
+                    calledM1NoDeadlockTwoMembers.set(true);
+                };
+                String nameListenerNoDeadlockTwoMembers = topicNoDeadlockMember1.addMessageListener(m1);
+
+                m2 = message -> {
+                    System.out.println("[" + Thread.currentThread().getName() + "] removing: " + nameListenerNoDeadlockTwoMembers);
+                    listenersCalledNoDeadlockTwoMembers.countDown();
+                    topicNoDeadlockMember1.removeMessageListener(nameListenerNoDeadlockTwoMembers);
+                };
+                topicNoDeadlockMember1.addMessageListener(m2);
+                topicNoDeadlockMember2.publish("msg1");
+                listenersCalledNoDeadlockTwoMembers.await();
+                System.out.println("calledM1NoDeadlockTwoMembers: " + calledM1NoDeadlockTwoMembers.get());
+                Thread.sleep(200);
+            }
+
+
+            ITopic<String> topicWithSideEffectsMember1 = clusterContext1.getTopic("topic_with_side_effects");
+            ITopic<String> topicWithSideEffectsMember2 = clusterContext2.getTopic("topic_with_side_effects");
+            CountDownLatch listenersCalledWithSideEffects = new CountDownLatch(1);
+            AtomicBoolean calledM1 = new AtomicBoolean(false);
+            m1 = message -> calledM1.set(true);
+            String nameMessageListenerNoSideEffects = topicWithSideEffectsMember1.addMessageListener(m1);
+            m2 = message -> {
+                topicWithSideEffectsMember1.removeMessageListener(nameMessageListenerNoSideEffects);
+                listenersCalledWithSideEffects.countDown();
+            };
+            topicWithSideEffectsMember1.addMessageListener(m2);
+            topicWithSideEffectsMember2.publish("msg1");
+            listenersCalledWithSideEffects.await();
+            assertTrue("MessageListener m1 must not be called", calledM1.get() == false);
+
+
+        } finally {
+            try {
+                clusterContext1.dispose();
+            } finally {
+                clusterContext2.dispose();
+            }
         }
     }
 
