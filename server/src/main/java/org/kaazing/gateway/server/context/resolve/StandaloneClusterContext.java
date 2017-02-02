@@ -29,7 +29,6 @@ import org.kaazing.gateway.service.cluster.MembershipEventListener;
 import org.kaazing.gateway.service.collections.CollectionsFactory;
 import org.kaazing.gateway.service.collections.MemoryCollectionsFactory;
 import org.kaazing.gateway.util.Utils;
-import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
 import com.hazelcast.core.ITopic;
 
@@ -43,8 +42,8 @@ public class StandaloneClusterContext implements ClusterContext {
     private final ConcurrentMap<String, Lock> locks;
     private final String localInstanceKey = Utils.randomHexString(16);
 
-    public StandaloneClusterContext(SchedulerProvider schedulerProvider) {
-        this.collectionsFactory = new MemoryCollectionsFactory(schedulerProvider);
+    public StandaloneClusterContext() {
+        this.collectionsFactory = new MemoryCollectionsFactory();
         this.locks = new ConcurrentHashMap<>();
     }
 

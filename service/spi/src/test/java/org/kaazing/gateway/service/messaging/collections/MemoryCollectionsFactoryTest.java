@@ -47,7 +47,7 @@ public class MemoryCollectionsFactoryTest {
 
     @Before
     public void setUp() throws Exception {
-        factory = new MemoryCollectionsFactory(new SchedulerProvider());
+        factory = new MemoryCollectionsFactory();
     }
 
     @Test

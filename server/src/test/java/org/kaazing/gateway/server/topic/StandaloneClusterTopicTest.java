@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.messaging.collections;
+package org.kaazing.gateway.server.topic;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -27,35 +27,31 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
-import org.kaazing.gateway.service.collections.MemoryCollectionsFactory;
+import org.kaazing.gateway.server.context.resolve.StandaloneClusterContext;
+import org.kaazing.gateway.service.collections.CollectionsFactory;
 import org.kaazing.test.util.ITUtil;
 
 import com.hazelcast.core.ITopic;
 import com.hazelcast.core.MessageListener;
 
+public class StandaloneClusterTopicTest {
 
-// TODO move this test to org.kaazing.gateway.server.context.resolve (standalone/default)
-//
-// Tests not covered:
-//    - topic publish will happen-before calling add/remove inside a message listener
-//    - add/remove inside a message listener guarantees topicStats having correct values
-//
-public class MemoryTopicTest {
+    private static final StandaloneClusterContext STANDALONE_CLUESTER_CONTEXT = new StandaloneClusterContext();
 
-    private MemoryCollectionsFactory factory;
+    private CollectionsFactory factory;
 
     @Rule
     public RuleChain chain = ITUtil.createRuleChain(10, TimeUnit.SECONDS);
 
     @Before
     public void setUp() throws Exception {
-        factory = new MemoryCollectionsFactory();
-        Thread.sleep(100);
+        factory = STANDALONE_CLUESTER_CONTEXT.getCollectionsFactory();
     }
+
 
     @Test
     public void shouldCallMessageListenersOnTwoThreads() throws Exception {
-        ITopic<String> topic = factory.getTopic("topic");
+        ITopic<String> topic = factory.getTopic("topic_two_threads");
         CountDownLatch listenersCalled = new CountDownLatch(2);
         topic.addMessageListener(message -> {
             assertEquals("msg1", message.getMessageObject());
@@ -77,7 +73,7 @@ public class MemoryTopicTest {
 
     @Test
     public void shouldNotifyListenersIfOneThrowsException() throws InterruptedException {
-        ITopic<String> topic = factory.getTopic("topic");
+        ITopic<String> topic = factory.getTopic("topic_exception_listeners");
         CountDownLatch listenersCalled = new CountDownLatch(3);
 
         topic.addMessageListener(message -> listenersCalled.countDown());
@@ -94,7 +90,7 @@ public class MemoryTopicTest {
 
     @Test
     public void shouldCallMultipleTimesMessageListener() throws InterruptedException {
-        ITopic<String> topic = factory.getTopic("topic");
+        ITopic<String> topic = factory.getTopic("topic_multiple_times_same_listener");
         CountDownLatch listenersCalled = new CountDownLatch(2);
         MessageListener m = message -> listenersCalled.countDown();
         topic.addMessageListener(m);
@@ -107,7 +103,7 @@ public class MemoryTopicTest {
 
     @Test
     public void shouldAddAndRemoveMessageListener() throws InterruptedException {
-        ITopic<String> topic = factory.getTopic("topic");
+        ITopic<String> topic = factory.getTopic("topic_add_remove_listener");
         CountDownLatch listenersCalled = new CountDownLatch(1);
         MessageListener m = message -> listenersCalled.countDown();
         String name = topic.addMessageListener(m);
@@ -121,7 +117,7 @@ public class MemoryTopicTest {
 
     @Test
     public void shouldRejectAddAndRemoveFromMessageListener() throws InterruptedException {
-        ITopic<String> topic = factory.getTopic("topic");
+        ITopic<String> topic = factory.getTopic("topic_reject_add_remove_from_listener");
         CountDownLatch listenersCalled = new CountDownLatch(1);
         MessageListener m1 = message -> listenersCalled.countDown();
         String name = topic.addMessageListener(m1);
@@ -154,7 +150,7 @@ public class MemoryTopicTest {
 
     @Test
     public void shouldNotAllowNestedPublish() throws InterruptedException {
-        ITopic<String> topic = factory.getTopic("topic");
+        ITopic<String> topic = factory.getTopic("topic_nested_publish");
         CountDownLatch listenerCalled = new CountDownLatch(1);
         AtomicBoolean nestedPublish = new AtomicBoolean(false);
         topic.addMessageListener(message -> {
@@ -168,4 +164,5 @@ public class MemoryTopicTest {
         assertEquals(1, topic.getLocalTopicStats().getPublishOperationCount());
         assertEquals(1, topic.getLocalTopicStats().getReceiveOperationCount());
     }
+
 }

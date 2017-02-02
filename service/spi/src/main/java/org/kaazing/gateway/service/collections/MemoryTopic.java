@@ -16,16 +16,10 @@
 package org.kaazing.gateway.service.collections;
 
 
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.annotation.Resource;
-
-import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,17 +31,32 @@ import com.hazelcast.monitor.impl.LocalTopicStatsImpl;
 
 public class MemoryTopic<E> extends MemoryDistributedObject implements ITopic<E> {
 
-    private ScheduledExecutorService scheduler;
 
-    private Map<String, MessageListener> messageListeners = new ConcurrentHashMap<>();
+    private final class MessageListenerHolder {
+        private final String key;
+        private final MessageListener<E> listener;
+
+        public MessageListenerHolder(String key, MessageListener<E> listener) {
+            this.key = key;
+            this.listener = listener;
+        }
+    }
+
+    private List<MessageListenerHolder> messageListenerHolders = new CopyOnWriteArrayList<>();
+
+    private final ThreadLocal<Boolean> isPublishing = new ThreadLocal<Boolean>() {
+        @Override
+        protected Boolean initialValue() {
+            return false;
+        }
+    };
 
     private final LocalTopicStatsImpl localTopicStats;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MemoryTopic.class);
 
-    public MemoryTopic(String name, SchedulerProvider provider) {
+    public MemoryTopic(String name) {
         super(name);
-        this.scheduler = provider.getScheduler("memory_topics_publisher", false);
         this.localTopicStats = new LocalTopicStatsImpl();
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Created topic: " + this.getName());
@@ -56,49 +65,67 @@ public class MemoryTopic<E> extends MemoryDistributedObject implements ITopic<E>
 
     @Override
     public void publish(Object o) {
+        if (isPublishing.get()) {
+            throw new UnsupportedOperationException("Cannot nest publishing operations");
+        }
+        isPublishing.set(true);
         Message m = new Message(this.getName(), o, System.nanoTime(), null);
-        this.scheduler.submit(() -> {
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("Publishing message on topic: " + MemoryTopic.this.getName() + ", notifying " + messageListeners.size() + " listener(s).");
-            }
-            for (Map.Entry<String, MessageListener> entry : messageListeners.entrySet()) {
-                try {
-                    if (LOGGER.isTraceEnabled()) {
-                        LOGGER.trace("Publishing message on topic: " + MemoryTopic.this.getName() + ", notifying listener: " + entry.getKey() + ".");
-                    }
-                    localTopicStats.incrementReceives();
-                    entry.getValue().onMessage(m);
-                } catch (Exception e) {
-                    LOGGER.debug("Message listener: " + entry.getKey() + " failed.", e);
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Publishing message on topic: " + MemoryTopic.this.getName() + ", notifying " + messageListenerHolders.size() + " listener(s).");
+        }
+        for (MessageListenerHolder holder : messageListenerHolders) {
+            try {
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("Publishing message on topic: " + MemoryTopic.this.getName() + ", notifying listener: " + holder.key + ".");
                 }
+                localTopicStats.incrementReceives();
+                holder.listener.onMessage(m);
+            } catch (Exception e) {
+                LOGGER.debug("Message listener: " + holder.key + " failed.", e);
             }
-        });
+        }
         localTopicStats.incrementPublishes();
+        isPublishing.set(false);
     }
 
     @Override
     public String addMessageListener(MessageListener messageListener) {
+        if (isPublishing.get()) {
+            throw new UnsupportedOperationException("Cannot alter message listeners from publish operation");
+        }
         if (messageListener == null) {
             throw new MemoryCollectionsException("messageListener must be not null");
         }
         String key = UUID.randomUUID().toString();
+        MessageListenerHolder holder = new MessageListenerHolder(key, messageListener);
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Adding message listener: " + key + " on topic: " + MemoryTopic.this.getName());
         }
-        messageListeners.put(key, messageListener);
+        messageListenerHolders.add(holder);
         return key;
     }
 
     @Override
     public boolean removeMessageListener(String s) {
+        if (isPublishing.get()) {
+            throw new UnsupportedOperationException("Cannot alter message listeners from publish operation");
+        }
+
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Removing message listener: " + s + " on topic: " + MemoryTopic.this.getName());
         }
-        messageListeners.remove(s);
+
+        boolean result = false;
+        for (MessageListenerHolder holder : messageListenerHolders) {
+            if (holder.key.equals(s)) {
+                result = messageListenerHolders.remove(holder);
+                break;
+            }
+        }
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Removed message listener: " + s + " on topic: " + MemoryTopic.this.getName());
         }
-        return true;
+        return result;
     }
 
     @Override

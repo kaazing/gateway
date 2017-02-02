@@ -36,7 +36,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.kaazing.gateway.util.AtomicCounter;
-import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.EntryView;
@@ -69,16 +68,14 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
     private final Map<String, ILockImpl> locks;
     private final ConcurrentMap<String, AtomicCounter> atomicCounters;
     private final ConcurrentMap<String, ITopic<?>> topics;
-    private final SchedulerProvider schedulerProvider;
 
-    public MemoryCollectionsFactory(SchedulerProvider schedulerProvider) {
+    public MemoryCollectionsFactory() {
         // TODO: avoid memory leak
         maps = new ConcurrentHashMap<>();
         lists = new ConcurrentHashMap<>();
         locks = Collections.synchronizedMap(new WeakHashMap<>());
         atomicCounters = new ConcurrentHashMap<>();
         topics = new ConcurrentHashMap<>();
-        this.schedulerProvider = schedulerProvider;
     }
 
     @SuppressWarnings("unchecked")
@@ -104,7 +101,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
     @Override
     public <E> ITopic<E> getTopic(String name) {
-        return (ITopic<E>) topics.computeIfAbsent(name, s -> new MemoryTopic<E>(s, this.schedulerProvider));
+        return (ITopic<E>) topics.computeIfAbsent(name, s -> new MemoryTopic<E>(s));
     }
 
     @SuppressWarnings("unchecked")
