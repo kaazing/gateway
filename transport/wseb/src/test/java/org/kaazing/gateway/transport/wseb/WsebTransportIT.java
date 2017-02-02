@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.transport.wseb;
 
+import static org.kaazing.gateway.util.InternalSystemProperty.TCP_PROCESSOR_COUNT;
+
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
@@ -38,7 +40,7 @@ public class WsebTransportIT {
                     new GatewayConfigurationBuilder()
                         .webRootDirectory(new File("src/test/webapp"))
                         .tempDirectory(new File("src/test/temp"))
-                        .property("org.kaazing.gateway.transport.tcp.PROCESSOR_COUNT", "64")
+                        .property(TCP_PROCESSOR_COUNT.getPropertyName(), "64")
                             /*
                         .service()
                             .accept(URI.create("http://localhost:8000/"))

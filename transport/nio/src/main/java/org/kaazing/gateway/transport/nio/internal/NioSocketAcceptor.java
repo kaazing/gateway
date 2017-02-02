@@ -16,20 +16,20 @@
 package org.kaazing.gateway.transport.nio.internal;
 
 import static java.util.concurrent.Executors.newCachedThreadPool;
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.DEBUG_NIOWORKER_POOL;
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_BACKLOG;
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_IP_TOS;
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_KEEP_ALIVE;
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_MAXIMUM_READ_BUFFER_SIZE;
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_MINIMUM_READ_BUFFER_SIZE;
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_NO_DELAY;
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_PROCESSOR_COUNT;
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_READ_BUFFER_SIZE;
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_RECEIVE_BUFFER_SIZE;
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_REUSE_ADDRESS;
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_SEND_BUFFER_SIZE;
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_SO_LINGER;
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_WRITE_TIMEOUT;
+import static org.kaazing.gateway.util.InternalSystemProperty.DEBUG_NIOWORKER_POOL;
+import static org.kaazing.gateway.util.InternalSystemProperty.TCP_BACKLOG;
+import static org.kaazing.gateway.util.InternalSystemProperty.TCP_IP_TOS;
+import static org.kaazing.gateway.util.InternalSystemProperty.TCP_KEEP_ALIVE;
+import static org.kaazing.gateway.util.InternalSystemProperty.TCP_MAXIMUM_READ_BUFFER_SIZE;
+import static org.kaazing.gateway.util.InternalSystemProperty.TCP_MINIMUM_READ_BUFFER_SIZE;
+import static org.kaazing.gateway.util.InternalSystemProperty.TCP_NO_DELAY;
+import static org.kaazing.gateway.util.InternalSystemProperty.TCP_PROCESSOR_COUNT;
+import static org.kaazing.gateway.util.InternalSystemProperty.TCP_READ_BUFFER_SIZE;
+import static org.kaazing.gateway.util.InternalSystemProperty.TCP_RECEIVE_BUFFER_SIZE;
+import static org.kaazing.gateway.util.InternalSystemProperty.TCP_REUSE_ADDRESS;
+import static org.kaazing.gateway.util.InternalSystemProperty.TCP_SEND_BUFFER_SIZE;
+import static org.kaazing.gateway.util.InternalSystemProperty.TCP_SO_LINGER;
+import static org.kaazing.gateway.util.InternalSystemProperty.TCP_WRITE_TIMEOUT;
 
 import java.util.Collection;
 import java.util.Properties;
