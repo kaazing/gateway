@@ -51,7 +51,7 @@ public class MemoryTopic<E> extends MemoryDistributedObject implements ITopic<E>
         }
     };
 
-    private final LocalTopicStatsImpl localTopicStats;
+    private LocalTopicStatsImpl localTopicStats;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MemoryTopic.class);
 
@@ -131,5 +131,11 @@ public class MemoryTopic<E> extends MemoryDistributedObject implements ITopic<E>
     @Override
     public LocalTopicStats getLocalTopicStats() {
         return localTopicStats;
+    }
+
+    @Override
+    public void destroy() {
+        messageListenerHolders.clear();
+        this.localTopicStats = new LocalTopicStatsImpl();
     }
 }

@@ -69,6 +69,7 @@ public class StandaloneClusterTopicTest {
         listenersCalled.await();
         assertEquals(1, topic.getLocalTopicStats().getPublishOperationCount());
         assertEquals(2, topic.getLocalTopicStats().getReceiveOperationCount());
+        topic.destroy();
     }
 
     @Test
@@ -86,6 +87,7 @@ public class StandaloneClusterTopicTest {
         listenersCalled.await();
         assertEquals(1, topic.getLocalTopicStats().getPublishOperationCount());
         assertEquals(3, topic.getLocalTopicStats().getReceiveOperationCount());
+        topic.destroy();
     }
 
     @Test
@@ -99,6 +101,7 @@ public class StandaloneClusterTopicTest {
         listenersCalled.await();
         assertEquals(1, topic.getLocalTopicStats().getPublishOperationCount());
         assertEquals(2, topic.getLocalTopicStats().getReceiveOperationCount());
+        topic.destroy();
     }
 
     @Test
@@ -113,6 +116,7 @@ public class StandaloneClusterTopicTest {
         topic.publish("msg2");
         assertEquals(2, topic.getLocalTopicStats().getPublishOperationCount());
         assertEquals(1, topic.getLocalTopicStats().getReceiveOperationCount());
+        topic.destroy();
     }
 
     @Test
@@ -128,6 +132,7 @@ public class StandaloneClusterTopicTest {
         assertEquals(1, topic.getLocalTopicStats().getPublishOperationCount());
         assertEquals(2, topic.getLocalTopicStats().getReceiveOperationCount());
         assertTrue(topic.removeMessageListener(name));
+        topic.destroy();
     }
 
     @Test
@@ -145,12 +150,14 @@ public class StandaloneClusterTopicTest {
         assertEquals(1, topic1.getLocalTopicStats().getReceiveOperationCount());
         assertEquals(1, topic2.getLocalTopicStats().getPublishOperationCount());
         assertEquals(1, topic2.getLocalTopicStats().getReceiveOperationCount());
+        topic1.destroy();
+        topic2.destroy();
     }
 
 
     @Test
     public void shouldNotAllowNestedPublish() throws InterruptedException {
-        ITopic<String> topic = factory.getTopic("topic_nested_publish");
+        ITopic<String> topic = factory.getTopic("topic_nested_publish_same_thread");
         CountDownLatch listenerCalled = new CountDownLatch(1);
         AtomicBoolean nestedPublish = new AtomicBoolean(false);
         topic.addMessageListener(message -> {
@@ -163,6 +170,34 @@ public class StandaloneClusterTopicTest {
         assertFalse(nestedPublish.get());
         assertEquals(1, topic.getLocalTopicStats().getPublishOperationCount());
         assertEquals(1, topic.getLocalTopicStats().getReceiveOperationCount());
+        topic.destroy();
     }
+
+    @Test
+    public void shouldNotDeadlockNestedPublishOnDifferentThread() throws InterruptedException {
+        ITopic<String> topic = factory.getTopic("topic_nested_publish_different_thread");
+        CountDownLatch listenerCalled = new CountDownLatch(10);
+        topic.addMessageListener(message -> {
+            listenerCalled.countDown();
+            Thread t = new Thread(() -> {
+                if (listenerCalled.getCount() > 0) {
+                    topic.publish("Resend: " + message.getMessageObject());
+
+                }
+            });
+            t.start();
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        topic.publish("KickOff");
+        listenerCalled.await();
+        assertEquals(10, topic.getLocalTopicStats().getPublishOperationCount());
+        assertEquals(10, topic.getLocalTopicStats().getReceiveOperationCount());
+        topic.destroy();
+    }
+
 
 }
