@@ -18,7 +18,7 @@ package org.kaazing.gateway.transport.ws;
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
-import static org.kaazing.gateway.transport.ws.WsSystemProperty.WS_ENABLED_TRANSPORTS;
+import static org.kaazing.gateway.util.InternalSystemProperty.WS_ENABLED_TRANSPORTS;
 import static org.kaazing.mina.core.future.DefaultUnbindFuture.combineFutures;
 
 import java.net.URI;

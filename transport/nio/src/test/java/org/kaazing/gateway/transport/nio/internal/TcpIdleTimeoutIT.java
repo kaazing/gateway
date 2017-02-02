@@ -17,7 +17,7 @@ package org.kaazing.gateway.transport.nio.internal;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.rules.RuleChain.outerRule;
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_IDLE_TIMEOUT;
+import static org.kaazing.gateway.util.InternalSystemProperty.TCP_IDLE_TIMEOUT;
 
 import java.util.concurrent.CountDownLatch;
 

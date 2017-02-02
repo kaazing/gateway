@@ -15,9 +15,9 @@
  */
 package org.kaazing.gateway.service.broadcast;
 
-// FIXME: Make InternalSystemProperty generic, maybe gateway.util?
-//import static org.kaazing.gateway.server.config.InternalSystemProperty.BROADCAST_SERVICE_DISCONNECT_CLIENTS_ON_RECONNECT;
-//import static org.kaazing.gateway.server.config.InternalSystemProperty.BROADCAST_SERVICE_MAXIMUM_PENDING_BYTES;
+import static org.kaazing.gateway.util.InternalSystemProperty.BROADCAST_SERVICE_DISCONNECT_CLIENTS_ON_RECONNECT;
+import static org.kaazing.gateway.util.InternalSystemProperty.BROADCAST_SERVICE_MAXIMUM_PENDING_BYTES;
+
 import static org.kaazing.gateway.util.Utils.parseBoolean;
 import static org.kaazing.gateway.util.Utils.parsePositiveInteger;
 
@@ -52,8 +52,6 @@ public class BroadcastService implements Service {
 
     // FIXME: remove me
     // services
-    private static final String BROADCAST_SERVICE_MAXIMUM_PENDING_BYTES = "org.kaazing.gateway.server.service.broadcast.MAXIMUM_PENDING_BYTES";
-    private static final String BROADCAST_SERVICE_DISCONNECT_CLIENTS_ON_RECONNECT = "org.kaazing.gateway.server.service.broadcast.DISCONNECT_CLIENTS_ON_RECONNECT"; // true or false
     private static final String ON_CLIENT_MESSAGE = "on.client.message";
     // FIXME: end of remove me
 
@@ -93,15 +91,13 @@ public class BroadcastService implements Service {
         this.serviceContext = serviceContext;
 
         boolean disconnectClientsOnReconnect = parseBoolean(
-                BROADCAST_SERVICE_DISCONNECT_CLIENTS_ON_RECONNECT,
-//                    BROADCAST_SERVICE_DISCONNECT_CLIENTS_ON_RECONNECT.getPropertyName(),
-                configuration.getProperty(BROADCAST_SERVICE_DISCONNECT_CLIENTS_ON_RECONNECT),
+                BROADCAST_SERVICE_DISCONNECT_CLIENTS_ON_RECONNECT.getPropertyName(),
+                configuration.getProperty(BROADCAST_SERVICE_DISCONNECT_CLIENTS_ON_RECONNECT.getPropertyName()),
 //                    BROADCAST_SERVICE_DISCONNECT_CLIENTS_ON_RECONNECT.getProperty(configuration),
                 false);
         long maximumScheduledWriteBytes = parsePositiveInteger(
-                BROADCAST_SERVICE_MAXIMUM_PENDING_BYTES,
-//                BROADCAST_SERVICE_MAXIMUM_PENDING_BYTES.getPropertyName(),
-                configuration.getProperty(BROADCAST_SERVICE_MAXIMUM_PENDING_BYTES),
+                BROADCAST_SERVICE_MAXIMUM_PENDING_BYTES.getPropertyName(),
+                configuration.getProperty(BROADCAST_SERVICE_MAXIMUM_PENDING_BYTES.getPropertyName()),
 //                BROADCAST_SERVICE_MAXIMUM_PENDING_BYTES.getProperty(configuration),
                 Long.MAX_VALUE);
         OnClientMessage onClientMessage = OnClientMessage.fromString(serviceContext.getProperties().get(ON_CLIENT_MESSAGE));
