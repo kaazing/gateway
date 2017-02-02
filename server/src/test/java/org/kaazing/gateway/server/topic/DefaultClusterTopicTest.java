@@ -91,6 +91,7 @@ public class DefaultClusterTopicTest {
         listenersCalled.await();
         assertEquals(1, topicMember1.getLocalTopicStats().getPublishOperationCount());
         assertEquals(2, topicMember1.getLocalTopicStats().getReceiveOperationCount());
+        topicMember1.destroy();
     }
 
     @Test
@@ -106,6 +107,8 @@ public class DefaultClusterTopicTest {
         listenerCalledDifferentMembers.await();
         assertEquals(1, topicMember2.getLocalTopicStats().getPublishOperationCount());
         assertEquals(1, topicMember1.getLocalTopicStats().getReceiveOperationCount());
+        topicMember1.destroy();
+        topicMember2.destroy();
     }
 
 
@@ -124,6 +127,8 @@ public class DefaultClusterTopicTest {
         listenersCalled.await();
         assertEquals(1, topicMessageListenerMember2.getLocalTopicStats().getPublishOperationCount());
         assertEquals(3, topicMessageListenerMember1.getLocalTopicStats().getReceiveOperationCount());
+        topicMessageListenerMember1.destroy();
+        topicMessageListenerMember2.destroy();
     }
 
     @Test
@@ -138,6 +143,8 @@ public class DefaultClusterTopicTest {
         listenersCalledSameListener.await();
         assertEquals(1, topicSameListenerMember2.getLocalTopicStats().getPublishOperationCount());
         assertEquals(2, topicSameListenerMember1.getLocalTopicStats().getReceiveOperationCount());
+        topicSameListenerMember1.destroy();
+        topicSameListenerMember2.destroy();
     }
 
 
@@ -153,6 +160,8 @@ public class DefaultClusterTopicTest {
         topicAddRemoveMember2.publish("msg2");
         assertEquals(2, topicAddRemoveMember2.getLocalTopicStats().getPublishOperationCount());
         assertEquals(1, topicAddRemoveMember1.getLocalTopicStats().getReceiveOperationCount());
+        topicAddRemoveMember1.destroy();
+        topicAddRemoveMember2.destroy();
     }
 
     @Test
@@ -161,9 +170,36 @@ public class DefaultClusterTopicTest {
         CountDownLatch listenersCalledNoDeadlockOneMember = new CountDownLatch(1);
         MessageListener m1 = message -> listenersCalledNoDeadlockOneMember.countDown();
         String nameListenerNoDeadlock = topicNoDeadlockOneMember.addMessageListener(m1);
+        // Will not throw UnsupportedOperationException, but MemoryTopic will
         MessageListener m2 = message -> topicNoDeadlockOneMember.removeMessageListener(nameListenerNoDeadlock);
         topicNoDeadlockOneMember.addMessageListener(m2);
         topicNoDeadlockOneMember.publish("msg1");
         listenersCalledNoDeadlockOneMember.await();
+        topicNoDeadlockOneMember.destroy();
+    }
+
+    @Test
+    public void shouldNotDeadlockNestedPublishOnDifferentThread() throws InterruptedException {
+        ITopic<String> topic = clusterContext1.getTopic("topic_nested_publish_different_thread_one_member");
+        CountDownLatch listenerCalled = new CountDownLatch(10);
+        topic.addMessageListener(message -> {
+            listenerCalled.countDown();
+            Thread t = new Thread(() -> {
+                if (listenerCalled.getCount() > 0) {
+                    topic.publish("Resend: " + message.getMessageObject());
+                }
+            });
+            t.start();
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        topic.publish("KickOff");
+        listenerCalled.await();
+        assertEquals(10, topic.getLocalTopicStats().getPublishOperationCount());
+        assertEquals(10, topic.getLocalTopicStats().getReceiveOperationCount());
+        topic.destroy();
     }
 }

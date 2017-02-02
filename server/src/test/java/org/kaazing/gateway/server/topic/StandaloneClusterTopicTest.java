@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.kaazing.gateway.server.context.resolve.StandaloneClusterContext;
 import org.kaazing.gateway.service.collections.CollectionsFactory;
+import org.kaazing.gateway.service.collections.MemoryCollectionsException;
 import org.kaazing.test.util.ITUtil;
 
 import com.hazelcast.core.ITopic;
@@ -120,18 +121,51 @@ public class StandaloneClusterTopicTest {
     }
 
     @Test
-    public void shouldRejectAddAndRemoveFromMessageListener() throws InterruptedException {
-        ITopic<String> topic = factory.getTopic("topic_reject_add_remove_from_listener");
+    public void shouldRejectAddAndRemoveFromMessageListenerSameThread() throws InterruptedException {
+        ITopic<String> topic = factory.getTopic("topic_reject_add_remove_from_listener_same_thread");
         CountDownLatch listenersCalled = new CountDownLatch(1);
         MessageListener m1 = message -> listenersCalled.countDown();
         String name = topic.addMessageListener(m1);
-        MessageListener m2 = message -> topic.removeMessageListener(name); // will throw UnsuportedOperationException
+        MessageListener m2 = message -> {
+            try {
+                topic.removeMessageListener(name); // will throw UnsupportedOperationException
+            } catch (UnsupportedOperationException e) {
+                topic.addMessageListener(m -> {}); // will also throw UnsupportedOperationException
+            }
+        };
         topic.addMessageListener(m2);
         topic.publish("msg1");
         listenersCalled.await();
         assertEquals(1, topic.getLocalTopicStats().getPublishOperationCount());
         assertEquals(2, topic.getLocalTopicStats().getReceiveOperationCount());
         assertTrue(topic.removeMessageListener(name));
+        topic.destroy();
+    }
+
+    @Test
+    public void shouldAllowAddAndRemoveFromMessageListenerDifferentThread() throws InterruptedException {
+        ITopic<String> topic = factory.getTopic("topic_reject_add_remove_from_listener_different_thread");
+        CountDownLatch listenersCalled = new CountDownLatch(2);
+        MessageListener m1 = message -> listenersCalled.countDown();
+        String name = topic.addMessageListener(m1);
+        MessageListener m2 = message -> {
+            Thread t = new Thread(() -> {
+                topic.removeMessageListener(name);
+                listenersCalled.countDown();
+            });
+            t.start();
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        };
+        topic.addMessageListener(m2);
+        topic.publish("msg1");
+        listenersCalled.await();
+        assertEquals(1, topic.getLocalTopicStats().getPublishOperationCount());
+        assertEquals(2, topic.getLocalTopicStats().getReceiveOperationCount());
+        assertFalse(topic.removeMessageListener(name)); // already removed
         topic.destroy();
     }
 
@@ -182,7 +216,6 @@ public class StandaloneClusterTopicTest {
             Thread t = new Thread(() -> {
                 if (listenerCalled.getCount() > 0) {
                     topic.publish("Resend: " + message.getMessageObject());
-
                 }
             });
             t.start();
@@ -199,5 +232,10 @@ public class StandaloneClusterTopicTest {
         topic.destroy();
     }
 
+    @Test(expected = MemoryCollectionsException.class)
+    public void shouldNotAddNullMessageListener() {
+        ITopic<String> topic = factory.getTopic("topic_nul_message_listener");
+        topic.addMessageListener(null);
+    }
 
 }

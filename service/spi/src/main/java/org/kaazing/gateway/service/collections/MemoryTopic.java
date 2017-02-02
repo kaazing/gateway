@@ -29,8 +29,16 @@ import com.hazelcast.core.MessageListener;
 import com.hazelcast.monitor.LocalTopicStats;
 import com.hazelcast.monitor.impl.LocalTopicStatsImpl;
 
-public class MemoryTopic<E> extends MemoryDistributedObject implements ITopic<E> {
 
+/**
+ * Implementation of Hazelcast's ITopic interface providing a multi-threaded observer.
+ *
+ * It imposes restrictions on calling add/remove/publish methods from within a message listener's oMessage method on the
+ * same thread. The main reason is to avoid StackOverflow by nested method calls.
+ *
+ * @param <E> The type of the message exchanged.
+ */
+public class MemoryTopic<E> extends MemoryDistributedObject implements ITopic<E> {
 
     private final class MessageListenerHolder {
         private final String key;
