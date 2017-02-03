@@ -36,7 +36,7 @@ public class ExceptionMonitorTest
     public void getInstanceShouldReturnLastSetInstance () {
         ExceptionMonitor expectedMonitor = new ExceptionMonitor() {
             @Override
-            public void exceptionCaught(Throwable cause, IoSession s) {
+            public void exceptionCaught0(Throwable cause, IoSession s) {
                 //
             }
         };
