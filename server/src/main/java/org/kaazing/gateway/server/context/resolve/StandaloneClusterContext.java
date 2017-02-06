@@ -132,7 +132,7 @@ public class StandaloneClusterContext implements ClusterContext {
     }
 
     @Override
-    public ITopic getTopic(String name) {
+    public <E> ITopic<E> getTopic(String name) {
         return this.collectionsFactory.getTopic(name);
     }
 

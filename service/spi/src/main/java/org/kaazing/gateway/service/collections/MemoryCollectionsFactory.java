@@ -97,8 +97,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "getQueue"));
     }
 
-
-
+    @SuppressWarnings("unchecked")
     @Override
     public <E> ITopic<E> getTopic(String name) {
         return (ITopic<E>) topics.computeIfAbsent(name, s -> new MemoryTopic<E>(s));

@@ -34,6 +34,7 @@ import org.kaazing.test.util.ITUtil;
 import com.hazelcast.core.ITopic;
 import com.hazelcast.core.MessageListener;
 
+// TODO Add a parent abstract class that defines test cases for both cluster and single node.
 public class DefaultClusterTopicTest {
 
     private static DefaultClusterContext clusterContext1;
@@ -42,14 +43,13 @@ public class DefaultClusterTopicTest {
     @Rule
     public RuleChain chain = ITUtil.createRuleChain(60, TimeUnit.SECONDS);
 
-
     @BeforeClass
     public static void startContexts() {
         MemberId member1 = new MemberId("tcp", "127.0.0.1", 46943);
         MemberId member2 = new MemberId("tcp", "127.0.0.1", 46942);
 
-        List accepts = Collections.singletonList(member1);
-        List connects = Collections.singletonList(member2);
+        List<MemberId> accepts = Collections.singletonList(member1);
+        List<MemberId> connects = Collections.singletonList(member2);
         final String clusterName = DefaultClusterTopicTest.class.getName() + "-cluster1";
         clusterContext1 = new DefaultClusterContext(clusterName,
             accepts,
@@ -101,7 +101,6 @@ public class DefaultClusterTopicTest {
         topicMember1.addMessageListener(m -> {
             listenerCalledDifferentMembers.countDown();
         });
-
         ITopic<String> topicMember2 = clusterContext2.getTopic("topic_between_members");
         topicMember2.publish("test");
         listenerCalledDifferentMembers.await();
@@ -135,7 +134,7 @@ public class DefaultClusterTopicTest {
     public void shouldCallMultipleTimesMessageListener() throws InterruptedException {
         ITopic<String> topicSameListenerMember1 = clusterContext1.getTopic("topic_same_listener");
         CountDownLatch listenersCalledSameListener = new CountDownLatch(2);
-        MessageListener m = message -> listenersCalledSameListener.countDown();
+        MessageListener<String> m = message -> listenersCalledSameListener.countDown();
         topicSameListenerMember1.addMessageListener(m);
         topicSameListenerMember1.addMessageListener(m);
         ITopic<String> topicSameListenerMember2 = clusterContext2.getTopic("topic_same_listener");
@@ -168,10 +167,10 @@ public class DefaultClusterTopicTest {
     public void shouldAllowSendAndReceiveMessagesOnTopics() throws Exception {
         ITopic<String> topicNoDeadlockOneMember = clusterContext1.getTopic("topic_no_deadlock_one_member");
         CountDownLatch listenersCalledNoDeadlockOneMember = new CountDownLatch(1);
-        MessageListener m1 = message -> listenersCalledNoDeadlockOneMember.countDown();
+        MessageListener<String> m1 = message -> listenersCalledNoDeadlockOneMember.countDown();
         String nameListenerNoDeadlock = topicNoDeadlockOneMember.addMessageListener(m1);
-        // Will not throw UnsupportedOperationException, but MemoryTopic will
-        MessageListener m2 = message -> topicNoDeadlockOneMember.removeMessageListener(nameListenerNoDeadlock);
+        // Will not throw UnsupportedOperationException, but StandaloneCluster implementation MemoryTopic will
+        MessageListener<String> m2 = message -> topicNoDeadlockOneMember.removeMessageListener(nameListenerNoDeadlock);
         topicNoDeadlockOneMember.addMessageListener(m2);
         topicNoDeadlockOneMember.publish("msg1");
         listenersCalledNoDeadlockOneMember.await();

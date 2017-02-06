@@ -56,5 +56,5 @@ public interface ClusterContext {
     void logClusterState();
     void logClusterStateAtInfoLevel();
 
-    ITopic getTopic(String name);
+    <E> ITopic<E> getTopic(String name);
 }

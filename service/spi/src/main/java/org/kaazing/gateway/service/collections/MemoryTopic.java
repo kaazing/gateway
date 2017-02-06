@@ -71,6 +71,7 @@ public class MemoryTopic<E> extends MemoryDistributedObject implements ITopic<E>
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void publish(Object o) {
         if (isPublishing.get()) {
@@ -97,12 +98,12 @@ public class MemoryTopic<E> extends MemoryDistributedObject implements ITopic<E>
     }
 
     @Override
-    public String addMessageListener(MessageListener messageListener) {
+    public String addMessageListener(MessageListener<E> messageListener) {
         if (isPublishing.get()) {
             throw new UnsupportedOperationException("Cannot alter message listeners from publish operation");
         }
         if (messageListener == null) {
-            throw new MemoryCollectionsException("messageListener must be not null");
+            throw new NullPointerException("messageListener must be not null");
         }
         String key = UUID.randomUUID().toString();
         MessageListenerHolder holder = new MessageListenerHolder(key, messageListener);

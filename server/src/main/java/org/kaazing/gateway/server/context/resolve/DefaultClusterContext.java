@@ -311,7 +311,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             String groupName = null;
 
             if (path != null) {
-                if ((path.indexOf("/") == 0) && (path.length() > 1)) {
+                if ((path.indexOf('/') == 0) && (path.length() > 1)) {
                     groupName = path.substring(1, path.length());
                 }
             }
@@ -816,7 +816,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     }
 
     @Override
-    public ITopic getTopic(String name) {
+    public <E> ITopic<E> getTopic(String name) {
         return this.collectionsFactory.getTopic(name);
     }
 }
