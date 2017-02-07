@@ -35,6 +35,7 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.test.util.ITUtil;
+import static org.kaazing.gateway.util.InternalSystemProperty.TCP_PROCESSOR_COUNT;
 
 public class HttpProxyPersistenceTest {
 
@@ -58,7 +59,7 @@ public class HttpProxyPersistenceTest {
                         .connectOption("http.keepalive.timeout", String.valueOf(KEEP_ALIVE_TIMEOUT))
                         .connectOption("http.keepalive.connections", String.valueOf(KEEP_ALIVE_CONNECTIONS))
                     .done()
-                    .property("org.kaazing.gateway.server.transport.tcp.PROCESSOR_COUNT", "1")
+                    .property(TCP_PROCESSOR_COUNT.getPropertyName(), "1")
                 .done();
         // @formatter:on
 

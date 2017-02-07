@@ -26,6 +26,8 @@ public enum WsSystemProperty {
 
     // transports
     WS_ENABLED_TRANSPORTS("org.kaazing.gateway.transport.ws.ENABLED_TRANSPORTS"),
+    // in org.kaazing.gateway.util.InternalSystemProperty:
+    // WSE_IDLE_TIMEOUT("org.kaazing.gateway.server.transport.wse.IDLE_TIMEOUT", "60")
     WSE_IDLE_TIMEOUT("org.kaazing.gateway.transport.wse.IDLE_TIMEOUT", "60");
 
     private final String name;

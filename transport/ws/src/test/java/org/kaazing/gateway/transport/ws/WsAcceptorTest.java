@@ -18,6 +18,7 @@ package org.kaazing.gateway.transport.ws;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 import static org.kaazing.gateway.transport.ws.util.TestUtil.dispose;
+import static org.kaazing.gateway.util.InternalSystemProperty.WS_ENABLED_TRANSPORTS;
 
 import java.util.Collections;
 import java.util.Properties;
@@ -73,7 +74,7 @@ public class WsAcceptorTest {
         }
     }
 
-    private static final String PROPERTY_NAME = WsSystemProperty.WS_ENABLED_TRANSPORTS.getPropertyName();
+    private static final String PROPERTY_NAME = WS_ENABLED_TRANSPORTS.getPropertyName();
     @After
     public void after() {
         System.clearProperty(PROPERTY_NAME);
