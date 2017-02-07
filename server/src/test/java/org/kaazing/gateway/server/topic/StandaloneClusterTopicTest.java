@@ -32,11 +32,10 @@ import org.kaazing.gateway.service.collections.CollectionsFactory;
 import org.kaazing.test.util.ITUtil;
 
 import com.hazelcast.core.ITopic;
-import com.hazelcast.core.Message;
 import com.hazelcast.core.MessageListener;
 
 // TODO Add a parent abstract class that defines test cases for both cluster and single node.
-public class StandaloneClusterTopicTest {
+public class StandaloneClusterTopicTest extends AbstractClusterTopicTest {
 
     private static final StandaloneClusterContext STANDALONE_CLUESTER_CONTEXT = new StandaloneClusterContext();
 
@@ -48,77 +47,6 @@ public class StandaloneClusterTopicTest {
     @Before
     public void setUp() throws Exception {
         factory = STANDALONE_CLUESTER_CONTEXT.getCollectionsFactory();
-    }
-
-
-    @Test
-    public void shouldCallMessageListenersOnTwoThreads() throws Exception {
-        ITopic<String> topic = factory.getTopic("topic_two_threads");
-        CountDownLatch listenersCalled = new CountDownLatch(2);
-        topic.addMessageListener(message -> {
-            assertEquals("msg1", message.getMessageObject());
-            listenersCalled.countDown();
-        });
-        Thread t = new Thread(() -> {
-            topic.addMessageListener(message -> {
-                assertEquals("msg1", message.getMessageObject());
-                listenersCalled.countDown();
-            });
-        });
-        t.start();
-        t.join();
-        topic.publish("msg1");
-        listenersCalled.await();
-        assertEquals(1, topic.getLocalTopicStats().getPublishOperationCount());
-        assertEquals(2, topic.getLocalTopicStats().getReceiveOperationCount());
-        topic.destroy();
-    }
-
-    @Test
-    public void shouldNotifyListenersIfOneThrowsException() throws InterruptedException {
-        ITopic<String> topic = factory.getTopic("topic_exception_listeners");
-        CountDownLatch listenersCalled = new CountDownLatch(3);
-
-        topic.addMessageListener(message -> listenersCalled.countDown());
-        topic.addMessageListener(message -> {
-            listenersCalled.countDown();
-            throw new NullPointerException();
-        });
-        topic.addMessageListener(message -> listenersCalled.countDown());
-        topic.publish("msg1");
-        listenersCalled.await();
-        assertEquals(1, topic.getLocalTopicStats().getPublishOperationCount());
-        assertEquals(3, topic.getLocalTopicStats().getReceiveOperationCount());
-        topic.destroy();
-    }
-
-    @Test
-    public void shouldCallMultipleTimesMessageListener() throws InterruptedException {
-        ITopic<String> topic = factory.getTopic("topic_multiple_times_same_listener");
-        CountDownLatch listenersCalled = new CountDownLatch(2);
-        MessageListener<String> m = message -> listenersCalled.countDown();
-        topic.addMessageListener(m);
-        topic.addMessageListener(m);
-        topic.publish("msg1");
-        listenersCalled.await();
-        assertEquals(1, topic.getLocalTopicStats().getPublishOperationCount());
-        assertEquals(2, topic.getLocalTopicStats().getReceiveOperationCount());
-        topic.destroy();
-    }
-
-    @Test
-    public void shouldAddAndRemoveMessageListener() throws InterruptedException {
-        ITopic<String> topic = factory.getTopic("topic_add_remove_listener");
-        CountDownLatch listenersCalled = new CountDownLatch(1);
-        MessageListener<String> m = message -> listenersCalled.countDown();
-        String name = topic.addMessageListener(m);
-        topic.publish("msg1");
-        listenersCalled.await();
-        topic.removeMessageListener(name);
-        topic.publish("msg2");
-        assertEquals(2, topic.getLocalTopicStats().getPublishOperationCount());
-        assertEquals(1, topic.getLocalTopicStats().getReceiveOperationCount());
-        topic.destroy();
     }
 
     @Test
@@ -144,53 +72,6 @@ public class StandaloneClusterTopicTest {
     }
 
     @Test
-    public void shouldAllowAddAndRemoveFromMessageListenerDifferentThread() throws InterruptedException {
-        ITopic<String> topic = factory.getTopic("topic_reject_add_remove_from_listener_different_thread");
-        CountDownLatch listenersCalled = new CountDownLatch(2);
-        MessageListener<String> m1 = message -> listenersCalled.countDown();
-        String name = topic.addMessageListener(m1);
-        MessageListener<String> m2 = message -> {
-            Thread t = new Thread(() -> {
-                topic.removeMessageListener(name);
-                listenersCalled.countDown();
-            });
-            t.start();
-            try {
-                t.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        };
-        topic.addMessageListener(m2);
-        topic.publish("msg1");
-        listenersCalled.await();
-        assertEquals(1, topic.getLocalTopicStats().getPublishOperationCount());
-        assertEquals(2, topic.getLocalTopicStats().getReceiveOperationCount());
-        assertFalse(topic.removeMessageListener(name)); // already removed
-        topic.destroy();
-    }
-
-    @Test
-    public void shouldPubSubFromMessageListeners() throws InterruptedException {
-        CountDownLatch listenersCalled = new CountDownLatch(1);
-        ITopic<String> topic1 = factory.getTopic("topic1");
-        ITopic<String> topic2 = factory.getTopic("topic2");
-        MessageListener<String> m1 = message -> topic2.publish("Message sent to topic2");
-        MessageListener<String> m2 = message -> listenersCalled.countDown();
-        topic1.addMessageListener(m1);
-        topic2.addMessageListener(m2);
-        topic1.publish("trigger m2");
-        listenersCalled.await();
-        assertEquals(1, topic1.getLocalTopicStats().getPublishOperationCount());
-        assertEquals(1, topic1.getLocalTopicStats().getReceiveOperationCount());
-        assertEquals(1, topic2.getLocalTopicStats().getPublishOperationCount());
-        assertEquals(1, topic2.getLocalTopicStats().getReceiveOperationCount());
-        topic1.destroy();
-        topic2.destroy();
-    }
-
-
-    @Test
     public void shouldNotAllowNestedPublish() throws InterruptedException {
         ITopic<String> topic = factory.getTopic("topic_nested_publish_same_thread");
         CountDownLatch listenerCalled = new CountDownLatch(1);
@@ -208,55 +89,79 @@ public class StandaloneClusterTopicTest {
         topic.destroy();
     }
 
-    @Test
-    public void shouldNotDeadlockNestedPublishOnDifferentThread() throws InterruptedException {
-        ITopic<String> topic = factory.getTopic("topic_nested_publish_different_thread");
-        CountDownLatch listenerCalled = new CountDownLatch(10);
-        topic.addMessageListener((Message<String> message) -> {
-            listenerCalled.countDown();
-            Thread t = new Thread(() -> {
-                if (listenerCalled.getCount() > 0) {
-                    topic.publish("Resend: " + message.getMessageObject());
-                }
-            });
-            t.start();
-            try {
-                t.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-        topic.publish("KickOff");
-        listenerCalled.await();
-        assertEquals(10, topic.getLocalTopicStats().getPublishOperationCount());
-        assertEquals(10, topic.getLocalTopicStats().getReceiveOperationCount());
-        topic.destroy();
+    @Override
+    protected ITopic<String> getTopicForShouldCallMessageListenersOnTwoThreads() {
+        return factory.getTopic("topic_two_threads");
     }
 
-    @Test(expected = NullPointerException.class)
-    public void shouldNotAddNullMessageListener() {
-        ITopic<String> topic = factory.getTopic("topic_nul_message_listener");
-        topic.addMessageListener(null);
+    @Override
+    protected ITopic<String> getTopicMember1ForShouldNotifyListenersIfOneThrowsException() {
+        return factory.getTopic("topic_message_listener_null_pointer");
     }
 
-    @Test
-    // TODO either note following as limitation or study how the type can be enforced
-    public void shouldDetectClassIncompatibility() throws InterruptedException {
-        ITopic<String> topic = factory.getTopic("topic_class_cast");
-        topic.addMessageListener(message -> {});
-        ITopic<Integer> topic2 = factory.getTopic("topic_class_cast");
-        CountDownLatch registeredBadListenerType = new CountDownLatch(1);
-        topic2.addMessageListener(message -> {
-            try {
-                int i = message.getMessageObject() + 1;
-            } catch (ClassCastException e) {
-                registeredBadListenerType.countDown();
-            }
-        });
-        topic.publish("xyz");
-        registeredBadListenerType.await();
-        assertEquals(1, topic.getLocalTopicStats().getPublishOperationCount());
-        assertEquals(2, topic.getLocalTopicStats().getReceiveOperationCount());
+    @Override
+    protected ITopic<String> getTopicMember2ForShouldNotifyListenersIfOneThrowsException() {
+        return factory.getTopic("topic_message_listener_null_pointer");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember1ForShouldCallMultipleTimesMessageListener() {
+        return factory.getTopic("topic_multiple_times_same_listener");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember2ForShouldCallMultipleTimesMessageListener() {
+        return factory.getTopic("topic_multiple_times_same_listener");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember1ForShouldAddAndRemoveMessageListener() {
+        return factory.getTopic("topic_add_remove_listener");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember2ForShouldAddAndRemoveMessageListener() {
+        return factory.getTopic("topic_add_remove_listener");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember1ForShouldAllowAddAndRemoveFromMessageListenerDifferentThread() {
+        return factory.getTopic("topic_allow_add_remove_from_listener_different_thread");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember2ForShouldAllowAddAndRemoveFromMessageListenerDifferentThread() {
+        return factory.getTopic("topic_allow_add_remove_from_listener_different_thread");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember1ForShouldPubSubFromMessageListeners() {
+        return factory.getTopic("topic_pub_sub_msg_listeners_1");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember2ForShouldPubSubFromMessageListeners() {
+        return factory.getTopic("topic_pub_sub_msg_listeners_2");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember1ForShouldNotDeadlockNestedPublishOnDifferentThread() {
+        return factory.getTopic("topic_nested_publish_different_thread_one_member");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember1ForShouldNotAddNullMessageListener() {
+        return factory.getTopic("topic_null_message_listener");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember1ForShouldDetectClassIncompatibility() {
+        return factory.getTopic("topic_class_cast");
+    }
+
+    @Override
+    protected ITopic<Integer> getTopicMember2ForShouldDetectClassIncompatibility() {
+        return factory.getTopic("topic_class_cast");
     }
 
 }

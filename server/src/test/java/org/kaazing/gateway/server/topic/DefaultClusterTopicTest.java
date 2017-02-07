@@ -35,7 +35,7 @@ import com.hazelcast.core.ITopic;
 import com.hazelcast.core.MessageListener;
 
 // TODO Add a parent abstract class that defines test cases for both cluster and single node.
-public class DefaultClusterTopicTest {
+public class DefaultClusterTopicTest extends AbstractClusterTopicTest {
 
     private static DefaultClusterContext clusterContext1;
     private static DefaultClusterContext clusterContext2;
@@ -72,29 +72,6 @@ public class DefaultClusterTopicTest {
     }
 
     @Test
-    public void shouldCallMessageListenersOnTwoThreads() throws InterruptedException {
-        ITopic<String> topicMember1 = clusterContext1.getTopic("topic");
-        CountDownLatch listenersCalled = new CountDownLatch(2);
-        topicMember1.addMessageListener(message -> {
-            assertEquals("msg1", message.getMessageObject());
-            listenersCalled.countDown();
-        });
-        Thread t = new Thread(() -> {
-            topicMember1.addMessageListener(message -> {
-                assertEquals("msg1", message.getMessageObject());
-                listenersCalled.countDown();
-            });
-        });
-        t.start();
-        t.join();
-        topicMember1.publish("msg1");
-        listenersCalled.await();
-        assertEquals(1, topicMember1.getLocalTopicStats().getPublishOperationCount());
-        assertEquals(2, topicMember1.getLocalTopicStats().getReceiveOperationCount());
-        topicMember1.destroy();
-    }
-
-    @Test
     public void shouldSendAndReceiveMessagesBetweenMembers() throws InterruptedException {
         CountDownLatch listenerCalledDifferentMembers = new CountDownLatch(1);
         ITopic<String> topicMember1 = clusterContext1.getTopic("topic_between_members");
@@ -108,59 +85,6 @@ public class DefaultClusterTopicTest {
         assertEquals(1, topicMember1.getLocalTopicStats().getReceiveOperationCount());
         topicMember1.destroy();
         topicMember2.destroy();
-    }
-
-
-    @Test
-    public void shouldNotifyListenersIfOneThrowsException() throws InterruptedException {
-        ITopic<String> topicMessageListenerMember1 = clusterContext1.getTopic("topic_message_listener_null_pointer");
-        CountDownLatch listenersCalled = new CountDownLatch(3);
-        topicMessageListenerMember1.addMessageListener(message -> listenersCalled.countDown());
-        topicMessageListenerMember1.addMessageListener(message -> {
-            listenersCalled.countDown();
-            throw new NullPointerException();
-        });
-        topicMessageListenerMember1.addMessageListener(message -> listenersCalled.countDown());
-        ITopic<String> topicMessageListenerMember2 = clusterContext2.getTopic("topic_message_listener_null_pointer");
-        topicMessageListenerMember2.publish("msg1");
-        listenersCalled.await();
-        assertEquals(1, topicMessageListenerMember2.getLocalTopicStats().getPublishOperationCount());
-        assertEquals(3, topicMessageListenerMember1.getLocalTopicStats().getReceiveOperationCount());
-        topicMessageListenerMember1.destroy();
-        topicMessageListenerMember2.destroy();
-    }
-
-    @Test
-    public void shouldCallMultipleTimesMessageListener() throws InterruptedException {
-        ITopic<String> topicSameListenerMember1 = clusterContext1.getTopic("topic_same_listener");
-        CountDownLatch listenersCalledSameListener = new CountDownLatch(2);
-        MessageListener<String> m = message -> listenersCalledSameListener.countDown();
-        topicSameListenerMember1.addMessageListener(m);
-        topicSameListenerMember1.addMessageListener(m);
-        ITopic<String> topicSameListenerMember2 = clusterContext2.getTopic("topic_same_listener");
-        topicSameListenerMember2.publish("msg1");
-        listenersCalledSameListener.await();
-        assertEquals(1, topicSameListenerMember2.getLocalTopicStats().getPublishOperationCount());
-        assertEquals(2, topicSameListenerMember1.getLocalTopicStats().getReceiveOperationCount());
-        topicSameListenerMember1.destroy();
-        topicSameListenerMember2.destroy();
-    }
-
-
-    @Test
-    public void shouldAddAndRemoveMessageListener() throws InterruptedException {
-        ITopic<String> topicAddRemoveMember1 = clusterContext1.getTopic("topic_add_remove_listener");
-        ITopic<String> topicAddRemoveMember2 = clusterContext2.getTopic("topic_add_remove_listener");
-        CountDownLatch listenersCalledAddRemove = new CountDownLatch(1);
-        String name = topicAddRemoveMember1.addMessageListener(message -> listenersCalledAddRemove.countDown());
-        topicAddRemoveMember2.publish("msg1");
-        listenersCalledAddRemove.await();
-        topicAddRemoveMember1.removeMessageListener(name);
-        topicAddRemoveMember2.publish("msg2");
-        assertEquals(2, topicAddRemoveMember2.getLocalTopicStats().getPublishOperationCount());
-        assertEquals(1, topicAddRemoveMember1.getLocalTopicStats().getReceiveOperationCount());
-        topicAddRemoveMember1.destroy();
-        topicAddRemoveMember2.destroy();
     }
 
     @Test
@@ -177,28 +101,79 @@ public class DefaultClusterTopicTest {
         topicNoDeadlockOneMember.destroy();
     }
 
-    @Test
-    public void shouldNotDeadlockNestedPublishOnDifferentThread() throws InterruptedException {
-        ITopic<String> topic = clusterContext1.getTopic("topic_nested_publish_different_thread_one_member");
-        CountDownLatch listenerCalled = new CountDownLatch(10);
-        topic.addMessageListener(message -> {
-            listenerCalled.countDown();
-            Thread t = new Thread(() -> {
-                if (listenerCalled.getCount() > 0) {
-                    topic.publish("Resend: " + message.getMessageObject());
-                }
-            });
-            t.start();
-            try {
-                t.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-        topic.publish("KickOff");
-        listenerCalled.await();
-        assertEquals(10, topic.getLocalTopicStats().getPublishOperationCount());
-        assertEquals(10, topic.getLocalTopicStats().getReceiveOperationCount());
-        topic.destroy();
+    @Override
+    protected ITopic<String> getTopicForShouldCallMessageListenersOnTwoThreads() {
+        return clusterContext1.getTopic("topic_two_threads");
     }
+
+    @Override
+    protected ITopic<String> getTopicMember1ForShouldNotifyListenersIfOneThrowsException() {
+        return clusterContext1.getTopic("topic_message_listener_null_pointer");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember2ForShouldNotifyListenersIfOneThrowsException() {
+        return clusterContext2.getTopic("topic_message_listener_null_pointer");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember1ForShouldCallMultipleTimesMessageListener() {
+        return clusterContext1.getTopic("topic_multiple_times_same_listener");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember2ForShouldCallMultipleTimesMessageListener() {
+        return clusterContext2.getTopic("topic_multiple_times_same_listener");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember1ForShouldAddAndRemoveMessageListener() {
+        return clusterContext1.getTopic("topic_add_remove_listener");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember2ForShouldAddAndRemoveMessageListener() {
+        return clusterContext2.getTopic("topic_add_remove_listener");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember1ForShouldAllowAddAndRemoveFromMessageListenerDifferentThread() {
+        return clusterContext1.getTopic("topic_allow_add_remove_from_listener_different_thread");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember2ForShouldAllowAddAndRemoveFromMessageListenerDifferentThread() {
+        return clusterContext2.getTopic("topic_allow_add_remove_from_listener_different_thread");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember1ForShouldPubSubFromMessageListeners() {
+        return clusterContext1.getTopic("topic_pub_sub_msg_listeners_1");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember2ForShouldPubSubFromMessageListeners() {
+        return clusterContext2.getTopic("topic_pub_sub_msg_listeners_2");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember1ForShouldNotDeadlockNestedPublishOnDifferentThread() {
+        return clusterContext1.getTopic("topic_nested_publish_different_thread_one_member");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember1ForShouldNotAddNullMessageListener() {
+        return clusterContext1.getTopic("topic_null_message_listener");
+    }
+
+    @Override
+    protected ITopic<String> getTopicMember1ForShouldDetectClassIncompatibility() {
+        return clusterContext1.getTopic("topic_class_cast");
+    }
+
+    @Override
+    protected ITopic<Integer> getTopicMember2ForShouldDetectClassIncompatibility() {
+        return clusterContext2.getTopic("topic_class_cast");
+    }
+
 }

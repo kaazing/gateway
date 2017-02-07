@@ -36,9 +36,14 @@ import com.hazelcast.monitor.impl.LocalTopicStatsImpl;
  * It imposes restrictions on calling add/remove/publish methods from within a message listener's oMessage method on the
  * same thread. The main reason is to avoid StackOverflow by nested method calls.
  *
+ * // TODO fix following forward reference
+ * For implementation differences see tests in: org.kaazing.gateway.server.topic.AbstractClusterTopicTest
+ *
  * @param <E> The type of the message exchanged.
  */
-public class MemoryTopic<E> extends MemoryDistributedObject implements ITopic<E> {
+public class MemoryTopic<E> implements ITopic<E> {
+
+    private final String name;
 
     private final class MessageListenerHolder {
         private final String key;
@@ -64,11 +69,27 @@ public class MemoryTopic<E> extends MemoryDistributedObject implements ITopic<E>
     private static final Logger LOGGER = LoggerFactory.getLogger(MemoryTopic.class);
 
     public MemoryTopic(String name) {
-        super(name);
+        this.name = name;
+        ;
         this.localTopicStats = new LocalTopicStatsImpl();
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Created topic: " + this.getName());
         }
+    }
+
+    @Override
+    public String getPartitionKey() {
+        return null;
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
+    @Override
+    public String getServiceName() {
+        return null;
     }
 
     @SuppressWarnings("unchecked")
