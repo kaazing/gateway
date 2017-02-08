@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.4.0-RC004</version>
+        <version>develop-SNAPSHOT</version>
     </parent>
     <artifactId>mina.netty</artifactId>
     <packaging>jar</packaging>
@@ -64,11 +64,6 @@
                     <artifactId>mina-core</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-jdk14</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.agrona</groupId>
@@ -199,6 +194,7 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.4.2</version>
                 <configuration>
+                    <!-- <createDependencyReducedPom>false</createDependencyReducedPom> -->
                     <dependencyReducedPomLocation>${basedir}/target/dependency-reduced-pom.xml</dependencyReducedPomLocation>
                     <createSourcesJar>${create.shaded.sources}</createSourcesJar>
                     <filters>
@@ -226,35 +222,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.kaazing</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <configuration>
-                    <projectHints>
-                        <projectDescription>
-                            <projectName>OGNL - Object Graph Navigation Library</projectName>
-                            <licenseName>Apache 2.0 License</licenseName>
-                            <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
-                            <homePage>http://ognl.org</homePage>
-                            <version>2.0</version>
-                        </projectDescription>
-                        <projectDescription>
-                            <projectName>SLF4J JDK14 Binding</projectName>
-                            <licenseName>MIT License</licenseName>
-                            <licenseUrl>http://www.opensource.org/licenses/mit-license.php</licenseUrl>
-                            <homePage>http://www.slf4j.org</homePage>
-                            <version>1.0</version>
-                        </projectDescription>
-                        <projectDescription>
-                            <projectName>SLF4J API Module</projectName>
-                            <licenseName>MIT License</licenseName>
-                            <licenseUrl>http://www.opensource.org/licenses/mit-license.php</licenseUrl>
-                            <homePage>http://www.slf4j.org</homePage>
-                            <version>1.0</version>
-                        </projectDescription>
-                    </projectHints>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
@@ -270,7 +237,6 @@
     <properties>
         <checkstyle.config.location>org/kaazing/code/quality/checkstyle.xml</checkstyle.config.location>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <skipTests>true</skipTests>
     </properties>
 
 </project>

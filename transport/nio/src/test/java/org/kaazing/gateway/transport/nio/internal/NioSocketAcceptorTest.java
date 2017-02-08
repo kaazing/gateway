@@ -23,7 +23,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_PROCESSOR_COUNT;
+import static org.kaazing.gateway.util.InternalSystemProperty.TCP_PROCESSOR_COUNT;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -93,7 +93,7 @@ public class NioSocketAcceptorTest {
     @Rule
     public TestRule testExecutionTrace = new MethodExecutionTrace();
 
-    public static final String PROCESSOR_COUNT = "org.kaazing.gateway.server.transport.tcp.PROCESSOR_COUNT";
+    public static final String PROCESSOR_COUNT = TCP_PROCESSOR_COUNT.getPropertyName();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NioSocketAcceptorTest.class);
 

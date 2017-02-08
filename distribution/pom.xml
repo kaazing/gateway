@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.4.0-RC004</version>
+        <version>develop-SNAPSHOT</version>
     </parent>
 
     <artifactId>gateway.distribution</artifactId>
@@ -211,6 +211,52 @@
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.service.turn.rest</artifactId>
         </dependency>
+
+        <!-- Shaded dependencies from mina.netty -->
+        <!-- Create a submodule that extends mina.netty. Import it by excluding argona and slf4j. -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty</artifactId>
+            <version>3.10.5.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>mina-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>mina-integration-beans</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.kaazing</groupId>
+                    <artifactId>mina-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>mina-integration-jmx</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.kaazing</groupId>
+                    <artifactId>mina-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>mina-integration-ognl</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.kaazing</groupId>
+                    <artifactId>mina-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
     <build>
@@ -241,6 +287,72 @@
         </pluginManagement>
 
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>${codehaus.license.version}</version>
+                <configuration>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+                    <thirdPartyFilename>NOTICE.txt</thirdPartyFilename>
+                    <acceptPomPackaging>true</acceptPomPackaging>
+                    <fileTemplate>org/kaazing/community/notice/third-party-template.ftl</fileTemplate>
+                    <useMissingFile>true</useMissingFile>
+                    <missingFile>src/license/THIRD-PARTY.properties</missingFile>
+                    <failIfWarning>true</failIfWarning>
+                    <excludedArtifacts>gateway.*|mina*</excludedArtifacts>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.kaazing</groupId>
+                        <artifactId>community.notice</artifactId>
+                        <version>${community.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>add-third-party</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                   </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven.enforcer.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.kaazing</groupId>
+                        <artifactId>community.enforcer</artifactId>
+                        <version>${community.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>default-enforce</id>
+                        <configuration combine.self="override">
+                            <skip>false</skip>
+                            <rules>
+                                <myCustomRule implementation="org.kaazing.community.enforcer.rule.RequireSameFile">
+                                    <originalFilePath>../NOTICE.txt</originalFilePath>
+                                    <revisedFilePath>${project.build.directory}/NOTICE.txt</revisedFilePath>
+                                    <errorMessage>The top level Notice.txt file is not up-to-date. Update it and commit the changes.</errorMessage>
+                                </myCustomRule>
+                                <myCustomRule implementation="org.kaazing.community.enforcer.rule.RequireSameFile">
+                                    <originalFilePath>${project.basedir}/src/main/gateway/NOTICE.txt</originalFilePath>
+                                    <revisedFilePath>${project.build.directory}/NOTICE.txt</revisedFilePath>
+                                    <errorMessage>The Notice.txt file from distribution/src/main/gateway is not up-to-date. Update it and commit the changes.</errorMessage>
+                                </myCustomRule>
+                            </rules>
+                        </configuration>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -275,6 +387,8 @@
                     <excludes combine.children="append">
                         <exclude>src/main/gateway/web/**/*</exclude>
                         <exclude>src/main/gateway/README.txt</exclude>
+                        <exclude>src/main/gateway/NOTICE.txt</exclude>
+                        <exclude>src/license/THIRD-PARTY.properties</exclude>
                     </excludes>
                 </configuration>
             </plugin>

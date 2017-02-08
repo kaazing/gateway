@@ -1,7 +1,7 @@
 # Change Log
 
-## [5.4.0-RC004](https://github.com/kaazing/gateway/tree/5.4.0-RC004) (2017-01-10)
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.3.2...5.4.0-RC004)
+## [5.4.0](https://github.com/kaazing/gateway/tree/5.4.0) (2017-01-20)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.3.2...5.4.0)
 
 **Fixed bugs:**
 
@@ -12,6 +12,7 @@
 - ClassCastException in ServiceManagementBean$DefaultServiceManagementBean.doSessionCreated [\#733](https://github.com/kaazing/gateway/issues/733)
 - OOTB log4j-config.xml and gateway-config.xml improvements are needed \(does not document MaxBackupIndex, etc\) [\#709](https://github.com/kaazing/gateway/issues/709)
 - java.io.IOException: Broken pipe causes incorrect event reporting in TCP layer [\#688](https://github.com/kaazing/gateway/issues/688)
+- Diagnostic message for unexpected exception in a filter should include session details [\#685](https://github.com/kaazing/gateway/issues/685)
 - Build failure in Http Directory Service: 3 tests systematically failing in HttpDirectoryServiceIT on my Windows laptop [\#682](https://github.com/kaazing/gateway/issues/682)
 - failure in WsnConnectorTest [\#655](https://github.com/kaazing/gateway/issues/655)
 - Need better diagnostics when a ProtocolDecoderException occurs or other unexpected transport exception [\#384](https://github.com/kaazing/gateway/issues/384)
@@ -26,6 +27,11 @@
 
 **Merged pull requests:**
 
+- Remove unnecessary code from product [\#856](https://github.com/kaazing/gateway/pull/856) ([mgherghe](https://github.com/mgherghe))
+- .ksn parameter is converted into X-Sequence-No header for [\#855](https://github.com/kaazing/gateway/pull/855) ([jitsni](https://github.com/jitsni))
+- Fixing a race in UdpConnectorIT.clientSentData [\#853](https://github.com/kaazing/gateway/pull/853) ([jitsni](https://github.com/jitsni))
+- Syncing AbstractIoAcceptor from mina [\#850](https://github.com/kaazing/gateway/pull/850) ([jitsni](https://github.com/jitsni))
+- Fixed Basic and Digest authentication scripts on http.proxy [\#849](https://github.com/kaazing/gateway/pull/849) ([apirvu](https://github.com/apirvu))
 - Not consuming extra CRLF after HTTP response [\#847](https://github.com/kaazing/gateway/pull/847) ([jitsni](https://github.com/jitsni))
 - Set early access feature http proxy test to be disabled [\#845](https://github.com/kaazing/gateway/pull/845) ([dpwspoon](https://github.com/dpwspoon))
 - Added keystore and truststore to LoginModule options [\#844](https://github.com/kaazing/gateway/pull/844) ([dpwspoon](https://github.com/dpwspoon))
@@ -35,9 +41,11 @@
 - Ordering open and message events of UDP child channels [\#839](https://github.com/kaazing/gateway/pull/839) ([jitsni](https://github.com/jitsni))
 - Add logging filter constructor [\#838](https://github.com/kaazing/gateway/pull/838) ([cmebarrow](https://github.com/cmebarrow))
 - Fix the message in log warning [\#837](https://github.com/kaazing/gateway/pull/837) ([stanculescu](https://github.com/stanculescu))
+- Fix the diagnostic message for unexpected exception to include session details [\#836](https://github.com/kaazing/gateway/pull/836) ([stanculescu](https://github.com/stanculescu))
 - Fix the message in connect and accept options. [\#835](https://github.com/kaazing/gateway/pull/835) ([stanculescu](https://github.com/stanculescu))
 - Improving the http.proxy service accept/connect uri validation message [\#834](https://github.com/kaazing/gateway/pull/834) ([jitsni](https://github.com/jitsni))
 - Http proxy redirect \(not following\) occasional test failure fix [\#833](https://github.com/kaazing/gateway/pull/833) ([dpwspoon](https://github.com/dpwspoon))
+- Upgrading agrona version \(package names are different\) [\#832](https://github.com/kaazing/gateway/pull/832) ([jitsni](https://github.com/jitsni))
 - Fixing k3po scripts for http methods [\#831](https://github.com/kaazing/gateway/pull/831) ([jitsni](https://github.com/jitsni))
 - Fix ws.inactivity.timeout and http.keepalive.timeout logging order in connect and accept options. [\#828](https://github.com/kaazing/gateway/pull/828) ([stanculescu](https://github.com/stanculescu))
 - http.proxy service is changed to accept only with URIs ending with / [\#827](https://github.com/kaazing/gateway/pull/827) ([jitsni](https://github.com/jitsni))
@@ -520,10 +528,6 @@
 
 ## [5.0.1.47](https://github.com/kaazing/gateway/tree/5.0.1.47) (2016-03-08)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.46...5.0.1.47)
-
-**Fixed bugs:**
-
-- BroadcastServiceTest.testSlowConsumer\(\) is timing out [\#364](https://github.com/kaazing/gateway/issues/364)
 
 **Closed issues:**
 

@@ -17,6 +17,7 @@ package org.kaazing.gateway.util;
 
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
+import static java.lang.Long.parseLong;
 import static java.lang.Runtime.getRuntime;
 
 import java.util.Properties;
@@ -126,7 +127,13 @@ public enum InternalSystemProperty {
      * The gateway identifiers should be different for each gateway.
      */
     GATEWAY_IDENTIFIER
-            ("org.kaazing.gateway.server.GATEWAY_IDENTIFIER", "");
+            ("org.kaazing.gateway.server.GATEWAY_IDENTIFIER", ""),
+
+    // TCP_IDLE_TIMEOUT will kill the session if nothing is written or read at nio level.
+    // Note, the idle usage is using the mina netty idle timeout which may be set
+    // by higher layers. Logic for this is in NioIdleFilter
+    TCP_IDLE_TIMEOUT("org.kaazing.gateway.server.transport.tcp.IDLE_TIMEOUT", Integer.toString(0)),
+    UDP_IDLE_TIMEOUT("org.kaazing.gateway.server.transport.udp.IDLE_TIMEOUT", "60");
 
     private final String name;
     private final String defaultValue;

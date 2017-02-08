@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.4.0-RC004</version>
+        <version>develop-SNAPSHOT</version>
     </parent>
     <artifactId>gateway.server</artifactId>
     <name>Kaazing WebSocket Gateway - Server</name>
@@ -176,18 +176,6 @@
             <artifactId>jdom</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna</artifactId>
-            <version>${jna.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna</artifactId>
-            <classifier>platform</classifier>
-            <version>${jna.version}</version>
-        </dependency>
-
         <!-- From core.common -->
         <dependency>
             <groupId>commons-cli</groupId>
@@ -327,28 +315,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
             </plugin>
-            <plugin>
-                <groupId>org.kaazing</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <configuration>
-                    <projectHints>
-                        <projectDescription>
-                            <projectName>Java Native Access</projectName>
-                            <licenseName>LGPL</licenseName>
-                            <licenseUrl>http://www.gnu.org/licenses/licenses.html</licenseUrl>
-                            <homePage>https://github.com/twall/jna</homePage>
-                            <version>2.1</version>
-                        </projectDescription>
-                        <projectDescription>
-                            <projectName>JDOM</projectName>
-                            <licenseName>JDOM License</licenseName>
-                            <licenseUrl>https://github.com/hunterhacker/jdom/blob/master/LICENSE.txt</licenseUrl>
-                            <homePage>http://jdom.org</homePage>
-                            <version>1.1</version>
-                        </projectDescription>
-                    </projectHints>
-                </configuration>
-            </plugin>
         </plugins>
         <pluginManagement>
             <plugins>
@@ -413,7 +379,6 @@
     </reporting>
 
     <properties>
-        <jna.version>3.3.0</jna.version>
         <!-- remove this after next core.common release -->
         <commons-cli.version>1.2</commons-cli.version>
         <checkstyle.config.location>org/kaazing/code/quality/checkstyle.xml</checkstyle.config.location>

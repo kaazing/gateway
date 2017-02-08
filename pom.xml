@@ -11,7 +11,7 @@
 
     <artifactId>gateway</artifactId>
     <name>Kaazing Gateway</name>
-    <version>5.4.0-RC004</version>
+    <version>develop-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <url>https://github.com/kaazing/gateway</url>
@@ -39,6 +39,9 @@
         <failsafeArgLine>-Xmx1024m</failsafeArgLine>
         <opencsv.version>2.3</opencsv.version>
         <jmh.version>1.14</jmh.version>
+        <community.version>2.25</community.version>
+        <codehaus.license.version>1.12</codehaus.license.version>
+        <maven.enforcer.version>1.4.1</maven.enforcer.version>
     </properties>
 
     <modules>
@@ -377,40 +380,6 @@
         </pluginManagement>
 
         <plugins>
-            <plugin>
-                <groupId>org.kaazing</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <version>1.0.0.11</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>verify-notice</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <matchWithExisting>false</matchWithExisting>
-                    <strict>false</strict>
-                    <!-- Project hints go here -->
-                    <projectHints>
-                        <projectDescription>
-                            <projectName>JDOM</projectName>
-                            <licenseName>JDOM License</licenseName>
-                            <licenseUrl>https://github.com/hunterhacker/jdom/blob/master/LICENSE.txt</licenseUrl>
-                            <homePage>http://jdom.org</homePage>
-                            <version>1.1</version>
-                        </projectDescription>
-                        <projectDescription>
-                            <projectName>OGNL - Object Graph
-                                Navigation
-                                Library</projectName>
-                            <licenseName>Apache License 2</licenseName>
-                            <licenseUrl>http://www.apache.org/licenses/</licenseUrl>
-                            <homePage>http://commons.apache.org/proper/commons-ognl/</homePage>
-                        </projectDescription>
-                    </projectHints>
-                </configuration>
-            </plugin>
             <plugin>
                 <dependencies>
                     <dependency>
