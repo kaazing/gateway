@@ -59,7 +59,6 @@ public abstract class AbstractIoAcceptorEx extends AbstractIoAcceptor implements
         if (getHandler() == null) {
             throw new IllegalStateException("handler is not set.");
         }
-
         BindFuture bound = bindAsyncInternal(localAddress);
         bound.addListener(new IoFutureListener<BindFuture>() {
             @Override
@@ -67,12 +66,10 @@ public abstract class AbstractIoAcceptorEx extends AbstractIoAcceptor implements
                 if (future.isBound()) {
                     boolean activate = false;
                     synchronized (bindLock) {
-                        synchronized (boundAddresses) {
-                            if (boundAddresses.isEmpty()) {
-                                activate = true;
-                            }
-                            boundAddresses.add(localAddress);
+                        if (boundAddresses.isEmpty()) {
+                            activate = true;
                         }
+                        boundAddresses.add(localAddress);
                         if (activate) {
                             getListeners().fireServiceActivated();
                         }
@@ -93,19 +90,18 @@ public abstract class AbstractIoAcceptorEx extends AbstractIoAcceptor implements
                 if (future.isUnbound()) {
                     boolean deactivate = false;
                     synchronized (bindLock) {
-                        synchronized (boundAddresses) {
-                            if (boundAddresses.isEmpty()) {
-                                return;
-                            }
-                            boundAddresses.remove(localAddress);
-                            if (boundAddresses.isEmpty()) {
-                                deactivate = true;
-                            }
+                        if (boundAddresses.isEmpty()) {
+                            return;
+                        }
+                        boundAddresses.remove(localAddress);
+                        if (boundAddresses.isEmpty()) {
+                            deactivate = true;
                         }
                         if (deactivate) {
                             getListeners().fireServiceDeactivated();
                         }
                     }
+
                 }
             }
         });
