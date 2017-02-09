@@ -1,10 +1,11 @@
 # Change Log
 
-## [5.4.1-RC001](https://github.com/kaazing/gateway/tree/5.4.1-RC001) (2017-02-06)
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.4.0...5.4.1-RC001)
+## [5.4.1-RC002](https://github.com/kaazing/gateway/tree/5.4.1-RC002) (2017-02-09)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.4.0...5.4.1-RC002)
 
 **Merged pull requests:**
 
+- Revert "\(\#850\) Sync'd AbstractIoAcceptor from mina 2.0.16, fixed bind… [\#867](https://github.com/kaazing/gateway/pull/867) ([sbadugu](https://github.com/sbadugu))
 - Clean up system property. [\#865](https://github.com/kaazing/gateway/pull/865) ([vmaraloiu](https://github.com/vmaraloiu))
 - Reverted shade plugin to generate the reduced pom. [\#864](https://github.com/kaazing/gateway/pull/864) ([Anisotrop](https://github.com/Anisotrop))
 - Remove System Properties which should be undocumented from Javadoc [\#860](https://github.com/kaazing/gateway/pull/860) ([vmaraloiu](https://github.com/vmaraloiu))
