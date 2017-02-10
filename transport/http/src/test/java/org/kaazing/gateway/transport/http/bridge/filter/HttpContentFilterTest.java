@@ -51,15 +51,5 @@ public class HttpContentFilterTest {
 		
 		assertEquals(actual, expected);
 	}
-	
-	@Test
-	public void testWriteChunked() throws Exception {
-        IoBufferAllocatorEx<?> allocator = SimpleBufferAllocator.BUFFER_ALLOCATOR;
-		HttpChunkedEncoder encoder = new HttpChunkedEncoder();
-		IoBufferEx buf = allocator.wrap(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }));
-		IoBufferEx actual = encoder.write(buf, allocator);
-		IoBufferEx expected = allocator.wrap(ByteBuffer.wrap(new byte[] { (byte)'4', '\r', '\n', 0, 1, 2, 3, '\r', '\n' }));
-		
-		assertEquals(actual, expected);
-	}
+
 }

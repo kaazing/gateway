@@ -39,7 +39,6 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionRecycler;
 import org.apache.mina.transport.socket.DatagramSessionConfigEx;
 import org.apache.mina.transport.socket.DefaultDatagramSessionConfigEx;
-import org.apache.mina.util.ExceptionMonitor;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.future.BindFuture;
@@ -50,6 +49,7 @@ import org.kaazing.mina.core.service.AbstractIoAcceptorEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionConfigEx;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.mina.util.ExceptionMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -248,7 +248,7 @@ public class MulticastAcceptorImpl extends AbstractIoAcceptorEx {
             getListeners().fireSessionCreated(session);
         }
         catch (Throwable t) {
-            ExceptionMonitor.getInstance().exceptionCaught(t);
+            ExceptionMonitor.getInstance().exceptionCaught(t, session);
         }
 
         return session;

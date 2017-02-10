@@ -45,11 +45,11 @@ import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.core.session.IoSessionDataStructureFactory;
 import org.apache.mina.core.session.IoSessionInitializationException;
 import org.apache.mina.core.session.IoSessionInitializer;
-import org.apache.mina.util.ExceptionMonitor;
 import org.apache.mina.util.NamePreservingRunnable;
 
 import org.kaazing.mina.core.filterchain.DefaultIoFilterChain;
 import org.kaazing.mina.core.session.AbstractIoSession;
+import org.kaazing.mina.util.ExceptionMonitor;
 
 /**
  * Base implementation of {@link IoService}s.
@@ -306,7 +306,7 @@ public abstract class AbstractIoService implements IoService {
                 try {
                     this.disposalFuture = disposalFuture = dispose0();
                 } catch (Exception e) {
-                    ExceptionMonitor.getInstance().exceptionCaught(e);
+                    ExceptionMonitor.getInstance().exceptionCaught(e, this.disposalFuture.getSession());
                 } finally {
                     if (disposalFuture == null) {
                         disposed = true;

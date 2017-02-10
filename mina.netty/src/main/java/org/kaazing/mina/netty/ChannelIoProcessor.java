@@ -32,7 +32,6 @@ import org.apache.mina.core.service.IoServiceListenerSupport;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
 import org.apache.mina.core.write.WriteToClosedSessionException;
-import org.apache.mina.util.ExceptionMonitor;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.ChannelFuture;
@@ -43,6 +42,7 @@ import org.kaazing.mina.core.service.AbstractIoProcessor;
 import org.kaazing.mina.netty.ChannelIoBufferAllocator.ChannelIoBuffer;
 import org.kaazing.mina.netty.channel.DownstreamMessageEventEx;
 import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
+import org.kaazing.mina.util.ExceptionMonitor;
 
 /**
  * Since this class is stateless it is a singleton within each consuming service (to avoid static state)
@@ -131,12 +131,12 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
             IoServiceListenerSupport listeners = session.getService().getListeners();
             listeners.fireSessionCreated(session);
         } catch (Throwable e) {
-            ExceptionMonitor.getInstance().exceptionCaught(e);
+            ExceptionMonitor.getInstance().exceptionCaught(e, session);
 
             try {
                 destroy(session);
             } catch (Exception e1) {
-                ExceptionMonitor.getInstance().exceptionCaught(e1);
+                ExceptionMonitor.getInstance().exceptionCaught(e1, session);
             }
         }
     }

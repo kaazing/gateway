@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.4.0</version>
+        <version>5.4.1</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>gateway.transport</artifactId>
@@ -76,7 +76,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jmock</groupId>

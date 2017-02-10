@@ -28,6 +28,7 @@ import org.jboss.netty.channel.ReceiveBufferSizePredictorFactory;
 import org.jboss.netty.channel.socket.DefaultSocketChannelConfig;
 import org.jboss.netty.channel.socket.nio.NioSocketChannelConfig;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class DefaultNioSocketChannelIoSessionConfigTest {
@@ -110,6 +111,7 @@ public class DefaultNioSocketChannelIoSessionConfigTest {
     }
 
     @Test
+    @Ignore("Please see: https://github.com/kaazing/gateway/issues/857")
     public void testSetAllSendBufferSize() {
         DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
         config.init(new NioSocketChannelIoAcceptor(config));
@@ -149,6 +151,7 @@ public class DefaultNioSocketChannelIoSessionConfigTest {
     }
 
     @Test
+    @Ignore("Please see: https://github.com/kaazing/gateway/issues/857")
     public void testSetAllTrafficClass() {
         DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
         config.init(new NioSocketChannelIoAcceptor(config));
