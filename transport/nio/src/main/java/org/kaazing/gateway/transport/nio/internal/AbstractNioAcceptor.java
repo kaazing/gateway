@@ -37,7 +37,6 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -334,44 +333,28 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
                         failedAddress = currentAddress;
                     }
 
-                    // Asynchronous bind is needed to avoid a Netty error if bind is called from an IO worker thread.
-                    // This can happens from connect in SocksConnector in reverse mode (see KG-7179 for details).
-                    CountDownLatch countDownLatch = new CountDownLatch(1);
                     if (needsAcceptorBind) {
-                        // Scheduling onto unbindScheduler thread so that bind and unbind are ordered
-                        if (!unbindScheduler.isShutdown()) {
-                            final ResourceAddress currentBindAddress = currentAddress;
-                            unbindScheduler.submit(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        acceptor.bind(socketAddress);
-                                        boundAuthorities.add(currentBindAddress);
-                                        LOG.info("Bound to resource: " + resource);
-                                    } catch(Exception e) {
-                                        boolean preferIPv6Stack = "true".equalsIgnoreCase(System.getProperty("java.net.preferIPv6Stack"));
-                                        if (!preferIPv6Stack && (e instanceof SocketException) && (socketAddress.getAddress() instanceof Inet6Address)) {
-                                            skipIPv6Addresses = true;
-                                        } else {
-                                            String error = "Unable to bind resource: " + resource + " cause: " + e.getMessage();
-                                            if (LOG.isDebugEnabled()) {
-                                                LOG.debug(error, e);
-                                            } else {
-                                                LOG.error(error + " "+ e.getMessage());
-                                            }
-                                            throw new RuntimeException(error);
-                                        }
-                                    } finally {
-                                        countDownLatch.countDown();
-                                    }
-
+                        // Asynchronous bind is needed to avoid a Netty error if bind is called from an IO worker thread.
+                        // This can happens from connect in SocksConnector in reverse mode (see KG-7179 for details).
+                        BindFuture bound = acceptor.bindAsync(socketAddress);
+                        bound.awaitUninterruptibly();
+                        Throwable e = bound.getException();
+                        if (e != null) {
+                            boolean preferIPv6Stack = "true".equalsIgnoreCase(System.getProperty("java.net.preferIPv6Stack"));
+                            if (!preferIPv6Stack && (e instanceof SocketException) && (socketAddress.getAddress() instanceof Inet6Address)) {
+                                skipIPv6Addresses = true;
+                            } else {
+                                String error = "Unable to bind resource: " + resource + " cause: " + e.getMessage();
+                                if (LOG.isDebugEnabled()) {
+                                    LOG.debug(error, e);
+                                } else {
+                                    LOG.error(error + " "+ e.getMessage());
                                 }
-                            });
-                        }
-                        try {
-                            countDownLatch.await();
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
+                                throw new RuntimeException(error);
+                            }
+                        } else {
+                            boundAuthorities.add(currentAddress);
+                            LOG.info("Bound to resource: " + resource);
                         }
                     }
                 }
