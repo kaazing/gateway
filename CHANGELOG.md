@@ -1,7 +1,7 @@
 # Change Log
 
-## [5.4.1-RC002](https://github.com/kaazing/gateway/tree/5.4.1-RC002) (2017-02-09)
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.4.0...5.4.1-RC002)
+## [5.4.1](https://github.com/kaazing/gateway/tree/5.4.1) (2017-02-10)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.4.0...5.4.1)
 
 **Merged pull requests:**
 
