@@ -109,7 +109,6 @@ public class UpdateCheckService implements Service {
 
     @Override
     public void destroy() throws Exception {
-        scheduledTasks.cancel(true);
     }
 
     /**
