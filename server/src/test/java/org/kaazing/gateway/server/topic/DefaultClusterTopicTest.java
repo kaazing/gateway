@@ -34,7 +34,6 @@ import org.kaazing.test.util.ITUtil;
 import com.hazelcast.core.ITopic;
 import com.hazelcast.core.MessageListener;
 
-// TODO Add a parent abstract class that defines test cases for both cluster and single node.
 public class DefaultClusterTopicTest extends AbstractClusterTopicTest {
 
     private static DefaultClusterContext clusterContext1;

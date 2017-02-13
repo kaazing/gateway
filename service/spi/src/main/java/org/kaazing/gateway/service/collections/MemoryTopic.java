@@ -92,14 +92,13 @@ public class MemoryTopic<E> implements ITopic<E> {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public void publish(Object o) {
+    public void publish(E o) {
         if (isPublishing.get()) {
             throw new UnsupportedOperationException("Cannot nest publishing operations");
         }
         isPublishing.set(true);
-        Message m = new Message(this.getName(), o, System.nanoTime(), null);
+        Message<E> m = new Message<>(this.getName(), o, System.nanoTime(), null);
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Publishing message on topic: " + MemoryTopic.this.getName() + ", notifying " + messageListenerHolders.size() + " listener(s).");
         }

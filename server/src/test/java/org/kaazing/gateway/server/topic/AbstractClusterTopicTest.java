@@ -183,12 +183,11 @@ public abstract class AbstractClusterTopicTest {
     }
 
     @Test
-    // TODO take into account the following as limitation or study how the type can be enforced
     public void shouldDetectClassIncompatibility() throws InterruptedException {
         CountDownLatch registeredBadListenerType = new CountDownLatch(2);
-        ITopic<String> topic = getTopicMember1ForShouldDetectClassIncompatibility();//factory.getTopic("topic_class_cast");
+        ITopic<String> topic = getTopicMember1ForShouldDetectClassIncompatibility();
         topic.addMessageListener(message -> registeredBadListenerType.countDown());
-        ITopic<Integer> topic2 = getTopicMember2ForShouldDetectClassIncompatibility();// factory.getTopic("topic_class_cast");
+        ITopic<Integer> topic2 = getTopicMember2ForShouldDetectClassIncompatibility();
         topic2.addMessageListener(message -> {
             try {
                 int i = message.getMessageObject() + 1;

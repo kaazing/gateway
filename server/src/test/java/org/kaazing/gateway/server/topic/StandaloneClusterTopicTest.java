@@ -75,15 +75,15 @@ public class StandaloneClusterTopicTest extends AbstractClusterTopicTest {
     public void shouldNotAllowNestedPublish() throws InterruptedException {
         ITopic<String> topic = factory.getTopic("topic_nested_publish_same_thread");
         CountDownLatch listenerCalled = new CountDownLatch(1);
-        AtomicBoolean nestedPublish = new AtomicBoolean(false);
         topic.addMessageListener(message -> {
-            listenerCalled.countDown();
-            topic.publish("Resend: " + message.getMessageObject());
-            nestedPublish.set(true);
+            try {
+                topic.publish("Resend: " + message.getMessageObject());
+            } catch (UnsupportedOperationException e) {
+                listenerCalled.countDown();
+            }
         });
         topic.publish("KickOff");
         listenerCalled.await();
-        assertFalse(nestedPublish.get());
         assertEquals(1, topic.getLocalTopicStats().getPublishOperationCount());
         assertEquals(1, topic.getLocalTopicStats().getReceiveOperationCount());
         topic.destroy();
