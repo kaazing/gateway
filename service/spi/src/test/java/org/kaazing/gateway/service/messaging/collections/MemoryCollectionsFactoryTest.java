@@ -36,6 +36,7 @@ import org.kaazing.gateway.util.AtomicCounter;
 import com.hazelcast.core.IList;
 import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.ITopic;
 
 public class MemoryCollectionsFactoryTest {
     private static final String OBJECT_NAME = "TestObject";
@@ -153,5 +154,17 @@ public class MemoryCollectionsFactoryTest {
         assertEquals(true, atomicCounter.compareAndSet(0, 1));
         assertEquals(false, atomicCounter.compareAndSet(0, 1));
         assertEquals(1, factory.getAtomicCounter(OBJECT_NAME).get());
+    }
+
+    @Test
+    public void shouldGetSameITopicFromMultipleThreads() throws InterruptedException {
+        ITopic<Object> topic = factory.getTopic(OBJECT_NAME);
+        topic.getLocalTopicStats();
+        Thread t = new Thread(() -> {
+            ITopic<Object> otherTopic = factory.getTopic(OBJECT_NAME);
+            assertEquals("Should receive same topic instace for the same name", topic, otherTopic);
+        });
+        t.start();
+        t.join();
     }
 }

@@ -58,6 +58,7 @@ import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
@@ -310,7 +311,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             String groupName = null;
 
             if (path != null) {
-                if ((path.indexOf("/") == 0) && (path.length() > 1)) {
+                if ((path.indexOf('/') == 0) && (path.length() > 1)) {
                     groupName = path.substring(1, path.length());
                 }
             }
@@ -812,5 +813,10 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
                 logger.trace(String.format(CLUSTER_LOG_FORMAT, member, record.getMessage()));
             }
         }
+    }
+
+    @Override
+    public <E> ITopic<E> getTopic(String name) {
+        return this.collectionsFactory.getTopic(name);
     }
 }
