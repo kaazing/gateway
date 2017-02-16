@@ -208,7 +208,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>[4.10,5.0)</version>
+            <version>4.12</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -228,13 +228,13 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>net.api</artifactId>
-            <version>[1.1.0.0,1.2.0.0)</version>
+            <version>1.1.0.9</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.test.ca</artifactId>
-            <version>[1.0.0.0,1.1.0.0)</version>
+            <version>1.0.0.24</version>
             <classifier>keystore</classifier>
             <scope>test</scope>
         </dependency>

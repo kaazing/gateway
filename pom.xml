@@ -204,7 +204,7 @@
             <dependency>
                 <groupId>org.kaazing</groupId>
                 <artifactId>gateway.truststore</artifactId>
-                <version>[1.0.0.0,1.1.0.0)</version>
+                <version>1.0.0.81</version>
                 <type>jar</type>
             </dependency>
             <dependency>
