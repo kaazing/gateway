@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway.bridge.parent</artifactId>
-        <version>develop-SNAPSHOT</version>
+        <version>5.5.0-RC000</version>
     </parent>
 
     <artifactId>gateway.bridge</artifactId>
