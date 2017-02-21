@@ -194,31 +194,23 @@ public class FileLoginModule implements LoginModule {
 
         if (tryFirstPass) {
             try {
-                boolean result = attemptAuthenticate(true);
-                if (result) {
-                    return true;
-
-                } else {
-                    cleanState();
-                    if (debug) {
-                        LOG.debug("[FileLoginModule] " + "read from shared state failed.");
-                    }
-                }
+                attemptAuthenticate(true);
+                return true;
             } catch (LoginException le) {
                 cleanState();
                 if (debug) {
-                    LOG.debug("[FileLoginModule] " + "login failed: " + le.getMessage());
+                    LOG.debug("[FileLoginModule] read from shared state failed", le);
                 }
             }
         }
 
         try {
-            return attemptAuthenticate(false);
-
+            attemptAuthenticate(false);
+            return true;
         } catch (LoginException loginException) {
             cleanState();
             if (debug) {
-                LOG.debug("[FileLoginModule] " + "regular authentication failed: " + loginException.getMessage());
+                LOG.debug("[FileLoginModule] regular authentication failed", loginException);
             }
             throw loginException;
         }
@@ -234,19 +226,19 @@ public class FileLoginModule implements LoginModule {
         password = null;
     }
 
-    private boolean attemptAuthenticate(boolean useSharedState)
+    private void attemptAuthenticate(boolean useSharedState)
         throws LoginException {
 
         getUsernamePassword(useSharedState);
 
         if (username == null) {
-            LOG.debug("[FileLoginModule] " + "username not found, returning false");
-            return false;
+            LOG.debug("[FileLoginModule] username not found");
+            throw new LoginException("Username not found");
         }
 
         if (password == null) {
-            LOG.debug("[FileLoginModule] " + "password not found, returning false");
-            return false;
+            LOG.debug("[FileLoginModule] password not found");
+            throw new LoginException("Password not found");
         }
 
         Map<String, UserConfig> users = jaasConfig.getUsers();
@@ -260,7 +252,7 @@ public class FileLoginModule implements LoginModule {
             cleanState();
 
             if (LOG.isTraceEnabled()) {
-                LOG.trace(String.format("Did not find username '%s'.", usernameNotFoundStr));
+                LOG.trace("Did not find user '{}'.", usernameNotFoundStr);
             }
 
             throw new FailedLoginException("Missing username");
@@ -292,7 +284,6 @@ public class FileLoginModule implements LoginModule {
         }
 
         state = State.LOGIN_COMPLETE;
-        return true;
     }
 
     private void getUsernamePassword(boolean useSharedState) throws LoginException {
@@ -310,11 +301,14 @@ public class FileLoginModule implements LoginModule {
 
         } catch (IOException e) {
 //            throw (LoginException) (new LoginException(e.getMessage()).initCause(e));
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("[FileLoginModule] - Encountered exception while handling name, password callbacks.", e);
+            }
           return;
 
         } catch (UnsupportedCallbackException e) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("[FileLoginModule] - UnsupportedCallbackException handling name, password callbacks.");
+                LOG.trace("[FileLoginModule] - UnsupportedCallbackException handling name, password callbacks.", e);
             }
             return;
         }

@@ -61,8 +61,17 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
     protected boolean doLogin() throws LoginException {
 
         if (!authenticationSchemeIsBasic()) {
-            return true;
+            throw new LoginException("Only able to handle Basic authentication scheme");
         }
+
+        // always challenge for basic authentication
+        if (loginResult == null) {
+            if (debug) {
+                LOG.debug("[BasicLoginModule] Unable to perform authentication: missing login result.");
+            }
+            throw new LoginException("Missing login result");
+        }
+        loginResult.challenge();
 
         if (tryFirstToken) {
             try {
@@ -70,7 +79,7 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
                 return true;
             } catch (LoginException le) {
                 if (debug) {
-                    LOG.debug("[BasicLoginModule] " + "reading from shared state failed: " + le.getMessage());
+                    LOG.debug("[BasicLoginModule] reading from shared state failed: ", le);
                 }
             }
         }
@@ -81,11 +90,11 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
         } catch (LoginException loginException) {
             cleanState();
             if (debug) {
-                LOG.debug("[BasicLoginModule] " + "regular authentication failed: " + loginException.getMessage());
+                LOG.debug("[BasicLoginModule] regular authentication failed: ", loginException);
             }
+            throw loginException;
         }
 
-        return false;
     }
 
     private boolean authenticationSchemeIsBasic() throws LoginException {
@@ -100,7 +109,7 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
             return false;
         } catch (UnsupportedCallbackException e) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("UnsupportedCallbackException handling authenticationTokenCallback.");
+                LOG.trace("UnsupportedCallbackException handling authenticationTokenCallback.", e);
             }
             return false;
         }
@@ -142,7 +151,7 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
             } else {
                 throw new LoginException("Syntax error while decoding HTTP Basic Authentication token.");
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             if (debug) {
                 LOG.debug("Exception decoding HTTP Basic Authentication token", e);
             }
@@ -166,7 +175,7 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
             return null;
         } catch (UnsupportedCallbackException e) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("UnsupportedCallbackException handling authenticationTokenCallback.");
+                LOG.trace("UnsupportedCallbackException handling authenticationTokenCallback.", e);
             }
             return null;
         }
@@ -196,7 +205,5 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
         cleanState();
         return true;
     }
-
-
 
 }

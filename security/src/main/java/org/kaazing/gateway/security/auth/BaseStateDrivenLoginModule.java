@@ -15,14 +15,24 @@
  */
 package org.kaazing.gateway.security.auth;
 
+import java.io.IOException;
 import java.util.Map;
 
 import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
+import org.kaazing.gateway.server.spi.security.LoginResult;
+import org.kaazing.gateway.server.spi.security.LoginResultCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public abstract class BaseStateDrivenLoginModule implements LoginModule {
+
+    public static final Logger LOGGER = LoggerFactory.getLogger(BaseStateDrivenLoginModule.class);
 
     protected enum State { INITIALIZE_REQUIRED, INITIALIZE_COMPLETE, LOGIN_COMPLETE, COMMIT_COMPLETE }
 
@@ -31,6 +41,7 @@ public abstract class BaseStateDrivenLoginModule implements LoginModule {
     protected CallbackHandler handler;
     protected Map<String, ?> sharedState;
     protected Map<String, ?> options;
+    protected LoginResult loginResult;
 
     @Override
     public void initialize(Subject subject,
@@ -42,6 +53,7 @@ public abstract class BaseStateDrivenLoginModule implements LoginModule {
         this.sharedState = sharedState;
         this.options = options;
         this.state = State.INITIALIZE_COMPLETE;
+        this.loginResult = getLoginResultFromCallback();
 
     }
 
@@ -140,6 +152,19 @@ public abstract class BaseStateDrivenLoginModule implements LoginModule {
     protected abstract boolean doCommit() throws LoginException;
 
     protected abstract boolean doLogout() throws LoginException;
+
+    private LoginResult getLoginResultFromCallback() {
+        LoginResultCallback loginResultCallback = new LoginResultCallback();
+
+        try {
+            this.handler.handle(new Callback[]{loginResultCallback});
+        } catch (IOException|UnsupportedCallbackException e) {
+            LOGGER.debug("Encountered exception handling loginResultCallback", e);
+            return null;
+        }
+
+        return loginResultCallback.getLoginResult();
+    }
 
 }
 
