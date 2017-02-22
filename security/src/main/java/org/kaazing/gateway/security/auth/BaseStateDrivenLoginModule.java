@@ -54,7 +54,6 @@ public abstract class BaseStateDrivenLoginModule implements LoginModule {
         this.options = options;
         this.state = State.INITIALIZE_COMPLETE;
         this.loginResult = getLoginResultFromCallback();
-
     }
 
     @Override
@@ -158,8 +157,8 @@ public abstract class BaseStateDrivenLoginModule implements LoginModule {
 
         try {
             this.handler.handle(new Callback[]{loginResultCallback});
-        } catch (IOException|UnsupportedCallbackException e) {
-            LOGGER.debug("Encountered exception handling loginResultCallback", e);
+        } catch (IOException | UnsupportedCallbackException e) {
+            LOGGER.debug("Unable to handle LoginResultCallback", e);
             return null;
         }
 

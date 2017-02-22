@@ -51,8 +51,10 @@ import org.slf4j.LoggerFactory;
 public class TimeoutLoginModule extends BaseStateDrivenLoginModule {
 
     public static final String CLASS_NAME = TimeoutLoginModule.class.getName();
-    public static final Logger logger = LoggerFactory.getLogger(CLASS_NAME);
+    public static final Logger LOGGER = LoggerFactory.getLogger(CLASS_NAME);
 
+    private static final String INITIALIZATION_FAILED_MESSAGE = "[TimeoutLoginModule] Initialization failed";
+    private static final String AUTHENTICATION_FAILED_MESSAGE = "[TimeoutLoginModule] Authentication failed";
     private static final String SESSION_TIMEOUT_KEY = "session-timeout";
 
     private boolean debug;
@@ -67,11 +69,16 @@ public class TimeoutLoginModule extends BaseStateDrivenLoginModule {
         this.forceFailure = "true".equalsIgnoreCase((String) options.get("force-failure"));
         this.sessionTimeout = readOption(options, SESSION_TIMEOUT_KEY);
         if (sessionTimeout == null) {
-            throw new RuntimeException("You must specify " + SESSION_TIMEOUT_KEY  + " option.");
+            IllegalArgumentException iae =
+                    new IllegalArgumentException(String.format("You must specify the \"%s\" option", SESSION_TIMEOUT_KEY));
+            if (debug) {
+                LOGGER.debug(INITIALIZATION_FAILED_MESSAGE, iae);
+            }
+            throw iae;
         }
 
         if (debug) {
-            logger.trace("[TimeoutLoginModule] session timeout configured as '" + sessionTimeout + "'");
+            LOGGER.debug("[TimeoutLoginModule] session timeout configured as '{}'", sessionTimeout);
         }
     }
 
@@ -79,16 +86,17 @@ public class TimeoutLoginModule extends BaseStateDrivenLoginModule {
     @Override
     protected boolean doLogin() throws LoginException {
         if (loginResult == null) {
+            LoginException le = new LoginException("Missing login result");
             if (debug) {
-                logger.debug("[TimeoutLoginModule] Unable to perform authentication: missing login result.");
+                LOGGER.debug(AUTHENTICATION_FAILED_MESSAGE, le);
             }
-            throw new LoginException("Missing login result");
+            throw le;
         }
 
         boolean performedAction = false;
         if (this.sessionTimeout != null) {
             if (debug) {
-                logger.trace("[TimeoutLoginModule] Setting session timeout to '" + sessionTimeout + "'");
+                LOGGER.debug("[TimeoutLoginModule] Setting session timeout to '{}'", sessionTimeout);
             }
             loginResult.setSessionTimeout(sessionTimeout);
             performedAction = true;
@@ -97,8 +105,12 @@ public class TimeoutLoginModule extends BaseStateDrivenLoginModule {
 
         // Clean up in case of failure to ensure nothing is set.
         if (!performedAction || this.forceFailure) {
+            LoginException le = new LoginException("Unable to set timeout");
+            if (debug) {
+                LOGGER.debug(AUTHENTICATION_FAILED_MESSAGE, le);
+            }
             cleanState();
-            throw new LoginException("Unable to set timeout");
+            throw le;
         }
 
         return performedAction;
@@ -123,7 +135,7 @@ public class TimeoutLoginModule extends BaseStateDrivenLoginModule {
             try {
                 return  Utils.parseTimeInterval(timeIntervalValue, TimeUnit.SECONDS);
             } catch (NumberFormatException e) {
-                logger.error("[TimeoutLoginModule] Cannot determine the value for " + key, e);
+                LOGGER.error("[TimeoutLoginModule] Cannot determine the value for {}", key, e);
                 throw e;
             }
         }

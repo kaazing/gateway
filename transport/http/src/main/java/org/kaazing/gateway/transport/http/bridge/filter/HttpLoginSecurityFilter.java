@@ -348,31 +348,31 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
                 subject = loginContext.getSubject();
                 if (!isSubjectAuthorized(subject, requireRoles)) {
-                    if (resultType != LoginResult.Type.CHALLENGE) {
-                        // we only enforce subject authorization at the end of the realm chain, otherwise we skip to the next realm
-                        if (realmIndex + 1 < realms.length) {
-                            loginContexts[realmIndex] = loginContext;
+                    // we only enforce subject authorization at the end of the realm chain, otherwise we skip to the next realm
+                    if (realmIndex + 1 < realms.length) {
+                        loginContexts[realmIndex] = loginContext;
 
-                            // remember login context
-                            httpRequest.setLoginContext(loginContext);
+                        // remember login context
+                        httpRequest.setLoginContext(loginContext);
 
-                            // remember subject
-                            httpRequest.setSubject((loginContext == null || loginContext == LOGIN_CONTEXT_OK) ? subject : loginContext.getSubject());
-                            return true;
-                        }
+                        // remember subject
+                        httpRequest.setSubject((loginContext == null || loginContext == LOGIN_CONTEXT_OK) ? subject : loginContext.getSubject());
+                        return true;
+                    }
 
-                        if (loggerEnabled()) {
-                            log("Login module login succeeded but requires another challenge, however no new challenge data was provided.");
-                        }
-                        writeResponse(HttpStatus.CLIENT_FORBIDDEN, nextFilter, session, httpRequest);
-                        return false;
-                    } else {
+                    if (resultType == LoginResult.Type.CHALLENGE) {
                         // Login was successful, but the subject identified does not have required roles
                         // to create the web socket.  We re-issue a challenge here.
                         String challenge = sendChallengeResponse(nextFilter, session, httpRequest, loginResult, realms, realmIndex, loginContexts);
                         if (loggerEnabled()) {
                             log(String.format("Login module login succeeded but subject missing required roles; Issued another challenge '%s'.", challenge));
                         }
+                        return false;
+                    } else {
+                        if (loggerEnabled()) {
+                            log("Login module login succeeded but requires another challenge, however no new challenge data was provided.");
+                        }
+                        writeResponse(HttpStatus.CLIENT_FORBIDDEN, nextFilter, session, httpRequest);
                         return false;
                     }
                 }

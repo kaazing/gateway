@@ -125,26 +125,21 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
             }
         } catch (Exception e) {
             if (debug) {
-                LOG.debug("Exception decoding HTTP Basic Authentication token", e);
+                LOG.debug("[NegotiateLoginModule] Exception decoding HTTP Basic Authentication token", e);
             }
             throw (LoginException) (new LoginException()).initCause(e);
         }
     }
 
     private boolean authenticationSchemeIsNegotiate() throws LoginException {
-         final AuthenticationTokenCallback authenticationTokenCallback = new AuthenticationTokenCallback();
+        final AuthenticationTokenCallback authenticationTokenCallback = new AuthenticationTokenCallback();
         try {
             handler.handle(new Callback[]{authenticationTokenCallback});
-        } catch (IOException e) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Encountered exception handling authenticationTokenCallback.", e);
+        } catch (IOException | UnsupportedCallbackException e) {
+            if (debug) {
+                LOG.debug("[NegotiateLoginModule] Encountered exception handling AuthenticationTokenCallback.", e);
             }
-            return false;
-        } catch (UnsupportedCallbackException e) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("UnsupportedCallbackException handling authenticationTokenCallback.", e);
-            }
-            return false;
+            throw (LoginException) new LoginException(e.getMessage()).initCause(e);
         }
 
         return authenticationTokenCallback.getAuthenticationToken() != null &&
@@ -153,7 +148,7 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
 
     }
 
-    private String getNegotiateAuthToken(boolean useSharedState) {
+    private String getNegotiateAuthToken(boolean useSharedState) throws LoginException {
         if (useSharedState) {
             return (String) ((Map) sharedState).get(KAAZING_TOKEN_KEY);
         }
@@ -161,18 +156,15 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
         final AuthenticationTokenCallback authenticationTokenCallback = new AuthenticationTokenCallback();
         try {
             handler.handle(new Callback[]{authenticationTokenCallback});
-        } catch (IOException e) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Encountered exception handling authenticationTokenCallback.", e);
+        } catch (IOException | UnsupportedCallbackException e) {
+            if (debug) {
+                LOG.debug("[NegotiateLoginModule] Encountered exception handling AuthenticationTokenCallback.", e);
             }
-            return null;
-        } catch (UnsupportedCallbackException e) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("UnsupportedCallbackException handling authenticationTokenCallback.", e);
-            }
-            return null;
+            throw (LoginException) new LoginException(e.getMessage()).initCause(e);
         }
-        return authenticationTokenCallback.getAuthenticationToken().get();
+
+        return authenticationTokenCallback.getAuthenticationToken() == null ? null
+                : authenticationTokenCallback.getAuthenticationToken().get();
     }
 
     private void cleanState() {

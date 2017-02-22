@@ -66,10 +66,11 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
 
         // always challenge for basic authentication
         if (loginResult == null) {
+            LoginException le = new LoginException("Missing login result");
             if (debug) {
-                LOG.debug("[BasicLoginModule] Unable to perform authentication: missing login result.");
+                LOG.debug("[BasicLoginModule] Unable to perform authentication", le);
             }
-            throw new LoginException("Missing login result");
+            throw le;
         }
         loginResult.challenge();
 
@@ -102,16 +103,11 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
 
         try {
             handler.handle(new Callback[]{authenticationTokenCallback});
-        } catch (IOException e) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Encountered exception handling authenticationTokenCallback.", e);
+        } catch (IOException | UnsupportedCallbackException e) {
+            if (debug) {
+                LOG.debug("Unable to handle AuthenticationTokenCallback.", e);
             }
-            return false;
-        } catch (UnsupportedCallbackException e) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("UnsupportedCallbackException handling authenticationTokenCallback.", e);
-            }
-            return false;
+            throw wrapInLoginException(e);
         }
 
         return authenticationTokenCallback.getAuthenticationToken() != null &&
@@ -156,11 +152,11 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
                 LOG.debug("Exception decoding HTTP Basic Authentication token", e);
             }
             cleanState();
-            throw (LoginException) (new LoginException(e.getMessage())).initCause(e);
+            throw wrapInLoginException(e);
         }
     }
 
-    private String getBasicAuthToken(boolean useSharedState) {
+    private String getBasicAuthToken(boolean useSharedState) throws LoginException {
         if (useSharedState) {
             return (String) ((Map) sharedState).get(KAAZING_TOKEN_KEY);
         }
@@ -168,16 +164,11 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
         final AuthenticationTokenCallback authenticationTokenCallback = new AuthenticationTokenCallback();
         try {
             handler.handle(new Callback[]{authenticationTokenCallback});
-        } catch (IOException e) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Encountered exception handling authenticationTokenCallback.", e);
+        } catch (IOException | UnsupportedCallbackException e) {
+            if (debug) {
+                LOG.debug("Unable to handle AuthenticationTokenCallback.", e);
             }
-            return null;
-        } catch (UnsupportedCallbackException e) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("UnsupportedCallbackException handling authenticationTokenCallback.", e);
-            }
-            return null;
+            throw wrapInLoginException(e);
         }
 
         AuthenticationToken authToken = authenticationTokenCallback.getAuthenticationToken();
@@ -206,4 +197,7 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
         return true;
     }
 
+    private LoginException wrapInLoginException(Exception e) {
+        return (LoginException) new LoginException(e.getMessage()).initCause(e);
+    }
 }
