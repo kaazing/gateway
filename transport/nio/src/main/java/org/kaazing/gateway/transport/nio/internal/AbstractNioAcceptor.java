@@ -21,6 +21,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_URI;
+import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.ALIGN;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.BridgeSession.NEXT_PROTOCOL_KEY;
 import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
@@ -162,6 +163,12 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             if (idleTimeout != null && idleTimeout > 0) {
                 session.getFilterChain().addLast("idle", new NioIdleFilter(logger, idleTimeout, session));
             }
+
+            Integer align = nioBinding.getBinding(localAddress).bindAddress().getOption(ALIGN);
+            if (align > 0) {
+                session.getFilterChain().addFirst("align", new UdpAlignFilter(logger, align, session));
+            }
+
 
             // note: defer sessionCreated until sessionOpened to support (optional) protocol dispatch
             SortedSet<String> nextProtocolNames = nioBinding.getNextProtocolNames();

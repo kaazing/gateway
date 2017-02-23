@@ -18,6 +18,7 @@ package org.kaazing.gateway.resource.address.udp;
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.ALIGN;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.BIND_ADDRESS;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.INTERFACE;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.MAXIMUM_OUTBOUND_RATE;
@@ -100,6 +101,11 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
         String udpInterface = (String) optionsByName.remove(INTERFACE.name());
         if (udpInterface != null) {
             options.setOption(INTERFACE, udpInterface);
+        }
+
+        Integer align = (Integer) optionsByName.remove(ALIGN.name());
+        if (align != null) {
+            options.setOption(ALIGN, align);
         }
 
     }
@@ -250,6 +256,7 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
         //       already handled during address creation
         address.setOption0(MAXIMUM_OUTBOUND_RATE, options.getOption(MAXIMUM_OUTBOUND_RATE));
         address.setOption0(INTERFACE, options.getOption(INTERFACE));
+        address.setOption0(ALIGN, options.getOption(ALIGN));
     }
 
     /**

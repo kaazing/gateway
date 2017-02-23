@@ -28,6 +28,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
+import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.ALIGN;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.BIND_ADDRESS;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.MAXIMUM_OUTBOUND_RATE;
 
@@ -83,6 +84,7 @@ public class UdpResourceAddressFactorySpiTest {
         options.put("udp.maximumOutboundRate", 534L);
         options.put("udp.qualifier", "random");
         options.put("udp.bind", new InetSocketAddress(2222));
+        options.put("udp.align", 4);
     }
 
     @Test
@@ -129,6 +131,7 @@ public class UdpResourceAddressFactorySpiTest {
         assertNull(address.getOption(QUALIFIER));
         assertNull(address.getOption(BIND_ADDRESS));
         assertEquals(0xFFFFFFFFL, address.getOption(MAXIMUM_OUTBOUND_RATE).longValue());
+        assertEquals(0, address.getOption(ALIGN).intValue());
     }
 
     @Test
@@ -138,6 +141,7 @@ public class UdpResourceAddressFactorySpiTest {
         assertEquals("random", address.getOption(QUALIFIER));
         assertNull(address.getOption(BIND_ADDRESS));
         assertEquals(534L, address.getOption(MAXIMUM_OUTBOUND_RATE).longValue());
+        assertEquals(4, address.getOption(ALIGN).intValue());
     }
 
     @Test

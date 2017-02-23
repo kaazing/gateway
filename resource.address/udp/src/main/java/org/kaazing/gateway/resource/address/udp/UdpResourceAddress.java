@@ -35,12 +35,15 @@ public final class UdpResourceAddress extends ResourceAddress {
 	public static final ResourceOption<InetSocketAddress> BIND_ADDRESS = new UdpBindAddressOption();
 	public static final ResourceOption<Long> MAXIMUM_OUTBOUND_RATE = new UdpMaximumOutboundRateOption();
 	public static final ResourceOption<String> INTERFACE = new UdpInterfaceOption();
+    public static final ResourceOption<Integer> ALIGN = new UdpAlignOption();
 
     private static final long MAXIMUM_OUTBOUND_RATE_DEFAULT = 0xFFFFFFFFL;
+    private static final int ALIGN_DEFAULT = 0;
 	
 	private InetSocketAddress bindAddress;
 	private long maximumOutboundRate = MAXIMUM_OUTBOUND_RATE.defaultValue();
 	private NetworkInterface updInterface;
+    private int align = ALIGN.defaultValue();
 
 	UdpResourceAddress(ResourceAddressFactorySpi factory, String original, URI resource) {
 		super(factory, original, resource);
@@ -63,6 +66,8 @@ public final class UdpResourceAddress extends ResourceAddress {
                 } else {
                     return (V) udpInterface2.getDisplayName();
                 }
+                case ALIGN:
+                    return (V) Integer.valueOf(align);
             }
         }
 		
@@ -92,6 +97,9 @@ public final class UdpResourceAddress extends ResourceAddress {
                         }
                     }
                     return;
+                case ALIGN:
+                    align = (Integer) value;
+                    return;
             }
         }
 
@@ -104,7 +112,7 @@ public final class UdpResourceAddress extends ResourceAddress {
 
     static class UdpResourceOption<T> extends ResourceOption<T> {
 
-		enum Kind { BIND_ADDRESS, MAXIMUM_OUTBOUND_RATE, INTERFACE }
+		enum Kind { BIND_ADDRESS, MAXIMUM_OUTBOUND_RATE, INTERFACE, ALIGN}
 		
 		static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
 
@@ -135,6 +143,12 @@ public final class UdpResourceAddress extends ResourceAddress {
     private static final class UdpInterfaceOption extends UdpResourceOption<String> {
         private UdpInterfaceOption() {
             super(Kind.INTERFACE, "interface");
+        }
+    }
+
+    private static final class UdpAlignOption extends UdpResourceOption<Integer> {
+        private UdpAlignOption() {
+            super(Kind.ALIGN, "align", ALIGN_DEFAULT);
         }
     }
 	
