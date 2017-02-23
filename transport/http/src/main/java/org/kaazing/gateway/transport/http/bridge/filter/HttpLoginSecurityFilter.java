@@ -20,7 +20,6 @@ import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REQUIRED_ROLES;
-import static org.kaazing.gateway.server.spi.security.LoginResult.Type.SUCCESS;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_FORWARDED;
