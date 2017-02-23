@@ -1112,8 +1112,8 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
                     // Send out 302 HTTP Balance for WSN and WSX 
                     Object balancerKeys = session.getParent().getAttribute(BALANCEES_KEY);
-                    if (!"x-kaazing-handshake".equals(wsProtocol0) && wsVersion == HYBI_13 && balancerKeys != null) {
-                        SocketAddress parentLocalAddress = session.getParent().getLocalAddress();
+                    if (!"x-kaazing-handshake".equals(wsProtocol0) && wsVersion == HYBI_13 && balancerKeys != null &&
+                            !"Y".equals(session.getParameter(".kl"))) {
                         assert balancerKeys instanceof List;
                         List<String> availableBalanceeURIs = (List<String>) balancerKeys;
                         String balanceURI = availableBalanceeURIs.get((int) (Math.random() * availableBalanceeURIs.size()));
@@ -1121,6 +1121,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                         session.setStatus(HttpStatus.REDIRECT_FOUND);
                         session.setWriteHeader("location", balanceURI);
                         session.close(false);
+                        break;
                     }
 
                     // build the HTML5 WebSocket handshake response
