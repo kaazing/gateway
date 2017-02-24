@@ -15,13 +15,13 @@
  */
 package org.kaazing.gateway.transport.nio.internal;
 
-import static org.apache.mina.core.session.IdleStatus.BOTH_IDLE;
+import java.util.Arrays;
 
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.filterchain.IoFilterChain;
-import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.transport.IoFilterAdapter;
+import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
+import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 
@@ -40,31 +40,23 @@ public class UdpAlignFilter extends IoFilterAdapter<IoSessionEx> {
     }
 
     @Override
-    public void onPostAdd(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception {
-        IoSession session = parent.getSession();
-        if (logger.isDebugEnabled()) {
-            logger.debug(String.format("Setting align %d on session %s ", align, session));
-        }
-        // TODO should do anything ?
-    }
-
-    @Override
-    protected void doSessionIdle(NextFilter nextFilter, IoSessionEx session, IdleStatus status) throws Exception {
-
-        if (status == BOTH_IDLE) {
-            if (logger.isInfoEnabled()) {
-                logger.info(String.format("Closing tcp session %s because idle timeout of %d secs is exceeded", session,
-                    align));
-            }
-            session.close(false);
-        }
-        super.doSessionIdle(nextFilter, session, status);
-    }
-
-    @Override
     protected void doMessageReceived(NextFilter nextFilter, IoSessionEx session, Object message) throws Exception {
-        if (message instanceof IoBuffer) {
-            System.out.println(session + ": got a buffer : " + message);
+        if (message instanceof IoBufferEx) {
+            IoBufferEx buffer = (IoBufferEx) message;
+            if (buffer.remaining() % this.align > 0) {
+                if (logger.isTraceEnabled()) {
+                    logger.trace(String.format("Received message with length: %d, aligning on %d bytes", buffer.remaining(), align));
+                }
+                final int padLength = this.align - (buffer.remaining() % this.align);
+                final byte[] padding = new byte[padLength];
+                Arrays.fill(padding, (byte) 0x00);
+                final IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+                IoBufferEx alignedBuffers = allocator.wrap(allocator.allocate(buffer.remaining() + padLength));
+                alignedBuffers.setAutoExpander(allocator);
+                alignedBuffers.put(buffer);
+                alignedBuffers.put(padding);
+                message = alignedBuffers.flip();
+            }
         }
         super.doMessageReceived(nextFilter, session, message);
     }
