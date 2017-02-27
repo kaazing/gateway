@@ -15,6 +15,10 @@
  */
 package org.kaazing.gateway.server;
 
+import static java.util.Collections.synchronizedSet;
+import static java.util.Collections.unmodifiableList;
+import static java.util.ServiceLoader.load;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,12 +27,14 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Set;
+
 import javax.annotation.Resource;
+
 import org.kaazing.gateway.server.context.GatewayContext;
+import org.kaazing.gateway.server.update.check.UpdateCheck;
 import org.kaazing.gateway.service.ServiceContext;
-import static java.util.Collections.synchronizedSet;
-import static java.util.Collections.unmodifiableList;
-import static java.util.ServiceLoader.load;
+import org.kaazing.gateway.util.InternalSystemProperty;
+import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
 public final class GatewayObserver implements GatewayObserverApi {
     private final List<GatewayObserverFactorySpi> gatewayListenerSpi;
@@ -149,6 +155,18 @@ public final class GatewayObserver implements GatewayObserverApi {
     public void startingGateway(GatewayContext gatewayContext) {
         for (GatewayObserverFactorySpi gatewayListenerSpi : gatewayListenerSpi) {
             injectResources(gatewayListenerSpi, gatewayContext.getInjectables());
+        }
+
+        Properties configuation = (Properties) gatewayContext.getInjectables().get("configuration");
+        Boolean updateCheck = InternalSystemProperty.UPDATE_CHECK.getBooleanProperty(configuation);
+        if (updateCheck) {
+            UpdateCheck updateCheckService = new UpdateCheck(configuation);
+            updateCheckService.setSchedulerProvider((SchedulerProvider) gatewayContext.getInjectables().get("schedulerProvider"));
+            try {
+                updateCheckService.start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         for (GatewayObserverApi gatewayListener : gatewayListenerSpi) {

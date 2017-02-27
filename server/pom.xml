@@ -243,6 +243,10 @@
             <artifactId>opencsv</artifactId>
             <version>${opencsv.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -363,6 +367,17 @@
                                 <Kaazing-Product>Community.Gateway</Kaazing-Product>
                             </manifestEntries>
                         </archive>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <additionalClasspathElements>
+                            <additionalClasspathElement>${basedir}/src/test/resources/gateway.server-5.0.0.8.jar</additionalClasspathElement>
+                        </additionalClasspathElements>
+                        <argLine>${surefireArgLine}</argLine>
+                        <skipTests>${skipTests}</skipTests>
                     </configuration>
                 </plugin>
             </plugins>

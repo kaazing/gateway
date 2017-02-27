@@ -13,47 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.update.check;
+package org.kaazing.gateway.server.update.check;
 
 import static java.util.concurrent.TimeUnit.DAYS;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductEdition;
 import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductTitle;
 import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductVersionPatch;
-import static org.kaazing.gateway.service.update.check.GatewayVersion.parseGatewayVersion;
+import static org.kaazing.gateway.server.update.check.GatewayVersion.parseGatewayVersion;
 
 import java.util.HashSet;
-import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 
 import javax.annotation.Resource;
 
-import org.kaazing.gateway.service.Service;
-import org.kaazing.gateway.service.ServiceContext;
+import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Creates and manages periodic checks to see if the gateway has updates
- * 
  */
-@Deprecated
-public class UpdateCheckService implements Service {
+public class UpdateCheck {
 
-    private ScheduledExecutorService scheduler;
-    private ScheduledFuture<?> scheduledTasks;
-
-    private GatewayVersion latestVersion;
     private final GatewayVersion currentVersion;
     private final String productName;
     private final String versionServiceUrl;
     private final Set<UpdateCheckListener> listeners = new HashSet<>();
-    private ServiceContext serviceContext;
+    private final Logger logger = LoggerFactory.getLogger(UpdateCheckTask.class);
+    private ScheduledExecutorService scheduler;
+    private GatewayVersion latestVersion;
 
-    public static String MANAGEMENT_UPDATE_CHECK_LISTENER = "updateCheckListeners";
 
-    public UpdateCheckService() {
+    public UpdateCheck(Properties configuration) {
         productName = getGatewayProductTitle().replaceAll("\\s+", "");
         try {
             currentVersion = parseGatewayVersion(getGatewayProductVersionPatch());
@@ -61,74 +55,44 @@ public class UpdateCheckService implements Service {
             throw new RuntimeException("Could not locate a product version associated with the jars on the classpath",
                     e);
         }
-        final String productEdition = getGatewayProductEdition().replaceAll("\\s+", "");
-        versionServiceUrl = (productEdition.toLowerCase().contains("enterprise")) ? "https://version.kaazing.com"
-                : "https://version.kaazing.org";
+        String serviceUrl = InternalSystemProperty.SERVICE_URL.getProperty(configuration);
+
+        if (serviceUrl != null)
+            versionServiceUrl = serviceUrl;
+        else {
+            final String productEdition = getGatewayProductEdition().replaceAll("\\s+", "");
+            versionServiceUrl = (productEdition.toLowerCase().contains("enterprise")) ? "https://version.kaazing.com"
+                    : "https://version.kaazing.org";
+        }
+
     }
 
     @Resource(name = "schedulerProvider")
     public void setSchedulerProvider(SchedulerProvider provider) {
-        this.scheduler = provider.getScheduler("update_check_service", false);
+        this.scheduler = provider.getScheduler("update_check", false);
     }
 
-    @Override
-    public String getType() {
-        return "update check";
-    }
 
-    @Override
-    public void init(ServiceContext serviceContext) throws Exception {
-        this.serviceContext = serviceContext;
-    }
-
-    @Override
     public void start() throws Exception {
-        // add listeners
         listeners.clear();
         addListener(new UpdateCheckLoggingListener());
-        Map<String, Object> serviceSpecificObjects = serviceContext.getServiceSpecificObjects();
-        Object managementListener = serviceSpecificObjects.get(MANAGEMENT_UPDATE_CHECK_LISTENER);
-        if (managementListener != null && managementListener instanceof UpdateCheckListener) {
-            addListener((UpdateCheckListener) managementListener);
-        }
         for (UpdateCheckListener listener : listeners) {
-            listener.setUpdateCheckService(this);
+            listener.setUpdateCheck(this);
         }
-        scheduledTasks = scheduler.scheduleAtFixedRate(new UpdateCheckTask(this, versionServiceUrl, productName), 0, 7,
+        UpdateCheckTask updateCheckTask = new UpdateCheckTask(this, versionServiceUrl, productName);
+        scheduler.scheduleAtFixedRate(updateCheckTask, 0, 7,
                 DAYS);
     }
 
-    @Override
-    public void stop() throws Exception {
-        scheduledTasks.cancel(false);
-    }
-
-    @Override
-    public void quiesce() throws Exception {
-        scheduledTasks.cancel(false);
-    }
-
-    @Override
-    public void destroy() throws Exception {
-        scheduledTasks.cancel(true);
-    }
-
     /**
-     * Forces a check for an update and registers the listener if it is not already registered
-     * @param updateCheckListener
+     * @return latest @GatewayVersion or null if the latest version has not been discovered
      */
-    public void checkForUpdate(UpdateCheckListener updateCheckListener) {
-        listeners.add(updateCheckListener);
-        if (scheduler != null) {
-            scheduler.schedule(new UpdateCheckTask(this, versionServiceUrl, productName), 0, SECONDS);
-        } else {
-            // the scheduler won't be provided if the service isn't actually running,
-            // but management may still ask for a check on update
-            new UpdateCheckTask(this, versionServiceUrl, productName).run();
-        }
+    private synchronized GatewayVersion getLatestGatewayVersion() {
+        return latestVersion;
     }
 
     protected void setLatestGatewayVersion(GatewayVersion newlatestVersion) {
+
         if (this.latestVersion == null || this.latestVersion.compareTo(newlatestVersion) < 0) {
             synchronized (this) {
                 this.latestVersion = newlatestVersion;
@@ -139,15 +103,10 @@ public class UpdateCheckService implements Service {
         }
     }
 
-    /**
-     * @return latest @GatewayVersion or null if the latest version has not been discovered
-     */
-    private synchronized GatewayVersion getLatestGatewayVersion() {
-        return latestVersion;
-    }
-
     private void notifyListeners() {
+
         for (UpdateCheckListener listener : listeners) {
+
             if (listener != null) {
                 listener.newVersionAvailable(currentVersion, getLatestGatewayVersion());
             }
@@ -156,6 +115,7 @@ public class UpdateCheckService implements Service {
 
     /**
      * Adds a @UpdateCheckListener who will be notified when the version changes,
+     *
      * @param newListener
      */
     public void addListener(UpdateCheckListener newListener) {
@@ -163,7 +123,7 @@ public class UpdateCheckService implements Service {
         if (latestGatewayVersion != null && latestGatewayVersion.compareTo(currentVersion) > 0) {
             newListener.newVersionAvailable(currentVersion, latestGatewayVersion);
         }
-        newListener.setUpdateCheckService(this);
+        newListener.setUpdateCheck(this);
         listeners.add(newListener);
     }
 }

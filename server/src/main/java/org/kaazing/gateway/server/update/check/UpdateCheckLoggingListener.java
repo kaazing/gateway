@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.update.check;
+package org.kaazing.gateway.server.update.check;
 
 import static java.lang.String.format;
 import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductTitle;
@@ -25,20 +25,19 @@ import org.slf4j.LoggerFactory;
  * On notifications of new versions, this class logs the information
  * 
  */
-@Deprecated
-public class UpdateCheckLoggingListener implements UpdateCheckListener {
+class UpdateCheckLoggingListener implements UpdateCheckListener {
 
     private final Logger logger = LoggerFactory.getLogger(UpdateCheckTask.class);
 
     @Override
     public void newVersionAvailable(GatewayVersion currentVersion, GatewayVersion latestGatewayVersion) {
         logger.info(format(
-                "Update Check Service: New release available for download: %s %s (you are currently running %s)",
+                "Update Check: New release available for download: %s %s (you are currently running %s)",
                 getGatewayProductTitle(), latestGatewayVersion, currentVersion));
     }
 
     @Override
-    public void setUpdateCheckService(UpdateCheckService service) {
+    public void setUpdateCheck(UpdateCheck updateCheck) {
         // NOOP, don't care about the service
     }
 }

@@ -17,7 +17,6 @@ package org.kaazing.gateway.util;
 
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
-import static java.lang.Long.parseLong;
 import static java.lang.Runtime.getRuntime;
 
 import java.util.Properties;
@@ -128,6 +127,11 @@ public enum InternalSystemProperty {
      */
     GATEWAY_IDENTIFIER
             ("org.kaazing.gateway.server.GATEWAY_IDENTIFIER", ""),
+
+    // Internal system property checking if a newer version of the Gateway is available
+    UPDATE_CHECK("org.kaazing.gateway.server.UPDATE_CHECK", "true"),
+
+    SERVICE_URL("org.kaazing.gateway.server.SERVICE_URL"),
 
     // TCP_IDLE_TIMEOUT will kill the session if nothing is written or read at nio level.
     // Note, the idle usage is using the mina netty idle timeout which may be set

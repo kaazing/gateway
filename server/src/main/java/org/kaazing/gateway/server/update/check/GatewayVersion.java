@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.update.check;
+package org.kaazing.gateway.server.update.check;
 
 import static java.lang.String.format;
 
@@ -22,9 +22,7 @@ import java.util.regex.Pattern;
 
 /**
  * Represent GatewayVersion with 3 digits of form major.minor.patch
- * 
  */
-@Deprecated
 public class GatewayVersion implements Comparable<GatewayVersion> {
 
     private static final String RELEASE_GA = "";
@@ -45,20 +43,34 @@ public class GatewayVersion implements Comparable<GatewayVersion> {
         this(major, minor, patch, RELEASE_GA);
     }
 
+    /**
+     * Parses a GatewayVersion from a String
+     *
+     * @param version
+     * @return
+     * @throws Exception
+     */
+    public static GatewayVersion parseGatewayVersion(String version) throws Exception {
+        if ("develop-SNAPSHOT".equals(version)) {
+            return new GatewayVersion(0, 0, 0);
+        } else {
+            String regex = "(?<major>[0-9]+)\\.(?<minor>[0-9]+)\\.(?<patch>[0-9]+)-?(?<rc>[RC0-9{3}]*)";
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(version);
+            if (matcher.matches()) {
+                int major = Integer.parseInt(matcher.group("major"));
+                int minor = Integer.parseInt(matcher.group("minor"));
+                int patch = Integer.parseInt(matcher.group("patch"));
+                String rc = matcher.group("rc");
+                return new GatewayVersion(major, minor, patch, rc);
+            } else {
+                throw new IllegalArgumentException(String.format("version String is not of form %s", regex));
+            }
+        }
+    }
+
     public int getMajor() {
         return major;
-    }
-
-    public int getMinor() {
-        return minor;
-    }
-
-    public int getPatch() {
-        return patch;
-    }
-
-    public String getRc() {
-        return rc;
     }
 
     @Override
@@ -83,31 +95,6 @@ public class GatewayVersion implements Comparable<GatewayVersion> {
         return result;
     }
 
-    /**
-     * Parses a GatewayVersion from a String
-     * @param version
-     * @return
-     * @throws Exception
-     */
-    public static GatewayVersion parseGatewayVersion(String version) throws Exception {
-        if ("develop-SNAPSHOT".equals(version)) {
-            return new GatewayVersion(0, 0, 0);
-        } else {
-            String regex = "(?<major>[0-9]+)\\.(?<minor>[0-9]+)\\.(?<patch>[0-9]+)-?(?<rc>[RC0-9{3}]*)";
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(version);
-            if (matcher.matches()) {
-                int major = Integer.parseInt(matcher.group("major"));
-                int minor = Integer.parseInt(matcher.group("minor"));
-                int patch = Integer.parseInt(matcher.group("patch"));
-                String rc = matcher.group("rc");
-                return new GatewayVersion(major, minor, patch, rc);
-            } else {
-                throw new IllegalArgumentException(String.format("version String is not of form %s", regex));
-            }
-        }
-    }
-
     @Override
     public String toString() {
         if (rc.equals(RELEASE_GA)) {
@@ -127,7 +114,7 @@ public class GatewayVersion implements Comparable<GatewayVersion> {
         } else if (this.patch != o.patch) {
             result = this.patch > o.patch ? 1 : -1;
         } else if (!this.rc.equals(o.rc)) {
-            result = RELEASE_GA.equals(this.rc)?1:(RELEASE_GA.equals(o.rc)?-1:this.rc.compareTo(o.rc));
+            result = RELEASE_GA.equals(this.rc) ? 1 : (RELEASE_GA.equals(o.rc) ? -1 : this.rc.compareTo(o.rc));
         } else {
             result = 0;
         }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package org.kaazing.gateway.service.update.check;
-
+@Deprecated
 public interface UpdateCheckListener {
 
     /**

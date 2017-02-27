@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.update.check;
+package org.kaazing.gateway.server.update.check;
 
 import static java.lang.String.format;
-import static org.kaazing.gateway.service.update.check.GatewayVersion.parseGatewayVersion;
+import static org.kaazing.gateway.server.update.check.GatewayVersion.parseGatewayVersion;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -31,21 +31,20 @@ import org.slf4j.LoggerFactory;
 /**
  * An update check task that updates the latest version
  */
-@Deprecated
 public class UpdateCheckTask implements Runnable {
 
     private final Logger logger = LoggerFactory.getLogger(UpdateCheckTask.class);
-    private final UpdateCheckService updateCheckService;
+    private final UpdateCheck updateCheck;
     private final String protocolVersion = "1.0";
     private final String versionServiceUrl;
 
     /**
-     * @param updateCheckService
+     * @param updateCheck
      * @param webServiceUrl
      * @param productName
      */
-    public UpdateCheckTask(UpdateCheckService updateCheckService, String webServiceUrl, String productName) {
-        this.updateCheckService = updateCheckService;
+    public UpdateCheckTask(UpdateCheck updateCheck, String webServiceUrl, String productName) {
+        this.updateCheck = updateCheck;
         if (webServiceUrl.endsWith("/")) {
             this.versionServiceUrl = format("%s%s/%s/latest", webServiceUrl, productName, protocolVersion);
         } else {
@@ -57,12 +56,13 @@ public class UpdateCheckTask implements Runnable {
     public void run() {
         GatewayVersion latestVersion = fetchLatestVersion();
         if (latestVersion != null) {
-            updateCheckService.setLatestGatewayVersion(latestVersion);
+            updateCheck.setLatestGatewayVersion(latestVersion);
         }
     }
 
     /**
      * Checks Kaazing Version Web Service to see what is the latest version of the product
+     *
      * @return null if an exception is caught, otherwise returns the latest version of the gateway
      */
     private GatewayVersion fetchLatestVersion() {
@@ -72,7 +72,7 @@ public class UpdateCheckTask implements Runnable {
             URL url = new URL(updateVersionUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
-            connection.setRequestProperty("User-Agent", "Kaazing Update Service");
+            connection.setRequestProperty("User-Agent", "Kaazing Update Property");
             connection.setRequestProperty("Connection", "close");
             connection.setRequestProperty("Accept", "text/plain");
             int responseCode = connection.getResponseCode();
@@ -84,11 +84,11 @@ public class UpdateCheckTask implements Runnable {
                     latestVersion = parseGatewayVersion(version);
                 }
             } else {
-                throw new Exception(format("Unexpected %d response code from versioning service", responseCode));
+                throw new Exception(format("Unexpected %d response code from versioning property", responseCode));
             }
         } catch (Exception e) {
             logger.warn(format(
-                    "Update Check Service: Could not contact Kaazing versioning service at %s to find latest version of product: %s",
+                    "Update Check: Could not contact Kaazing versioning property at %s to find latest version of product: %s",
                     updateVersionUrl, e));
         }
         return latestVersion;
@@ -96,6 +96,7 @@ public class UpdateCheckTask implements Runnable {
 
     /**
      * Here for testing, thus not public
+     *
      * @return
      */
     protected String getVersionServiceUrl() {

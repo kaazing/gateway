@@ -13,25 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.update.check;
+package org.kaazing.gateway.server.update.check;
 
-import static java.util.Collections.singleton;
+public interface UpdateCheckListener {
 
-import java.util.Collection;
+    /**
+     * Notifies the listener that a new @GatewayVersion is available
+     * Listeners may be notified more than once about the same update
+     *
+     * @param currentVersion
+     * @param latestGatewayVersion
+     */
+    void newVersionAvailable(GatewayVersion currentVersion, GatewayVersion latestGatewayVersion);
 
-import org.kaazing.gateway.service.Service;
-import org.kaazing.gateway.service.ServiceFactorySpi;
-@Deprecated
-public final class UpdateCheckServiceFactorySpi extends ServiceFactorySpi {
-    
-    @Override
-    public Collection<String> getServiceTypes() {
-        return singleton("update.check");
-    }
+    /**
+     * Listeners can force a update check through the service if they wish to
+     *
+     * @param updateCheck
+     */
+    void setUpdateCheck(UpdateCheck updateCheck);
 
-    @Override
-    public Service newService(String serviceType) {
-        assert "update.check".equals(serviceType);
-        return new UpdateCheckService();
-    }
 }
