@@ -21,6 +21,8 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_U
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.BridgeSession.NEXT_PROTOCOL_KEY;
 import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
+import static org.kaazing.gateway.transport.nio.internal.NioTcpBridgeProcessor.PARENT_KEY;
+import static org.kaazing.gateway.transport.nio.internal.NioTcpBridgeProcessor.TCP_SESSION_KEY;
 
 import java.net.URI;
 import java.util.Collection;
@@ -130,7 +132,7 @@ class NioTcpBridgeHandler extends IoHandlerAdapter<IoSessionEx> {
 
         newTcpBridgeSession.setTransportMetadata(acceptor.getTransportMetadata());
 
-        newTcpBridgeSession.setAttribute(AbstractNioAcceptor.PARENT_KEY, session);
+        newTcpBridgeSession.setAttribute(PARENT_KEY, session);
         newTcpBridgeSession.setTransportMetadata(acceptor.getTransportMetadata());
 
         // Propagate changes to idle time to the parent session
@@ -141,7 +143,7 @@ class NioTcpBridgeHandler extends IoHandlerAdapter<IoSessionEx> {
             }
         });
 
-        session.setAttribute(AbstractNioAcceptor.TCP_SESSION_KEY, newTcpBridgeSession);
+        session.setAttribute(TCP_SESSION_KEY, newTcpBridgeSession);
 
         if (binding.initializer() != null) {
             binding.initializer().initializeSession(newTcpBridgeSession, null);
@@ -163,7 +165,7 @@ class NioTcpBridgeHandler extends IoHandlerAdapter<IoSessionEx> {
     }
 
     private IoSession getTcpBridgeSession(IoSession session) {
-        return (IoSession) session.getAttribute(AbstractNioAcceptor.TCP_SESSION_KEY);
+        return (IoSession) session.getAttribute(TCP_SESSION_KEY);
     }
 
 

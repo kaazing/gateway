@@ -36,19 +36,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Resource;
 
 import org.apache.mina.core.future.IoFuture;
-import org.apache.mina.core.future.IoFutureListener;
-import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.DefaultIoSessionDataStructureFactory;
-import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
-import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.resource.address.Comparators;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.Bindings;
 import org.kaazing.gateway.transport.Bindings.Binding;
-import org.kaazing.gateway.transport.BridgeAcceptHandler;
 import org.kaazing.gateway.transport.BridgeAcceptor;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
@@ -57,7 +52,6 @@ import org.kaazing.gateway.transport.IoSessionAdapterEx;
 import org.kaazing.gateway.transport.NextProtocolBindings;
 import org.kaazing.gateway.transport.NioBindException;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
-import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.future.BindFuture;
 import org.kaazing.mina.core.future.DefaultUnbindFuture;
 import org.kaazing.mina.core.future.UnbindFuture;
@@ -91,7 +85,6 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
 
     private final IoHandlerAdapter<IoSessionEx> tcpBridgeHandler;
 
-
     public AbstractNioAcceptor(Properties configuration, Logger logger) {
         if (configuration == null) {
             throw new NullPointerException("configuration");
@@ -111,6 +104,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
         }
 
         idleTimeout = TCP_IDLE_TIMEOUT.getIntProperty(configuration);
+        final IoProcessorEx<IoSessionAdapterEx> tcpBridgeProcessor = new NioTcpBridgeProcessor(this.acceptor);
         tcpBridgeHandler = new NioTcpBridgeHandler(bindings, acceptor, resourceAddressFactory, bridgeServiceFactory, logger, getTransportName(), tcpBridgeProcessor);
     }
 
@@ -155,8 +149,8 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
     protected final void init() {
         acceptor = initAcceptor(null);
         acceptor.setSessionDataStructureFactory(new DefaultIoSessionDataStructureFactory());
-        BridgeAcceptHandler nioHandler = new NioBridgeAcceptHandler(this, resourceAddressFactory, bridgeServiceFactory, bindings, idleTimeout, logger, getTransportName());
-        acceptor.setHandler(nioHandler);
+        acceptor.setHandler(new NioBridgeAcceptHandler(this, // TODO maybe this reference could be removed
+            resourceAddressFactory, bridgeServiceFactory, bindings, idleTimeout, logger, getTransportName()));
     }
 
     @Override
@@ -171,20 +165,19 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
                      BridgeSessionInitializer<? extends IoFuture> initializer) throws NioBindException {
 
         initIfNecessary();
-
         ResourceAddress failedAddress = null;
         ResourceAddress currentAddress = address;
         while (currentAddress != null) {
             ResourceAddress transport = currentAddress.getTransport();
-            if (transport != null) {
+            if (transport != null) { // Udp over Socks over Tcp might get us here
                 Binding newBinding = new Binding(currentAddress, handler, initializer);
                 Binding binding = bindings.addBinding(newBinding);
                 if (binding != null) {
                     failedAddress = currentAddress;
                 }
                 ResourceAddress transportAddress = currentAddress.getTransport();
-                BridgeAcceptor acceptor = bridgeServiceFactory.newBridgeAcceptor(transportAddress);
-                acceptor.bind(transportAddress, tcpBridgeHandler, null);
+                BridgeAcceptor bridgeAcceptor = bridgeServiceFactory.newBridgeAcceptor(transportAddress);
+                bridgeAcceptor.bind(transportAddress, tcpBridgeHandler, null);
             } else {
                 // note: [Tcp,Udp]ResourceAddressFactorySpi resolves bind option (then network context) already
                 URI resource = currentAddress.getResource();
@@ -201,28 +194,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
                         failedAddress = currentAddress;
                     }
                     if (needsAcceptorBind) {
-                        // Asynchronous bind is needed to avoid a Netty error if bind is called from an IO worker thread.
-                        // This can happens from connect in SocksConnector in reverse mode (see KG-7179 for details).
-                        BindFuture bound = acceptor.bindAsync(socketAddress);
-                        bound.awaitUninterruptibly();
-                        Throwable e = bound.getException();
-                        if (e != null) {
-                            boolean preferIPv6Stack = "true".equalsIgnoreCase(System.getProperty("java.net.preferIPv6Stack"));
-                            if (!preferIPv6Stack && (e instanceof SocketException) && (socketAddress.getAddress() instanceof Inet6Address)) {
-                                skipIPv6Addresses = true;
-                            } else {
-                                String error = "Unable to bind resource: " + resource + " cause: " + e.getMessage();
-                                if (LOG.isDebugEnabled()) {
-                                    LOG.debug(error, e);
-                                } else {
-                                    LOG.error(error + " "+ e.getMessage());
-                                }
-                                throw new RuntimeException(error);
-                            }
-                        } else {
-                            boundAuthorities.add(currentAddress);
-                            LOG.info("Bound to resource: " + resource);
-                        }
+                        bindAcceptor(currentAddress, resource, socketAddress);
                     }
                 }
             }
@@ -236,6 +208,31 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
         }
     }
 
+    private void bindAcceptor(ResourceAddress currentAddress, URI resource, InetSocketAddress socketAddress) {
+        // Asynchronous bind is needed to avoid a Netty error if bind is called from an IO worker thread.
+        // This can happens from connect in SocksConnector in reverse mode (see KG-7179 for details).
+        BindFuture bound = acceptor.bindAsync(socketAddress);
+        bound.awaitUninterruptibly();
+        Throwable e = bound.getException();
+        if (e != null) {
+            boolean preferIPv6Stack = "true".equalsIgnoreCase(System.getProperty("java.net.preferIPv6Stack"));
+            if (!preferIPv6Stack && (e instanceof SocketException) && (socketAddress.getAddress() instanceof Inet6Address)) {
+                skipIPv6Addresses = true;
+            } else {
+                String error = "Unable to bind resource: " + resource + " cause: " + e.getMessage();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(error, e);
+                } else {
+                    LOG.error(error + " "+ e.getMessage());
+                }
+                throw new RuntimeException(error);
+            }
+        } else {
+            boundAuthorities.add(currentAddress);
+            LOG.info("Bound to resource: " + resource);
+        }
+    }
+
     @Override
     public UnbindFuture unbind(final ResourceAddress address) {
         // KG-3458: do the unbind asynchronously to avoid blocking the IoProcessor thread in cases where a session close
@@ -243,21 +240,16 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
         // a hang when there's a race with Gateway.destroy().
         if (!unbindScheduler.isShutdown()) {
             final UnbindFuture future = new DefaultUnbindFuture();
-            unbindScheduler.submit(new FutureTask<>(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        unbindInternal(address);
-                        future.setUnbound();
-                    } catch (ThreadDeath td) {
-                        throw td;
-                    } catch (Throwable t) {
-                        LOG.error("Exception during unbinding:\n"+address, t);
-                        //System.out.println("Exception during unbinding:\n"+address+"\n");
-                        //t.printStackTrace(System.out);
-                        future.setException(t);
-                        throw new RuntimeException(t);
-                    }
+            unbindScheduler.submit(new FutureTask<>(() -> {
+                try {
+                    unbindInternal(address);
+                    future.setUnbound();
+                } catch (ThreadDeath td) {
+                    throw td;
+                } catch (Throwable t) {
+                    LOG.error("Exception during unbinding:\n" + address, t);
+                    future.setException(t);
+                    throw new RuntimeException(t);
                 }
             }, Boolean.TRUE));
             return future;
@@ -326,78 +318,5 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
         URI location = address.getResource();
         return new InetSocketAddress(location.getHost(), location.getPort());
     }
-
-    //
-    // Tcp as a "virtual" bridge session when we specify tcp.transport option in a resource address.
-    //
-
-    public static final String TCP_SESSION_KEY = "tcp.bridgeSession.key"; // holds tcp session acting as a bridge
-    public static final String PARENT_KEY = "tcp.parentKey.key"; // holds parent of tcp bridge session
-
-    private final IoProcessorEx<IoSessionAdapterEx> tcpBridgeProcessor = new IoProcessorEx<IoSessionAdapterEx>() {
-        @Override
-        public void add(IoSessionAdapterEx session) {
-            // Do nothing
-        }
-
-        @Override
-        public void flush(IoSessionAdapterEx session) {
-            IoSession parent = (IoSession) session.getAttribute(PARENT_KEY);
-            WriteRequest req = session.getWriteRequestQueue().poll(session);
-
-            // Check that the request is not null. If the session has been closed,
-            // we may not have any pending requests.
-            if (req != null) {
-                final WriteFuture tcpBridgeWriteFuture = req.getFuture();
-                Object m = req.getMessage();
-                if (m instanceof IoBufferEx && ((IoBufferEx) m).remaining() == 0) {
-                    session.setCurrentWriteRequest(null);
-                    tcpBridgeWriteFuture.setWritten();
-                } else {
-                    WriteFuture parentWriteFuture = parent.write(m);
-                    parentWriteFuture.addListener(new IoFutureListener<WriteFuture>() {
-                        @Override
-                        public void operationComplete(WriteFuture future) {
-                            if (future.isWritten()) {
-                                tcpBridgeWriteFuture.setWritten();
-                            }
-                            else {
-                                tcpBridgeWriteFuture.setException(future.getException());
-                            }
-                        }
-                    });
-                }
-            }
-        }
-
-        @Override
-        public void remove(IoSessionAdapterEx session) {
-            LOG.debug("AbstractNioAcceptor Fake Processor remove session "+session);
-            IoSession parent = (IoSession) session.getAttribute(PARENT_KEY);
-            parent.close(false);
-            acceptor.getListeners().fireSessionDestroyed(session);
-        }
-
-        @Override
-        public void updateTrafficControl(IoSessionAdapterEx session) {
-            // Do nothing
-        }
-
-        @Override
-        public void dispose() {
-            // Do nothing
-        }
-
-        @Override
-        public boolean isDisposed() {
-            return false;
-        }
-
-        @Override
-        public boolean isDisposing() {
-            return false;
-        }
-
-    };
 
 }
