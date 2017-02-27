@@ -16,10 +16,13 @@
 package org.kaazing.gateway.transport.nio.internal;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertEquals;
 import static org.junit.rules.RuleChain.outerRule;
 import static org.kaazing.gateway.util.InternalSystemProperty.TCP_IDLE_TIMEOUT;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Exchanger;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.mina.core.service.IoHandler;
 import org.junit.Rule;
@@ -60,7 +63,8 @@ public class TcpIdleTimeoutIT {
     @Specification({"additions/idle.timeout/does.not.close.when.data"})
     public void serverDoesNotCloseWithData() throws Exception {
         CountDownLatch writeAfterOpen = new CountDownLatch(1);
-        CountDownLatch writeAfterRecv = new CountDownLatch(1);
+        AtomicInteger sends = new AtomicInteger(0);
+        Exchanger<AtomicInteger> exchanger = new Exchanger<>();
         IoHandler handler = new IoHandlerAdapter<IoSessionEx>() {
             @Override
             protected void doSessionOpened(IoSessionEx session) throws Exception {
@@ -70,7 +74,8 @@ public class TcpIdleTimeoutIT {
 
             @Override
             protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
-                writeAfterRecv.countDown();
+                sends.incrementAndGet();
+                exchanger.exchange(sends);
                 super.doMessageReceived(session, message);
             }
         };
@@ -78,12 +83,17 @@ public class TcpIdleTimeoutIT {
         k3po.start();
         k3po.notifyBarrier("BOUND");
         writeAfterOpen.await();
+
         Thread.sleep(3000);
         k3po.notifyBarrier("SEND1");
-        writeAfterRecv.await();
+        exchanger.exchange(sends);
+        assertEquals(1, sends.get());
+
         Thread.sleep(3000);
         k3po.notifyBarrier("SEND2");
-        writeAfterRecv.await();
+        exchanger.exchange(sends);
+        assertEquals(2, sends.get());
+
         Thread.sleep(1000);
         k3po.notifyBarrier("CLOSE");
         k3po.finish();
