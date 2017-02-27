@@ -21,6 +21,8 @@ import java.util.concurrent.locks.Lock;
 
 import org.kaazing.gateway.service.collections.CollectionsFactory;
 
+import com.hazelcast.core.ITopic;
+
 public interface ClusterContext {
 
     // initialization
@@ -53,4 +55,6 @@ public interface ClusterContext {
 
     void logClusterState();
     void logClusterStateAtInfoLevel();
+
+    <E> ITopic<E> getTopic(String name);
 }

@@ -111,6 +111,7 @@ public class JmxRoundTripLatencyIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, k3po).around(jmxConnection);
 
+
     @Specification("echoServiceToGetRoundTripLatencyAttributesFromJMX")
     @Test
     public void getRoundTripLatencyAttributesFromJmx() throws Exception {
@@ -136,37 +137,6 @@ public class JmxRoundTripLatencyIT {
 
         assertTrue("Could not retrieve Round Trip Latency from Jmx", latency > -1);
         assertTrue("Could not retrieve Round Trip Latency Timestamp from Jmx", latencyTimestamp > currentTimestamp);
-        k3po.finish();
-    }
-
-    @Ignore("This test should be written in HTTP so its generic and doesn't break as layers change,"
-            + " plus given that the above works and we have unit tests proving it should work for wseb")
-    @Specification("echoServiceToGetWsebRoundTripLatencyAttributesFromJMX")
-    @Test
-    public void getWsebRoundTripLatencyAttributesFromJmx() throws Exception {
-        Long latency = null;
-        Long latencyTimestamp = null;
-        Long currentTimestamp = currentTimeMillis();
-
-        k3po.start();
-
-        k3po.awaitBarrier("SESSION_ESTABLISHED");
-
-        MBeanServerConnection mbeanServerConn = jmxConnection.getConnection();
-        Set<ObjectName> mbeanNames = mbeanServerConn.queryNames(null, null);
-        String MBeanPrefix = "subtype=services,serviceType=echo,serviceId=\"" + WSE_URI + "\",name=sessions";
-        for (ObjectName name : mbeanNames) {
-            if (name.toString().indexOf(MBeanPrefix) > 0) {
-                latency = (Long) mbeanServerConn.getAttribute(name, "LastRoundTripLatency");
-                latencyTimestamp = (Long) mbeanServerConn.getAttribute(name, "LastRoundTripLatencyTimestamp");
-            }
-        }
-
-        k3po.notifyBarrier("READ_LATENCY_ATTRIBUTES");
-
-        assertTrue("Could not retrieve Round Trip Latency from Jmx", latency > -1);
-        assertTrue("Could not retrieve Round Trip Latency Timestamp from Jmx", latencyTimestamp > currentTimestamp);
-
         k3po.finish();
     }
 

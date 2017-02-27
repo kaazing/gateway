@@ -31,7 +31,6 @@ import org.junit.rules.Timeout;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.test.Expectations;
-import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 import java.net.DatagramPacket;
@@ -67,7 +66,6 @@ public class NioDatagramAcceptorTest {
         NioDatagramAcceptor acceptor = new NioDatagramAcceptor(configuration);
         acceptor.setResourceAddressFactory(newResourceAddressFactory());
         acceptor.setTcpAcceptor(tcpAcceptor);
-        acceptor.setSchedulerProvider(new SchedulerProvider());
 
         acceptor.bind(bindAddress, handler, null);
         String str = "Hello World";

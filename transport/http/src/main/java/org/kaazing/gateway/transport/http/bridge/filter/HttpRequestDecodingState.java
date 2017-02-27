@@ -245,9 +245,7 @@ public class HttpRequestDecodingState extends DecodingStateMachine {
 				
 				if ("chunked".equalsIgnoreCase(transferEncoding)) {
 					return true;
-				} 
-				
-				throw new ProtocolDecoderException("Unexpected transfer coding: " + transferEncoding);
+				}
 			}
 			
 			return false;

@@ -18,7 +18,7 @@ package org.kaazing.gateway.transport.udp.specification;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.kaazing.gateway.transport.nio.NioSystemProperty.UDP_IDLE_TIMEOUT;
+import static org.kaazing.gateway.util.InternalSystemProperty.UDP_IDLE_TIMEOUT;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.nio.ByteBuffer;

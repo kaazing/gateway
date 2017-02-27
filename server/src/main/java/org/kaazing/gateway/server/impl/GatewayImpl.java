@@ -166,13 +166,7 @@ final class GatewayImpl implements Gateway {
             throw new Exception("No environment has been specified");
         }
 
-        String bypassPlatformCheckStr = configuration.getProperty(BYPASS_PLATFORM_CHECK_PROPERTY);
-        boolean bypassPlatformCheck = bypassPlatformCheckStr != null &&
-                !bypassPlatformCheckStr.equalsIgnoreCase("false") &&
-                !bypassPlatformCheckStr.equalsIgnoreCase("no") &&
-                !bypassPlatformCheckStr.equalsIgnoreCase("n");
-
-        if (!bypassPlatformCheck && !supportedJavaVersion(1, 8, "0")) {
+        if (!supportedJavaVersion(1, 8, "0")) {
             throw new RuntimeException("Unsupported JDK version, Please install Java SE 8.0 or later and relaunch " +
                     "Kaazing WebSocket Gateway");
         }

@@ -64,14 +64,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.kaazing</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <configuration>
-                    <matchWithExisting>false</matchWithExisting>
-                    <strict>false</strict>
-                </configuration>
-            </plugin>
-            <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.4.3</version>
                 <configuration>
