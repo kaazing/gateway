@@ -30,6 +30,8 @@ import org.kaazing.gateway.service.collections.CollectionsFactory;
 import org.kaazing.gateway.service.collections.MemoryCollectionsFactory;
 import org.kaazing.gateway.util.Utils;
 
+import com.hazelcast.core.ITopic;
+
 /**
  * This class is the standalone case where the current node is itself the master this does not have any high availability
  * functionality. The only supported method for now is the Map.
@@ -127,6 +129,11 @@ public class StandaloneClusterContext implements ClusterContext {
     @Override
     public void logClusterStateAtInfoLevel() {
         // no cluster state to log for standalone
+    }
+
+    @Override
+    public <E> ITopic<E> getTopic(String name) {
+        return this.collectionsFactory.getTopic(name);
     }
 
 }

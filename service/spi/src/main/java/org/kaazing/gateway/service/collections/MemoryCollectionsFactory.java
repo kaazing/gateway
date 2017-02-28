@@ -67,6 +67,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
     private final ConcurrentMap<String, IListImpl<?>> lists;
     private final Map<String, ILockImpl> locks;
     private final ConcurrentMap<String, AtomicCounter> atomicCounters;
+    private final ConcurrentMap<String, ITopic<?>> topics;
 
     public MemoryCollectionsFactory() {
         // TODO: avoid memory leak
@@ -74,6 +75,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         lists = new ConcurrentHashMap<>();
         locks = Collections.synchronizedMap(new WeakHashMap<>());
         atomicCounters = new ConcurrentHashMap<>();
+        topics = new ConcurrentHashMap<>();
     }
 
     @SuppressWarnings("unchecked")
@@ -95,9 +97,10 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "getQueue"));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <E> ITopic<E> getTopic(String name) {
-        throw new UnsupportedOperationException(format(OPERATION_NOT_SUPPORTED_MESSAGE, "getTopic"));
+        return (ITopic<E>) topics.computeIfAbsent(name, s -> new MemoryTopic<E>(s));
     }
 
     @SuppressWarnings("unchecked")
