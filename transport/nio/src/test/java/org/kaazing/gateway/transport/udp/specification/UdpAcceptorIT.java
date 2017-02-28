@@ -41,6 +41,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.udp.UdpResourceAddress;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.udp.UdpAcceptorRule;
 import org.kaazing.k3po.junit.annotation.Specification;
@@ -308,6 +312,29 @@ public class UdpAcceptorIT {
 
         latch.await(2, SECONDS);
     }
+
+    @Test
+    @Specification("additions/align.content/client")
+    public void alignData() throws Exception {
+        CountDownLatch latch = new CountDownLatch(2);
+
+        ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
+        ResourceOptions resourceOptions = ResourceOptions.FACTORY.newResourceOptions();
+        resourceOptions.setOption(UdpResourceAddress.ALIGN, 4);
+        ResourceAddress acceptAddress = addressFactory.newResourceAddress("udp://127.0.0.1:8080", resourceOptions);
+        acceptor.bind(acceptAddress, new IoHandlerAdapter<IoSessionEx>() {
+            @Override
+            protected void doMessageReceived(IoSessionEx session, Object message) {
+                assertTrue(((IoBuffer) message).remaining() % 4 == 0);
+                latch.countDown();
+            }
+        });
+        k3po.start();
+        k3po.notifyBarrier("BOUND");
+        k3po.finish();
+        latch.await(2, SECONDS);
+    }
+
 
     private static String nTimes(String string, int n) {
         StringBuilder result = new StringBuilder();
