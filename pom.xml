@@ -11,7 +11,7 @@
 
     <artifactId>gateway</artifactId>
     <name>Kaazing Gateway</name>
-    <version>5.5.0-RC001</version>
+    <version>5.5.0</version>
     <packaging>pom</packaging>
 
     <url>https://github.com/kaazing/gateway</url>
