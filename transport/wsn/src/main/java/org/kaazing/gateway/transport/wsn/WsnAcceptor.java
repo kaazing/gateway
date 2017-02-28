@@ -296,6 +296,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
                     Collection<String> balanceeURIs = wsnSession.getBalanceeURIs();
                     String response = "" + '\uf0ff'; // Unique prefix to avoid collisions with responses from non Kaazing servers
+                                                     // Encoded from UTF-8 will become: 0xef 0x83 0xbf
                     if (balanceeURIs == null) {
                         // No balancer participated in this session initialization
                         response += "N";

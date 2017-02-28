@@ -74,4 +74,9 @@ public class WsnBalancerIT {
         robot.finish();
     }
 
+    @Test
+    @Specification("legacy.wsn.balancer.request")
+    public void shouldReceiveBalancerBytes() throws Exception {
+        robot.finish();
+    }
 }
