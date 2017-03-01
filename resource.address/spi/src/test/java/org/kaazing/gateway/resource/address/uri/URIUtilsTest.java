@@ -118,7 +118,6 @@ public class URIUtilsTest {
         URIUtils.getHost(uriString);
     }
 
-
     /**
      * Method performing asserts on 127.0.0.1
      * @param uri
