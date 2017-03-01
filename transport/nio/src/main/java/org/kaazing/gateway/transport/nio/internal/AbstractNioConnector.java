@@ -44,6 +44,7 @@ import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.transport.socket.nio.NioSocketSessionEx;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.udp.UdpResourceAddress;
 import org.kaazing.gateway.transport.BridgeConnectHandler;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -194,6 +195,11 @@ public abstract class AbstractNioConnector implements BridgeConnector {
 
                 if (logger.isTraceEnabled()) {
                     logger.trace(format("AbstractNioConnector.connectInternal()$initializeSession(), session: %s, resource: %s", session, resource));
+                }
+
+                int align = address.getOption(UdpResourceAddress.ALIGN);
+                if (align > 0) {
+                    session.getFilterChain().addFirst("align", new UdpAlignFilter(logger, align, session));
                 }
 
                 // connectors don't need lookup so set this directly on the session

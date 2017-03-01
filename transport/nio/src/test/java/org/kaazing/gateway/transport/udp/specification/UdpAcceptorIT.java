@@ -325,7 +325,7 @@ public class UdpAcceptorIT {
         acceptor.bind(acceptAddress, new IoHandlerAdapter<IoSessionEx>() {
             @Override
             protected void doMessageReceived(IoSessionEx session, Object message) {
-                assertTrue(((IoBuffer) message).remaining() % 4 == 0);
+                assertEquals(0, ((IoBuffer) message).remaining() % 4);
                 latch.countDown();
             }
         });

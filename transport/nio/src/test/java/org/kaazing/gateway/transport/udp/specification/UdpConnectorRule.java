@@ -59,6 +59,10 @@ public class UdpConnectorRule implements TestRule {
         return udpConnector.connect(connectAddress, connectHandler, initializer);
     }
 
+    public ConnectFuture connect(ResourceAddress connectAddress, IoHandler connectHandler, IoSessionInitializer<? extends ConnectFuture> initializer) {
+        return udpConnector.connect(connectAddress, connectHandler, initializer);
+    }
+
     private final class ConnectorStatement extends Statement {
 
         private final Statement base;

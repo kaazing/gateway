@@ -40,6 +40,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.udp.UdpResourceAddress;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
@@ -93,6 +97,12 @@ public class UdpConnectorIT {
             @Override
             protected void doSessionOpened(IoSessionEx session) {
                 writeStringMessageToSession("client data", session);
+            }
+
+            @Override
+            protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
+                System.out.println(message);
+                super.doMessageReceived(session, message);
             }
         });
         k3po.finish();
@@ -172,6 +182,32 @@ public class UdpConnectorIT {
             }
         });
 
+        k3po.finish();
+    }
+
+
+    @Test
+    @Specification("additions/align.content/server")
+    public void alignData() throws Exception {
+        ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
+        ResourceOptions resourceOptions = ResourceOptions.FACTORY.newResourceOptions();
+        resourceOptions.setOption(UdpResourceAddress.ALIGN, 4);
+        ResourceAddress connectAddress = addressFactory.newResourceAddress("udp://127.0.0.1:8080", resourceOptions);
+        ConnectFuture connectFuture = connector.connect(connectAddress, new IoHandlerAdapter<IoSessionEx>(){
+
+            @Override
+            protected void doSessionOpened(IoSessionEx session) {
+                writeStringMessageToSession("client data", session);
+            }
+
+            @Override
+            protected void doMessageReceived(IoSessionEx session, Object message) {
+                assertEquals(0, ((IoBuffer) message).remaining() % 4);
+            }
+        }, null);
+
+        connectFuture.await(1, SECONDS);
+        assertTrue(connectFuture.isConnected());
         k3po.finish();
     }
 
