@@ -31,10 +31,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import org.kaazing.gateway.server.context.GatewayContext;
-import org.kaazing.gateway.server.update.check.UpdateCheck;
 import org.kaazing.gateway.service.ServiceContext;
-import org.kaazing.gateway.util.InternalSystemProperty;
-import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
 public final class GatewayObserver implements GatewayObserverApi {
     private final List<GatewayObserverFactorySpi> gatewayListenerSpi;
@@ -155,18 +152,6 @@ public final class GatewayObserver implements GatewayObserverApi {
     public void startingGateway(GatewayContext gatewayContext) {
         for (GatewayObserverFactorySpi gatewayListenerSpi : gatewayListenerSpi) {
             injectResources(gatewayListenerSpi, gatewayContext.getInjectables());
-        }
-
-        Properties configuation = (Properties) gatewayContext.getInjectables().get("configuration");
-        Boolean updateCheck = InternalSystemProperty.UPDATE_CHECK.getBooleanProperty(configuation);
-        if (updateCheck) {
-            UpdateCheck updateCheckService = new UpdateCheck(configuation);
-            updateCheckService.setSchedulerProvider((SchedulerProvider) gatewayContext.getInjectables().get("schedulerProvider"));
-            try {
-                updateCheckService.start();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
 
         for (GatewayObserverApi gatewayListener : gatewayListenerSpi) {

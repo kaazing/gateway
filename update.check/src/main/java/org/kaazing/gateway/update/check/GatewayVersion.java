@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.server.update.check;
+package org.kaazing.gateway.update.check;
 
 import static java.lang.String.format;
 
@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 public class GatewayVersion implements Comparable<GatewayVersion> {
 
     private static final String RELEASE_GA = "";
-
+    private static final String VERSION = "develop-SNAPSHOT";
     private final int major;
     private final int minor;
     private final int patch;
@@ -51,7 +51,7 @@ public class GatewayVersion implements Comparable<GatewayVersion> {
      * @throws Exception
      */
     public static GatewayVersion parseGatewayVersion(String version) throws Exception {
-        if ("develop-SNAPSHOT".equals(version)) {
+        if (VERSION.equals(version)) {
             return new GatewayVersion(0, 0, 0);
         } else {
             String regex = "(?<major>[0-9]+)\\.(?<minor>[0-9]+)\\.(?<patch>[0-9]+)-?(?<rc>[RC0-9{3}]*)";

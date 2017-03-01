@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.server.update.check;
+package org.kaazing.gateway.update.check;
 
 public interface UpdateCheckListener {
 
@@ -25,12 +25,5 @@ public interface UpdateCheckListener {
      * @param latestGatewayVersion
      */
     void newVersionAvailable(GatewayVersion currentVersion, GatewayVersion latestGatewayVersion);
-
-    /**
-     * Listeners can force a update check through the service if they wish to
-     *
-     * @param updateCheck
-     */
-    void setUpdateCheck(UpdateCheck updateCheck);
 
 }

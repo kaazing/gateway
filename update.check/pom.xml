@@ -1,35 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>gateway</artifactId>
+        <groupId>org.kaazing</groupId>
+        <version>develop-SNAPSHOT</version>
+    </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.kaazing</groupId>
-        <artifactId>gateway</artifactId>
-        <version>develop-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
-    </parent>
-    <artifactId>gateway.service.update.check</artifactId>
-    <name>Update Check Service</name>
-    <description>Gateway service that checks for new releases of gateway</description>
+    <artifactId>gateway.update.check</artifactId>
+    <name>Update Check</name>
+    <description>Gateway property that checks for new releases of gateway</description>
 
-    <url>https://github.com/kaazing/gateway.service.update.check.git</url>
+    <url>https://github.com/kaazing/gateway</url>
     <scm>
-        <connection>scm:git:${project.scm.url}</connection>
-        <developerConnection>scm:git:${project.scm.url}</developerConnection>
-        <url>git@github.com:kaazing/gateway.service.update.check.git</url>
+        <connection>scm:git:https://github.com/kaazing/gateway.git</connection>
+        <url>https://github.com/kaazing/gateway</url>
     </scm>
 
     <dependencies>
         <dependency>
             <groupId>org.kaazing</groupId>
-            <artifactId>gateway.service</artifactId>
+            <artifactId>gateway.server</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- gateway.server.api is required to gain access to VersionUtils -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
-            <artifactId>gateway.server.api</artifactId>
+            <artifactId>gateway.transport.http</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -61,10 +67,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>k3po.junit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -91,4 +94,6 @@
             </plugin>
         </plugins>
     </build>
+
+
 </project>

@@ -148,6 +148,8 @@ public final class VersionUtils {
      *
      */
     private static void getGatewayProductInfo() {
+        // FIXME does the following todo still hold ?
+        //
         // TODO: Now that we've switched the products to include
         // an "assembly.version" JAR, this routine could be greatly
         // simplified. Removals and dependencies should no longer be needed.
@@ -158,39 +160,43 @@ public final class VersionUtils {
         }
 
         boolean foundJar = false;
-
+        String artifact = null;
         String[] pathEntries = System.getProperty("java.class.path").split(System.getProperty("path.separator"));
         HashMap<String, Attributes> products = new HashMap<>(7);
         HashSet<String> removals = new HashSet<>(7);
-        for (String pathEntry : pathEntries) {
-            if (pathEntry.contains("gateway.server")) {
-                try {
-                    JarFile jar = new JarFile(pathEntry);
-                    Manifest mf = jar.getManifest();
-                    Attributes attrs = mf.getMainAttributes();
-                    if (attrs != null) {
-                        String title = attrs.getValue("Implementation-Title");
-                        String version = attrs.getValue("Implementation-Version");
-                        String product = attrs.getValue("Kaazing-Product");
-                        String dependencies = attrs.getValue("Kaazing-Dependencies");
-                        if (product != null && title != null && version != null) {
-                            foundJar = true;
+        for (String pathEntry:  pathEntries) {
+            if (pathEntry.contains("gateway.server.test") || (pathEntry.contains("gateway.server") && artifact == null)) {
+                artifact = pathEntry;
+                foundJar = true;
+            }
+        }
 
-                            // Store the list of products found, but remove any products
-                            // marked as dependencies (i.e. products on which the current
-                            // product depends.  We want to find the product that nothing
-                            // else depends on.
-                            products.put(product != null ? product : title, attrs);
-                            if (dependencies != null) {
-                                String[] deps = dependencies.split(",");
-                                Collections.addAll(removals, deps);
-                            }
+        if (artifact != null) {
+            try {
+                JarFile jar = new JarFile(artifact);
+                Manifest mf = jar.getManifest();
+                Attributes attrs = mf.getMainAttributes();
+                if (attrs != null) {
+                    String title = attrs.getValue("Implementation-Title");
+                    String version = attrs.getValue("Implementation-Version");
+                    String product = attrs.getValue("Kaazing-Product");
+                    String dependencies = attrs.getValue("Kaazing-Dependencies");
+                    if (product != null && title != null && version != null) {
+                        foundJar = true;
+
+                        // Store the list of products found, but remove any products
+                        // marked as dependencies (i.e. products on which the current
+                        // product depends.  We want to find the product that nothing
+                        // else depends on.
+                        products.put(product != null ? product : title, attrs);
+                        if (dependencies != null) {
+                            String[] deps = dependencies.split(",");
+                            Collections.addAll(removals, deps);
                         }
                     }
                 }
-                catch (IOException e) {
-                    // ignore
-                }
+            } catch (IOException e) {
+                // ignore
             }
         }
 

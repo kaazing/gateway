@@ -54,6 +54,12 @@
 
         <dependency>
             <groupId>org.kaazing</groupId>
+            <artifactId>gateway.update.check</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.kaazing</groupId>
             <artifactId>gateway.bridge</artifactId>
         </dependency>
 

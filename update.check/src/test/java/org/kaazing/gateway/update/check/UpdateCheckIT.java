@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.server.update.check;
+package org.kaazing.gateway.update.check;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.util.InternalSystemProperty.SERVICE_URL;
 import static org.kaazing.gateway.util.InternalSystemProperty.UPDATE_CHECK;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -56,6 +55,7 @@ public class UpdateCheckIT {
             MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, null, true);
         }
     };
+
     @Rule
     public final TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(checkLogMessageRule).around(gateway).around(k3po)
             .around(timeoutRule(5, SECONDS));
@@ -64,11 +64,6 @@ public class UpdateCheckIT {
         GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                 .property(UPDATE_CHECK.getPropertyName(), "true")
                 .property(SERVICE_URL.getPropertyName(), "http://localhost:8080")
-                .webRootDirectory(new File("src/test/webapp"))
-                .service()
-                    .accept("ws://localhost:8001/jms")
-                    .type("echo")
-                .done()
                 .done();
         return configuration;
     }
@@ -83,7 +78,7 @@ public class UpdateCheckIT {
     @Test
     public void shouldNotifyOnUpdateCheck() throws Exception {
         k3po.finish();
-        expectedPatterns = Arrays.asList( "Update Check: New release available for download: Kaazing (WebSocket )?Gateway 6.6.6 \\(you are currently running \\d.\\d.\\d\\)"
+        expectedPatterns = Arrays.asList("Update Check: New release available for download: Kaazing (WebSocket )?Gateway 6.6.6 \\(you are currently running \\d.\\d.\\d\\)"
 
         );
     }
@@ -117,5 +112,4 @@ public class UpdateCheckIT {
                 "Unexpected 404 response code from versioning property"
         );
     }
-
 }

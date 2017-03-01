@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.server.update.check;
+package org.kaazing.gateway.update.check;
 
 import static java.lang.String.format;
-import static org.kaazing.gateway.server.update.check.GatewayVersion.parseGatewayVersion;
+import static org.kaazing.gateway.update.check.GatewayVersion.parseGatewayVersion;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -34,17 +34,17 @@ import org.slf4j.LoggerFactory;
 public class UpdateCheckTask implements Runnable {
 
     private final Logger logger = LoggerFactory.getLogger(UpdateCheckTask.class);
-    private final UpdateCheck updateCheck;
+    private final UpdateCheckGatewayObserver updateCheckGatewayObserver;
     private final String protocolVersion = "1.0";
     private final String versionServiceUrl;
 
     /**
-     * @param updateCheck
+     * @param updateCheckGatewayObserver
      * @param webServiceUrl
      * @param productName
      */
-    public UpdateCheckTask(UpdateCheck updateCheck, String webServiceUrl, String productName) {
-        this.updateCheck = updateCheck;
+    public UpdateCheckTask(UpdateCheckGatewayObserver updateCheckGatewayObserver, String webServiceUrl, String productName) {
+        this.updateCheckGatewayObserver = updateCheckGatewayObserver;
         if (webServiceUrl.endsWith("/")) {
             this.versionServiceUrl = format("%s%s/%s/latest", webServiceUrl, productName, protocolVersion);
         } else {
@@ -56,7 +56,7 @@ public class UpdateCheckTask implements Runnable {
     public void run() {
         GatewayVersion latestVersion = fetchLatestVersion();
         if (latestVersion != null) {
-            updateCheck.setLatestGatewayVersion(latestVersion);
+            updateCheckGatewayObserver.setLatestGatewayVersion(latestVersion);
         }
     }
 
