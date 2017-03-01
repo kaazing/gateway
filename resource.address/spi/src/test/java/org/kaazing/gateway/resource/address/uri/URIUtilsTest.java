@@ -45,6 +45,34 @@ public class URIUtilsTest {
     }
 
     @Test
+    public void uriUtilsMethodsBehaviorNoProtocol127001(){
+        String uriString = "127.0.0.1:8080/";
+        thrown.expect(IllegalArgumentException.class);
+        URIUtils.getHost(uriString);
+    }
+
+    @Test
+    public void uriUtilsMethodsBehaviorNoProtocolLocalhost(){
+        String uriString = "localhost:8080/";
+        thrown.expect(IllegalArgumentException.class);
+        URIUtils.getHost(uriString);
+    }
+
+    @Test
+    public void uriUtilsMethodsBehaviorProtocolOnly(){
+        String uriString = "ws://";
+        thrown.expect(IllegalArgumentException.class);
+        URIUtils.getHost(uriString);
+    }
+
+    @Test
+    public void uriUtilsMethodsBehaviorPortOnly(){
+        String uriString = ":8000";
+        thrown.expect(IllegalArgumentException.class);
+        URIUtils.getHost(uriString);
+    }
+
+    @Test
     public void uriUtilsMethodsBehaviorTcpLoopbackBrackets() {
         String uriString = "tcp://[@" + networkInterface + "]:8080/test?param1=val#fragment";
         assertEquals("[@" + networkInterface + "]", URIUtils.getHost(uriString));
@@ -89,6 +117,7 @@ public class URIUtilsTest {
         }
         URIUtils.getHost(uriString);
     }
+
 
     /**
      * Method performing asserts on 127.0.0.1

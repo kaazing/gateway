@@ -111,7 +111,7 @@ import org.w3c.dom.NodeList;
 
 import com.hazelcast.core.IMap;
 
-public class GatewayContextResolver {
+public class    GatewayContextResolver {
 
 	public static final String AUTHORIZATION_MODE_CHALLENGE = "challenge";
 
