@@ -1,5 +1,13 @@
 # Change Log
 
+## [5.5.0-RC001](https://github.com/kaazing/gateway/tree/5.5.0-RC001) (2017-02-16)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.4.1...5.5.0-RC001)
+
+**Merged pull requests:**
+
+- NPEs in DEBUG and ERROR log if IP address is incorrect  [\#868](https://github.com/kaazing/gateway/pull/868) ([StCostea](https://github.com/StCostea))
+- Add.hazelcast.topics [\#862](https://github.com/kaazing/gateway/pull/862) ([Anisotrop](https://github.com/Anisotrop))
+
 ## [5.4.1](https://github.com/kaazing/gateway/tree/5.4.1) (2017-02-10)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.4.0...5.4.1)
 
