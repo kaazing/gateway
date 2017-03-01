@@ -36,17 +36,18 @@ import org.apache.mina.core.session.IoSessionConfig;
 /**
  * A base implementation of {@link IoAcceptor}.
  *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  * @org.apache.xbean.XBean
  */
 /* This class (based on the Mina version) is needed for use in ChannelIoAcceptor in order to use our
  * AbstractIoSessionEx (which requires ChannelIoAcceptor to be derived from our version of AbstractIoService).
- * The following changes were made from the version in Mina 2.0.16:
+ * The following changes were made from the version in Mina 2.0.0-RC1g:
  * 1. Change package name
  * 2. Add imports of needed classes from the original package (org.apache.mina.core.service)
  * 3. Change checkAddressType, bindLock and boundAddresses from private to package-private so they can be used in
  *    AbstractIoAcceptorEx
- * 4. Widen scope of bind lock for subclasses.
+ * 4. Fix apparent Mina bugs in bind and unbind: fire service listeners to indicate service activated or deactivated
+ *    inside the synchronized bindLock block, to avoid possible wrong outcome in case of race between bind and unbind.
+ * 5. Widen scope of bind lock for subclasses.
  */
 public abstract class AbstractIoAcceptor
         extends AbstractIoService implements IoAcceptor {
@@ -73,7 +74,7 @@ public abstract class AbstractIoAcceptor
      * null {@link Executor} is provided, a default one will be created using
      * {@link Executors#newCachedThreadPool()}.
      *
-     * @see AbstractIoService#AbstractIoService(IoSessionConfig, Executor)
+     * {@see AbstractIoService#AbstractIoService(IoSessionConfig, Executor)}
      *
      * @param sessionConfig
      *            the default configuration for the managed {@link IoSession}
@@ -105,8 +106,7 @@ public abstract class AbstractIoAcceptor
     @Override
     public final Set<SocketAddress> getLocalAddresses() {
         Set<SocketAddress> localAddresses = new HashSet<>();
-
-        synchronized (boundAddresses) {
+        synchronized (bindLock) {
             localAddresses.addAll(boundAddresses);
         }
         return localAddresses;
@@ -146,7 +146,7 @@ public abstract class AbstractIoAcceptor
     @Override
     public final void setDefaultLocalAddresses(List<? extends SocketAddress> localAddresses) {
         if (localAddresses == null) {
-            throw new IllegalArgumentException("localAddresses");
+            throw new NullPointerException("localAddresses");
         }
         setDefaultLocalAddresses((Iterable<? extends SocketAddress>) localAddresses);
     }
@@ -157,29 +157,28 @@ public abstract class AbstractIoAcceptor
     @Override
     public final void setDefaultLocalAddresses(Iterable<? extends SocketAddress> localAddresses) {
         if (localAddresses == null) {
-            throw new IllegalArgumentException("localAddresses");
+            throw new NullPointerException("localAddresses");
         }
 
         synchronized (bindLock) {
-            synchronized (boundAddresses) {
-                if (!boundAddresses.isEmpty()) {
-                        throw new IllegalStateException("localAddress can't be set while the acceptor is bound.");
-                }
-
-                Collection<SocketAddress> newLocalAddresses =
-                        new ArrayList<>();
-                for (SocketAddress a: localAddresses) {
-                    checkAddressType(a);
-                    newLocalAddresses.add(a);
-                }
-
-                if (newLocalAddresses.isEmpty()) {
-                    throw new IllegalArgumentException("empty localAddresses");
-                }
-
-                this.defaultLocalAddresses.clear();
-                this.defaultLocalAddresses.addAll(newLocalAddresses);
+            if (!boundAddresses.isEmpty()) {
+                throw new IllegalStateException(
+                        "localAddress can't be set while the acceptor is bound.");
             }
+
+            Collection<SocketAddress> newLocalAddresses =
+                    new ArrayList<>();
+            for (SocketAddress a: localAddresses) {
+                checkAddressType(a);
+                newLocalAddresses.add(a);
+            }
+
+            if (newLocalAddresses.isEmpty()) {
+                throw new IllegalArgumentException("empty localAddresses");
+            }
+
+            this.defaultLocalAddresses.clear();
+            this.defaultLocalAddresses.addAll(newLocalAddresses);
         }
     }
 
@@ -232,7 +231,7 @@ public abstract class AbstractIoAcceptor
     @Override
     public final void bind(SocketAddress localAddress) throws IOException {
         if (localAddress == null) {
-            throw new IllegalArgumentException("localAddress");
+            throw new NullPointerException("localAddress");
         }
 
         List<SocketAddress> localAddresses = new ArrayList<>(1);
@@ -267,11 +266,11 @@ public abstract class AbstractIoAcceptor
     @Override
     public final void bind(Iterable<? extends SocketAddress> localAddresses) throws IOException {
         if (isDisposing()) {
-            throw new IllegalStateException("The Accpetor disposed is being disposed.");
+            throw new IllegalStateException("Already disposed.");
         }
 
         if (localAddresses == null) {
-            throw new IllegalArgumentException("localAddresses");
+            throw new NullPointerException("localAddresses");
         }
 
         List<SocketAddress> localAddressesCopy = new ArrayList<>();
@@ -287,10 +286,8 @@ public abstract class AbstractIoAcceptor
 
         boolean activate = false;
         synchronized (bindLock) {
-            synchronized (boundAddresses) {
-                if (boundAddresses.isEmpty()) {
-                    activate = true;
-                }
+            if (boundAddresses.isEmpty()) {
+                activate = true;
             }
 
             if (getHandler() == null) {
@@ -298,18 +295,13 @@ public abstract class AbstractIoAcceptor
             }
 
             try {
-                Set<SocketAddress> addresses = bindInternal(localAddressesCopy);
-
-                synchronized (boundAddresses) {
-                    boundAddresses.addAll(addresses);
-                }
+                boundAddresses.addAll(bindInternal(localAddressesCopy));
             } catch (IOException | RuntimeException e) {
                 throw e;
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 throw new RuntimeIoException(
                         "Failed to bind to: " + getLocalAddresses(), e);
             }
-
             if (activate) {
                 getListeners().fireServiceActivated();
             }
@@ -331,7 +323,7 @@ public abstract class AbstractIoAcceptor
     @Override
     public final void unbind(SocketAddress localAddress) {
         if (localAddress == null) {
-            throw new IllegalArgumentException("localAddress");
+            throw new NullPointerException("localAddress");
         }
 
         List<SocketAddress> localAddresses = new ArrayList<>(1);
@@ -346,10 +338,10 @@ public abstract class AbstractIoAcceptor
     public final void unbind(SocketAddress firstLocalAddress,
             SocketAddress... otherLocalAddresses) {
         if (firstLocalAddress == null) {
-            throw new IllegalArgumentException("firstLocalAddress");
+            throw new NullPointerException("firstLocalAddress");
         }
         if (otherLocalAddresses == null) {
-            throw new IllegalArgumentException("otherLocalAddresses");
+            throw new NullPointerException("otherLocalAddresses");
         }
 
         List<SocketAddress> localAddresses = new ArrayList<>();
@@ -364,67 +356,57 @@ public abstract class AbstractIoAcceptor
     @Override
     public final void unbind(Iterable<? extends SocketAddress> localAddresses) {
         if (localAddresses == null) {
-            throw new IllegalArgumentException("localAddresses");
+            throw new NullPointerException("localAddresses");
         }
 
         boolean deactivate = false;
         synchronized (bindLock) {
-            synchronized (boundAddresses) {
-                if (boundAddresses.isEmpty()) {
-                    return;
-                }
-
-                List<SocketAddress> localAddressesCopy = new ArrayList<>();
-                int specifiedAddressCount = 0;
-                for (SocketAddress a : localAddresses) {
-                    specifiedAddressCount++;
-                    if (a != null && boundAddresses.contains(a)) {
-                        localAddressesCopy.add(a);
-                    }
-                }
-                if (specifiedAddressCount == 0) {
-                    throw new IllegalArgumentException("localAddresses is empty.");
-                }
-
-                if (!localAddressesCopy.isEmpty()) {
-                    try {
-                        unbind0(localAddressesCopy);
-                    } catch (RuntimeException e) {
-                        throw e;
-                    } catch (Exception e) {
-                        throw new RuntimeIoException(
-                                "Failed to unbind from: " + getLocalAddresses(), e);
-                    }
-
-                    boundAddresses.removeAll(localAddressesCopy);
-                    if (boundAddresses.isEmpty()) {
-                        deactivate = true;
-                    }
-                }
+            if (boundAddresses.isEmpty()) {
+                return;
             }
 
+            List<SocketAddress> localAddressesCopy = new ArrayList<>();
+            int specifiedAddressCount = 0;
+            for (SocketAddress a: localAddresses) {
+                specifiedAddressCount ++;
+                if (a != null && boundAddresses.contains(a)) {
+                    localAddressesCopy.add(a);
+                }
+            }
+            if (specifiedAddressCount == 0) {
+                throw new IllegalArgumentException("localAddresses is empty.");
+            }
+
+            if (!localAddressesCopy.isEmpty()) {
+                try {
+                    unbind0(localAddressesCopy);
+                } catch (RuntimeException e) {
+                    throw e;
+                } catch (Throwable e) {
+                    throw new RuntimeIoException(
+                            "Failed to unbind from: " + getLocalAddresses(), e);
+                }
+
+                boundAddresses.removeAll(localAddressesCopy);
+                if (boundAddresses.isEmpty()) {
+                    deactivate = true;
+                }
+            }
             if (deactivate) {
                 getListeners().fireServiceDeactivated();
             }
         }
-
     }
 
     /**
      * Starts the acceptor, and register the given addresses
-     *
-     * @param localAddresses The address to bind to
      * @return the {@link Set} of the local addresses which is bound actually
-     * @throws Exception If the bind failed
      */
     protected abstract Set<SocketAddress> bindInternal(
             List<? extends SocketAddress> localAddresses) throws Exception;
 
     /**
      * Implement this method to perform the actual unbind operation.
-     *
-     * @param localAddresses The address to unbind from
-     * @throws Exception If the unbind failed
      */
     protected abstract void unbind0(
             List<? extends SocketAddress> localAddresses) throws Exception;
@@ -432,13 +414,11 @@ public abstract class AbstractIoAcceptor
     @Override
     public String toString() {
         TransportMetadata m = getTransportMetadata();
-        return '('
-                + m.getProviderName()
-                + ' '
-                + m.getName()
-                + " acceptor: "
-                + (isActive() ? "localAddress(es): " + getLocalAddresses() + ", managedSessionCount: "
-                        + getManagedSessionCount() : "not bound") + ')';
+        return '(' + m.getProviderName() + ' ' + m.getName() + " acceptor: " +
+               (isActive()?
+                       "localAddress(es): " + getLocalAddresses() +
+                       ", managedSessionCount: " + getManagedSessionCount() :
+                           "not bound") + ')';
     }
 
     void checkAddressType(SocketAddress a) {
@@ -451,24 +431,13 @@ public abstract class AbstractIoAcceptor
         }
     }
 
-    /**
-     * A {@Link IoFuture}
-     */
     public static class AcceptorOperationFuture extends ServiceOperationFuture {
         private final List<SocketAddress> localAddresses;
 
-        /**
-         * Creates a new AcceptorOperationFuture instance
-         *
-         * @param localAddresses The list of local addresses to listen to
-         */
         public AcceptorOperationFuture(List<? extends SocketAddress> localAddresses) {
             this.localAddresses = new ArrayList<>(localAddresses);
         }
 
-        /**
-         * @return The list of local addresses we listen to
-         */
         public final List<SocketAddress> getLocalAddresses() {
             return Collections.unmodifiableList(localAddresses);
         }
@@ -476,7 +445,6 @@ public abstract class AbstractIoAcceptor
         /**
          * @see Object#toString()
          */
-        @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
 

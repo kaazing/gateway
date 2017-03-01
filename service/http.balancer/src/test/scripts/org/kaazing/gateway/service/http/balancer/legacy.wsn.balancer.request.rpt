@@ -14,39 +14,32 @@
 # limitations under the License.
 #
 
-property writeMask ${httpx:randomBytes(4)}
+property writeMask ${ws:randomBytes(4)}
 
-connect http://localhost:8001/echo
+connect http://localhost:8001/echo?.kl=Y
 connected
 
 write method "GET"
 write version "HTTP/1.1"
-write header "Host" "gateway.kaazing.com:8001"
-write header "Connection" "Upgrade"
+write header host
 write header "Upgrade" "websocket"
-write header "Sec-WebSocket-Version" "13"
+write header "Connection" "Upgrade"
 write header "Sec-WebSocket-Key" "dGhlIHNhbXBsZSBub25jZQ=="
-write header "Sec-WebSocket-Protocol" "x-kaazing-handshake"
+write header "Sec-WebSocket-Version" "13"
 
 read status "101" /.+/
 read version "HTTP/1.1"
 read header "Connection" "Upgrade"
 read header "Date" /.+/
 read header "Sec-WebSocket-Accept" "s3pPLMBiTxaQ9kYGzzhZRbK+xOo="
-read header "Sec-WebSocket-Protocol" "x-kaazing-handshake"
 read header "Server" /.+/
 read header "Upgrade" "websocket"
 
-read [0x82 0x04 0xEF 0x83 0xBF 0x4E]
+read [0x82 0x23 0xef 0x83 0xbf 0x52]
+read "ws://localhost:8001/echo1?.kl=Y"
+read [0x88 0x02 0x03 0xe8]
 
-write [0x81 0xFE 0x00 0xA6] ${writeMask}
+write [0x88 0x02] ${writeMask}
 write option mask ${writeMask}
-write "GET /echo HTTP/1.1\r\n"
-write "WebSocket-Protocol: \r\n"
-write "Sec-WebSocket-Protocol: \r\n"
-write "Sec-WebSocket-Extensions: x-kaazing-idle-timeout,x-kaazing-ping-pong,x-kaazing-http-revalidate\r\n"
-write "\r\n"
+write [0x03 0xf3]
 write option mask [0x00 0x00 0x00 0x00]
-
-read [0x82 0x7E 0x00 0xCD]
-read /HTTP.+ 302 .+\r\n/
