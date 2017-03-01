@@ -27,7 +27,7 @@ import org.kaazing.gateway.resource.address.URLUtils;
  *
  */
 public final class URIUtils {
-    public static final String NETWORK_INTERFACE_AUTHORITY_PORT = "^(\\[@[a-zA-Z0-9 :]*\\]|@    [a-zA-Z0-9:]*):([0-9]*)$";
+    public static final String NETWORK_INTERFACE_AUTHORITY_PORT = "^(\\[@[a-zA-Z0-9 :]*\\]|@[a-zA-Z0-9:]*):([0-9]*)$";
     public static final String NETWORK_INTERFACE_AUTHORITY = "(\\[{0,1}@[a-zA-Z0-9 :]*\\]{0,1})";
     private static final String MOCK_HOST = "127.0.0.1";
 
