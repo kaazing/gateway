@@ -56,6 +56,7 @@ public class TcpIdleTimeoutIT {
         IoHandler handler = new IoHandlerAdapter<IoSessionEx>();
         acceptor.bind("tcp://127.0.0.1:8080", handler);
         k3po.notifyBarrier("BOUND");
+        k3po.awaitBarrier("CLOSEABLE");
         k3po.finish();
     }
 

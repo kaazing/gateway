@@ -24,7 +24,7 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.service.IoAcceptorEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
 
-public class NioTcpBridgeProcessor implements IoProcessorEx<IoSessionAdapterEx> {
+public class NioAcceptorTcpBridgeProcessor implements IoProcessorEx<IoSessionAdapterEx> {
 
     //
     // Tcp as a "virtual" bridge session when we specify tcp.transport option in a resource address.
@@ -34,7 +34,7 @@ public class NioTcpBridgeProcessor implements IoProcessorEx<IoSessionAdapterEx> 
 
     private final IoAcceptorEx acceptor;
 
-    NioTcpBridgeProcessor(IoAcceptorEx acceptor) {
+    NioAcceptorTcpBridgeProcessor(IoAcceptorEx acceptor) {
         this.acceptor = acceptor;
     }
 

@@ -21,8 +21,8 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_U
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.BridgeSession.NEXT_PROTOCOL_KEY;
 import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
-import static org.kaazing.gateway.transport.nio.internal.NioTcpBridgeProcessor.PARENT_KEY;
-import static org.kaazing.gateway.transport.nio.internal.NioTcpBridgeProcessor.TCP_SESSION_KEY;
+import static org.kaazing.gateway.transport.nio.internal.NioAcceptorTcpBridgeProcessor.PARENT_KEY;
+import static org.kaazing.gateway.transport.nio.internal.NioAcceptorTcpBridgeProcessor.TCP_SESSION_KEY;
 
 import java.net.URI;
 import java.util.Collection;
@@ -50,7 +50,7 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 
 
-class NioTcpBridgeHandler extends IoHandlerAdapter<IoSessionEx> {
+class NioAcceptorTcpBridgeHandler extends IoHandlerAdapter<IoSessionEx> {
 
     private final NextProtocolBindings bindings;
     private final IoAcceptorEx acceptor;
@@ -60,7 +60,8 @@ class NioTcpBridgeHandler extends IoHandlerAdapter<IoSessionEx> {
     protected final Logger logger;
     private final String transportName;
 
-    public NioTcpBridgeHandler(NextProtocolBindings bindings, IoAcceptorEx acceptor, ResourceAddressFactory resourceAddressFactory, BridgeServiceFactory bridgeServiceFactory, Logger logger, String transportName, IoProcessorEx tcpBridgeProcessor) {
+    public NioAcceptorTcpBridgeHandler(NextProtocolBindings bindings, IoAcceptorEx acceptor, ResourceAddressFactory resourceAddressFactory,
+            BridgeServiceFactory bridgeServiceFactory, Logger logger, String transportName, IoProcessorEx tcpBridgeProcessor) {
         this.bindings = bindings;
         this.acceptor = acceptor;
         this.resourceAddressFactory = resourceAddressFactory;

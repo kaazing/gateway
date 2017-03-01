@@ -25,7 +25,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
 import java.util.Properties;
-import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -33,15 +32,11 @@ import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.DefaultConnectFuture;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
-import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoConnector;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.AttributeKey;
-import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
-import org.apache.mina.core.write.WriteRequest;
-import org.apache.mina.transport.socket.nio.NioSocketSessionEx;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.udp.UdpResourceAddress;
@@ -52,22 +47,29 @@ import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.IoSessionAdapterEx;
 import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.NamedPipeAddress;
-import org.kaazing.mina.core.buffer.IoBufferEx;
-import org.kaazing.mina.core.filterchain.DefaultIoFilterChain;
 import org.kaazing.mina.core.service.IoConnectorEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
-import org.kaazing.mina.core.session.IoSessionConfigEx.ChangeListener;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 
 public abstract class AbstractNioConnector implements BridgeConnector {
 
-    private AtomicReference<IoConnectorEx> connector = new AtomicReference<>();
+    private AtomicReference<IoConnectorEx> connectorReference = new AtomicReference<>();
     private final AtomicBoolean started;
     protected final Properties configuration;
     protected final Logger logger;
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory addressFactory;
+    private IoHandlerAdapter<IoSessionEx> tcpBridgeHandler;
+    private IoProcessorEx<IoSessionAdapterEx> processor;
+
+    //
+    // Code to support "virtual" bridge tcp sessions when we have a transport defined.
+    //
+
+    public static final AttributeKey CREATE_SESSION_CALLABLE_KEY = new AttributeKey(AbstractNioConnector.class, "createSession");
+    public static final String PARENT_KEY = "tcp.connector.parent.key";
+    public static final String TCP_SESSION_KEY = "tcp.connector.bridgeSession.key";
 
     protected AbstractNioConnector(Properties configuration, Logger logger) {
         if (configuration == null) {
@@ -80,7 +82,6 @@ public abstract class AbstractNioConnector implements BridgeConnector {
     	this.logger = logger;
         this.started = new AtomicBoolean(false);
     }
-
 
     protected void init() {
         if (logger.isTraceEnabled()) {
@@ -96,9 +97,11 @@ public abstract class AbstractNioConnector implements BridgeConnector {
             }
         });
 
-        this.connector.set(connector);
+        this.connectorReference.set(connector);
         bridgeServiceFactory = initBridgeServiceFactory();
         addressFactory = initResourceAddressFactory();
+        tcpBridgeHandler =  new NioConnectorTcpBridgeHandler(logger, getTransportName());
+        processor = new NioConnectorTcpBridgeProcessor(this, logger);
     }
 
     protected abstract ResourceAddressFactory initResourceAddressFactory();
@@ -108,10 +111,13 @@ public abstract class AbstractNioConnector implements BridgeConnector {
         return configuration;
     }
 
+    public AtomicReference<IoConnectorEx> getConnectorReference() {
+        return connectorReference;
+    }
 
     @Override
     public void dispose() {
-        IoConnector connector = this.connector.getAndSet(null);
+        IoConnector connector = this.connectorReference.getAndSet(null);
     	if (connector != null) {
     		connector.dispose();
     	}
@@ -127,7 +133,6 @@ public abstract class AbstractNioConnector implements BridgeConnector {
                 }
             }
         }
-
         return connectInternal(address, handler, initializer);
     }
 
@@ -150,27 +155,29 @@ public abstract class AbstractNioConnector implements BridgeConnector {
         ResourceAddress transport = address.getTransport();
         if (transport != null) {
             final DefaultConnectFuture bridgeConnectFuture = new DefaultConnectFuture();
-
+            IoSessionInitializer<ConnectFuture> parentInitializer = createParentInitializer(
+                address,
+                handler,
+                (IoSessionInitializer) initializer,
+                bridgeConnectFuture,
+                addressFactory,
+                processor,
+                connectorReference
+            );
             // propagate connection failure, if necessary
-            IoFutureListener<ConnectFuture> parentConnectListener = new IoFutureListener<ConnectFuture>() {
-                @Override
-                public void operationComplete(ConnectFuture future) {
-                    // fail bridge connect future if parent connect fails
-                    if (!future.isConnected()) {
-                        bridgeConnectFuture.setException(future.getException());
+            bridgeServiceFactory.newBridgeConnector(transport)
+                .connect(transport, tcpBridgeHandler, parentInitializer)
+                .addListener(
+                    new IoFutureListener<ConnectFuture>() {
+                        @Override
+                        public void operationComplete(ConnectFuture future) {
+                            // fail bridge connect future if parent connect fails
+                            if (!future.isConnected()) {
+                                bridgeConnectFuture.setException(future.getException());
+                            }
+                        }
                     }
-                }
-            };
-
-            final BridgeConnector connector = bridgeServiceFactory.newBridgeConnector(transport);
-
-            IoSessionInitializer<ConnectFuture> parentInitializer = createParentInitializer(address,
-                                                                                            handler,
-                                                                                            (IoSessionInitializer)initializer,
-                                                                                            bridgeConnectFuture);
-
-            connector.connect(transport, tcpBridgeHandler, parentInitializer).addListener(parentConnectListener);
-
+                );
             return bridgeConnectFuture;
         }
 
@@ -182,13 +189,12 @@ public abstract class AbstractNioConnector implements BridgeConnector {
         }
 
         // KG-1452: Avoid deadlock between dispose and connectInternal
-        IoConnector connector = this.connector.get();
+        IoConnector connector = this.connectorReference.get();
         if (connector == null) {
             return DefaultConnectFuture.newFailedFuture(new IllegalStateException("Connector is being shut down"));
         }
 
         final String nextProtocol = address.getOption(ResourceAddress.NEXT_PROTOCOL);
-
         future = connector.connect(inetAddress, new IoSessionInitializer<T>() {
             @Override
             public void initializeSession(IoSession session, T future) {
@@ -197,9 +203,11 @@ public abstract class AbstractNioConnector implements BridgeConnector {
                     logger.trace(format("AbstractNioConnector.connectInternal()$initializeSession(), session: %s, resource: %s", session, resource));
                 }
 
-                int align = address.getOption(UdpResourceAddress.ALIGN);
-                if (align > 0) {
-                    session.getFilterChain().addFirst("align", new UdpAlignFilter(logger, align, session));
+                if (address instanceof UdpResourceAddress) {
+                    int align = address.getOption(UdpResourceAddress.ALIGN);
+                    if (align > 0) {
+                        session.getFilterChain().addFirst("align", new UdpAlignFilter(logger, align, session));
+                    }
                 }
 
                 // connectors don't need lookup so set this directly on the session
@@ -221,7 +229,6 @@ public abstract class AbstractNioConnector implements BridgeConnector {
         });
 
         future.addListener(new IoFutureListener<ConnectFuture>() {
-
             @Override
             public void operationComplete(ConnectFuture future) {
                 if (future.isConnected()) {
@@ -240,8 +247,6 @@ public abstract class AbstractNioConnector implements BridgeConnector {
                 }
             }
         });
-
-
         return future;
     }
 
@@ -271,259 +276,15 @@ public abstract class AbstractNioConnector implements BridgeConnector {
         return configuration;
     }
 
-
-    //
-    // Code to support "virtual" bridge tcp sessions when we have a transport defined.
-    //
-
-    private static final AttributeKey CREATE_SESSION_CALLABLE_KEY = new AttributeKey(AbstractNioConnector.class, "createSession");
-    public static final String PARENT_KEY = "tcp.connector.parent.key";
-    public static final String TCP_SESSION_KEY = "tcp.connector.bridgeSession.key";
-
-
-    private final IoProcessorEx<IoSessionAdapterEx> processor = new IoProcessorEx<IoSessionAdapterEx>() {
-        @Override
-        public void add(IoSessionAdapterEx session) {
-            // Do nothing
-        }
-
-        @Override
-        public void flush(IoSessionAdapterEx session) {
-            IoSession parent = (IoSession) session.getAttribute(PARENT_KEY);
-            WriteRequest req = session.getWriteRequestQueue().poll(session);
-
-            // Chek that the request is not null. If the session has been closed,
-            // we may not have any pending requests.
-            if (req != null) {
-                final WriteFuture tcpBridgeWriteFuture = req.getFuture();
-                Object m = req.getMessage();
-                if (m instanceof IoBufferEx && ((IoBufferEx) m).remaining() == 0) {
-                    session.setCurrentWriteRequest(null);
-                    tcpBridgeWriteFuture.setWritten();
-                } else {
-                    WriteFuture parentWriteFuture = parent.write(m);
-                    parentWriteFuture.addListener(new IoFutureListener<WriteFuture>() {
-                        @Override
-                        public void operationComplete(WriteFuture future) {
-                            if ( future.isWritten() ) {
-                                tcpBridgeWriteFuture.setWritten();
-                            } else {
-                                tcpBridgeWriteFuture.setException(future.getException());
-                            }
-                        }
-                    });
-                }
-            }
-        }
-
-        @Override
-        public void remove(IoSessionAdapterEx session) {
-            logger.debug("AbstractNioConnector.fake processor remove for session "+session);
-
-            IoSession parent = (IoSession) session.getAttribute(PARENT_KEY);
-            parent.close(false);
-            doFireSessionDestroyed(session);
-        }
-
-        protected void doFireSessionDestroyed(IoSessionAdapterEx session) {
-            final IoConnectorEx connector = AbstractNioConnector.this.connector.get();
-            if (connector != null) {
-                connector.getListeners().fireSessionDestroyed(session);
-            }
-        }
-
-        @Override
-        public void updateTrafficControl(IoSessionAdapterEx session) {
-            // Do nothing
-        }
-
-        @Override
-        public void dispose() {
-            // Do nothing
-        }
-
-        @Override
-        public boolean isDisposed() {
-            return false;
-        }
-
-        @Override
-        public boolean isDisposing() {
-            return false;
-        }
-
-    };
-
     private <T extends ConnectFuture> IoSessionInitializer<ConnectFuture> createParentInitializer(final ResourceAddress connectAddress,
                                                                                                   final IoHandler handler,
                                                                                                   final IoSessionInitializer<IoFuture> initializer,
-                                                                                                  final DefaultConnectFuture bridgeConnectFuture) {
-
+                                                                                                  final DefaultConnectFuture bridgeConnectFuture,
+                                                                                                  final ResourceAddressFactory addressFactory,
+                                                                                                  final IoProcessorEx<IoSessionAdapterEx> processor,
+                                                                                                  final AtomicReference<IoConnectorEx> connectorReference) {
         // initialize parent session before connection attempt
-        return new IoSessionInitializer<ConnectFuture>() {
-
-
-            @Override
-            public void initializeSession(final IoSession parent, ConnectFuture future) {
-                final IoSessionEx parentEx = (IoSessionEx) parent;
-
-                // initializer for bridge session to specify bridge handler,
-                // and call user-defined bridge session initializer if present
-                final IoSessionInitializer<IoFuture> bridgeSessionInitializer = new IoSessionInitializer<IoFuture> () {
-                    @Override
-                    public void initializeSession(IoSession bridgeSession, IoFuture future) {
-                        ((IoSessionAdapterEx)bridgeSession).setHandler(handler);
-
-                        if (initializer != null) {
-                            initializer.initializeSession(bridgeSession, future);
-                        }
-                    }
-                };
-
-                // factory to create a new tcp bridge session
-                Callable<IoSessionAdapterEx> createSession = new Callable<IoSessionAdapterEx>() {
-                    @Override
-                    public IoSessionAdapterEx call() throws Exception {
-
-                        // support connecting tcp over pipes / socket addresses
-                        setLocalAddressFromSocketAddress(parent,
-                                                         parent instanceof NioSocketSessionEx ? "tcp" : "udp");
-
-                        ResourceAddress transportAddress = LOCAL_ADDRESS.get(parent);
-                        final ResourceAddress localAddress =
-                                addressFactory.newResourceAddress(connectAddress, transportAddress);
-
-
-                        final IoConnectorEx connector = AbstractNioConnector.this.connector.get();
-                        IoSessionAdapterEx tcpBridgeSession = new IoSessionAdapterEx(parentEx.getIoThread(),
-                                                                                     parentEx.getIoExecutor(),
-                                                                                     connector,
-                                                                                 processor,
-                                                                                 connector.getSessionDataStructureFactory());
-
-                        tcpBridgeSession.setLocalAddress(localAddress);
-                        tcpBridgeSession.setRemoteAddress(connectAddress);
-                        tcpBridgeSession.setAttribute(PARENT_KEY, parent);
-                        tcpBridgeSession.setTransportMetadata(connector.getTransportMetadata());
-
-                        // Propagate changes to idle time to the parent session
-                        tcpBridgeSession.getConfig().setChangeListener(new ChangeListener() {
-                            @Override
-                            public void idleTimeInMillisChanged(IdleStatus status, long idleTime) {
-                                parentEx.getConfig().setIdleTimeInMillis(status, idleTime);
-                            }
-                        });
-
-                        parent.setAttribute(TCP_SESSION_KEY, tcpBridgeSession);
-
-                        tcpBridgeSession.setAttribute(DefaultIoFilterChain.SESSION_CREATED_FUTURE, bridgeConnectFuture);
-
-                        bridgeSessionInitializer.initializeSession(tcpBridgeSession, bridgeConnectFuture);
-
-                        connector.getFilterChainBuilder().buildFilterChain(tcpBridgeSession.getFilterChain());
-
-                        connector.getListeners().fireSessionCreated(tcpBridgeSession);
-
-
-                        return tcpBridgeSession;
-
-                    }
-
-                    private void setLocalAddressFromSocketAddress(final IoSession session,
-                                                                  final String transportName) {
-                        SocketAddress socketAddress = session.getLocalAddress();
-                        if (socketAddress instanceof InetSocketAddress) {
-                            InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
-                            ResourceAddress resourceAddress = newResourceAddress(inetSocketAddress,
-                                                                                 transportName);
-                            LOCAL_ADDRESS.set(session, resourceAddress);
-                        }
-                        else if (socketAddress instanceof NamedPipeAddress) {
-                            NamedPipeAddress namedPipeAddress = (NamedPipeAddress) socketAddress;
-                            ResourceAddress resourceAddress = newResourceAddress(namedPipeAddress,
-                                                                                 "pipe");
-                            LOCAL_ADDRESS.set(session, resourceAddress);
-                        }
-                    }
-
-
-                    public  ResourceAddress newResourceAddress(NamedPipeAddress namedPipeAddress,
-                                                               final String transportName) {
-                        String addressFormat = "%s://%s";
-                        String pipeName = namedPipeAddress.getPipeName();
-                        String transport = format(addressFormat, transportName, pipeName);
-                        return addressFactory.newResourceAddress(transport);
-                    }
-
-                    public  ResourceAddress newResourceAddress(InetSocketAddress inetSocketAddress,
-                                                               final String transportName) {
-                        InetAddress inetAddress = inetSocketAddress.getAddress();
-                        String hostAddress = inetAddress.getHostAddress();
-                        String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
-                        int port = inetSocketAddress.getPort();
-                        String transport = format(addressFormat, transportName, hostAddress, port);
-                        return addressFactory.newResourceAddress(transport);
-                    }
-
-                };
-
-                parent.setAttribute(CREATE_SESSION_CALLABLE_KEY, createSession);
-            }
-
-        };
+        return new NioConnectorParentSessionInitializer(handler, initializer, connectAddress, bridgeConnectFuture, addressFactory, processor, connectorReference);
     }
 
-    private final IoHandlerAdapter<IoSessionEx> tcpBridgeHandler = new IoHandlerAdapter<IoSessionEx>() {
-        @Override
-        public void doSessionCreated(IoSessionEx session) throws Exception {
-            LoggingFilter.addIfNeeded(logger, session, getTransportName());
-
-            super.doSessionCreated(session);
-        }
-
-        @Override
-        public void doSessionClosed(IoSessionEx session) throws Exception {
-            if (logger.isDebugEnabled()) {
-                logger.debug("AbstractNioConnector.doSessionClosed for session "+session);
-            }
-            IoSession tcpBridgeSession = getTcpBridgeSession(session);
-            tcpBridgeSession.getFilterChain().fireSessionClosed();
-        }
-
-        @Override
-        protected void doSessionOpened(final IoSessionEx session) throws Exception {
-            Callable<IoSessionAdapterEx> sessionFactory = (Callable<IoSessionAdapterEx>) session
-                    .removeAttribute(CREATE_SESSION_CALLABLE_KEY);
-            IoSessionAdapterEx tcpBridgeSession = sessionFactory.call();
-
-            // already added in session creator, in case of synchronous pipe write from sessionOpened
-            assert (session.getAttribute(TCP_SESSION_KEY) == tcpBridgeSession);
-
-        }
-
-        private IoSession getTcpBridgeSession(IoSession session) {
-            return (IoSession) session.getAttribute(TCP_SESSION_KEY);
-        }
-
-        @Override
-        protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
-            // TODO: reset implementation should inform this one.
-            IoSession tcpBridgeSession = getTcpBridgeSession(session);
-            if (tcpBridgeSession != null) {
-                tcpBridgeSession.getFilterChain().fireExceptionCaught(cause);
-            }
-        }
-
-        @Override
-        public void doSessionIdle(IoSessionEx session, IdleStatus status) throws Exception {
-            IoSession tcpBridgeSession = getTcpBridgeSession(session);
-            tcpBridgeSession.getFilterChain().fireSessionIdle(status);
-        }
-
-        @Override
-        protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
-            IoSession tcpBridgeSession = getTcpBridgeSession(session);
-            tcpBridgeSession.getFilterChain().fireMessageReceived(message);
-        }
-    };
 }

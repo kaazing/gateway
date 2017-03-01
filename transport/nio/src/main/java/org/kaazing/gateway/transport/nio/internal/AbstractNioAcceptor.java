@@ -104,8 +104,8 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
         }
 
         idleTimeout = TCP_IDLE_TIMEOUT.getIntProperty(configuration);
-        final IoProcessorEx<IoSessionAdapterEx> tcpBridgeProcessor = new NioTcpBridgeProcessor(this.acceptor);
-        tcpBridgeHandler = new NioTcpBridgeHandler(bindings, acceptor, resourceAddressFactory, bridgeServiceFactory, logger, getTransportName(), tcpBridgeProcessor);
+        final IoProcessorEx<IoSessionAdapterEx> tcpBridgeProcessor = new NioAcceptorTcpBridgeProcessor(this.acceptor);
+        tcpBridgeHandler = new NioAcceptorTcpBridgeHandler(bindings, acceptor, resourceAddressFactory, bridgeServiceFactory, logger, getTransportName(), tcpBridgeProcessor);
     }
 
     @Resource(name = "bridgeServiceFactory")
