@@ -31,24 +31,24 @@ import static java.util.Collections.unmodifiableList;
 import static java.util.ServiceLoader.load;
 
 public final class GatewayObserver implements GatewayObserverApi {
-    private final List<GatewayObserverFactorySpi> gatewayListenerSpi;
+    private final List<GatewayObserverApi> gatewayListenerSpi;
 
-    private GatewayObserver(Set<GatewayObserverFactorySpi> gatewayListenerSpis) {
-        List<GatewayObserverFactorySpi> list = new ArrayList<>(gatewayListenerSpis);
+    private GatewayObserver(Set<GatewayObserverApi> gatewayListenerSpis) {
+        List<GatewayObserverApi> list = new ArrayList<>(gatewayListenerSpis);
         this.gatewayListenerSpi = unmodifiableList(list);
     }
 
     public static GatewayObserver newInstance() {
-        return newInstance(load(GatewayObserverFactorySpi.class));
+        return newInstance(load(GatewayObserverApi.class));
     }
 
     public static GatewayObserver newInstance(ClassLoader loader) {
-        return newInstance(load(GatewayObserverFactorySpi.class, loader));
+        return newInstance(load(GatewayObserverApi.class, loader));
     }
 
-    private static GatewayObserver newInstance(ServiceLoader<GatewayObserverFactorySpi> gatewayListenerSpis) {
-        Set<GatewayObserverFactorySpi> gatewayListenerSpiList = synchronizedSet(new HashSet<>());
-        for (GatewayObserverFactorySpi gatewayListenerSpi : gatewayListenerSpis) {
+    private static GatewayObserver newInstance(ServiceLoader<GatewayObserverApi> gatewayListenerSpis) {
+        Set<GatewayObserverApi> gatewayListenerSpiList = synchronizedSet(new HashSet<>());
+        for (GatewayObserverApi gatewayListenerSpi : gatewayListenerSpis) {
             gatewayListenerSpiList.add(gatewayListenerSpi);
         }
         return new GatewayObserver(gatewayListenerSpiList);
@@ -147,7 +147,7 @@ public final class GatewayObserver implements GatewayObserverApi {
 
     @Override
     public void startingGateway(GatewayContext gatewayContext) {
-        for (GatewayObserverFactorySpi gatewayListenerSpi : gatewayListenerSpi) {
+        for (GatewayObserverApi gatewayListenerSpi : gatewayListenerSpi) {
             injectResources(gatewayListenerSpi, gatewayContext.getInjectables());
         }
 
