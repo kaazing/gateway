@@ -37,11 +37,14 @@ import java.util.concurrent.TimeoutException;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import org.kaazing.gateway.service.cluster.ClusterContext;
 import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
 import org.kaazing.gateway.service.collections.CollectionsFactory;
+import org.kaazing.test.util.ITUtil;
 
 public class DefaultClusterContextTest {
 
@@ -53,6 +56,9 @@ public class DefaultClusterContextTest {
 
     ClusterMemberTracker memberTracker1;
     ClusterMemberTracker memberTracker2;
+
+    @Rule
+    public RuleChain chain = ITUtil.createRuleChain(60, TimeUnit.SECONDS);
 
     private class ClusterMemberTracker implements MembershipEventListener {
 
@@ -134,8 +140,8 @@ public class DefaultClusterContextTest {
             MemberId member1 = new MemberId("tcp", "127.0.0.1", 46943);
             MemberId member2 = new MemberId("tcp", "127.0.0.1", 46942);
 
-            List accepts = Collections.singletonList(member1);
-            List connects = Collections.singletonList(member2);
+            List<MemberId> accepts = Collections.singletonList(member1);
+            List<MemberId> connects = Collections.singletonList(member2);
             final String clusterName = this.getClass().getName() + "-cluster1";
             clusterContext1 = new DefaultClusterContext(clusterName,
                     accepts,

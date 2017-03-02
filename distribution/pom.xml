@@ -355,7 +355,7 @@
                         <goals>
                             <goal>enforce</goal>
                         </goals>
-                        <phase>verify</phase>
+                        <phase>process-resources</phase>
                     </execution>
                 </executions>
             </plugin>

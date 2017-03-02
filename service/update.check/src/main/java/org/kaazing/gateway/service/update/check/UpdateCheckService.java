@@ -110,7 +110,9 @@ public class UpdateCheckService implements Service {
 
     @Override
     public void destroy() throws Exception {
-        scheduledTasks.cancel(true);
+    	// may be null if start was not called (exception in init)
+    	if (scheduledTasks != null)
+    		scheduledTasks.cancel(true);
     }
 
     /**

@@ -27,6 +27,7 @@ import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.bridge.CachingMessageEncoder;
 import org.kaazing.gateway.transport.bridge.Message;
 import org.kaazing.gateway.transport.bridge.MessageEncoder;
+import org.kaazing.gateway.transport.http.HttpAcceptor;
 import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
@@ -95,7 +96,7 @@ public class WsnSession extends AbstractWsBridgeSession<WsnSession, WsBuffer> {
 
     public boolean isBalanceSupported() {
         String query = httpRequestURI.getQuery();
-        return (query != null) && query.contains(".kl=Y");
+        return ((query != null) && query.contains(".kl=Y")) || this.getParent().getAttribute(HttpAcceptor.BALANCEES_KEY) != null;
     }
 
     public void setBalanceeURIs(Collection<String> balanceeURIs) {
