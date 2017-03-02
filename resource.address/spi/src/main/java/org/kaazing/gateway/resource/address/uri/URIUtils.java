@@ -58,7 +58,7 @@ public final class URIUtils {
         try {
             URI uri = new URI(uriString);
             if(uri.getHost()==null) {
-                throw new IllegalArgumentException("URI syntax invalid. Protocol, host and port are all required: " + uriString);
+                throw new IllegalArgumentException("Invalid URI syntax. Scheme and host must be provided (port number is optional): " + uriString);
             }
             if (uri.getAuthority().startsWith("@") && !uri.getHost().startsWith("@")) {
                 return "@" + uri.getHost();
