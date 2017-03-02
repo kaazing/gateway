@@ -57,8 +57,8 @@ public class UpdateCheckIT {
     };
 
     @Rule
-    public final TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(checkLogMessageRule).around(gateway).around(k3po)
-            .around(timeoutRule(5, SECONDS));
+    public final TestRule chain = RuleChain.outerRule(timeoutRule(5, SECONDS))
+            .around(new MethodExecutionTrace()).around(checkLogMessageRule).around(k3po).around(gateway);
 
     protected GatewayConfiguration createGatewayConfiguration() {
         GatewayConfiguration configuration = new GatewayConfigurationBuilder()
