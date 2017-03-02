@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -395,7 +396,7 @@ public class DefaultClusterContextTest {
         String targetURI = format("ws://node%d.example.com:8080/path", nodeId);
         Set<String> currentTargets = sharedBalancerMap.get(balanceURI);
         if (currentTargets == null) {
-            currentTargets = new HashSet<>();
+            currentTargets = new TreeSet<>();
         }
         currentTargets.add(targetURI);
         sharedBalancerMap.put(balanceURI, currentTargets);
