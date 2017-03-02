@@ -37,8 +37,8 @@ import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.GatewayObserver;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.api.GatewayAlreadyRunningException;
-import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.config.june2016.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.context.resolve.GatewayContextResolver;
 import org.kaazing.gateway.server.util.version.DuplicateJarFinder;
@@ -296,6 +296,7 @@ final class GatewayImpl implements Gateway {
         GatewayConfigDocument config = parser.parse(gatewayConfigFile);
         GatewayContextResolver resolver = new GatewayContextResolver(configDir, webRootDir, tempDir, jmxMBeanServer);
         gatewayObserver.initingGateway(configuration, resolver.getInjectables());
+        resolver.setObserver(gatewayObserver);
         GatewayContext context = resolver.resolve(config, configuration);
 
         gateway = new Launcher(gatewayObserver);

@@ -64,6 +64,7 @@ import org.kaazing.gateway.security.auth.BasicLoginModule;
 import org.kaazing.gateway.security.auth.NegotiateLoginModule;
 import org.kaazing.gateway.security.auth.TimeoutLoginModule;
 import org.kaazing.gateway.server.Gateway;
+import org.kaazing.gateway.server.GatewayObserver;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.config.SchemeConfig;
 import org.kaazing.gateway.server.config.june2016.AuthenticationType;
@@ -180,6 +181,7 @@ public class GatewayContextResolver {
 
     private Map<String, Object> injectables = new HashMap<>();
 
+    private GatewayObserver observer;
     public GatewayContextResolver(File configDir, File webDir, File tempDir) {
         this(configDir, webDir, tempDir, null);
     }
@@ -1008,23 +1010,27 @@ public class GatewayContextResolver {
                     if (controlFlag == null) {
                         throw new IllegalArgumentException("Unrecognized login module type: " + type);
                     }
+                    String className;
 
                     if (type.startsWith(LOGIN_MODULE_TYPE_CLASS_PREFIX)) {
-                        String className = type.substring(LOGIN_MODULE_TYPE_CLASS_PREFIX.length());
+                        className = type.substring(LOGIN_MODULE_TYPE_CLASS_PREFIX.length());
                         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
                         try {
                             classLoader.loadClass(className);
                         } catch (ClassNotFoundException e) {
                             throw new IllegalArgumentException("Unable to find the login module class: " + className, e);
                         }
-                        configurationEntries.add(new AppConfigurationEntry(className, controlFlag, options));
                     } else {
-                        String className = getLoginModuleClass(type);
+                        className = getLoginModuleClass(type);
                         if (className == null) {
                             throw new IllegalArgumentException("Unrecognized login module type: " + type);
                         }
-                        configurationEntries.add(new AppConfigurationEntry(className, controlFlag, options));
                     }
+
+                    if (this.getObserver() != null) {
+                        this.getObserver().parseCustomOptions(options, rawOptions);
+                    }
+                    configurationEntries.add(new AppConfigurationEntry(className, controlFlag, options));
                 }
 
                 updateLoginModuleConfigurationEntries(securityConfig, authType, authenticationContext, configurationEntries,
@@ -1310,6 +1316,14 @@ public class GatewayContextResolver {
 
     public Map<String, Object> getInjectables() {
         return injectables;
+    }
+
+    public GatewayObserver getObserver() {
+        return observer;
+    }
+
+    public void setObserver(GatewayObserver observer) {
+        this.observer = observer;
     }
 
 }

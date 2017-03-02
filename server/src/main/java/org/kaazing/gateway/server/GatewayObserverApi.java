@@ -18,6 +18,7 @@ package org.kaazing.gateway.server;
 import java.util.Map;
 import java.util.Properties;
 
+import org.kaazing.gateway.server.config.june2016.LoginModuleOptionsType;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.ServiceContext;
 
@@ -108,5 +109,13 @@ public interface GatewayObserverApi {
      * @param injectables
      */
     void initingGateway(Properties configuration, Map<String, Object> injectables);
+
+        /**
+    * Notification that the gateway is configured additional parsing of the file can be done and 
+    * various custom properties can be set-up
+    * @param options
+    * @param rawOptions - the actual XML
+    */
+    void parseCustomOptions(Map<String, Object> options, LoginModuleOptionsType rawOptions);
 
 }
