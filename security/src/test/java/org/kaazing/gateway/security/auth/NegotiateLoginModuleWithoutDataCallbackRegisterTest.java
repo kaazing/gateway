@@ -16,18 +16,11 @@
 package org.kaazing.gateway.security.auth;
 
 import static javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag.REQUIRED;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 import java.util.HashMap;
 
 import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
@@ -46,10 +39,10 @@ import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.security.auth.token.DefaultAuthenticationToken;
 import org.kaazing.gateway.server.spi.security.AuthenticationToken;
 import org.kaazing.gateway.server.spi.security.AuthenticationTokenCallback;
-import org.kaazing.gateway.server.spi.security.LoginResult;
 import org.kaazing.gateway.server.spi.security.LoginResultCallback;
 
-public class BasicLoginModuleTest {
+public class NegotiateLoginModuleWithoutDataCallbackRegisterTest {
+
     DefaultLoginContextFactory factory;
     Mockery context;
     Configuration configuration;
@@ -57,7 +50,6 @@ public class BasicLoginModuleTest {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
-
 
     @Before
     public void setUp() throws Exception {
@@ -75,60 +67,15 @@ public class BasicLoginModuleTest {
     }
 
     @Test
-    public void testBasicLoginModuleAddsRegisteredNameAndPasswordCallbacksThatWorkCorrectly() throws Exception {
-        AuthenticationToken s = new DefaultAuthenticationToken("Basic", "Basic "+new String(Base64.encodeBase64("joe:welcome".getBytes())));
+    public void testNegotiateModuleFailsOnUnrecognizedScheme() throws Exception {
+        AuthenticationToken s =
+                new DefaultAuthenticationToken("Basic", "Basic " + new String(Base64.encodeBase64("joe:welcome".getBytes())));
         context.checking(new Expectations() {
             {
                 oneOf(configuration).getAppConfigurationEntry(REALM_NAME);
-                final String loginModuleName = "org.kaazing.gateway.security.auth.BasicLoginModule";
+                final String loginModuleName = "org.kaazing.gateway.security.auth.NegotiateLoginModule";
                 final HashMap<String, Object> options = new HashMap<>();
-                final AppConfigurationEntry entry = new AppConfigurationEntry(loginModuleName,
-                        REQUIRED, options);
-                will(returnValue(new AppConfigurationEntry[]{entry}));
-            }
-        });
-
-        Subject subject = new Subject();
-        DispatchCallbackHandler handler = new DispatchCallbackHandler();
-        DefaultLoginResult loginResult = new DefaultLoginResult();
-        handler.register(AuthenticationTokenCallback.class, new AuthenticationTokenCallbackHandler(s));
-        handler.register(LoginResultCallback.class, new LoginResultCallbackHandler(loginResult));
-        LoginContext loginContext = new ResultAwareLoginContext("demo", subject, handler, configuration, loginResult);
-
-        context.assertIsSatisfied();
-        assertNotNull(loginContext);
-        try {
-            loginContext.login();
-            final CallbackHandler nameCallbackHandler = handler.getDispatchMap().get(NameCallback.class);
-            final CallbackHandler passwordCallbackHandler = handler.getDispatchMap().get(PasswordCallback.class);
-            assertNotNull(nameCallbackHandler);
-            assertNotNull(passwordCallbackHandler);
-            assertEquals(LoginResult.Type.CHALLENGE, loginResult.getType());
-
-            NameCallback nameCallback = new NameCallback(">|<");
-            PasswordCallback passwordCallback = new PasswordCallback(">|<", false);
-
-            nameCallbackHandler.handle(new Callback[]{nameCallback});
-            passwordCallbackHandler.handle(new Callback[]{passwordCallback});
-
-            assertEquals("Expected 'joe' as the name", "joe", nameCallback.getName());
-            assertEquals("Expected 'welcome' as the password", "welcome", new String(passwordCallback.getPassword()));
-        } catch (LoginException e) {
-            fail("Login failed to succeed as expected: "+e.getMessage());
-        }
-    }
-
-
-    @Test
-    public void testBasicLoginModuleFailsOnUnknownSchemes() throws Exception {
-        AuthenticationToken s = new DefaultAuthenticationToken(/*NO SCHEME*/ "Basic "+new String(Base64.encodeBase64("joe:welcome".getBytes())));
-        context.checking(new Expectations() {
-            {
-                oneOf(configuration).getAppConfigurationEntry(REALM_NAME);
-                final String loginModuleName = "org.kaazing.gateway.security.auth.BasicLoginModule";
-                final HashMap<String, Object> options = new HashMap<>();
-                final AppConfigurationEntry entry = new AppConfigurationEntry(loginModuleName,
-                        REQUIRED, options);
+                final AppConfigurationEntry entry = new AppConfigurationEntry(loginModuleName, REQUIRED, options);
                 will(returnValue(new AppConfigurationEntry[]{entry}));
             }
         });
@@ -145,85 +92,17 @@ public class BasicLoginModuleTest {
 
         thrown.expect(LoginException.class);
         loginContext.login();
-        final CallbackHandler nameCallbackHandler = handler.getDispatchMap().get(NameCallback.class);
-        final CallbackHandler passwordCallbackHandler = handler.getDispatchMap().get(PasswordCallback.class);
-        assertNull(nameCallbackHandler);
-        assertNull(passwordCallbackHandler);
     }
 
     @Test
-    public void testBasicLoginModuleFailsWhenNoLoginResultCallbackIsRegistered() throws Exception {
-        AuthenticationToken s = new DefaultAuthenticationToken("Basic", "Basic "+new String(Base64.encodeBase64("joe:welcome".getBytes())));
+    public void testNegotiateModuleFailsOnNoScheme() throws Exception {
+        AuthenticationToken s = new DefaultAuthenticationToken(new String(Base64.encodeBase64("joe:welcome".getBytes())));
         context.checking(new Expectations() {
             {
                 oneOf(configuration).getAppConfigurationEntry(REALM_NAME);
-                final String loginModuleName = "org.kaazing.gateway.security.auth.BasicLoginModule";
+                final String loginModuleName = "org.kaazing.gateway.security.auth.NegotiateLoginModule";
                 final HashMap<String, Object> options = new HashMap<>();
-                final AppConfigurationEntry entry = new AppConfigurationEntry(loginModuleName,
-                        REQUIRED, options);
-                will(returnValue(new AppConfigurationEntry[]{entry}));
-            }
-        });
-
-        Subject subject = new Subject();
-        DispatchCallbackHandler handler = new DispatchCallbackHandler();
-        DefaultLoginResult loginResult = new DefaultLoginResult();
-        handler.register(AuthenticationTokenCallback.class, new AuthenticationTokenCallbackHandler(s));
-        LoginContext loginContext = new ResultAwareLoginContext("demo", subject, handler, configuration, loginResult);
-
-        context.assertIsSatisfied();
-        assertNotNull(loginContext);
-
-        thrown.expect(LoginException.class);
-        loginContext.login();
-        final CallbackHandler nameCallbackHandler = handler.getDispatchMap().get(NameCallback.class);
-        final CallbackHandler passwordCallbackHandler = handler.getDispatchMap().get(PasswordCallback.class);
-        assertNull(nameCallbackHandler);
-        assertNull(passwordCallbackHandler);
-    }
-
-    @Test
-    public void testBasicLoginModuleChallengesWhenNoAuthenticationTokenCallbackHandlerIsRegistered() throws Exception {
-        context.checking(new Expectations() {
-            {
-                oneOf(configuration).getAppConfigurationEntry(REALM_NAME);
-                final String loginModuleName = "org.kaazing.gateway.security.auth.BasicLoginModule";
-                final HashMap<String, Object> options = new HashMap<>();
-                final AppConfigurationEntry entry = new AppConfigurationEntry(loginModuleName,
-                        REQUIRED, options);
-                will(returnValue(new AppConfigurationEntry[]{entry}));
-            }
-        });
-
-        Subject subject = new Subject();
-        DispatchCallbackHandler handler = new DispatchCallbackHandler();
-        DefaultLoginResult loginResult = new DefaultLoginResult();
-        handler.register(LoginResultCallback.class, new LoginResultCallbackHandler(loginResult));
-        LoginContext loginContext = new ResultAwareLoginContext("demo", subject, handler, configuration, loginResult);
-
-        context.assertIsSatisfied();
-        assertNotNull(loginContext);
-
-        thrown.expect(LoginException.class);
-        loginContext.login();
-        final CallbackHandler nameCallbackHandler = handler.getDispatchMap().get(NameCallback.class);
-        final CallbackHandler passwordCallbackHandler = handler.getDispatchMap().get(PasswordCallback.class);
-
-        assertEquals(LoginResult.Type.CHALLENGE, loginResult.getType());
-        assertNull(nameCallbackHandler);
-        assertNull(passwordCallbackHandler);
-    }
-
-    @Test
-    public void testBasicLoginModuleChallengesOnInvalidAuthenticationTokenData() throws Exception {
-        AuthenticationToken s = new DefaultAuthenticationToken("Basic", "Basic "+new String(Base64.encodeBase64("joe:welcome".getBytes())).substring(2));
-        context.checking(new Expectations() {
-            {
-                oneOf(configuration).getAppConfigurationEntry(REALM_NAME);
-                final String loginModuleName = "org.kaazing.gateway.security.auth.BasicLoginModule";
-                final HashMap<String, Object> options = new HashMap<>();
-                final AppConfigurationEntry entry = new AppConfigurationEntry(loginModuleName,
-                        REQUIRED, options);
+                final AppConfigurationEntry entry = new AppConfigurationEntry(loginModuleName, REQUIRED, options);
                 will(returnValue(new AppConfigurationEntry[]{entry}));
             }
         });
@@ -240,13 +119,84 @@ public class BasicLoginModuleTest {
 
         thrown.expect(LoginException.class);
         loginContext.login();
-        final CallbackHandler nameCallbackHandler = handler.getDispatchMap().get(NameCallback.class);
-        final CallbackHandler passwordCallbackHandler = handler.getDispatchMap().get(PasswordCallback.class);
+    }
 
-        assertEquals(LoginResult.Type.CHALLENGE, loginResult.getType());
-        assertNull(nameCallbackHandler);
-        assertNull(passwordCallbackHandler);
+    @Test
+    public void testNegotiateModuleFailsOnEmptyToken() throws Exception {
+        context.checking(new Expectations() {
+            {
+                oneOf(configuration).getAppConfigurationEntry(REALM_NAME);
+                final String loginModuleName = "org.kaazing.gateway.security.auth.NegotiateLoginModule";
+                final HashMap<String, Object> options = new HashMap<>();
+                final AppConfigurationEntry entry = new AppConfigurationEntry(loginModuleName, REQUIRED, options);
+                will(returnValue(new AppConfigurationEntry[]{entry}));
+            }
+        });
+
+        Subject subject = new Subject();
+        DispatchCallbackHandler handler = new DispatchCallbackHandler();
+        DefaultLoginResult loginResult = new DefaultLoginResult();
+        handler.register(AuthenticationTokenCallback.class, new AuthenticationTokenCallbackHandler(null));
+        handler.register(LoginResultCallback.class, new LoginResultCallbackHandler(loginResult));
+        LoginContext loginContext = new ResultAwareLoginContext("demo", subject, handler, configuration, loginResult);
+
+        context.assertIsSatisfied();
+        assertNotNull(loginContext);
+
+        thrown.expect(LoginException.class);
+        loginContext.login();
+    }
+
+    @Test
+    public void testNegotiateModuleFailsNoTokenCallbackRegistered() throws Exception {
+        context.checking(new Expectations() {
+            {
+                oneOf(configuration).getAppConfigurationEntry(REALM_NAME);
+                final String loginModuleName = "org.kaazing.gateway.security.auth.NegotiateLoginModule";
+                final HashMap<String, Object> options = new HashMap<>();
+                final AppConfigurationEntry entry = new AppConfigurationEntry(loginModuleName, REQUIRED, options);
+                will(returnValue(new AppConfigurationEntry[]{entry}));
+            }
+        });
+
+        Subject subject = new Subject();
+        DispatchCallbackHandler handler = new DispatchCallbackHandler();
+        DefaultLoginResult loginResult = new DefaultLoginResult();
+        handler.register(LoginResultCallback.class, new LoginResultCallbackHandler(loginResult));
+        LoginContext loginContext = new ResultAwareLoginContext("demo", subject, handler, configuration, loginResult);
+
+        context.assertIsSatisfied();
+        assertNotNull(loginContext);
+
+        thrown.expect(LoginException.class);
+        loginContext.login();
+    }
+
+    @Test
+    public void testNegotiateModuleFailsWhenNoTokenProvided() throws Exception {
+        AuthenticationToken s = new DefaultAuthenticationToken("Negotiate", null);
+        context.checking(new Expectations() {
+            {
+                oneOf(configuration).getAppConfigurationEntry(REALM_NAME);
+                final String loginModuleName = "org.kaazing.gateway.security.auth.NegotiateLoginModule";
+                final HashMap<String, Object> options = new HashMap<>();
+                final AppConfigurationEntry entry = new AppConfigurationEntry(loginModuleName, REQUIRED, options);
+                will(returnValue(new AppConfigurationEntry[]{entry}));
+            }
+        });
+
+        Subject subject = new Subject();
+        DispatchCallbackHandler handler = new DispatchCallbackHandler();
+        DefaultLoginResult loginResult = new DefaultLoginResult();
+        handler.register(AuthenticationTokenCallback.class, new AuthenticationTokenCallbackHandler(s));
+        handler.register(LoginResultCallback.class, new LoginResultCallbackHandler(loginResult));
+        LoginContext loginContext = new ResultAwareLoginContext("demo", subject, handler, configuration, loginResult);
+
+        context.assertIsSatisfied();
+        assertNotNull(loginContext);
+
+        thrown.expect(LoginException.class);
+        loginContext.login();
     }
 
 }
-

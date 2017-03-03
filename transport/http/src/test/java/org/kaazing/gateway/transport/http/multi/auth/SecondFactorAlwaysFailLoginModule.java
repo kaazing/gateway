@@ -39,6 +39,7 @@ public class SecondFactorAlwaysFailLoginModule extends BaseStateDrivenLoginModul
             return false;
         }
 
+        loginResult.challenge();
         return false;
     }
 

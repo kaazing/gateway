@@ -49,6 +49,11 @@
             <artifactId>jmock-legacy</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>netx.data</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

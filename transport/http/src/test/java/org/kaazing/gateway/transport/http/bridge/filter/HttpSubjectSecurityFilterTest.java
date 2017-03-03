@@ -505,6 +505,8 @@ public class HttpSubjectSecurityFilterTest {
                 oneOf(session).suspendRead();
                 oneOf(loginContext).login();
                 will(throwException(new LoginException()));
+                oneOf(loginContext).getLoginResult();
+                will(returnValue(new DefaultLoginResult()));
                 oneOf(nextFilter).filterWrite(with(same(session)),
                         with(writeRequest(withStatus(HttpStatus.CLIENT_FORBIDDEN))));
                 will(VoidAction.INSTANCE);
@@ -569,7 +571,7 @@ public class HttpSubjectSecurityFilterTest {
                 will(returnValue(realms));
 
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
-                will(returnValue(new String[]{"AUTHORIZED"}));
+                will(returnValue(new String[]{"ADMIN"}));
 
                 oneOf(loginContextFactory).createLoginContext(with(aNonNull(TypedCallbackHandlerMap.class)));
                 will(returnValue(loginContext));
@@ -578,11 +580,9 @@ public class HttpSubjectSecurityFilterTest {
                 oneOf(loginContext).getLoginResult();
                 will(returnValue(loginResult));
                 oneOf(loginResult).getType();
-                will(returnValue(LoginResult.Type.CHALLENGE));
+                will(returnValue(LoginResult.Type.SUCCESS));
                 oneOf(loginContext).getSubject();
                 will(returnValue(subject));
-                oneOf(loginResult).getLoginChallengeData();
-                will(returnValue(null));
                 oneOf(nextFilter).filterWrite(with(same(session)), with(writeRequestMatcher));
                 will(VoidAction.INSTANCE);
                 never(nextFilter).messageReceived(session, message);

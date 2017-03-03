@@ -15,18 +15,14 @@
  */
 package org.kaazing.gateway.security.auth;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 
 import org.kaazing.gateway.server.spi.security.LoginResult;
-import org.kaazing.gateway.server.spi.security.LoginResultCallback;
 import org.kaazing.gateway.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,8 +51,10 @@ import org.slf4j.LoggerFactory;
 public class TimeoutLoginModule extends BaseStateDrivenLoginModule {
 
     public static final String CLASS_NAME = TimeoutLoginModule.class.getName();
-    public static final Logger logger = LoggerFactory.getLogger(CLASS_NAME);
+    public static final Logger LOGGER = LoggerFactory.getLogger(CLASS_NAME);
 
+    private static final String INITIALIZATION_FAILED_MESSAGE = "[TimeoutLoginModule] Initialization failed";
+    private static final String AUTHENTICATION_FAILED_MESSAGE = "[TimeoutLoginModule] Authentication failed";
     private static final String SESSION_TIMEOUT_KEY = "session-timeout";
 
     private boolean debug;
@@ -71,25 +69,34 @@ public class TimeoutLoginModule extends BaseStateDrivenLoginModule {
         this.forceFailure = "true".equalsIgnoreCase((String) options.get("force-failure"));
         this.sessionTimeout = readOption(options, SESSION_TIMEOUT_KEY);
         if (sessionTimeout == null) {
-            throw new RuntimeException("You must specify " + SESSION_TIMEOUT_KEY  + " option.");
+            IllegalArgumentException iae =
+                    new IllegalArgumentException(String.format("You must specify the \"%s\" option", SESSION_TIMEOUT_KEY));
+            if (debug) {
+                LOGGER.debug(INITIALIZATION_FAILED_MESSAGE, iae);
+            }
+            throw iae;
         }
 
         if (debug) {
-            logger.trace("[TimeoutLoginModule] session timeout configured as '" + sessionTimeout + "'");
+            LOGGER.debug("[TimeoutLoginModule] session timeout configured as '{}'", sessionTimeout);
         }
     }
 
 
     @Override
     protected boolean doLogin() throws LoginException {
-        LoginResult loginResult = getLoginResultFromCallback();
         if (loginResult == null) {
-            return false;
+            LoginException le = new LoginException("Missing login result");
+            if (debug) {
+                LOGGER.debug(AUTHENTICATION_FAILED_MESSAGE, le);
+            }
+            throw le;
         }
+
         boolean performedAction = false;
         if (this.sessionTimeout != null) {
             if (debug) {
-                logger.trace("[TimeoutLoginModule] Setting session timeout to '" + sessionTimeout + "'");
+                LOGGER.debug("[TimeoutLoginModule] Setting session timeout to '{}'", sessionTimeout);
             }
             loginResult.setSessionTimeout(sessionTimeout);
             performedAction = true;
@@ -98,8 +105,12 @@ public class TimeoutLoginModule extends BaseStateDrivenLoginModule {
 
         // Clean up in case of failure to ensure nothing is set.
         if (!performedAction || this.forceFailure) {
+            LoginException le = new LoginException("Unable to set timeout");
+            if (debug) {
+                LOGGER.debug(AUTHENTICATION_FAILED_MESSAGE, le);
+            }
             cleanState();
-            return false;
+            throw le;
         }
 
         return performedAction;
@@ -116,30 +127,6 @@ public class TimeoutLoginModule extends BaseStateDrivenLoginModule {
         return true;
     }
 
-    private LoginResult getLoginResultFromCallback() {
-        final LoginResultCallback loginResultCallback = new LoginResultCallback();
-        try {
-            handler.handle(new Callback[]{ loginResultCallback });
-
-        } catch (IOException ioe) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("[TimeoutLoginModule]: encountered exception handling loginResultCallback", ioe);
-            }
-
-            return null;
-
-        } catch (UnsupportedCallbackException uce) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("[TimeoutLoginModule]: UnsupportedCallbackException handling loginResultCallback");
-            }
-
-            return null;
-        }
-
-        return loginResultCallback.getLoginResult();
-    }
-
-
     private Long readOption(Map<String, ?> options, final String key) {
         final String timeIntervalValue = (String) options.get(key);
         if (timeIntervalValue == null) {
@@ -148,7 +135,7 @@ public class TimeoutLoginModule extends BaseStateDrivenLoginModule {
             try {
                 return  Utils.parseTimeInterval(timeIntervalValue, TimeUnit.SECONDS);
             } catch (NumberFormatException e) {
-                logger.error("[TimeoutLoginModule] Cannot determine the value for " + key, e);
+                LOGGER.error("[TimeoutLoginModule] Cannot determine the value for {}", key, e);
                 throw e;
             }
         }
@@ -156,9 +143,8 @@ public class TimeoutLoginModule extends BaseStateDrivenLoginModule {
 
     private void cleanState() {
         this.sessionTimeout = 0L;
-        DefaultLoginResult loginResult = (DefaultLoginResult) getLoginResultFromCallback();
         if (loginResult != null) {
-            loginResult.clearTimeouts();
+            ((DefaultLoginResult) loginResult).clearTimeouts();
         }
     }
 }

@@ -55,6 +55,7 @@ public class SecondFactorLoginModule extends BaseStateDrivenLoginModule {
                 return true;
             }
         }
+        loginResult.challenge();
         return false;
     }
 
