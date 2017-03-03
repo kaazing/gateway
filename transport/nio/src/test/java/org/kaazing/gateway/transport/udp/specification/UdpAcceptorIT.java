@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -115,8 +116,7 @@ public class UdpAcceptorIT {
         });
 
         k3po.finish();
-
-        latch.await(2, SECONDS);
+        latch.await(2, SECONDS); // FIXME not checking latch was decremented to 0
     }
 
     @Test
@@ -148,11 +148,12 @@ public class UdpAcceptorIT {
                 String decoded = new String(((IoBuffer) message).array());
                 assertEquals("client data", decoded);
                 latch.countDown();
+                // FIXME assert here does not seem to make the test fail
+                assertTrue(false);
             }
         });
         k3po.finish();
-
-        latch.await(2, SECONDS);
+        latch.await(2, SECONDS);  // FIXME not checking latch was decremented to 0
     }
 
     @Test
@@ -168,9 +169,13 @@ public class UdpAcceptorIT {
                     assertEquals("client data 1", decoded);
                     writeStringMessageToSession("server data 1", session);
                     first = false;
+                    // FIXME assert here does not seem to make the test fail
+                    assertTrue(false);
                 } else {
                     assertEquals("client data 2", decoded);
                     writeStringMessageToSession("server data 2", session);
+                    // FIXME assert here does not seem to make the test fail
+                    assertTrue(false);
                 }
             }
         });
@@ -200,8 +205,7 @@ public class UdpAcceptorIT {
         });
 
         k3po.finish();
-
-        latch.await(3, SECONDS);
+        latch.await(3, SECONDS); // FIXME not checking latch was decremented to 0
     }
 
     @Test
@@ -231,8 +235,8 @@ public class UdpAcceptorIT {
 
         k3po.finish();
 
-        latch.await(3, SECONDS);
-        futures[0].await(2, SECONDS);
+        latch.await(3, SECONDS); // FIXME not checking latch was decremented to 0
+        futures[0].await(2, SECONDS); // FIXME check should also be done
         assertTrue(futures[0].isClosed());
     }
 
@@ -304,35 +308,40 @@ public class UdpAcceptorIT {
                 System.out.println(decoded);
                 String expect = nTimes("abcdefghijklmnopqrstuvwxyz", 57);
                 assertEquals(expect, decoded);
+
+                // FIXME assert here does not seem to make the test fail
+                assertTrue(false);
                 latch.countDown();
             }
 
         });
         k3po.finish();
-
-        latch.await(2, SECONDS);
+        latch.await(2, SECONDS); // FIXME not checking latch was decremented to 0
     }
 
     @Test
     @Specification("additions/align.content/client")
     public void alignData() throws Exception {
-        CountDownLatch latch = new CountDownLatch(2);
-
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         ResourceOptions resourceOptions = ResourceOptions.FACTORY.newResourceOptions();
         resourceOptions.setOption(UdpResourceAddress.ALIGN, 4);
         ResourceAddress acceptAddress = addressFactory.newResourceAddress("udp://127.0.0.1:8080", resourceOptions);
+        AtomicBoolean bytesAligned = new AtomicBoolean(true);
+        CountDownLatch messagesReceived = new CountDownLatch(2);
         acceptor.bind(acceptAddress, new IoHandlerAdapter<IoSessionEx>() {
             @Override
             protected void doMessageReceived(IoSessionEx session, Object message) {
-                assertEquals(0, ((IoBuffer) message).remaining() % 4);
-                latch.countDown();
+                if (bytesAligned.get()) {
+                    bytesAligned.set(((IoBuffer) message).remaining() % 4 == 0);
+                }
+                messagesReceived.countDown();
             }
         });
         k3po.start();
         k3po.notifyBarrier("BOUND");
         k3po.finish();
-        latch.await(2, SECONDS);
+        messagesReceived.await(2, SECONDS);
+        assertTrue(bytesAligned.get());
     }
 
 

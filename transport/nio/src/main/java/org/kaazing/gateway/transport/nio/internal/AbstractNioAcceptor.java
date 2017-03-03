@@ -38,6 +38,7 @@ import javax.annotation.Resource;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.DefaultIoSessionDataStructureFactory;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.Comparators;
 import org.kaazing.gateway.resource.address.ResourceAddress;
@@ -124,7 +125,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
     }
 
     /* for testing observability */
-    Bindings<?> getBindings() {
+    public Bindings<?> getBindings() {
         return bindings;
     }
 
@@ -313,6 +314,9 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
     protected abstract IoAcceptorEx initAcceptor(final IoSessionInitializer<? extends IoFuture> initializer);
 
     protected abstract String getTransportName();
+
+    // TODO confirm session config should not be used instead
+    protected abstract void registerAcceptFilters(ResourceAddress boundAddress, IoSession session);
 
     private static InetSocketAddress asSocketAddress(ResourceAddress address) {
         URI location = address.getResource();

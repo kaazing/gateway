@@ -15,6 +15,7 @@
  */
 package org.kaazing.gateway.transport.tcp.specification;
 
+import static org.junit.Assert.assertTrue;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.nio.ByteBuffer;
@@ -132,6 +133,10 @@ public class TcpAcceptorIT {
                     counter++;
                     dataMatch = new DataMatcher("client data " + counter);
                 }
+
+
+                // FIXME assert here does not seem to make the test fail
+                assertTrue(false);
             }
         });
 
@@ -196,6 +201,10 @@ public class TcpAcceptorIT {
                     }
                     session.setAttribute("dataMatch", dataMatch);
                 }
+
+
+                // FIXME assert here does not seem to make the test fail
+                assertTrue(false);
             }
         });
         k3po.finish();

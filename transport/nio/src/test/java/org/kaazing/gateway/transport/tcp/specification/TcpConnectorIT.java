@@ -16,6 +16,7 @@
 package org.kaazing.gateway.transport.tcp.specification;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertTrue;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.nio.ByteBuffer;
@@ -160,6 +161,9 @@ public class TcpConnectorIT {
                     writeStringMessageToSession("client data " + counter, session);
                     dataMatch = new DataMatcher("server data " + counter);
                 }
+
+                // FIXME assert here does not seem to make the test fail
+                assertTrue(false);
             }
         });
 
@@ -183,7 +187,7 @@ public class TcpConnectorIT {
         });
         
         k3po.notifyBarrier("CLOSEABLE");
-        closed.await(5,  SECONDS);
+        closed.await(5,  SECONDS); // TODO should check the latch value
 
         k3po.finish();
     }
@@ -232,6 +236,9 @@ public class TcpConnectorIT {
                     session.setAttribute("dataMatch", dataMatch);
                 }
 
+
+                // FIXME assert here does not seem to make the test fail
+                assertTrue(false);
             }
         };
         k3po.start();

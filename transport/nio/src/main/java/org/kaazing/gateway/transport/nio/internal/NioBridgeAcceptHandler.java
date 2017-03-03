@@ -17,7 +17,6 @@ package org.kaazing.gateway.transport.nio.internal;
 
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
-import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.ALIGN;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.BridgeSession.NEXT_PROTOCOL_KEY;
 import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
@@ -34,7 +33,6 @@ import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
-import org.kaazing.gateway.resource.address.udp.UdpResourceAddress;
 import org.kaazing.gateway.transport.Bindings;
 import org.kaazing.gateway.transport.BridgeAcceptHandler;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -81,17 +79,6 @@ public class NioBridgeAcceptHandler extends BridgeAcceptHandler {
 
         if (idleTimeout != null && idleTimeout > 0) {
             session.getFilterChain().addLast("idle", new NioIdleFilter(logger, idleTimeout, session));
-        }
-
-        // TODO should be moved in NioDatagramAcceptor
-        if (nioBinding.getBinding(localAddress) != null) {
-            final ResourceAddress boundAddress = nioBinding.getBinding(localAddress).bindAddress();
-            if (boundAddress instanceof UdpResourceAddress) {
-                Integer align = boundAddress.getOption(ALIGN);
-                if (align > 0) {
-                    session.getFilterChain().addFirst("align", new UdpAlignFilter(logger, align, session));
-                }
-            }
         }
 
         // note: defer sessionCreated until sessionOpened to support (optional) protocol dispatch
@@ -159,6 +146,11 @@ public class NioBridgeAcceptHandler extends BridgeAcceptHandler {
             initializer.initializeSession(session, null);
         }
 
+//        if (nioBinding.getBinding(localAddress) != null) {
+//            final ResourceAddress boundAddress = nioBinding.getBinding(localAddress).bindAddress();
+            ((AbstractNioAcceptor)getAcceptor()).registerAcceptFilters(localAddress, session);
+//        }
+
         // next-protocol has been determined
         super.sessionCreated(session);
     }
@@ -177,7 +169,6 @@ public class NioBridgeAcceptHandler extends BridgeAcceptHandler {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
             return ((AbstractNioAcceptor) getAcceptor()).createResourceAddress(inetSocketAddress);
         }
-
         return (ResourceAddress) socketAddress;
     }
 }

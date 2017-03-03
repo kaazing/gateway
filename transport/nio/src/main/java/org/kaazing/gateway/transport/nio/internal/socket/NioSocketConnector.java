@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.nio.internal;
+package org.kaazing.gateway.transport.nio.internal.socket;
 
 import static java.util.concurrent.Executors.newCachedThreadPool;
 import static org.kaazing.gateway.util.InternalSystemProperty.TCP_IP_TOS;
@@ -32,6 +32,7 @@ import javax.annotation.Resource;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.apache.mina.transport.socket.SocketConnectorEx;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
@@ -41,6 +42,8 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
+import org.kaazing.gateway.transport.nio.internal.AbstractNioConnector;
+import org.kaazing.gateway.transport.nio.internal.NioProtocol;
 import org.kaazing.mina.core.service.IoConnectorEx;
 import org.kaazing.mina.netty.socket.nio.DefaultNioSocketChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.nio.NioSocketChannelIoConnector;
@@ -184,6 +187,11 @@ public class NioSocketConnector extends AbstractNioConnector {
     @Override
     protected String getTransportName() {
         return "tcp";
+    }
+
+    @Override
+    protected void registerConnectFilters(ResourceAddress address, IoSession session) {
+        // nothing to do
     }
 
 }

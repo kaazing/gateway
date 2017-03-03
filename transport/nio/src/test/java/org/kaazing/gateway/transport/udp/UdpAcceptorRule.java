@@ -29,8 +29,8 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.TransportFactory;
-import org.kaazing.gateway.transport.nio.internal.NioDatagramAcceptor;
-import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
+import org.kaazing.gateway.transport.nio.internal.datagram.NioDatagramAcceptor;
+import org.kaazing.gateway.transport.nio.internal.socket.NioSocketAcceptor;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
 /**

@@ -16,12 +16,7 @@
 package org.kaazing.gateway.transport.nio.internal;
 
 import static java.lang.String.format;
-import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -29,18 +24,13 @@ import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.DefaultConnectFuture;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
-import org.apache.mina.transport.socket.nio.NioSocketSessionEx;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.IoSessionAdapterEx;
-import org.kaazing.gateway.transport.NamedPipeAddress;
-import org.kaazing.mina.core.filterchain.DefaultIoFilterChain;
 import org.kaazing.mina.core.service.IoConnectorEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
-import org.kaazing.mina.core.session.IoSessionConfigEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 
 public class NioConnectorParentSessionInitializer implements IoSessionInitializer<ConnectFuture> {
@@ -67,6 +57,7 @@ public class NioConnectorParentSessionInitializer implements IoSessionInitialize
 
     @Override
     public void initializeSession(final IoSession parent, ConnectFuture future) {
+        // TODO why is the ConnectFuture future not used ?
         final IoSessionEx parentEx = (IoSessionEx) parent;
 
         // initializer for bridge session to specify bridge handler,
@@ -80,82 +71,9 @@ public class NioConnectorParentSessionInitializer implements IoSessionInitialize
                 }
             }
         };
-
-        // factory to create a new tcp bridge session
-        Callable<IoSessionAdapterEx> createSession = new Callable<IoSessionAdapterEx>() {
-            @Override
-            public IoSessionAdapterEx call() throws Exception {
-                // support connecting tcp over pipes / socket addresses
-                setLocalAddressFromSocketAddress(parent,
-                    parent instanceof NioSocketSessionEx ? "tcp" : "udp");
-                ResourceAddress transportAddress = LOCAL_ADDRESS.get(parent);
-                final ResourceAddress localAddress =
-                    addressFactory.newResourceAddress(connectAddress, transportAddress);
-
-
-                final IoConnectorEx connector = connectorReference.get();
-                IoSessionAdapterEx tcpBridgeSession = new IoSessionAdapterEx(parentEx.getIoThread(),
-                    parentEx.getIoExecutor(),
-                    connector,
-                    processor,
-                    connector.getSessionDataStructureFactory());
-
-                tcpBridgeSession.setLocalAddress(localAddress);
-                tcpBridgeSession.setRemoteAddress(connectAddress);
-                tcpBridgeSession.setAttribute(AbstractNioConnector.PARENT_KEY, parent);
-                tcpBridgeSession.setTransportMetadata(connector.getTransportMetadata());
-
-                // Propagate changes to idle time to the parent session
-                tcpBridgeSession.getConfig().setChangeListener(new IoSessionConfigEx.ChangeListener() {
-                    @Override
-                    public void idleTimeInMillisChanged(IdleStatus status, long idleTime) {
-                        parentEx.getConfig().setIdleTimeInMillis(status, idleTime);
-                    }
-                });
-                parent.setAttribute(AbstractNioConnector.TCP_SESSION_KEY, tcpBridgeSession);
-                tcpBridgeSession.setAttribute(DefaultIoFilterChain.SESSION_CREATED_FUTURE, bridgeConnectFuture);
-                bridgeSessionInitializer.initializeSession(tcpBridgeSession, bridgeConnectFuture);
-                connector.getFilterChainBuilder().buildFilterChain(tcpBridgeSession.getFilterChain());
-                connector.getListeners().fireSessionCreated(tcpBridgeSession);
-                return tcpBridgeSession;
-            }
-
-            private void setLocalAddressFromSocketAddress(final IoSession session,
-                                                          final String transportName) {
-                SocketAddress socketAddress = session.getLocalAddress();
-                if (socketAddress instanceof InetSocketAddress) {
-                    InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
-                    ResourceAddress resourceAddress = newResourceAddress(inetSocketAddress,
-                        transportName);
-                    LOCAL_ADDRESS.set(session, resourceAddress);
-                } else if (socketAddress instanceof NamedPipeAddress) {
-                    NamedPipeAddress namedPipeAddress = (NamedPipeAddress) socketAddress;
-                    ResourceAddress resourceAddress = newResourceAddress(namedPipeAddress,
-                        "pipe");
-                    LOCAL_ADDRESS.set(session, resourceAddress);
-                }
-            }
-
-            private ResourceAddress newResourceAddress(NamedPipeAddress namedPipeAddress,
-                                                       final String transportName) {
-                String addressFormat = "%s://%s";
-                String pipeName = namedPipeAddress.getPipeName();
-                String transport = format(addressFormat, transportName, pipeName);
-                return addressFactory.newResourceAddress(transport);
-            }
-
-            private ResourceAddress newResourceAddress(InetSocketAddress inetSocketAddress,
-                                                      final String transportName) {
-                InetAddress inetAddress = inetSocketAddress.getAddress();
-                String hostAddress = inetAddress.getHostAddress();
-                String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
-                int port = inetSocketAddress.getPort();
-                String transport = format(addressFormat, transportName, hostAddress, port);
-                return addressFactory.newResourceAddress(transport);
-            }
-        };
-
-        parent.setAttribute(AbstractNioConnector.CREATE_SESSION_CALLABLE_KEY, createSession);
+        Callable<IoSessionAdapterEx> tcpBridgeSessionFactory =
+            new NioTcpBridgeSessionFactory(parent, parentEx, bridgeSessionInitializer, addressFactory, connectAddress, connectorReference, processor, bridgeConnectFuture);
+        parent.setAttribute(AbstractNioConnector.CREATE_SESSION_CALLABLE_KEY, tcpBridgeSessionFactory);
     }
 
 }

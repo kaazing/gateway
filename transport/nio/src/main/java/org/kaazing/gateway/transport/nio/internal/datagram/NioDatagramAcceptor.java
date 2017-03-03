@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.nio.internal;
+package org.kaazing.gateway.transport.nio.internal.datagram;
 
+import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.ALIGN;
 import static org.kaazing.gateway.util.InternalSystemProperty.TCP_MINIMUM_READ_BUFFER_SIZE;
 import static org.kaazing.gateway.util.InternalSystemProperty.TCP_MAXIMUM_READ_BUFFER_SIZE;
 import static org.kaazing.gateway.util.InternalSystemProperty.UDP_IDLE_TIMEOUT;
@@ -22,6 +23,7 @@ import static org.kaazing.gateway.util.InternalSystemProperty.UDP_IDLE_TIMEOUT;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.jboss.netty.channel.socket.nio.NioServerDatagramChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioWorker;
@@ -31,6 +33,9 @@ import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.gateway.transport.NioBindException;
 import org.kaazing.gateway.transport.bio.MulticastAcceptor;
+import org.kaazing.gateway.transport.nio.internal.AbstractNioAcceptor;
+import org.kaazing.gateway.transport.nio.internal.NioProtocol;
+import org.kaazing.gateway.transport.nio.internal.socket.NioSocketAcceptor;
 import org.kaazing.mina.core.service.IoAcceptorEx;
 import org.kaazing.mina.netty.socket.DatagramChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
@@ -62,7 +67,15 @@ public class NioDatagramAcceptor extends AbstractNioAcceptor {
         return "udp";
     }
 
-	@Override
+    @Override
+    protected void registerAcceptFilters(ResourceAddress boundAddress, IoSession session) {
+        Integer align = boundAddress.getOption(ALIGN);
+        if (align > 0) {
+            session.getFilterChain().addFirst("align", new UdpAlignFilter(logger, align, session));
+        }
+    }
+
+    @Override
     protected IoAcceptorEx initAcceptor(final IoSessionInitializer<? extends IoFuture> initializer) {
 	    DatagramChannelIoSessionConfig config = new DefaultDatagramChannelIoSessionConfig();
         WorkerPool<NioWorker> workerPool = tcpAcceptor.initWorkerPool(logger, "UDP acceptor: {}", configuration);

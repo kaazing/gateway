@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.nio.internal;
+package org.kaazing.gateway.transport.nio.internal.socket;
 
 import static java.util.concurrent.Executors.newCachedThreadPool;
 import static org.kaazing.gateway.util.InternalSystemProperty.DEBUG_NIOWORKER_POOL;
@@ -64,6 +64,8 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.gateway.transport.NioBindException;
 import org.kaazing.gateway.transport.nio.TcpExtension;
+import org.kaazing.gateway.transport.nio.internal.AbstractNioAcceptor;
+import org.kaazing.gateway.transport.nio.internal.NioProtocol;
 import org.kaazing.mina.core.service.IoAcceptorEx;
 import org.kaazing.mina.netty.socket.nio.DefaultNioSocketChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.nio.NioSocketChannelIoAcceptor;
@@ -103,7 +105,7 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
         }
     }
 
-    static final ThreadLocal<NioWorker> CURRENT_WORKER = new VicariousThreadLocal<>();
+    public static final ThreadLocal<NioWorker> CURRENT_WORKER = new VicariousThreadLocal<>();
 
     private static final class SetCurrentWorkerTask implements Callable<NioWorker> {
 
@@ -128,7 +130,7 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
         this.extensionFactory = extensionFactory;
     }
 
-    NioSocketAcceptor(Properties configuration) {
+    public NioSocketAcceptor(Properties configuration) {
         this(configuration, TcpExtensionFactory.newInstance());
     }
 
@@ -154,6 +156,11 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
     @Override
     protected String getTransportName() {
         return "tcp";
+    }
+
+    @Override
+    protected void registerAcceptFilters(ResourceAddress boundAddress, IoSession session) {
+        // nothing to do
     }
 
     @Override
@@ -259,7 +266,7 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
         return currentWorkerPool.get().workers;
     }
 
-	WorkerPool<NioWorker> initWorkerPool(Logger logger, String message, Properties configuration) {
+	public WorkerPool<NioWorker> initWorkerPool(Logger logger, String message, Properties configuration) {
     	int workerCount = TCP_PROCESSOR_COUNT.getIntProperty(configuration);
         if (logger.isDebugEnabled()) {
             String processorCount = configuration.getProperty(TCP_PROCESSOR_COUNT.getPropertyName());

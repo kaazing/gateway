@@ -30,7 +30,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.DefaultConnectFuture;
-import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.service.IoConnector;
 import org.apache.mina.core.service.IoHandler;
@@ -39,7 +38,6 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
-import org.kaazing.gateway.resource.address.udp.UdpResourceAddress;
 import org.kaazing.gateway.transport.BridgeConnectHandler;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -149,41 +147,14 @@ public abstract class AbstractNioConnector implements BridgeConnector {
 
     // THIS IS A BUG IN JAVA, should not need two methods just to capture the type
     protected <T extends ConnectFuture> ConnectFuture connectInternal(final ResourceAddress address, final IoHandler handler, final IoSessionInitializer<T> initializer) {
-        ConnectFuture future;
-
         // TODO: throw exception if address contains more then one resource
         ResourceAddress transport = address.getTransport();
         if (transport != null) {
-            final DefaultConnectFuture bridgeConnectFuture = new DefaultConnectFuture();
-            IoSessionInitializer<ConnectFuture> parentInitializer = createParentInitializer(
-                address,
-                handler,
-                (IoSessionInitializer) initializer,
-                bridgeConnectFuture,
-                addressFactory,
-                processor,
-                connectorReference
-            );
-            // propagate connection failure, if necessary
-            bridgeServiceFactory.newBridgeConnector(transport)
-                .connect(transport, tcpBridgeHandler, parentInitializer)
-                .addListener(
-                    new IoFutureListener<ConnectFuture>() {
-                        @Override
-                        public void operationComplete(ConnectFuture future) {
-                            // fail bridge connect future if parent connect fails
-                            if (!future.isConnected()) {
-                                bridgeConnectFuture.setException(future.getException());
-                            }
-                        }
-                    }
-                );
-            return bridgeConnectFuture;
+            return getTransportConnectFuture(address, handler, initializer, transport);
         }
 
         final URI resource = address.getResource();
         final InetSocketAddress inetAddress = new InetSocketAddress(resource.getHost(), resource.getPort());
-
         if (logger.isTraceEnabled()) {
         	logger.trace(format("AbstractNioConnector.connectInternal(), resource: %s", resource));
         }
@@ -195,24 +166,15 @@ public abstract class AbstractNioConnector implements BridgeConnector {
         }
 
         final String nextProtocol = address.getOption(ResourceAddress.NEXT_PROTOCOL);
-        future = connector.connect(inetAddress, new IoSessionInitializer<T>() {
+        ConnectFuture future = connector.connect(inetAddress, new IoSessionInitializer<T>() {
             @Override
             public void initializeSession(IoSession session, T future) {
-
                 if (logger.isTraceEnabled()) {
                     logger.trace(format("AbstractNioConnector.connectInternal()$initializeSession(), session: %s, resource: %s", session, resource));
                 }
-
-                if (address instanceof UdpResourceAddress) {
-                    int align = address.getOption(UdpResourceAddress.ALIGN);
-                    if (align > 0) {
-                        session.getFilterChain().addFirst("align", new UdpAlignFilter(logger, align, session));
-                    }
-                }
-
+                registerConnectFilters(address, session);
                 // connectors don't need lookup so set this directly on the session
                 session.setAttribute(BridgeConnectHandler.DELEGATE_KEY, handler);
-
                 // Currrently, the underlying TCP session has the remote
                 // address being an InetSocketAddress.  Our top-level
                 // ResourceAddress has more information than just that
@@ -220,14 +182,11 @@ public abstract class AbstractNioConnector implements BridgeConnector {
                 // remote address in the created session.
                 REMOTE_ADDRESS.set(session, address);
                 LOCAL_ADDRESS.set(session, createResourceAddress(inetAddress, nextProtocol));
-
                 if (initializer != null) {
                     initializer.initializeSession(session, future);
                 }
-
             }
         });
-
         future.addListener(new IoFutureListener<ConnectFuture>() {
             @Override
             public void operationComplete(ConnectFuture future) {
@@ -248,6 +207,27 @@ public abstract class AbstractNioConnector implements BridgeConnector {
             }
         });
         return future;
+    }
+
+    private <T extends ConnectFuture> ConnectFuture getTransportConnectFuture(ResourceAddress address, IoHandler handler, IoSessionInitializer initializer, ResourceAddress transport) {
+        final DefaultConnectFuture bridgeConnectFuture = new DefaultConnectFuture();
+        IoSessionInitializer<ConnectFuture> parentInitializer =
+            new NioConnectorParentSessionInitializer(handler, initializer, address, bridgeConnectFuture, addressFactory, processor, connectorReference);
+        // propagate connection failure, if necessary
+        bridgeServiceFactory.newBridgeConnector(transport)
+            .connect(transport, tcpBridgeHandler, parentInitializer)
+            .addListener(
+                new IoFutureListener<ConnectFuture>() {
+                    @Override
+                    public void operationComplete(ConnectFuture future) {
+                        // fail bridge connect future if parent connect fails
+                        if (!future.isConnected()) {
+                            bridgeConnectFuture.setException(future.getException());
+                        }
+                    }
+                }
+            );
+        return bridgeConnectFuture;
     }
 
     private ResourceAddress createResourceAddress(NamedPipeAddress namedPipeAddress, String nextProtocol) {
@@ -272,19 +252,11 @@ public abstract class AbstractNioConnector implements BridgeConnector {
 
     protected abstract String getTransportName();
 
-    final Properties getConfiguration() {
-        return configuration;
-    }
+    // TODO confirm session config should not be used instead
+    protected abstract void registerConnectFilters(ResourceAddress address, IoSession session);
 
-    private <T extends ConnectFuture> IoSessionInitializer<ConnectFuture> createParentInitializer(final ResourceAddress connectAddress,
-                                                                                                  final IoHandler handler,
-                                                                                                  final IoSessionInitializer<IoFuture> initializer,
-                                                                                                  final DefaultConnectFuture bridgeConnectFuture,
-                                                                                                  final ResourceAddressFactory addressFactory,
-                                                                                                  final IoProcessorEx<IoSessionAdapterEx> processor,
-                                                                                                  final AtomicReference<IoConnectorEx> connectorReference) {
-        // initialize parent session before connection attempt
-        return new NioConnectorParentSessionInitializer(handler, initializer, connectAddress, bridgeConnectFuture, addressFactory, processor, connectorReference);
+    protected final Properties getConfiguration() {
+        return configuration;
     }
 
 }

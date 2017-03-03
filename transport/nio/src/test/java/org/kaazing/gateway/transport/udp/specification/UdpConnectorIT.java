@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -101,11 +102,11 @@ public class UdpConnectorIT {
 
             @Override
             protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
-                System.out.println(message);
                 super.doMessageReceived(session, message);
             }
         });
         k3po.finish();
+        // TODO should add latch to make sure message is received
     }
 
     @Test
@@ -176,8 +177,14 @@ public class UdpConnectorIT {
                     assertEquals("server data 1", decoded);
                     writeStringMessageToSession("client data 2", session);
                     first = false;
+
+                    // FIXME assert here does not seem to make the test fail
+                    assertTrue(false);
                 } else {
                     assertEquals("server data 2", decoded);
+
+                    // FIXME assert here does not seem to make the test fail
+                    assertTrue(false);
                 }
             }
         });
@@ -193,8 +200,9 @@ public class UdpConnectorIT {
         ResourceOptions resourceOptions = ResourceOptions.FACTORY.newResourceOptions();
         resourceOptions.setOption(UdpResourceAddress.ALIGN, 4);
         ResourceAddress connectAddress = addressFactory.newResourceAddress("udp://127.0.0.1:8080", resourceOptions);
+        AtomicBoolean bytesAligned = new AtomicBoolean(true);
+        CountDownLatch messagesReceived = new CountDownLatch(2);
         ConnectFuture connectFuture = connector.connect(connectAddress, new IoHandlerAdapter<IoSessionEx>(){
-
             @Override
             protected void doSessionOpened(IoSessionEx session) {
                 writeStringMessageToSession("client data", session);
@@ -202,13 +210,17 @@ public class UdpConnectorIT {
 
             @Override
             protected void doMessageReceived(IoSessionEx session, Object message) {
-                assertEquals(0, ((IoBuffer) message).remaining() % 4);
+                if (bytesAligned.get()) {
+                    bytesAligned.set((((IoBuffer) message).remaining() % 4 == 0));
+                }
+                messagesReceived.countDown();
             }
         }, null);
-
         connectFuture.await(1, SECONDS);
         assertTrue(connectFuture.isConnected());
         k3po.finish();
+        messagesReceived.await(2, SECONDS);
+        assertTrue(bytesAligned.get());
     }
 
 //    @Test
@@ -280,8 +292,16 @@ public class UdpConnectorIT {
                     assertEquals("Hello", decoded);
                     writeStringMessageToSession("Goodbye", session);
                     first = false;
+
+
+                    // FIXME assert here does not seem to make the test fail
+                    assertTrue(false);
                 } else {
                     assertEquals("Goodbye", decoded);
+
+
+                    // FIXME assert here does not seem to make the test fail
+                    assertTrue(false);
                 }
             }
         };
