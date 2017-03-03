@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>gateway.update.check</artifactId>
+    <artifactId>gateway.check.update</artifactId>
     <name>Update Check</name>
     <description>Gateway property that checks for new releases of gateway</description>
 

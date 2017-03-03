@@ -52,8 +52,7 @@ public class UpdateCheckTask implements Runnable {
         }
     }
 
-    @Override
-    public void run() {
+    @Override public void run() {
         GatewayVersion latestVersion = fetchLatestVersion();
         if (latestVersion != null) {
             updateCheckGatewayObserver.setLatestGatewayVersion(latestVersion);
@@ -76,20 +75,20 @@ public class UpdateCheckTask implements Runnable {
             connection.setRequestProperty("Connection", "close");
             connection.setRequestProperty("Accept", "text/plain");
             int responseCode = connection.getResponseCode();
-            if (responseCode >= 200 && responseCode <= 300) {
-                try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"))) {
-                    JSONTokener tokener = new JSONTokener(br);
-                    JSONObject root = new JSONObject(tokener);
-                    String version = root.getString("version");
-                    latestVersion = parseGatewayVersion(version);
-                }
-            } else {
-                throw new Exception(format("Unexpected %d response code from versioning property", responseCode));
+            if (responseCode < 200 || responseCode > 300) {
+                logger.warn(format("Unexpected %d response code from versioning property", responseCode));
+                return null;
+            }
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"))) {
+                JSONTokener tokener = new JSONTokener(br);
+                JSONObject root = new JSONObject(tokener);
+                String version = root.getString("version");
+                latestVersion = parseGatewayVersion(version);
             }
         } catch (Exception e) {
-            logger.warn(format(
-                    "Update Check: Could not contact Kaazing versioning property at %s to find latest version of product: %s",
-                    updateVersionUrl, e));
+            logger.warn(
+                    format("Update Check: Could not contact Kaazing versioning property at %s to find latest version of product: %s",
+                            updateVersionUrl, e));
         }
         return latestVersion;
     }

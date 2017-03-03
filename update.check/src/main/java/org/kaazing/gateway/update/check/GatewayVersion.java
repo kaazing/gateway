@@ -50,7 +50,7 @@ public class GatewayVersion implements Comparable<GatewayVersion> {
      * @return
      * @throws Exception
      */
-    public static GatewayVersion parseGatewayVersion(String version) throws Exception {
+    public static GatewayVersion parseGatewayVersion(String version) {
         if (VERSION.equals(version)) {
             return new GatewayVersion(0, 0, 0);
         } else {
@@ -73,8 +73,7 @@ public class GatewayVersion implements Comparable<GatewayVersion> {
         return major;
     }
 
-    @Override
-    public boolean equals(Object obj) {
+    @Override public boolean equals(Object obj) {
         boolean result;
         if (!(obj instanceof GatewayVersion)) {
             result = false;
@@ -86,8 +85,7 @@ public class GatewayVersion implements Comparable<GatewayVersion> {
         return result;
     }
 
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
         int result = major;
         result = 31 * result + minor;
         result = 31 * result + patch;
@@ -95,8 +93,7 @@ public class GatewayVersion implements Comparable<GatewayVersion> {
         return result;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         if (rc.equals(RELEASE_GA)) {
             return format("%d.%d.%d", major, minor, patch);
         } else {
@@ -104,8 +101,7 @@ public class GatewayVersion implements Comparable<GatewayVersion> {
         }
     }
 
-    @Override
-    public int compareTo(GatewayVersion o) {
+    @Override public int compareTo(GatewayVersion o) {
         int result;
         if (this.major != o.major) {
             result = this.major > o.major ? 1 : -1;

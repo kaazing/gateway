@@ -23,12 +23,16 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public final class VersionUtils {
 
     public static String PRODUCT_TITLE;
     public static String PRODUCT_VERSION;
     public static String PRODUCT_EDITION;
     public static String PRODUCT_DEPENDENCIES;
+    private static Logger logger = LoggerFactory.getLogger(VersionUtils.class);
 
     private VersionUtils() {
     }
@@ -145,7 +149,6 @@ public final class VersionUtils {
     /**
      * Find the product information from the server JAR MANIFEST files and store it
      * in static variables here for later retrieval.
-     *
      */
     private static void getGatewayProductInfo() {
         // FIXME does the following todo still hold ?
@@ -164,39 +167,46 @@ public final class VersionUtils {
         String[] pathEntries = System.getProperty("java.class.path").split(System.getProperty("path.separator"));
         HashMap<String, Attributes> products = new HashMap<>(7);
         HashSet<String> removals = new HashSet<>(7);
-        for (String pathEntry:  pathEntries) {
+        for (String pathEntry : pathEntries) {
             if (pathEntry.contains("gateway.server.test") || (pathEntry.contains("gateway.server") && artifact == null)) {
                 artifact = pathEntry;
                 foundJar = true;
             }
         }
 
-        if (artifact != null) {
-            try {
-                JarFile jar = new JarFile(artifact);
-                Manifest mf = jar.getManifest();
-                Attributes attrs = mf.getMainAttributes();
-                if (attrs != null) {
-                    String title = attrs.getValue("Implementation-Title");
-                    String version = attrs.getValue("Implementation-Version");
-                    String product = attrs.getValue("Kaazing-Product");
-                    String dependencies = attrs.getValue("Kaazing-Dependencies");
-                    if (product != null && title != null && version != null) {
-                        foundJar = true;
+        if (artifact == null) {
+            return;
+        }
 
-                        // Store the list of products found, but remove any products
-                        // marked as dependencies (i.e. products on which the current
-                        // product depends.  We want to find the product that nothing
-                        // else depends on.
-                        products.put(product != null ? product : title, attrs);
-                        if (dependencies != null) {
-                            String[] deps = dependencies.split(",");
-                            Collections.addAll(removals, deps);
-                        }
-                    }
+        try {
+            JarFile jar = new JarFile(artifact);
+            Manifest mf = jar.getManifest();
+            Attributes attrs = mf.getMainAttributes();
+            if (attrs == null) {
+                return;
+            }
+
+            String title = attrs.getValue("Implementation-Title");
+            String version = attrs.getValue("Implementation-Version");
+            String product = attrs.getValue("Kaazing-Product");
+            String dependencies = attrs.getValue("Kaazing-Dependencies");
+            if (product != null && title != null && version != null) {
+                foundJar = true;
+
+                // Store the list of products found, but remove any products
+                // marked as dependencies (i.e. products on which the current
+                // product depends.  We want to find the product that nothing
+                // else depends on.
+                products.put(product != null ? product : title, attrs);
+                if (dependencies != null) {
+                    String[] deps = dependencies.split(",");
+                    Collections.addAll(removals, deps);
                 }
-            } catch (IOException e) {
-                // ignore
+            }
+
+        } catch (IOException e) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("An exception occurred while getting product information", e);
             }
         }
 

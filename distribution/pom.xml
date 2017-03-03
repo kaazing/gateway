@@ -54,7 +54,7 @@
 
         <dependency>
             <groupId>org.kaazing</groupId>
-            <artifactId>gateway.update.check</artifactId>
+            <artifactId>gateway.check.update</artifactId>
             <version>${project.version}</version>
         </dependency>
 

@@ -22,6 +22,7 @@ import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductVers
 import static org.kaazing.gateway.update.check.GatewayVersion.parseGatewayVersion;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
@@ -30,17 +31,14 @@ import org.kaazing.gateway.server.GatewayObserverFactorySpiPrototype;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Creates and manages periodic checks to see if the gateway has updates
  */
 public class UpdateCheckGatewayObserver extends GatewayObserverFactorySpiPrototype {
 
-    private static final String URL_ENTERPRISE = "https://version.kaazing.com";
-    private static final String URL_COMMUNITY = "https://version.kaazing.org";
-    private final static Logger LOG = LoggerFactory.getLogger(UpdateCheckGatewayObserver.class);
+    private static final String ENTERPRISE_URL = "https://version.kaazing.com";
+    private static final String COMMUNITY_URL = "https://version.kaazing.org";
     private GatewayVersion currentVersion;
     private String productName;
     private String versionServiceUrl;
@@ -59,14 +57,16 @@ public class UpdateCheckGatewayObserver extends GatewayObserverFactorySpiPrototy
     }
 
     protected void setLatestGatewayVersion(GatewayVersion newlatestVersion) {
-        if (this.latestVersion == null || this.latestVersion.compareTo(newlatestVersion) < 0) {
-            this.latestVersion = newlatestVersion;
-            if (newlatestVersion.compareTo(currentVersion) <= 0) {
-                return;
-            }
-            for (UpdateCheckListener listener : listeners) {
-                listener.newVersionAvailable(currentVersion, getLatestGatewayVersion());
-            }
+        if (latestVersion != null && latestVersion.compareTo(newlatestVersion) >= 0) {
+            return;
+        }
+
+        latestVersion = newlatestVersion;
+        if (newlatestVersion.compareTo(currentVersion) <= 0) {
+            return;
+        }
+        for (UpdateCheckListener listener : listeners) {
+            listener.newVersionAvailable(currentVersion, getLatestGatewayVersion());
         }
     }
 
@@ -76,45 +76,36 @@ public class UpdateCheckGatewayObserver extends GatewayObserverFactorySpiPrototy
      */
     public void addListener(UpdateCheckListener newListener) {
         if (newListener == null) {
-            throw new NullPointerException("newListener");
+            throw new IllegalArgumentException("newListener");
         }
-        GatewayVersion latestGatewayVersion = this.getLatestGatewayVersion();
+        GatewayVersion latestGatewayVersion = getLatestGatewayVersion();
         if (latestGatewayVersion != null && latestGatewayVersion.compareTo(currentVersion) > 0) {
             newListener.newVersionAvailable(currentVersion, latestGatewayVersion);
         }
         listeners.add(newListener);
     }
 
-    @Override
-    public void startingGateway(GatewayContext gatewayContext) {
-        Properties properties = (Properties) gatewayContext.getInjectables().get("configuration");
+    @Override public void startingGateway(GatewayContext gatewayContext) {
+        Map<String, Object> injectables = gatewayContext.getInjectables();
+        Properties properties = (Properties) injectables.get("configuration");
         if (!InternalSystemProperty.UPDATE_CHECK.getBooleanProperty(properties)) {
             return;
         }
 
         productName = getGatewayProductTitle().replaceAll("\\s+", "");
-        try {
-            currentVersion = parseGatewayVersion(getGatewayProductVersionPatch());
-        } catch (Exception e) {
-            LOG.warn("Could not locate a product version associated with the jars on the classpath", e);
-            return;
-        }
+        currentVersion = parseGatewayVersion(getGatewayProductVersionPatch());
 
         String serviceUrl = InternalSystemProperty.SERVICE_URL.getProperty(properties);
         if (serviceUrl != null) {
             versionServiceUrl = serviceUrl;
         } else {
-            final String productEdition = getGatewayProductEdition().replaceAll("\\s+", "");
-            versionServiceUrl = (productEdition.toLowerCase().contains("enterprise")) ? URL_ENTERPRISE : URL_COMMUNITY;
+            versionServiceUrl =
+                    (getGatewayProductEdition().toLowerCase().contains("enterprise")) ? ENTERPRISE_URL : COMMUNITY_URL;
         }
 
-        try {
-            SchedulerProvider provider = (SchedulerProvider) gatewayContext.getInjectables().get("schedulerProvider");
-            ScheduledExecutorService scheduler = provider.getScheduler("update_check", false);
-            UpdateCheckTask updateCheckTask = new UpdateCheckTask(this, versionServiceUrl, productName);
-            scheduler.scheduleAtFixedRate(updateCheckTask, 0, 7, DAYS);
-        } catch (Exception e) {
-            LOG.warn("An exception occurred while checking for a new product version", e);
-        }
+        SchedulerProvider provider = (SchedulerProvider) injectables.get("schedulerProvider");
+        ScheduledExecutorService scheduler = provider.getScheduler("update_check", false);
+        UpdateCheckTask updateCheckTask = new UpdateCheckTask(this, versionServiceUrl, productName);
+        scheduler.scheduleAtFixedRate(updateCheckTask, 0, 7, DAYS);
     }
 }
