@@ -282,8 +282,8 @@ public class DefaultClusterContextTest {
                     connects4,
                     null);
 
-            startClusterContext(clusterContext1);
-            addToClusterState(clusterContext1.getCollectionsFactory(), clusterContext1.getLocalMember(), 1);
+            Map<ClusterContext, String> clusterContextToServiceUrlMap = new HashMap<>();
+            initClusterContext(clusterContext1, clusterContextToServiceUrlMap, 1);
 
             try {
                 // KG-10802:  sleep for 2 seconds to ensure cluster member 1 finishes starting up and elects itself
@@ -292,24 +292,21 @@ public class DefaultClusterContextTest {
             } catch (Exception ex) {
             }
 
-            startClusterContext(clusterContext2);
-            addToClusterState(clusterContext2.getCollectionsFactory(), clusterContext2.getLocalMember(), 2);
-
-            startClusterContext(clusterContext3);
-            addToClusterState(clusterContext3.getCollectionsFactory(), clusterContext3.getLocalMember(), 3);
-
-            startClusterContext(clusterContext4);
-            addToClusterState(clusterContext4.getCollectionsFactory(), clusterContext4.getLocalMember(), 4);
+            initClusterContext(clusterContext2, clusterContextToServiceUrlMap, 2);
+            initClusterContext(clusterContext3, clusterContextToServiceUrlMap, 3);
+            initClusterContext(clusterContext4, clusterContextToServiceUrlMap, 4);
 
             // validate cluster state
-            validateClusterState(clusterContext1, clusterContext2, clusterContext3, clusterContext4);
+            validateClusterState(Arrays.asList(clusterContext1, clusterContext2, clusterContext3, clusterContext4), clusterContextToServiceUrlMap);
 
             // 2 - shut down context 1 & 2
             clusterContext1.dispose();
             clusterContext2.dispose();
+            clusterContextToServiceUrlMap.remove(clusterContext1);
+            clusterContextToServiceUrlMap.remove(clusterContext2);
 
             // 3 - validate cluster state
-            validateClusterState(null, null, clusterContext3, clusterContext4);
+            validateClusterState(Arrays.asList(clusterContext3, clusterContext4), clusterContextToServiceUrlMap);
 
             // 4 - start context 1 & 2
             clusterContext1 = new DefaultClusterContext(clusterName,
@@ -322,14 +319,11 @@ public class DefaultClusterContextTest {
                     connects2,
                     null);
 
-            startClusterContext(clusterContext1);
-            addToClusterState(clusterContext1.getCollectionsFactory(), clusterContext1.getLocalMember(), 1);
-
-            startClusterContext(clusterContext2);
-            addToClusterState(clusterContext2.getCollectionsFactory(), clusterContext2.getLocalMember(), 2);
+            initClusterContext(clusterContext1, clusterContextToServiceUrlMap, 1);
+            initClusterContext(clusterContext2, clusterContextToServiceUrlMap, 2);
 
             // 5 - validate cluster state
-            validateClusterState(clusterContext1, clusterContext2, clusterContext3, clusterContext4);
+            validateClusterState(Arrays.asList(clusterContext1, clusterContext2, clusterContext3, clusterContext4), clusterContextToServiceUrlMap);
 
         } finally {
             if (clusterContext1 != null) {
@@ -345,6 +339,13 @@ public class DefaultClusterContextTest {
                 clusterContext4.dispose();
             }
         }
+    }
+
+    private void initClusterContext(DefaultClusterContext clusterContext,
+        Map<ClusterContext, String> clusterContextToServiceUrlMap, int nodeId) {
+        startClusterContext(clusterContext);
+        addToClusterState(clusterContext.getCollectionsFactory(), clusterContext.getLocalMember(), nodeId);
+        clusterContextToServiceUrlMap.put(clusterContext, format("ws://node%d.example.com:8080/path", nodeId));
     }
 
     private void startClusterContext(final DefaultClusterContext clusterContext) {
@@ -408,58 +409,33 @@ public class DefaultClusterContextTest {
         memberIdBalancerMap.put(memberId, myBalanceTargets);
     }
 
-    private void validateClusterState(ClusterContext... clusterContext) {
-        Set<String> balanceTargets = new HashSet<>();
-        if (clusterContext[0] != null) {
-            balanceTargets.add("ws://node1.example.com:8080/path");
+    private void validateClusterState(List<ClusterContext> activeMembers, Map<ClusterContext, String> clusterContextToServiceUrlMap) {
+        Set<String> shouldExistBalanceTargets = new TreeSet<>();
+        Set<MemberId> shouldExistMemberIds = new HashSet<>();
+
+        for (ClusterContext activeMember : activeMembers) {
+            shouldExistBalanceTargets.add(clusterContextToServiceUrlMap.get(activeMember));
+            shouldExistMemberIds.add(activeMember.getLocalMember());
         }
-        if (clusterContext[1] != null) {
-            balanceTargets.add("ws://node2.example.com:8080/path");
-        }
-        balanceTargets.add("ws://node3.example.com:8080/path");
-        balanceTargets.add("ws://node4.example.com:8080/path");
-        if (clusterContext[0] != null) {
-            if (!validateSharedBalancer(clusterContext[0].getCollectionsFactory(), balanceTargets)) {
-                fail("Expected 4 URIs as balance targets in cluster member 1's memory");
-            } else {
-                List<String> myBalanceTargets = new ArrayList<>();
-                myBalanceTargets.add("ws://node1.example.com:8080/path");
-                if (!validateMemberIdBalancerMap(clusterContext[0].getCollectionsFactory(), clusterContext[0]
-                        .getLocalMember(), myBalanceTargets)) {
-                    fail("Expected ws://node1.example.com:8080/path as balance target provided by cluster member 1");
-                }
+
+        int activeMembSize = activeMembers.size();
+        for (int i = 0; i < activeMembSize; i++) {
+            ClusterContext activeMember = activeMembers.get(i);
+            CollectionsFactory collectionsFactory = activeMember.getCollectionsFactory();
+            if (!validateSharedBalancer(collectionsFactory, shouldExistBalanceTargets)) {
+                fail(format("Expected %s URIs as balance targets in cluster member %s's memory", activeMembSize, i + 1));
             }
-        }
-        if (clusterContext[1] != null) {
-            if (!validateSharedBalancer(clusterContext[1].getCollectionsFactory(), balanceTargets)) {
-                fail("Expected 4 URIs as balance targets in cluster member 2's memory");
-            } else {
-                List<String> myBalanceTargets = new ArrayList<>();
-                myBalanceTargets.add("ws://node2.example.com:8080/path");
-                if (!validateMemberIdBalancerMap(clusterContext[1].getCollectionsFactory(), clusterContext[1]
-                        .getLocalMember(), myBalanceTargets)) {
-                    fail("Expected ws://node2.example.com:8080/path as balance target provided by cluster member 2");
-                }
+
+            MemberId localMember = activeMember.getLocalMember();
+            if (!validateMemberIdBalancerMapKeyset(collectionsFactory, localMember, shouldExistMemberIds)) {
+                fail(format("Expected %s URIs as balance targets in cluster member %s's memory", shouldExistMemberIds, i + 1));
             }
-        }
-        if (!validateSharedBalancer(clusterContext[2].getCollectionsFactory(), balanceTargets)) {
-            fail("Expected 4 URIs as balance targets in cluster member 3's memory");
-        } else {
-            List<String> myBalanceTargets = new ArrayList<>();
-            myBalanceTargets.add("ws://node3.example.com:8080/path");
-            if (!validateMemberIdBalancerMap(clusterContext[2].getCollectionsFactory(), clusterContext[2]
-                    .getLocalMember(), myBalanceTargets)) {
-                fail("Expected ws://node3.example.com:8080/path as balance target provided by cluster member 3");
-            }
-        }
-        if (!validateSharedBalancer(clusterContext[3].getCollectionsFactory(), balanceTargets)) {
-            fail("Expected 4 URIs as balance targets in cluster member 4's memory");
-        } else {
-            List<String> myBalanceTargets = new ArrayList<>();
-            myBalanceTargets.add("ws://node4.example.com:8080/path");
-            if (!validateMemberIdBalancerMap(clusterContext[3].getCollectionsFactory(), clusterContext[3]
-                    .getLocalMember(), myBalanceTargets)) {
-                fail("Expected ws://node4.example.com:8080/path as balance target provided by cluster member 4");
+
+            String serviceUrl = clusterContextToServiceUrlMap.get(activeMember);
+            List<String> myBalanceTargets = Collections.singletonList(serviceUrl);
+            if (!validateMemberIdBalancerMap(collectionsFactory, localMember, myBalanceTargets)) {
+                fail(format("Expected %s as balance target provided by cluster member %s",
+                        serviceUrl, i + 1));
             }
         }
     }
@@ -468,7 +444,7 @@ public class DefaultClusterContextTest {
         Map<String, Set<String>> sharedBalancerMap = factory.getMap(BALANCER_MAP_NAME);
 
         Set<String> currentBalanceTargets = sharedBalancerMap.get("ws://www.example.com:8080/path");
-        return (currentBalanceTargets != null) && currentBalanceTargets.containsAll(balanceTargets);
+        return (currentBalanceTargets != null) && currentBalanceTargets.equals(balanceTargets);
 
     }
 
@@ -486,6 +462,14 @@ public class DefaultClusterContextTest {
         String balanceURI = "ws://www.example.com:8080/path";
         List<String> memberBalanceTargets = balancerMap.get(balanceURI);
         return (memberBalanceTargets != null) && memberBalanceTargets.containsAll(balanceTargets);
+    }
 
+    private boolean validateMemberIdBalancerMapKeyset(CollectionsFactory factory, MemberId memberId, Set<MemberId> activeMembers) {
+        Map<MemberId, Map<String, List<String>>> memberIdBalancerMap = factory.getMap(MEMBERID_BALANCER_MAP_NAME);
+        if (memberIdBalancerMap == null) {
+            return false;
+        }
+
+        return memberIdBalancerMap.keySet().equals(activeMembers);
     }
 }
