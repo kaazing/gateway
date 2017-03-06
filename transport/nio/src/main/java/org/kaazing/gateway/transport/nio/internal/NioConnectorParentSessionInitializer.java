@@ -72,7 +72,7 @@ public class NioConnectorParentSessionInitializer implements IoSessionInitialize
             }
         };
         Callable<IoSessionAdapterEx> tcpBridgeSessionFactory =
-            new NioTcpBridgeSessionFactory(parent, parentEx, bridgeSessionInitializer, addressFactory, connectAddress, connectorReference, processor, bridgeConnectFuture);
+            new NioConnectorTcpBridgeSessionFactory(parent, parentEx, bridgeSessionInitializer, addressFactory, connectAddress, connectorReference, processor, bridgeConnectFuture);
         parent.setAttribute(AbstractNioConnector.CREATE_SESSION_CALLABLE_KEY, tcpBridgeSessionFactory);
     }
 

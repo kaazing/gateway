@@ -17,7 +17,6 @@ package org.kaazing.gateway.transport.nio.internal.datagram;
 
 import java.util.Arrays;
 
-import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.transport.IoFilterAdapter;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -26,8 +25,10 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 
 /**
- * Closes the connection if no data is read or written in x amount of time
- *
+ * Adds padding with 0x00 to any message in order to have its length multiple of the configured 'udp.align'
+ *     - accept.option
+ *     - connect.option
+ * The padding is a 'right pad', meaning bytes are inserted after the message's content.
  */
 public class UdpAlignFilter extends IoFilterAdapter<IoSessionEx> {
 
@@ -52,7 +53,6 @@ public class UdpAlignFilter extends IoFilterAdapter<IoSessionEx> {
                 Arrays.fill(padding, (byte) 0x00);
                 final IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
                 IoBufferEx alignedBuffers = allocator.wrap(allocator.allocate(buffer.remaining() + padLength));
-                alignedBuffers.setAutoExpander(allocator);
                 alignedBuffers.put(buffer);
                 alignedBuffers.put(padding);
                 message = alignedBuffers.flip();

@@ -42,7 +42,7 @@ import org.kaazing.mina.core.session.IoSessionConfigEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 
 
-class NioTcpBridgeSessionFactory implements Callable<IoSessionAdapterEx> {
+class NioConnectorTcpBridgeSessionFactory implements Callable<IoSessionAdapterEx> {
 
     private final IoSession parent;
     private final IoSessionEx parentEx;
@@ -53,14 +53,14 @@ class NioTcpBridgeSessionFactory implements Callable<IoSessionAdapterEx> {
     private final IoProcessorEx<IoSessionAdapterEx> processor;
     private final DefaultConnectFuture bridgeConnectFuture;
 
-    public NioTcpBridgeSessionFactory(IoSession parent,
-                                      IoSessionEx parentEx,
-                                      IoSessionInitializer<IoFuture> bridgeSessionInitializer,
-                                      ResourceAddressFactory addressFactory,
-                                      ResourceAddress connectAddress,
-                                      AtomicReference<IoConnectorEx> connectorReference,
-                                      IoProcessorEx<IoSessionAdapterEx> processor,
-                                      DefaultConnectFuture bridgeConnectFuture) {
+    public NioConnectorTcpBridgeSessionFactory(IoSession parent,
+                                               IoSessionEx parentEx,
+                                               IoSessionInitializer<IoFuture> bridgeSessionInitializer,
+                                               ResourceAddressFactory addressFactory,
+                                               ResourceAddress connectAddress,
+                                               AtomicReference<IoConnectorEx> connectorReference,
+                                               IoProcessorEx<IoSessionAdapterEx> processor,
+                                               DefaultConnectFuture bridgeConnectFuture) {
         this.parent = parent;
         this.parentEx = parentEx;
         this.bridgeSessionInitializer = bridgeSessionInitializer;
