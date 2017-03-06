@@ -16,8 +16,8 @@
 package org.kaazing.gateway.update.check;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.kaazing.gateway.util.InternalSystemProperty.SERVICE_URL;
 import static org.kaazing.gateway.util.InternalSystemProperty.UPDATE_CHECK;
+import static org.kaazing.gateway.util.InternalSystemProperty.UPDATE_CHECK_SERVICE_URL;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.util.ArrayList;
@@ -63,7 +63,7 @@ public class UpdateCheckIT {
     protected GatewayConfiguration createGatewayConfiguration() {
         GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                 .property(UPDATE_CHECK.getPropertyName(), "true")
-                .property(SERVICE_URL.getPropertyName(), "http://localhost:8080")
+                .property(UPDATE_CHECK_SERVICE_URL.getPropertyName(), "http://localhost:8080")
                 .done();
         return configuration;
     }

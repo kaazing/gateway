@@ -95,12 +95,12 @@ public class UpdateCheckGatewayObserver extends GatewayObserverFactorySpiPrototy
         productName = getGatewayProductTitle().replaceAll("\\s+", "");
         currentVersion = parseGatewayVersion(getGatewayProductVersionPatch());
 
-        String serviceUrl = InternalSystemProperty.SERVICE_URL.getProperty(properties);
+        String serviceUrl = InternalSystemProperty.UPDATE_CHECK_SERVICE_URL.getProperty(properties);
         if (serviceUrl != null) {
             versionServiceUrl = serviceUrl;
         } else {
             versionServiceUrl =
-                    (getGatewayProductEdition().toLowerCase().contains("enterprise")) ? ENTERPRISE_URL : COMMUNITY_URL;
+                    getGatewayProductEdition().toLowerCase().contains("enterprise") ? ENTERPRISE_URL : COMMUNITY_URL;
         }
 
         SchedulerProvider provider = (SchedulerProvider) injectables.get("schedulerProvider");

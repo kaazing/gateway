@@ -15,6 +15,7 @@
  */
 package org.kaazing.gateway.update.check;
 
+@FunctionalInterface
 public interface UpdateCheckListener {
 
     /**

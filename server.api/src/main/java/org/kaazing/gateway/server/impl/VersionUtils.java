@@ -28,10 +28,10 @@ import org.slf4j.LoggerFactory;
 
 public final class VersionUtils {
 
-    public static String PRODUCT_TITLE;
-    public static String PRODUCT_VERSION;
-    public static String PRODUCT_EDITION;
-    public static String PRODUCT_DEPENDENCIES;
+    public static String productTitle;
+    public static String productVersion;
+    public static String productEdition;
+    public static String productDependencies;
     private static Logger logger = LoggerFactory.getLogger(VersionUtils.class);
 
     private VersionUtils() {
@@ -39,12 +39,12 @@ public final class VersionUtils {
 
     public static String getGatewayProductTitle() {
         getGatewayProductInfo();
-        return PRODUCT_TITLE;
+        return productTitle;
     }
 
     public static String getGatewayProductVersion() {
         getGatewayProductInfo();
-        return PRODUCT_VERSION;
+        return productVersion;
     }
 
     public static String getGatewayProductVersionMajor() {
@@ -138,12 +138,12 @@ public final class VersionUtils {
 
     public static String getGatewayProductEdition() {
         getGatewayProductInfo();
-        return PRODUCT_EDITION;
+        return productEdition;
     }
 
     public static String getGatewayProductDependencies() {
         getGatewayProductInfo();
-        return PRODUCT_DEPENDENCIES;
+        return productDependencies;
     }
 
     /**
@@ -157,7 +157,7 @@ public final class VersionUtils {
         // an "assembly.version" JAR, this routine could be greatly
         // simplified. Removals and dependencies should no longer be needed.
 
-        if (PRODUCT_TITLE != null) {
+        if (productTitle != null) {
             // We've already run through this before, so do nothing.
             return;
         }
@@ -182,6 +182,7 @@ public final class VersionUtils {
             JarFile jar = new JarFile(artifact);
             Manifest mf = jar.getManifest();
             Attributes attrs = mf.getMainAttributes();
+            jar.close();
             if (attrs == null) {
                 return;
             }
@@ -219,19 +220,19 @@ public final class VersionUtils {
             // If running in IDE, there will be no manifest information.
             // Therefore default title to "Kaazing WebSocket Gateway (Development)"
             // and default the others to null.
-            PRODUCT_TITLE = "Kaazing WebSocket Gateway (Development)";
-            PRODUCT_VERSION = null;
-            PRODUCT_EDITION = null;
-            PRODUCT_DEPENDENCIES = null;
+            productTitle = "Kaazing WebSocket Gateway (Development)";
+            productVersion = null;
+            productEdition = null;
+            productDependencies = null;
         } else {
             // The remaining values in 'products' are the real top-level product names.
             // NOTE: Per discussion with Brian in 3.3, this should be only a single value,
             // so we're going to extract our values from that.
             Attributes attrs = products.values().iterator().next();
-            PRODUCT_TITLE = attrs.getValue("Implementation-Title");
-            PRODUCT_VERSION = attrs.getValue("Implementation-Version");
-            PRODUCT_EDITION = attrs.getValue("Kaazing-Product");
-            PRODUCT_DEPENDENCIES = attrs.getValue("Kaazing-Dependencies");
+            productTitle = attrs.getValue("Implementation-Title");
+            productVersion = attrs.getValue("Implementation-Version");
+            productEdition = attrs.getValue("Kaazing-Product");
+            productDependencies = attrs.getValue("Kaazing-Dependencies");
         }
     }
 

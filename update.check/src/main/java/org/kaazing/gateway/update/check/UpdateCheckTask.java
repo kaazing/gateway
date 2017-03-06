@@ -35,7 +35,7 @@ public class UpdateCheckTask implements Runnable {
 
     private final Logger logger = LoggerFactory.getLogger(UpdateCheckTask.class);
     private final UpdateCheckGatewayObserver updateCheckGatewayObserver;
-    private final String protocolVersion = "1.0";
+    private static final String protocolVersion = "1.0";
     private final String versionServiceUrl;
 
     /**

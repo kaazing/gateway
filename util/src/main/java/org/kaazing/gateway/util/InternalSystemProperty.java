@@ -131,7 +131,7 @@ public enum InternalSystemProperty {
     // Internal system property checking if a newer version of the Gateway is available
     UPDATE_CHECK("org.kaazing.gateway.server.UPDATE_CHECK", "true"),
 
-    SERVICE_URL("org.kaazing.gateway.server.SERVICE_URL"),
+    UPDATE_CHECK_SERVICE_URL("org.kaazing.gateway.server.UPDATE_CHECK_SERVICE_URL"),
 
     // TCP_IDLE_TIMEOUT will kill the session if nothing is written or read at nio level.
     // Note, the idle usage is using the mina netty idle timeout which may be set
