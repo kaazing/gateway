@@ -116,7 +116,7 @@ public class UdpAcceptorIT {
         });
 
         k3po.finish();
-        latch.await(2, SECONDS); // FIXME not checking latch was decremented to 0
+        assertTrue(latch.await(2, SECONDS));
     }
 
     @Test
@@ -148,17 +148,16 @@ public class UdpAcceptorIT {
                 String decoded = new String(((IoBuffer) message).array());
                 assertEquals("client data", decoded);
                 latch.countDown();
-                // FIXME assert here does not seem to make the test fail
-                assertTrue(false);
             }
         });
         k3po.finish();
-        latch.await(2, SECONDS);  // FIXME not checking latch was decremented to 0
+        assertTrue(latch.await(2, SECONDS));
     }
 
     @Test
     @Specification("echo.data/client")
     public void bidirectionalData() throws Exception {
+        CountDownLatch latch = new CountDownLatch(2);
         bindTo8080(new IoHandlerAdapter<IoSessionEx>() {
             private boolean first = true;
 
@@ -169,18 +168,16 @@ public class UdpAcceptorIT {
                     assertEquals("client data 1", decoded);
                     writeStringMessageToSession("server data 1", session);
                     first = false;
-                    // FIXME assert here does not seem to make the test fail
-                    assertTrue(false);
                 } else {
                     assertEquals("client data 2", decoded);
                     writeStringMessageToSession("server data 2", session);
-                    // FIXME assert here does not seem to make the test fail
-                    assertTrue(false);
                 }
+                latch.countDown();
             }
         });
 
         k3po.finish();
+        assertTrue(latch.await(2, SECONDS));
     }
 
     @Test
@@ -205,7 +202,7 @@ public class UdpAcceptorIT {
         });
 
         k3po.finish();
-        latch.await(3, SECONDS); // FIXME not checking latch was decremented to 0
+        assertTrue(latch.await(5, SECONDS));
     }
 
     @Test
@@ -235,8 +232,8 @@ public class UdpAcceptorIT {
 
         k3po.finish();
 
-        latch.await(3, SECONDS); // FIXME not checking latch was decremented to 0
-        futures[0].await(2, SECONDS); // FIXME check should also be done
+        assertTrue(latch.await(3, SECONDS));
+        assertTrue(futures[0].await(2, SECONDS));
         assertTrue(futures[0].isClosed());
     }
 
@@ -305,18 +302,14 @@ public class UdpAcceptorIT {
             @Override
             protected void doMessageReceived(IoSessionEx session, Object message) {
                 String decoded = new String(((IoBuffer) message).array());
-                System.out.println(decoded);
                 String expect = nTimes("abcdefghijklmnopqrstuvwxyz", 57);
                 assertEquals(expect, decoded);
-
-                // FIXME assert here does not seem to make the test fail
-                assertTrue(false);
                 latch.countDown();
             }
 
         });
         k3po.finish();
-        latch.await(2, SECONDS); // FIXME not checking latch was decremented to 0
+        assertTrue(latch.await(2, SECONDS));
     }
 
     @Test
@@ -340,7 +333,7 @@ public class UdpAcceptorIT {
         k3po.start();
         k3po.notifyBarrier("BOUND");
         k3po.finish();
-        messagesReceived.await(2, SECONDS);
+        assertTrue(messagesReceived.await(2, SECONDS));
         assertTrue(bytesAligned.get());
     }
 

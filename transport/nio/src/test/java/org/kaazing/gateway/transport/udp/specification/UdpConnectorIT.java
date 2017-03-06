@@ -92,21 +92,18 @@ public class UdpConnectorIT {
     @Test
     @Specification("establish.connection/server")
     public void establishConnection() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
         k3po.start();
         k3po.awaitBarrier("BOUND");
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
             @Override
             protected void doSessionOpened(IoSessionEx session) {
                 writeStringMessageToSession("client data", session);
-            }
-
-            @Override
-            protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
-                super.doMessageReceived(session, message);
+                latch.countDown();
             }
         });
         k3po.finish();
-        // TODO should add latch to make sure message is received
+        assertTrue(latch.await(2, SECONDS));
     }
 
     @Test
@@ -160,6 +157,8 @@ public class UdpConnectorIT {
     @Test
     @Specification("echo.data/server")
     public void bidirectionalData() throws Exception {
+        CountDownLatch latch = new CountDownLatch(2);
+
         k3po.start();
         k3po.awaitBarrier("BOUND");
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
@@ -177,19 +176,15 @@ public class UdpConnectorIT {
                     assertEquals("server data 1", decoded);
                     writeStringMessageToSession("client data 2", session);
                     first = false;
-
-                    // FIXME assert here does not seem to make the test fail
-                    assertTrue(false);
                 } else {
                     assertEquals("server data 2", decoded);
-
-                    // FIXME assert here does not seem to make the test fail
-                    assertTrue(false);
                 }
+                latch.countDown();
             }
         });
 
         k3po.finish();
+        assertTrue(latch.await(2, SECONDS));
     }
 
 
@@ -277,6 +272,8 @@ public class UdpConnectorIT {
     @Test
     @Specification("concurrent.connections/server")
     public void concurrentConnections() throws Exception {
+        CountDownLatch latch = new CountDownLatch(6);
+
         class ConcurrentHandler extends IoHandlerAdapter<IoSessionEx> {
             private boolean first = true;
 
@@ -292,17 +289,10 @@ public class UdpConnectorIT {
                     assertEquals("Hello", decoded);
                     writeStringMessageToSession("Goodbye", session);
                     first = false;
-
-
-                    // FIXME assert here does not seem to make the test fail
-                    assertTrue(false);
                 } else {
                     assertEquals("Goodbye", decoded);
-
-
-                    // FIXME assert here does not seem to make the test fail
-                    assertTrue(false);
                 }
+                latch.countDown();
             }
         };
 
@@ -314,6 +304,7 @@ public class UdpConnectorIT {
         connectTo8080(new ConcurrentHandler());
 
         k3po.finish();
+        assertTrue(latch.await(2, SECONDS));
     }
 
 }
