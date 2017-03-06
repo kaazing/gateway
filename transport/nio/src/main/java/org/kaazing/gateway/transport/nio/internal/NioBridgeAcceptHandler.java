@@ -146,11 +146,7 @@ public class NioBridgeAcceptHandler extends BridgeAcceptHandler {
             initializer.initializeSession(session, null);
         }
 
-//        if (nioBinding.getBinding(localAddress) != null) {
-//            final ResourceAddress boundAddress = nioBinding.getBinding(localAddress).bindAddress();
-            ((AbstractNioAcceptor)getAcceptor()).registerAcceptFilters(localAddress, session);
-//        }
-
+        ((AbstractNioAcceptor)getAcceptor()).registerAcceptFilters(localAddress, session);
         // next-protocol has been determined
         super.sessionCreated(session);
     }
