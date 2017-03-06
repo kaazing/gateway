@@ -46,11 +46,9 @@ import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
 import org.kaazing.gateway.service.collections.CollectionsFactory;
 import org.kaazing.test.util.ITUtil;
+import org.kaazing.gateway.server.context.resolve.DefaultServiceContext;
 
 public class DefaultClusterContextTest {
-
-    public static final String BALANCER_MAP_NAME = "balancerMap";
-    public static final String MEMBERID_BALANCER_MAP_NAME = "memberIdBalancerMap";
 
     DefaultClusterContext clusterContext1;
     DefaultClusterContext clusterContext2;
@@ -92,28 +90,8 @@ public class DefaultClusterContextTest {
             membersRemoved.countDown();
         }
 
-        int size() {
-            return members.size();
-        }
-
         void clear() {
             members.clear();
-        }
-
-
-        public void assertMemberAdded(MemberId memberId) throws InterruptedException {
-            if (!membersAdded.await(3, TimeUnit.SECONDS)) {
-                fail("Failed to detect " + memberId + " being added as expected.");
-            }
-
-            for (MemberId id : members) {
-                if (id.equals(memberId)) {
-                    return;
-                }
-            }
-
-            fail("Failed to detect " + memberId +
-                    " being added as expected although expected number of members being added occurred.");
         }
 
         public void assertMemberNotAdded(MemberId memberId) throws InterruptedException {
@@ -282,8 +260,8 @@ public class DefaultClusterContextTest {
                     connects4,
                     null);
 
-            Map<ClusterContext, String> clusterContextToServiceUrlMap = new HashMap<>();
-            initClusterContext(clusterContext1, clusterContextToServiceUrlMap, 1);
+            Map<ClusterContext, String> expectedBalancedServicesUrlsMap = new HashMap<>();
+            initClusterContext(clusterContext1, expectedBalancedServicesUrlsMap, 1);
 
             try {
                 // KG-10802:  sleep for 2 seconds to ensure cluster member 1 finishes starting up and elects itself
@@ -292,21 +270,21 @@ public class DefaultClusterContextTest {
             } catch (Exception ex) {
             }
 
-            initClusterContext(clusterContext2, clusterContextToServiceUrlMap, 2);
-            initClusterContext(clusterContext3, clusterContextToServiceUrlMap, 3);
-            initClusterContext(clusterContext4, clusterContextToServiceUrlMap, 4);
+            initClusterContext(clusterContext2, expectedBalancedServicesUrlsMap, 2);
+            initClusterContext(clusterContext3, expectedBalancedServicesUrlsMap, 3);
+            initClusterContext(clusterContext4, expectedBalancedServicesUrlsMap, 4);
 
             // validate cluster state
-            validateClusterState(Arrays.asList(clusterContext1, clusterContext2, clusterContext3, clusterContext4), clusterContextToServiceUrlMap);
+            validateClusterState(Arrays.asList(clusterContext1, clusterContext2, clusterContext3, clusterContext4), expectedBalancedServicesUrlsMap);
 
             // 2 - shut down context 1 & 2
             clusterContext1.dispose();
             clusterContext2.dispose();
-            clusterContextToServiceUrlMap.remove(clusterContext1);
-            clusterContextToServiceUrlMap.remove(clusterContext2);
+            expectedBalancedServicesUrlsMap.remove(clusterContext1);
+            expectedBalancedServicesUrlsMap.remove(clusterContext2);
 
             // 3 - validate cluster state
-            validateClusterState(Arrays.asList(clusterContext3, clusterContext4), clusterContextToServiceUrlMap);
+            validateClusterState(Arrays.asList(clusterContext3, clusterContext4), expectedBalancedServicesUrlsMap);
 
             // 4 - start context 1 & 2
             clusterContext1 = new DefaultClusterContext(clusterName,
@@ -319,11 +297,11 @@ public class DefaultClusterContextTest {
                     connects2,
                     null);
 
-            initClusterContext(clusterContext1, clusterContextToServiceUrlMap, 1);
-            initClusterContext(clusterContext2, clusterContextToServiceUrlMap, 2);
+            initClusterContext(clusterContext1, expectedBalancedServicesUrlsMap, 1);
+            initClusterContext(clusterContext2, expectedBalancedServicesUrlsMap, 2);
 
             // 5 - validate cluster state
-            validateClusterState(Arrays.asList(clusterContext1, clusterContext2, clusterContext3, clusterContext4), clusterContextToServiceUrlMap);
+            validateClusterState(Arrays.asList(clusterContext1, clusterContext2, clusterContext3, clusterContext4), expectedBalancedServicesUrlsMap);
 
         } finally {
             if (clusterContext1 != null) {
@@ -342,10 +320,10 @@ public class DefaultClusterContextTest {
     }
 
     private void initClusterContext(DefaultClusterContext clusterContext,
-        Map<ClusterContext, String> clusterContextToServiceUrlMap, int nodeId) {
+        Map<ClusterContext, String> expectedBalancedServicesUrlsMap, int nodeId) {
         startClusterContext(clusterContext);
         addToClusterState(clusterContext.getCollectionsFactory(), clusterContext.getLocalMember(), nodeId);
-        clusterContextToServiceUrlMap.put(clusterContext, format("ws://node%d.example.com:8080/path", nodeId));
+        expectedBalancedServicesUrlsMap.put(clusterContext, format("ws://node%d.example.com:8080/path", nodeId));
     }
 
     private void startClusterContext(final DefaultClusterContext clusterContext) {
@@ -390,9 +368,15 @@ public class DefaultClusterContextTest {
         }
     }
 
+    /**
+     * Adds balanceURIs to a map similar to DefaultServiceContext.bind
+     * @param factory
+     * @param memberId
+     * @param nodeId
+     */
     private void addToClusterState(CollectionsFactory factory, MemberId memberId, int nodeId) {
-        Map<String, Set<String>> sharedBalancerMap = factory.getMap(BALANCER_MAP_NAME);
-        Map<MemberId, Map<String, List<String>>> memberIdBalancerMap = factory.getMap(MEMBERID_BALANCER_MAP_NAME);
+        Map<String, Set<String>> sharedBalancerMap = factory.getMap(DefaultServiceContext.BALANCER_MAP_NAME);
+        Map<MemberId, Map<String, List<String>>> memberIdBalancerMap = factory.getMap(DefaultServiceContext.MEMBERID_BALANCER_MAP_NAME);
         String balanceURI = "ws://www.example.com:8080/path";
         String targetURI = format("ws://node%d.example.com:8080/path", nodeId);
         Set<String> currentTargets = sharedBalancerMap.get(balanceURI);
@@ -409,29 +393,29 @@ public class DefaultClusterContextTest {
         memberIdBalancerMap.put(memberId, myBalanceTargets);
     }
 
-    private void validateClusterState(List<ClusterContext> activeMembers, Map<ClusterContext, String> clusterContextToServiceUrlMap) {
+    private void validateClusterState(List<ClusterContext> expectedActiveMembers, Map<ClusterContext, String> expectedBalancedServicesUrlsMap) {
         Set<String> shouldExistBalanceTargets = new TreeSet<>();
         Set<MemberId> shouldExistMemberIds = new HashSet<>();
 
-        for (ClusterContext activeMember : activeMembers) {
-            shouldExistBalanceTargets.add(clusterContextToServiceUrlMap.get(activeMember));
+        for (ClusterContext activeMember : expectedActiveMembers) {
+            shouldExistBalanceTargets.add(expectedBalancedServicesUrlsMap.get(activeMember));
             shouldExistMemberIds.add(activeMember.getLocalMember());
         }
 
-        int activeMembSize = activeMembers.size();
+        int activeMembSize = expectedActiveMembers.size();
         for (int i = 0; i < activeMembSize; i++) {
-            ClusterContext activeMember = activeMembers.get(i);
+            ClusterContext activeMember = expectedActiveMembers.get(i);
             CollectionsFactory collectionsFactory = activeMember.getCollectionsFactory();
             if (!validateSharedBalancer(collectionsFactory, shouldExistBalanceTargets)) {
                 fail(format("Expected %s URIs as balance targets in cluster member %s's memory", activeMembSize, i + 1));
             }
 
             MemberId localMember = activeMember.getLocalMember();
-            if (!validateMemberIdBalancerMapKeyset(collectionsFactory, localMember, shouldExistMemberIds)) {
+            if (!validateMemberIdBalancerMapKeyset(collectionsFactory, shouldExistMemberIds)) {
                 fail(format("Expected %s URIs as balance targets in cluster member %s's memory", shouldExistMemberIds, i + 1));
             }
 
-            String serviceUrl = clusterContextToServiceUrlMap.get(activeMember);
+            String serviceUrl = expectedBalancedServicesUrlsMap.get(activeMember);
             List<String> myBalanceTargets = Collections.singletonList(serviceUrl);
             if (!validateMemberIdBalancerMap(collectionsFactory, localMember, myBalanceTargets)) {
                 fail(format("Expected %s as balance target provided by cluster member %s",
@@ -441,7 +425,7 @@ public class DefaultClusterContextTest {
     }
 
     private boolean validateSharedBalancer(CollectionsFactory factory, Set<String> balanceTargets) {
-        Map<String, Set<String>> sharedBalancerMap = factory.getMap(BALANCER_MAP_NAME);
+        Map<String, Set<String>> sharedBalancerMap = factory.getMap(DefaultServiceContext.BALANCER_MAP_NAME);
 
         Set<String> currentBalanceTargets = sharedBalancerMap.get("ws://www.example.com:8080/path");
         return (currentBalanceTargets != null) && currentBalanceTargets.equals(balanceTargets);
@@ -449,7 +433,7 @@ public class DefaultClusterContextTest {
     }
 
     private boolean validateMemberIdBalancerMap(CollectionsFactory factory, MemberId memberId, List<String> balanceTargets) {
-        Map<MemberId, Map<String, List<String>>> memberIdBalancerMap = factory.getMap(MEMBERID_BALANCER_MAP_NAME);
+        Map<MemberId, Map<String, List<String>>> memberIdBalancerMap = factory.getMap(DefaultServiceContext.MEMBERID_BALANCER_MAP_NAME);
         if (memberIdBalancerMap == null) {
             return false;
         }
@@ -464,12 +448,12 @@ public class DefaultClusterContextTest {
         return (memberBalanceTargets != null) && memberBalanceTargets.containsAll(balanceTargets);
     }
 
-    private boolean validateMemberIdBalancerMapKeyset(CollectionsFactory factory, MemberId memberId, Set<MemberId> activeMembers) {
-        Map<MemberId, Map<String, List<String>>> memberIdBalancerMap = factory.getMap(MEMBERID_BALANCER_MAP_NAME);
+    private boolean validateMemberIdBalancerMapKeyset(CollectionsFactory factory, Set<MemberId> expectedActiveMembers) {
+        Map<MemberId, Map<String, List<String>>> memberIdBalancerMap = factory.getMap(DefaultServiceContext.MEMBERID_BALANCER_MAP_NAME);
         if (memberIdBalancerMap == null) {
             return false;
         }
 
-        return memberIdBalancerMap.keySet().equals(activeMembers);
+        return memberIdBalancerMap.keySet().equals(expectedActiveMembers);
     }
 }
