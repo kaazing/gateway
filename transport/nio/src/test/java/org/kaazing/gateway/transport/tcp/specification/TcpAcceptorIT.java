@@ -21,6 +21,8 @@ import static org.kaazing.test.util.ITUtil.createRuleChain;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
@@ -121,6 +123,7 @@ public class TcpAcceptorIT {
         "echo.data/client"
         })
     public void bidirectionalData() throws Exception {
+        CountDownLatch messageProcessed = new CountDownLatch(1);
         bindTo8080(new IoHandlerAdapter<IoSessionEx>(){
             private int counter = 1;
             private DataMatcher dataMatch = new DataMatcher("client data " + counter);
@@ -133,15 +136,13 @@ public class TcpAcceptorIT {
                     counter++;
                     dataMatch = new DataMatcher("client data " + counter);
                 }
-
-
-                // FIXME assert here does not seem to make the test fail
-                assertTrue(false);
+                messageProcessed.countDown();
             }
         });
 
 
         k3po.finish();
+        assertTrue(messageProcessed.await(2, TimeUnit.SECONDS));
     }
 
     @Test
@@ -178,6 +179,7 @@ public class TcpAcceptorIT {
         "concurrent.connections/client"
         })
     public void concurrentConnections() throws Exception {
+        CountDownLatch messageProcessed = new CountDownLatch(1);
         bindTo8080(new IoHandlerAdapter<IoSessionEx>(){
 
             @Override
@@ -194,21 +196,17 @@ public class TcpAcceptorIT {
                     if (dataMatch.target.equals("Hello")) {
                         dataMatch = new DataMatcher("Goodbye");
                         writeStringMessageToSession("Hello", session);
-
                     } else {
                         dataMatch = new DataMatcher("");
                         writeStringMessageToSession("Goodbye", session);
                     }
                     session.setAttribute("dataMatch", dataMatch);
                 }
-
-
-                // FIXME assert here does not seem to make the test fail
-                assertTrue(false);
+                messageProcessed.countDown();
             }
         });
         k3po.finish();
-
+        assertTrue(messageProcessed.await(2, TimeUnit.SECONDS));
     }
 
 }
