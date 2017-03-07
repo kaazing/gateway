@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>mina-parent</artifactId>
-        <version>5.6.0-RC000</version>
+        <version>5.6.0-RC001</version>
         <relativePath>../parent</relativePath>
     </parent>
     <artifactId>mina-integration-jmx</artifactId>
