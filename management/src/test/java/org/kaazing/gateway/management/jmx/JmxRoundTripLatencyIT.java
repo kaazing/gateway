@@ -93,6 +93,7 @@ public class JmxRoundTripLatencyIT {
                             .realm()
                                 .name("jmxrealm")
                                 .description("realm for jmx")
+                                .httpChallengeScheme("Application Basic")
                                 .loginModule()
                                     .type("class:org.kaazing.gateway.management.test.util.TestLoginModule")
                                     .success("requisite")
