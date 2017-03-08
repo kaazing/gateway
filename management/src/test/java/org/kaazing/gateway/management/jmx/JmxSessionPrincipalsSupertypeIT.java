@@ -63,6 +63,7 @@ public class JmxSessionPrincipalsSupertypeIT extends JmxSessionPrincipalsIT {
                             .realm()
                                 .name("demo")
                                 .description("Kaazing WebSocket Gateway Demo")
+                                .httpChallengeScheme("Application Token")
                                 .httpQueryParameter("token")
                                 // Specify supertypes (an implemented interface) for the principles, this should work
                                 .userPrincipalClass("org.kaazing.gateway.management.test.util.TokenCustomLoginModule$RoleInterface")
@@ -75,6 +76,7 @@ public class JmxSessionPrincipalsSupertypeIT extends JmxSessionPrincipalsIT {
                             .realm()
                                 .name("jmxrealm")
                                 .description("realm for jmx")
+                                .httpChallengeScheme("Application Basic")
                                 .loginModule()
                                     .type("class:org.kaazing.gateway.management.test.util.TestLoginModule")
                                     .success("required")
