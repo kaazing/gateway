@@ -1,10 +1,11 @@
 # Change Log
 
-## [5.6.0-RC001](https://github.com/kaazing/gateway/tree/5.6.0-RC001) (2017-03-07)
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.5.0...5.6.0-RC001)
+## [5.6.0-RC002](https://github.com/kaazing/gateway/tree/5.6.0-RC002) (2017-03-08)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.5.0...5.6.0-RC002)
 
 **Merged pull requests:**
 
+- make injected login modules optional again [\#880](https://github.com/kaazing/gateway/pull/880) ([danibusu](https://github.com/danibusu))
 - update gateway login challenge behavior [\#871](https://github.com/kaazing/gateway/pull/871) ([danibusu](https://github.com/danibusu))
 
 ## [5.5.0](https://github.com/kaazing/gateway/tree/5.5.0) (2017-02-28)
