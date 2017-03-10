@@ -198,6 +198,8 @@ public class NioSocketConnector extends AbstractNioConnector {
     @Override
     public void dispose() {
         super.dispose();
-        tcpAcceptor.dispose();
+        if (tcpAcceptor != null) {
+            tcpAcceptor.dispose();
+        }
     }
 }

@@ -154,6 +154,8 @@ public class NioDatagramConnector extends AbstractNioConnector {
     public void dispose() {
         super.dispose();
         // FIXME is this necessary ?
-        channelFactory.releaseExternalResources();
+        if (channelFactory != null) {
+            channelFactory.releaseExternalResources();
+        }
     }
 }
