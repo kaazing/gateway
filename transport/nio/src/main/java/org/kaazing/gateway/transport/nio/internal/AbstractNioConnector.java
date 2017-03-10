@@ -60,6 +60,7 @@ public abstract class AbstractNioConnector implements BridgeConnector {
     private ResourceAddressFactory addressFactory;
     private IoHandlerAdapter<IoSessionEx> tcpBridgeHandler;
     private IoProcessorEx<IoSessionAdapterEx> processor;
+    private BridgeConnector bridgeConnector;
 
     //
     // Code to support "virtual" bridge tcp sessions when we have a transport defined.
@@ -116,9 +117,13 @@ public abstract class AbstractNioConnector implements BridgeConnector {
     @Override
     public void dispose() {
         IoConnector connector = this.connectorReference.getAndSet(null);
-    	if (connector != null) {
-    		connector.dispose();
-    	}
+        if (connector != null) {
+            connector.dispose();
+        }
+        // FIXME is this necessary
+        if (bridgeConnector != null) {
+            bridgeConnector.dispose();
+        }
     }
 
     @Override
@@ -214,8 +219,8 @@ public abstract class AbstractNioConnector implements BridgeConnector {
         IoSessionInitializer<ConnectFuture> parentInitializer =
             new NioConnectorParentSessionInitializer(handler, initializer, address, bridgeConnectFuture, addressFactory, processor, connectorReference);
         // propagate connection failure, if necessary
-        bridgeServiceFactory.newBridgeConnector(transport)
-            .connect(transport, tcpBridgeHandler, parentInitializer)
+        bridgeConnector = bridgeServiceFactory.newBridgeConnector(transport);
+        bridgeConnector.connect(transport, tcpBridgeHandler, parentInitializer)
             .addListener(
                 new IoFutureListener<ConnectFuture>() {
                     @Override

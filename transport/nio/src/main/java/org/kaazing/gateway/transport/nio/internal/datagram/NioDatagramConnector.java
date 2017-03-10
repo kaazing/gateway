@@ -51,6 +51,9 @@ public class NioDatagramConnector extends AbstractNioConnector {
 
     private NioSocketAcceptor tcpAcceptor;
 
+
+    NioClientDatagramChannelFactory channelFactory;
+
     @Resource(name = "tcp.acceptor")
     public void setTcpAcceptor(NioSocketAcceptor tcpAcceptor) {
         this.tcpAcceptor = tcpAcceptor;
@@ -84,7 +87,7 @@ public class NioDatagramConnector extends AbstractNioConnector {
     protected IoConnectorEx initConnector() {
         DatagramChannelIoSessionConfig config = new DefaultDatagramChannelIoSessionConfig();
         WorkerPool<NioWorker> workerPool = tcpAcceptor.initWorkerPool(logger, "UDP connector: {}", getConfiguration());
-        NioClientDatagramChannelFactory channelFactory = new NioClientDatagramChannelFactory(workerPool);
+        /*NioClientDatagramChannelFactory*/ channelFactory = new NioClientDatagramChannelFactory(workerPool);
         NioDatagramChannelIoConnector connector = new NioDatagramChannelIoConnector(config, channelFactory);
 
         String readBufferSize = configuration.getProperty("org.kaazing.gateway.transport.udp.READ_BUFFER_SIZE");
@@ -145,5 +148,11 @@ public class NioDatagramConnector extends AbstractNioConnector {
         } else {
             return super.connect(address, handler, initializer);
         }
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        channelFactory.releaseExternalResources();
     }
 }

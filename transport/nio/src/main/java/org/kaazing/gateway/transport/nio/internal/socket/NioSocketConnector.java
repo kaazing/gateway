@@ -194,4 +194,10 @@ public class NioSocketConnector extends AbstractNioConnector {
         // nothing to do
     }
 
+    // FIXME should this be added ?
+    @Override
+    public void dispose() {
+        super.dispose();
+        tcpAcceptor.dispose();
+    }
 }

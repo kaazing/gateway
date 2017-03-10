@@ -149,6 +149,13 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
     @Override
     public void dispose() {
         // Unset static state on the thread to allow gateway to be restarted in same thread
+
+
+        // FIXME shoulde this be added ?
+        //        if (currentWorkerPool.get() != null) {
+        //            currentWorkerPool.get().releaseExternalResources();
+        //        }
+
         currentWorkerPool.set(null);
         super.dispose();
     }

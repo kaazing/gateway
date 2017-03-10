@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.mina.core.service.IoHandler;
@@ -123,6 +124,14 @@ public class UdpAcceptorRule implements TestRule {
                 tcpAcceptor.dispose();
                 acceptor.dispose();
                 schedulerProvider.shutdownNow();
+            }
+
+
+
+            Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
+            Thread[] threadArray = threadSet.toArray(new Thread[threadSet.size()]);
+            for (Thread t: threadArray) {
+                System.out.println(t.getName());
             }
         }
 

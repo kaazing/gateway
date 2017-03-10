@@ -84,7 +84,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
 
     private final Integer idleTimeout;
 
-    private final IoHandlerAdapter<IoSessionEx> tcpBridgeHandler;
+    private IoHandlerAdapter<IoSessionEx> tcpBridgeHandler;
 
     public AbstractNioAcceptor(Properties configuration, Logger logger) {
         if (configuration == null) {
@@ -105,8 +105,6 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
         }
 
         idleTimeout = TCP_IDLE_TIMEOUT.getIntProperty(configuration);
-        final IoProcessorEx<IoSessionAdapterEx> tcpBridgeProcessor = new NioAcceptorTcpBridgeProcessor(this.acceptor);
-        tcpBridgeHandler = new NioAcceptorTcpBridgeHandler(bindings, acceptor, resourceAddressFactory, bridgeServiceFactory, logger, getTransportName(), tcpBridgeProcessor);
     }
 
     @Resource(name = "bridgeServiceFactory")
@@ -150,7 +148,9 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
     protected final void init() {
         acceptor = initAcceptor(null);
         acceptor.setSessionDataStructureFactory(new DefaultIoSessionDataStructureFactory());
-        acceptor.setHandler(new NioBridgeAcceptHandler(this, // TODO maybe this reference could be removed
+        final IoProcessorEx<IoSessionAdapterEx> tcpBridgeProcessor = new NioAcceptorTcpBridgeProcessor(this.acceptor);
+        tcpBridgeHandler = new NioAcceptorTcpBridgeHandler(bindings, acceptor, resourceAddressFactory, bridgeServiceFactory, logger, getTransportName(), tcpBridgeProcessor);
+        acceptor.setHandler(new NioAcceptorBridgeAcceptHandler(this, // TODO maybe this reference could be removed
             resourceAddressFactory, bridgeServiceFactory, bindings, idleTimeout, logger, getTransportName()));
     }
 

@@ -43,7 +43,7 @@ import org.kaazing.gateway.transport.NextProtocolFilter;
 import org.kaazing.gateway.transport.dispatch.ProtocolDispatcher;
 import org.slf4j.Logger;
 
-public class NioBridgeAcceptHandler extends BridgeAcceptHandler {
+public class NioAcceptorBridgeAcceptHandler extends BridgeAcceptHandler {
 
     private final NextProtocolBindings bindings;
     private final ResourceAddressFactory resourceAddressFactory;
@@ -52,10 +52,10 @@ public class NioBridgeAcceptHandler extends BridgeAcceptHandler {
     private final Integer idleTimeout;
     private final String transportName;
 
-    public NioBridgeAcceptHandler(AbstractNioAcceptor abstractNioAcceptor,
-                                  ResourceAddressFactory resourceAddressFactory, BridgeServiceFactory bridgeServiceFactory,
-                                  NextProtocolBindings bindings, Integer idleTimeout,
-                                  Logger logger, String transportName) {
+    public NioAcceptorBridgeAcceptHandler(AbstractNioAcceptor abstractNioAcceptor,
+                                          ResourceAddressFactory resourceAddressFactory, BridgeServiceFactory bridgeServiceFactory,
+                                          NextProtocolBindings bindings, Integer idleTimeout,
+                                          Logger logger, String transportName) {
         super(abstractNioAcceptor);
         this.resourceAddressFactory = resourceAddressFactory;
         this.bridgeServiceFactory = bridgeServiceFactory;
