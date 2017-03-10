@@ -113,7 +113,9 @@ public class TimeoutLoginModule extends BaseStateDrivenLoginModule {
             throw le;
         }
 
-        return performedAction;
+        // always return false, so that this login module doesn't interfere
+        // with the overall result of the login module chain
+        return false;
     }
 
     @Override
@@ -143,8 +145,5 @@ public class TimeoutLoginModule extends BaseStateDrivenLoginModule {
 
     private void cleanState() {
         this.sessionTimeout = 0L;
-        if (loginResult != null) {
-            ((DefaultLoginResult) loginResult).clearTimeouts();
-        }
     }
 }
