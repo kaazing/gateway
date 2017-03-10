@@ -97,25 +97,25 @@ public class BasicLoginModuleTest {
 
         context.assertIsSatisfied();
         assertNotNull(loginContext);
-        try {
-            loginContext.login();
-            final CallbackHandler nameCallbackHandler = handler.getDispatchMap().get(NameCallback.class);
-            final CallbackHandler passwordCallbackHandler = handler.getDispatchMap().get(PasswordCallback.class);
-            assertNotNull(nameCallbackHandler);
-            assertNotNull(passwordCallbackHandler);
-            assertEquals(LoginResult.Type.CHALLENGE, loginResult.getType());
 
-            NameCallback nameCallback = new NameCallback(">|<");
-            PasswordCallback passwordCallback = new PasswordCallback(">|<", false);
+        thrown.expect(LoginException.class);
+        thrown.expectMessage("all modules ignored");
+        loginContext.login();
 
-            nameCallbackHandler.handle(new Callback[]{nameCallback});
-            passwordCallbackHandler.handle(new Callback[]{passwordCallback});
+        final CallbackHandler nameCallbackHandler = handler.getDispatchMap().get(NameCallback.class);
+        final CallbackHandler passwordCallbackHandler = handler.getDispatchMap().get(PasswordCallback.class);
+        assertNotNull(nameCallbackHandler);
+        assertNotNull(passwordCallbackHandler);
+        assertEquals(LoginResult.Type.CHALLENGE, loginResult.getType());
 
-            assertEquals("Expected 'joe' as the name", "joe", nameCallback.getName());
-            assertEquals("Expected 'welcome' as the password", "welcome", new String(passwordCallback.getPassword()));
-        } catch (LoginException e) {
-            fail("Login failed to succeed as expected: "+e.getMessage());
-        }
+        NameCallback nameCallback = new NameCallback(">|<");
+        PasswordCallback passwordCallback = new PasswordCallback(">|<", false);
+
+        nameCallbackHandler.handle(new Callback[]{nameCallback});
+        passwordCallbackHandler.handle(new Callback[]{passwordCallback});
+
+        assertEquals("Expected 'joe' as the name", "joe", nameCallback.getName());
+        assertEquals("Expected 'welcome' as the password", "welcome", new String(passwordCallback.getPassword()));
     }
 
 
