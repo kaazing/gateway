@@ -153,6 +153,7 @@ public class NioDatagramConnector extends AbstractNioConnector {
     @Override
     public void dispose() {
         super.dispose();
+        // FIXME is this necessary ?
         channelFactory.releaseExternalResources();
     }
 }
