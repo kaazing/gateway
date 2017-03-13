@@ -96,6 +96,7 @@
         <module>mina.core</module>
         <module>mina.netty</module>
         <module>test.util</module>
+        <module>update.check</module>
     </modules>
 
     <dependencyManagement>

@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.update.check;
+package org.kaazing.gateway.update.check;
 
 import static java.lang.String.format;
-import static org.kaazing.gateway.service.update.check.GatewayVersion.parseGatewayVersion;
+import static org.kaazing.gateway.update.check.GatewayVersion.parseGatewayVersion;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -31,21 +31,20 @@ import org.slf4j.LoggerFactory;
 /**
  * An update check task that updates the latest version
  */
-@Deprecated
 public class UpdateCheckTask implements Runnable {
 
     private final Logger logger = LoggerFactory.getLogger(UpdateCheckTask.class);
-    private final UpdateCheckService updateCheckService;
-    private final String protocolVersion = "1.0";
+    private final UpdateCheckGatewayObserver updateCheckGatewayObserver;
+    private static final String protocolVersion = "1.0";
     private final String versionServiceUrl;
 
     /**
-     * @param updateCheckService
+     * @param updateCheckGatewayObserver
      * @param webServiceUrl
      * @param productName
      */
-    public UpdateCheckTask(UpdateCheckService updateCheckService, String webServiceUrl, String productName) {
-        this.updateCheckService = updateCheckService;
+    public UpdateCheckTask(UpdateCheckGatewayObserver updateCheckGatewayObserver, String webServiceUrl, String productName) {
+        this.updateCheckGatewayObserver = updateCheckGatewayObserver;
         if (webServiceUrl.endsWith("/")) {
             this.versionServiceUrl = format("%s%s/%s/latest", webServiceUrl, productName, protocolVersion);
         } else {
@@ -53,16 +52,16 @@ public class UpdateCheckTask implements Runnable {
         }
     }
 
-    @Override
-    public void run() {
+    @Override public void run() {
         GatewayVersion latestVersion = fetchLatestVersion();
         if (latestVersion != null) {
-            updateCheckService.setLatestGatewayVersion(latestVersion);
+            updateCheckGatewayObserver.setLatestGatewayVersion(latestVersion);
         }
     }
 
     /**
      * Checks Kaazing Version Web Service to see what is the latest version of the product
+     *
      * @return null if an exception is caught, otherwise returns the latest version of the gateway
      */
     private GatewayVersion fetchLatestVersion() {
@@ -72,30 +71,31 @@ public class UpdateCheckTask implements Runnable {
             URL url = new URL(updateVersionUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
-            connection.setRequestProperty("User-Agent", "Kaazing Update Service");
+            connection.setRequestProperty("User-Agent", "Kaazing Update Property");
             connection.setRequestProperty("Connection", "close");
             connection.setRequestProperty("Accept", "text/plain");
             int responseCode = connection.getResponseCode();
-            if (responseCode >= 200 && responseCode <= 300) {
-                try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"))) {
-                    JSONTokener tokener = new JSONTokener(br);
-                    JSONObject root = new JSONObject(tokener);
-                    String version = root.getString("version");
-                    latestVersion = parseGatewayVersion(version);
-                }
-            } else {
-                throw new Exception(format("Unexpected %d response code from versioning service", responseCode));
+            if (responseCode < 200 || responseCode > 300) {
+                logger.warn(format("Unexpected %d response code from versioning property", responseCode));
+                return null;
+            }
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"))) {
+                JSONTokener tokener = new JSONTokener(br);
+                JSONObject root = new JSONObject(tokener);
+                String version = root.getString("version");
+                latestVersion = parseGatewayVersion(version);
             }
         } catch (Exception e) {
-            logger.warn(format(
-                    "Update Check Service: Could not contact Kaazing versioning service at %s to find latest version of product: %s",
-                    updateVersionUrl, e));
+            logger.warn(
+                    format("Update Check: Could not contact Kaazing versioning property at %s to find latest version of product: %s",
+                            updateVersionUrl, e));
         }
         return latestVersion;
     }
 
     /**
      * Here for testing, thus not public
+     *
      * @return
      */
     protected String getVersionServiceUrl() {

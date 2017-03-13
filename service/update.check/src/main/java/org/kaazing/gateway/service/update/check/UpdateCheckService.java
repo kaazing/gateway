@@ -38,6 +38,7 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
  * Creates and manages periodic checks to see if the gateway has updates
  * 
  */
+@Deprecated
 public class UpdateCheckService implements Service {
 
     private ScheduledExecutorService scheduler;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.service.update.check;
+package org.kaazing.gateway.update.check;
 
 import static java.lang.String.format;
 
@@ -22,13 +22,11 @@ import java.util.regex.Pattern;
 
 /**
  * Represent GatewayVersion with 3 digits of form major.minor.patch
- * 
  */
-@Deprecated
 public class GatewayVersion implements Comparable<GatewayVersion> {
 
     private static final String RELEASE_GA = "";
-
+    private static final String VERSION = "develop-SNAPSHOT";
     private final int major;
     private final int minor;
     private final int patch;
@@ -45,52 +43,15 @@ public class GatewayVersion implements Comparable<GatewayVersion> {
         this(major, minor, patch, RELEASE_GA);
     }
 
-    public int getMajor() {
-        return major;
-    }
-
-    public int getMinor() {
-        return minor;
-    }
-
-    public int getPatch() {
-        return patch;
-    }
-
-    public String getRc() {
-        return rc;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        boolean result;
-        if (!(obj instanceof GatewayVersion)) {
-            result = false;
-        } else if (obj == this) {
-            result = true;
-        } else {
-            result = this.compareTo((GatewayVersion) obj) == 0;
-        }
-        return result;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = major;
-        result = 31 * result + minor;
-        result = 31 * result + patch;
-        result = 31 * result + (rc != null ? rc.hashCode() : 0);
-        return result;
-    }
-
     /**
      * Parses a GatewayVersion from a String
+     *
      * @param version
      * @return
      * @throws Exception
      */
-    public static GatewayVersion parseGatewayVersion(String version) throws Exception {
-        if ("develop-SNAPSHOT".equals(version)) {
+    public static GatewayVersion parseGatewayVersion(String version) {
+        if (VERSION.equals(version)) {
             return new GatewayVersion(0, 0, 0);
         } else {
             String regex = "(?<major>[0-9]+)\\.(?<minor>[0-9]+)\\.(?<patch>[0-9]+)-?(?<rc>[RC0-9{3}]*)";
@@ -108,8 +69,31 @@ public class GatewayVersion implements Comparable<GatewayVersion> {
         }
     }
 
-    @Override
-    public String toString() {
+    public int getMajor() {
+        return major;
+    }
+
+    @Override public boolean equals(Object obj) {
+        boolean result;
+        if (!(obj instanceof GatewayVersion)) {
+            result = false;
+        } else if (obj == this) {
+            result = true;
+        } else {
+            result = this.compareTo((GatewayVersion) obj) == 0;
+        }
+        return result;
+    }
+
+    @Override public int hashCode() {
+        int result = major;
+        result = 31 * result + minor;
+        result = 31 * result + patch;
+        result = 31 * result + (rc != null ? rc.hashCode() : 0);
+        return result;
+    }
+
+    @Override public String toString() {
         if (rc.equals(RELEASE_GA)) {
             return format("%d.%d.%d", major, minor, patch);
         } else {
@@ -117,8 +101,7 @@ public class GatewayVersion implements Comparable<GatewayVersion> {
         }
     }
 
-    @Override
-    public int compareTo(GatewayVersion o) {
+    @Override public int compareTo(GatewayVersion o) {
         int result;
         if (this.major != o.major) {
             result = this.major > o.major ? 1 : -1;
@@ -127,7 +110,7 @@ public class GatewayVersion implements Comparable<GatewayVersion> {
         } else if (this.patch != o.patch) {
             result = this.patch > o.patch ? 1 : -1;
         } else if (!this.rc.equals(o.rc)) {
-            result = RELEASE_GA.equals(this.rc)?1:(RELEASE_GA.equals(o.rc)?-1:this.rc.compareTo(o.rc));
+            result = RELEASE_GA.equals(this.rc) ? 1 : (RELEASE_GA.equals(o.rc) ? -1 : this.rc.compareTo(o.rc));
         } else {
             result = 0;
         }

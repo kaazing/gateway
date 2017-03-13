@@ -75,18 +75,18 @@ public class DetectProductTest {
     }
 
     private void setupMockProduct() {
-        VersionUtils.PRODUCT_EDITION=this.productEdition;
-        VersionUtils.PRODUCT_TITLE=this.productTitle;
-        VersionUtils.PRODUCT_VERSION=this.productVersion;
-        VersionUtils.PRODUCT_DEPENDENCIES=this.productDependencies;
+        VersionUtils.productEdition =this.productEdition;
+        VersionUtils.productTitle =this.productTitle;
+        VersionUtils.productVersion =this.productVersion;
+        VersionUtils.productDependencies =this.productDependencies;
     }
 
     @After
     public void cleanupMockProduct() {
-        VersionUtils.PRODUCT_EDITION=null;
-        VersionUtils.PRODUCT_TITLE=null;
-        VersionUtils.PRODUCT_VERSION=null;
-        VersionUtils.PRODUCT_DEPENDENCIES=null;
+        VersionUtils.productEdition =null;
+        VersionUtils.productTitle =null;
+        VersionUtils.productVersion =null;
+        VersionUtils.productDependencies =null;
     }
 
     /**
