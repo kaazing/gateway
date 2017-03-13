@@ -1065,26 +1065,28 @@ public class GatewayContextResolver {
         if (authenticationContextIsPresent) {
 
             String httpChallengeScheme = authenticationContext.getHttpChallengeScheme();
-            if (httpChallengeScheme.startsWith(AUTH_SCHEME_APPLICATION_PREFIX)) {
-                httpChallengeScheme = httpChallengeScheme.substring(AUTH_SCHEME_APPLICATION_PREFIX.length());
-            }
-
-            // Login Module Inject Rule 1: Inject Basic Login Module At Front of Chain
-            if (AUTH_SCHEME_BASIC.equals(httpChallengeScheme)) {
-                Map<String, String> options = new HashMap<>();
-                options.put("tryFirstToken", "true");
-                configurationEntries.add(0, new AppConfigurationEntry(BasicLoginModule.class.getName(),
-                        LoginModuleControlFlag.OPTIONAL,
-                        options));
-            }
-
-            // Login Module Inject Rule 2: Inject Negotiate Login Module at Front of Chain
-            if (AUTH_SCHEME_NEGOTIATE.equals(httpChallengeScheme)) {
-                Map<String, String> options = new HashMap<>();
-                options.put("tryFirstToken", "true");
-                configurationEntries.add(0, new AppConfigurationEntry(NegotiateLoginModule.class.getName(),
-                        LoginModuleControlFlag.OPTIONAL,
-                        options));
+            if (httpChallengeScheme != null) {
+                if (httpChallengeScheme.startsWith(AUTH_SCHEME_APPLICATION_PREFIX)) {
+                    httpChallengeScheme = httpChallengeScheme.substring(AUTH_SCHEME_APPLICATION_PREFIX.length());
+                }
+    
+                // Login Module Inject Rule 1: Inject Basic Login Module At Front of Chain
+                if (AUTH_SCHEME_BASIC.equals(httpChallengeScheme)) {
+                    Map<String, String> options = new HashMap<>();
+                    options.put("tryFirstToken", "true");
+                    configurationEntries.add(0, new AppConfigurationEntry(BasicLoginModule.class.getName(),
+                            LoginModuleControlFlag.REQUIRED,
+                            options));
+                }
+    
+                // Login Module Inject Rule 2: Inject Negotiate Login Module at Front of Chain
+                if (AUTH_SCHEME_NEGOTIATE.equals(httpChallengeScheme)) {
+                    Map<String, String> options = new HashMap<>();
+                    options.put("tryFirstToken", "true");
+                    configurationEntries.add(0, new AppConfigurationEntry(NegotiateLoginModule.class.getName(),
+                            LoginModuleControlFlag.REQUIRED,
+                            options));
+                }
             }
 
             //Login Module Inject Rule 4: Inject Timeout Module at Front of Chain
@@ -1094,7 +1096,7 @@ public class GatewayContextResolver {
                     options.put("session-timeout", resolveTimeIntervalValue(authType.getSessionTimeout()));
                 }
                 configurationEntries.add(0, new AppConfigurationEntry(TimeoutLoginModule.class.getName(),
-                        LoginModuleControlFlag.OPTIONAL,
+                        LoginModuleControlFlag.REQUIRED,
                         options));
             }
 

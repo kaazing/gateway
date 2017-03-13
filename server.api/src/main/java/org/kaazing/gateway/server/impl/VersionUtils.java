@@ -23,24 +23,28 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public final class VersionUtils {
 
-    public static String PRODUCT_TITLE;
-    public static String PRODUCT_VERSION;
-    public static String PRODUCT_EDITION;
-    public static String PRODUCT_DEPENDENCIES;
+    public static String productTitle;
+    public static String productVersion;
+    public static String productEdition;
+    public static String productDependencies;
+    private static Logger logger = LoggerFactory.getLogger(VersionUtils.class);
 
     private VersionUtils() {
     }
 
     public static String getGatewayProductTitle() {
         getGatewayProductInfo();
-        return PRODUCT_TITLE;
+        return productTitle;
     }
 
     public static String getGatewayProductVersion() {
         getGatewayProductInfo();
-        return PRODUCT_VERSION;
+        return productVersion;
     }
 
     public static String getGatewayProductVersionMajor() {
@@ -134,63 +138,76 @@ public final class VersionUtils {
 
     public static String getGatewayProductEdition() {
         getGatewayProductInfo();
-        return PRODUCT_EDITION;
+        return productEdition;
     }
 
     public static String getGatewayProductDependencies() {
         getGatewayProductInfo();
-        return PRODUCT_DEPENDENCIES;
+        return productDependencies;
     }
 
     /**
      * Find the product information from the server JAR MANIFEST files and store it
      * in static variables here for later retrieval.
-     *
      */
     private static void getGatewayProductInfo() {
+        // FIXME does the following todo still hold ?
+        //
         // TODO: Now that we've switched the products to include
         // an "assembly.version" JAR, this routine could be greatly
         // simplified. Removals and dependencies should no longer be needed.
 
-        if (PRODUCT_TITLE != null) {
+        if (productTitle != null) {
             // We've already run through this before, so do nothing.
             return;
         }
 
         boolean foundJar = false;
-
+        String artifact = null;
         String[] pathEntries = System.getProperty("java.class.path").split(System.getProperty("path.separator"));
         HashMap<String, Attributes> products = new HashMap<>(7);
         HashSet<String> removals = new HashSet<>(7);
         for (String pathEntry : pathEntries) {
-            if (pathEntry.contains("gateway.server")) {
-                try {
-                    JarFile jar = new JarFile(pathEntry);
-                    Manifest mf = jar.getManifest();
-                    Attributes attrs = mf.getMainAttributes();
-                    if (attrs != null) {
-                        String title = attrs.getValue("Implementation-Title");
-                        String version = attrs.getValue("Implementation-Version");
-                        String product = attrs.getValue("Kaazing-Product");
-                        String dependencies = attrs.getValue("Kaazing-Dependencies");
-                        if (product != null && title != null && version != null) {
-                            foundJar = true;
+            if (pathEntry.contains("gateway.server.test") || (pathEntry.contains("gateway.server") && artifact == null)) {
+                artifact = pathEntry;
+                foundJar = true;
+            }
+        }
 
-                            // Store the list of products found, but remove any products
-                            // marked as dependencies (i.e. products on which the current
-                            // product depends.  We want to find the product that nothing
-                            // else depends on.
-                            products.put(product != null ? product : title, attrs);
-                            if (dependencies != null) {
-                                String[] deps = dependencies.split(",");
-                                Collections.addAll(removals, deps);
-                            }
-                        }
-                    }
+        if (artifact == null) {
+            return;
+        }
+
+        try {
+            JarFile jar = new JarFile(artifact);
+            Manifest mf = jar.getManifest();
+            Attributes attrs = mf.getMainAttributes();
+            jar.close();
+            if (attrs == null) {
+                return;
+            }
+
+            String title = attrs.getValue("Implementation-Title");
+            String version = attrs.getValue("Implementation-Version");
+            String product = attrs.getValue("Kaazing-Product");
+            String dependencies = attrs.getValue("Kaazing-Dependencies");
+            if (product != null && title != null && version != null) {
+                foundJar = true;
+
+                // Store the list of products found, but remove any products
+                // marked as dependencies (i.e. products on which the current
+                // product depends.  We want to find the product that nothing
+                // else depends on.
+                products.put(product != null ? product : title, attrs);
+                if (dependencies != null) {
+                    String[] deps = dependencies.split(",");
+                    Collections.addAll(removals, deps);
                 }
-                catch (IOException e) {
-                    // ignore
-                }
+            }
+
+        } catch (IOException e) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("An exception occurred while getting product information", e);
             }
         }
 
@@ -203,19 +220,19 @@ public final class VersionUtils {
             // If running in IDE, there will be no manifest information.
             // Therefore default title to "Kaazing WebSocket Gateway (Development)"
             // and default the others to null.
-            PRODUCT_TITLE = "Kaazing WebSocket Gateway (Development)";
-            PRODUCT_VERSION = null;
-            PRODUCT_EDITION = null;
-            PRODUCT_DEPENDENCIES = null;
+            productTitle = "Kaazing WebSocket Gateway (Development)";
+            productVersion = null;
+            productEdition = null;
+            productDependencies = null;
         } else {
             // The remaining values in 'products' are the real top-level product names.
             // NOTE: Per discussion with Brian in 3.3, this should be only a single value,
             // so we're going to extract our values from that.
             Attributes attrs = products.values().iterator().next();
-            PRODUCT_TITLE = attrs.getValue("Implementation-Title");
-            PRODUCT_VERSION = attrs.getValue("Implementation-Version");
-            PRODUCT_EDITION = attrs.getValue("Kaazing-Product");
-            PRODUCT_DEPENDENCIES = attrs.getValue("Kaazing-Dependencies");
+            productTitle = attrs.getValue("Implementation-Title");
+            productVersion = attrs.getValue("Implementation-Version");
+            productEdition = attrs.getValue("Kaazing-Product");
+            productDependencies = attrs.getValue("Kaazing-Dependencies");
         }
     }
 

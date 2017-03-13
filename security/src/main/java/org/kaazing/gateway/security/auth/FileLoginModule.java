@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.security.auth;
 
+import static java.lang.String.format;
+
 import java.io.File;
 import java.io.IOException;
 import java.security.Principal;
@@ -51,6 +53,9 @@ public class FileLoginModule implements LoginModule {
     public static final String CLASS_NAME = FileLoginModule.class.getName();
     public static final Logger LOG = LoggerFactory.getLogger(CLASS_NAME);
 
+    private static final String INITIALIZATION_FAILED_MESSAGE = "[FileLoginModule] Initialization failed";
+    private static final String AUTHENTICATION_FAILED_MESSAGE = "[FileLoginModule] Authentication failed";
+
     private static final String FILE_KEY = "file";
     private static final String NAME = "javax.security.auth.login.name";
     private static final String PWD = "javax.security.auth.login.password";
@@ -86,7 +91,11 @@ public class FileLoginModule implements LoginModule {
         // TODO: retrieve parsed XML from sharedState
         String jaasFilename = (String) options.get(FILE_KEY);
         if (jaasFilename == null) {
-            throw new RuntimeException("Missing required option \"" + FILE_KEY + "\" to locate JAAS configuration file");
+            IllegalArgumentException iae = new IllegalArgumentException(
+                    format("Missing required option \"%s\" to locate JAAS configuration file", FILE_KEY));
+            if (debug) {
+                LOG.debug(INITIALIZATION_FAILED_MESSAGE, iae);
+            }
         }
 
         JaasConfig jaasConfig = SHARED_STATE.get(jaasFilename);
@@ -105,13 +114,20 @@ public class FileLoginModule implements LoginModule {
                     SHARED_STATE.put(jaasFilename, jaasConfig);
                 }
                 catch (Exception e) {
-                    throw new RuntimeException(e);
+                    if (debug) {
+                        LOG.debug(INITIALIZATION_FAILED_MESSAGE, e);
+                    }
+                    throw new IllegalArgumentException(e);
                 }
 
             } else {
-//  throw new RuntimeException(
-//      String.format("Unable to use '%s' for file-based login: File does not exist or is directory", jaasFile));
-                        }
+                IllegalArgumentException iae = new IllegalArgumentException(
+                        format("Unable to use \"%s\" for file-based login: File does not exist or is directory", jaasFile));
+                if (debug) {
+                    LOG.debug(INITIALIZATION_FAILED_MESSAGE, iae);
+                }
+                throw iae;
+            }
         }
 
         this.state = State.INITIALIZE_COMPLETE;
@@ -194,31 +210,23 @@ public class FileLoginModule implements LoginModule {
 
         if (tryFirstPass) {
             try {
-                boolean result = attemptAuthenticate(true);
-                if (result) {
-                    return true;
-
-                } else {
-                    cleanState();
-                    if (debug) {
-                        LOG.debug("[FileLoginModule] " + "read from shared state failed.");
-                    }
-                }
+                attemptAuthenticate(true);
+                return true;
             } catch (LoginException le) {
                 cleanState();
                 if (debug) {
-                    LOG.debug("[FileLoginModule] " + "login failed: " + le.getMessage());
+                    LOG.debug("[FileLoginModule] read from shared state failed", le);
                 }
             }
         }
 
         try {
-            return attemptAuthenticate(false);
-
+            attemptAuthenticate(false);
+            return true;
         } catch (LoginException loginException) {
             cleanState();
             if (debug) {
-                LOG.debug("[FileLoginModule] " + "regular authentication failed: " + loginException.getMessage());
+                LOG.debug("[FileLoginModule] regular authentication failed", loginException);
             }
             throw loginException;
         }
@@ -234,19 +242,25 @@ public class FileLoginModule implements LoginModule {
         password = null;
     }
 
-    private boolean attemptAuthenticate(boolean useSharedState)
+    private void attemptAuthenticate(boolean useSharedState)
         throws LoginException {
 
         getUsernamePassword(useSharedState);
 
         if (username == null) {
-            LOG.debug("[FileLoginModule] " + "username not found, returning false");
-            return false;
+            LoginException le = new LoginException("Username not found");
+            if (debug) {
+                LOG.debug(AUTHENTICATION_FAILED_MESSAGE, le);
+            }
+            throw le;
         }
 
         if (password == null) {
-            LOG.debug("[FileLoginModule] " + "password not found, returning false");
-            return false;
+            LoginException le = new LoginException("Password not found");
+            if (debug) {
+                LOG.debug(AUTHENTICATION_FAILED_MESSAGE, le);
+            }
+            throw le;
         }
 
         Map<String, UserConfig> users = jaasConfig.getUsers();
@@ -254,23 +268,21 @@ public class FileLoginModule implements LoginModule {
         user = users.get(username);
 
         if (user == null) {
-            String usernameNotFoundStr = username;
-
-
-            cleanState();
-
-            if (LOG.isTraceEnabled()) {
-                LOG.trace(String.format("Did not find username '%s'.", usernameNotFoundStr));
+            LoginException le = new FailedLoginException(format("User '%s' not found", username));
+            if (debug) {
+                LOG.debug(AUTHENTICATION_FAILED_MESSAGE, le);
             }
-
-            throw new FailedLoginException("Missing username");
+            throw le;
         }
 
         boolean passwordOK = new String(password).equals(user.getPassword());
-        if (!passwordOK) {
-            cleanState();
 
-            throw new FailedLoginException("Wrong password");
+        if (!passwordOK) {
+            LoginException le = new FailedLoginException("Wrong password");
+            if (debug) {
+                LOG.debug(AUTHENTICATION_FAILED_MESSAGE, le); 
+            }
+            throw le;
         }
 
         userRoles = new HashSet<>();
@@ -282,8 +294,12 @@ public class FileLoginModule implements LoginModule {
             String roleName = roleNames.poll();
             RoleConfig role = roles.get(roleName);
             if (role == null) {
+                IllegalArgumentException iae = new IllegalArgumentException(format("Unrecognized role \"%s\"", roleName));
+                if (debug) {
+                    LOG.debug(AUTHENTICATION_FAILED_MESSAGE, iae);
+                }
                 cleanState();
-                throw new IllegalArgumentException("Unrecognized role \"" + roleName + "\"");
+                throw iae;
             }
 
             if (userRoles.add(role)) {
@@ -292,7 +308,6 @@ public class FileLoginModule implements LoginModule {
         }
 
         state = State.LOGIN_COMPLETE;
-        return true;
     }
 
     private void getUsernamePassword(boolean useSharedState) throws LoginException {
@@ -308,15 +323,12 @@ public class FileLoginModule implements LoginModule {
         try {
             handler.handle(new Callback[] { nameCB, passwordCB });
 
-        } catch (IOException e) {
-//            throw (LoginException) (new LoginException(e.getMessage()).initCause(e));
-          return;
-
-        } catch (UnsupportedCallbackException e) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("[FileLoginModule] - UnsupportedCallbackException handling name, password callbacks.");
+        } catch (IOException | UnsupportedCallbackException e) {
+            if (debug) {
+                LOG.debug("[FileLoginModule] - Encountered exception while handling name, password callbacks.", e);
             }
-            return;
+            throw (LoginException) new LoginException(e.getMessage()).initCause(e);
+
         }
 
         username = nameCB.getName();

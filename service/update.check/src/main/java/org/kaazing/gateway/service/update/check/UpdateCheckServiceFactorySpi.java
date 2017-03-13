@@ -21,7 +21,7 @@ import java.util.Collection;
 
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceFactorySpi;
-
+@Deprecated
 public final class UpdateCheckServiceFactorySpi extends ServiceFactorySpi {
     
     @Override

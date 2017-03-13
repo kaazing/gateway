@@ -83,7 +83,7 @@ public class TimeoutLoginModuleTest {
             loginContext.login();
             fail("Expected configuration exception at initialization: no timeouts were specified.");
         } catch (LoginException e) {
-            final String msg = "You must specify session-timeout option.";
+            final String msg = "You must specify the \"session-timeout\" option";
             System.out.println(e.getMessage());
             assertTrue(e.getMessage().contains(msg));
         }

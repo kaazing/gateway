@@ -20,7 +20,6 @@ import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REQUIRED_ROLES;
-import static org.kaazing.gateway.server.spi.security.LoginResult.Type.SUCCESS;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_FORWARDED;
@@ -199,7 +198,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
                 // Ignore the common "all modules ignored case", it just gums
                 // up the logs whilst adding no value.
-                if (!le.getMessage().contains("all modules ignored")) {
+                if (le.getMessage() != null && !le.getMessage().contains("all modules ignored")) {
                     log("Login failed: " + le.getMessage(), le);
                 }
             }
@@ -347,31 +346,9 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                 }
 
                 subject = loginContext.getSubject();
-                authorizedRoles = getAuthorizedRoles(subject);
-                boolean subjectAutomaticallyAuthorized = isSubjectAutomaticallyAuthorized(subject, requireRoles);
-                rolesAreSufficient = authorizedRoles.containsAll(requireRoles);
-
-                if (resultType == LoginResult.Type.CHALLENGE || (!subjectAutomaticallyAuthorized && !rolesAreSufficient)) {
-
-                    if ( resultType == LoginResult.Type.CHALLENGE ) {
-                        if (loggerEnabled()) {
-                            log("Login module login succeeded but requires another challenge");
-                        }
-                        Object[] data = loginResult.getLoginChallengeData();
-                        if (data == null || data.length == 0) {
-
-                            //KG-2207, KG-3464, KG-3389
-                            if (! HttpBaseSecurityFilter.AUTH_SCHEME_BASIC.equals(getBaseAuthScheme(realm.getChallengeScheme()))) {
-                                if (loggerEnabled()) {
-                                    log("Login module login succeeded but requires another challenge, however no new challenge data was provided.");
-                                }
-                                writeResponse(HttpStatus.CLIENT_FORBIDDEN, nextFilter, session, httpRequest);
-                                return false;
-                            }
-                        }
-                    }
-                    if (realmIndex + 1 < realms.length && resultType == SUCCESS) {
-                        // we only enforce subject at the end of the realm chain, otherwise we skip to the next realm
+                if (!isSubjectAuthorized(subject, requireRoles)) {
+                    // we only enforce subject authorization at the end of the realm chain, otherwise we skip to the next realm
+                    if (realmIndex + 1 < realms.length) {
                         loginContexts[realmIndex] = loginContext;
 
                         // remember login context
@@ -381,17 +358,22 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                         httpRequest.setSubject((loginContext == null || loginContext == LOGIN_CONTEXT_OK) ? subject : loginContext.getSubject());
                         return true;
                     }
-                    // Login was successful, but the subject identified does not have required roles
-                    // to create the web socket.  We re-issue a challenge here.
-                    String challenge = sendChallengeResponse(nextFilter, session, httpRequest, loginResult, realms, realmIndex, loginContexts);
-                    if (loggerEnabled()) {
-                        if ( resultType != LoginResult.Type.CHALLENGE) {
+
+                    if (resultType == LoginResult.Type.CHALLENGE) {
+                        // Login was successful, but the subject identified does not have required roles
+                        // to create the web socket.  We re-issue a challenge here.
+                        String challenge = sendChallengeResponse(nextFilter, session, httpRequest, loginResult, realms, realmIndex, loginContexts);
+                        if (loggerEnabled()) {
                             log(String.format("Login module login succeeded but subject missing required roles; Issued another challenge '%s'.", challenge));
-                        } else {
-                            log(String.format("Login module login succeeded but login result requires a challenge; Issued another challenge '%s'.", challenge));
                         }
+                        return false;
+                    } else {
+                        if (loggerEnabled()) {
+                            log("Login module login succeeded but requires another challenge, however no new challenge data was provided.");
+                        }
+                        writeResponse(HttpStatus.CLIENT_FORBIDDEN, nextFilter, session, httpRequest);
+                        return false;
                     }
-                    return false;
                 }
             } catch (Exception e) {
                 loginOK = false;
@@ -400,9 +382,9 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                     log("Login failed.", e);
                 }
 
-                //KG-2207, KG-3389
-                if ( HttpBaseSecurityFilter.AUTH_SCHEME_BASIC.equals(getBaseAuthScheme(realm.getChallengeScheme()))) {
-                    String challenge = sendChallengeResponse(nextFilter, session, httpRequest, loginResult, realms, realmIndex, loginContexts);
+                // login failed, but additional challenges were provided
+                if (loginContext != null && loginContext.getLoginResult().getType() == LoginResult.Type.CHALLENGE) {
+                    String challenge = sendChallengeResponse(nextFilter, session, httpRequest, loginContext.getLoginResult(), realms, realmIndex, loginContexts);
                     if (loggerEnabled()) {
                         log(String.format("Login module login failed; Issued another challenge '%s'.", challenge), e);
                     }
@@ -441,6 +423,14 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
             log("Login failed; [%s].", authToken);
         }
         return loginOK;
+    }
+
+    private boolean isSubjectAuthorized(Subject subject, Collection<String> requiredRoles) {
+        if (isSubjectAutomaticallyAuthorized(subject, requiredRoles)) {
+            return true;
+        }
+        Collection<String> authorizedRoles = getAuthorizedRoles(subject);
+        return authorizedRoles.containsAll(requiredRoles);
     }
 
     private String sendChallengeResponse(NextFilter nextFilter, IoSession session, HttpRequestMessage httpRequest,
