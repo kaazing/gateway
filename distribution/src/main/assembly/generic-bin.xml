@@ -28,7 +28,7 @@
         <include>org.kaazing:gateway.server.api</include>
         <include>org.kaazing:gateway.server.spi</include>
         <include>org.kaazing:gateway.server</include>
-        <include>org.kaazing:gateway.update.check</include>
+        <include>org.kaazing:gateway.check.update</include>
 
         <!-- resource address jars -->
         <include>org.kaazing:gateway.resource.address</include>

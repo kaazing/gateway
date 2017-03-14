@@ -66,6 +66,12 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>gateway.check.update</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!-- Command Center / Management -->
             <dependency>
                 <groupId>org.kaazing</groupId>

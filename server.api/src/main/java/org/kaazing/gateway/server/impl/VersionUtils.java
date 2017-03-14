@@ -163,51 +163,47 @@ public final class VersionUtils {
         }
 
         boolean foundJar = false;
-        String artifact = null;
         String[] pathEntries = System.getProperty("java.class.path").split(System.getProperty("path.separator"));
         HashMap<String, Attributes> products = new HashMap<>(7);
         HashSet<String> removals = new HashSet<>(7);
-        for (String pathEntry : pathEntries) {
-            if (pathEntry.contains("gateway.server.test") || (pathEntry.contains("gateway.server") && artifact == null)) {
-                artifact = pathEntry;
-                foundJar = true;
-            }
-        }
 
-        if (artifact == null) {
-            return;
-        }
 
-        try {
-            JarFile jar = new JarFile(artifact);
-            Manifest mf = jar.getManifest();
-            Attributes attrs = mf.getMainAttributes();
-            jar.close();
-            if (attrs == null) {
-                return;
-            }
+        int i = pathEntries.length;
+        while (!foundJar && (--i >= 0)) {
+            String pathEntry = pathEntries[i];
+            if (pathEntry.contains("gateway.server.test") || (pathEntry.contains("gateway.server"))) {
+                try {
+                    JarFile jar = new JarFile(pathEntry);
+                    Manifest mf = jar.getManifest();
+                    Attributes attrs = mf.getMainAttributes();
+                    jar.close();
+                    if (attrs == null) {
+                        continue;
+                    }
 
-            String title = attrs.getValue("Implementation-Title");
-            String version = attrs.getValue("Implementation-Version");
-            String product = attrs.getValue("Kaazing-Product");
-            String dependencies = attrs.getValue("Kaazing-Dependencies");
-            if (product != null && title != null && version != null) {
-                foundJar = true;
+                    String title = attrs.getValue("Implementation-Title");
+                    String version = attrs.getValue("Implementation-Version");
+                    String product = attrs.getValue("Kaazing-Product");
+                    String dependencies = attrs.getValue("Kaazing-Dependencies");
+                    if (product != null && title != null && version != null) {
+                        foundJar = true;
 
-                // Store the list of products found, but remove any products
-                // marked as dependencies (i.e. products on which the current
-                // product depends.  We want to find the product that nothing
-                // else depends on.
-                products.put(product != null ? product : title, attrs);
-                if (dependencies != null) {
-                    String[] deps = dependencies.split(",");
-                    Collections.addAll(removals, deps);
+                        // Store the list of products found, but remove any products
+                        // marked as dependencies (i.e. products on which the current
+                        // product depends.  We want to find the product that nothing
+                        // else depends on.
+                        products.put(product != null ? product : title, attrs);
+                        if (dependencies != null) {
+                            String[] deps = dependencies.split(",");
+                            Collections.addAll(removals, deps);
+                        }
+                    }
+
+                } catch (IOException e) {
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("An exception occurred while getting product information", e);
+                    }
                 }
-            }
-
-        } catch (IOException e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("An exception occurred while getting product information", e);
             }
         }
 
