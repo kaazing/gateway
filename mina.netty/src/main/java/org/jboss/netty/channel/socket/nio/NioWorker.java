@@ -578,4 +578,23 @@ public class NioWorker extends AbstractNioWorker {
         }
     }
 
+    static final class UdpChildReadDispatcher implements ReadDispatcher {
+
+        private final NioChildDatagramChannel channel;
+
+        UdpChildReadDispatcher(NioChildDatagramChannel channel) {
+            this.channel = channel;
+        }
+
+        @Override
+        public AbstractNioChannel<DatagramChannel> channel() {
+            return channel;
+        }
+
+        @Override
+        public boolean dispatch(NioWorker worker, SelectionKey key) {
+//            return worker.readUdp(key, channel.);
+        	return false;
+        }
+    }
 }
