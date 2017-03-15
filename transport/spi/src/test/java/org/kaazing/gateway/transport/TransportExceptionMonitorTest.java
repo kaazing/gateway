@@ -95,4 +95,10 @@ public class TransportExceptionMonitorTest
         new TransportExceptionMonitor().exceptionCaught(new NullPointerException(EXCEPTION_MESSAGE), session);
         expectedPatterns = Arrays.asList("\\[wsn#23 127.0.0.1:2121\\] java.lang.NullPointerException: EXCEPTION");
     }
+
+    @Test
+    public void shouldLogMessageIncludingNullSession() throws Exception {
+        new TransportExceptionMonitor().exceptionCaught(new NullPointerException(EXCEPTION_MESSAGE), null);
+        expectedPatterns = Arrays.asList("Unexpected exception.");
+    }
 }
