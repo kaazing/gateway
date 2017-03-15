@@ -244,6 +244,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             unbindScheduler.submit(new FutureTask<>(() -> {
                 try {
                     unbindInternal(address);
+                    // TODO make sure a new bind will not deadlock
                     future.setUnbound();
                 } catch (ThreadDeath td) {
                     throw td;
