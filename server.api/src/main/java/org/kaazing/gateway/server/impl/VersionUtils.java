@@ -167,11 +167,11 @@ public final class VersionUtils {
         HashMap<String, Attributes> products = new HashMap<>(7);
         HashSet<String> removals = new HashSet<>(7);
 
-
         int i = pathEntries.length;
         while (!foundJar && (--i >= 0)) {
             String pathEntry = pathEntries[i];
-            if (pathEntry.contains("gateway.server.test") || (pathEntry.contains("gateway.server"))) {
+            System.out.println("PATH: " + pathEntry);
+            if (pathEntry.contains("gateway.server")) {
                 try {
                     JarFile jar = new JarFile(pathEntry);
                     Manifest mf = jar.getManifest();

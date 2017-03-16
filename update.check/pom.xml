@@ -86,7 +86,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <additionalClasspathElements>
-                        <additionalClasspathElement>${basedir}/src/test/resources/gateway.server.test-5.0.0.8.jar</additionalClasspathElement>
+                        <additionalClasspathElement>${basedir}/src/test/resources/gateway.server-5.0.0.8.jar</additionalClasspathElement>
                     </additionalClasspathElements>
                     <argLine>${surefireArgLine}</argLine>
                     <skipTests>${skipTests}</skipTests>
