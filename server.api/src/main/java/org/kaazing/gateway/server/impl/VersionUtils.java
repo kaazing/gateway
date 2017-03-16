@@ -49,89 +49,66 @@ public final class VersionUtils {
 
     public static String getGatewayProductVersionMajor() {
         String v = getGatewayProductVersion();
-
         if (v == null) {
             return null;
         }
-
-        int dotPos = v.indexOf(".");
+        int dotPos = v.indexOf('.');
         return dotPos < 0 ? v : v.substring(0, dotPos);
     }
 
     public static String getGatewayProductVersionMinor() {
         String v = getGatewayProductVersion();
-
         if (v == null || v.length() == 0) {
             return null;
         }
-
-        int dotPos = v.indexOf(".");
-
+        int dotPos = v.indexOf('.');
         if (dotPos < 0) {
             return v + ".0";
         }
-
-        dotPos = v.indexOf(".", dotPos + 1);  // 2nd dot
-
+        dotPos = v.indexOf('.', dotPos + 1);  // 2nd dot
         return dotPos < 0 ? v : v.substring(0, dotPos);
     }
 
     public static String getGatewayProductVersionPatch() {
         String v = getGatewayProductVersion();
-
         // Non SNAPSHOT versions will be 3 digits in value.
         // develop-SNAPSHOT will always be considered the lowest version
         // available
         if ("develop-SNAPSHOT".equals(v)) {
             return "0.0.0";
         }
-
         if (v == null || v.length() == 0) {
             return null;
         }
-
-        int dotPos = v.indexOf(".");
-
+        int dotPos = v.indexOf('.');
         if (dotPos < 0) {
             return v + ".0.0";
         }
-
-        dotPos = v.indexOf(".", dotPos + 1);  // 2nd dot
-
+        dotPos = v.indexOf('.', dotPos + 1);  // 2nd dot
         if (dotPos < 0) {
             return v + ".0";
         }
-
-        dotPos = v.indexOf(".", dotPos + 1);  // 3rd dot
-
+        dotPos = v.indexOf('.', dotPos + 1);  // 3rd dot
         return dotPos < 0 ? v : v.substring(0, dotPos);
     }
 
     public static String getGatewayProductVersionBuild() {
         String v = getGatewayProductVersion();
-
         if (v == null || v.length() == 0) {
             return null;
         }
-
-        int dotPos = v.indexOf(".");
-
+        int dotPos = v.indexOf('.');
         if (dotPos < 0) {
             return v + ".0.0.0";
         }
-
-        dotPos = v.indexOf(".", dotPos + 1);  // 2nd dot
-
+        dotPos = v.indexOf('.', dotPos + 1);  // 2nd dot
         if (dotPos < 0) {
             return v + ".0.0";
         }
-
-        dotPos = v.indexOf(".", dotPos + 1);  // 3rd dot
-
+        dotPos = v.indexOf('.', dotPos + 1);  // 3rd dot
         if (dotPos < 0) {
             return v + ".0";
         }
-
         // we know there is no 4th dot
         return v;
     }
@@ -151,67 +128,55 @@ public final class VersionUtils {
      * in static variables here for later retrieval.
      */
     private static void getGatewayProductInfo() {
-        // FIXME does the following todo still hold ?
-        //
-        // TODO: Now that we've switched the products to include
-        // an "assembly.version" JAR, this routine could be greatly
-        // simplified. Removals and dependencies should no longer be needed.
-
         if (productTitle != null) {
             // We've already run through this before, so do nothing.
             return;
         }
-
         boolean foundJar = false;
         String[] pathEntries = System.getProperty("java.class.path").split(System.getProperty("path.separator"));
         HashMap<String, Attributes> products = new HashMap<>(7);
         HashSet<String> removals = new HashSet<>(7);
-
         int i = pathEntries.length;
         while (!foundJar && (--i >= 0)) {
             String pathEntry = pathEntries[i];
-            System.out.println("PATH: " + pathEntry);
-            if (pathEntry.contains("gateway.server")) {
-                try {
-                    JarFile jar = new JarFile(pathEntry);
-                    Manifest mf = jar.getManifest();
-                    Attributes attrs = mf.getMainAttributes();
-                    jar.close();
-                    if (attrs == null) {
-                        continue;
+            if (!pathEntry.contains("gateway.server")) {
+                continue;
+            }
+            try (JarFile jar = new JarFile(pathEntry)) {
+                Manifest mf = jar.getManifest();
+                if (mf == null) {
+                    continue;
+                }
+                Attributes attrs = mf.getMainAttributes();
+                if (attrs == null) {
+                    continue;
+                }
+                String title = attrs.getValue("Implementation-Title");
+                String version = attrs.getValue("Implementation-Version");
+                String product = attrs.getValue("Kaazing-Product");
+                String dependencies = attrs.getValue("Kaazing-Dependencies");
+                if (product != null && title != null && version != null) {
+                    foundJar = true;
+                    // Store the list of products found, but remove any products
+                    // marked as dependencies (i.e. products on which the current
+                    // product depends.  We want to find the product that nothing
+                    // else depends on.
+                    products.put(product != null ? product : title, attrs);
+                    if (dependencies != null) {
+                        String[] deps = dependencies.split(",");
+                        Collections.addAll(removals, deps);
                     }
-
-                    String title = attrs.getValue("Implementation-Title");
-                    String version = attrs.getValue("Implementation-Version");
-                    String product = attrs.getValue("Kaazing-Product");
-                    String dependencies = attrs.getValue("Kaazing-Dependencies");
-                    if (product != null && title != null && version != null) {
-                        foundJar = true;
-
-                        // Store the list of products found, but remove any products
-                        // marked as dependencies (i.e. products on which the current
-                        // product depends.  We want to find the product that nothing
-                        // else depends on.
-                        products.put(product != null ? product : title, attrs);
-                        if (dependencies != null) {
-                            String[] deps = dependencies.split(",");
-                            Collections.addAll(removals, deps);
-                        }
-                    }
-
-                } catch (IOException e) {
-                    if (logger.isWarnEnabled()) {
-                        logger.warn("An exception occurred while getting product information", e);
-                    }
+                }
+            } catch (IOException e) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("An exception occurred while getting product information", e);
                 }
             }
         }
-
         // remove any products that depend on other products
         for (String removal : removals) {
             products.remove(removal);
         }
-
         if (!foundJar || products.size() == 0) {
             // If running in IDE, there will be no manifest information.
             // Therefore default title to "Kaazing WebSocket Gateway (Development)"
