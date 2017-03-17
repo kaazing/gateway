@@ -33,6 +33,7 @@ import org.apache.log4j.config.PropertySetter;
 import org.apache.log4j.helpers.FileWatchdog;
 import org.apache.log4j.helpers.OptionConverter;
 import org.apache.log4j.xml.DOMConfigurator;
+import org.kaazing.gateway.server.ConfigurationObserver;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.GatewayObserver;
 import org.kaazing.gateway.server.Launcher;
@@ -296,7 +297,8 @@ final class GatewayImpl implements Gateway {
         GatewayConfigDocument config = parser.parse(gatewayConfigFile);
         GatewayContextResolver resolver = new GatewayContextResolver(configDir, webRootDir, tempDir, jmxMBeanServer);
         gatewayObserver.initingGateway(configuration, resolver.getInjectables());
-        resolver.setObserver(gatewayObserver);
+        ConfigurationObserver confObserver = ConfigurationObserver.newInstance();
+        resolver.setObserver(confObserver);
         GatewayContext context = resolver.resolve(config, configuration);
 
         gateway = new Launcher(gatewayObserver);

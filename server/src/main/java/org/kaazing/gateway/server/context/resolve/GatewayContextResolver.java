@@ -63,8 +63,8 @@ import org.kaazing.gateway.security.SecurityContext;
 import org.kaazing.gateway.security.auth.BasicLoginModule;
 import org.kaazing.gateway.security.auth.NegotiateLoginModule;
 import org.kaazing.gateway.security.auth.TimeoutLoginModule;
+import org.kaazing.gateway.server.ConfigurationObserver;
 import org.kaazing.gateway.server.Gateway;
-import org.kaazing.gateway.server.GatewayObserver;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.config.SchemeConfig;
 import org.kaazing.gateway.server.config.june2016.AuthenticationType;
@@ -181,7 +181,7 @@ public class GatewayContextResolver {
 
     private Map<String, Object> injectables = new HashMap<>();
 
-    private GatewayObserver observer;
+    private ConfigurationObserver observer;
     public GatewayContextResolver(File configDir, File webDir, File tempDir) {
         this(configDir, webDir, tempDir, null);
     }
@@ -1318,11 +1318,11 @@ public class GatewayContextResolver {
         return injectables;
     }
 
-    public GatewayObserver getObserver() {
+    public ConfigurationObserver getObserver() {
         return observer;
     }
 
-    public void setObserver(GatewayObserver observer) {
+    public void setObserver(ConfigurationObserver observer) {
         this.observer = observer;
     }
 

@@ -30,7 +30,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.kaazing.gateway.server.config.june2016.LoginModuleOptionsType;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.ServiceContext;
 
@@ -174,11 +173,5 @@ public final class GatewayObserver implements GatewayObserverApi {
         }
     }
 
-    @Override
-    public void parseCustomOptions(Map<String, Object> options, LoginModuleOptionsType rawOptions) {
-        for (GatewayObserverApi gatewayListener : gatewayListenerSpi) {
-            gatewayListener.parseCustomOptions(options, rawOptions);
-        }
-    }
 
 }

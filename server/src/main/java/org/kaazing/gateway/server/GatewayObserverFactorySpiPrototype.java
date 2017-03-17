@@ -18,7 +18,6 @@ package org.kaazing.gateway.server;
 import java.util.Map;
 import java.util.Properties;
 
-import org.kaazing.gateway.server.config.june2016.LoginModuleOptionsType;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.ServiceContext;
 
@@ -93,10 +92,4 @@ public abstract class GatewayObserverFactorySpiPrototype extends GatewayObserver
     public void initingGateway(Properties properties, Map<String, Object> injectables) {
         // NOOP: to be extended as desired
     }
-
-    @Override
-    public void parseCustomOptions(Map<String, Object> options, LoginModuleOptionsType rawOptions) {
-        // NOOP: to be extended as desired
-    }
-
 }
