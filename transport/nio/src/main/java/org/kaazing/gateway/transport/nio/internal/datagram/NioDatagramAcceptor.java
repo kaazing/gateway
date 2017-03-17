@@ -15,7 +15,7 @@
  */
 package org.kaazing.gateway.transport.nio.internal.datagram;
 
-import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.ALIGN;
+import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.PADDING_ALIGNMENT;
 import static org.kaazing.gateway.util.InternalSystemProperty.TCP_MINIMUM_READ_BUFFER_SIZE;
 import static org.kaazing.gateway.util.InternalSystemProperty.TCP_MAXIMUM_READ_BUFFER_SIZE;
 import static org.kaazing.gateway.util.InternalSystemProperty.UDP_IDLE_TIMEOUT;
@@ -69,9 +69,9 @@ public class NioDatagramAcceptor extends AbstractNioAcceptor {
 
     @Override
     protected void registerAcceptFilters(ResourceAddress boundAddress, IoSession session) {
-        Integer align = boundAddress.getOption(ALIGN);
+        Integer align = boundAddress.getOption(PADDING_ALIGNMENT);
         if (align > 0) {
-            session.getFilterChain().addFirst("align", new UdpAlignFilter(logger, align, session));
+            session.getFilterChain().addFirst("udp.padding.alignment", new UdpAlignFilter(logger, align, session));
         }
     }
 

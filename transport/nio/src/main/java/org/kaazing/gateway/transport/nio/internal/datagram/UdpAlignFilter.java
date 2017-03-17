@@ -25,7 +25,7 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 
 /**
- * Adds padding with 0x00 to any message in order to have its length multiple of the configured 'udp.align'
+ * Adds padding with 0x00 to any message in order to have its length multiple of the configured 'udp.padding.alignment'
  *     - accept.option
  *     - connect.option
  * The padding is a 'right pad', meaning bytes are inserted after the message's content.

@@ -27,56 +27,51 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceOption;
 
 public final class UdpResourceAddress extends ResourceAddress {
-	
-	private static final long serialVersionUID = 1L;
 
-	static final String TRANSPORT_NAME = "udp";
-	
-	public static final ResourceOption<InetSocketAddress> BIND_ADDRESS = new UdpBindAddressOption();
-	public static final ResourceOption<Long> MAXIMUM_OUTBOUND_RATE = new UdpMaximumOutboundRateOption();
-	public static final ResourceOption<String> INTERFACE = new UdpInterfaceOption();
-    public static final ResourceOption<Integer> ALIGN = new UdpAlignOption();
+    private static final long serialVersionUID = 1L;
+
+    static final String TRANSPORT_NAME = "udp";
+
+    public static final ResourceOption<InetSocketAddress> BIND_ADDRESS = new UdpBindAddressOption();
+    public static final ResourceOption<Long> MAXIMUM_OUTBOUND_RATE = new UdpMaximumOutboundRateOption();
+    public static final ResourceOption<String> INTERFACE = new UdpInterfaceOption();
+    public static final ResourceOption<Integer> PADDING_ALIGNMENT = new UdpPaddingAlignmentOption();
 
     private static final long MAXIMUM_OUTBOUND_RATE_DEFAULT = 0xFFFFFFFFL;
-    private static final int ALIGN_DEFAULT = 0;
-	
-	private InetSocketAddress bindAddress;
-	private long maximumOutboundRate = MAXIMUM_OUTBOUND_RATE.defaultValue();
-	private NetworkInterface updInterface;
-    private int align = ALIGN.defaultValue();
+    private static final int PADDING_ALIGNMENT_DEFAULT = 0;
 
-	UdpResourceAddress(ResourceAddressFactorySpi factory, String original, URI resource) {
-		super(factory, original, resource);
-	}
+    private InetSocketAddress bindAddress;
+    private long maximumOutboundRate = MAXIMUM_OUTBOUND_RATE.defaultValue();
+    private transient NetworkInterface updInterface;
+    private int paddingAlignment = PADDING_ALIGNMENT.defaultValue();
 
-	@Override
-	@SuppressWarnings("unchecked")
+    UdpResourceAddress(ResourceAddressFactorySpi factory, String original, URI resource) {
+        super(factory, original, resource);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
     protected <V> V getOption0(ResourceOption<V> option) {
         if (option instanceof UdpResourceOption) {
-            UdpResourceOption udpOption = (UdpResourceOption)option;
+            UdpResourceOption udpOption = (UdpResourceOption) option;
             switch (udpOption.kind) {
                 case BIND_ADDRESS:
                     return (V) bindAddress;
                 case MAXIMUM_OUTBOUND_RATE:
                     return (V) Long.valueOf(maximumOutboundRate);
                 case INTERFACE:
-                NetworkInterface udpInterface2 = getUpdInterface();
-                if(udpInterface2 == null){
-                    return null;
-                } else {
-                    return (V) udpInterface2.getDisplayName();
-                }
-                case ALIGN:
-                    return (V) Integer.valueOf(align);
+                    NetworkInterface udpInterface2 = getUpdInterface();
+                    return udpInterface2 == null ? null : (V) udpInterface2.getDisplayName();
+                case PADDING_ALIGNMENT:
+                    return (V) Integer.valueOf(paddingAlignment);
             }
         }
-		
-		return super.getOption0(option);
-	}
+
+        return super.getOption0(option);
+    }
 
     @Override
-	protected <V> void setOption0(ResourceOption<V> option, V value) {
-
+    protected <V> void setOption0(ResourceOption<V> option, V value) {
         if (option instanceof UdpResourceOption) {
             UdpResourceOption udpOption = (UdpResourceOption) option;
             switch (udpOption.kind) {
@@ -93,63 +88,63 @@ public final class UdpResourceAddress extends ResourceAddress {
                             updInterface = NetworkInterface.getByName(udpInterfaceName);
                         } catch (SocketException e) {
                             throw new RuntimeException(String.format("Network interface %s on udp interface does not exist",
-                                    udpInterfaceName));
+                                udpInterfaceName));
                         }
                     }
                     return;
-                case ALIGN:
-                    align = (Integer) value;
+                case PADDING_ALIGNMENT:
+                    paddingAlignment = (Integer) value;
                     return;
             }
         }
 
         super.setOption0(option, value);
-	}
-	
-	public NetworkInterface getUpdInterface() {
+    }
+
+    public NetworkInterface getUpdInterface() {
         return updInterface;
     }
 
     static class UdpResourceOption<T> extends ResourceOption<T> {
 
-		enum Kind { BIND_ADDRESS, MAXIMUM_OUTBOUND_RATE, INTERFACE, ALIGN}
-		
-		static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
+        enum Kind {BIND_ADDRESS, MAXIMUM_OUTBOUND_RATE, INTERFACE, PADDING_ALIGNMENT}
 
-		private final Kind kind;
-		
+        static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
+
+        private final Kind kind;
+
         private UdpResourceOption(Kind kind, String name) {
             this(kind, name, null);
         }
-        
-		private UdpResourceOption(Kind kind, String name, T defaultValue) {
-			super(OPTION_NAMES, name, defaultValue);
-			this.kind = kind;
-		}
-	}
-	
-	private static final class UdpBindAddressOption extends UdpResourceOption<InetSocketAddress> {
-		private UdpBindAddressOption() {
-			super(Kind.BIND_ADDRESS, "bind");
-		}
-	}
-	
-	private static final class UdpMaximumOutboundRateOption extends UdpResourceOption<Long> {
-		private UdpMaximumOutboundRateOption() {
-			super(Kind.MAXIMUM_OUTBOUND_RATE, "maximumOutboundRate", MAXIMUM_OUTBOUND_RATE_DEFAULT);
-		}
-	}
-	
+
+        private UdpResourceOption(Kind kind, String name, T defaultValue) {
+            super(OPTION_NAMES, name, defaultValue);
+            this.kind = kind;
+        }
+    }
+
+    private static final class UdpBindAddressOption extends UdpResourceOption<InetSocketAddress> {
+        private UdpBindAddressOption() {
+            super(Kind.BIND_ADDRESS, "bind");
+        }
+    }
+
+    private static final class UdpMaximumOutboundRateOption extends UdpResourceOption<Long> {
+        private UdpMaximumOutboundRateOption() {
+            super(Kind.MAXIMUM_OUTBOUND_RATE, "maximumOutboundRate", MAXIMUM_OUTBOUND_RATE_DEFAULT);
+        }
+    }
+
     private static final class UdpInterfaceOption extends UdpResourceOption<String> {
         private UdpInterfaceOption() {
             super(Kind.INTERFACE, "interface");
         }
     }
 
-    private static final class UdpAlignOption extends UdpResourceOption<Integer> {
-        private UdpAlignOption() {
-            super(Kind.ALIGN, "align", ALIGN_DEFAULT);
+    private static final class UdpPaddingAlignmentOption extends UdpResourceOption<Integer> {
+        private UdpPaddingAlignmentOption() {
+            super(Kind.PADDING_ALIGNMENT, "padding.alignment", PADDING_ALIGNMENT_DEFAULT);
         }
     }
-	
+
 }

@@ -119,9 +119,9 @@ public class NioDatagramConnector extends AbstractNioConnector {
 
     @Override
     protected void registerConnectFilters(ResourceAddress address, IoSession session) {
-        int align = address.getOption(UdpResourceAddress.ALIGN);
+        int align = address.getOption(UdpResourceAddress.PADDING_ALIGNMENT);
         if (align > 0) {
-            session.getFilterChain().addFirst("align", new UdpAlignFilter(logger, align, session));
+            session.getFilterChain().addFirst("udp.padding.alignment", new UdpAlignFilter(logger, align, session));
         }
     }
 

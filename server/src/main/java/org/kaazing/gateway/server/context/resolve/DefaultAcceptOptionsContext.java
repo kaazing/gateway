@@ -216,9 +216,9 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
         result.put(TCP_MAXIMUM_OUTBOUND_RATE, tcpMaximumOutboundRate);
 
 
-        String udpAlign = optionsCopy.remove("udp.align");
+        String udpAlign = optionsCopy.remove("udp.padding.alignment");
         if (udpAlign != null) {
-            result.put("udp.align", Integer.valueOf(udpAlign));
+            result.put("udp.padding.alignment", Integer.valueOf(udpAlign));
         }
 
         for (Map.Entry<String, String> entry : getBinds().entrySet()) {

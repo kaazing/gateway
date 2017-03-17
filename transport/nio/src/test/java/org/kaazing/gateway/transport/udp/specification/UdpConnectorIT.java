@@ -193,7 +193,7 @@ public class UdpConnectorIT {
     public void alignData() throws Exception {
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         ResourceOptions resourceOptions = ResourceOptions.FACTORY.newResourceOptions();
-        resourceOptions.setOption(UdpResourceAddress.ALIGN, 4);
+        resourceOptions.setOption(UdpResourceAddress.PADDING_ALIGNMENT, 4);
         ResourceAddress connectAddress = addressFactory.newResourceAddress("udp://127.0.0.1:8080", resourceOptions);
         AtomicBoolean bytesAligned = new AtomicBoolean(true);
         CountDownLatch messagesReceived = new CountDownLatch(2);
