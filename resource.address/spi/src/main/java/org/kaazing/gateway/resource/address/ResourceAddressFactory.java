@@ -102,8 +102,8 @@ public class ResourceAddressFactory {
     }
 
 
-    private ResourceAddressFactory(Map<String, ResourceAddressFactorySpi<?>> addressFactories,
-                                   Map<String, Map<String, ResourceAddressFactorySpi<?>>> alternateAddressFactories) {
+    protected ResourceAddressFactory(Map<String, ResourceAddressFactorySpi<?>> addressFactories,
+                                     Map<String, Map<String, ResourceAddressFactorySpi<?>>> alternateAddressFactories) {
         this.addressFactories = addressFactories;
         this.alternateAddressFactories = alternateAddressFactories;
     }
@@ -190,7 +190,7 @@ public class ResourceAddressFactory {
         return newResourceAddress(uriToString(uriAddress.getResource()), options);
     }
 
-    private ResourceAddressFactorySpi<?> findResourceAddressFactory(String schemeName) throws IllegalArgumentException {
+    public ResourceAddressFactorySpi<?> findResourceAddressFactory(String schemeName) throws IllegalArgumentException {
 
         if (schemeName == null) {
             throw new NullPointerException("schemeName");

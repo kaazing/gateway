@@ -74,6 +74,8 @@ import org.kaazing.gateway.transport.BridgeSessionInitializerAdapter;
 import org.kaazing.gateway.transport.IoFilterAdapter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.nio.TcpExtension;
+import org.kaazing.gateway.transport.nio.internal.socket.NioSocketAcceptor;
+import org.kaazing.gateway.transport.nio.internal.socket.TcpExtensionFactory;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
