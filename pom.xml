@@ -78,6 +78,7 @@
         <module>service/http.balancer</module>
         <module>service/http.directory</module>
         <module>service/http.proxy</module>
+        <module>service/http.redirect</module>
         <module>service/proxy</module>
         <module>service/turn.rest</module>
         <module>service/update.check</module>
