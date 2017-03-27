@@ -48,7 +48,7 @@ public class UpdateCheckServiceTest {
         try {
             this.service = new UpdateCheckService();
         } catch (RuntimeException e) {
-            Assert.fail("There is a jar in ./src/test/resources/gateway.server.test-5.0.0.8.jar that needs to be on the class path, fix your test runner settings");
+            Assert.fail("There is a jar in ./src/test/resources/gateway.server-5.0.0.8.jar that needs to be on the class path, fix your test runner settings");
             throw e;
         }
         this.listener = new MockUpdateCheckListener();
