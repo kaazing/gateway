@@ -15,10 +15,13 @@
  */
 package org.kaazing.gateway.server.impl;
 
+import static java.lang.String.format;
+
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -28,11 +31,12 @@ import org.slf4j.LoggerFactory;
 
 public final class VersionUtils {
 
-    public static String productTitle;
-    public static String productVersion;
-    public static String productEdition;
-    public static String productDependencies;
-    private static Logger logger = LoggerFactory.getLogger(VersionUtils.class);
+    private static String productTitle;
+    private static String productVersion;
+    private static String productEdition;
+    private static String productDependencies;
+
+    private static final Logger LOG = LoggerFactory.getLogger(VersionUtils.class);
 
     private VersionUtils() {
     }
@@ -134,13 +138,14 @@ public final class VersionUtils {
         }
         boolean foundJar = false;
         String[] pathEntries = System.getProperty("java.class.path").split(System.getProperty("path.separator"));
-        HashMap<String, Attributes> products = new HashMap<>(7);
+        Map<String, Attributes> products = new TreeMap<>(Collections.reverseOrder());
         HashSet<String> removals = new HashSet<>(7);
-        int i = pathEntries.length;
-        while (!foundJar && (--i >= 0)) {
-            String pathEntry = pathEntries[i];
+        for (String pathEntry : pathEntries) {
             if (!pathEntry.contains("gateway.server")) {
                 continue;
+            }
+            if (LOG.isTraceEnabled()) {
+                LOG.trace(format("Found product entry: %s", pathEntry));
             }
             try (JarFile jar = new JarFile(pathEntry)) {
                 Manifest mf = jar.getManifest();
@@ -157,19 +162,22 @@ public final class VersionUtils {
                 String dependencies = attrs.getValue("Kaazing-Dependencies");
                 if (product != null && title != null && version != null) {
                     foundJar = true;
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace(format("Found: %s [%s]", pathEntry, attrs.getValue("Kaazing-Product")));
+                    }
                     // Store the list of products found, but remove any products
                     // marked as dependencies (i.e. products on which the current
                     // product depends.  We want to find the product that nothing
                     // else depends on.
-                    products.put(product != null ? product : title, attrs);
+                    products.put(product, attrs);
                     if (dependencies != null) {
                         String[] deps = dependencies.split(",");
                         Collections.addAll(removals, deps);
                     }
                 }
             } catch (IOException e) {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("An exception occurred while getting product information", e);
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("An exception occurred while getting product information", e);
                 }
             }
         }
@@ -185,16 +193,40 @@ public final class VersionUtils {
             productVersion = null;
             productEdition = null;
             productDependencies = null;
+            if (LOG.isTraceEnabled()) {
+                LOG.trace(format("Elected default"));
+            }
         } else {
             // The remaining values in 'products' are the real top-level product names.
-            // NOTE: Per discussion with Brian in 3.3, this should be only a single value,
-            // so we're going to extract our values from that.
-            Attributes attrs = products.values().iterator().next();
+            Attributes attrs = products.entrySet().iterator().next().getValue();
             productTitle = attrs.getValue("Implementation-Title");
             productVersion = attrs.getValue("Implementation-Version");
             productEdition = attrs.getValue("Kaazing-Product");
             productDependencies = attrs.getValue("Kaazing-Dependencies");
+            if (LOG.isTraceEnabled()) {
+                LOG.trace(format("Elected: %s", productEdition));
+            }
         }
+    }
+
+    /**
+     * Used for testing purposes
+     */
+    public static void reset() {
+        productEdition = null;
+        productTitle = null;
+        productVersion = null;
+        productDependencies = null;
+    }
+
+    /**
+     * Used for testing purposes
+     */
+    public static void reset(String productEdition, String productTitle, String productVersion, String productDependencies) {
+        VersionUtils.productEdition = productEdition;
+        VersionUtils.productTitle = productTitle;
+        VersionUtils.productVersion = productVersion;
+        VersionUtils.productDependencies = productDependencies;
     }
 
 }

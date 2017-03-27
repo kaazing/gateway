@@ -29,17 +29,14 @@ public class VersionUtilsTest {
 
     @After
     public void cleanupMockProduct() {
-        VersionUtils.productEdition =null;
-        VersionUtils.productTitle =null;
-        VersionUtils.productVersion =null;
-        VersionUtils.productDependencies =null;
+        VersionUtils.reset();
     }
 
     @Test public void shouldGetProductInfo() {
         System.setProperty("java.class.path", "src/test/resources/gateway.server-5.0.0.8.jar");
         Assert.assertEquals("5.0.0.8 Beta", getGatewayProductVersion());
         Assert.assertEquals("Kaazing WebSocket Gateway", getGatewayProductTitle());
-        Assert.assertEquals("Gateway", getGatewayProductEdition());
+        Assert.assertEquals("Test.Gateway", getGatewayProductEdition());
         Assert.assertEquals("5.0", getGatewayProductVersionMinor());
         Assert.assertEquals("5.0.0", getGatewayProductVersionPatch());
     }
@@ -54,14 +51,15 @@ public class VersionUtilsTest {
     }
 
     @Test public void shouldGetProductInfoWhenSystemHasManyJars() {
-        System.setProperty("java.class.path", "src/test/resources/gateway.server-5.0.0.8.jar " +
+        System.setProperty("java.class.path",      "src/test/resources/gateway.server-5.0.0.7.jar" +
+            System.getProperty("path.separator") + "src/test/resources/gateway.server-5.0.0.8.jar" +
             System.getProperty("path.separator") + "src/test/resources/gateway.server-5.0.0.9.jar" +
             System.getProperty("path.separator") + "src/test/resources/gateway.server-noMF.jar" +
             System.getProperty("path.separator") + "src/test/resources/gateway.server-noAttrs.jar" +
             System.getProperty("path.separator") + "src/test/resources/gateway.server-missing.jar");
         Assert.assertEquals("5.0.0.9 Beta", getGatewayProductVersion());
         Assert.assertEquals("Kaazing WebSocket Gateway", getGatewayProductTitle());
-        Assert.assertEquals("Gateway", getGatewayProductEdition());
+        Assert.assertEquals("Test.Gateway", getGatewayProductEdition());
     }
 
 }
