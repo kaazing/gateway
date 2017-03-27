@@ -38,6 +38,11 @@ public final class VersionUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(VersionUtils.class);
 
+    public static String kaazingProduct = "Kaazing-Product";
+    public static String implementationTitle = "Implementation-Title";
+    public static String implementationVersion = "Implementation-Version";
+    public static String kaazingDependencies = "Kaazing-Dependencies";
+
     private VersionUtils() {
     }
 
@@ -147,39 +152,9 @@ public final class VersionUtils {
             if (LOG.isTraceEnabled()) {
                 LOG.trace(format("Found product entry: %s", pathEntry));
             }
-            try (JarFile jar = new JarFile(pathEntry)) {
-                Manifest mf = jar.getManifest();
-                if (mf == null) {
-                    continue;
-                }
-                Attributes attrs = mf.getMainAttributes();
-                if (attrs == null) {
-                    continue;
-                }
-                String title = attrs.getValue("Implementation-Title");
-                String version = attrs.getValue("Implementation-Version");
-                String product = attrs.getValue("Kaazing-Product");
-                String dependencies = attrs.getValue("Kaazing-Dependencies");
-                if (product != null && title != null && version != null) {
-                    foundJar = true;
-                    if (LOG.isTraceEnabled()) {
-                        LOG.trace(format("Found: %s [%s]", pathEntry, attrs.getValue("Kaazing-Product")));
-                    }
-                    // Store the list of products found, but remove any products
-                    // marked as dependencies (i.e. products on which the current
-                    // product depends.  We want to find the product that nothing
-                    // else depends on.
-                    products.put(product, attrs);
-                    if (dependencies != null) {
-                        String[] deps = dependencies.split(",");
-                        Collections.addAll(removals, deps);
-                    }
-                }
-            } catch (IOException e) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("An exception occurred while getting product information", e);
-                }
-            }
+            if(!getProductInfoFromJar(pathEntry, products, removals))
+                continue;
+            foundJar = true;
         }
         // remove any products that depend on other products
         for (String removal : removals) {
@@ -194,15 +169,15 @@ public final class VersionUtils {
             productEdition = null;
             productDependencies = null;
             if (LOG.isTraceEnabled()) {
-                LOG.trace(format("Elected default"));
+                LOG.trace("Elected default");
             }
         } else {
             // The remaining values in 'products' are the real top-level product names.
             Attributes attrs = products.entrySet().iterator().next().getValue();
-            productTitle = attrs.getValue("Implementation-Title");
-            productVersion = attrs.getValue("Implementation-Version");
-            productEdition = attrs.getValue("Kaazing-Product");
-            productDependencies = attrs.getValue("Kaazing-Dependencies");
+            productTitle = attrs.getValue(implementationTitle);
+            productVersion = attrs.getValue(implementationVersion);
+            productEdition = attrs.getValue(kaazingProduct);
+            productDependencies = attrs.getValue(kaazingDependencies);
             if (LOG.isTraceEnabled()) {
                 LOG.trace(format("Elected: %s", productEdition));
             }
@@ -222,11 +197,48 @@ public final class VersionUtils {
     /**
      * Used for testing purposes
      */
-    public static void reset(String productEdition, String productTitle, String productVersion, String productDependencies) {
-        VersionUtils.productEdition = productEdition;
-        VersionUtils.productTitle = productTitle;
-        VersionUtils.productVersion = productVersion;
-        VersionUtils.productDependencies = productDependencies;
+    public static void reset(String edition, String title, String version, String dependencies) {
+        productEdition = edition;
+        productTitle = title;
+        productVersion = version;
+        productDependencies = dependencies;
     }
 
+    private static boolean getProductInfoFromJar(String pathEntry, Map<String, Attributes> products, HashSet<String> removals){
+        boolean result = false;
+        try (JarFile jar = new JarFile(pathEntry)) {
+            Manifest mf = jar.getManifest();
+            if (mf == null) {
+                return result;
+            }
+            Attributes attrs = mf.getMainAttributes();
+            if (attrs == null) {
+                return result;
+            }
+            String title = attrs.getValue(implementationTitle);
+            String version = attrs.getValue(implementationVersion);
+            String product = attrs.getValue(kaazingProduct);
+            if (product != null && title != null && version != null) {
+                result = true;
+                String dependencies = attrs.getValue(kaazingDependencies);
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace(format("Found: %s [%s]", pathEntry, attrs.getValue(kaazingProduct)));
+                }
+                // Store the list of products found, but remove any products
+                // marked as dependencies (i.e. products on which the current
+                // product depends.  We want to find the product that nothing
+                // else depends on.
+                products.put(product, attrs);
+                if (dependencies != null) {
+                    String[] deps = dependencies.split(",");
+                    Collections.addAll(removals, deps);
+                }
+            }
+        } catch (IOException e) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("An exception occurred while getting product information", e);
+            }
+        }
+        return result;
+    }
 }
