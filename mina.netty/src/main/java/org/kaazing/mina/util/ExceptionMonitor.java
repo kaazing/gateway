@@ -57,5 +57,13 @@ public abstract class ExceptionMonitor {
     /**
      * Invoked when there are any uncaught exceptions.
      */
-    public abstract void exceptionCaught(Throwable cause, IoSession s);
+    public void exceptionCaught(Throwable cause, IoSession s) {
+        if (s == null) {
+            org.apache.mina.util.ExceptionMonitor.getInstance().exceptionCaught(cause);
+        } else {
+            exceptionCaught0(cause, s);
+        }
+    }
+
+    public abstract void exceptionCaught0(Throwable cause, IoSession s);
 }

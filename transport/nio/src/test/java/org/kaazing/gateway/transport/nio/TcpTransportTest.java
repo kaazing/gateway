@@ -27,9 +27,9 @@ import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.BridgeAcceptor;
 import org.kaazing.gateway.transport.BridgeConnector;
-import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
-import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
-import org.kaazing.gateway.transport.nio.internal.TcpExtensionFactory;
+import org.kaazing.gateway.transport.nio.internal.socket.NioSocketAcceptor;
+import org.kaazing.gateway.transport.nio.internal.socket.NioSocketConnector;
+import org.kaazing.gateway.transport.nio.internal.socket.TcpExtensionFactory;
 
 public class TcpTransportTest {
 

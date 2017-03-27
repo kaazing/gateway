@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.nio.internal;
+package org.kaazing.gateway.transport.nio.internal.datagram;
 
 import java.net.InetAddress;
 import java.util.Properties;
@@ -22,15 +22,20 @@ import javax.annotation.Resource;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.jboss.netty.channel.socket.nio.NioClientDatagramChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioWorker;
 import org.jboss.netty.channel.socket.nio.WorkerPool;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.udp.UdpResourceAddress;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.bio.MulticastConnector;
+import org.kaazing.gateway.transport.nio.internal.AbstractNioConnector;
+import org.kaazing.gateway.transport.nio.internal.NioProtocol;
+import org.kaazing.gateway.transport.nio.internal.socket.NioSocketAcceptor;
 import org.kaazing.mina.core.service.IoConnectorEx;
 import org.kaazing.mina.netty.socket.DatagramChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
@@ -45,6 +50,9 @@ public class NioDatagramConnector extends AbstractNioConnector {
     private ResourceAddressFactory resourceAddressFactory;
 
     private NioSocketAcceptor tcpAcceptor;
+
+
+    NioClientDatagramChannelFactory channelFactory;
 
     @Resource(name = "tcp.acceptor")
     public void setTcpAcceptor(NioSocketAcceptor tcpAcceptor) {
@@ -79,7 +87,7 @@ public class NioDatagramConnector extends AbstractNioConnector {
     protected IoConnectorEx initConnector() {
         DatagramChannelIoSessionConfig config = new DefaultDatagramChannelIoSessionConfig();
         WorkerPool<NioWorker> workerPool = tcpAcceptor.initWorkerPool(logger, "UDP connector: {}", getConfiguration());
-        NioClientDatagramChannelFactory channelFactory = new NioClientDatagramChannelFactory(workerPool);
+        /*NioClientDatagramChannelFactory*/ channelFactory = new NioClientDatagramChannelFactory(workerPool);
         NioDatagramChannelIoConnector connector = new NioDatagramChannelIoConnector(config, channelFactory);
 
         String readBufferSize = configuration.getProperty("org.kaazing.gateway.transport.udp.READ_BUFFER_SIZE");
@@ -110,6 +118,14 @@ public class NioDatagramConnector extends AbstractNioConnector {
     }
 
     @Override
+    protected void registerConnectFilters(ResourceAddress address, IoSession session) {
+        int align = address.getOption(UdpResourceAddress.PADDING_ALIGNMENT);
+        if (align > 0) {
+            session.getFilterChain().addFirst("udp.padding.alignment", new UdpAlignFilter(logger, align, session));
+        }
+    }
+
+    @Override
     public ConnectFuture connect(ResourceAddress address,
                                  IoHandler handler,
                                  IoSessionInitializer<? extends ConnectFuture> initializer) {
@@ -131,6 +147,15 @@ public class NioDatagramConnector extends AbstractNioConnector {
             return connector.connect(address, handler, initializer);
         } else {
             return super.connect(address, handler, initializer);
+        }
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        // FIXME is this necessary ?
+        if (channelFactory != null) {
+            channelFactory.releaseExternalResources();
         }
     }
 }
