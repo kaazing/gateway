@@ -38,10 +38,10 @@ public final class VersionUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(VersionUtils.class);
 
-    public static String kaazingProduct = "Kaazing-Product";
-    public static String implementationTitle = "Implementation-Title";
-    public static String implementationVersion = "Implementation-Version";
-    public static String kaazingDependencies = "Kaazing-Dependencies";
+    public static final String KAAZING_PRODUCT = "Kaazing-Product";
+    public static final String IMPLEMENTATION_TITLE = "Implementation-Title";
+    public static final String IMPLEMENTATION_VERSION = "Implementation-Version";
+    public static final String KAAZING_DEPENDENCIES = "Kaazing-Dependencies";
 
     private VersionUtils() {
     }
@@ -160,24 +160,21 @@ public final class VersionUtils {
         for (String removal : removals) {
             products.remove(removal);
         }
-        if (!foundJar || products.size() == 0) {
-            // If running in IDE, there will be no manifest information.
-            // Therefore default title to "Kaazing WebSocket Gateway (Development)"
-            // and default the others to null.
-            productTitle = "Kaazing WebSocket Gateway (Development)";
-            productVersion = null;
-            productEdition = null;
-            productDependencies = null;
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Elected default");
-            }
-        } else {
+        // If running in IDE, there will be no manifest information.
+        // Therefore default title to "Kaazing WebSocket Gateway (Development)"
+        // and default the others to null.
+        productTitle = "Kaazing WebSocket Gateway (Development)";
+        productVersion = null;
+        productEdition = null;
+        productDependencies = null;
+
+        if (foundJar && products.size() != 0) {
             // The remaining values in 'products' are the real top-level product names.
             Attributes attrs = products.entrySet().iterator().next().getValue();
-            productTitle = attrs.getValue(implementationTitle);
-            productVersion = attrs.getValue(implementationVersion);
-            productEdition = attrs.getValue(kaazingProduct);
-            productDependencies = attrs.getValue(kaazingDependencies);
+            productTitle = attrs.getValue(IMPLEMENTATION_TITLE);
+            productVersion = attrs.getValue(Attributes.Name.IMPLEMENTATION_VERSION);
+            productEdition = attrs.getValue(KAAZING_PRODUCT);
+            productDependencies = attrs.getValue(KAAZING_DEPENDENCIES);
             if (LOG.isTraceEnabled()) {
                 LOG.trace(format("Elected: %s", productEdition));
             }
@@ -215,14 +212,14 @@ public final class VersionUtils {
             if (attrs == null) {
                 return result;
             }
-            String title = attrs.getValue(implementationTitle);
-            String version = attrs.getValue(implementationVersion);
-            String product = attrs.getValue(kaazingProduct);
+            String title = attrs.getValue(IMPLEMENTATION_TITLE);
+            String version = attrs.getValue(IMPLEMENTATION_VERSION);
+            String product = attrs.getValue(KAAZING_PRODUCT);
             if (product != null && title != null && version != null) {
                 result = true;
-                String dependencies = attrs.getValue(kaazingDependencies);
+                String dependencies = attrs.getValue(KAAZING_DEPENDENCIES);
                 if (LOG.isTraceEnabled()) {
-                    LOG.trace(format("Found: %s [%s]", pathEntry, attrs.getValue(kaazingProduct)));
+                    LOG.trace(format("Found: %s [%s]", pathEntry, attrs.getValue(KAAZING_PRODUCT)));
                 }
                 // Store the list of products found, but remove any products
                 // marked as dependencies (i.e. products on which the current
