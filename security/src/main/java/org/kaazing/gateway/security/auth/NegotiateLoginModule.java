@@ -83,7 +83,9 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
         if (tryFirstToken) {
             try {
                 attemptAuthenticate(true);
-                return true;
+                // return false when successful, so that this login module doesn't interfere
+                // with the overall result of the login module chain
+                return false;
             } catch (Exception le) {
                 cleanState();
                 if (debug) {
@@ -94,7 +96,9 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
 
         try {
             attemptAuthenticate(false);
-            return true;
+            // return false when successful, so that this login module doesn't interfere
+            // with the overall result of the login module chain
+            return false;
         } catch (Exception loginException) {
             cleanState();
             if (debug) {

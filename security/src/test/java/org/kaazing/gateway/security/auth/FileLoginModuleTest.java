@@ -17,7 +17,6 @@ package org.kaazing.gateway.security.auth;
 
 import static javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag.OPTIONAL;
 import static javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag.REQUIRED;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
@@ -25,8 +24,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 
 import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.AppConfigurationEntry;
@@ -115,20 +112,6 @@ public class FileLoginModuleTest {
 
         try {
             loginContext.login();
-            final CallbackHandler nameCallbackHandler = handler.getDispatchMap().get(NameCallback.class);
-            final CallbackHandler passwordCallbackHandler = handler.getDispatchMap().get(PasswordCallback.class);
-            assertNotNull(nameCallbackHandler);
-            assertNotNull(passwordCallbackHandler);
-
-            NameCallback nameCallback = new NameCallback(">|<");
-            PasswordCallback passwordCallback = new PasswordCallback(">|<", false);
-
-            nameCallbackHandler.handle(new Callback[]{nameCallback});
-            passwordCallbackHandler.handle(new Callback[]{passwordCallback});
-
-            assertEquals("Expected 'joe' as the name", "joe", nameCallback.getName());
-            assertEquals("Expected 'welcome' as the password", "welcome", new String(passwordCallback.getPassword()));
-
         } catch (LoginException e) {
             fail("Login failed to succeed as expected: " + e.getMessage());
         }
@@ -171,20 +154,6 @@ public class FileLoginModuleTest {
 
         try {
             loginContext.login();
-            final CallbackHandler nameCallbackHandler = handler.getDispatchMap().get(NameCallback.class);
-            final CallbackHandler passwordCallbackHandler = handler.getDispatchMap().get(PasswordCallback.class);
-            assertNotNull(nameCallbackHandler);
-            assertNotNull(passwordCallbackHandler);
-
-            NameCallback nameCallback = new NameCallback(">|<");
-            PasswordCallback passwordCallback = new PasswordCallback(">|<", false);
-
-            nameCallbackHandler.handle(new Callback[]{nameCallback});
-            passwordCallbackHandler.handle(new Callback[]{passwordCallback});
-
-            assertEquals("Expected 'joe' as the name", "joe", nameCallback.getName());
-            assertEquals("Expected 'welcome' as the password", "welcome", new String(passwordCallback.getPassword()));
-
         } catch (LoginException e) {
             fail("Login failed to succeed as expected: " + e.getMessage());
         }
@@ -331,20 +300,6 @@ public class FileLoginModuleTest {
 
         try {
             loginContext.login();
-            final CallbackHandler nameCallbackHandler = handler.getDispatchMap().get(NameCallback.class);
-            final CallbackHandler passwordCallbackHandler = handler.getDispatchMap().get(PasswordCallback.class);
-            assertNotNull(nameCallbackHandler);
-            assertNotNull(passwordCallbackHandler);
-
-            NameCallback nameCallback = new NameCallback(">|<");
-            PasswordCallback passwordCallback = new PasswordCallback(">|<", false);
-
-            nameCallbackHandler.handle(new Callback[]{nameCallback});
-            passwordCallbackHandler.handle(new Callback[]{passwordCallback});
-
-            assertEquals("Expected 'joe' as the name", "joe", nameCallback.getName());
-            assertEquals("Expected 'welcome' as the password", "welcome", new String(passwordCallback.getPassword()));
-
         } catch (LoginException e) {
             fail("Login failed to succeed as expected: " + e.getMessage());
         }
@@ -387,20 +342,6 @@ public class FileLoginModuleTest {
 
         try {
             loginContext.login();
-            final CallbackHandler nameCallbackHandler = handler.getDispatchMap().get(NameCallback.class);
-            final CallbackHandler passwordCallbackHandler = handler.getDispatchMap().get(PasswordCallback.class);
-            assertNotNull(nameCallbackHandler);
-            assertNotNull(passwordCallbackHandler);
-
-            NameCallback nameCallback = new NameCallback(">|<");
-            PasswordCallback passwordCallback = new PasswordCallback(">|<", false);
-
-            nameCallbackHandler.handle(new Callback[]{nameCallback});
-            passwordCallbackHandler.handle(new Callback[]{passwordCallback});
-
-            assertEquals("Expected 'joe' as the name", "joe", nameCallback.getName());
-            assertEquals("Expected 'welcome' as the password", "welcome", new String(passwordCallback.getPassword()));
-
         } catch (LoginException e) {
             fail("Login failed to succeed as expected: " + e.getMessage());
         }

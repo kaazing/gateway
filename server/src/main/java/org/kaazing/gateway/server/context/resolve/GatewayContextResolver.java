@@ -1081,7 +1081,7 @@ public class GatewayContextResolver {
                     Map<String, String> options = new HashMap<>();
                     options.put("tryFirstToken", "true");
                     configurationEntries.add(0, new AppConfigurationEntry(BasicLoginModule.class.getName(),
-                            LoginModuleControlFlag.REQUIRED,
+                            LoginModuleControlFlag.OPTIONAL,
                             options));
                 }
     
@@ -1090,7 +1090,7 @@ public class GatewayContextResolver {
                     Map<String, String> options = new HashMap<>();
                     options.put("tryFirstToken", "true");
                     configurationEntries.add(0, new AppConfigurationEntry(NegotiateLoginModule.class.getName(),
-                            LoginModuleControlFlag.REQUIRED,
+                            LoginModuleControlFlag.OPTIONAL,
                             options));
                 }
             }
@@ -1102,7 +1102,7 @@ public class GatewayContextResolver {
                     options.put("session-timeout", resolveTimeIntervalValue(authType.getSessionTimeout()));
                 }
                 configurationEntries.add(0, new AppConfigurationEntry(TimeoutLoginModule.class.getName(),
-                        LoginModuleControlFlag.REQUIRED,
+                        LoginModuleControlFlag.OPTIONAL,
                         options));
             }
 
