@@ -41,6 +41,7 @@ import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.transport.Bindings;
 import org.kaazing.gateway.transport.Bindings.Binding;
 import org.kaazing.gateway.transport.BridgeSessionInitializerAdapter;
+import org.kaazing.gateway.transport.nio.internal.socket.NioSocketAcceptor;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.future.DefaultUnbindFuture;
 import org.kaazing.mina.core.future.UnbindFuture;

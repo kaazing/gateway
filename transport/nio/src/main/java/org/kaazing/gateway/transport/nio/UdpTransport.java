@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.nio.internal;
+package org.kaazing.gateway.transport.nio;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,6 +25,9 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.BridgeAcceptor;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.Transport;
+import org.kaazing.gateway.transport.nio.internal.NioProtocol;
+import org.kaazing.gateway.transport.nio.internal.datagram.NioDatagramAcceptor;
+import org.kaazing.gateway.transport.nio.internal.datagram.NioDatagramConnector;
 
 final class UdpTransport extends Transport {
 

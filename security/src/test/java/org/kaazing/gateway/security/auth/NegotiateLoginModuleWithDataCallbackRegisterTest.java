@@ -57,6 +57,7 @@ import org.kaazing.gateway.server.spi.security.LoginResultCallback;
 import org.kaazing.netx.URLConnectionHelper;
 
 public class NegotiateLoginModuleWithDataCallbackRegisterTest {
+    private static final String ALL_MODULES_IGNORED_MESSAGE = "all modules ignored";
     private static final String REALM_NAME = "demo";
     private static final String NEGOTIATE_AUTH_SCHEME = "Negotiate";
     private static final byte[] TOKEN_DATA = "test".getBytes();
@@ -147,6 +148,8 @@ public class NegotiateLoginModuleWithDataCallbackRegisterTest {
         context.assertIsSatisfied();
         assertNotNull(loginContext);
 
+        thrown.expect(LoginException.class);
+        thrown.expectMessage(ALL_MODULES_IGNORED_MESSAGE);
         loginContext.login();
 
         final CallbackHandler negotiateDataCallbackHandler = handler.getDispatchMap().get(TestNegotiateDataCallback.class);
@@ -182,6 +185,8 @@ public class NegotiateLoginModuleWithDataCallbackRegisterTest {
         context.assertIsSatisfied();
         assertNotNull(loginContext);
 
+        thrown.expect(LoginException.class);
+        thrown.expectMessage(ALL_MODULES_IGNORED_MESSAGE);
         loginContext.login();
 
         final CallbackHandler gssCallbackHandler = handler.getDispatchMap().get(TestNegotiateDataCallback.class);

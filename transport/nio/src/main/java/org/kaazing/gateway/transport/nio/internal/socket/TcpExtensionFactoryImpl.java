@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.nio.internal;
+package org.kaazing.gateway.transport.nio.internal.socket;
 
 import static java.util.Collections.unmodifiableList;
 
@@ -30,7 +30,7 @@ public class TcpExtensionFactoryImpl implements TcpExtensionFactory {
     private final List<TcpExtensionFactorySpi> factories;
 
     /* (non-Javadoc)
-     * @see org.kaazing.gateway.transport.nio.internal.TcpExtensionFactory#bind(org.kaazing.gateway.resource.address.ResourceAddress)
+     * @see org.kaazing.gateway.transport.nio.internal.socket.TcpExtensionFactory#bind(org.kaazing.gateway.resource.address.ResourceAddress)
      */
     @Override
     public List<TcpExtension> bind(ResourceAddress address) {
@@ -45,7 +45,7 @@ public class TcpExtensionFactoryImpl implements TcpExtensionFactory {
     }
     
     /* (non-Javadoc)
-     * @see org.kaazing.gateway.transport.nio.internal.TcpExtensionFactory#availableExtensions()
+     * @see org.kaazing.gateway.transport.nio.internal.socket.TcpExtensionFactory#availableExtensions()
      */
     @Override
     public Collection<TcpExtensionFactorySpi> availableExtensions() {
