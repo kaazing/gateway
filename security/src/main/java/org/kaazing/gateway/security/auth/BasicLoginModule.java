@@ -77,7 +77,9 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
         if (tryFirstToken) {
             try {
                 attemptAuthenticate(true);
-                return true;
+                // return false when successful, so that this login module doesn't interfere
+                // with the overall result of the login module chain
+                return false;
             } catch (LoginException le) {
                 if (debug) {
                     LOG.debug("[BasicLoginModule] reading from shared state failed: ", le);
@@ -87,7 +89,9 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
 
         try {
             attemptAuthenticate(false);
-            return true;
+            // return false when successful, so that this login module doesn't interfere
+            // with the overall result of the login module chain
+            return false;
         } catch (LoginException loginException) {
             cleanState();
             if (debug) {

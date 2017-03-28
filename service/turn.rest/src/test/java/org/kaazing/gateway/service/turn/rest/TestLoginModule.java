@@ -40,13 +40,13 @@ public class TestLoginModule implements LoginModule {
 
     @Override
     public boolean login() throws LoginException {
+        String username = (String)sharedState.get("javax.security.auth.login.name");
+        userPrincipal = new RolePrincipal(username);
         return true;
     }
 
     @Override
     public boolean commit() throws LoginException {
-        String username = (String)sharedState.get("javax.security.auth.login.name");
-        userPrincipal = new RolePrincipal(username);
         subject.getPrincipals().add(userPrincipal);
         return true;
     }
