@@ -25,7 +25,8 @@ import org.slf4j.LoggerFactory;
  * On notifications of new versions, this class logs the information
  * 
  */
-class UpdateCheckLoggingListener implements UpdateCheckListener {
+@Deprecated
+public class UpdateCheckLoggingListener implements UpdateCheckListener {
 
     private final Logger logger = LoggerFactory.getLogger(UpdateCheckTask.class);
 

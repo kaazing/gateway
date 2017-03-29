@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
  * Represent GatewayVersion with 3 digits of form major.minor.patch
  * 
  */
+@Deprecated
 public class GatewayVersion implements Comparable<GatewayVersion> {
 
     private static final String RELEASE_GA = "";

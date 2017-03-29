@@ -63,6 +63,7 @@ import org.kaazing.gateway.security.SecurityContext;
 import org.kaazing.gateway.security.auth.BasicLoginModule;
 import org.kaazing.gateway.security.auth.NegotiateLoginModule;
 import org.kaazing.gateway.security.auth.TimeoutLoginModule;
+import org.kaazing.gateway.server.ConfigurationObserver;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.config.SchemeConfig;
@@ -180,6 +181,7 @@ public class GatewayContextResolver {
 
     private Map<String, Object> injectables = new HashMap<>();
 
+    private ConfigurationObserver observer;
     public GatewayContextResolver(File configDir, File webDir, File tempDir) {
         this(configDir, webDir, tempDir, null);
     }
@@ -1008,23 +1010,27 @@ public class GatewayContextResolver {
                     if (controlFlag == null) {
                         throw new IllegalArgumentException("Unrecognized login module type: " + type);
                     }
+                    String className;
 
                     if (type.startsWith(LOGIN_MODULE_TYPE_CLASS_PREFIX)) {
-                        String className = type.substring(LOGIN_MODULE_TYPE_CLASS_PREFIX.length());
+                        className = type.substring(LOGIN_MODULE_TYPE_CLASS_PREFIX.length());
                         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
                         try {
                             classLoader.loadClass(className);
                         } catch (ClassNotFoundException e) {
                             throw new IllegalArgumentException("Unable to find the login module class: " + className, e);
                         }
-                        configurationEntries.add(new AppConfigurationEntry(className, controlFlag, options));
                     } else {
-                        String className = getLoginModuleClass(type);
+                        className = getLoginModuleClass(type);
                         if (className == null) {
                             throw new IllegalArgumentException("Unrecognized login module type: " + type);
                         }
-                        configurationEntries.add(new AppConfigurationEntry(className, controlFlag, options));
                     }
+
+                    if (this.getObserver() != null) {
+                        this.getObserver().parseCustomOptions(options, rawOptions);
+                    }
+                    configurationEntries.add(new AppConfigurationEntry(className, controlFlag, options));
                 }
 
                 updateLoginModuleConfigurationEntries(securityConfig, authType, authenticationContext, configurationEntries,
@@ -1065,26 +1071,28 @@ public class GatewayContextResolver {
         if (authenticationContextIsPresent) {
 
             String httpChallengeScheme = authenticationContext.getHttpChallengeScheme();
-            if (httpChallengeScheme.startsWith(AUTH_SCHEME_APPLICATION_PREFIX)) {
-                httpChallengeScheme = httpChallengeScheme.substring(AUTH_SCHEME_APPLICATION_PREFIX.length());
-            }
-
-            // Login Module Inject Rule 1: Inject Basic Login Module At Front of Chain
-            if (AUTH_SCHEME_BASIC.equals(httpChallengeScheme)) {
-                Map<String, String> options = new HashMap<>();
-                options.put("tryFirstToken", "true");
-                configurationEntries.add(0, new AppConfigurationEntry(BasicLoginModule.class.getName(),
-                        LoginModuleControlFlag.OPTIONAL,
-                        options));
-            }
-
-            // Login Module Inject Rule 2: Inject Negotiate Login Module at Front of Chain
-            if (AUTH_SCHEME_NEGOTIATE.equals(httpChallengeScheme)) {
-                Map<String, String> options = new HashMap<>();
-                options.put("tryFirstToken", "true");
-                configurationEntries.add(0, new AppConfigurationEntry(NegotiateLoginModule.class.getName(),
-                        LoginModuleControlFlag.OPTIONAL,
-                        options));
+            if (httpChallengeScheme != null) {
+                if (httpChallengeScheme.startsWith(AUTH_SCHEME_APPLICATION_PREFIX)) {
+                    httpChallengeScheme = httpChallengeScheme.substring(AUTH_SCHEME_APPLICATION_PREFIX.length());
+                }
+    
+                // Login Module Inject Rule 1: Inject Basic Login Module At Front of Chain
+                if (AUTH_SCHEME_BASIC.equals(httpChallengeScheme)) {
+                    Map<String, String> options = new HashMap<>();
+                    options.put("tryFirstToken", "true");
+                    configurationEntries.add(0, new AppConfigurationEntry(BasicLoginModule.class.getName(),
+                            LoginModuleControlFlag.OPTIONAL,
+                            options));
+                }
+    
+                // Login Module Inject Rule 2: Inject Negotiate Login Module at Front of Chain
+                if (AUTH_SCHEME_NEGOTIATE.equals(httpChallengeScheme)) {
+                    Map<String, String> options = new HashMap<>();
+                    options.put("tryFirstToken", "true");
+                    configurationEntries.add(0, new AppConfigurationEntry(NegotiateLoginModule.class.getName(),
+                            LoginModuleControlFlag.OPTIONAL,
+                            options));
+                }
             }
 
             //Login Module Inject Rule 4: Inject Timeout Module at Front of Chain
@@ -1310,6 +1318,14 @@ public class GatewayContextResolver {
 
     public Map<String, Object> getInjectables() {
         return injectables;
+    }
+
+    public ConfigurationObserver getObserver() {
+        return observer;
+    }
+
+    public void setObserver(ConfigurationObserver observer) {
+        this.observer = observer;
     }
 
 }

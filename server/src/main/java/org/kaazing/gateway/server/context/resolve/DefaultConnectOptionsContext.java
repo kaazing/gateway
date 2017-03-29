@@ -131,6 +131,11 @@ public class DefaultConnectOptionsContext extends DefaultOptionsContext implemen
             result.put("http[http/1.1].transport", httpTransport);
         }
 
+        String udpAlign = optionsCopy.remove("udp.padding.alignment");
+        if (udpAlign != null) {
+            result.put("udp.padding.alignment", Integer.valueOf(udpAlign));
+        }
+
         // for now just put in the rest of the options as strings
         result.putAll(optionsCopy);
 
