@@ -27,7 +27,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.kaazing.gateway.server.GatewayObserverFactorySpiPrototype;
+import org.kaazing.gateway.server.GatewayObserverApi;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
@@ -35,7 +35,7 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 /**
  * Creates and manages periodic checks to see if the gateway has updates
  */
-public class UpdateCheckGatewayObserver extends GatewayObserverFactorySpiPrototype {
+    public class UpdateCheckGatewayObserver implements GatewayObserverApi {
 
     private static final String ENTERPRISE_URL = "https://version.kaazing.com";
     private static final String COMMUNITY_URL = "https://version.kaazing.org";
