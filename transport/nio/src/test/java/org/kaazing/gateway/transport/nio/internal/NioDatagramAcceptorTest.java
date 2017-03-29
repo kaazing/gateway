@@ -30,6 +30,8 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.transport.nio.internal.datagram.NioDatagramAcceptor;
+import org.kaazing.gateway.transport.nio.internal.socket.NioSocketAcceptor;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.test.util.MethodExecutionTrace;
 

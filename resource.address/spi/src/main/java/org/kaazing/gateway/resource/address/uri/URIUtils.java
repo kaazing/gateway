@@ -57,6 +57,9 @@ public final class URIUtils {
     public static String getHost(String uriString) {
         try {
             URI uri = new URI(uriString);
+            if(uri.getHost()==null) {
+                throw new IllegalArgumentException("Invalid URI syntax. Scheme and host must be provided (port number is optional): " + uriString);
+            }
             if (uri.getAuthority().startsWith("@") && !uri.getHost().startsWith("@")) {
                 return "@" + uri.getHost();
             }
@@ -71,6 +74,7 @@ public final class URIUtils {
             }
         }
     }
+
 
     /**
      * Helper method for retrieving scheme

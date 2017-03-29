@@ -108,4 +108,5 @@ public interface GatewayObserverApi {
      */
     default void initingGateway(Properties configuration, Map<String, Object> injectables){}
 
+
 }

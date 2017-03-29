@@ -15,6 +15,7 @@
  */
 package org.kaazing.gateway.server.context.resolve;
 
+import static com.hazelcast.core.LifecycleEvent.LifecycleState.SHUTTING_DOWN;
 import static org.kaazing.gateway.server.context.resolve.DefaultServiceContext.BALANCER_MAP_NAME;
 import static org.kaazing.gateway.server.context.resolve.DefaultServiceContext.MEMBERID_BALANCER_MAP_NAME;
 
@@ -59,6 +60,8 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
+import com.hazelcast.core.LifecycleEvent;
+import com.hazelcast.core.LifecycleListener;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
@@ -518,54 +521,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         public void memberRemoved(MembershipEvent membershipEvent) {
             MemberId removedMember = getMemberId(membershipEvent.getMember());
             GL.info(GL.CLUSTER_LOGGER_NAME, "Cluster member {} has gone down", removedMember);
-
-            // Clean up the member's instanceKey
-            Map<MemberId, String> instanceKeyMap = getCollectionsFactory().getMap(INSTANCE_KEY_MAP);
-            instanceKeyMap.remove(removedMember);
-
-            // cleanup balancer URIs for the member that went down
-            Map<MemberId, Map<String, List<String>>> memberIdBalancerUriMap =
-                    getCollectionsFactory().getMap(MEMBERID_BALANCER_MAP_NAME);
-            if (memberIdBalancerUriMap == null) {
-                throw new IllegalStateException("MemberId to BalancerMap is null");
-            }
-
-            IMap<String, TreeSet<String>> sharedBalanceUriMap = getCollectionsFactory().getMap(BALANCER_MAP_NAME);
-            if (sharedBalanceUriMap == null) {
-                throw new IllegalStateException("Shared balanced URIs map is null");
-            }
-
-            Map<String, List<String>> memberBalancedUrisMap = memberIdBalancerUriMap.remove(removedMember);
-            if (memberBalancedUrisMap != null) {
-                GL.debug(GL.CLUSTER_LOGGER_NAME, "Cleaning up balancer cluster state for member {}", removedMember);
-                try {
-                    for (String key : memberBalancedUrisMap.keySet()) {
-                        GL.debug(GL.CLUSTER_LOGGER_NAME, "URI Key: {}", key);
-                        List<String> memberBalancedUris = memberBalancedUrisMap.get(key);
-                        TreeSet<String> globalBalancedUris;
-                        TreeSet<String> newGlobalBalancedUris;
-                        do {
-                            globalBalancedUris = sharedBalanceUriMap.get(key);
-                            newGlobalBalancedUris = new TreeSet<>(globalBalancedUris);
-                            for (String memberBalancedUri : memberBalancedUris) {
-                                GL.debug(GL.CLUSTER_LOGGER_NAME, "Attempting to removing Balanced URI : {}", memberBalancedUri);
-                                newGlobalBalancedUris.remove(memberBalancedUri);
-                            }
-                        } while (!sharedBalanceUriMap.replace(key, globalBalancedUris, newGlobalBalancedUris));
-
-                        GL.debug(GL.CLUSTER_LOGGER_NAME,
-                                "Removed balanced URIs for cluster member {}, new global list: {}", removedMember,
-                                newGlobalBalancedUris);
-                    }
-                } catch (Exception e) {
-                    throw new IllegalStateException("Unable to remove the balanced URIs served by the member going down from " +
-                            "global map");
-                }
-            }
-
-            fireMemberRemoved(removedMember);
-            GL.info(GL.CLUSTER_LOGGER_NAME, "Member Removed");
-            logClusterStateAtInfoLevel();
+            removeMember(removedMember);
         }
 
         @Override
@@ -738,6 +694,16 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             }
             Cluster cluster = clusterInstance.getCluster();
             cluster.addMembershipListener(this.membershipListener);
+            
+            clusterInstance.getLifecycleService().addLifecycleListener(new LifecycleListener() {
+                
+                @Override
+                public void stateChanged(LifecycleEvent event) {
+                    if (event.getState() == SHUTTING_DOWN) {
+                        removeMember(localNodeId);
+                    }
+                }
+            });
 
             // Register a listener for Hazelcast logging events
             LoggingService loggingService = clusterInstance.getLoggingService();
@@ -752,6 +718,58 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             IMap<String, Collection<String>> balancerMap = collectionsFactory.getMap(BALANCER_MAP_NAME);
             addBalancerMapEntryListeners(balancerMap);
         }
+    }
+
+
+
+    protected void removeMember(MemberId removedMember) {
+        // Clean up the member's instanceKey
+        Map<MemberId, String> instanceKeyMap = getCollectionsFactory().getMap(INSTANCE_KEY_MAP);
+        instanceKeyMap.remove(removedMember);
+
+        // cleanup balancer URIs for the member that went down
+        Map<MemberId, Map<String, List<String>>> memberIdBalancerUriMap =
+                getCollectionsFactory().getMap(MEMBERID_BALANCER_MAP_NAME);
+        if (memberIdBalancerUriMap == null) {
+            throw new IllegalStateException("MemberId to BalancerMap is null");
+        }
+
+        IMap<String, TreeSet<String>> sharedBalanceUriMap = getCollectionsFactory().getMap(BALANCER_MAP_NAME);
+        if (sharedBalanceUriMap == null) {
+            throw new IllegalStateException("Shared balanced URIs map is null");
+        }
+
+        Map<String, List<String>> memberBalancedUrisMap = memberIdBalancerUriMap.remove(removedMember);
+        if (memberBalancedUrisMap != null) {
+            GL.debug(GL.CLUSTER_LOGGER_NAME, "Cleaning up balancer cluster state for member {}", removedMember);
+            try {
+                for (String key : memberBalancedUrisMap.keySet()) {
+                    GL.debug(GL.CLUSTER_LOGGER_NAME, "URI Key: {}", key);
+                    List<String> memberBalancedUris = memberBalancedUrisMap.get(key);
+                    TreeSet<String> globalBalancedUris;
+                    TreeSet<String> newGlobalBalancedUris;
+                    do {
+                        globalBalancedUris = sharedBalanceUriMap.get(key);
+                        newGlobalBalancedUris = new TreeSet<>(globalBalancedUris);
+                        for (String memberBalancedUri : memberBalancedUris) {
+                            GL.debug(GL.CLUSTER_LOGGER_NAME, "Attempting to removing Balanced URI : {}", memberBalancedUri);
+                            newGlobalBalancedUris.remove(memberBalancedUri);
+                        }
+                    } while (!sharedBalanceUriMap.replace(key, globalBalancedUris, newGlobalBalancedUris));
+
+                    GL.debug(GL.CLUSTER_LOGGER_NAME,
+                            "Removed balanced URIs for cluster member {}, new global list: {}", removedMember,
+                            newGlobalBalancedUris);
+                }
+            } catch (Exception e) {
+                throw new IllegalStateException("Unable to remove the balanced URIs served by the member going down from " +
+                        "global map");
+            }
+        }
+
+        fireMemberRemoved(removedMember);
+        GL.info(GL.CLUSTER_LOGGER_NAME, "Member Removed");
+        logClusterStateAtInfoLevel();
     }
 
     private void addBalancerMapEntryListeners(IMap<String, Collection<String>> balancerMap) {

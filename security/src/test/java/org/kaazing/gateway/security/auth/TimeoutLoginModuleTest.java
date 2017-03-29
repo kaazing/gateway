@@ -32,7 +32,9 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 import org.kaazing.gateway.security.auth.context.DefaultLoginContextFactory;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
@@ -46,8 +48,9 @@ public class TimeoutLoginModuleTest {
     Configuration configuration;
     public static final String REALM_NAME = "demo";
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
-    
     @Before
     public void setUp() throws Exception {
         initMockContext();
@@ -79,14 +82,10 @@ public class TimeoutLoginModuleTest {
         LoginContext loginContext = factory.createLoginContext(makeTokenCallbackMapWithToken(s));
         context.assertIsSatisfied();
         assertNotNull(loginContext);
-        try {
-            loginContext.login();
-            fail("Expected configuration exception at initialization: no timeouts were specified.");
-        } catch (LoginException e) {
-            final String msg = "You must specify session-timeout option.";
-            System.out.println(e.getMessage());
-            assertTrue(e.getMessage().contains(msg));
-        }
+
+        thrown.expect(LoginException.class);
+        thrown.expectMessage("You must specify the \"session-timeout\" option");
+        loginContext.login();
     }
 
 
@@ -108,13 +107,10 @@ public class TimeoutLoginModuleTest {
         LoginContext loginContext = factory.createLoginContext(makeTokenCallbackMapWithToken(s));
         context.assertIsSatisfied();
         assertNotNull(loginContext);
-        try {
-            loginContext.login();
-            fail("Expected configuration exception at initialization: bad syntax for session-timeout.");
-        } catch (LoginException e) {
-            final String msg = "java.lang.NumberFormatException";
-            assertTrue(e.getMessage().contains(msg));
-        }
+
+        thrown.expect(LoginException.class);
+        thrown.expectMessage("java.lang.NumberFormatException");
+        loginContext.login();
     }
 
     @Test
@@ -136,18 +132,18 @@ public class TimeoutLoginModuleTest {
         ResultAwareLoginContext loginContext = (ResultAwareLoginContext) factory.createLoginContext(makeTokenCallbackMapWithToken(s));
         context.assertIsSatisfied();
         assertNotNull(loginContext);
-        try {
-            loginContext.login();
-            fail("Expected a forced failure to clean up state - did not occur.");
-        } catch (LoginException e) {
-            // Make sure we reset everything to 0 and make the login result a failure
-            DefaultLoginResult loginResult = loginContext.getLoginResult();
-            assertEquals(null, loginResult.getSessionTimeout());
-        }
+
+        thrown.expect(LoginException.class);
+        loginContext.login();
+
+        // Make sure we reset everything to 0 and make the login result a failure
+        DefaultLoginResult loginResult = loginContext.getLoginResult();
+        assertEquals(null, loginResult.getSessionTimeout());
+
     }
 
     @Test
-    public void testTimeoutLoginModuleLoginSuccessAndEffectWithOnlyMaximumLifetimeSpecified() throws Exception {
+    public void testTimeoutLoginModuleLoginIgnoredAndEffectWithOnlyMaximumLifetimeSpecified() throws Exception {
         AuthenticationToken s = new DefaultAuthenticationToken("joe:welcome");
         context.checking(new Expectations() {
             {
@@ -164,7 +160,11 @@ public class TimeoutLoginModuleTest {
         ResultAwareLoginContext loginContext = (ResultAwareLoginContext) factory.createLoginContext(makeTokenCallbackMapWithToken(s));
         context.assertIsSatisfied();
         assertNotNull(loginContext);
+
+        thrown.expect(LoginException.class);
+        thrown.expectMessage("all modules ignored");
         loginContext.login();
+
         DefaultLoginResult loginResult = loginContext.getLoginResult();
         assertEquals(Long.valueOf(600L), loginResult.getSessionTimeout());
     }

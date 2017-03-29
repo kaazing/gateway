@@ -15,6 +15,10 @@
  */
 package org.kaazing.gateway.server;
 
+import static java.util.Collections.synchronizedSet;
+import static java.util.Collections.unmodifiableList;
+import static java.util.ServiceLoader.load;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,12 +27,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Set;
+
 import javax.annotation.Resource;
+
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.ServiceContext;
-import static java.util.Collections.synchronizedSet;
-import static java.util.Collections.unmodifiableList;
-import static java.util.ServiceLoader.load;
 
 public final class GatewayObserver implements GatewayObserverApi {
     private final List<GatewayObserverApi> gatewayListenerSpi;
@@ -169,5 +172,6 @@ public final class GatewayObserver implements GatewayObserverApi {
             gatewayListener.stoppedGateway(gatewayContext);
         }
     }
+
 
 }

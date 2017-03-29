@@ -1,2 +1,2 @@
 org.kaazing.gateway.transport.nio.TcpTransportFactorySpi
-org.kaazing.gateway.transport.nio.internal.UdpTransportFactorySpi
+org.kaazing.gateway.transport.nio.UdpTransportFactorySpi
