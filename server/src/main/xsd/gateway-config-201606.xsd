@@ -1191,9 +1191,6 @@
 
                     <!-- connect is not supported for redirect -->
 
-                    <element maxOccurs="unbounded" minOccurs="0"
-                             name="balance" type="anyURI"/>
-
                     <element fixed="http.redirect" maxOccurs="1" minOccurs="1"
                              name="type"
                              type="gateway:CollapsedString"/>
@@ -1214,9 +1211,6 @@
                              name="authorization-constraint"
                              type="gateway:AuthorizationConstraintType"/>
 
-                    <element maxOccurs="unbounded" minOccurs="0"
-                             name="cross-site-constraint"
-                             type="gateway:CrossSiteConstraintType"/>
                 </sequence>
             </restriction>
         </complexContent>

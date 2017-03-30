@@ -23,7 +23,6 @@ import java.util.TimeZone;
 
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
-import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.slf4j.Logger;
 
@@ -64,12 +63,6 @@ class HttpRedirectServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
         // Get the method used for this request; if not a GET, refuse the
         // request (KG-1233).
         // (KG-11211) Enabling HEAD method too.
-        HttpMethod method = session.getMethod();
-        if (method != HttpMethod.GET && method != HttpMethod.HEAD) {
-            logger.warn("Wrong Http method used: " + method + ". Only GET or HEAD accepted");
-            session.close(false);
-            return;
-        }
 
         session.setStatus(getStatusCode());
         session.setWriteHeader("Location", getLocation());
