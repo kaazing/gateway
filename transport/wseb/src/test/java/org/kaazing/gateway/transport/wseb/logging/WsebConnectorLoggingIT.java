@@ -22,7 +22,6 @@ import static org.kaazing.test.util.ITUtil.timeoutRule;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -35,8 +34,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.wseb.WsebSession;
 import org.kaazing.gateway.transport.wseb.test.WsebConnectorRule;
@@ -47,16 +44,21 @@ import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.test.util.ITUtil;
-import org.kaazing.test.util.MemoryAppender;
+import org.kaazing.test.util.LoggingTestRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsebConnectorLoggingIT {
+    private static final String FILTER_PATTERN = ".*\\[.*#.*].*";
+
     private final WsebConnectorRule connector;
+
+    private LoggingTestRule checkLogMessageRule = new LoggingTestRule();
 
     {
         Properties configuration = new Properties();
         configuration.setProperty(InternalSystemProperty.WS_CLOSE_TIMEOUT.getPropertyName(), "2s");
         connector = new WsebConnectorRule(configuration);
+        checkLogMessageRule.setFilterPattern(FILTER_PATTERN);
     }
 
     @Rule
@@ -68,22 +70,6 @@ public class WsebConnectorLoggingIT {
 
     private final K3poRule k3po = new K3poRule()
             .setScriptRoot("org/kaazing/specification/wse");
-
-    private List<String> expectedPatterns;
-    private List<String> forbiddenPatterns;
-    private TestRule checkLogMessageRule = new TestRule() {
-        @Override
-        public Statement apply(final Statement base, Description description) {
-            return new Statement() {
-                @Override
-                public void evaluate() throws Throwable {
-                    base.evaluate();
-                    MemoryAppender.assertMessagesLogged(expectedPatterns,
-                            forbiddenPatterns, ".*\\[.*#.*].*", true);
-                }
-            };
-        }
-    };
 
     private TestRule contextRule = ITUtil.toTestRule(context);
 
@@ -120,7 +106,7 @@ public class WsebConnectorLoggingIT {
         k3po.finish();
 
 
-        expectedPatterns = Arrays.asList(
+        checkLogMessageRule.setExpectedPatterns(Arrays.asList(
             "tcp#.*OPENED",
             "tcp#.*WRITE",
             "tcp#.*RECEIVED",
@@ -134,9 +120,7 @@ public class WsebConnectorLoggingIT {
             "wseb#.*WRITE",
             "wseb#.*EXCEPTION.*IOException",
             "wseb#.*CLOSED"
-        );
-
-        forbiddenPatterns = null;
+        ));
     }
 
     @Test
@@ -173,7 +157,7 @@ public class WsebConnectorLoggingIT {
 
         k3po.finish();
 
-        expectedPatterns = Arrays.asList(
+        checkLogMessageRule.setExpectedPatterns(Arrays.asList(
              "tcp#.* [^/]*:\\d*] OPENED",
              "tcp#.* [^/]*:\\d*] WRITE",
              "tcp#.* [^/]*:\\d*] RECEIVED",
@@ -190,9 +174,7 @@ public class WsebConnectorLoggingIT {
              "wseb#.* [^/]*:\\d*] WRITE",
              "wseb#.* [^/]*:\\d*] RECEIVED",
              "wseb#.* [^/]*:\\d*] CLOSED"
-        );
-
-        forbiddenPatterns = null;
+        ));
     }
 
     @Test
@@ -216,7 +198,7 @@ public class WsebConnectorLoggingIT {
         assertTrue("connectSession did not close", closed.await(10, SECONDS));
         k3po.finish();
 
-        expectedPatterns = Arrays.asList(
+        checkLogMessageRule.setExpectedPatterns(Arrays.asList(
             "tcp#.* [^/]*:\\d*] OPENED",
             "tcp#.* [^/]*:\\d*] WRITE",
             "tcp#.* [^/]*:\\d*] RECEIVED",
@@ -231,9 +213,9 @@ public class WsebConnectorLoggingIT {
             "http#.* [^/]*:\\d*] CLOSED",
             "wseb#.* [^/]*:\\d*] OPENED",
             "wseb#.* [^/]*:\\d*] CLOSED"
-        );
+        ));
 
-        forbiddenPatterns = Collections.singletonList("#.*EXCEPTION");
+        checkLogMessageRule.setForbiddenPatterns(Collections.singletonList("#.*EXCEPTION"));
     }
 
     @Test
@@ -257,7 +239,7 @@ public class WsebConnectorLoggingIT {
         assertTrue("connectSession did not close", closed.await(10, SECONDS));
         k3po.finish();
 
-        expectedPatterns = Arrays.asList(
+        checkLogMessageRule.setExpectedPatterns(Arrays.asList(
             "tcp#.* [^/]*:\\d*] OPENED",
             "tcp#.* [^/]*:\\d*] WRITE",
             "tcp#.* [^/]*:\\d*] RECEIVED",
@@ -272,9 +254,9 @@ public class WsebConnectorLoggingIT {
             "http#.* [^/]*:\\d*] CLOSED",
             "wseb#.* [^/]*:\\d*] OPENED",
             "wseb#.* [^/]*:\\d*] CLOSED"
-        );
+        ));
 
-        forbiddenPatterns = Collections.singletonList("#.*EXCEPTION");
-    }
+        checkLogMessageRule.setForbiddenPatterns(Collections.singletonList("#.*EXCEPTION"));
+   }
 
 }
