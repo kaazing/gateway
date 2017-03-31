@@ -31,7 +31,7 @@ public class HttpRedirectServiceIT {
 
     private static final String REDIRECT_SERVICE_ACCEPT = "http://localhost:8000/";
 
-    private final K3poRule robot = new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7231/redirection");
+    private final K3poRule robot = new K3poRule();// .setScriptRoot("org/kaazing/specification/http/rfc7231/redirection");
 
     private final GatewayRule gateway = new GatewayRule() {
         {

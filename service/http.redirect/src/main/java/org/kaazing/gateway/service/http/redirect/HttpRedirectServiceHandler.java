@@ -43,16 +43,6 @@ class HttpRedirectServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
     }
 
     @Override
-    public void doSessionCreated(HttpAcceptSession session) throws Exception {
-        // NOOP no license check needed
-    }
-
-    @Override
-    public void doSessionClosed(HttpAcceptSession session) throws Exception {
-        // NOOP no license check needed
-    }
-
-    @Override
     protected void doExceptionCaught(HttpAcceptSession session, Throwable cause) throws Exception {
         // trigger sessionClosed to update connection capabilities accordingly
         session.close(true);
@@ -60,9 +50,6 @@ class HttpRedirectServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
     @Override
     protected void doSessionOpened(HttpAcceptSession session) throws Exception {
-        // Get the method used for this request; if not a GET, refuse the
-        // request (KG-1233).
-        // (KG-11211) Enabling HEAD method too.
 
         session.setStatus(getStatusCode());
         session.setWriteHeader("Location", getLocation());
