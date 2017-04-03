@@ -627,12 +627,13 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
                     interestOps |= SelectionKey.OP_WRITE;
                     channel.setInternalInterestOps(interestOps);
                     ReadDispatcher readDispatcher = null;
-                    if (channel instanceof NioSocketChannel)
-                    	readDispatcher = new TcpReadDispatcher((NioSocketChannel) channel);
-                	else if (channel instanceof NioDatagramChannel)
-                		readDispatcher = new UdpReadDispatcher((NioDatagramChannel) channel);
-                	else if (channel instanceof NioChildDatagramChannel)
-                		readDispatcher = new UdpChildReadDispatcher((NioChildDatagramChannel) channel);
+                    if (channel instanceof NioSocketChannel) {
+                        readDispatcher = new TcpReadDispatcher((NioSocketChannel) channel);
+                    } else if (channel instanceof NioDatagramChannel) {
+                        readDispatcher = new UdpReadDispatcher((NioDatagramChannel) channel);
+                    } else if (channel instanceof NioChildDatagramChannel) {
+                        readDispatcher = new UdpChildReadDispatcher((NioChildDatagramChannel) channel);
+                    }
                     channel.channel.register(selector, interestOps, readDispatcher);
                 }
                 catch (ClosedChannelException e) {

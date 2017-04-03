@@ -593,7 +593,6 @@ public class NioWorker extends AbstractNioWorker {
 
         @Override
         public boolean dispatch(NioWorker worker, SelectionKey key) {
-//            return worker.readUdp(key, channel.);
         	return false;
         }
     }
