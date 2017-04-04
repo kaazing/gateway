@@ -50,12 +50,12 @@ public class RealmConfigurationBeanImpl implements RealmConfigurationBean {
 
     @Override
     public String getAuthorizationMode() {
-        return realm.getAuthenticationContext().getAuthorizationMode();
+        return realm.getAuthenticationContext() == null ? null : realm.getAuthenticationContext().getAuthorizationMode();
     }
 
     @Override
     public String getSessionTimeout() {
-        return realm.getAuthenticationContext().getSessionTimeout();
+        return realm.getAuthenticationContext() == null ? null : realm.getAuthenticationContext().getSessionTimeout();
     }
 
     @Override
@@ -98,22 +98,25 @@ public class RealmConfigurationBeanImpl implements RealmConfigurationBean {
 
     @Override
     public String getHTTPChallengeScheme() {
-        return realm.getAuthenticationContext().getHttpChallengeScheme();
+        return realm.getAuthenticationContext() == null ? null : realm.getAuthenticationContext().getHttpChallengeScheme();
     }
 
     @Override
     public String getHTTPCookieNames() {
-        return makeJSONArray(realm.getAuthenticationContext().getHttpCookieNames());
+        return makeJSONArray(
+                realm.getAuthenticationContext() == null ? null : realm.getAuthenticationContext().getHttpCookieNames());
     }
 
     @Override
     public String getHTTPHeaders() {
-        return makeJSONArray(realm.getAuthenticationContext().getHttpHeaders());
+        return makeJSONArray(
+                realm.getAuthenticationContext() == null ? null : realm.getAuthenticationContext().getHttpHeaders());
     }
 
     @Override
     public String getHTTPQueryParameters() {
-        return makeJSONArray(realm.getAuthenticationContext().getHttpQueryParameters());
+        return makeJSONArray(
+                realm.getAuthenticationContext() == null ? null : realm.getAuthenticationContext().getHttpQueryParameters());
     }
 
     @Override

@@ -36,6 +36,7 @@ import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.nio.TcpExtension;
 import org.kaazing.gateway.transport.nio.TcpExtensionFactorySpi;
+import org.kaazing.gateway.transport.nio.internal.socket.TcpExtensionFactory;
 
 public class TcpExtensionFactoryTest {
     private ResourceAddress address;

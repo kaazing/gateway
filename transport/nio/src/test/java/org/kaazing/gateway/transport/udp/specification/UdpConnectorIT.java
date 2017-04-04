@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -40,6 +41,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.udp.UdpResourceAddress;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
@@ -87,15 +92,18 @@ public class UdpConnectorIT {
     @Test
     @Specification("establish.connection/server")
     public void establishConnection() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
         k3po.start();
         k3po.awaitBarrier("BOUND");
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
             @Override
             protected void doSessionOpened(IoSessionEx session) {
                 writeStringMessageToSession("client data", session);
+                latch.countDown();
             }
         });
         k3po.finish();
+        assertTrue(latch.await(2, SECONDS));
     }
 
     @Test
@@ -149,6 +157,8 @@ public class UdpConnectorIT {
     @Test
     @Specification("echo.data/server")
     public void bidirectionalData() throws Exception {
+        CountDownLatch latch = new CountDownLatch(2);
+
         k3po.start();
         k3po.awaitBarrier("BOUND");
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
@@ -169,10 +179,43 @@ public class UdpConnectorIT {
                 } else {
                     assertEquals("server data 2", decoded);
                 }
+                latch.countDown();
             }
         });
 
         k3po.finish();
+        assertTrue(latch.await(2, SECONDS));
+    }
+
+
+    @Test
+    @Specification("additions/align.content/server")
+    public void alignData() throws Exception {
+        ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
+        ResourceOptions resourceOptions = ResourceOptions.FACTORY.newResourceOptions();
+        resourceOptions.setOption(UdpResourceAddress.PADDING_ALIGNMENT, 4);
+        ResourceAddress connectAddress = addressFactory.newResourceAddress("udp://127.0.0.1:8080", resourceOptions);
+        AtomicBoolean bytesAligned = new AtomicBoolean(true);
+        CountDownLatch messagesReceived = new CountDownLatch(2);
+        ConnectFuture connectFuture = connector.connect(connectAddress, new IoHandlerAdapter<IoSessionEx>(){
+            @Override
+            protected void doSessionOpened(IoSessionEx session) {
+                writeStringMessageToSession("client data", session);
+            }
+
+            @Override
+            protected void doMessageReceived(IoSessionEx session, Object message) {
+                if (bytesAligned.get()) {
+                    bytesAligned.set((((IoBuffer) message).remaining() % 4 == 0));
+                }
+                messagesReceived.countDown();
+            }
+        }, null);
+        connectFuture.await(1, SECONDS);
+        assertTrue(connectFuture.isConnected());
+        k3po.finish();
+        messagesReceived.await(2, SECONDS);
+        assertTrue(bytesAligned.get());
     }
 
 //    @Test
@@ -229,6 +272,8 @@ public class UdpConnectorIT {
     @Test
     @Specification("concurrent.connections/server")
     public void concurrentConnections() throws Exception {
+        CountDownLatch latch = new CountDownLatch(6);
+
         class ConcurrentHandler extends IoHandlerAdapter<IoSessionEx> {
             private boolean first = true;
 
@@ -247,6 +292,7 @@ public class UdpConnectorIT {
                 } else {
                     assertEquals("Goodbye", decoded);
                 }
+                latch.countDown();
             }
         };
 
@@ -258,6 +304,7 @@ public class UdpConnectorIT {
         connectTo8080(new ConcurrentHandler());
 
         k3po.finish();
+        assertTrue(latch.await(2, SECONDS));
     }
 
 }

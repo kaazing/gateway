@@ -16,12 +16,14 @@
 package org.kaazing.gateway.transport.tcp.specification;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertTrue;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.future.ConnectFuture;
@@ -142,6 +144,7 @@ public class TcpConnectorIT {
     public void shouldEchoData() throws Exception {
         k3po.start();
         k3po.awaitBarrier("BOUND");
+        CountDownLatch messageProcessed = new CountDownLatch(2);
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
             private int counter = 1;
             private DataMatcher dataMatch = new DataMatcher("server data " + counter);
@@ -154,19 +157,19 @@ public class TcpConnectorIT {
             @Override
             protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
                 String decoded = new String(((IoBuffer) message).array());
-
                 if (dataMatch.addFragment(decoded) && counter < 2) {
                     counter++;
                     writeStringMessageToSession("client data " + counter, session);
                     dataMatch = new DataMatcher("server data " + counter);
                 }
+                messageProcessed.countDown();
             }
         });
-
         k3po.finish();
+        assertTrue(messageProcessed.await(2, TimeUnit.SECONDS));
     }
 
-    @Ignore("https://github.com/kaazing/tickets/issues/538")
+    // @Ignore("https://github.com/kaazing/tickets/issues/538")
     @Test
     @Specification({
         "server.close/server"
@@ -183,9 +186,8 @@ public class TcpConnectorIT {
         });
         
         k3po.notifyBarrier("CLOSEABLE");
-        closed.await(5,  SECONDS);
-
         k3po.finish();
+        assertTrue(closed.await(5,  SECONDS));
     }
 
     @Test
@@ -193,6 +195,7 @@ public class TcpConnectorIT {
         "client.close/server"
         })
     public void shouldIssueClientClose() throws Exception {
+        CountDownLatch closed = new CountDownLatch(1);
         k3po.start();
         k3po.awaitBarrier("BOUND");
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
@@ -200,8 +203,15 @@ public class TcpConnectorIT {
             protected void doSessionOpened(IoSessionEx session) throws Exception {
                 session.close(true);
             }
+
+            @Override
+            protected void doSessionClosed(IoSessionEx session) throws Exception {
+                super.doSessionClosed(session);
+                closed.countDown();
+            }
         });
         k3po.finish();
+        assertTrue(closed.await(5,  SECONDS));
     }
 
     @Test
@@ -209,6 +219,7 @@ public class TcpConnectorIT {
         "concurrent.connections/server"
         })
     public void shouldEstablishConcurrentConnections() throws Exception {
+        CountDownLatch messageProcessed = new CountDownLatch(3);
         IoHandlerAdapter<IoSessionEx> adapter = new IoHandlerAdapter<IoSessionEx>(){
             @Override
             protected void doSessionOpened(IoSessionEx session) throws Exception {
@@ -231,7 +242,7 @@ public class TcpConnectorIT {
                     }
                     session.setAttribute("dataMatch", dataMatch);
                 }
-
+                messageProcessed.countDown();
             }
         };
         k3po.start();
@@ -241,6 +252,7 @@ public class TcpConnectorIT {
         connectTo8080(adapter);
 
         k3po.finish();
+        assertTrue(messageProcessed.await(2, TimeUnit.SECONDS));
     }
 
 }

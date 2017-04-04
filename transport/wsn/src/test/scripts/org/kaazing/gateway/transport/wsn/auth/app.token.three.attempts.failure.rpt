@@ -109,7 +109,7 @@ write await BARRIER
 # Send the incorrect authorization joe/welcome
 write [0x82 0xbd 0x00 0x00 0x00 0x00]
 write "GET /echo HTTP/1.1\r\n"
-write "Authorization: Token 1:joe:notwelcome\r\n"
+write "Authorization: Token 3:joe:notwelcome\r\n"
 write "\r\n"
 write notify BARRIER
 

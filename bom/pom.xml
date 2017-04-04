@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -66,6 +65,12 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>gateway.check.update</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!-- Command Center / Management -->
             <dependency>
                 <groupId>org.kaazing</groupId>
@@ -125,6 +130,11 @@
             <dependency>
                 <groupId>org.kaazing</groupId>
                 <artifactId>gateway.service.update.check.management</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>gateway.service.http.redirect</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- transport dependencies -->
