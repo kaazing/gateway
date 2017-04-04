@@ -54,6 +54,7 @@ public class FirstFactorLoginModule extends BaseStateDrivenLoginModule {
                 return true;
             }
         }
+        loginResult.challenge();
         return false;
     }
 

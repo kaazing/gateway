@@ -1,10 +1,23 @@
 # Change Log
 
-## [5.5.0-RC001](https://github.com/kaazing/gateway/tree/5.5.0-RC001) (2017-02-16)
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.4.1...5.5.0-RC001)
+## [5.6.0-RC003](https://github.com/kaazing/gateway/tree/5.6.0-RC003) (2017-03-11)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.5.0...5.6.0-RC003)
 
 **Merged pull requests:**
 
+- make injected login modules return false on success [\#882](https://github.com/kaazing/gateway/pull/882) ([danibusu](https://github.com/danibusu))
+- Updated to latest k3po version 3.0.0-alpha-64 [\#881](https://github.com/kaazing/gateway/pull/881) ([sbadugu](https://github.com/sbadugu))
+- make injected login modules optional again [\#880](https://github.com/kaazing/gateway/pull/880) ([danibusu](https://github.com/danibusu))
+- Fix for NPE generated when the scheme would be ommited in \<accept\> [\#876](https://github.com/kaazing/gateway/pull/876) ([zahariaca](https://github.com/zahariaca))
+- update gateway login challenge behavior [\#871](https://github.com/kaazing/gateway/pull/871) ([danibusu](https://github.com/danibusu))
+
+## [5.5.0](https://github.com/kaazing/gateway/tree/5.5.0) (2017-02-28)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.4.1...5.5.0)
+
+**Merged pull requests:**
+
+- Changed phase for the maven enforcer plugin that checks if the Notice… [\#873](https://github.com/kaazing/gateway/pull/873) ([mgherghe](https://github.com/mgherghe))
+-  Remove WSN\_302\_REDIRECT and WSX\_302\_REDIRECT features [\#870](https://github.com/kaazing/gateway/pull/870) ([mgherghe](https://github.com/mgherghe))
 - NPEs in DEBUG and ERROR log if IP address is incorrect  [\#868](https://github.com/kaazing/gateway/pull/868) ([StCostea](https://github.com/StCostea))
 - Add.hazelcast.topics [\#862](https://github.com/kaazing/gateway/pull/862) ([Anisotrop](https://github.com/Anisotrop))
 

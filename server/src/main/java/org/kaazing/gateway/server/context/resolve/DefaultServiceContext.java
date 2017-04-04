@@ -106,7 +106,7 @@ public class DefaultServiceContext implements ServiceContext {
     public static final String MEMBERID_BALANCER_MAP_NAME = "memberIdBalancerMap";
 
     private static final Charset UTF_8 = Charset.forName("UTF-8");
-    private static final String[] EMPTY_REQUIRE_ROLES = new String[]{};
+    private static final String[] EMPTY_ARRAY = new String[]{};
 
     private static final String AUTHENTICATION_CONNECT = "authenticationConnect";
     private static final String AUTHENTICATION_IDENTIFIER = "authenticationIdentifier";
@@ -200,7 +200,7 @@ public class DefaultServiceContext implements ServiceContext {
                 Collections.emptySet(),
                 Collections.emptySet(),
                 new DefaultServiceProperties(),
-                EMPTY_REQUIRE_ROLES,
+                EMPTY_ARRAY,
                 Collections.emptyMap(),
                 Collections.emptyMap(),
                 null,
@@ -700,6 +700,7 @@ public class DefaultServiceContext implements ServiceContext {
             if(serviceRealmContext != null && httpRealmOptions !=null){
                 throw new RuntimeException("Specified both realm-name and http.realm");
             }
+
             HttpRealmInfo[] realms;
             if(serviceRealmContext != null){
                 realms = new HttpRealmInfo[] { newHttpRealm(serviceRealmContext) };
@@ -708,11 +709,14 @@ public class DefaultServiceContext implements ServiceContext {
                 realms = parseHttpRealmOptions(httpRealmOptions, realmsContext);
             }
 
-            List<HttpRealmInfo> applicationRealms = Arrays.stream(realms)
-                    .filter(r -> r.getChallengeScheme().startsWith(AUTH_SCHEME_APPLICATION_PREFIX)).collect(Collectors.toList());
-            List<HttpRealmInfo> nativeRealms =
-                    Arrays.stream(realms).filter(r -> !r.getChallengeScheme().startsWith(AUTH_SCHEME_APPLICATION_PREFIX))
-                            .collect(Collectors.toList());
+            List<HttpRealmInfo> applicationRealms = Arrays.stream(realms).filter(r -> {
+                String httpChallengeScheme = r.getChallengeScheme();
+                return httpChallengeScheme == null || httpChallengeScheme.startsWith(AUTH_SCHEME_APPLICATION_PREFIX);
+            }).collect(Collectors.toList());
+            List<HttpRealmInfo> nativeRealms = Arrays.stream(realms).filter(r -> {
+                String httpChallengeScheme = r.getChallengeScheme();
+                return httpChallengeScheme != null && !httpChallengeScheme.startsWith(AUTH_SCHEME_APPLICATION_PREFIX);
+            }).collect(Collectors.toList());
             if (!applicationRealms.isEmpty() && !forceNativeChallengeScheme) {
                 options.put(format("http[http/1.1].%s", REALMS), applicationRealms.toArray(new HttpRealmInfo[applicationRealms.size()]));
                 for (String optionPattern : asList("http[httpxe/1.1].%s", "http[x-kaazing-handshake].%s")) {
@@ -767,12 +771,20 @@ public class DefaultServiceContext implements ServiceContext {
 
 	public static HttpRealmInfo newHttpRealm(RealmContext serviceRealmContext) {
         final AuthenticationContext authenticationContext = serviceRealmContext.getAuthenticationContext();
+        String challengeScheme = null;
+        String[] headerNames = EMPTY_ARRAY;
+        String[] parameterNames = EMPTY_ARRAY;
+        String[] authenticationCookieNames = EMPTY_ARRAY;
+
+        if (authenticationContext != null) {
+            challengeScheme = authenticationContext.getHttpChallengeScheme();
+            headerNames = authenticationContext.getHttpHeaders();
+            parameterNames = authenticationContext.getHttpQueryParameters();
+            authenticationCookieNames = authenticationContext.getHttpCookieNames();
+        }
+
         String name = serviceRealmContext.getName();
-        String challengeScheme = authenticationContext.getHttpChallengeScheme();
         String description = serviceRealmContext.getDescription();
-        String[] headerNames = authenticationContext.getHttpHeaders();
-        String[] parameterNames = authenticationContext.getHttpQueryParameters();
-        String[] authenticationCookieNames = authenticationContext.getHttpCookieNames();
         LoginContextFactory loginContextFactory = serviceRealmContext.getLoginContextFactory();
         Collection<Class<? extends Principal>> userPrincipleClasses = loadUserPrincipalClasses(name, serviceRealmContext.getUserPrincipalClasses());
 
