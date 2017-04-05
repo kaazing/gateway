@@ -28,14 +28,14 @@ import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataMan
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManagerInjector;
 import org.kaazing.gateway.management.monitoring.configuration.impl.MonitoringDataManagerInjectorImpl;
 import org.kaazing.gateway.management.monitoring.service.impl.MonitoredServiceImpl;
-import org.kaazing.gateway.server.GatewayObserverApi;
+import org.kaazing.gateway.server.GatewayObserverFactorySpi;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.mina.core.session.IoSessionEx;
 
-public class ManagementGatewayObserver implements GatewayObserverApi {
+public class ManagementGatewayObserver implements GatewayObserverFactorySpi {
 
     private ManagementContext managementContext;
     private Properties configuration;

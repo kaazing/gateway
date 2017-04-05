@@ -39,9 +39,9 @@ public class Launcher {
 
     private GatewayContext context;
 
-    private final GatewayObserver gatewayListener;
+    private final GatewayObserverApi  gatewayListener;
 
-    public Launcher(GatewayObserver gatewayListener) {
+    public Launcher(GatewayObserverApi gatewayListener) {
         this.gatewayListener = gatewayListener;
     }
 
