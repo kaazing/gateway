@@ -34,7 +34,7 @@ public class DefaultExceptionMonitor extends ExceptionMonitor {
             .getLogger(DefaultExceptionMonitor.class);
 
     @Override
-    public void exceptionCaught(Throwable cause, IoSession s) {
+    public void exceptionCaught0(Throwable cause, IoSession s) {
         if (cause instanceof Error) {
             throw (Error) cause;
         }

@@ -99,14 +99,6 @@
     </cross-site-constraint>
   </service>
 
-
-  <service>
-    <name>Update Checker</name>
-    <description>Checks to see if a newer version of the Gateway is available</description>
-    <type>update.check</type>
-  </service>
-
-
   <security>
 
     <keystore>

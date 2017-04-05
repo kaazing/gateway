@@ -171,8 +171,7 @@ public abstract class AbstractWsBridgeSession<S extends IoSessionEx, B extends I
     public Long getSessionTimeout() {
         //  look in the login result...if it is success
         DefaultLoginResult loginResult;
-        if ( loginContext != null && (loginResult = loginContext.getLoginResult()) != null
-                && loginResult.getType() == LoginResult.Type.SUCCESS) {
+        if ( loginContext != null && (loginResult = loginContext.getLoginResult()) != null) {
             Long sessionTimeout = loginResult.getSessionTimeout();
             if ( sessionTimeout != null && sessionTimeout > 0 ) {
                 return sessionTimeout;

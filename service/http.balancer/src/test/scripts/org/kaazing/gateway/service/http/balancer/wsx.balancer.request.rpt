@@ -16,7 +16,7 @@
 
 property writeMask ${httpx:randomBytes(4)}
 
-connect http://localhost:8001/echo?.kl=Y
+connect http://localhost:8001/echo
 connected
 
 write method "GET"

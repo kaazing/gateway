@@ -35,8 +35,6 @@ import static org.kaazing.gateway.transport.ws.util.WsUtils.HEADER_WEBSOCKET_EXT
 import static org.kaazing.gateway.transport.ws.util.WsUtils.HEADER_X_WEBSOCKET_EXTENSIONS;
 import static org.kaazing.gateway.transport.ws.util.WsUtils.negotiateWebSocketProtocol;
 import static org.kaazing.gateway.transport.wsn.WsnSession.SESSION_KEY;
-import static org.kaazing.gateway.util.feature.EarlyAccessFeatures.WSN_302_REDIRECT;
-import static org.kaazing.gateway.util.feature.EarlyAccessFeatures.WSX_302_REDIRECT;
 import static org.kaazing.gateway.util.ws.WebSocketWireProtocol.HYBI_13;
 import static org.kaazing.mina.core.buffer.IoBufferEx.FLAG_NONE;
 
@@ -298,6 +296,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
                     Collection<String> balanceeURIs = wsnSession.getBalanceeURIs();
                     String response = "" + '\uf0ff'; // Unique prefix to avoid collisions with responses from non Kaazing servers
+                                                     // Encoded from UTF-8 will become: 0xef 0x83 0xbf
                     if (balanceeURIs == null) {
                         // No balancer participated in this session initialization
                         response += "N";
@@ -1114,22 +1113,16 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
                     // Send out 302 HTTP Balance for WSN and WSX 
                     Object balancerKeys = session.getParent().getAttribute(BALANCEES_KEY);
-                    if (!"x-kaazing-handshake".equals(wsProtocol0) && wsVersion == HYBI_13 && balancerKeys != null) {
-                        SocketAddress parentLocalAddress = session.getParent().getLocalAddress();
-                        boolean isWsx = parentLocalAddress instanceof ResourceAddress
-                                && ((ResourceAddress) parentLocalAddress).getOption(CODEC_REQUIRED);
-    
-                        if ((WSN_302_REDIRECT.isEnabled(configuration) && !isWsx)
-                                || (isWsx && WSX_302_REDIRECT.isEnabled(configuration))) {
-                            assert balancerKeys instanceof List;
-                            List<String> availableBalanceeURIs = (List<String>) balancerKeys;
-                            String balanceURI = availableBalanceeURIs.get((int) (Math.random() * availableBalanceeURIs.size()));
-                            balanceURI = URLUtils.modifyURIScheme(URI.create(balanceURI), "http").toString();
-                            session.setStatus(HttpStatus.REDIRECT_FOUND);
-                            session.setWriteHeader("location", balanceURI);
-                            session.close(false);
-                            break;
-                        }
+                    if (!"x-kaazing-handshake".equals(wsProtocol0) && wsVersion == HYBI_13 && balancerKeys != null &&
+                            !"Y".equals(session.getParameter(".kl"))) {
+                        assert balancerKeys instanceof List;
+                        List<String> availableBalanceeURIs = (List<String>) balancerKeys;
+                        String balanceURI = availableBalanceeURIs.get((int) (Math.random() * availableBalanceeURIs.size()));
+                        balanceURI = URLUtils.modifyURIScheme(URI.create(balanceURI), "http").toString();
+                        session.setStatus(HttpStatus.REDIRECT_FOUND);
+                        session.setWriteHeader("location", balanceURI);
+                        session.close(false);
+                        break;
                     }
 
                     // build the HTML5 WebSocket handshake response

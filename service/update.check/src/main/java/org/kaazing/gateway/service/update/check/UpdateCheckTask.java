@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 /**
  * An update check task that updates the latest version
  */
+@Deprecated
 public class UpdateCheckTask implements Runnable {
 
     private final Logger logger = LoggerFactory.getLogger(UpdateCheckTask.class);
