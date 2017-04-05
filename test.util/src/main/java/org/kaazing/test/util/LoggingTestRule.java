@@ -36,7 +36,6 @@ public class LoggingTestRule implements TestRule {
             public void evaluate() throws Throwable {
                 base.evaluate();
                 long initialTime = System.currentTimeMillis();
-                System.out.println("Stefan - starting");
                 do {
                     try {
                         MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, filterPattern, true);
@@ -45,7 +44,6 @@ public class LoggingTestRule implements TestRule {
                         if (initialTime + timeOutMilis < System.currentTimeMillis()) {
                             throw e;
                         }
-                        System.out.println("Stefan - waiting some more");
                         Thread.sleep(SLEEP_STEP);
                     }
                 } while (true);
@@ -64,5 +62,4 @@ public class LoggingTestRule implements TestRule {
     public void setFilterPattern(String filterPattern) {
         this.filterPattern = filterPattern;
     }
-
 }
