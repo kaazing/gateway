@@ -34,7 +34,7 @@ import org.junit.rules.TestRule;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.ITUtil;
-import org.kaazing.test.util.LoggingTestRule;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class UpdateCheckTaskIT {
@@ -44,7 +44,7 @@ public class UpdateCheckTaskIT {
 
     private K3poRule k3po = new K3poRule();
 
-    private LoggingTestRule checkLogMessageRule = new LoggingTestRule();
+    private LoggingRule checkLogMessageRule = new LoggingRule();
 
     private JUnitRuleMockery context = new JUnitRuleMockery() {
         {
@@ -110,7 +110,7 @@ public class UpdateCheckTaskIT {
     public void testRequestWithRCWithFailingFormat() throws Exception {
         task.run();
         k3po.finish();
-        checkLogMessageRule.setExpectedPatterns(new ArrayList<>(Arrays.asList(new String[]{
+        checkLogMessageRule.expectPatterns(new ArrayList<>(Arrays.asList(new String[]{
                 "java.lang.IllegalArgumentException: version String is not of form",
         })));
     }

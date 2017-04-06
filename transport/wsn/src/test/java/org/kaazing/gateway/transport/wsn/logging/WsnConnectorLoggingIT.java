@@ -47,7 +47,7 @@ import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.test.util.ITUtil;
-import org.kaazing.test.util.LoggingTestRule;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 // This is a subset of BaseFramingIT (connector version) used to verify wsn transport level logging
@@ -57,10 +57,7 @@ public class WsnConnectorLoggingIT {
     private final WsnConnectorRule connector = new WsnConnectorRule();
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws");
-    private LoggingTestRule checkLogMessageRule = new LoggingTestRule();
-    {
-        checkLogMessageRule.setFilterPattern(FILTER_PATTERN);
-    }
+    private LoggingRule checkLogMessageRule = new LoggingRule().filterPattern(FILTER_PATTERN);
 
     private JUnitRuleMockery context = new JUnitRuleMockery() {
         {
@@ -99,7 +96,7 @@ public class WsnConnectorLoggingIT {
 
         k3po.finish();
 
-        checkLogMessageRule.setExpectedPatterns(Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
                 "tcp#.*OPENED",
                 "tcp#.*WRITE",
                 "tcp#.*RECEIVED",
@@ -163,7 +160,7 @@ public class WsnConnectorLoggingIT {
 
         k3po.finish();
 
-        checkLogMessageRule.setExpectedPatterns(Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
             "tcp#.*OPENED",
             "tcp#.*WRITE",
             "tcp#.*RECEIVED",
@@ -207,7 +204,7 @@ public class WsnConnectorLoggingIT {
         k3po.finish();
         assertTrue(close.await(10, SECONDS));
 
-        checkLogMessageRule.setExpectedPatterns(Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
             "tcp#.* [^/]*:\\d*] OPENED",
             "tcp#.* [^/]*:\\d*] WRITE",
             "tcp#.* [^/]*:\\d*] RECEIVED",
@@ -218,6 +215,6 @@ public class WsnConnectorLoggingIT {
             "wsn#.* [^/]*:\\d*] CLOSED"
         ));
 
-        checkLogMessageRule.setForbiddenPatterns(Collections.singletonList("#.*EXCEPTION"));
+        checkLogMessageRule.forbidPatterns(Collections.singletonList("#.*EXCEPTION"));
     }
 }

@@ -30,7 +30,7 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.LoggingTestRule;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
@@ -41,10 +41,7 @@ public class WsxAcceptorLoggingIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification");
 
-    private LoggingTestRule checkLogMessageRule = new LoggingTestRule();
-    {
-        checkLogMessageRule.setFilterPattern(FILTER_PATTERN);
-    }
+    private LoggingRule checkLogMessageRule = new LoggingRule().filterPattern(FILTER_PATTERN);
 
     private GatewayRule gateway = new GatewayRule() {
         {
@@ -80,7 +77,7 @@ public class WsxAcceptorLoggingIT {
         })
     public void shouldLogOpenWriteReceivedAndClose() throws Exception {
         k3po.finish();
-        checkLogMessageRule.setExpectedPatterns(Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
             "tcp#.*OPENED",
             "tcp#.*WRITE",
             "tcp#.*RECEIVED",
@@ -93,7 +90,7 @@ public class WsxAcceptorLoggingIT {
             "wsn#.*CLOSED"
         ));
 
-        checkLogMessageRule.setForbiddenPatterns(Collections.singletonList("#.*EXCEPTION"));
+        checkLogMessageRule.forbidPatterns(Collections.singletonList("#.*EXCEPTION"));
     }
 
     @Test
@@ -104,7 +101,7 @@ public class WsxAcceptorLoggingIT {
         k3po.start();
         Thread.sleep(2000);
         k3po.finish();
-        checkLogMessageRule.setExpectedPatterns(Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
             "tcp#.*OPENED",
             "tcp#.*WRITE",
             "tcp#.*RECEIVED",

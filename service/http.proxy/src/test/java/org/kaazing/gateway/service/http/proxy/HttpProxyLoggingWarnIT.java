@@ -31,7 +31,7 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.LoggingTestRule;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 @RunWith(Parameterized.class)
@@ -54,7 +54,7 @@ public class HttpProxyLoggingWarnIT {
         this.chain = RuleChain.outerRule(new MethodExecutionTrace()).around(getGatewayRule()).around(checkLogMessageRule).around(robot);
     }
 
-    private LoggingTestRule checkLogMessageRule = new LoggingTestRule();
+    private LoggingRule checkLogMessageRule = new LoggingRule();
 
     private GatewayRule getGatewayRule() {
         return new GatewayRule() {
@@ -83,7 +83,7 @@ public class HttpProxyLoggingWarnIT {
     @Test
     public void sendHttp_1_0_Request() throws Exception {
         robot.finish();
-        checkLogMessageRule.setExpectedPatterns(Arrays.asList(new String[] {
+        checkLogMessageRule.expectPatterns(Arrays.asList(new String[] {
                 expectedMessage
         }));
     }

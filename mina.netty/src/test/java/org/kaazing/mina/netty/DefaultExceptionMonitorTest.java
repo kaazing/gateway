@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.kaazing.mina.util.DefaultExceptionMonitor;
-import org.kaazing.test.util.LoggingTestRule;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 
@@ -40,7 +40,7 @@ public class DefaultExceptionMonitorTest
 
     public TestRule trace = new MethodExecutionTrace();
 
-    private LoggingTestRule checkLogMessageRule = new LoggingTestRule();
+    private LoggingRule checkLogMessageRule = new LoggingRule();
 
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(checkLogMessageRule);
@@ -56,6 +56,6 @@ public class DefaultExceptionMonitorTest
         IoSession session = context.mock(IoSession.class, "session");
 
         new DefaultExceptionMonitor().exceptionCaught(new NullPointerException(EXCEPTION_MESSAGE), session);
-        checkLogMessageRule.setExpectedPatterns(Arrays.asList("Unexpected exception in session session"));
+        checkLogMessageRule.expectPatterns(Arrays.asList("Unexpected exception in session session"));
     }
 }

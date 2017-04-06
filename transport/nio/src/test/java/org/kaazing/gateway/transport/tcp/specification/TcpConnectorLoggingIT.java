@@ -45,7 +45,7 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
-import org.kaazing.test.util.LoggingTestRule;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 import org.kaazing.test.util.ResolutionTestUtils;
 
@@ -65,7 +65,7 @@ public class TcpConnectorLoggingIT {
     public TestRule timeoutRule = new DisableOnDebug(Timeout.builder().withTimeout(10, TimeUnit.SECONDS)
             .withLookingForStuckThread(true).build());
 
-    private LoggingTestRule checkLogMessageRule = new LoggingTestRule();
+    private LoggingRule checkLogMessageRule = new LoggingRule();
 
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(checkLogMessageRule).around(connector).around(k3po).around(timeoutRule);
@@ -119,7 +119,7 @@ public class TcpConnectorLoggingIT {
             protected void doSessionOpened(IoSessionEx session) throws Exception {
                 writeStringMessageToSession("client data " + counter, session);
                 InetSocketAddress socketAddress = (InetSocketAddress)session.getLocalAddress();
-                checkLogMessageRule.setExpectedPatterns(Arrays.asList(
+                checkLogMessageRule.expectPatterns(Arrays.asList(
                         String.format("\\[tcp#%d 127.0.0.1:%d\\] java.lang.NullPointerException", session.getId(), socketAddress.getPort())
                         ));
             }

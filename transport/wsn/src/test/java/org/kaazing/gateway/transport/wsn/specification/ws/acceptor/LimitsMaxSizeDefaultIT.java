@@ -30,7 +30,7 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.LoggingTestRule;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class LimitsMaxSizeDefaultIT {
@@ -57,10 +57,7 @@ public class LimitsMaxSizeDefaultIT {
         }
     };
 
-    private LoggingTestRule checkLogMessageRule = new LoggingTestRule();
-    {
-        checkLogMessageRule.setFilterPattern(FILTER_PATTERN);
-    }
+    private LoggingRule checkLogMessageRule = new LoggingRule().filterPattern(FILTER_PATTERN);
 
     private MethodExecutionTrace trace = new MethodExecutionTrace();
     private TestRule timeoutRule = new DisableOnDebug(Timeout.builder().withTimeout(10, SECONDS)
@@ -77,7 +74,7 @@ public class LimitsMaxSizeDefaultIT {
     public void shouldRefuseBinaryFrameWithPayloadLengthExceeding128KiB() throws Exception {
         k3po.finish();
         // Check we are closing the connection immediately and not attempting to decode subsequent incoming data
-        checkLogMessageRule.setForbiddenPatterns(Arrays.asList("Unknown WebSocket opcode", "RSV1 is set", "RSV2 is set"));
+        checkLogMessageRule.forbidPatterns(Arrays.asList("Unknown WebSocket opcode", "RSV1 is set", "RSV2 is set"));
     }
 
     @Test
@@ -87,6 +84,6 @@ public class LimitsMaxSizeDefaultIT {
     public void shouldRefuseTextFrameWithPayloadLengthExceeding128KiB() throws Exception {
         k3po.finish();
         // Check we are closing the connection immediately and not attempting to decode subsequent incoming data
-        checkLogMessageRule.setForbiddenPatterns(Arrays.asList("Unknown WebSocket opcode", "RSV1 is set", "RSV2 is set"));
+        checkLogMessageRule.forbidPatterns(Arrays.asList("Unknown WebSocket opcode", "RSV1 is set", "RSV2 is set"));
     }
 }

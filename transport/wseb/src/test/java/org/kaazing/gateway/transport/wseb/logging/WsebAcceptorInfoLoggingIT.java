@@ -33,7 +33,7 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.LoggingTestRule;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsebAcceptorInfoLoggingIT {
@@ -42,11 +42,7 @@ public class WsebAcceptorInfoLoggingIT {
     private final K3poRule k3po = new K3poRule()
             .setScriptRoot("org/kaazing/specification/wse");
 
-    private LoggingTestRule checkLogMessageRule = new LoggingTestRule();
-    
-    {
-        checkLogMessageRule.setFilterPattern(FILTER_PATTERN);
-    }
+    private LoggingRule checkLogMessageRule = new LoggingRule().filterPattern(FILTER_PATTERN);
 
     private GatewayRule gateway = new GatewayRule() {
         {
@@ -92,7 +88,7 @@ public class WsebAcceptorInfoLoggingIT {
     public void shouldLogProtocolException() throws Exception {
         k3po.finish();
 
-        checkLogMessageRule.setExpectedPatterns(Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
                 "tcp#.*OPENED",
                 "tcp#.*CLOSED",
                 "http#.*OPENED",
@@ -111,7 +107,7 @@ public class WsebAcceptorInfoLoggingIT {
     public void shouldLogOpenWriteReceivedAndAbruptClose() throws Exception {
         k3po.finish();
 
-        checkLogMessageRule.setExpectedPatterns(Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
                 "\\[tcp#.* [^/]*:\\d*] OPENED",
                 "\\[tcp#.* [^/]*:\\d*] CLOSED",
                 "\\[http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] OPENED",
@@ -133,7 +129,7 @@ public class WsebAcceptorInfoLoggingIT {
     public void shouldLogOpenAndCleanClientClose() throws Exception {
         k3po.finish();
 
-        checkLogMessageRule.setExpectedPatterns(Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
             "\\[tcp#.* [^/]*:\\d*] OPENED",
             "\\[tcp#.* [^/]*:\\d*] CLOSED",
             "\\[http#.* [^/]*:\\d*] OPENED",
@@ -142,7 +138,6 @@ public class WsebAcceptorInfoLoggingIT {
             "\\[wseb#.* [^/]*:\\d*] CLOSED"
         ));
 
-        checkLogMessageRule.setForbiddenPatterns(Collections.singletonList("#.*EXCEPTION"));
+        checkLogMessageRule.forbidPatterns(Collections.singletonList("#.*EXCEPTION"));
     }
-
 }

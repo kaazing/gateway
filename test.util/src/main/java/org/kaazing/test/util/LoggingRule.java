@@ -21,7 +21,15 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
-public class LoggingTestRule implements TestRule {
+/**
+ * LoggingRule should be used to check that certain information is present in the logs. It receives as parameters
+ * a filter patters, the patterns that should occur and the patterns that should not occur in the filtered logs.
+ * 
+ * In case a GatewayRule is used, make sure that the GatewayRule is around the LoggingRule, to allow the LoggingRule to wait for the
+ * expected log lines before stopping the gateway. 
+ *
+ */
+public class LoggingRule implements TestRule {
     private List<String> expectedPatterns;
     private List<String> forbiddenPatterns;
     private String filterPattern;
@@ -51,15 +59,23 @@ public class LoggingTestRule implements TestRule {
         };
     }
 
-    public void setExpectedPatterns(List<String> expectedPatterns) {
+    public LoggingRule expectPatterns(List<String> expectedPatterns) {
         this.expectedPatterns = expectedPatterns;
+        return this;
     }
 
-    public void setForbiddenPatterns(List<String> forbiddenPatterns) {
+    public LoggingRule forbidPatterns(List<String> forbiddenPatterns) {
         this.forbiddenPatterns = forbiddenPatterns;
+        return this;
     }
 
-    public void setFilterPattern(String filterPattern) {
+    public LoggingRule filterPattern(String filterPattern) {
         this.filterPattern = filterPattern;
+        return this;
+    }
+    
+    public LoggingRule timeOutInMilis(long timeOutMilis) {
+        this.timeOutMilis = timeOutMilis;
+        return this;
     }
 }

@@ -31,7 +31,7 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.LoggingTestRule;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
@@ -41,10 +41,7 @@ public class WsnAcceptorInfoLoggingIT {
 	private static final String FILTER_PATTERN = ".*\\[.*#.*].*";
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification");
-    private LoggingTestRule checkLogMessageRule = new LoggingTestRule();
-    {
-        checkLogMessageRule.setFilterPattern(FILTER_PATTERN);
-    }
+    private LoggingRule checkLogMessageRule = new LoggingRule().filterPattern(FILTER_PATTERN);
 
     private GatewayRule gateway = new GatewayRule() {
         {
@@ -86,7 +83,7 @@ public class WsnAcceptorInfoLoggingIT {
         })
     public void shouldLogProtocolException() throws Exception {
         
-        checkLogMessageRule.setExpectedPatterns(Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
                 "tcp#.*OPENED",
                 "tcp#.*CLOSED",
                 "http#.*OPENED",
@@ -104,7 +101,7 @@ public class WsnAcceptorInfoLoggingIT {
         "ws/framing/echo.binary.payload.length.125/handshake.request.and.frame"
         })
     public void shouldLogOpenWriteReceivedAndAbruptClose() throws Exception {
-        checkLogMessageRule.setExpectedPatterns(Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
                 "tcp#.* [^/]*:\\d*] OPENED", // example: [tcp#34 192.168.4.126:49966] OPENED: (...
                 "tcp#.* [^/]*:\\d*] CLOSED",
                 "http#.* [^/]*:\\d*] OPENED",
@@ -122,7 +119,7 @@ public class WsnAcceptorInfoLoggingIT {
         })
     public void shouldLogOpenAndCleanClose() throws Exception {
         k3po.finish();
-        checkLogMessageRule.setExpectedPatterns(Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
             "tcp#.* [^/]*:\\d*] OPENED",
             "tcp#.* [^/]*:\\d*] CLOSED",
             "http#.* [^/]*:\\d*] OPENED",
@@ -130,7 +127,6 @@ public class WsnAcceptorInfoLoggingIT {
             "wsn#.* [^/]*:\\d*] OPENED",
             "wsn#.* [^/]*:\\d*] CLOSED"
                 ));
-        checkLogMessageRule.setForbiddenPatterns(Collections.singletonList("#.*EXCEPTION"));
+        checkLogMessageRule.forbidPatterns(Collections.singletonList("#.*EXCEPTION"));
     }
-
 }

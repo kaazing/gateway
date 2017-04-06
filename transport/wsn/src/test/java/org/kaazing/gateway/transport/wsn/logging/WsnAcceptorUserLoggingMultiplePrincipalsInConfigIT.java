@@ -32,7 +32,7 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.LoggingTestRule;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
@@ -53,11 +53,7 @@ public class WsnAcceptorUserLoggingMultiplePrincipalsInConfigIT {
     private static final String FILTER_PATTERN = ".*\\[.*#.*].*";
 
     private final K3poRule k3po = new K3poRule();
-    private LoggingTestRule checkLogMessageRule = new LoggingTestRule();
-
-    {
-        checkLogMessageRule.setFilterPattern(FILTER_PATTERN);
-    }
+    private LoggingRule checkLogMessageRule = new LoggingRule().filterPattern(FILTER_PATTERN);
 
     public GatewayRule gateway = new GatewayRule() {
         {
@@ -112,7 +108,7 @@ public class WsnAcceptorUserLoggingMultiplePrincipalsInConfigIT {
     @Test
     public void verifyPrincipalNameLoggedWhenMultiplePrincipalsInConfig() throws Exception {
         k3po.finish();
-        checkLogMessageRule.setExpectedPatterns(Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
             "tcp#.* [^/]*:\\d*] OPENED",
             "tcp#.* [^/]*:\\d*] WRITE",
             "tcp#.* [^/]*:\\d*] RECEIVED",
@@ -125,7 +121,7 @@ public class WsnAcceptorUserLoggingMultiplePrincipalsInConfigIT {
             "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] EXCEPTION.*IOException",
             "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] CLOSED"
         ));
-        checkLogMessageRule.setForbiddenPatterns(Arrays.asList(new String[]{
+        checkLogMessageRule.forbidPatterns(Arrays.asList(new String[]{
                 TEST_PRINCIPAL_PASS
         }));
     }

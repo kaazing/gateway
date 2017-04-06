@@ -32,7 +32,7 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.mina.core.service.IoServiceEx;
 import org.kaazing.mina.core.session.IoSessionEx;
-import org.kaazing.test.util.LoggingTestRule;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 
@@ -48,7 +48,7 @@ public class TransportExceptionMonitorTest
 
     public TestRule trace = new MethodExecutionTrace();
 
-    private LoggingTestRule checkLogMessageRule = new LoggingTestRule();
+    private LoggingRule checkLogMessageRule = new LoggingRule();
 
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(checkLogMessageRule);
@@ -84,12 +84,12 @@ public class TransportExceptionMonitorTest
             }
         });
         new TransportExceptionMonitor().exceptionCaught(new NullPointerException(EXCEPTION_MESSAGE), session);
-        checkLogMessageRule.setExpectedPatterns(Arrays.asList("\\[wsn#23 127.0.0.1:2121\\] java.lang.NullPointerException: EXCEPTION"));
+        checkLogMessageRule.expectPatterns(Arrays.asList("\\[wsn#23 127.0.0.1:2121\\] java.lang.NullPointerException: EXCEPTION"));
     }
 
     @Test
     public void shouldLogMessageIncludingNullSession() throws Exception {
         new TransportExceptionMonitor().exceptionCaught(new NullPointerException(EXCEPTION_MESSAGE), null);
-        checkLogMessageRule.setExpectedPatterns(Arrays.asList("Unexpected exception."));
+        checkLogMessageRule.expectPatterns(Arrays.asList("Unexpected exception."));
     }
 }
