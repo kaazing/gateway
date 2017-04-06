@@ -35,7 +35,7 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 /**
  * Creates and manages periodic checks to see if the gateway has updates
  */
-    public class UpdateCheckGatewayObserver implements GatewayObserverFactorySpi {
+public class UpdateCheckGatewayObserver implements GatewayObserverFactorySpi {
 
     private static final String ENTERPRISE_URL = "https://version.kaazing.com";
     private static final String COMMUNITY_URL = "https://version.kaazing.org";
@@ -99,8 +99,7 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
         if (serviceUrl != null) {
             versionServiceUrl = serviceUrl;
         } else {
-            versionServiceUrl =
-                    getGatewayProductEdition().toLowerCase().contains("enterprise") ? ENTERPRISE_URL : COMMUNITY_URL;
+            versionServiceUrl = getGatewayProductEdition().toLowerCase().contains("enterprise") ? ENTERPRISE_URL : COMMUNITY_URL;
         }
 
         SchedulerProvider provider = (SchedulerProvider) injectables.get("schedulerProvider");
