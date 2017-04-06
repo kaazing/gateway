@@ -72,6 +72,7 @@ public class UpdateCheckGatewayObserver implements GatewayObserverFactorySpi {
 
     /**
      * Adds an @UpdateCheckListener who will be notified when the version changes,
+     *
      * @param newListener
      */
     public void addListener(UpdateCheckListener newListener) {
