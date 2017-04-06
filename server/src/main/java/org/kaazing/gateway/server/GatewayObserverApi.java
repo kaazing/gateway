@@ -22,8 +22,7 @@ import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.ServiceContext;
 
 /**
- * GatewayObserverApi that allows classes to observe major gateway events. Implementing classes can be injected, @see
- * {@link GatewayObserverFactorySpi}.
+ * GatewayObserverApi that allows classes to observe major gateway events.
  *
  */
 public interface GatewayObserverApi {
@@ -32,73 +31,73 @@ public interface GatewayObserverApi {
      * Notification for when a service is being initiated
      * @param serviceContext
      */
-    void initingService(ServiceContext serviceContext);
+    default void initingService(ServiceContext serviceContext){}
 
     /**
      * Notification that a service has been initiated
      * @param serviceContext
      */
-    void initedService(ServiceContext serviceContext);
+    default void initedService(ServiceContext serviceContext){}
 
     /**
      * Notification that a service is starting
      * @param serviceContext
      */
-    void startingService(ServiceContext serviceContext);
+    default void startingService(ServiceContext serviceContext){}
 
     /**
      * Notification that a service started
      * @param serviceContext
      */
-    void startedService(ServiceContext serviceContext);
+    default void startedService(ServiceContext serviceContext){}
 
     /**
      * Notification that a service is being stopped
      * @param serviceContext
      */
-    void stopingService(ServiceContext serviceContext);
+    default void stopingService(ServiceContext serviceContext){}
 
     /**
      * Notification that a service has been stopped
      * @param serviceContext
      */
-    void stoppedService(ServiceContext serviceContext);
+    default void stoppedService(ServiceContext serviceContext){}
 
     /**
      * Notification that a service is being quiesced
      * @param serviceContext
      */
-    void quiesceingService(ServiceContext serviceContext);
+    default void quiesceingService(ServiceContext serviceContext){}
 
     /**
      * Notification that a service has been quiesced
      * @param serviceContext
      */
-    void quiescedService(ServiceContext serviceContext);
+    default void quiescedService(ServiceContext serviceContext){}
 
     /**
      * Notification that a service is being destroyed
      * @param serviceContext
      */
-    void destroyingService(ServiceContext serviceContext);
+    default void destroyingService(ServiceContext serviceContext){}
 
     /**
      * Notification that a service has been destroyed
      * @param serviceContext
      */
-    void destroyedService(ServiceContext serviceContext);
+    default void destroyedService(ServiceContext serviceContext){}
 
     /**
      * Notification that the gateway is starting
      * @param gatewayContext
      */
-    void startingGateway(GatewayContext gatewayContext);
+    default void startingGateway(GatewayContext gatewayContext){}
 
     /**
      * Notification that the gateway is stopped
      * @param gatewayContext
      */
-    void stoppedGateway(GatewayContext gatewayContext);
+    default void stoppedGateway(GatewayContext gatewayContext){}
 
     /**
      * Notification that the gateway is being initialized.
@@ -107,7 +106,7 @@ public interface GatewayObserverApi {
      * @param configuration
      * @param injectables
      */
-    void initingGateway(Properties configuration, Map<String, Object> injectables);
+    default void initingGateway(Properties configuration, Map<String, Object> injectables){}
 
 
 }

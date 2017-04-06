@@ -27,7 +27,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.kaazing.gateway.server.GatewayObserverFactorySpiPrototype;
+import org.kaazing.gateway.server.GatewayObserverFactorySpi;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
@@ -35,7 +35,7 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 /**
  * Creates and manages periodic checks to see if the gateway has updates
  */
-public class UpdateCheckGatewayObserver extends GatewayObserverFactorySpiPrototype {
+public class UpdateCheckGatewayObserver implements GatewayObserverFactorySpi {
 
     private static final String ENTERPRISE_URL = "https://version.kaazing.com";
     private static final String COMMUNITY_URL = "https://version.kaazing.org";
@@ -72,6 +72,7 @@ public class UpdateCheckGatewayObserver extends GatewayObserverFactorySpiPrototy
 
     /**
      * Adds an @UpdateCheckListener who will be notified when the version changes,
+     *
      * @param newListener
      */
     public void addListener(UpdateCheckListener newListener) {
@@ -85,7 +86,8 @@ public class UpdateCheckGatewayObserver extends GatewayObserverFactorySpiPrototy
         listeners.add(newListener);
     }
 
-    @Override public void startingGateway(GatewayContext gatewayContext) {
+    @Override
+    public void startingGateway(GatewayContext gatewayContext) {
         Map<String, Object> injectables = gatewayContext.getInjectables();
         Properties properties = (Properties) injectables.get("configuration");
         if (!InternalSystemProperty.UPDATE_CHECK.getBooleanProperty(properties)) {
@@ -99,8 +101,7 @@ public class UpdateCheckGatewayObserver extends GatewayObserverFactorySpiPrototy
         if (serviceUrl != null) {
             versionServiceUrl = serviceUrl;
         } else {
-            versionServiceUrl =
-                    getGatewayProductEdition().toLowerCase().contains("enterprise") ? ENTERPRISE_URL : COMMUNITY_URL;
+            versionServiceUrl = getGatewayProductEdition().toLowerCase().contains("enterprise") ? ENTERPRISE_URL : COMMUNITY_URL;
         }
 
         SchedulerProvider provider = (SchedulerProvider) injectables.get("schedulerProvider");
