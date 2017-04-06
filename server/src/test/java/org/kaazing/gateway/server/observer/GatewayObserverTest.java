@@ -41,14 +41,10 @@ public class GatewayObserverTest {
     public void createObserver() {
         context = new Mockery();
         mockGatewayContext = context.mock(GatewayContext.class);
-        observer = GatewayObserver.newInstance();
-    }
-
-    @After
-    public void resetObserverSpi() {
         CounterGatewayObserver.COUNT_INSTANCES = 0;
         CounterGatewayObserver.COUNT_INITING_SERVICE = 0;
         CounterGatewayObserver.configuration = null;
+        observer = GatewayObserver.newInstance();
     }
 
     @Test

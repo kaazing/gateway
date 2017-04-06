@@ -22,6 +22,11 @@ import javax.annotation.Resource;
 import org.kaazing.gateway.server.GatewayObserverFactorySpi;
 import org.kaazing.gateway.service.ServiceContext;
 
+/**
+ * 
+ * Methods of this class will be called by every Gateway.start in the tests packages.
+ *
+ */
 public class CounterGatewayObserver implements GatewayObserverFactorySpi {
 
     public static int COUNT_INSTANCES = 0;
