@@ -16,6 +16,7 @@
 package org.kaazing.test.util;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -33,9 +34,9 @@ public class LoggingRule implements TestRule {
     private List<String> expectedPatterns;
     private List<String> forbiddenPatterns;
     private String filterPattern;
-    private long timeOutMilis = 2000; // default value
+    private long timeOutMillis = 2000; // default value
 
-    private static final long SLEEP_STEP = 50; // how much to sleep between retries
+    private static final long SLEEP_TIME_MILLIS = 50; // how much to sleep between retries
 
     @Override
     public Statement apply(Statement base, Description description) {
@@ -49,10 +50,10 @@ public class LoggingRule implements TestRule {
                         MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, filterPattern, true);
                         return;
                     } catch (AssertionError e) {
-                        if (initialTime + timeOutMilis < System.currentTimeMillis()) {
+                        if (initialTime + timeOutMillis < System.currentTimeMillis()) {
                             throw e;
                         }
-                        Thread.sleep(SLEEP_STEP);
+                        Thread.sleep(SLEEP_TIME_MILLIS);
                     }
                 } while (true);
             }
@@ -74,8 +75,8 @@ public class LoggingRule implements TestRule {
         return this;
     }
     
-    public LoggingRule timeOutInMilis(long timeOutMilis) {
-        this.timeOutMilis = timeOutMilis;
+    public LoggingRule timeOut(long timeOutMillis, TimeUnit timeUnit) {
+        this.timeOutMillis = timeUnit.toMillis(timeOutMillis);
         return this;
     }
 }
