@@ -16,33 +16,22 @@
 package org.kaazing.gateway.transport.wsn.logging;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.junit.runners.model.Statement;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.test.util.MemoryAppender;
+import org.kaazing.test.util.LoggingTestRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
  * Unit tests for resolving gateway-config.xml.
  */
 public class WsnAcceptConnectOptionsIT {
-
-    private List<String> expectedPatterns;
-
-    private TestRule checkLogMessageRule = (base, description) -> new Statement() {
-        @Override
-        public void evaluate() throws Throwable {
-            base.evaluate();
-            MemoryAppender.assertMessagesLogged(expectedPatterns, null, null, true);
-        }
-    };
+    private LoggingTestRule checkLogMessageRule = new LoggingTestRule();
 
     private TestRule trace = new MethodExecutionTrace();
 
@@ -69,9 +58,9 @@ public class WsnAcceptConnectOptionsIT {
         gateway.stop();
         //@formatter:on
 
-        expectedPatterns = Arrays.asList(
+        checkLogMessageRule.setExpectedPatterns(Arrays.asList(
             "http.keepalive.timeout=4 seconds should be greater-than-or-equal-to ws.inactivity.timeout=30 seconds in accept-options",
             "http.keepalive.timeout=5 seconds should be greater-than-or-equal-to ws.inactivity.timeout=30 seconds in connect-options"
-        );
+        ));
     }
 }

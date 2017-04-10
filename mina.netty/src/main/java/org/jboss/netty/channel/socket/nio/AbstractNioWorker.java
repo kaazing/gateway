@@ -33,15 +33,12 @@ package org.jboss.netty.channel.socket.nio;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelState;
-import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.UpstreamChannelStateEvent;
-import org.jboss.netty.channel.UpstreamMessageEvent;
 import org.jboss.netty.channel.socket.Worker;
 import org.jboss.netty.channel.socket.nio.NioWorker.ReadDispatcher;
 import org.jboss.netty.channel.socket.nio.NioWorker.TcpReadDispatcher;
 import org.jboss.netty.channel.socket.nio.NioWorker.UdpReadDispatcher;
+import org.jboss.netty.channel.socket.nio.NioWorker.UdpChildReadDispatcher;
 import org.jboss.netty.channel.socket.nio.SocketSendBufferPool.SendBuffer;
 import org.jboss.netty.logging.InternalLogger;
 import org.jboss.netty.logging.InternalLoggerFactory;
@@ -629,9 +626,13 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
                     int interestOps = channel.getInternalInterestOps();
                     interestOps |= SelectionKey.OP_WRITE;
                     channel.setInternalInterestOps(interestOps);
-                    ReadDispatcher readDispatcher = channel instanceof NioSocketChannel
-                            ? new TcpReadDispatcher((NioSocketChannel) channel)
-                            : new UdpReadDispatcher((NioDatagramChannel) channel);
+                    ReadDispatcher readDispatcher = null;
+                    if (channel instanceof NioSocketChannel)
+                    	readDispatcher = new TcpReadDispatcher((NioSocketChannel) channel);
+                	else if (channel instanceof NioDatagramChannel)
+                		readDispatcher = new UdpReadDispatcher((NioDatagramChannel) channel);
+                	else if (channel instanceof NioChildDatagramChannel)
+                		readDispatcher = new UdpChildReadDispatcher((NioChildDatagramChannel) channel);
                     channel.channel.register(selector, interestOps, readDispatcher);
                 }
                 catch (ClosedChannelException e) {
@@ -676,5 +677,4 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
             }
         }
     }
-
 }
