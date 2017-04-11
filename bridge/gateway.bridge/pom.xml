@@ -24,7 +24,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.client.java.bridge</artifactId>
-            <version>[5.0.0.0,5.1.0.0)</version>
+            <version>5.0.0.5</version>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
