@@ -18,7 +18,6 @@ package org.kaazing.mina.netty;
 
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.mina.core.session.IoSession;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -26,9 +25,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.junit.runners.model.Statement;
 import org.kaazing.mina.util.DefaultExceptionMonitor;
-import org.kaazing.test.util.MemoryAppender;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 
@@ -39,17 +37,10 @@ public class DefaultExceptionMonitorTest
 
     private static final String ERROR_MESSAGE = "ERROR";
     private static final String EXCEPTION_MESSAGE = "EXCEPTION";
-    private List<String> expectedPatterns;
 
     public TestRule trace = new MethodExecutionTrace();
 
-    private TestRule checkLogMessageRule = (base, description) -> new Statement() {
-        @Override
-        public void evaluate() throws Throwable {
-            base.evaluate();
-            MemoryAppender.assertMessagesLogged(expectedPatterns, null, null, true);
-        }
-    };
+    private LoggingRule checkLogMessageRule = new LoggingRule();
 
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(checkLogMessageRule);
@@ -65,6 +56,6 @@ public class DefaultExceptionMonitorTest
         IoSession session = context.mock(IoSession.class, "session");
 
         new DefaultExceptionMonitor().exceptionCaught(new NullPointerException(EXCEPTION_MESSAGE), session);
-        expectedPatterns = Arrays.asList("Unexpected exception in session session");
+        checkLogMessageRule.expectPatterns(Arrays.asList("Unexpected exception in session session"));
     }
 }

@@ -18,8 +18,6 @@ package org.kaazing.gateway.transport.wsn.specification.ws.acceptor;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,18 +25,17 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.MemoryAppender;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class LimitsMaxSizeDefaultIT {
     private static String WS_ECHO_SERVICE_ACCEPT = "ws://localhost:8080/echo";
+    private static final String FILTER_PATTERN = ".*ProtocolDecoderException.*";
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws/limits");
 
@@ -60,26 +57,14 @@ public class LimitsMaxSizeDefaultIT {
         }
     };
 
-    private List<String> forbiddenPatterns;
-    private TestRule checkLogMessageRule = new TestRule() {
-        @Override
-        public Statement apply(final Statement base, Description description) {
-            return new Statement() {
-                @Override
-                public void evaluate() throws Throwable {
-                    base.evaluate();
-                    MemoryAppender.assertMessagesLogged(Collections.emptyList(),
-                            forbiddenPatterns, ".*ProtocolDecoderException.*", true);
-                }
-            };
-        }
-    };
+    private LoggingRule checkLogMessageRule = new LoggingRule().filterPattern(FILTER_PATTERN);
+
     private MethodExecutionTrace trace = new MethodExecutionTrace();
     private TestRule timeoutRule = new DisableOnDebug(Timeout.builder().withTimeout(10, SECONDS)
             .withLookingForStuckThread(true).build());
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(checkLogMessageRule).around(gateway).around(k3po)
+    public TestRule chain = RuleChain.outerRule(trace).around(gateway).around(checkLogMessageRule).around(k3po)
             .around(timeoutRule);
 
     @Test
@@ -89,7 +74,7 @@ public class LimitsMaxSizeDefaultIT {
     public void shouldRefuseBinaryFrameWithPayloadLengthExceeding128KiB() throws Exception {
         k3po.finish();
         // Check we are closing the connection immediately and not attempting to decode subsequent incoming data
-        forbiddenPatterns = Arrays.asList("Unknown WebSocket opcode", "RSV1 is set", "RSV2 is set");
+        checkLogMessageRule.forbidPatterns(Arrays.asList("Unknown WebSocket opcode", "RSV1 is set", "RSV2 is set"));
     }
 
     @Test
@@ -99,7 +84,6 @@ public class LimitsMaxSizeDefaultIT {
     public void shouldRefuseTextFrameWithPayloadLengthExceeding128KiB() throws Exception {
         k3po.finish();
         // Check we are closing the connection immediately and not attempting to decode subsequent incoming data
-        forbiddenPatterns = Arrays.asList("Unknown WebSocket opcode", "RSV1 is set", "RSV2 is set");
+        checkLogMessageRule.forbidPatterns(Arrays.asList("Unknown WebSocket opcode", "RSV1 is set", "RSV2 is set"));
     }
-
 }

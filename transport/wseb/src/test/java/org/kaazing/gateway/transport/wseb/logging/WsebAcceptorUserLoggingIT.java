@@ -19,7 +19,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,14 +26,12 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.MemoryAppender;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
@@ -49,22 +46,11 @@ public class WsebAcceptorUserLoggingIT {
     private static final String DEMO_REALM = "demo";
     private static final String TEST_PRINCIPAL_PASS = "testPrincipalPass";
     private static final String TEST_PRINCIPAL_NAME = "testPrincipalName";
-    private List<String> expectedPatterns;
-    private List<String> forbiddenPatterns;
+    private static final String FILTER_PATTERN = ".*\\[.*#.*].*";
+
     private final K3poRule k3po = new K3poRule();
-    private TestRule checkLogMessageRule = new TestRule() {
-        @Override
-        public Statement apply(final Statement base, Description description) {
-            return new Statement() {
-                @Override
-                public void evaluate() throws Throwable {
-                    base.evaluate();
-                    MemoryAppender.assertMessagesLogged(expectedPatterns,
-                            forbiddenPatterns, ".*\\[.*#.*].*", true);
-                }
-            };
-        }
-    };
+    private LoggingRule checkLogMessageRule = new LoggingRule().filterPattern(FILTER_PATTERN);
+
     public GatewayRule gateway = new GatewayRule() {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
@@ -105,14 +91,14 @@ public class WsebAcceptorUserLoggingIT {
     @Rule
     // Special ordering: gateway around k3po allows gateway to detect k3po closing any still open connections
     // to make sure we get the log messages for the abrupt close
-    public final TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(checkLogMessageRule)
-            .around(gateway).around(k3po).around(timeoutRule);
+    public final TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(gateway).around(checkLogMessageRule)
+            .around(k3po).around(timeoutRule);
 
     @Specification("echo.payload.length.127.with.basic.auth")
     @Test
     public void verifyPrincipalNameLoggedInLayersAboveHttp() throws Exception {
         k3po.finish();
-        expectedPatterns = Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
             "tcp#.* [^/]*:\\d*] OPENED",
             "tcp#.* [^/]*:\\d*] WRITE",
             "tcp#.* [^/]*:\\d*] RECEIVED",
@@ -125,10 +111,9 @@ public class WsebAcceptorUserLoggingIT {
             "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] WRITE",
             "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] RECEIVED",
             "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] CLOSED"
-        );
-        forbiddenPatterns = Arrays.asList(
+        ));
+        checkLogMessageRule.forbidPatterns(Arrays.asList(
                 TEST_PRINCIPAL_PASS
-        );
+        ));
     }
-
 }

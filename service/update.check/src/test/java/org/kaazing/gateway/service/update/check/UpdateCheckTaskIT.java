@@ -21,7 +21,6 @@ import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.log4j.BasicConfigurator;
 import org.jmock.Expectations;
@@ -32,11 +31,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.junit.runners.model.Statement;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.ITUtil;
-import org.kaazing.test.util.MemoryAppender;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class UpdateCheckTaskIT {
@@ -46,17 +44,7 @@ public class UpdateCheckTaskIT {
 
     private K3poRule k3po = new K3poRule();
 
-    private List<String> expectedPatterns = new ArrayList();
-    private List<String> forbiddenPatterns = new ArrayList();
-
-    private TestRule checkLogMessageRule = (base, description) -> new Statement() {
-        @Override
-        public void evaluate() throws Throwable {
-            base.evaluate();
-            MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, null, true);
-        }
-    };
-
+    private LoggingRule checkLogMessageRule = new LoggingRule();
 
     private JUnitRuleMockery context = new JUnitRuleMockery() {
         {
@@ -122,9 +110,8 @@ public class UpdateCheckTaskIT {
     public void testRequestWithRCWithFailingFormat() throws Exception {
         task.run();
         k3po.finish();
-        expectedPatterns = new ArrayList<>(Arrays.asList(new String[]{
+        checkLogMessageRule.expectPatterns(new ArrayList<>(Arrays.asList(new String[]{
                 "java.lang.IllegalArgumentException: version String is not of form",
-        }));
+        })));
     }
-
 }
