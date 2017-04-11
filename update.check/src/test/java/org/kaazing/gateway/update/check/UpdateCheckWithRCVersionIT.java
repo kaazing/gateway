@@ -43,6 +43,7 @@ public class UpdateCheckWithRCVersionIT {
     public GatewayRule gateway = new GatewayRule() {
         {
             GatewayConfiguration configuration = createGatewayConfiguration();
+            //The product information from the server JAR will be overridden by the call to reset
             VersionUtils.reset("Gateway", "Kaazing WebSocket Gateway", "5.6.1-RC001", "");
             init(configuration);
         }
@@ -68,16 +69,6 @@ public class UpdateCheckWithRCVersionIT {
                 .property(UPDATE_CHECK_SERVICE_URL.getPropertyName(), "http://localhost:8080")
                 .done();
         return configuration;
-    }
-
-    @Specification("shouldNotifyOnUpdateCheck")
-    @Test
-    public void shouldNotifyOnUpdateCheckWithRC() throws Exception {
-        k3po.finish();
-        expectedPatterns = Arrays.asList(
-                "Update Check: New release available for download: Kaazing (WebSocket )?Gateway 6.6.6 \\(you are currently running (\\d+).(\\d+).(\\d+)(\\-RC(\\d+))?()\\)"
-
-        );
     }
 
     @Specification("shouldNotifyOnUpdateCheckWithLatestVersion")
