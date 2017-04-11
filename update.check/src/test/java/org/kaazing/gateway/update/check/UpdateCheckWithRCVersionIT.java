@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runners.model.Statement;
+import org.kaazing.gateway.server.impl.VersionUtils;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -37,11 +38,13 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.MemoryAppender;
 import org.kaazing.test.util.MethodExecutionTrace;
 
-public class UpdateCheckIT {
+public class UpdateCheckWithRCVersionIT {
 
     public GatewayRule gateway = new GatewayRule() {
         {
             GatewayConfiguration configuration = createGatewayConfiguration();
+            //The product information from the server JAR will be overridden by the call to reset
+            VersionUtils.reset("Gateway", "Kaazing WebSocket Gateway", "5.6.1-RC001", "");
             init(configuration);
         }
     };
@@ -68,49 +71,23 @@ public class UpdateCheckIT {
         return configuration;
     }
 
-    @Specification("shouldPassWithUpdateCheckProperty")
+    @Specification("shouldNotifyOnUpdateCheckWithLatestVersion")
     @Test
-    public void shouldPassWithProperConfiguration() throws Exception {
-        k3po.finish();
-    }
-
-    @Specification("shouldNotifyOnUpdateCheck")
-    @Test
-    public void shouldNotifyOnUpdateCheck() throws Exception {
+    public void shouldNotifyOnUpdateCheckWithLatestVersion() throws Exception {
         k3po.finish();
         expectedPatterns = Arrays.asList(
-                "Update Check: New release available for download: Kaazing (WebSocket )?Gateway 6.6.6 \\(you are currently running (\\d+).(\\d+).(\\d+)(\\-RC(\\d+))?()\\)"
+                "Update Check: New release available for download: Kaazing (WebSocket )?Gateway 5.6.1 \\(you are currently running (\\d+).(\\d+).(\\d+)(\\-RC(\\d+))?()\\)"
 
         );
     }
 
-    @Specification("testUpdateCheckTaskRCWithCorrectFormat")
+    @Specification("shouldNotNotifyOnUpdateCheckWithLowerVersion")
     @Test
-    public void testRequestInCorrectFormatWithRC() throws Exception {
+    public void shouldNotNotifyOnUpdateCheckWithLowerVersion() throws Exception {
         k3po.finish();
-    }
+        forbiddenPatterns = Arrays.asList(
+                "Update Check: New release available for download: Kaazing (WebSocket )?Gateway 5.6.0 \\(you are currently running (\\d+).(\\d+).(\\d+)(\\-RC(\\d+))?()\\)"
 
-    @Specification("testUpdateCheckTaskRCWithFailingFormat")
-    @Test
-    public void testRequestWithRCWithFailingFormat() throws Exception {
-        k3po.finish();
-        expectedPatterns = Arrays.asList(
-                "java.lang.IllegalArgumentException: version String is not of form"
-        );
-    }
-
-    @Specification("testUpdateCheckTaskWithFailedRequests")
-    @Test
-    public void testTaskFunctioningEvenAfterFailedRequests() throws Exception {
-        k3po.finish();
-    }
-
-    @Specification("testUpdateCheckTaskWithFailedRequestsResponseCode")
-    @Test
-    public void testUpdateCheckTaskWithFailedRequestsResponseCode() throws Exception {
-        k3po.finish();
-        expectedPatterns = Arrays.asList(
-                "Unexpected 404 response code from versioning property"
         );
     }
 }
