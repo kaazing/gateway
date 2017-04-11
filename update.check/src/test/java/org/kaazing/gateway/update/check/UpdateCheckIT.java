@@ -78,7 +78,7 @@ public class UpdateCheckIT {
     @Test
     public void shouldNotifyOnUpdateCheck() throws Exception {
         k3po.finish();
-        expectedPatterns = Arrays.asList("Update Check: New release available for download: Kaazing (WebSocket )?Gateway 6.6.6 \\(you are currently running \\d.\\d.\\d\\)"
+        expectedPatterns = Arrays.asList("Update Check: New release available for download: Kaazing (WebSocket )?Gateway 6.6.6 \\(you are currently running [^/].[^/].[^/]*\\)"
 
         );
     }
