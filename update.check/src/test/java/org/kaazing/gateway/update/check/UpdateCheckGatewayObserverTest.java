@@ -117,7 +117,6 @@ public class UpdateCheckGatewayObserverTest {
         NotifiedNewVersionAvailableEvent notifiedEvent = listener.notifiedEvents.get(0);
         assertTrue(notifiedEvent.latestGatewayVersion.equals(new GatewayVersion(5, 0, 12)));
 
-        System.out.println(notifiedEvent.currentVersion);
         assertTrue(notifiedEvent.currentVersion.equals(new GatewayVersion(5, 0, 0)));
     }
 
@@ -134,7 +133,6 @@ public class UpdateCheckGatewayObserverTest {
         NotifiedNewVersionAvailableEvent notifiedEvent = listener.notifiedEvents.get(0);
         assertTrue(notifiedEvent.latestGatewayVersion.equals(new GatewayVersion(5, 0, 12, "RC001")));
 
-        System.out.println(notifiedEvent.currentVersion);
         assertTrue(notifiedEvent.currentVersion.equals(new GatewayVersion(5, 0, 0)));
     }
 

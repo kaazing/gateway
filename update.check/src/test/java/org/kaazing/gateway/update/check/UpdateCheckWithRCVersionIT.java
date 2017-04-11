@@ -79,4 +79,24 @@ public class UpdateCheckWithRCVersionIT {
 
         );
     }
+
+    @Specification("shouldNotifyOnUpdateCheckWithLatestVersion")
+    @Test
+    public void shouldNotifyOnUpdateCheckWithLatestVersion() throws Exception {
+        k3po.finish();
+        expectedPatterns = Arrays.asList(
+                "Update Check: New release available for download: Kaazing (WebSocket )?Gateway 5.6.1 \\(you are currently running (\\d+).(\\d+).(\\d+)(\\-RC(\\d+))?()\\)"
+
+        );
+    }
+
+    @Specification("shouldNotNotifyOnUpdateCheckWithLowerVersion")
+    @Test
+    public void shouldNotNotifyOnUpdateCheckWithLowerVersion() throws Exception {
+        k3po.finish();
+        forbiddenPatterns = Arrays.asList(
+                "Update Check: New release available for download: Kaazing (WebSocket )?Gateway 5.6.0 \\(you are currently running (\\d+).(\\d+).(\\d+)(\\-RC(\\d+))?()\\)"
+
+        );
+    }
 }
