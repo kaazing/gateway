@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -39,11 +38,12 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.MemoryAppender;
 import org.kaazing.test.util.MethodExecutionTrace;
 
-public class UpdateCheckIT {
+public class UpdateCheckWithRCVersionIT {
 
     public GatewayRule gateway = new GatewayRule() {
         {
             GatewayConfiguration configuration = createGatewayConfiguration();
+            VersionUtils.reset("Gateway", "Kaazing WebSocket Gateway", "5.6.1-RC001", "");
             init(configuration);
         }
     };
@@ -70,49 +70,13 @@ public class UpdateCheckIT {
         return configuration;
     }
 
-    @Specification("shouldPassWithUpdateCheckProperty")
-    @Test
-    public void shouldPassWithProperConfiguration() throws Exception {
-        k3po.finish();
-    }
-
     @Specification("shouldNotifyOnUpdateCheck")
     @Test
-    public void shouldNotifyOnUpdateCheck() throws Exception {
+    public void shouldNotifyOnUpdateCheckWithRC() throws Exception {
         k3po.finish();
         expectedPatterns = Arrays.asList(
                 "Update Check: New release available for download: Kaazing (WebSocket )?Gateway 6.6.6 \\(you are currently running (\\d+).(\\d+).(\\d+)(\\-RC(\\d+))?()\\)"
 
-        );
-    }
-
-    @Specification("testUpdateCheckTaskRCWithCorrectFormat")
-    @Test
-    public void testRequestInCorrectFormatWithRC() throws Exception {
-        k3po.finish();
-    }
-
-    @Specification("testUpdateCheckTaskRCWithFailingFormat")
-    @Test
-    public void testRequestWithRCWithFailingFormat() throws Exception {
-        k3po.finish();
-        expectedPatterns = Arrays.asList(
-                "java.lang.IllegalArgumentException: version String is not of form"
-        );
-    }
-
-    @Specification("testUpdateCheckTaskWithFailedRequests")
-    @Test
-    public void testTaskFunctioningEvenAfterFailedRequests() throws Exception {
-        k3po.finish();
-    }
-
-    @Specification("testUpdateCheckTaskWithFailedRequestsResponseCode")
-    @Test
-    public void testUpdateCheckTaskWithFailedRequestsResponseCode() throws Exception {
-        k3po.finish();
-        expectedPatterns = Arrays.asList(
-                "Unexpected 404 response code from versioning property"
         );
     }
 }
