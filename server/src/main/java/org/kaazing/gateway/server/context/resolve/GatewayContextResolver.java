@@ -537,15 +537,8 @@ public class GatewayContextResolver {
             for (AuthorizationConstraintType authConstraint : serviceConfig.getAuthorizationConstraintArray()) {
                 Collections.addAll(requireRolesCollection, authConstraint.getRequireRoleArray());
             }
-            RealmContext realmContext = null;
-            String name = serviceConfig.getRealmName();
-            if (serviceConfig.isSetRealmName()) {
-                realmContext = realmsContext.getRealmContext(name);
-                if (realmContext != null && !name.equals("auth-required")) {
-                    if (requireRolesCollection.isEmpty()) {
-                        Collections.addAll(requireRolesCollection, "*");
-                    }
-                }
+            if (requireRolesCollection.isEmpty()) {
+                requireRolesCollection.add("*");
             }
             String[] requireRoles = requireRolesCollection.toArray(new String[requireRolesCollection.size()]);
 
