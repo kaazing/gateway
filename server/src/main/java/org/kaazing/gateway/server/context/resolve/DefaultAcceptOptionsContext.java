@@ -164,7 +164,12 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
         result.put("ws[ws/draft-7x].ws[ws/draft-7x].maxMessageSize", wsMaxMessageSize);
 
         int httpKeepaliveTimeout = getHttpKeepaliveTimeout(httpKeepaliveTimeoutStr);
+
         result.put("http[http/1.1].keepAliveTimeout", httpKeepaliveTimeout);
+        result.put("http[x-kaazing-handshake].keepAliveTimeout", httpKeepaliveTimeout);
+        result.put("http[httpxe/1.1].keepAliveTimeout", httpKeepaliveTimeout);
+        result.put("http[httpxe/1.1].http[http/1.1].keepAliveTimeout", httpKeepaliveTimeout);
+
         if (wsInactivityTimeoutStr != null &&
             MILLISECONDS.convert(httpKeepaliveTimeout, SECONDS) < wsInactivityTimeout) {
             LOGGER.warn("http.keepalive.timeout={} should be greater-than-or-equal-to ws.inactivity.timeout={} in accept-options",

@@ -34,6 +34,7 @@ import static org.kaazing.gateway.transport.http.HttpAcceptFilter.ELEVATE_EMULAT
 import static org.kaazing.gateway.transport.http.HttpAcceptFilter.HOST_HEADER;
 import static org.kaazing.gateway.transport.http.HttpAcceptFilter.HTTP_SERIALIZE_REQUEST_FILTER;
 import static org.kaazing.gateway.transport.http.HttpAcceptFilter.MERGE_REQUEST;
+import static org.kaazing.gateway.transport.http.HttpAcceptFilter.PERSISTENCE;
 import static org.kaazing.gateway.transport.http.HttpAcceptFilter.PROTOCOL_HTTP;
 import static org.kaazing.gateway.transport.http.HttpAcceptFilter.PROTOCOL_HTTPXE;
 import static org.kaazing.gateway.transport.http.HttpStatus.CLIENT_NOT_FOUND;
@@ -168,7 +169,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                                                                          PROTOCOL_HTTP,
                                                                          HOST_HEADER,
                                                                          ELEVATE_EMULATED_REQUEST,
-                                                                         CONDITIONAL_WRAPPED_RESPONSE)));
+                                                                         CONDITIONAL_WRAPPED_RESPONSE,
+                                                                         PERSISTENCE)));
 
         acceptFiltersByProtocol.put("x-kaazing-handshake", complementOf(of(CONTENT_LENGTH_ADJUSTMENT,
                                                                            PROTOCOL_HTTPXE,
