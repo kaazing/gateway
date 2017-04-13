@@ -288,23 +288,33 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                      rolesAreSufficient);
         }
 
+        String clientChallengeScheme = authToken.getScheme();
+        String expectedChallengeScheme = getBaseAuthScheme(realm.getChallengeScheme());
+
         // We have to issue a challenge when ALL of the below hold:
         //
         // - no authorization token was presented
         // - not all required roles (if any) are present
         //
         // Issue a challenge since authentication is required.
-        if (authTokenIsMissing(authToken) &&
-            rolesAreSufficient == false) {
+        if ((authTokenIsMissing(authToken) &&
+            rolesAreSufficient == false) ) {
             return loginMissingToken(nextFilter, session, httpRequest, authToken, additionalCallbacks, realms, realmIndex, loginContexts);
         }
 
         DefaultLoginResult loginResult = null;
+        ResultAwareLoginContext loginContext = null;
+
+        if (clientChallengeScheme != null && clientChallengeScheme.equals(expectedChallengeScheme) == false) {
+            String challenge = sendChallengeResponse(nextFilter, session, httpRequest, new DefaultLoginResult(), realms, realmIndex, loginContexts);
+            if (loggerEnabled()) {
+                log(String.format("Login module login failed; Issued another challenge '%s'", challenge));
+            }
+            return false;
+        }
 
         // We have a token to validate, or pre-authorized subject or sufficient roles already.
         // Using the cached subject lets clients reconnect and not pay the price for hitting the login module every time.
-
-        ResultAwareLoginContext loginContext = null;
 
         if ( rolesAreSufficient ) {
             if ( loggerEnabled() ) {
