@@ -49,6 +49,7 @@ import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 import org.kaazing.gateway.security.auth.AuthenticationTokenCallbackHandler;
 import org.kaazing.gateway.security.auth.DefaultLoginResult;
 import org.kaazing.gateway.security.auth.InetAddressCallbackHandler;
+import org.kaazing.gateway.security.auth.LoginResultCallbackHandler;
 import org.kaazing.gateway.security.auth.YesLoginModule;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.server.spi.security.AuthenticationToken;
@@ -134,12 +135,10 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
      */
     static final ResultAwareLoginContext LOGIN_CONTEXT_OK;
 
-
-
     static {
         try {
-            LOGIN_CONTEXT_OK = new ResultAwareLoginContext("LOGIN_CONTEXT_OK", new Subject(), null,
-                                                           new SuccessConfiguration(), LOGIN_RESULT_OK);
+            LOGIN_CONTEXT_OK = new ResultAwareLoginContext("LOGIN_CONTEXT_OK", new Subject(),
+                    new LoginResultCallbackHandler(LOGIN_RESULT_OK), new SuccessConfiguration(), LOGIN_RESULT_OK);
         } catch (LoginException e) {
             throw new RuntimeException(e);
         }

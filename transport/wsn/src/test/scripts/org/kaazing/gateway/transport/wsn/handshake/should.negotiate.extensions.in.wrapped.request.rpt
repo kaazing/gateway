@@ -16,6 +16,8 @@
 
 # javascript client 4.0
 
+property writeMask ${ws:randomBytes(4)}
+
 connect tcp://127.0.0.1:8001
 connected
 
@@ -65,6 +67,34 @@ write [0xd5 0x4b 0xef 0x65 0xd5 0x41 0xe4 0x2d 0x91 0x51 0xe1 0x25 0xd9 0x4a 0xf
 write [0x90 0x5d 0xa5 0x23 0xdd 0x44 0xf2 0x21 0xd2 0x42 0xa5 0x38 0xd5 0x4b 0xef 0x65]
 write [0xcc 0x4a 0xe6 0x2f 0xb1 0x2f 0x85 0x42]
 
+read [0x82 0x7e 0x02 0x01]
+read "HTTP/1.1 401 Unauthorized\r\n"
+read "Access-Control-Allow-Credentials: true\r\n"
+read "Access-Control-Allow-Headers: content-type\r\n"
+read "Access-Control-Allow-Headers: authorization\r\n"
+read "Access-Control-Allow-Headers: x-websocket-extensions\r\n"
+read "Access-Control-Allow-Headers: x-websocket-version\r\n"
+read "Access-Control-Allow-Headers: x-websocket-protocol\r\n"
+read "Access-Control-Allow-Origin: http://localhost:8000\r\n"
+read "Content-Type: text/html\r\n"
+read "WWW-Authenticate: Application Token\r\n"
+read "Content-Length: 64\r\n"
+read "\r\n"
+read "<html><head></head><body><h1>401 Unauthorized</h1></body></html>"
+
+read [0x82 0x00]
+
+
+# Repeat request, but with Authorization header
+write [0x81 0xfe 0x00 0xaf] ${writeMask}
+write option mask ${writeMask}
+write "GET /echo8001 HTTP/1.1\r\n"
+write "Authorization: Token anything\r\n"
+write "WebSocket-Protocol: \r\n"
+write "Sec-WebSocket-Protocol: \r\n"
+write "Sec-WebSocket-Extensions: x-kaazing-idle-timeout,x-kaazing-ping-pong\r\n"
+write "\r\n"
+write option mask [0x00 0x00 0x00 0x00]
 
 read [0x82 0x7e 0x02 0x54]
 read "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
