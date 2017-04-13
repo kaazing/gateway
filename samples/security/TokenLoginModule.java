@@ -119,6 +119,11 @@ public class TokenLoginModule implements LoginModule {
 
             processToken(tokenData);
 
+            // If we made it here then the token is valid. Save the username into shared state
+            // for downstream login modules to authorize.
+            debug(String.format("Login: Saving username to shared state: %s", username));
+            sharedState.put(USERNAME_KEY, username);
+
             return true;
 
         }
@@ -135,18 +140,14 @@ public class TokenLoginModule implements LoginModule {
 
     @Override
     public boolean commit() throws LoginException {
-        // Save the username into shared state for downstream login modules to authorize.
-        debug(String.format("Commit: Saving username to shared state: %s", username));
 
-        sharedState.put(USERNAME_KEY, username);
-
-        if (debug) {
-            if (sharedState.size() > 0) {
-                debug("Commit: Shared state:");
-                sharedState.forEach((k, v) -> debug(String.format("Commit:   %s=%s", k, v)));
-            }
-        }
-
+        // This method associates relevant Principals and Credentials with the Subject.
+        // This login module does not perform authorization, but extracts the username
+        // from a token for downstream login modules to authorize. Therefore there is
+        // nothing to commit here.
+        
+        debug("Commit: Nothing to commit");
+        
         return true;
     }
 
