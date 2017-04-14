@@ -169,8 +169,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                                                                          PROTOCOL_HTTP,
                                                                          HOST_HEADER,
                                                                          ELEVATE_EMULATED_REQUEST,
-                                                                         CONDITIONAL_WRAPPED_RESPONSE,
-                                                                         PERSISTENCE)));
+                                                                         CONDITIONAL_WRAPPED_RESPONSE)));
 
         acceptFiltersByProtocol.put("x-kaazing-handshake", complementOf(of(CONTENT_LENGTH_ADJUSTMENT,
                                                                            PROTOCOL_HTTPXE,
