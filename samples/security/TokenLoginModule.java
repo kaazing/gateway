@@ -87,19 +87,12 @@ public class TokenLoginModule implements LoginModule {
             AuthenticationToken authToken = getTokenFromCallback();
             if ((authToken == null) || (authToken.isEmpty())) {
                 // Since a token was expected, issue a challenge to the client to provide one.
-                // This will result in a 401 HTTP response back to the client.
+                // Calling challenge() will result in a 401 HTTP response back to the client
+                // when an exception is thrown that results in authorization failing. If an
+                // exception is thrown without first calling challenge(), the client will
+                // receive a 403 HTTP response instead.
                 LoginResult loginResult = getLoginResultFromCallback();
                 loginResult.challenge();
-
-                // NOTE: Optionally, the login module can send data to the client
-                // along with the challenge. The following commented out line shows
-                // an example of how to do that.
-                //
-                // On the client side, this data will be included in the challenge
-                // request and can be extracted by the client to be used in any way.
-                //
-                // loginResult.challenge("app-id=123456789");
-
                 throw new LoginException("No tokens provided");
             }
             debug(String.format("Login: Obtained AuthenticationToken: %s", authToken));
@@ -145,9 +138,9 @@ public class TokenLoginModule implements LoginModule {
         // This login module does not perform authorization, but extracts the username
         // from a token for downstream login modules to authorize. Therefore there is
         // nothing to commit here.
-        
+
         debug("Commit: Nothing to commit");
-        
+
         return true;
     }
 
