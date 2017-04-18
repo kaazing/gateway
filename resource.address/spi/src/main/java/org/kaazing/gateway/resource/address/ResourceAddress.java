@@ -47,6 +47,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     public static final ResourceOption<String> NEXT_PROTOCOL = new NextProtocolOption();
     public static final ResourceOption<String> TRANSPORT_URI = new TransportURIStringOption();
     public static final ResourceOption<ResourceAddress> TRANSPORT = new TransportOption();
+    public static final ResourceOption<ResourceAddress> OVERRIDE = new OverrideOption();
     public static final ResourceOption<ResourceAddress> ALTERNATE = new AlternateOption();
     public static final ResourceOption<NameResolver> RESOLVER = new ResolverOption(); // consider moving to TcpResourceAddress, ...
     public static final ResourceOption<Boolean> BIND_ALTERNATE = new BindAlternateOption();
@@ -63,6 +64,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
 
     private String nextProtocol;
     private ResourceAddress transport;
+    private String override;
     private String transportURI;
     private ResourceAddress alternate;
     private NameResolver resolver;
@@ -166,6 +168,8 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                     return connectRequiresInit != null;
                 case IDENTITY_RESOLVER:
                     return (identityResolver != null);
+                case OVERRIDE:
+                    return (override != null);
             }
         }
 
@@ -260,6 +264,8 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                     return (V) connectRequiresInit;
                 case IDENTITY_RESOLVER:
                     return (V) identityResolver;
+                case OVERRIDE:
+                    return (V) override;
             }
         }
 
@@ -299,6 +305,9 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                     return;
                 case IDENTITY_RESOLVER:
                     identityResolver = (IdentityResolver) value;
+                    return;
+                case OVERRIDE:
+                    override = (String) value;
                     return;
             }
         }
@@ -395,7 +404,8 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                            QUALIFIER,
                            TRANSPORTED_URI,
                            CONNECT_REQUIRES_INIT,
-                           IDENTITY_RESOLVER}
+                           IDENTITY_RESOLVER,
+                           OVERRIDE}
         
         static final Map<String, ResourceOption<?>> OPTIONS = new HashMap<>();
 
@@ -426,6 +436,12 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     private static class TransportOption extends DefaultResourceOption<ResourceAddress> {
         private TransportOption() {
             super(Kind.TRANSPORT, "transport");
+        }
+    }
+    
+    private static class OverrideOption extends DefaultResourceOption<ResourceAddress> {
+        private OverrideOption() {
+            super(Kind.OVERRIDE, "override");
         }
     }
     
