@@ -3,7 +3,7 @@
     <parent>
         <artifactId>gateway</artifactId>
         <groupId>org.kaazing</groupId>
-        <version>5.6.1-RC002</version>
+        <version>5.6.1-RC003</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
