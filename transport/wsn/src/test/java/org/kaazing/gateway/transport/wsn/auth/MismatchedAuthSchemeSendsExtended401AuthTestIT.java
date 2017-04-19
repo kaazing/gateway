@@ -30,7 +30,7 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-public class MismatchedAuthSchemeSendsExtended400AuthTestIT {
+public class MismatchedAuthSchemeSendsExtended401AuthTestIT {
 
 	private K3poRule robot = new K3poRule();
 	KeyStore keyStore = null;
@@ -76,15 +76,21 @@ public class MismatchedAuthSchemeSendsExtended400AuthTestIT {
 	@Rule
 	public TestRule chain = createRuleChain(gateway, robot, 5000, MILLISECONDS);
 
-	@Specification("shouldFailDueToMismatchedAuthSchemes")
+	@Specification("shouldNotChallengeDueToMismatchingAuthSchemes")
 	@Test
-	public void shouldFailDueToMismatchedAuthSchemes() throws Exception {
+	public void shouldNotChallengeDueToMismatchingAuthSchemes() throws Exception {
 		robot.finish();
 	}
 
-	@Specification("shouldNotFailDueToMatchingAuthScheme")
+	@Specification("shouldChallengeDueToMismatchingAuthSchemes")
 	@Test
-	public void shouldNotFailDueToMatchingAuthScheme() throws Exception {
+	public void shouldChallengeDueToMismatchingAuthSchemes() throws Exception {
+		robot.finish();
+	}
+
+	@Specification("shouldGet101ResponseWithCaseInsensitiveMatchedAuthSchemes")
+	@Test
+	public void shouldGet101ResponseWithCaseInsensitiveMatchedAuthSchemes() throws Exception {
 		robot.finish();
 	}
 }
