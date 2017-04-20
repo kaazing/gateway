@@ -10,7 +10,7 @@
 
     <artifactId>gateway</artifactId>
     <name>Kaazing Gateway</name>
-    <version>develop-SNAPSHOT</version>
+    <version>5.6.1-RC001</version>
     <packaging>pom</packaging>
 
     <url>https://github.com/kaazing/gateway</url>
