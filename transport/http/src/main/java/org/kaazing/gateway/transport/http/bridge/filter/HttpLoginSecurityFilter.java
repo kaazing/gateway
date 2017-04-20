@@ -308,7 +308,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         if (clientChallengeScheme != null && clientChallengeScheme.equalsIgnoreCase(expectedChallengeScheme) == false) {
             String challenge = sendChallengeResponse(nextFilter, session, httpRequest, new DefaultLoginResult(), realms, realmIndex, loginContexts);
             if (loggerEnabled()) {
-                log(String.format("Login module login failed; Issued another challenge '%s'", challenge));
+                log(String.format("Login failed - Wrong schema was provided; Issued another challenge '%s'", challenge));
             }
             return false;
         }

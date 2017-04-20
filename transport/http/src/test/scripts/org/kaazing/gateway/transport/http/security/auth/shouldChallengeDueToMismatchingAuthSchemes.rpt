@@ -1,0 +1,45 @@
+#
+# Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+
+property credentials ${http:loginBase64Encoder("user:pass")}
+property invalidAuthHeader ${http:append("Basic ", credentials)}
+property missingAuthHeader ${""}
+
+connect http://localhost:8001/echoAuth
+connected
+
+write method "GET"
+write header "Authorization" ${missingAuthHeader}
+write notify BARRIER
+write close
+
+# 401 Unauthorized response when scheme is missing
+read await BARRIER
+read status "401" "Unauthorized"
+read header "WWW-Authenticate" "Application Token"
+read notify FIRST_DONE
+
+connect await FIRST_DONE
+connect http://localhost:8001/echoAuth
+connected
+
+write method "GET"
+write header "Authorization" ${invalidAuthHeader}
+write close
+
+# 401 Response when scheme is not of correct type
+read status "401" "Unauthorized"
