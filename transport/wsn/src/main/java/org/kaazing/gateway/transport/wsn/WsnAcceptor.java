@@ -1117,10 +1117,10 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                             !"Y".equals(session.getParameter(".kl"))) {
                         assert balancerKeys instanceof List;
                         List<String> availableBalanceeURIs = (List<String>) balancerKeys;
-                        String balanceURI = availableBalanceeURIs.get((int) (Math.random() * availableBalanceeURIs.size()));
-                        balanceURI = URLUtils.modifyURIScheme(URI.create(balanceURI), "http").toString();
+                        URI balanceURI = URI.create(availableBalanceeURIs.get((int) (Math.random() * availableBalanceeURIs.size())));
+                        String redirectURI = URLUtils.modifyURIScheme(balanceURI, balanceURI.getScheme().replaceFirst("^ws", "http")).toString();
                         session.setStatus(HttpStatus.REDIRECT_FOUND);
-                        session.setWriteHeader("location", balanceURI);
+                        session.setWriteHeader("location", redirectURI);
                         session.close(false);
                         break;
                     }
