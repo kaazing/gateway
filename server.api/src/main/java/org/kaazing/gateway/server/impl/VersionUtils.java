@@ -31,10 +31,10 @@ import org.slf4j.LoggerFactory;
 
 public final class VersionUtils {
 
-    private static String productTitle;
-    private static String productVersion;
-    private static String productEdition;
-    private static String productDependencies;
+    private static volatile String productTitle;
+    private static volatile String productVersion;
+    private static volatile  String productEdition;
+    private static volatile String productDependencies;
 
     private static final Logger LOG = LoggerFactory.getLogger(VersionUtils.class);
 
@@ -58,24 +58,14 @@ public final class VersionUtils {
 
     public static String getGatewayProductVersionMajor() {
         String v = getGatewayProductVersion();
-        if (v == null) {
-            return null;
-        }
-        int dotPos = v.indexOf('.');
-        return dotPos < 0 ? v : v.substring(0, dotPos);
+        GatewayProductVersionType product = new GatewayProductVersionType(1);
+        return product.getGatewayVersionType(v);
     }
 
     public static String getGatewayProductVersionMinor() {
         String v = getGatewayProductVersion();
-        if (v == null || v.length() == 0) {
-            return null;
-        }
-        int dotPos = v.indexOf('.');
-        if (dotPos < 0) {
-            return v + ".0";
-        }
-        dotPos = v.indexOf('.', dotPos + 1);  // 2nd dot
-        return dotPos < 0 ? v : v.substring(0, dotPos);
+        GatewayProductVersionType product = new GatewayProductVersionType(2);
+        return product.getGatewayVersionType(v);
     }
 
     public static String getGatewayProductVersionPatch() {
@@ -86,42 +76,17 @@ public final class VersionUtils {
         if ("develop-SNAPSHOT".equals(v)) {
             return "0.0.0";
         }
-        if (v == null || v.length() == 0) {
-            return null;
-        }
-        int dotPos = v.indexOf('.');
-        if (dotPos < 0) {
-            return v + ".0.0";
-        }
-        dotPos = v.indexOf('.', dotPos + 1);  // 2nd dot
-        if (dotPos < 0) {
-            return v + ".0";
-        }
-        dotPos = v.indexOf('.', dotPos + 1);  // 3rd dot
-        return dotPos < 0 ? v : v.substring(0, dotPos);
+        GatewayProductVersionType product = new GatewayProductVersionType(3);
+        return product.getGatewayVersionType(v);
     }
 
     public static String getGatewayProductVersionBuild() {
         String v = getGatewayProductVersion();
-        if (v == null || v.length() == 0) {
-            return null;
-        }
-        int dotPos = v.indexOf('.');
-        if (dotPos < 0) {
-            return v + ".0.0.0";
-        }
-        dotPos = v.indexOf('.', dotPos + 1);  // 2nd dot
-        if (dotPos < 0) {
-            return v + ".0.0";
-        }
-        dotPos = v.indexOf('.', dotPos + 1);  // 3rd dot
-        if (dotPos < 0) {
-            return v + ".0";
-        }
-        // we know there is no 4th dot
-        return v;
+        GatewayProductVersionType product = new GatewayProductVersionType(4);
+        return product.getGatewayVersionType(v);
     }
 
+  
     public static String getGatewayProductEdition() {
         getGatewayProductInfo();
         return productEdition;
@@ -136,7 +101,7 @@ public final class VersionUtils {
      * Find the product information from the server JAR MANIFEST files and store it
      * in static variables here for later retrieval.
      */
-    private static void getGatewayProductInfo() {
+    private synchronized static void getGatewayProductInfo() {
         if (productTitle != null) {
             // We've already run through this before, so do nothing.
             return;
@@ -237,5 +202,36 @@ public final class VersionUtils {
             }
         }
         return result;
+    }
+
+    private static class GatewayProductVersionType {
+        int digits;
+
+        public GatewayProductVersionType(int digits) {
+            this.digits = digits;
+        }
+
+        private String getGatewayVersionType(String v) {
+            if (v == null || v.length() == 0) {
+                return null;
+            }
+            String[] splits = v.split("\\.");
+            switch (splits.length) {
+            case 1:
+                if (digits >= 1)
+                    return (v + String.join("", Collections.nCopies(digits - 1, ".0")));
+
+            case 2:
+                if (digits >= 2)
+                    return (v + String.join("", Collections.nCopies(digits - 2, ".0")));
+            case 3:
+                if (digits >= 3)
+                    return (v + String.join("", Collections.nCopies(digits - 3, ".0")));
+            }
+            if (digits >= 4)
+                return v;
+            else
+                return v.substring(0, digits * 2 - 1);
+        }
     }
 }

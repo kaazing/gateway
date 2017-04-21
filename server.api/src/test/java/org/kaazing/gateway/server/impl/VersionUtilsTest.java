@@ -18,6 +18,8 @@ package org.kaazing.gateway.server.impl;
 import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductEdition;
 import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductTitle;
 import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductVersion;
+import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductVersionBuild;
+import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductVersionMajor;
 import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductVersionMinor;
 import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductVersionPatch;
 
@@ -38,7 +40,9 @@ public class VersionUtilsTest {
         Assert.assertEquals("Kaazing WebSocket Gateway", getGatewayProductTitle());
         Assert.assertEquals("Test.Gateway", getGatewayProductEdition());
         Assert.assertEquals("5.0", getGatewayProductVersionMinor());
+        Assert.assertEquals("5", getGatewayProductVersionMajor());
         Assert.assertEquals("5.0.0", getGatewayProductVersionPatch());
+        Assert.assertEquals("5.0.0.8 Beta", getGatewayProductVersionBuild());
     }
 
     @Test public void shouldGetDefaultProductInfo() {
@@ -47,7 +51,9 @@ public class VersionUtilsTest {
         Assert.assertEquals("Kaazing WebSocket Gateway (Development)", getGatewayProductTitle());
         Assert.assertEquals(null, getGatewayProductEdition());
         Assert.assertEquals(null, getGatewayProductVersionMinor());
+        Assert.assertEquals(null, getGatewayProductVersionMajor());
         Assert.assertEquals(null, getGatewayProductVersionPatch());
+        Assert.assertEquals(null, getGatewayProductVersionBuild());
     }
 
     @Test public void shouldGetProductInfoWhenSystemHasManyJars() {

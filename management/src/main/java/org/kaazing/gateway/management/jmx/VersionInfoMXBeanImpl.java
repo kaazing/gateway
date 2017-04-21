@@ -40,4 +40,20 @@ public class VersionInfoMXBeanImpl implements VersionInfoMXBean {
     public String getProductEdition() {
         return gatewayManagementBean.getProductEdition();
     }
+
+    @Override public String getProductDependencies() {
+        return gatewayManagementBean.getProductDependencies();
+    }
+
+    @Override public String getProductVersionMajor() {
+        return gatewayManagementBean.getProductVersionMajor();
+    }
+
+    @Override public String getProductVersionMinor() {
+        return gatewayManagementBean.getProductVersionMinor();
+    }
+
+    @Override public String getProductVersionPatch() {
+        return gatewayManagementBean.getProductVersionPatch();
+    }
 }

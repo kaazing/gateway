@@ -23,4 +23,12 @@ public interface VersionInfoMXBean {
     String getProductBuild();
 
     String getProductEdition();
+
+    String getProductDependencies();
+
+    String getProductVersionMajor();
+
+    String getProductVersionMinor();
+
+    String getProductVersionPatch();
 }

@@ -84,6 +84,10 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
     private String productTitle;
     private String productBuild;
     private String productEdition;
+    private String productDependencies;
+    private String productVersionMajor;
+    private String productVersionMinor;
+    private String productVersionPatch;
 
     private final long startTime;
     private ClusterContext clusterContext;
@@ -117,6 +121,10 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
         this.productTitle = VersionUtils.getGatewayProductTitle();
         this.productBuild = VersionUtils.getGatewayProductVersionBuild();
         this.productEdition = VersionUtils.getGatewayProductEdition();
+        this.productDependencies = VersionUtils.getGatewayProductDependencies();
+        this.productVersionMajor = VersionUtils.getGatewayProductVersionMajor();
+        this.productVersionMinor = VersionUtils.getGatewayProductVersionMinor();
+        this.productVersionPatch = VersionUtils.getGatewayProductVersionPatch();
 
         ManagementUpdateCheck updateCheckerLookup;
         try {
@@ -153,6 +161,22 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
     @Override
     public String getProductEdition() {
         return productEdition;
+    }
+
+    @Override public String getProductDependencies() {
+        return productDependencies;
+    }
+
+    @Override public String getProductVersionMajor() {
+        return productVersionMajor;
+    }
+
+    @Override public String getProductVersionMinor() {
+        return productVersionMinor;
+    }
+
+    @Override public String getProductVersionPatch() {
+        return productVersionPatch;
     }
 
     @Override

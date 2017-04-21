@@ -53,6 +53,14 @@ public interface GatewayManagementBean extends ManagementBean {
 
     String getProductEdition();
 
+    String getProductDependencies();
+
+    String getProductVersionMajor();
+
+    String getProductVersionMinor();
+
+    String getProductVersionPatch();
+
     long getTotalCurrentSessions();
 
     long getTotalBytesReceived();
