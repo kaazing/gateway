@@ -73,6 +73,19 @@
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
+            <artifactId>gateway.transport.ssl</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.test.ca</artifactId>
+            <version>[1.0.0.0,1.1.0.0)</version>
+            <classifier>keystore</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
             <artifactId>gateway.server</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -137,6 +150,23 @@
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+                <execution>
+                    <id>unpack-truststore</id>
+                    <phase>generate-resources</phase>
+                    <goals>
+                        <goal>unpack-dependencies</goal>
+                    </goals>
+                    <configuration>
+                        <includeArtifactIds>gateway.test.ca</includeArtifactIds>
+                        <outputDirectory>${basedir}/target/truststore</outputDirectory>
+                    </configuration>
+                </execution>
+            </executions>
         </plugin>
     </plugins>
 </build>
