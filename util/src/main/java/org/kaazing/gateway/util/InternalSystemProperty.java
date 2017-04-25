@@ -133,6 +133,8 @@ public enum InternalSystemProperty {
 
     UPDATE_CHECK_SERVICE_URL("org.kaazing.gateway.server.UPDATE_CHECK_SERVICE_URL"),
 
+    CLUSTER_BYPASS_AWS_CHECK("com.kaazing.cluster.bypass.aws.check", "false"),
+
     // TCP_IDLE_TIMEOUT will kill the session if nothing is written or read at nio level.
     // Note, the idle usage is using the mina netty idle timeout which may be set
     // by higher layers. Logic for this is in NioIdleFilter
