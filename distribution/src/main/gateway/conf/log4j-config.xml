@@ -99,6 +99,12 @@
         <appender-ref ref="STDOUT"/>
     </logger>
 
+    <!-- Used for update property -->
+    <logger name="org.kaazing.gateway.update.check">
+        <level value="info"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
     <root>
         <priority value="warn"/>
         <appender-ref ref="STDOUT_ERROR"/>        

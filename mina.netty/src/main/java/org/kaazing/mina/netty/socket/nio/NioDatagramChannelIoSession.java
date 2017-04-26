@@ -41,7 +41,7 @@ import static java.lang.Thread.currentThread;
  * It forces all operations of the session to be done in the worker thread (using worker.executeIntoThread if a call
  * is made in another thread).
  */
-class NioDatagramChannelIoSession extends ChannelIoSession<DatagramChannelConfig> {
+public class NioDatagramChannelIoSession extends ChannelIoSession<DatagramChannelConfig> {
 
     private static final IoFilter IDLE_FILTER = new NioDatagramIdleFilter();
     private static final Logger LOGGER = LoggerFactory.getLogger(NioDatagramChannelIoSession.class);

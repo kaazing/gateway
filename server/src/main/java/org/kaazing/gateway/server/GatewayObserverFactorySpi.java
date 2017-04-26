@@ -18,6 +18,6 @@ package org.kaazing.gateway.server;
 /**
  * Gateway observers can be loaded via the ServiceLoader by extending this class
  */
-public abstract class GatewayObserverFactorySpi implements GatewayObserverApi {
+public interface GatewayObserverFactorySpi extends GatewayObserverApi {
 
 }

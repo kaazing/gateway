@@ -32,6 +32,7 @@ import java.util.Set;
 import javax.management.MBeanServer;
 
 import org.kaazing.gateway.server.GatewayObserver;
+import org.kaazing.gateway.server.GatewayObserverApi;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.config.june2016.AuthenticationType;
 import org.kaazing.gateway.server.config.june2016.AuthenticationType.AuthorizationMode;
@@ -81,7 +82,7 @@ public class Gateway {
         STARTING, STARTED, STOPPING, STOPPED
     }
 
-    private final GatewayObserver gatewayObserver = GatewayObserver.newInstance();
+    private final GatewayObserverApi gatewayObserver = GatewayObserver.newInstance();
     private final Launcher launcher = new Launcher(gatewayObserver);
     private volatile State state = State.STOPPED;
     private GatewayConfigDocument gatewayConfigXml;

@@ -33,12 +33,14 @@ import org.apache.log4j.config.PropertySetter;
 import org.apache.log4j.helpers.FileWatchdog;
 import org.apache.log4j.helpers.OptionConverter;
 import org.apache.log4j.xml.DOMConfigurator;
+import org.kaazing.gateway.server.ConfigurationObserver;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.GatewayObserver;
+import org.kaazing.gateway.server.GatewayObserverApi;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.api.GatewayAlreadyRunningException;
-import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.config.june2016.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.context.resolve.GatewayContextResolver;
 import org.kaazing.gateway.server.util.version.DuplicateJarFinder;
@@ -291,11 +293,13 @@ final class GatewayImpl implements Gateway {
 
         LOGGER.info("Configuration file: " + gatewayConfigFile.getCanonicalPath());
 
-        GatewayObserver gatewayObserver = GatewayObserver.newInstance();
+        GatewayObserverApi gatewayObserver = GatewayObserver.newInstance();
         GatewayConfigParser parser = new GatewayConfigParser(configuration);
         GatewayConfigDocument config = parser.parse(gatewayConfigFile);
         GatewayContextResolver resolver = new GatewayContextResolver(configDir, webRootDir, tempDir, jmxMBeanServer);
         gatewayObserver.initingGateway(configuration, resolver.getInjectables());
+        ConfigurationObserver confObserver = ConfigurationObserver.newInstance();
+        resolver.setObserver(confObserver);
         GatewayContext context = resolver.resolve(config, configuration);
 
         gateway = new Launcher(gatewayObserver);

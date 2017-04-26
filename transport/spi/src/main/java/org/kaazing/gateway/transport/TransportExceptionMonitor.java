@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 public class TransportExceptionMonitor extends ExceptionMonitor {
 
     @Override
-    public void exceptionCaught(Throwable cause, IoSession session) {
+    public void exceptionCaught0(Throwable cause, IoSession session) {
         if (cause instanceof Error) {
             throw (Error) cause;
         }

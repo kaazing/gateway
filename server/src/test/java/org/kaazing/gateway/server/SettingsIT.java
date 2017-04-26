@@ -21,6 +21,7 @@ import org.kaazing.gateway.server.impl.VersionUtils;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeTrue;
 
 public class SettingsIT {
 
@@ -29,6 +30,7 @@ public class SettingsIT {
      */
     @Test
     public void shouldHaveCommunityProductEditionAndTitle() throws IOException {
+        assumeTrue("Disabled in IDE", System.getProperty("java.class.path").contains("gateway.server"));
         assertEquals("Community.Gateway", VersionUtils.getGatewayProductEdition());
         assertEquals("Kaazing Gateway", VersionUtils.getGatewayProductTitle());        
     }

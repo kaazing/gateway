@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport;
 
 import java.net.SocketAddress;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.security.auth.Subject;
 
@@ -29,12 +28,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.junit.runners.model.Statement;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.mina.core.service.IoServiceEx;
 import org.kaazing.mina.core.session.IoSessionEx;
-import org.kaazing.test.util.MemoryAppender;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 
@@ -47,17 +45,10 @@ public class TransportExceptionMonitorTest
 
     private static final String ERROR_MESSAGE = "ERROR";
     private static final String EXCEPTION_MESSAGE = "EXCEPTION";
-    private List<String> expectedPatterns;
 
     public TestRule trace = new MethodExecutionTrace();
 
-    private TestRule checkLogMessageRule = (base, description) -> new Statement() {
-        @Override
-        public void evaluate() throws Throwable {
-            base.evaluate();
-            MemoryAppender.assertMessagesLogged(expectedPatterns, null, null, true);
-        }
-    };
+    private LoggingRule checkLogMessageRule = new LoggingRule();
 
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(checkLogMessageRule);
@@ -93,6 +84,12 @@ public class TransportExceptionMonitorTest
             }
         });
         new TransportExceptionMonitor().exceptionCaught(new NullPointerException(EXCEPTION_MESSAGE), session);
-        expectedPatterns = Arrays.asList("\\[wsn#23 127.0.0.1:2121\\] java.lang.NullPointerException: EXCEPTION");
+        checkLogMessageRule.expectPatterns(Arrays.asList("\\[wsn#23 127.0.0.1:2121\\] java.lang.NullPointerException: EXCEPTION"));
+    }
+
+    @Test
+    public void shouldLogMessageIncludingNullSession() throws Exception {
+        new TransportExceptionMonitor().exceptionCaught(new NullPointerException(EXCEPTION_MESSAGE), null);
+        checkLogMessageRule.expectPatterns(Arrays.asList("Unexpected exception."));
     }
 }

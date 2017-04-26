@@ -164,7 +164,12 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
         result.put("ws[ws/draft-7x].ws[ws/draft-7x].maxMessageSize", wsMaxMessageSize);
 
         int httpKeepaliveTimeout = getHttpKeepaliveTimeout(httpKeepaliveTimeoutStr);
+
         result.put("http[http/1.1].keepAliveTimeout", httpKeepaliveTimeout);
+        result.put("http[x-kaazing-handshake].keepAliveTimeout", httpKeepaliveTimeout);
+        result.put("http[httpxe/1.1].keepAliveTimeout", httpKeepaliveTimeout);
+        result.put("http[httpxe/1.1].http[http/1.1].keepAliveTimeout", httpKeepaliveTimeout);
+
         if (wsInactivityTimeoutStr != null &&
             MILLISECONDS.convert(httpKeepaliveTimeout, SECONDS) < wsInactivityTimeout) {
             LOGGER.warn("http.keepalive.timeout={} should be greater-than-or-equal-to ws.inactivity.timeout={} in accept-options",
@@ -214,6 +219,12 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
 
         long tcpMaximumOutboundRate = getTcpMaximumOutboundRate(optionsCopy.remove("tcp.maximum.outbound.rate"));
         result.put(TCP_MAXIMUM_OUTBOUND_RATE, tcpMaximumOutboundRate);
+
+
+        String udpAlign = optionsCopy.remove("udp.padding.alignment");
+        if (udpAlign != null) {
+            result.put("udp.padding.alignment", Integer.valueOf(udpAlign));
+        }
 
         for (Map.Entry<String, String> entry : getBinds().entrySet()) {
             /* For lookups out of this COPY of the options, we need to

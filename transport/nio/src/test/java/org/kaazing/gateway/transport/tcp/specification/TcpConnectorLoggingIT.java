@@ -21,7 +21,6 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -40,14 +39,13 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-import org.junit.runners.model.Statement;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
-import org.kaazing.test.util.MemoryAppender;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 import org.kaazing.test.util.ResolutionTestUtils;
 
@@ -63,19 +61,11 @@ public class TcpConnectorLoggingIT {
 
     private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
 
-    private List<String> expectedPatterns;
-
     public TestRule trace = new MethodExecutionTrace();
     public TestRule timeoutRule = new DisableOnDebug(Timeout.builder().withTimeout(10, TimeUnit.SECONDS)
             .withLookingForStuckThread(true).build());
 
-    private TestRule checkLogMessageRule = (base, description) -> new Statement() {
-        @Override
-        public void evaluate() throws Throwable {
-            base.evaluate();
-            MemoryAppender.assertMessagesLogged(expectedPatterns, null, null, true);
-        }
-    };
+    private LoggingRule checkLogMessageRule = new LoggingRule();
 
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(checkLogMessageRule).around(connector).around(k3po).around(timeoutRule);
@@ -129,7 +119,9 @@ public class TcpConnectorLoggingIT {
             protected void doSessionOpened(IoSessionEx session) throws Exception {
                 writeStringMessageToSession("client data " + counter, session);
                 InetSocketAddress socketAddress = (InetSocketAddress)session.getLocalAddress();
-                expectedPatterns = Arrays.asList(String.format("\\[tcp#%d 127.0.0.1:%d\\] java.lang.NullPointerException", session.getId(), socketAddress.getPort()));
+                checkLogMessageRule.expectPatterns(Arrays.asList(
+                        String.format("\\[tcp#%d 127.0.0.1:%d\\] java.lang.NullPointerException", session.getId(), socketAddress.getPort())
+                        ));
             }
 
             @Override
@@ -146,5 +138,4 @@ public class TcpConnectorLoggingIT {
         k3po.finish();
 
     }
-
 }

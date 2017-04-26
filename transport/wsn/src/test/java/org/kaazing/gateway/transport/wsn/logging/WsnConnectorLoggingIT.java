@@ -22,7 +22,6 @@ import static org.kaazing.test.util.ITUtil.timeoutRule;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
@@ -38,8 +37,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.wsn.WsnProtocol;
 import org.kaazing.gateway.transport.wsn.WsnSession;
@@ -50,30 +47,17 @@ import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.test.util.ITUtil;
-import org.kaazing.test.util.MemoryAppender;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 // This is a subset of BaseFramingIT (connector version) used to verify wsn transport level logging
 public class WsnConnectorLoggingIT {
     private static final String TEXT_FILTER_NAME = WsnProtocol.NAME + "#text";
+    private static final String FILTER_PATTERN = ".*\\[.*#.*].*";
     private final WsnConnectorRule connector = new WsnConnectorRule();
-    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws");
-    private List<String> expectedPatterns;
-    private List<String> forbiddenPatterns;
 
-    private TestRule checkLogMessageRule = new TestRule() {
-        @Override
-        public Statement apply(final Statement base, Description description) {
-            return new Statement() {
-                @Override
-                public void evaluate() throws Throwable {
-                    base.evaluate();
-                    MemoryAppender.assertMessagesLogged(expectedPatterns,
-                            forbiddenPatterns, ".*\\[.*#.*].*", true);
-                }
-            };
-        }
-    };
+    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws");
+    private LoggingRule checkLogMessageRule = new LoggingRule().filterPattern(FILTER_PATTERN);
 
     private JUnitRuleMockery context = new JUnitRuleMockery() {
         {
@@ -112,7 +96,7 @@ public class WsnConnectorLoggingIT {
 
         k3po.finish();
 
-        expectedPatterns = Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
                 "tcp#.*OPENED",
                 "tcp#.*WRITE",
                 "tcp#.*RECEIVED",
@@ -123,9 +107,7 @@ public class WsnConnectorLoggingIT {
                 "tcp#.*EXCEPTION.*Protocol.*Exception",
                 "wsn#.*EXCEPTION.*IOException.*caused by.*Protocol.*Exception",
                 "wsn#.*CLOSED"
-        );
-
-        forbiddenPatterns = null;
+        ));
     }
 
     @Test
@@ -178,7 +160,7 @@ public class WsnConnectorLoggingIT {
 
         k3po.finish();
 
-        expectedPatterns = Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
             "tcp#.*OPENED",
             "tcp#.*WRITE",
             "tcp#.*RECEIVED",
@@ -190,9 +172,7 @@ public class WsnConnectorLoggingIT {
             "wsn#.*RECEIVED",
             "wsn#.*EXCEPTION", // because the script does not complete the WebSocket close handshake
             "wsn#.*CLOSED"
-        );
-
-        forbiddenPatterns = null;
+        ));
     }
 
     @Test
@@ -224,7 +204,7 @@ public class WsnConnectorLoggingIT {
         k3po.finish();
         assertTrue(close.await(10, SECONDS));
 
-        expectedPatterns = Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
             "tcp#.* [^/]*:\\d*] OPENED",
             "tcp#.* [^/]*:\\d*] WRITE",
             "tcp#.* [^/]*:\\d*] RECEIVED",
@@ -233,9 +213,8 @@ public class WsnConnectorLoggingIT {
             "http#.* [^/]*:\\d*] CLOSED",
             "wsn#.* [^/]*:\\d*] OPENED",
             "wsn#.* [^/]*:\\d*] CLOSED"
-        );
+        ));
 
-        forbiddenPatterns = Collections.singletonList("#.*EXCEPTION");
+        checkLogMessageRule.forbidPatterns(Collections.singletonList("#.*EXCEPTION"));
     }
-
 }

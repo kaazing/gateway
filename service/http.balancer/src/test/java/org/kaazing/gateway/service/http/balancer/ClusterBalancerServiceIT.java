@@ -15,16 +15,19 @@
  */
 package org.kaazing.gateway.service.http.balancer;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.kaazing.gateway.server.test.GatewayClusterRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.gateway.util.http.DefaultUtilityHttpClient;
 import org.kaazing.test.util.ITUtil;
 import org.kaazing.test.util.ResolutionTestUtils;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class ClusterBalancerServiceIT {
     private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
@@ -56,6 +59,12 @@ public class ClusterBalancerServiceIT {
 
     @Rule
     public RuleChain chain = ITUtil.createRuleChain(rule, 30, SECONDS);
+
+    @BeforeClass
+    public static void checkOnAws(){
+        Assume.assumeTrue(!onAws());
+    }
+
 
     @Test
     public void testLaunchBalancerService() throws Exception {
@@ -92,5 +101,15 @@ public class ClusterBalancerServiceIT {
                     .balance(balancerURI1)
                 .done()
             .done();
+    }
+
+    private static boolean onAws(){
+        DefaultUtilityHttpClient httpClient = new DefaultUtilityHttpClient();
+        try {
+            httpClient.performGetRequest("http://169.254.169.254/2014-02-25/meta-data/");
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

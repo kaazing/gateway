@@ -68,25 +68,15 @@ public class DetectProductTest {
 
     @Before
     public void setupService() {
-        setupMockProduct();
+        VersionUtils.reset(this.productEdition, this.productTitle, this.productVersion, this.productDependencies);
         BasicConfigurator.configure();
         this.service = new UpdateCheckService();
         this.listener = new MockUpdateCheckListener();
     }
 
-    private void setupMockProduct() {
-        VersionUtils.PRODUCT_EDITION=this.productEdition;
-        VersionUtils.PRODUCT_TITLE=this.productTitle;
-        VersionUtils.PRODUCT_VERSION=this.productVersion;
-        VersionUtils.PRODUCT_DEPENDENCIES=this.productDependencies;
-    }
-
     @After
     public void cleanupMockProduct() {
-        VersionUtils.PRODUCT_EDITION=null;
-        VersionUtils.PRODUCT_TITLE=null;
-        VersionUtils.PRODUCT_VERSION=null;
-        VersionUtils.PRODUCT_DEPENDENCIES=null;
+        VersionUtils.reset();
     }
 
     /**

@@ -20,41 +20,27 @@ import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.MemoryAppender;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
  * RFC-6455, section 5.2 "Base Framing Protocol"
  */
 public class WsnAcceptorLoggingIT {
-    private List<String> expectedPatterns;
-    private List<String> forbiddenPatterns;
+    private static final String FILTER_PATTERN = ".*\\[.*#.*].*";
+
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification");
-    private TestRule checkLogMessageRule = new TestRule() {
-        @Override
-        public Statement apply(final Statement base, Description description) {
-            return new Statement() {
-                @Override
-                public void evaluate() throws Throwable {
-                    base.evaluate();
-                    MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);
-                }
-            };
-        }
-    };
+    private LoggingRule checkLogMessageRule = new LoggingRule().filterPattern(FILTER_PATTERN);
 
     private GatewayRule gateway = new GatewayRule() {
         {
@@ -79,8 +65,8 @@ public class WsnAcceptorLoggingIT {
     @Rule
     // Special ordering: gateway around k3po allows gateway to detect k3po closing any still open connections
     // to make sure we get the log messages for the abrupt close
-    public final TestRule chain = RuleChain.outerRule(trace).around(checkLogMessageRule)
-            .around(gateway).around(k3po).around(timeoutRule(5, SECONDS));
+    public final TestRule chain = RuleChain.outerRule(trace).around(gateway).around(checkLogMessageRule)
+            .around(k3po).around(timeoutRule(5, SECONDS));
 
     @Test
     @Specification({
@@ -88,7 +74,7 @@ public class WsnAcceptorLoggingIT {
         })
     public void shouldLogProtocolException() throws Exception {
         k3po.finish();
-        expectedPatterns = Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
             "tcp#.*OPENED",
             "tcp#.*WRITE",
             "tcp#.*RECEIVED",
@@ -99,8 +85,7 @@ public class WsnAcceptorLoggingIT {
             "tcp#.*EXCEPTION.*Protocol.*Exception",
             "wsn#.*EXCEPTION.*IOException.*caused by.*Protocol.*Exception",
             "wsn#.*CLOSED"
-        );
-        forbiddenPatterns = null;
+        ));
     }
 
     @Test
@@ -109,7 +94,7 @@ public class WsnAcceptorLoggingIT {
         })
     public void shouldLogOpenWriteReceivedAndAbruptClose() throws Exception {
         k3po.finish();
-        expectedPatterns = Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
             "tcp#.* [^/]*:\\d*] OPENED", // example: [tcp#34 192.168.4.126:49966] OPENED: (...
             "tcp#.* [^/]*:\\d*] WRITE",
             "tcp#.* [^/]*:\\d*] RECEIVED",
@@ -121,8 +106,7 @@ public class WsnAcceptorLoggingIT {
             "wsn#.* [^/]*:\\d*] RECEIVED",
             "wsn#.* [^/]*:\\d*] EXCEPTION.*IOException",
             "wsn#.* [^/]*:\\d*] CLOSED"
-        );
-        forbiddenPatterns = null;
+        ));
     }
 
     @Test
@@ -131,7 +115,7 @@ public class WsnAcceptorLoggingIT {
         })
     public void shouldLogOpenAndCleanClose() throws Exception {
         k3po.finish();
-        expectedPatterns = Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
             "tcp#.* [^/]*:\\d*] OPENED",
             "tcp#.* [^/]*:\\d*] WRITE",
             "tcp#.* [^/]*:\\d*] RECEIVED",
@@ -140,8 +124,7 @@ public class WsnAcceptorLoggingIT {
             "http#.* [^/]*:\\d*] CLOSED",
             "wsn#.* [^/]*:\\d*] OPENED",
             "wsn#.* [^/]*:\\d*] CLOSED"
-        );
-        forbiddenPatterns = Collections.singletonList("#.*EXCEPTION");
+        ));
+        checkLogMessageRule.forbidPatterns(Collections.singletonList("#.*EXCEPTION"));
     }
-
 }
