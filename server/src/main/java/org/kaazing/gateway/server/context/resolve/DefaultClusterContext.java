@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -42,6 +43,7 @@ import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
 import org.kaazing.gateway.service.collections.CollectionsFactory;
 import org.kaazing.gateway.util.GL;
+import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.aws.AwsUtils;
 import org.slf4j.Logger;
@@ -104,21 +106,25 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     private HazelcastInstance clusterInstance;
     private final ClusterConnectOptionsContext connectOptions;
     private final AtomicBoolean clusterInitialized = new AtomicBoolean(false);
+    private Properties gatewayConfiguration;
 
     public DefaultClusterContext(String name,
                                  List<MemberId> interfaces,
-                                 List<MemberId> members) {
-        this(name, interfaces, members, null);
+                                 List<MemberId> members,
+                                 Properties gatewayConfiguration) {
+        this(name, interfaces, members, null, gatewayConfiguration);
     }
 
     public DefaultClusterContext(String name,
                                  List<MemberId> interfaces,
                                  List<MemberId> members,
-                                 ClusterConnectOptionsContext connectOptions) {
+                                 ClusterConnectOptionsContext connectOptions,
+                                 Properties gatewayConfiguration) {
         this.clusterName = name;
         this.localInterfaces.addAll(interfaces);
         this.clusterMembers.addAll(members);
         this.connectOptions = connectOptions;
+        this.gatewayConfiguration = gatewayConfiguration;
     }
 
     @Override
@@ -266,7 +272,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             if (multicastAddressesCount > 1) {
                 throw new IllegalArgumentException("Conflicting multicast discovery addresses in cluster configuration");
             } else if (multicastAddressesCount > 0) {
-                if (AwsUtils.isDeployedToAWS()) {
+                if (AwsUtils.isDeployedToAWS() && !InternalSystemProperty.CLUSTER_BYPASS_AWS_CHECK.getBooleanProperty(gatewayConfiguration)) {
                     throw new IllegalArgumentException("Multicast cluster configuration not supported on AWS, use " +
                             "aws://security-group/<security-group-name> in connect tag");
                 }
