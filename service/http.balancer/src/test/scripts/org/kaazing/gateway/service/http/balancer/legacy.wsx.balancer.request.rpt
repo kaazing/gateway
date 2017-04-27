@@ -15,13 +15,16 @@
 #
 
 property writeMask ${httpx:randomBytes(4)}
+property hostHeader "gateway.kaazing.com:8001"
+property connectAddress "http://localhost:8001/echo?.kl=Y"
+property redirectAddress "ws://node.kaazing.com:8001/echo?.kl=Y"
 
-connect http://localhost:8001/echo?.kl=Y
+connect ${connectAddress}
 connected
 
 write method "GET"
 write version "HTTP/1.1"
-write header "Host" "gateway.kaazing.com:8001"
+write header "Host" ${hostHeader}
 write header "Connection" "Upgrade"
 write header "Upgrade" "websocket"
 write header "Sec-WebSocket-Version" "13"
@@ -37,6 +40,7 @@ read header "Sec-WebSocket-Protocol" "x-kaazing-handshake"
 read header "Server" /.+/
 read header "Upgrade" "websocket"
 
+# binary-encoded balancer directive
 read [0x82 0x04 0xEF 0x83 0xBF 0x4E]
 
 write [0x81 0xFE 0x00 0xA6] ${writeMask}
@@ -58,9 +62,12 @@ read /Server.+\r\n/
 read "Upgrade: websocket\r\n"
 read "\r\n"
 
+# empty frame
 read [0x82 0x00]
-read [0x82 0x29 0xEF 0x83 0xBF 0x52]
-read "ws://node.kaazing.com:8001/echo?.kl=Y"
+# binary-encoded balancer directive
+read [0x82] [0..1]
+read [0xEF 0x83 0xBF 0x52]
+read ${redirectAddress}
 
 write [0x88 0x80] ${writeMask}
 write option mask ${writeMask}
