@@ -16,6 +16,14 @@
 package org.kaazing.gateway.server.impl;
 
 import static java.lang.String.format;
+import static org.kaazing.gateway.server.impl.VersionUtils.ProductInfo.productDependencies;
+import static org.kaazing.gateway.server.impl.VersionUtils.ProductInfo.productEdition;
+import static org.kaazing.gateway.server.impl.VersionUtils.ProductInfo.productTitle;
+import static org.kaazing.gateway.server.impl.VersionUtils.ProductInfo.productVersion;
+import static org.kaazing.gateway.server.impl.VersionUtilsConst.IMPLEMENTATION_TITLE;
+import static org.kaazing.gateway.server.impl.VersionUtilsConst.IMPLEMENTATION_VERSION;
+import static org.kaazing.gateway.server.impl.VersionUtilsConst.KAAZING_DEPENDENCIES;
+import static org.kaazing.gateway.server.impl.VersionUtilsConst.KAAZING_PRODUCT;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -31,69 +39,48 @@ import org.slf4j.LoggerFactory;
 
 public final class VersionUtils {
 
-    private static volatile String productTitle;
-    private static volatile String productVersion;
-    private static volatile  String productEdition;
-    private static volatile String productDependencies;
-
     private static final Logger LOG = LoggerFactory.getLogger(VersionUtils.class);
-
-    public static final String KAAZING_PRODUCT = "Kaazing-Product";
-    public static final String IMPLEMENTATION_TITLE = "Implementation-Title";
-    public static final String IMPLEMENTATION_VERSION = "Implementation-Version";
-    public static final String KAAZING_DEPENDENCIES = "Kaazing-Dependencies";
 
     private VersionUtils() {
     }
 
     public static String getGatewayProductTitle() {
-        getGatewayProductInfo();
+        generateProductInfo();
         return productTitle;
     }
 
     public static String getGatewayProductVersion() {
-        getGatewayProductInfo();
+        generateProductInfo();
         return productVersion;
     }
 
     public static String getGatewayProductVersionMajor() {
-        String v = getGatewayProductVersion();
-        GatewayProductVersionType product = new GatewayProductVersionType(1);
-        return product.getGatewayVersionType(v);
+        ProductInfo product = new ProductInfo(1);
+        return product.toString();
     }
 
     public static String getGatewayProductVersionMinor() {
-        String v = getGatewayProductVersion();
-        GatewayProductVersionType product = new GatewayProductVersionType(2);
-        return product.getGatewayVersionType(v);
+        ProductInfo product = new ProductInfo(2);
+        return product.toString();
     }
 
     public static String getGatewayProductVersionPatch() {
-        String v = getGatewayProductVersion();
-        // Non SNAPSHOT versions will be 3 digits in value.
-        // develop-SNAPSHOT will always be considered the lowest version
-        // available
-        if ("develop-SNAPSHOT".equals(v)) {
-            return "0.0.0";
-        }
-        GatewayProductVersionType product = new GatewayProductVersionType(3);
-        return product.getGatewayVersionType(v);
+        ProductInfo product = new ProductInfo(3);
+        return product.toString();
     }
 
     public static String getGatewayProductVersionBuild() {
-        String v = getGatewayProductVersion();
-        GatewayProductVersionType product = new GatewayProductVersionType(4);
-        return product.getGatewayVersionType(v);
+        ProductInfo product = new ProductInfo(4);
+        return product.toString();
     }
 
-  
     public static String getGatewayProductEdition() {
-        getGatewayProductInfo();
+        generateProductInfo();
         return productEdition;
     }
 
     public static String getGatewayProductDependencies() {
-        getGatewayProductInfo();
+        generateProductInfo();
         return productDependencies;
     }
 
@@ -101,7 +88,7 @@ public final class VersionUtils {
      * Find the product information from the server JAR MANIFEST files and store it
      * in static variables here for later retrieval.
      */
-    private synchronized static void getGatewayProductInfo() {
+    private synchronized static void generateProductInfo() {
         if (productTitle != null) {
             // We've already run through this before, so do nothing.
             return;
@@ -117,7 +104,8 @@ public final class VersionUtils {
             if (LOG.isTraceEnabled()) {
                 LOG.trace(format("Found product entry: %s", pathEntry));
             }
-            if(!getProductInfoFromJar(pathEntry, products, removals))
+            Attributes attrs = readAttributes(pathEntry);
+            if(!readProduct(attrs, products) && !readRemovals(attrs, removals))
                 continue;
             foundJar = true;
         }
@@ -146,6 +134,108 @@ public final class VersionUtils {
         }
     }
 
+    private static Attributes readAttributes(String pathEntry) {
+        Attributes attrs = new Attributes();
+        try (JarFile jar = new JarFile(pathEntry)) {
+            Manifest mf = jar.getManifest();
+            if (mf != null) {
+                attrs = mf.getMainAttributes();
+            }
+        } catch (IOException e) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("An exception occurred while getting product information", e);
+            }
+        }
+        return attrs;
+    }
+
+    private static boolean readProduct(Attributes attrs, Map<String, Attributes> products) {
+        boolean result = false;
+        if (attrs == null) {
+            return result;
+        }
+        String title = attrs.getValue(IMPLEMENTATION_TITLE);
+        String version = attrs.getValue(IMPLEMENTATION_VERSION);
+        String product = attrs.getValue(KAAZING_PRODUCT);
+
+        if (product != null && title != null && version != null) {
+            result = true;
+            if (LOG.isTraceEnabled()) {
+                LOG.trace(format("Found: %s", attrs.getValue(KAAZING_PRODUCT)));
+            }
+            // Store the list of products found, but remove any products
+            // marked as dependencies (i.e. products on which the current
+            // product depends.  We want to find the product that nothing
+            // else depends on.
+            products.put(product, attrs);
+        }
+        return result;
+    }
+
+    private static boolean readRemovals(Attributes attrs, HashSet removals) {
+        boolean result = false;
+        if (attrs == null) {
+            return result;
+        }
+        String title = attrs.getValue(IMPLEMENTATION_TITLE);
+        String version = attrs.getValue(IMPLEMENTATION_VERSION);
+        String product = attrs.getValue(KAAZING_PRODUCT);
+        if (product != null && title != null && version != null) {
+            result = true;
+            String dependencies = attrs.getValue(KAAZING_DEPENDENCIES);
+            if (dependencies != null) {
+                String[] deps = dependencies.split(",");
+                Collections.addAll(removals, deps);
+            }
+        }
+        return result;
+    }
+
+    protected static class ProductInfo {
+
+        protected static volatile String productTitle;
+        protected static volatile String productVersion;
+        protected static volatile String productEdition;
+        protected static volatile String productDependencies;
+
+        int digits;
+
+        public ProductInfo(int digits) {
+            this.digits = digits;
+        }
+
+        @Override
+        public String toString() {
+            String version = getGatewayProductVersion();
+            if (version == null || version.length() == 0) {
+                return null;
+            }
+            // Non SNAPSHOT versions will be 3 digits in value.
+            // develop-SNAPSHOT will always be considered the lowest version
+            // available
+            if ("develop-SNAPSHOT".equals(version)) {
+                return "0.0.0";
+            }
+            String[] splits = version.split("\\.");
+            switch (splits.length) {
+            case 1:
+                if (digits >= 1)
+                    return (version + String.join("", Collections.nCopies(digits - 1, ".0")));
+
+            case 2:
+                if (digits >= 2)
+                    return (version + String.join("", Collections.nCopies(digits - 2, ".0")));
+            case 3:
+                if (digits >= 3)
+                    return (version + String.join("", Collections.nCopies(digits - 3, ".0")));
+            }
+            if (digits >= 4)
+                return version;
+            else
+                return version.substring(0, digits * 2 - 1);
+        }
+    }
+
     /**
      * Used for testing purposes
      */
@@ -164,74 +254,5 @@ public final class VersionUtils {
         productTitle = title;
         productVersion = version;
         productDependencies = dependencies;
-    }
-
-    private static boolean getProductInfoFromJar(String pathEntry, Map<String, Attributes> products, HashSet<String> removals){
-        boolean result = false;
-        try (JarFile jar = new JarFile(pathEntry)) {
-            Manifest mf = jar.getManifest();
-            if (mf == null) {
-                return result;
-            }
-            Attributes attrs = mf.getMainAttributes();
-            if (attrs == null) {
-                return result;
-            }
-            String title = attrs.getValue(IMPLEMENTATION_TITLE);
-            String version = attrs.getValue(IMPLEMENTATION_VERSION);
-            String product = attrs.getValue(KAAZING_PRODUCT);
-            if (product != null && title != null && version != null) {
-                result = true;
-                String dependencies = attrs.getValue(KAAZING_DEPENDENCIES);
-                if (LOG.isTraceEnabled()) {
-                    LOG.trace(format("Found: %s [%s]", pathEntry, attrs.getValue(KAAZING_PRODUCT)));
-                }
-                // Store the list of products found, but remove any products
-                // marked as dependencies (i.e. products on which the current
-                // product depends.  We want to find the product that nothing
-                // else depends on.
-                products.put(product, attrs);
-                if (dependencies != null) {
-                    String[] deps = dependencies.split(",");
-                    Collections.addAll(removals, deps);
-                }
-            }
-        } catch (IOException e) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("An exception occurred while getting product information", e);
-            }
-        }
-        return result;
-    }
-
-    private static class GatewayProductVersionType {
-        int digits;
-
-        public GatewayProductVersionType(int digits) {
-            this.digits = digits;
-        }
-
-        private String getGatewayVersionType(String v) {
-            if (v == null || v.length() == 0) {
-                return null;
-            }
-            String[] splits = v.split("\\.");
-            switch (splits.length) {
-            case 1:
-                if (digits >= 1)
-                    return (v + String.join("", Collections.nCopies(digits - 1, ".0")));
-
-            case 2:
-                if (digits >= 2)
-                    return (v + String.join("", Collections.nCopies(digits - 2, ".0")));
-            case 3:
-                if (digits >= 3)
-                    return (v + String.join("", Collections.nCopies(digits - 3, ".0")));
-            }
-            if (digits >= 4)
-                return v;
-            else
-                return v.substring(0, digits * 2 - 1);
-        }
     }
 }

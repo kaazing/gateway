@@ -163,19 +163,23 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
         return productEdition;
     }
 
-    @Override public String getProductDependencies() {
+    @Override
+    public String getProductDependencies() {
         return productDependencies;
     }
 
-    @Override public String getProductVersionMajor() {
+    @Override
+    public String getProductVersionMajor() {
         return productVersionMajor;
     }
 
-    @Override public String getProductVersionMinor() {
+    @Override
+    public String getProductVersionMinor() {
         return productVersionMinor;
     }
 
-    @Override public String getProductVersionPatch() {
+    @Override
+    public String getProductVersionPatch() {
         return productVersionPatch;
     }
 
