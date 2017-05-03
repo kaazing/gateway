@@ -17,7 +17,7 @@
 ## This test came from converting rtest project (http://svn.kaazing.wan/gateway.server.rtests/) to robot test.
 ## This test might represent 3.6.x.y client behavior since the origin of rtests project was 3.6.x.y code line.
 
-connect tcp://127.0.0.1:8001
+connect "tcp://127.0.0.1:8001"
 connected
 
 # Connection request

@@ -23,7 +23,7 @@
 # Echo for first message is received, but then connection is failed immediately, since RSV must be 0, 
 # when no extension defining RSV meaning has been negoiated. The Pong is not received.
 
-connect tcp://localhost:8555
+connect "tcp://localhost:8555"
 connected
 
 write "GET /echo HTTP/1.1\r\n"

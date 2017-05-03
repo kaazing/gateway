@@ -17,25 +17,25 @@
 property partialCredentials ${http:loginBase64Encoder("joe")}
 property validCredentials ${http:loginBase64Encoder("joe:welcome")}
 property authHeader ${http:append("Basic ", validCredentials)}
-accept http://localhost:8080/resource
+accept "http://localhost:8080/resource"
 accepted
 connected
 
-read method "GET"
+read http:method "GET"
 
-write status "401" "Unauthorized"
-write header "WWW-Authenticate" "Basic realm=\"Kaazing Gateway Demo\""
-write header content-length
+write http:status "401" "Unauthorized"
+write http:header "WWW-Authenticate" "Basic realm=\"Kaazing Gateway Demo\""
+write http:content-length
 write "not authorized"
 write close
 
 accepted
 connected
 
-read method "GET"
-read header "Authorization" ${authHeader}
+read http:method "GET"
+read http:header "Authorization" ${authHeader}
 
-write status "200" "OK"
-write header content-length
+write http:status "200" "OK"
+write http:content-length
 write "authorized"
 write close

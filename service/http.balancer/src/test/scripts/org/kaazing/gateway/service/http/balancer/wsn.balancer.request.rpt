@@ -14,18 +14,18 @@
 # limitations under the License.
 #
 
-connect http://localhost:8001/echo
+connect "http://localhost:8001/echo"
 connected
 
-write method "GET"
-write version "HTTP/1.1"
-write header host
-write header "Upgrade" "websocket"
-write header "Connection" "Upgrade"
-write header "Sec-WebSocket-Key" "dGhlIHNhbXBsZSBub25jZQ=="
-write header "Sec-WebSocket-Version" "13"
+write http:method "GET"
+write http:version "HTTP/1.1"
+write http:host
+write http:header "Upgrade" "websocket"
+write http:header "Connection" "Upgrade"
+write http:header "Sec-WebSocket-Key" "dGhlIHNhbXBsZSBub25jZQ=="
+write http:header "Sec-WebSocket-Version" "13"
 
-read status "302" /.+/
-read version "HTTP/1.1"
-read header "location" "http://localhost:8001/echo1"
+read http:status "302" /.+/
+read http:version "HTTP/1.1"
+read http:header "location" "http://localhost:8001/echo1"
 

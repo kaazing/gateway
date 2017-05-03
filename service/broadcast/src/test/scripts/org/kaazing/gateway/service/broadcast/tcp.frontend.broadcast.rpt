@@ -15,7 +15,7 @@
 #
 
 # broadcast.frontend.tcp.connect.and.close
-connect tcp://localhost:8091
+connect "tcp://localhost:8091"
 connected
 write "hello world"
 read "hello world"

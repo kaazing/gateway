@@ -16,7 +16,7 @@
 
 # create request
 
-connect tcp://localhost:8000
+connect "tcp://localhost:8000"
 connected
 
 write "GET /echo/;e/ct HTTP/1.1\r\n"
@@ -60,7 +60,7 @@ close
 closed
 
 # downstream request (may not be thread aligned - different TCP connection)
-connect tcp://localhost:8000
+connect "tcp://localhost:8000"
 connected
 
 write await CREATED
@@ -119,7 +119,7 @@ read [0x01 0x30 0x31 0xff]
 closed
 
 # upstream request (may not be thread aligned - different TCP connection)
-connect tcp://localhost:8000
+connect "tcp://localhost:8000"
 connected
 
 write await CREATED

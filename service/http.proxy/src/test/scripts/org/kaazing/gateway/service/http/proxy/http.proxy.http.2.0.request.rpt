@@ -18,7 +18,7 @@
 # client
 #
 
-connect tcp://localhost:8110
+connect "tcp://localhost:8110"
 connected
 
 write "GET /get HTTP/2.0\r\n"
@@ -33,4 +33,4 @@ read "HTTP/1.1 505 Version Not Supported"
 # server
 #
 
-accept tcp://localhost:8080
+accept "tcp://localhost:8080"

@@ -28,7 +28,7 @@
 # The 2nd frame should be rejected immediately (fail fast on UTF-8). 
 # If we timeout, we expect the connection is failed at least then, since the complete message payload is not valid UTF-8.
 
-connect tcp://localhost:8555
+connect "tcp://localhost:8555"
 connected
 
 write "GET /echo HTTP/1.1\r\n"

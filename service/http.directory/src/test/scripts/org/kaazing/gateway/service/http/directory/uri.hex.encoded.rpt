@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-connect tcp://localhost:8000
+connect "tcp://localhost:8000"
 connected
 
 write "GET /%69%6e%64%65%78%2e%68%74%6d%6c HTTP/1.1\r\n"

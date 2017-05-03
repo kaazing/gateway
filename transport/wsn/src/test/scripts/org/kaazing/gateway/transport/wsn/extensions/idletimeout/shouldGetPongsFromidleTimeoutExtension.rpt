@@ -16,7 +16,7 @@
 
 # javascript 4.0.4 client connection to proxy service
 # ===================================================
-connect tcp://127.0.0.1:8001
+connect "tcp://127.0.0.1:8001"
 connected
 
 # Connection request
@@ -94,7 +94,7 @@ closed
 
 # Connection from back end of proxy service
 # =========================================
-accept tcp://127.0.0.1:8002
+accept "tcp://127.0.0.1:8002"
 accepted
 connected
 # read 8 "abc" frames
@@ -110,7 +110,7 @@ closed
 
 # Connect to ServerSocket in test method to read period data to simulate SLEEP
 # ============================================================================
-connect tcp://localhost:61234
+connect "tcp://localhost:61234"
 connected
 read "WakeUp1"
 read notify SLEEP_ONE

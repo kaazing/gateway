@@ -18,7 +18,7 @@
 # client
 #
 
-connect tcp://localhost:8110
+connect "tcp://localhost:8110"
 connected
 
 write "GET http://username:password@localhost:8110/ HTTP/1.1\r\n"
@@ -29,7 +29,7 @@ write "\r\n"
 # server
 #
 
-accept tcp://localhost:8080
+accept "tcp://localhost:8080"
 
 close
 closed

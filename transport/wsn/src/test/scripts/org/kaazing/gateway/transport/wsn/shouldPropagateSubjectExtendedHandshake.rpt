@@ -20,7 +20,7 @@
 # Created from: http://jira.kaazing.wan/secure/attachmentzip/unzip/33558/18106%5B4%5D/snapshot_wiresharks_and_logs/ie11NativeBasicAuth.pcapng
 ## Scenario is: connect with Basic auth (extended handshake), send a message, expect to receive the text "OK"
 
-connect tcp://127.0.0.1:8001
+connect "tcp://127.0.0.1:8001"
 connected
 
 write "GET /subject?.kl=Y HTTP/1.1\r\n"

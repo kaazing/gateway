@@ -15,20 +15,20 @@
 #
 
 
-connect http://localhost:8000/echo/;e/ct
+connect "http://localhost:8000/echo/;e/ct"
 connected
 
-write method "GET"
-write parameter "param" "value"
-write header host
-write header "X-Origin" "http://localhost:8000"
-write header "X-WebSocket-Version" "wseb-1.0"
-write header content-length
+write http:method "GET"
+write http:parameter "param" "value"
+write http:host
+write http:header "X-Origin" "http://localhost:8000"
+write http:header "X-WebSocket-Version" "wseb-1.0"
+write http:content-length
 write close
 
-read status "200" "OK"
-read header "Cache-Control" "no-cache"
-read header "Content-Type" "text/plain;charset=UTF-8"
+read http:status "200" "OK"
+read http:header "Cache-Control" "no-cache"
+read http:header "Content-Type" "text/plain;charset=UTF-8"
 
 read "HTTP/1.1 201 Created\r\n"
 read "Content-Type: text/plain;charset=UTF-8\r\n"

@@ -14,33 +14,33 @@
 # limitations under the License.
 #
 
-connect http://localhost:8111/
+connect "http://localhost:8111/"
 connected
 
-write method "GET"
+write http:method "GET"
 write close
 
-read status "200" "OK"
+read http:status "200" "OK"
 
-accept http://localhost:8081/
+accept "http://localhost:8081/"
 accepted
 connected
 
-read method "GET"
+read http:method "GET"
 read closed
 
-write status "302" "FOUND"
-write header "Location" "/resource2"
+write http:status "302" "FOUND"
+write http:header "Location" "/resource2"
 write close
 
-accept http://localhost:8081/resource2
+accept "http://localhost:8081/resource2"
 accepted
 connected
 
-read method "GET"
+read http:method "GET"
 read closed
 
-write status "200" "OK"
-write header content-length
+write http:status "200" "OK"
+write http:content-length
 write "Hello"
 write close
