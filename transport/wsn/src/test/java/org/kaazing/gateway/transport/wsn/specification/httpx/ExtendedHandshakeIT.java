@@ -95,7 +95,6 @@ public class ExtendedHandshakeIT {
     }
 
     @Test
-    @Ignore("https://github.com/kaazing/tickets/issues/434")
     @Specification({ "client.sends.message.between.opening.and.extended.handshake/request" })
     public void shouldFailWhenClientSendsMessageBetweenOpeningAndExtendedHandshake() throws Exception {
         k3po.finish();
