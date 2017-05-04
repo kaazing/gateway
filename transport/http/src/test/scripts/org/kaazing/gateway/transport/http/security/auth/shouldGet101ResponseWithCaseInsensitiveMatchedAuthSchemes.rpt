@@ -18,7 +18,7 @@
 connect tcp://127.0.0.1:8001
 connected
 
-property validCredentials ${http:loginBase64Encoder("baduser:badpass")}
+property validCredentials ${http:loginBase64Encoder("user:pass")}
 property validAuthHeader ${http:append("TOKEN ", validCredentials)}
 
 connect http://localhost:8001/echoAuth

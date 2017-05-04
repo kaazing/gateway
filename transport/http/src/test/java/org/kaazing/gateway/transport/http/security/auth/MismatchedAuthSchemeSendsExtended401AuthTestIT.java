@@ -105,51 +105,32 @@ public class MismatchedAuthSchemeSendsExtended401AuthTestIT {
 
     @Test
     @Specification("shouldChallengeDueToMismatchingAuthSchemes")
-    public void shouldChallengeDueToMismatchingAuthSchemes2()
+    public void shouldChallengeDueToMismatchingAuthSchemes()
             throws Exception {
+        final Subject subject = new Subject();
         acceptor.getAcceptOptions().put("http.requiredRoles", ANY_ROLE);
 
         context.checking(new Expectations() {
             {
-                oneOf(loginContextFactoryMock).createLoginContext(with(aNonNull(TypedCallbackHandlerMap.class)));
+                exactly(2).of(loginContextFactoryMock).createLoginContext(with(aNonNull(TypedCallbackHandlerMap.class)));
                 will(returnValue(loginContextMock));
-                oneOf(loginContextMock).login();
+                exactly(2).of(loginContextMock).login();
                 will(onConsecutiveCalls(
                         throwException(new LoginException()),
                         VoidAction.INSTANCE));
-                oneOf(loginContextMock).getLoginResult();
+                exactly(2).of(loginContextMock).getLoginResult();
                 will(returnValue(loginResultMock));
-                oneOf(loginResultMock).getType();
-                will(returnValue(LoginResult.Type.CHALLENGE));
-                oneOf(loginResultMock).getLoginChallengeData();
-                will(returnValue(ADDITIONAL_CHALLENGES));
-            }
-        });
-
-        acceptor.bind(BIND_ADDRESS, HTTP_ACCEPT_HANDLER);
-        k3po.finish();
-    }
-
-    @Test
-    @Specification("shouldNotChallengeDueToMismatchingAuthSchemes")
-    public void shouldNotChallengeDueToMismatchingAuthSchemes2()
-            throws Exception {
-        acceptor.getAcceptOptions().put("http.requiredRoles", ANY_ROLE);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(loginContextFactoryMock).createLoginContext(with(aNonNull(TypedCallbackHandlerMap.class)));
-                will(returnValue(loginContextMock));
-                oneOf(loginContextMock).login();
+                exactly(2).of(loginResultMock).getType();
                 will(onConsecutiveCalls(
-                        throwException(new LoginException()),
-                        VoidAction.INSTANCE));
-                oneOf(loginContextMock).getLoginResult();
-                will(returnValue(loginResultMock));
-                oneOf(loginResultMock).getType();
-                will(returnValue(LoginResult.Type.CHALLENGE));
+                        returnValue(LoginResult.Type.CHALLENGE),
+                        returnValue(LoginResult.Type.CHALLENGE),
+                        returnValue(LoginResult.Type.SUCCESS)));
                 oneOf(loginResultMock).getLoginChallengeData();
                 will(returnValue(ADDITIONAL_CHALLENGES));
+                exactly(2).of(loginContextMock).getSubject();
+                will(returnValue(subject));
+                oneOf(loginResultMock).hasLoginAuthorizationAttachment();
+                will(returnValue(Boolean.FALSE));
             }
         });
 
@@ -185,5 +166,4 @@ public class MismatchedAuthSchemeSendsExtended401AuthTestIT {
         acceptor.bind(BIND_ADDRESS, HTTP_ACCEPT_HANDLER);
         k3po.finish();
     }
-
 }

@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.http.security.auth;
+package org.kaazing.gateway.transport.http.multi.auth;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
+
+import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.jmock.lib.action.VoidAction;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Before;
@@ -30,9 +35,11 @@ import org.junit.rules.Timeout;
 import org.kaazing.gateway.resource.address.http.DefaultHttpRealmInfo;
 import org.kaazing.gateway.resource.address.http.HttpRealmInfo;
 import org.kaazing.gateway.security.LoginContextFactory;
+import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 import org.kaazing.gateway.security.auth.DefaultLoginResult;
 import org.kaazing.gateway.security.auth.context.DefaultLoginContextFactory;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
+import org.kaazing.gateway.server.spi.security.LoginResult;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptorRule;
@@ -54,6 +61,7 @@ public class MismatchedAuthSchemeOnMultipleRealmsIT {
     private static final String BASIC_CHALLENGE_SCHEME = "Basic";
     private static final String[] ANY_ROLE = new String[] {"*"};
     private static final String[] EMPTY_STRING_ARRAY = new String[]{};
+    private static final Object[] ADDITIONAL_CHALLENGES = new Object[]{"param=\"value\""};
 
     private static final IoHandlerAdapter<HttpAcceptSession> HTTP_ACCEPT_HANDLER = new IoHandlerAdapter<HttpAcceptSession>() {
         @Override
@@ -105,8 +113,28 @@ public class MismatchedAuthSchemeOnMultipleRealmsIT {
     public void shouldGet401ResponseDueToMismatchingAuthSchemes()
             throws Exception {
         acceptor.getAcceptOptions().put("http.requiredRoles", ANY_ROLE);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(loginContextFactoryMock).createLoginContext(with(aNonNull(TypedCallbackHandlerMap.class)));
+                will(returnValue(loginContextMock));
+                oneOf(loginContextMock).login();
+                will(onConsecutiveCalls(
+                        throwException(new LoginException()),
+                        VoidAction.INSTANCE));
+                exactly(2).of(loginContextMock).getLoginResult();
+                will(returnValue(loginResultMock));
+                exactly(2).of(loginResultMock).getType();
+                will(onConsecutiveCalls(
+                        returnValue(LoginResult.Type.CHALLENGE),
+                        returnValue(LoginResult.Type.CHALLENGE),
+                        returnValue(LoginResult.Type.SUCCESS)));
+                oneOf(loginResultMock).getLoginChallengeData();
+                will(returnValue(ADDITIONAL_CHALLENGES));
+            }
+        });
+
         acceptor.bind(BIND_ADDRESS, HTTP_ACCEPT_HANDLER);
         k3po.finish();
     }
-
 }
