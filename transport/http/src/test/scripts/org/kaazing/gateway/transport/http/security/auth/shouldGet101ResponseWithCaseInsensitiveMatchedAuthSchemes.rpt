@@ -14,10 +14,6 @@
 # limitations under the License.
 #
 
-
-connect tcp://127.0.0.1:8001
-connected
-
 property validCredentials ${http:loginBase64Encoder("user:pass")}
 property validAuthHeader ${http:append("TOKEN ", validCredentials)}
 

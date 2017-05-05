@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.http.multi.auth;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
 
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -98,6 +97,8 @@ public class MismatchedAuthSchemeOnMultipleRealmsIT {
         loginContextMock = context.mock(ResultAwareLoginContext.class);
         loginResultMock = context.mock(DefaultLoginResult.class);
 
+        acceptor.setExpiringState();
+
         realms = new HttpRealmInfo[2];
         realms[0] = new DefaultHttpRealmInfo(REALM_NAME_TOKEN, APPLICATION_TOKEN_CHALLENGE_SCHEME, REALM_NAME_TOKEN, EMPTY_STRING_ARRAY,
                 EMPTY_STRING_ARRAY, EMPTY_STRING_ARRAY, loginContextFactoryMock, null);
@@ -113,24 +114,25 @@ public class MismatchedAuthSchemeOnMultipleRealmsIT {
     public void shouldGet401ResponseDueToMismatchingAuthSchemes()
             throws Exception {
         acceptor.getAcceptOptions().put("http.requiredRoles", ANY_ROLE);
+        final Subject subject = new Subject();
 
         context.checking(new Expectations() {
             {
-                oneOf(loginContextFactoryMock).createLoginContext(with(aNonNull(TypedCallbackHandlerMap.class)));
+                allowing(loginContextFactoryMock).createLoginContext(with(aNonNull(TypedCallbackHandlerMap.class)));
                 will(returnValue(loginContextMock));
-                oneOf(loginContextMock).login();
-                will(onConsecutiveCalls(
-                        throwException(new LoginException()),
-                        VoidAction.INSTANCE));
+                allowing(loginContextMock).login();
+                will(VoidAction.INSTANCE);
                 exactly(2).of(loginContextMock).getLoginResult();
                 will(returnValue(loginResultMock));
                 exactly(2).of(loginResultMock).getType();
                 will(onConsecutiveCalls(
-                        returnValue(LoginResult.Type.CHALLENGE),
+                        returnValue(LoginResult.Type.SUCCESS),
                         returnValue(LoginResult.Type.CHALLENGE),
                         returnValue(LoginResult.Type.SUCCESS)));
-                oneOf(loginResultMock).getLoginChallengeData();
-                will(returnValue(ADDITIONAL_CHALLENGES));
+                exactly(4).of(loginContextMock).getSubject();
+                will(returnValue(subject));
+                exactly(2).of(loginResultMock).hasLoginAuthorizationAttachment();
+                will(returnValue(Boolean.FALSE));
             }
         });
 

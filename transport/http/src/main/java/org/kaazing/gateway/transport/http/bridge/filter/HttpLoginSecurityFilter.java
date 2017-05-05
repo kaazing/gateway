@@ -295,7 +295,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         //
         // Issue a challenge since authentication is required.
         if (authTokenIsMissing(authToken) &&
-            rolesAreSufficient == false ) {
+            rolesAreSufficient == false) {
             return loginMissingToken(nextFilter, session, httpRequest, authToken, additionalCallbacks, realms, realmIndex, loginContexts);
         }
 

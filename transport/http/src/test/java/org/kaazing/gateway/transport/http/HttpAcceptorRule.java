@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.service.IoHandler;
 import org.junit.rules.TestRule;
@@ -28,6 +30,7 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.server.spi.security.ExpiringState;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
@@ -64,6 +67,26 @@ public class HttpAcceptorRule implements TestRule {
         httpAcceptor.bind(acceptAddress, acceptHandler, null);
     }
 
+    public void setExpiringState(){
+        httpAcceptor.setExpiringState(new ExpiringState() {
+            private ConcurrentHashMap<String, Object> map = new ConcurrentHashMap<>();
+
+            @Override
+            public Object remove(String key, Object value) {
+                return map.remove(key, value);
+            }
+
+            @Override
+            public Object putIfAbsent(String key, Object value, long ttl, TimeUnit timeunit) {
+                return map.putIfAbsent(key, value);
+            }
+
+            @Override
+            public Object get(String key) {
+                return map.get(key);
+            }
+        });
+    }
     private final class AcceptorStatement extends Statement {
 
         private final Statement base;
