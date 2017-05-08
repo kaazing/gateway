@@ -55,9 +55,7 @@ public class UpstreamIT {
     private final TestRule timeoutRule = timeoutRule(5, SECONDS);
 
     @Rule
-    // contextRule after k3po so we don't choke on exceptionCaught happening when k3po closes connections
-    public TestRule chain = RuleChain.outerRule(trace).around(connector).around(k3po).around(contextRule)
-            .around(timeoutRule);
+    public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(contextRule).around(connector).around(k3po);
 
     // Server only test
     @Specification("request.method.not.post/upstream.response")

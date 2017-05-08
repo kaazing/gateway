@@ -69,7 +69,7 @@ public class ConnectionManagementIT {
     private final TestRule timeoutRule = new DisableOnDebug(new Timeout(5, SECONDS));
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).around(k3po).around(timeoutRule);
+    public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(contextRule).around(acceptor).around(k3po);
 
     @Test
     @Specification({"client.must.close.connection.after.request.with.connection.close/request"})
@@ -190,6 +190,7 @@ public class ConnectionManagementIT {
 
     @Test
     @Specification({"client.with.pipelining.must.not.retry.pipelining.immediately.after.failure/request"})
+    @Ignore
     public void clientWithPipeliningMustNotRetryPipeliningImmediatelyAfterFailure() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
 

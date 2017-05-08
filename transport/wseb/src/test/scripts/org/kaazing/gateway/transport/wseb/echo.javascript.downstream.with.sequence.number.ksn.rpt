@@ -46,8 +46,8 @@ read closed
 
 # Downstream
 connect await CREATED
-#connect ${downstream}
-connect ${wse:append("http://localhost:8000", downstreamId)}
+#        ${downstream}
+        ${wse:append("http://localhost:8000", downstreamId)}
 connected
 
 write http:parameter ".ksn" "1"

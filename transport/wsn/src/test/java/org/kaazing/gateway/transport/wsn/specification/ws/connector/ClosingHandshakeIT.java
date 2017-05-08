@@ -54,8 +54,7 @@ public class ClosingHandshakeIT {
     private TestRule contextRule = ITUtil.toTestRule(context);
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(connector).around(k3po).around(timeoutRule)
-            .around(contextRule);
+    public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(contextRule).around(connector).around(k3po);
 
     @Test
     @Specification({

@@ -40,7 +40,6 @@ import static org.kaazing.mina.core.buffer.IoBufferEx.FLAG_NONE;
 
 import java.io.IOException;
 import java.net.ProtocolException;
-import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -91,6 +90,7 @@ import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
 import org.kaazing.gateway.transport.IoFilterAdapter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.NioBindException;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.UpgradeFuture;
@@ -693,7 +693,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     wsnSession.getProcessor().remove(wsnSession);
                 } else {
                     wsnSession.reset(
-                            new IOException("Network connectivity has been lost or transport was closed at other end",
+                            new IOException(LoggingUtils.NETWORK_CONNECTIVITY_ERROR_MESSAGE,
                                     wsnSession.getCloseException()).fillInStackTrace());
                 }
             }
