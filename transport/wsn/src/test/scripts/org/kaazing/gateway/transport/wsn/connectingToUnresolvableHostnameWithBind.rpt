@@ -17,7 +17,7 @@
 ## This test came from gateway.server unit test case KG-5301
 ## (GatewayContextResolverTest#testUnresolvableHostNameWithBindAndGatewayStartsUp)
 
-connect tcp://127.0.0.1:21111
+connect "tcp://127.0.0.1:21111"
 connected
 
 close

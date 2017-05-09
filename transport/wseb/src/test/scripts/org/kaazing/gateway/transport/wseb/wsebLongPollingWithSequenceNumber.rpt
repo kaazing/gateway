@@ -16,7 +16,7 @@
 
 # Long Polling test - Note that gateway sends Content-Length on the downstream responses
 
-connect tcp://localhost:8001
+connect "tcp://localhost:8001"
 connected
 
 write "GET /echo/;e/ct?.ki=p HTTP/1.1\r\n"
@@ -134,7 +134,7 @@ closed
 # ======= upstream 1 =======
 
 
-connect tcp://localhost:8001
+connect "tcp://localhost:8001"
 connected
 
 write await UPSTREAM
@@ -174,7 +174,7 @@ closed
 
 # ======= upstream 2 ===========
 
-connect tcp://localhost:8001
+connect "tcp://localhost:8001"
 connected
 
 write await UPSTREAMNEXT

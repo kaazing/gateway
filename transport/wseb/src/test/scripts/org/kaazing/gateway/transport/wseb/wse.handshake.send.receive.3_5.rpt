@@ -18,7 +18,7 @@
 
 ##############################################TCP-CONNECTION-1-SCRIPT##################################################
 # Create TCP connection no.- 1: We will use this one to send the "CREATE {upstream,downstream}-URL-pair-for-client" request to server and then reuse it as downstream TCP connection
-connect tcp://localhost:8001
+connect "tcp://localhost:8001"
 connected
 
 #TIME SEQ: 1 - Send a request to server through TCP-1 to "CREATE {upstream,downstream}-URL-pair-for-client"
@@ -114,7 +114,7 @@ closed
 ######################################TCP-CONNECTION-2-SCRIPT#######################################################
 
 #Create a separate tcp connection TCP connection no. 2, for upstream
-connect tcp://localhost:8001
+connect "tcp://localhost:8001"
 connected
 
 #TIME SEQ: 5 - Once the downstream connection is created successfully, now we can send out upstream Hello Websocket! request through TCP connection - 2.

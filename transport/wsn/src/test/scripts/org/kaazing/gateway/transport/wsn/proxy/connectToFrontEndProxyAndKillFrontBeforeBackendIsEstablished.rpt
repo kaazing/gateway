@@ -17,22 +17,22 @@
 # KG-11124
 # app.token.three.attempts.failure.rpt 
 #Frontend
-connect http://localhost:8555/
+connect "http://localhost:8555/"
 connected
 
-write method "GET"
-write header "User-Agent" "AutobahnTestSuite/0.6.1-0.8.8"
-write header host
-write header "Upgrade" "WebSocket"
-write header "Connection" "Upgrade"
-write header "Pragma" "no-cache"
-write header "Cache-Control" "no-cache"
-write header "Sec-WebSocket-Key" "qGJGE4V5NjJxQHMzSF7ViQ=="
-write header "Sec-WebSocket-Version" "13"
+write http:method "GET"
+write http:header "User-Agent" "AutobahnTestSuite/0.6.1-0.8.8"
+write http:host
+write http:header "Upgrade" "WebSocket"
+write http:header "Connection" "Upgrade"
+write http:header "Pragma" "no-cache"
+write http:header "Cache-Control" "no-cache"
+write http:header "Sec-WebSocket-Key" "qGJGE4V5NjJxQHMzSF7ViQ=="
+write http:header "Sec-WebSocket-Version" "13"
 
-read header "Connection" "Upgrade"
-read header "Sec-WebSocket-Accept" "IF0nEhUtZc3XUMigyQOarssta9w="
-read header "Upgrade" "WebSocket"
+read http:header "Connection" "Upgrade"
+read http:header "Sec-WebSocket-Accept" "IF0nEhUtZc3XUMigyQOarssta9w="
+read http:header "Upgrade" "WebSocket"
 
 # Websocket text with empty payload
 write [0x81 0x80 0x13 0x95 0x59 0x76]
@@ -43,7 +43,7 @@ read [0x88 0x02 0x03 0xe8]
 read notify FRONTENDCLOSED
 
 # Backend
-accept tcp://localhost:8556
+accept "tcp://localhost:8556"
 accepted
 connected
 read "GET / HTTP/1.1\r\n"

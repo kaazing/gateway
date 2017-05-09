@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-accept udp://localhost:8080
+accept "udp://localhost:8080"
        notify BOUND
 accepted
 connected

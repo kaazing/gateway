@@ -16,7 +16,7 @@
 
 # create request (as done by .Net 3.5 client)
 
-connect tcp://localhost:8123
+connect "tcp://localhost:8123"
 connected
 
 # Send create request
@@ -86,7 +86,7 @@ read "\r\n"
 closed
 
 # downstream on separate TCP connection
-connect tcp://localhost:8123
+connect "tcp://localhost:8123"
 connected
 write await CREATED
 # write "POST /;post/echo/;e/db/fUOutUjjl9sgFumZWv1XySfdooieOf7e?.kf=0&.kp=2048&.kcc=private HTTP/1.1\r\n"

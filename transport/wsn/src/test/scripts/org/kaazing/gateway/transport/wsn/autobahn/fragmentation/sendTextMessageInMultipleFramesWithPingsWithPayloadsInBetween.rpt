@@ -24,7 +24,7 @@
 # The peer immediately answers the first Ping before it has received the last text message fragment. 
 # The peer pong's back the Ping's payload exactly, and echo's the payload of the fragmented message back to us.
 
-connect tcp://localhost:8555
+connect "tcp://localhost:8555"
 connected
 
 write "GET /echo HTTP/1.1\r\n"

@@ -18,16 +18,16 @@
 # client
 #
 
-connect http://localhost:8110/a
+connect "http://localhost:8110/a"
 connected
 
-write method "GET"
-write parameter "field" "value" "value2" "value3"
+write http:method "GET"
+write http:parameter "field" "value" "value2" "value3"
 write close
 
-read status "200" "OK"
-read header "some" "header"
-read header "Content-Length" "7"
+read http:status "200" "OK"
+read http:header "some" "header"
+read http:header "Content-Length" "7"
 read "content"
 read closed
 
@@ -38,7 +38,7 @@ closed
 # server
 #
 
-accept tcp://localhost:8080
+accept "tcp://localhost:8080"
 accepted
 connected
 

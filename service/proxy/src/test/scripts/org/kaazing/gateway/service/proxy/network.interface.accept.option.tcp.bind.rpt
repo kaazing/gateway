@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-connect tcp://localhost:7082
+connect "tcp://localhost:7082"
 connected
 
 # connection will be closed by the "echo server" stream below
@@ -22,7 +22,7 @@ closed
 
 ############################################################ Backend Echo Service stream ###################################################################
 
-accept tcp://localhost:8004
+accept "tcp://localhost:8004"
 accepted
 connected
 

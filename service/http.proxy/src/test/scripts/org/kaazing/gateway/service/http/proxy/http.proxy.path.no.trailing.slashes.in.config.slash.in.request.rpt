@@ -14,22 +14,22 @@
 # limitations under the License.
 #
 
-connect http://localhost:8110/a/
+connect "http://localhost:8110/a/"
 connected
 
-write method "GET"
-write parameter "name" "value"
-write version "HTTP/1.1"
+write http:method "GET"
+write http:parameter "name" "value"
+write http:version "HTTP/1.1"
 
-write header "User-Agent" "curl/7.37.1"
-write header host
-write header "Accept" "*/*"
+write http:header "User-Agent" "curl/7.37.1"
+write http:host
+write http:header "Accept" "*/*"
 write close
 
-read status "200" "OK"
-read version "HTTP/1.1"
-read header "Content-Type" "text/html"
-read header "Content-Length" "13"
+read http:status "200" "OK"
+read http:version "HTTP/1.1"
+read http:header "Content-Type" "text/html"
+read http:header "Content-Length" "13"
 read "Hello world\r\n"
 read closed
 
@@ -37,22 +37,22 @@ close
 closed
 
 
-accept http://localhost:8080/b/c/
+accept "http://localhost:8080/b/c/"
 accepted
 connected
 
-read method "GET"
-read parameter "name" "value"
-read header "Via" /1.1 kaazing-.+/
-read header "User-Agent" "curl/7.37.1"
-read header "Host" "localhost:8080"
-read header "Accept" "*/*"
+read http:method "GET"
+read http:parameter "name" "value"
+read http:header "Via" /1.1 kaazing-.+/
+read http:header "User-Agent" "curl/7.37.1"
+read http:header "Host" "localhost:8080"
+read http:header "Accept" "*/*"
 read closed
 
-write status "200" "OK"
-write version "HTTP/1.1"
-write header "Content-Type" "text/html"
-write header content-length
+write http:status "200" "OK"
+write http:version "HTTP/1.1"
+write http:header "Content-Type" "text/html"
+write http:content-length
 write "Hello world\r\n"
 write close
 

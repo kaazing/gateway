@@ -18,7 +18,7 @@
 # client
 #
 
-connect tcp://localhost:8110
+connect "tcp://localhost:8110"
 connected
 
 write "GET /image HTTP/1.1\r\n"
@@ -72,7 +72,7 @@ closed
 # server
 #
 
-accept tcp://localhost:8080
+accept "tcp://localhost:8080"
 accepted
 connected
 

@@ -64,7 +64,7 @@ public class MessageFormatIT {
     private final TestRule timeoutRule = new DisableOnDebug(new Timeout(5, SECONDS));
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po).around(timeoutRule);
+    public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(contextRule).around(connector).around(k3po);
 
     @Test
     @Specification({"inbound.should.accept.headers/response"})

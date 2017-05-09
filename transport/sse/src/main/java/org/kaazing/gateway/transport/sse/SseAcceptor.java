@@ -58,6 +58,7 @@ import org.kaazing.gateway.transport.BridgeSessionInitializerAdapter;
 import org.kaazing.gateway.transport.CommitFuture;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.NioBindException;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
@@ -267,7 +268,7 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
         protected void doSessionClosed(HttpAcceptSession session) throws Exception {
             SseSession sseSession = SSE_SESSION_KEY.remove(session);
             if (sseSession != null && !sseSession.isClosing()) {
-                sseSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
+                sseSession.reset(new IOException(LoggingUtils.EARLY_TERMINATION_OF_IOSESSION_MESSAGE).fillInStackTrace());
             }
 
             IoFilterChain filterChain = session.getFilterChain();
@@ -649,7 +650,7 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
                 IoSession parent = sseSession.getParent();
                 if (parent == null || parent.isClosing()) {
                     // behave similarly to connection reset by peer at NIO layer
-                    sseSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
+                    sseSession.reset(new IOException(LoggingUtils.EARLY_TERMINATION_OF_IOSESSION_MESSAGE).fillInStackTrace());
                 }
             }
         }

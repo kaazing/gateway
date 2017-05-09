@@ -20,21 +20,18 @@ import static org.kaazing.gateway.util.InternalSystemProperty.UPDATE_CHECK;
 import static org.kaazing.gateway.util.InternalSystemProperty.UPDATE_CHECK_SERVICE_URL;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.junit.runners.model.Statement;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.MemoryAppender;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class UpdateCheckIT {
@@ -46,15 +43,7 @@ public class UpdateCheckIT {
         }
     };
     private K3poRule k3po = new K3poRule();
-    private List<String> expectedPatterns = new ArrayList();
-    private List<String> forbiddenPatterns = new ArrayList();
-    private TestRule checkLogMessageRule = (base, description) -> new Statement() {
-        @Override
-        public void evaluate() throws Throwable {
-            base.evaluate();
-            MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, null, true);
-        }
-    };
+    private LoggingRule checkLogMessageRule = new LoggingRule();
 
     @Rule
     public final TestRule chain = RuleChain.outerRule(timeoutRule(5, SECONDS))
@@ -78,10 +67,9 @@ public class UpdateCheckIT {
     @Test
     public void shouldNotifyOnUpdateCheck() throws Exception {
         k3po.finish();
-        expectedPatterns = Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
                 "Update Check: New release available for download: Kaazing (WebSocket )?Gateway 6.6.6 \\(you are currently running (\\d+).(\\d+).(\\d+)(\\-RC(\\d+))?()\\)"
-
-        );
+        ));
     }
 
     @Specification("testUpdateCheckTaskRCWithCorrectFormat")
@@ -94,9 +82,9 @@ public class UpdateCheckIT {
     @Test
     public void testRequestWithRCWithFailingFormat() throws Exception {
         k3po.finish();
-        expectedPatterns = Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
                 "java.lang.IllegalArgumentException: version String is not of form"
-        );
+        ));
     }
 
     @Specification("testUpdateCheckTaskWithFailedRequests")
@@ -109,8 +97,8 @@ public class UpdateCheckIT {
     @Test
     public void testUpdateCheckTaskWithFailedRequestsResponseCode() throws Exception {
         k3po.finish();
-        expectedPatterns = Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
                 "Unexpected 404 response code from versioning property"
-        );
+        ));
     }
 }
