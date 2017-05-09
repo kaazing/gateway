@@ -69,7 +69,7 @@ public class ClosingIT {
 
     private TestRule contextRule = ITUtil.toTestRule(context);
     private final TestRule trace = new MethodExecutionTrace();
-    private final TestRule timeoutRule = timeoutRule(15, SECONDS);
+    private final TestRule timeoutRule = timeoutRule(8, SECONDS);
 
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(contextRule).around(connector).around(k3po);
@@ -104,7 +104,6 @@ public class ClosingIT {
     @Ignore("bug https://github.com/kaazing/tickets/issues/1087")
     @Specification("client.send.close.no.reply.from.server/response")
     public void clientShouldCloseIfServerDoesNotEchoCloseFrame() throws Exception {
-        System.out.println("Stefan - 1");
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch closed = new CountDownLatch(1);
 
@@ -117,15 +116,11 @@ public class ClosingIT {
             }
         });
 
-        System.out.println("Stefan - 2");
         ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
         assertTrue("Connect failed", connectFuture.await(5,  SECONDS));
-        System.out.println("Stefan - 3");
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
         connectSession.close(false);
-        System.out.println("Stefan - 4");
         assertTrue(closed.await(4, SECONDS));
-        System.out.println("Stefan - 5");
 
         k3po.finish();
 
