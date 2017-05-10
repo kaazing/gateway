@@ -25,7 +25,7 @@ connected
 
 write http:method "GET"
 write http:header "Authorization" ${missingAuthHeader}
-write http:notify BARRIER
+write notify BARRIER
 write close
 
 # 401 Unauthorized response when scheme is missing
