@@ -20,38 +20,38 @@ property credentials ${http:loginBase64Encoder("user:pass")}
 property invalidAuthHeader ${http:append("Basic ", credentials)}
 property validAuthHeader ${http:append("Token ", credentials)}
 
-connect http://localhost:8001/echoAuth
+connect "http://localhost:8001/echoAuth"
 connected
 
-write method "GET"
-write header "Authorization" ${missingAuthHeader}
-write notify BARRIER
+write http:method "GET"
+write http:header "Authorization" ${missingAuthHeader}
+write http:notify BARRIER
 write close
 
 # 401 Unauthorized response when scheme is missing
 read await BARRIER
-read status "401" "Unauthorized"
-read header "WWW-Authenticate" "Application Token"
+read http:status "401" "Unauthorized"
+read http:header "WWW-Authenticate" "Application Token"
 read notify FIRST_DONE
 
 connect await FIRST_DONE
-connect http://localhost:8001/echoAuth
+        "http://localhost:8001/echoAuth"
 connected
 
-write method "GET"
-write header "Authorization" ${invalidAuthHeader}
+write http:method "GET"
+write http:header "Authorization" ${invalidAuthHeader}
 write close
 
 # 401 Response when scheme is not of correct type
-read status "401" "Unauthorized"
+read http:status "401" "Unauthorized"
 read notify SECOND_DONE
 
 connect await SECOND_DONE
-connect http://localhost:8001/echoAuth
+        "http://localhost:8001/echoAuth"
 connected
 
-write method "GET"
-write header "Authorization" ${validAuthHeader}
+write http:method "GET"
+write http:header "Authorization" ${validAuthHeader}
 write close
 
-read status "200" "OK"
+read http:status "200" "OK"

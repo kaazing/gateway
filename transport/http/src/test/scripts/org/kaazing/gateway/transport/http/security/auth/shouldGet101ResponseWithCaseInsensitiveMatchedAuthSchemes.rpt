@@ -17,11 +17,11 @@
 property validCredentials ${http:loginBase64Encoder("user:pass")}
 property validAuthHeader ${http:append("TOKEN ", validCredentials)}
 
-connect http://localhost:8001/echoAuth
+connect "http://localhost:8001/echoAuth"
 connected
 
-write method "GET"
-write header "Authorization" ${validAuthHeader}
+write http:method "GET"
+write http:header "Authorization" ${validAuthHeader}
 write close
 
-read status "200" "OK"
+read http:status "200" "OK"

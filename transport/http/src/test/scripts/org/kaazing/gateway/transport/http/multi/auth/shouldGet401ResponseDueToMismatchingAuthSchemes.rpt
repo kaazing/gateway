@@ -22,39 +22,39 @@ property validCredentialsSecondRealm ${http:loginBase64Encoder("joe:welcome")}
 property authHeaderSecondRealmWrongScheme ${http:append("Negotiate ", validCredentialsSecondRealm)}
 property authHeaderSecondRealmCorrectScheme  ${http:append("Basic ", validCredentialsSecondRealm)}
 
-connect http://localhost:8008/echo
+connect "http://localhost:8008/echo"
 connected
 
-write method "GET"
-write header "Authorization" ${authHeader1}
+write http:method "GET"
+write http:header "Authorization" ${authHeader1}
 write close
 
-read status "401" "Unauthorized"
-read header "Sec-Challenge-Identity" /(?<secChallengeIdentity>.*)/
-read header "WWW-Authenticate" "Basic"
+read http:status "401" "Unauthorized"
+read http:header "Sec-Challenge-Identity" /(?<secChallengeIdentity>.*)/
+read http:header "WWW-Authenticate" "Basic"
 read notify FIRST_REQUEST_COMPLETE
 
 connect await FIRST_REQUEST_COMPLETE
-connect http://localhost:8008/echo
+        "http://localhost:8008/echo"
 connected
 
-write method "GET"
-write header "Sec-Challenge-Identity" ${secChallengeIdentity}
-write header "Authorization" ${authHeaderSecondRealmWrongScheme}
+write http:method "GET"
+write http:header "Sec-Challenge-Identity" ${secChallengeIdentity}
+write http:header "Authorization" ${authHeaderSecondRealmWrongScheme}
 write close
 
-read status "401" "Unauthorized"
-read header "Sec-Challenge-Identity" /(?<secChallengeIdentity>.*)/
-read header "WWW-Authenticate" "Basic"
+read http:status "401" "Unauthorized"
+read http:header "Sec-Challenge-Identity" /(?<secChallengeIdentity>.*)/
+read http:header "WWW-Authenticate" "Basic"
 read notify SECOND_REQUEST_COMPLETE
 
 connect await SECOND_REQUEST_COMPLETE
-connect http://localhost:8008/echo
+        "http://localhost:8008/echo"
 connected
 
-write method "GET"
-write header "Sec-Challenge-Identity" ${secChallengeIdentity}
-write header "Authorization" ${authHeaderSecondRealmCorrectScheme}
+write http:method "GET"
+write http:header "Sec-Challenge-Identity" ${secChallengeIdentity}
+write http:header "Authorization" ${authHeaderSecondRealmCorrectScheme}
 write close
 
-read status "200" "OK"
+read http:status "200" "OK"
