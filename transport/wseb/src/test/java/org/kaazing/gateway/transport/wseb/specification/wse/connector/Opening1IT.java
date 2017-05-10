@@ -24,7 +24,6 @@ import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -39,7 +38,6 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -89,8 +87,7 @@ public class Opening1IT {
     private final TestRule timeoutRule = timeoutRule(5, SECONDS);
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(contextRule).around(connector)
-            .around(k3po).around(timeoutRule);
+    public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(contextRule).around(connector).around(k3po);
 
     @BeforeClass
     public static void before() throws Exception {
@@ -112,8 +109,8 @@ public class Opening1IT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                // No close handshake so IOException may occur depending on timing of k3po closing connections
-                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
+                // No close handshake so IOException (or Exception from WsebConnector) may occur depending on timing of k3po closing connections
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Exception.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -137,8 +134,8 @@ public class Opening1IT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                // No close handshake so IOException may occur depending on timing of k3po closing connections
-                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
+                // No close handshake so IOException (or Exception from WsebConnector) may occur depending on timing of k3po closing connections
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Exception.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });

@@ -18,15 +18,19 @@ package org.kaazing.gateway.transport.wseb.specification.wse.connector;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
+import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.mina.core.service.IoHandler;
+import org.hamcrest.core.AllOf;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.internal.matchers.ThrowableMessageMatcher;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.wseb.test.WsebConnectorRule;
 import org.kaazing.gateway.util.InternalSystemProperty;
@@ -59,9 +63,7 @@ public class CommandIT {
     private final TestRule timeoutRule = timeoutRule(5, SECONDS);
 
     @Rule
-    // contextRule after k3po so we don't choke on exceptionCaught happening when k3po closes connections
-    public TestRule chain = RuleChain.outerRule(trace).around(connector).around(k3po).around(contextRule)
-            .around(timeoutRule);
+    public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(contextRule).around(connector).around(k3po);
 
     @Test
     @Specification("server.send.nop/response")
@@ -73,6 +75,8 @@ public class CommandIT {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).exceptionCaught(with(any(IoSessionEx.class)), 
+                        with(AllOf.allOf(any(IOException.class),ThrowableMessageMatcher.hasMessage(equal(LoggingUtils.NETWORK_CONNECTIVITY_ERROR_MESSAGE)))));
             }
         });
         connector.connect("ws://localhost:8080/path?query", null, handler);
@@ -89,6 +93,8 @@ public class CommandIT {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).exceptionCaught(with(any(IoSessionEx.class)), 
+                        with(AllOf.allOf(any(IOException.class),ThrowableMessageMatcher.hasMessage(equal(LoggingUtils.NETWORK_CONNECTIVITY_ERROR_MESSAGE)))));
             }
         });
         connector.connect("ws://localhost:8080/path?query", null, handler);
@@ -105,6 +111,8 @@ public class CommandIT {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).exceptionCaught(with(any(IoSessionEx.class)), 
+                        with(AllOf.allOf(any(IOException.class),ThrowableMessageMatcher.hasMessage(equal(LoggingUtils.NETWORK_CONNECTIVITY_ERROR_MESSAGE)))));
             }
         });
         connector.connect("ws://localhost:8080/path?query", null, handler);

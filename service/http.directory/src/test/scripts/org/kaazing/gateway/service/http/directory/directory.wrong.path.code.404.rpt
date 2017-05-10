@@ -14,18 +14,18 @@
 # limitations under the License.
 #
 
-connect http://localhost:8008/index.html
+connect "http://localhost:8008/index.html"
 connected
 
-write method "GET"
-write version "HTTP/1.1"
-write header "User-Agent" "curl/7.37.1"
-write header host
-write header "Accept" "text/css"
+write http:method "GET"
+write http:version "HTTP/1.1"
+write http:header "User-Agent" "curl/7.37.1"
+write http:host
+write http:header "Accept" "text/css"
 write flush
 
-read status "404" "Not Found"
-read version "HTTP/1.1"
+read http:status "404" "Not Found"
+read http:version "HTTP/1.1"
 
 close
 closed

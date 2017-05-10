@@ -14,28 +14,28 @@
 # limitations under the License.
 #
 
-connect http://localhost:8001/echo
+connect "http://localhost:8001/echo"
 connected
 
 # Connection request
-write method "GET"
-write version "HTTP/1.1"
-write header host
-write header "Upgrade" "websocket"
-write header "Connection" "Upgrade"
-write header "Sec-WebSocket-Key" "N+HvJLWWWO2lG89OebjRMg=="
-write header "Sec-WebSocket-Version" "13"
-write header "Sec-WebSocket-Protocol" "x-kaazing-handshake"
+write http:method "GET"
+write http:version "HTTP/1.1"
+write http:host
+write http:header "Upgrade" "websocket"
+write http:header "Connection" "Upgrade"
+write http:header "Sec-WebSocket-Key" "N+HvJLWWWO2lG89OebjRMg=="
+write http:header "Sec-WebSocket-Version" "13"
+write http:header "Sec-WebSocket-Protocol" "x-kaazing-handshake"
 
 # 101 Response
-read status "101" /.+/
-read version "HTTP/1.1"
-read header "Upgrade" "websocket"
-read header "Connection" "Upgrade"
-read header "Sec-WebSocket-Accept" /.+/
-read header "Sec-WebSocket-Protocol" "x-kaazing-handshake"
-read header "Server" /.+/
-read header "Date" /.+/
+read http:status "101" /.+/
+read http:version "HTTP/1.1"
+read http:header "Upgrade" "websocket"
+read http:header "Connection" "Upgrade"
+read http:header "Sec-WebSocket-Accept" /.+/
+read http:header "Sec-WebSocket-Protocol" "x-kaazing-handshake"
+read http:header "Server" /.+/
+read http:header "Date" /.+/
 
 # Extended handshake request
 write [0x82 0xFE 0x00 0xB0] [0x00 0x00 0x00 0x00]

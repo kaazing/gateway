@@ -16,7 +16,7 @@
 
 # create request
 
-connect tcp://localhost:8000
+connect "tcp://localhost:8000"
 connected
 
 write "GET /echo/;e/ctm?.kn=44214808056131005 HTTP/1.1\r\n"
@@ -51,7 +51,7 @@ close
 closed
 
 # downstream request (may not be thread aligned - different TCP connection)
-connect tcp://localhost:8000
+connect "tcp://localhost:8000"
 connected
 
 write await CREATED
@@ -105,7 +105,7 @@ closed
 
 
 # upstream request (may not be thread aligned - different TCP connection)
-connect tcp://localhost:8000
+connect "tcp://localhost:8000"
 connected
 
 write await CREATED

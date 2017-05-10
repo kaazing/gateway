@@ -75,10 +75,10 @@ public class AuthorizationIT {
     private TestRule contextRule = ITUtil.toTestRule(context1);
     private final TestRule trace = new MethodExecutionTrace();
     private final K3poRule robot = new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7235");
-     private final TestRule timeoutRule = new DisableOnDebug(new Timeout(5, SECONDS));
+    private final TestRule timeoutRule = new DisableOnDebug(new Timeout(5, SECONDS));
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).around(robot).around(timeoutRule);
+    public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(contextRule).around(acceptor).around(robot);
 
     @Test
     @Specification("framework/invalid.then.valid.credentials/request")

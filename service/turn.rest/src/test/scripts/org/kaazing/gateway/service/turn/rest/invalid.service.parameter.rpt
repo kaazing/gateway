@@ -14,14 +14,14 @@
 # limitations under the License.
 #
 
-connect http://localhost:8000/
+connect "http://localhost:8000/"
 connected
 
-write method "GET"
-write version "HTTP/1.1"
-write header host
-write header "Max Age" "86400"
-write parameter "service" "invalid"
+write http:method "GET"
+write http:version "HTTP/1.1"
+write http:host
+write http:header "Max Age" "86400"
+write http:parameter "service" "invalid"
 
 close
 closed

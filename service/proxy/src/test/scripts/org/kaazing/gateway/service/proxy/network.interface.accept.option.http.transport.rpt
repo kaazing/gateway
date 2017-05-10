@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-connect tcp://localhost:8111
+connect "tcp://localhost:8111"
 connected
 
 close

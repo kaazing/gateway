@@ -23,7 +23,7 @@
 # revoked.txt (22933D8C is serial number of client certificate)
 # R\t060920165425Z\t050315152021Z\t22933D8C\tunknown\t/CN=localhost/OU=Engineering/O=Kaazing Corporation/L=Mountain View/S=California/C=US
 
-accept tcp://localhost:8192
+accept "tcp://localhost:8192"
 accepted
 connected
 

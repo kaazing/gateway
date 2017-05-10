@@ -16,7 +16,7 @@
 
 # create request
 
-connect tcp://localhost:8000
+connect "tcp://localhost:8000"
 connected
 
 write "GET /echo/;e/ct HTTP/1.1\r\n"
@@ -57,7 +57,7 @@ closed
 #
 # downstream request
 #
-connect tcp://localhost:8000
+connect "tcp://localhost:8000"
 connected
 
 write await CREATED
@@ -112,7 +112,7 @@ closed
 #
 # upstream request
 #
-connect tcp://localhost:8000
+connect "tcp://localhost:8000"
 connected
 
 write await CREATED
@@ -156,7 +156,7 @@ closed
 # To simulate barrier from external event
 # =======================================
 #
-connect tcp://localhost:61234
+connect "tcp://localhost:61234"
 connected
 read "WakeUp"
 read notify READ_START

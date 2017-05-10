@@ -15,26 +15,26 @@
 #
 
 property writeMask ${ws:randomBytes(4)}
-connect http://localhost:8001/echo?.kl=Y
+connect "http://localhost:8001/echo?.kl=Y"
 connected
 
-write method "GET"
-write version "HTTP/1.1"
-write header host
-write header "Upgrade" "websocket"
-write header "Connection" "Upgrade"
-write header "Sec-WebSocket-Key" "dGhlIHNhbXBsZSBub25jZQ=="
-write header "Sec-WebSocket-Version" "13"
-write header "Sec-WebSocket-Protocol" "x-kaazing-handshake"
+write http:method "GET"
+write http:version "HTTP/1.1"
+write http:host
+write http:header "Upgrade" "websocket"
+write http:header "Connection" "Upgrade"
+write http:header "Sec-WebSocket-Key" "dGhlIHNhbXBsZSBub25jZQ=="
+write http:header "Sec-WebSocket-Version" "13"
+write http:header "Sec-WebSocket-Protocol" "x-kaazing-handshake"
 
-read status "101" /.+/
-read version "HTTP/1.1"
-read header "Upgrade" "websocket"
-read header "Connection" "Upgrade"
-read header "Sec-WebSocket-Accept" "s3pPLMBiTxaQ9kYGzzhZRbK+xOo="
-read header "Sec-WebSocket-Protocol" "x-kaazing-handshake"
-read header "Server" /.+/
-read header "Date" /.+/
+read http:status "101" /.+/
+read http:version "HTTP/1.1"
+read http:header "Upgrade" "websocket"
+read http:header "Connection" "Upgrade"
+read http:header "Sec-WebSocket-Accept" "s3pPLMBiTxaQ9kYGzzhZRbK+xOo="
+read http:header "Sec-WebSocket-Protocol" "x-kaazing-handshake"
+read http:header "Server" /.+/
+read http:header "Date" /.+/
 read [0x82 0x04]
 read [0xef 0x83 0xbf 0x4e]
 
@@ -72,17 +72,17 @@ closed
 # k3po bug https://github.com/k3po/k3po/issues/297
 
 connect await FIRST_CONNECTION_CLOSED
-connect http://localhost:8001/echo1
+        "http://localhost:8001/echo1"
 connected
 
-write method "GET"
-write version "HTTP/1.1"
-write header host
-write header "Upgrade" "websocket"
-write header "Connection" "Upgrade"
-write header "Sec-WebSocket-Key" "dGhlIHNhbXBsZSBub25jZQ=="
-write header "Sec-WebSocket-Version" "13"
-write header "Sec-WebSocket-Protocol" "x-kaazing-handshake"
+write http:method "GET"
+write http:version "HTTP/1.1"
+write http:host
+write http:header "Upgrade" "websocket"
+write http:header "Connection" "Upgrade"
+write http:header "Sec-WebSocket-Key" "dGhlIHNhbXBsZSBub25jZQ=="
+write http:header "Sec-WebSocket-Version" "13"
+write http:header "Sec-WebSocket-Protocol" "x-kaazing-handshake"
 write flush
 
 close

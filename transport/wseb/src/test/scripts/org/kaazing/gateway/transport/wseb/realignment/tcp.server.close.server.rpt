@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-accept tcp://localhost:3101
+accept "tcp://localhost:3101"
        notify BOUND
 accepted
 connected

@@ -18,23 +18,23 @@
 # server
 #
 
-accept http://localhost:8030/
+accept "http://localhost:8030/"
 accepted
 connected
 
-read method "GET"
-read parameter "name" "value"
-read header "Via" /1.1 kaazing-.+/
-read header "Via" /1.1 kaazing-.+/
-read header "User-Agent" "curl/7.37.1"
-read header "Host" "localhost:8030"
-read header "Accept" "*/*"
+read http:method "GET"
+read http:parameter "name" "value"
+read http:header "Via" /1.1 kaazing-.+/
+read http:header "Via" /1.1 kaazing-.+/
+read http:header "User-Agent" "curl/7.37.1"
+read http:header "Host" "localhost:8030"
+read http:header "Accept" "*/*"
 read closed
 
-write status "200" "OK"
-write version "HTTP/1.1"
-write header "Content-Type" "text/html"
-write header content-length
+write http:status "200" "OK"
+write http:version "HTTP/1.1"
+write http:header "Content-Type" "text/html"
+write http:content-length
 write "Hello world\r\n"
 write close
 

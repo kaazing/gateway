@@ -52,8 +52,8 @@ public abstract class BaseStateDrivenLoginModule implements LoginModule {
         this.handler = callbackHandler;
         this.sharedState = sharedState;
         this.options = options;
-        this.state = State.INITIALIZE_COMPLETE;
         this.loginResult = getLoginResultFromCallback();
+        this.state = State.INITIALIZE_COMPLETE;
     }
 
     @Override

@@ -24,13 +24,16 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.mina.core.service.IoHandler;
+import org.hamcrest.core.AllOf;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.internal.matchers.ThrowableMessageMatcher;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.wseb.test.WsebAcceptorRule;
 import org.kaazing.gateway.util.InternalSystemProperty;
@@ -63,8 +66,7 @@ public class ProxiesIT {
     private final TestRule timeoutRule = timeoutRule(5, SECONDS);
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).
-             around(k3po).around(timeoutRule);
+    public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(contextRule).around(acceptor).around(k3po);
 
     @Test
     @Specification("client.send.overlapping.downstream.request/request")
@@ -76,13 +78,15 @@ public class ProxiesIT {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 // Exception is from abrupt close of second downstream when k3po execution terminates
-                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
+                atMost(1).of(handler).exceptionCaught(with(any(IoSessionEx.class)), 
+                        with(AllOf.allOf(any(IOException.class),ThrowableMessageMatcher.hasMessage(equal(LoggingUtils.NETWORK_CONNECTIVITY_ERROR_MESSAGE)))));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
         acceptor.bind("wse://localhost:8080/path", handler);
         k3po.finish();
+//        throw new Exception();
     }
 
     @Test

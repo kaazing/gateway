@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-connect tcp://localhost:8005
+connect "tcp://localhost:8005"
 connected
 
 write "POST /sse?.kb=512&.kp=256&.kac=ex&.kct=application/x-message-http HTTP/1.1\r\n"

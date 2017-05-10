@@ -15,7 +15,7 @@
 #
 
 #Echo service with ssl.encryption.disabled
-connect tcp://localhost:8555
+connect "tcp://localhost:8555"
 connected
 
 write "GET /echo?.kl=Y HTTP/1.1\r\n"

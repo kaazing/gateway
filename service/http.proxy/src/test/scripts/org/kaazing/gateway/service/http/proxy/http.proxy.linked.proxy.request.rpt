@@ -18,22 +18,22 @@
 # client
 #
 
-connect http://localhost:8010/
+connect "http://localhost:8010/"
 connected
 
-write method "GET"
-write parameter "name" "value"
-write version "HTTP/1.1"
+write http:method "GET"
+write http:parameter "name" "value"
+write http:version "HTTP/1.1"
 
-write header "User-Agent" "curl/7.37.1"
-write header host
-write header "Accept" "*/*"
+write http:header "User-Agent" "curl/7.37.1"
+write http:host
+write http:header "Accept" "*/*"
 write close
 
-read status "200" "OK"
-read version "HTTP/1.1"
-read header "Content-Type" "text/html"
-read header "Content-Length" "13"
+read http:status "200" "OK"
+read http:version "HTTP/1.1"
+read http:header "Content-Type" "text/html"
+read http:header "Content-Length" "13"
 read "Hello world\r\n"
 read closed
 

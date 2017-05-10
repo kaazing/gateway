@@ -22,7 +22,7 @@
 # Case Expectation
 # The connection is failed immediately (1002/protocol error), since RSV must be 0, when no extension defining RSV meaning has been negotiated.
 
-connect tcp://localhost:8555
+connect "tcp://localhost:8555"
 connected
 
 write "GET /echo HTTP/1.1\r\n"
