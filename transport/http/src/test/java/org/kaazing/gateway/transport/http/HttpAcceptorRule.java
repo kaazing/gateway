@@ -67,26 +67,10 @@ public class HttpAcceptorRule implements TestRule {
         httpAcceptor.bind(acceptAddress, acceptHandler, null);
     }
 
-    public void setExpiringState(){
-        httpAcceptor.setExpiringState(new ExpiringState() {
-            private ConcurrentHashMap<String, Object> map = new ConcurrentHashMap<>();
-
-            @Override
-            public Object remove(String key, Object value) {
-                return map.remove(key, value);
-            }
-
-            @Override
-            public Object putIfAbsent(String key, Object value, long ttl, TimeUnit timeunit) {
-                return map.putIfAbsent(key, value);
-            }
-
-            @Override
-            public Object get(String key) {
-                return map.get(key);
-            }
-        });
+    public void setExpiringState(ExpiringState expiringState){
+        httpAcceptor.setExpiringState(expiringState);
     }
+
     private final class AcceptorStatement extends Statement {
 
         private final Statement base;

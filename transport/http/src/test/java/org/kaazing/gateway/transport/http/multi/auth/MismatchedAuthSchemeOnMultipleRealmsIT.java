@@ -17,6 +17,9 @@ package org.kaazing.gateway.transport.http.multi.auth;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+
 import javax.security.auth.Subject;
 
 import org.jmock.Expectations;
@@ -38,6 +41,7 @@ import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 import org.kaazing.gateway.security.auth.DefaultLoginResult;
 import org.kaazing.gateway.security.auth.context.DefaultLoginContextFactory;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
+import org.kaazing.gateway.server.spi.security.ExpiringState;
 import org.kaazing.gateway.server.spi.security.LoginResult;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
@@ -97,7 +101,24 @@ public class MismatchedAuthSchemeOnMultipleRealmsIT {
         loginContextMock = context.mock(ResultAwareLoginContext.class);
         loginResultMock = context.mock(DefaultLoginResult.class);
 
-        acceptor.setExpiringState();
+        acceptor.setExpiringState(new ExpiringState() {
+            private ConcurrentHashMap<String, Object> map = new ConcurrentHashMap<>();
+
+            @Override
+            public Object remove(String key, Object value) {
+                return map.remove(key, value);
+            }
+
+            @Override
+            public Object putIfAbsent(String key, Object value, long ttl, TimeUnit timeunit) {
+                return map.putIfAbsent(key, value);
+            }
+
+            @Override
+            public Object get(String key) {
+                return map.get(key);
+            }
+        });
 
         realms = new HttpRealmInfo[2];
         realms[0] = new DefaultHttpRealmInfo(REALM_NAME_TOKEN, APPLICATION_TOKEN_CHALLENGE_SCHEME, REALM_NAME_TOKEN, EMPTY_STRING_ARRAY,
