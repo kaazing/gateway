@@ -17,10 +17,8 @@ package org.kaazing.gateway.transport.http.multi.auth;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-
 import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
 
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -51,10 +49,6 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
-/*
- * These tests are used to verify the behavior of the HttpSubjectSecurityFilter class
- * against possible outcomes of login module chain authentication.
- */
 public class MismatchedAuthSchemeOnMultipleRealmsIT {
 
     private static final String REALM_NAME_TOKEN = "Application Token";
@@ -64,7 +58,6 @@ public class MismatchedAuthSchemeOnMultipleRealmsIT {
     private static final String BASIC_CHALLENGE_SCHEME = "Basic";
     private static final String[] ANY_ROLE = new String[] {"*"};
     private static final String[] EMPTY_STRING_ARRAY = new String[]{};
-    private static final Object[] ADDITIONAL_CHALLENGES = new Object[]{"param=\"value\""};
 
     private static final IoHandlerAdapter<HttpAcceptSession> HTTP_ACCEPT_HANDLER = new IoHandlerAdapter<HttpAcceptSession>() {
         @Override
@@ -82,6 +75,8 @@ public class MismatchedAuthSchemeOnMultipleRealmsIT {
     private LoginContextFactory loginContextFactoryMock;
     private ResultAwareLoginContext loginContextMock;
     private DefaultLoginResult loginResultMock;
+    private ExpiringState expiringStateMock;
+
     private HttpRealmInfo[] realms;
 
     @Rule
@@ -97,28 +92,14 @@ public class MismatchedAuthSchemeOnMultipleRealmsIT {
 
     @Before
     public void setUp() {
+        // set up mocks
         loginContextFactoryMock = context.mock(DefaultLoginContextFactory.class);
         loginContextMock = context.mock(ResultAwareLoginContext.class);
         loginResultMock = context.mock(DefaultLoginResult.class);
+        expiringStateMock = context.mock(ExpiringState.class);
 
-        acceptor.setExpiringState(new ExpiringState() {
-            private ConcurrentHashMap<String, Object> map = new ConcurrentHashMap<>();
-
-            @Override
-            public Object remove(String key, Object value) {
-                return map.remove(key, value);
-            }
-
-            @Override
-            public Object putIfAbsent(String key, Object value, long ttl, TimeUnit timeunit) {
-                return map.putIfAbsent(key, value);
-            }
-
-            @Override
-            public Object get(String key) {
-                return map.get(key);
-            }
-        });
+        // set up http acceptor
+        acceptor.setExpiringState(expiringStateMock);
 
         realms = new HttpRealmInfo[2];
         realms[0] = new DefaultHttpRealmInfo(REALM_NAME_TOKEN, APPLICATION_TOKEN_CHALLENGE_SCHEME, REALM_NAME_TOKEN, EMPTY_STRING_ARRAY,
@@ -132,10 +113,10 @@ public class MismatchedAuthSchemeOnMultipleRealmsIT {
 
     @Test
     @Specification("shouldGet401ResponseDueToMismatchingAuthSchemes")
-    public void shouldGet401ResponseDueToMismatchingAuthSchemes()
-            throws Exception {
+    public void shouldGet401ResponseDueToMismatchingAuthSchemes() throws Exception {
         acceptor.getAcceptOptions().put("http.requiredRoles", ANY_ROLE);
         final Subject subject = new Subject();
+        LoginContext[] loginContextArrayForSecondRealm = new LoginContext[] {loginContextMock, null};
 
         context.checking(new Expectations() {
             {
@@ -154,6 +135,16 @@ public class MismatchedAuthSchemeOnMultipleRealmsIT {
                 will(returnValue(subject));
                 exactly(2).of(loginResultMock).hasLoginAuthorizationAttachment();
                 will(returnValue(Boolean.FALSE));
+                exactly(2).of(expiringStateMock).get(with(any(String.class)));
+                will(onConsecutiveCalls(
+                        returnValue(loginContextArrayForSecondRealm),
+                        returnValue(loginContextArrayForSecondRealm)));
+                allowing(expiringStateMock).putIfAbsent(
+                        with(any(String.class)),
+                        with(equal(loginContextArrayForSecondRealm)),
+                        with(30L),
+                        with(SECONDS));
+                will(returnValue(null));
             }
         });
 
