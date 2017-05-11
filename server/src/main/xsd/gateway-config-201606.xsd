@@ -1210,7 +1210,10 @@
                     <element maxOccurs="unbounded" minOccurs="0"
                              name="authorization-constraint"
                              type="gateway:AuthorizationConstraintType"/>
-
+                             
+                    <element maxOccurs="unbounded" minOccurs="0"       
+                              name="cross-site-constraint"     
+                              type="gateway:CrossSiteConstraintType"/>
                 </sequence>
             </restriction>
         </complexContent>
