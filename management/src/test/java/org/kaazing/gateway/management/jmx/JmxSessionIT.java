@@ -15,6 +15,7 @@
  */
 package org.kaazing.gateway.management.jmx;
 
+import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.kaazing.gateway.management.test.util.TlsTestUtil.getKeystoreFileLocation;
@@ -110,7 +111,6 @@ public class JmxSessionIT {
 
         // to make sure jmx is updated
         Thread.sleep(1000);
-
         MBeanServerConnection mbeanServerConn = jmxConnection.getConnection();
         ObjectName summaryBeansObjectNamePattern = new ObjectName(
                 "org.kaazing.gateway.server.management:root=gateways,subtype=services,serviceType=echo,serviceId=\""
@@ -121,8 +121,14 @@ public class JmxSessionIT {
         assertEquals(Long.valueOf(1), (Long) mbeanServerConn.getAttribute(summaryBean, "NumberOfCumulativeSessions"));
         assertEquals(Long.valueOf(0), (Long) mbeanServerConn.getAttribute(summaryBean, "NumberOfCurrentSessions"));
 
-        mbeanNames = mbeanServerConn.queryNames(
-                ObjectName.getInstance("*:serviceType=echo,name=sessions,*"), null);
-        assertEquals("The set of sessions should be empty", 0, mbeanNames.size());
+        long startTime = currentTimeMillis();
+        int sessionsCount = 1;
+        while (sessionsCount > 0 && (currentTimeMillis() - startTime) < 10000) {
+            Thread.sleep(500);
+            mbeanNames = mbeanServerConn.queryNames(
+                    ObjectName.getInstance("*:serviceType=echo,name=sessions,*"), null);
+            sessionsCount = mbeanNames.size();
+        }
+        assertEquals("The set of sessions should be empty", 0, sessionsCount);
     }
 }
