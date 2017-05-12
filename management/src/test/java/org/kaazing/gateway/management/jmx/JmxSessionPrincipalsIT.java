@@ -151,6 +151,21 @@ public class JmxSessionPrincipalsIT {
         MBeanServerConnection mbeanServerConn = jmxConnection.getConnection();
         Set<ObjectName> mbeanNames = mbeanServerConn.queryNames(
                 ObjectName.getInstance("*:serviceType=echo,name=sessions,*"), null);
+
+        long startTime = currentTimeMillis();
+        boolean gotAllPrincipals = false;
+        while (!gotAllPrincipals && (currentTimeMillis() - startTime) < 10000) {
+            Thread.sleep(500);
+            gotAllPrincipals = true;
+            for (ObjectName name : mbeanNames) {
+                if (mbeanServerConn.getAttribute(name, "Principals") == null) {
+                    gotAllPrincipals = false;
+                    break;
+                }
+            }
+        }
+        assertTrue("All sessions should have Principals set", gotAllPrincipals);
+
         for (ObjectName name : mbeanNames) {
             String principals = (String) mbeanServerConn.getAttribute(name, "Principals");
             System.out.println(format("Session %s, principals=\"%s\"", name, principals));
@@ -160,6 +175,8 @@ public class JmxSessionPrincipalsIT {
                     principals.contains("RolePrincipal"));
         }
 
+        // TODO Make sure sessions are closed when gateway is stopped. When this is done, following call can be removed
+        shouldCloseSessionsByRolePrincipal("org.kaazing.gateway.management.test.util.TokenCustomLoginModule$RolePrincipal");
     }
 
     // Test should only kill sessions that have the "joe" user Principal
