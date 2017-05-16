@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
@@ -125,12 +126,12 @@ public class DefaultClusterContextTest {
             clusterContext1 = new DefaultClusterContext(clusterName,
                     accepts,
                     connects,
-                    null);
+                    new Properties());
 
             clusterContext2 = new DefaultClusterContext(clusterName,
                     connects,
                     accepts,
-                    null);
+                    new Properties());
 
             clusterContext1.addMembershipEventListener(memberTracker1);
 
@@ -167,14 +168,14 @@ public class DefaultClusterContextTest {
             clusterContext1 = new DefaultClusterContext(clusterName,
                     acceptsMember1,
                     connectsMember1,
-                    null);
+                    new Properties());
 
             List<MemberId> acceptsMember2 = Collections.singletonList(acceptMember2);
             List<MemberId> connectsMember2 = Collections.singletonList(connectMember2);
             clusterContext2 = new DefaultClusterContext(clusterName,
                     acceptsMember2,
                     connectsMember2,
-                    null);
+                    new Properties());
 
             clusterContext1.addMembershipEventListener(memberTracker1);
             clusterContext2.addMembershipEventListener(memberTracker2);
@@ -243,22 +244,22 @@ public class DefaultClusterContextTest {
             clusterContext1 = new DefaultClusterContext(clusterName,
                     accepts1,
                     connects1,
-                    null);
+                    new Properties());
 
             clusterContext2 = new DefaultClusterContext(clusterName,
                     accepts2,
                     connects2,
-                    null);
+                    new Properties());
 
             clusterContext3 = new DefaultClusterContext(clusterName,
                     accepts3,
                     connects3,
-                    null);
+                    new Properties());
 
             clusterContext4 = new DefaultClusterContext(clusterName,
                     accepts4,
                     connects4,
-                    null);
+                    new Properties());
 
             Map<ClusterContext, String> expectedBalancedServicesUrlsMap = new HashMap<>();
             initClusterContext(clusterContext1, expectedBalancedServicesUrlsMap, 1);

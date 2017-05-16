@@ -122,6 +122,7 @@ public class UdpAcceptorIT {
     @Test
     @Specification("server.sent.data/client")
     public void serverSentData() throws Exception {
+        CountDownLatch messageReceived = new CountDownLatch(1);
         WriteFuture[] futures = new WriteFuture[1];
         bindTo8080(new IoHandlerAdapter<IoSessionEx>() {
 
@@ -129,10 +130,13 @@ public class UdpAcceptorIT {
             protected void doMessageReceived(IoSessionEx session, Object message) {
                 WriteFuture future = writeStringMessageToSession("server data", session);
                 futures[0] = future;
+                messageReceived.countDown();
             }
         });
 
+
         k3po.finish();
+        assertTrue(messageReceived.await(2, SECONDS));
         futures[0].await(2, SECONDS);
         assertTrue(futures[0].isWritten());
     }
