@@ -43,7 +43,6 @@ import org.kaazing.gateway.server.spi.security.ExpiringState;
 import org.kaazing.gateway.server.spi.security.NamedSubjectCallback;
 import org.kaazing.gateway.transport.http.DefaultHttpSession;
 import org.kaazing.gateway.transport.http.HttpCookie;
-import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.bridge.HttpMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
@@ -357,24 +356,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
 
         DefaultAuthenticationToken authToken = (DefaultAuthenticationToken) tokenExtractor.extract(httpRequest, realm);
 
-        // If the client request provided authentication data which has
-        // a challenge scheme, make sure that the client-sent challenge
-        // scheme matches what we expect.  If not, it's a badly formatted
-        // request, and the client should be informed of this.
-
-        String clientChallengeScheme = authToken.getScheme();
         String expectedChallengeScheme = getBaseAuthScheme(realm.getChallengeScheme());
-
-        if (clientChallengeScheme != null &&
-                clientChallengeScheme.equals(expectedChallengeScheme) == false) {
-            if (loggerEnabled()) {
-                logger.trace(String.format("A websocket request used the '%s' challenge scheme when we expected the '%s' challenge scheme", clientChallengeScheme, expectedChallengeScheme));
-            }
-
-            String reason = String.format("Expected challenge scheme '%s' not found", expectedChallengeScheme);
-            writeResponse(HttpStatus.CLIENT_BAD_REQUEST, reason, nextFilter, session, httpRequest);
-            return;
-        }
 
         // Now set the expected challenge scheme on the AuthToken.  If the
         // client provided a scheme, the above check ensures that the
@@ -382,7 +364,9 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         // does not harm anything.  If the client did NOT provide a scheme,
         // this properly sets one, for the benefit of login modules which
         // check for such things.
-        authToken.setScheme(expectedChallengeScheme);
+        if(authToken.getScheme() == null) {
+            authToken.setScheme(expectedChallengeScheme);
+        }
 
         // Suspend incoming events into this filter. Will resume after LoginContext.login() completion
         suspendIncoming(session);
