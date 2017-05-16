@@ -14,21 +14,21 @@
 # limitations under the License.
 #
 
-connect http://localhost:8000/echo/;api/set-cookies
+connect "http://localhost:8000/echo/;api/set-cookies"
 connected
 
-write method "POST"
-write header "Accept" "*/*"
-write header "Referer" "http://localhost:8002/?.kr=xsa"
-write header "Content-Type" "text/plain"
-write header "Content-Length" "1409"
-write header "X-Origin" "null"
-write header "X-Http-Version" "httpe-1.0"
-write header "User-Agent" "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)"
-write header host
-write header "DNT" "1"
-write header "Connection" "Keep-Alive"
-write header "Cache-Control" "no-cache"
+write http:method "POST"
+write http:header "Accept" "*/*"
+write http:header "Referer" "http://localhost:8002/?.kr=xsa"
+write http:header "Content-Type" "text/plain"
+write http:header "Content-Length" "1409"
+write http:header "X-Origin" "null"
+write http:header "X-Http-Version" "httpe-1.0"
+write http:header "User-Agent" "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)"
+write http:host
+write http:header "DNT" "1"
+write http:header "Connection" "Keep-Alive"
+write http:header "Cache-Control" "no-cache"
 write "KSSOID=YYID6TCCA"
 write "+WgAwIBBaEKGwhLWk5HLk5FVKIdMBugAwIBAqEUMBIbBmtyYnRndBsIS1pORy5ORVSjggOxMIIDraADAgESoQMCAQ"
 write "KiggOfBIIDm80Lf2p4wbMquSnAKAcdIiU5K+P6qHnJO1G9ii+EvfnHwBS6lqy45Tt4LGouNW6L5rw9viqpIgDUMHX"
@@ -49,10 +49,10 @@ write "K6owFtvUrWHx0fPvtWp>|<testUser1>|<KZNG.NET"
 
 write close
 
-read status "200" /.*/
-read header "Content-Length" /.*/
-read header "Content-Type" "text/plain;charset=UTF-8"
-read header "Set-Cookie" /KSSOID=YYID6TCCA.*KZNG.NET/
+read http:status "200" /.*/
+read http:header "Content-Length" /.*/
+read http:header "Content-Type" "text/plain;charset=UTF-8"
+read http:header "Set-Cookie" /KSSOID=YYID6TCCA.*KZNG.NET/
 read "HTTP/1.1 200 OK\r\n\r\n"
 
 read closed

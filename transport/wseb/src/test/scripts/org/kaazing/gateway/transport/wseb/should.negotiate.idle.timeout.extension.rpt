@@ -16,22 +16,22 @@
 
 property sequence ${wse:randomInt(100)}
 
-connect http://localhost:8080/path/;e/cb?query
+connect "http://localhost:8080/path/;e/cb?query"
 connected
 
-write method "POST"
-write version "HTTP/1.1"
-write header host
-write header content-length
-write header "X-WebSocket-Version" "wseb-1.0"
-write header "X-Sequence-No" ${wse:asString(sequence)}
-write header "X-WebSocket-Extensions" "x-kaazing-idle-timeout"
+write http:method "POST"
+write http:version "HTTP/1.1"
+write http:host
+write http:content-length
+write http:header "X-WebSocket-Version" "wseb-1.0"
+write http:header "X-Sequence-No" ${wse:asString(sequence)}
+write http:header "X-WebSocket-Extensions" "x-kaazing-idle-timeout"
 write close
 
-read status "201" /.+/
-read version "HTTP/1.1"
-read header "Content-Type" /text\/plain;charset=(?i)utf-8/
-read header "X-WebSocket-Extensions" "x-kaazing-idle-timeout; timeout=10000"
+read http:status "201" /.+/
+read http:version "HTTP/1.1"
+read http:header "Content-Type" /text\/plain;charset=(?i)utf-8/
+read http:header "X-WebSocket-Extensions" "x-kaazing-idle-timeout; timeout=10000"
 
 read /http:\/\/localhost:8080\/path\/.+?\n/
 read /http:\/\/localhost:8080\/path\/.+?\n/

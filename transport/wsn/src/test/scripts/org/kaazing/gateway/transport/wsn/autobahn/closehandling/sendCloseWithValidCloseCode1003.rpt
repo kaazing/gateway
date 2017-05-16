@@ -22,7 +22,7 @@
 # Case Expectation
 # Clean close with normal or echoed code
 
-connect tcp://localhost:8555
+connect "tcp://localhost:8555"
 connected
 
 write "GET /echo HTTP/1.1\r\n"

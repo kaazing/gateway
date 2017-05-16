@@ -19,6 +19,7 @@ import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -68,6 +69,7 @@ public class WseHandshakeIT {
     }
 
     @Specification("closeDownstreamShouldUnbindUpstream")
+    @Ignore("issue https://github.com/kaazing/tickets/issues/1086 created")
     @Test
     public void closeDownstreamShouldUnbindUpstream() throws Exception {
         robot.finish();

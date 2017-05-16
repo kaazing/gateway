@@ -15,7 +15,7 @@
 #
 
 # Chrome native Websocket
-connect tcp://localhost:8001
+connect "tcp://localhost:8001"
 connected
 
 write "GET /echo HTTP/1.1\r\n"

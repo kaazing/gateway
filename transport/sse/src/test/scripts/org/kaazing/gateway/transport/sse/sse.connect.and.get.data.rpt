@@ -16,7 +16,7 @@
 
 #Backend
 
-accept tcp://localhost:7555
+accept "tcp://localhost:7555"
 accepted
 connected
 write await CONNECTED_AND_CAN_SEND_DATA_FROM_BACKEND_TO_FRONT
@@ -26,7 +26,7 @@ close
 closed
 
 #Front end 
-connect tcp://localhost:8000
+connect "tcp://localhost:8000"
 connected
 
 # Get Request 

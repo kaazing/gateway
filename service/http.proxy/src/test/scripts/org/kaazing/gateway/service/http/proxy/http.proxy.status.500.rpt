@@ -16,7 +16,7 @@
 
 # curl 7.37.1 <---> Gateway <---> tomcat 8.0.1
 
-connect tcp://localhost:8110
+connect "tcp://localhost:8110"
 connected
 
 write "GET /examples/jsp/error/err.jsp?name=audi HTTP/1.1\r\n"
@@ -41,7 +41,7 @@ closed
 # tomcat server
 #
 
-accept tcp://localhost:8080
+accept "tcp://localhost:8080"
 accepted
 connected
 

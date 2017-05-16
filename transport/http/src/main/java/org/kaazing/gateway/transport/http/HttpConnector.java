@@ -79,6 +79,7 @@ import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.LoggingFilter;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpMessage;
@@ -314,7 +315,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                 boolean connectionClose = hasCloseHeader(httpSession.getReadHeaders(HttpHeaders.HEADER_CONNECTION));
                 if (!httpSession.isClosing() && !connectionClose) {
                     httpSession.setStatus(HttpStatus.SERVER_GATEWAY_TIMEOUT);
-                    httpSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
+                    httpSession.reset(new IOException(LoggingUtils.EARLY_TERMINATION_OF_IOSESSION_MESSAGE).fillInStackTrace());
                     return;
                 }
                 if (connectionClose && !httpSession.isClosing()) {

@@ -18,64 +18,64 @@
 # client
 #
 
-connect http://localhost:8110/index.html
+connect "http://localhost:8110/index.html"
 connected
 
 #request 1
-write method "GET"
-write version "HTTP/1.1"
-write header "User-Agent" "curl/7.37.1"
-write header host
-write header "Accept" "text/css"
+write http:method "GET"
+write http:version "HTTP/1.1"
+write http:header "User-Agent" "curl/7.37.1"
+write http:host
+write http:header "Accept" "text/css"
 write flush
 
 #reply 1 - receives the recource from server
-read status "200" "OK"
-read version "HTTP/1.1"
-read header "Content-Length" "39" 
-read header "Content-Type" "text/css"
-read header "Server" "Apache-Coyote/1.1"
+read http:status "200" "OK"
+read http:version "HTTP/1.1"
+read http:header "Content-Length" "39" 
+read http:header "Content-Type" "text/css"
+read http:header "Server" "Apache-Coyote/1.1"
 read "font: normal 12px verdana,arial,tahoma;"
 read notify REQUEST2
 
 #request 2
 connect await REQUEST2
-connect http://localhost:8110/index.html
+        "http://localhost:8110/index.html"
 connected
 
-write method "GET"
-write version "HTTP/1.1"
-write header "User-Agent" "curl/7.37.1"
-write header host
-write header "Accept" "text/css"
+write http:method "GET"
+write http:version "HTTP/1.1"
+write http:header "User-Agent" "curl/7.37.1"
+write http:host
+write http:header "Accept" "text/css"
 write flush
 
 #reply 2 - receives only 304 from server, no resource
-read status "304" "Not Modified"
-read version "HTTP/1.1"
-read header "Content-Length" "6335" 
-read header "Content-Type" "text/css"
-read header "Server" "Apache-Coyote/1.1"
+read http:status "304" "Not Modified"
+read http:version "HTTP/1.1"
+read http:header "Content-Length" "6335" 
+read http:header "Content-Type" "text/css"
+read http:header "Server" "Apache-Coyote/1.1"
 read notify REQUEST3
 
 #request 3
 connect await REQUEST3
-connect http://localhost:8110/index.html
+        "http://localhost:8110/index.html"
 connected
 
-write method "GET"
-write version "HTTP/1.1"
-write header "User-Agent" "curl/7.37.1"
-write header host
-write header "Accept" "text/css"
+write http:method "GET"
+write http:version "HTTP/1.1"
+write http:header "User-Agent" "curl/7.37.1"
+write http:host
+write http:header "Accept" "text/css"
 write flush
 
 #reply 3 - receives only 304 from server, no resource
-read status "304" "Not Modified"
-read version "HTTP/1.1"
-read header "Content-Length" "6335" 
-read header "Content-Type" "text/css"
-read header "Server" "Apache-Coyote/1.1"
+read http:status "304" "Not Modified"
+read http:version "HTTP/1.1"
+read http:header "Content-Length" "6335" 
+read http:header "Content-Type" "text/css"
+read http:header "Server" "Apache-Coyote/1.1"
 read notify REQUEST4
 
 read closed
@@ -84,64 +84,64 @@ read closed
 # server
 #
 
-accept http://localhost:8080/examples/css/resource.css
+accept "http://localhost:8080/examples/css/resource.css"
 accepted
 connected
 
 #request 1
-read method "GET"
-read version "HTTP/1.1"
-read header "Via" /1.1 kaazing-.+/
-read header "User-Agent" "curl/7.37.1"
-read header "Host" "localhost:8080"
-read header "Connection" "close"
-read header "Accept" "text/css"
+read http:method "GET"
+read http:version "HTTP/1.1"
+read http:header "Via" /1.1 kaazing-.+/
+read http:header "User-Agent" "curl/7.37.1"
+read http:header "Host" "localhost:8080"
+read http:header "Connection" "close"
+read http:header "Accept" "text/css"
 
 #reply 1 - with resource
-write status "200" "OK"
-write version "HTTP/1.1"
-write header "Server" "Apache-Coyote/1.1"
-write header "Content-Type" "text/css"
-write header "Content-Length" "39"
+write http:status "200" "OK"
+write http:version "HTTP/1.1"
+write http:header "Server" "Apache-Coyote/1.1"
+write http:header "Content-Type" "text/css"
+write http:header "Content-Length" "39"
 write "font: normal 12px verdana,arial,tahoma;"
 write flush
 
 #request 2
 accepted
 connected
-read method "GET"
-read version "HTTP/1.1"
-read header "Via" /1.1 kaazing-.+/
-read header "User-Agent" "curl/7.37.1"
-read header "Host" "localhost:8080"
-read header "Connection" "close"
-read header "Accept" "text/css"
+read http:method "GET"
+read http:version "HTTP/1.1"
+read http:header "Via" /1.1 kaazing-.+/
+read http:header "User-Agent" "curl/7.37.1"
+read http:header "Host" "localhost:8080"
+read http:header "Connection" "close"
+read http:header "Accept" "text/css"
 
 #reply 2 - without resource
-write status "304" "Not Modified"
-write version "HTTP/1.1"
-write header "Server" "Apache-Coyote/1.1"
-write header "Content-Type" "text/css"
-write header "Content-Length" "6335"
+write http:status "304" "Not Modified"
+write http:version "HTTP/1.1"
+write http:header "Server" "Apache-Coyote/1.1"
+write http:header "Content-Type" "text/css"
+write http:header "Content-Length" "6335"
 write flush
 
 #request 3
 accepted
 connected
-read method "GET"
-read version "HTTP/1.1"
-read header "Via" /1.1 kaazing-.+/
-read header "User-Agent" "curl/7.37.1"
-read header "Host" "localhost:8080"
-read header "Connection" "close"
-read header "Accept" "text/css"
+read http:method "GET"
+read http:version "HTTP/1.1"
+read http:header "Via" /1.1 kaazing-.+/
+read http:header "User-Agent" "curl/7.37.1"
+read http:header "Host" "localhost:8080"
+read http:header "Connection" "close"
+read http:header "Accept" "text/css"
 
 #reply 3 - without resource
-write status "304" "Not Modified"
-write version "HTTP/1.1"
-write header "Server" "Apache-Coyote/1.1"
-write header "Content-Type" "text/css"
-write header "Content-Length" "6335"
+write http:status "304" "Not Modified"
+write http:version "HTTP/1.1"
+write http:header "Server" "Apache-Coyote/1.1"
+write http:header "Content-Type" "text/css"
+write http:header "Content-Length" "6335"
 write flush
 
 write close

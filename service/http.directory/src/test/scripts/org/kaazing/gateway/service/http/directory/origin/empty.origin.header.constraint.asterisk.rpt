@@ -15,7 +15,7 @@
 #
 
 # connect to a directory service that has cross-origin constraint set as astrisk(*) and set origin on the request as empty
-connect tcp://localhost:8002
+connect "tcp://localhost:8002"
 connected
 
 write "GET /index.html HTTP/1.1\r\n"

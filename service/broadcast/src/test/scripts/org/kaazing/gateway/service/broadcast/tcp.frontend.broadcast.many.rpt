@@ -15,7 +15,7 @@
 #
 
 # broadcast.frontend.tcp.connect.and.close
-connect tcp://localhost:8091
+connect "tcp://localhost:8091"
 connected
 write await FRONT_1_CONNECTED
 write await FRONT_2_CONNECTED
@@ -25,21 +25,21 @@ read "hello world"
 close
 closed
 
-connect tcp://localhost:8091
+connect "tcp://localhost:8091"
 connected
 write notify FRONT_1_CONNECTED
 read "hello world"
 close
 closed
 
-connect tcp://localhost:8091
+connect "tcp://localhost:8091"
 connected
 write notify FRONT_2_CONNECTED
 read "hello world"
 close
 closed
 
-accept tcp://localhost:7789
+accept "tcp://localhost:7789"
 accepted
 connected
 write notify BACKEND_CONNECTED

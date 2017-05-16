@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-connect tcp://localhost:8009
+connect "tcp://localhost:8009"
 connected
 
 write "GET / HTTP/1.1\r\n"
@@ -36,7 +36,7 @@ close
 closed
 
 
-accept tcp://localhost:8081
+accept "tcp://localhost:8081"
 accepted
 connected
 

@@ -21,14 +21,14 @@
 property invalidCredentials ${http:loginBase64Encoder("admin:admin")}
 property authHeader ${http:append("Basic ", invalidCredentials)}
 
-connect http://localhost:8110/resource
+connect "http://localhost:8110/resource"
 connected
 
-write method "GET"
-write header "Authorization" ${authHeader}
+write http:method "GET"
+write http:header "Authorization" ${authHeader}
 write close
 
-read status "403" "Forbidden"
+read http:status "403" "Forbidden"
 
 close
 closed
@@ -37,13 +37,13 @@ closed
 # server
 #
 
-accept http://localhost:8080/resource
+accept "http://localhost:8080/resource"
 accepted
 connected
 
-read method "GET"
-read header "Authorization" ${authHeader}
+read http:method "GET"
+read http:header "Authorization" ${authHeader}
 read closed
 
-write status "403" "Forbidden"
+write http:status "403" "Forbidden"
 write close

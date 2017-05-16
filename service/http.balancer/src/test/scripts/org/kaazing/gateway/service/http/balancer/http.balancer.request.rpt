@@ -14,14 +14,14 @@
 # limitations under the License.
 #
 
-connect http://localhost:8001/echo
+connect "http://localhost:8001/echo"
 connected
 
-write method "GET"
-write version "HTTP/1.1"
-write header host
+write http:method "GET"
+write http:version "HTTP/1.1"
+write http:host
 
-read status "302" /.+/
-read version "HTTP/1.1"
-read header "location" "http://localhost:8001/echo1"
+read http:status "302" /.+/
+read http:version "HTTP/1.1"
+read http:header "location" "http://localhost:8001/echo1"
 

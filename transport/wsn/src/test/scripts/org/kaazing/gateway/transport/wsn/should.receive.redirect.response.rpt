@@ -14,33 +14,33 @@
 # limitations under the License.
 #
 
-accept http://localhost:8080/jms
+accept "http://localhost:8080/jms"
 accepted
 connected
 
-read method "GET"
-read version "HTTP/1.1"
-read header "Upgrade" "websocket"
-read header "Sec-WebSocket-Version" "13"
-read header "Sec-WebSocket-Key" /.*/
-read header "Host" "localhost:8080"
-read header "Connection" "Upgrade"
+read http:method "GET"
+read http:version "HTTP/1.1"
+read http:header "Upgrade" "websocket"
+read http:header "Sec-WebSocket-Version" "13"
+read http:header "Sec-WebSocket-Key" /.*/
+read http:header "Host" "localhost:8080"
+read http:header "Connection" "Upgrade"
 read closed
 
 
-write status "302" "Found"
-write header "Location" "http://localhost:8081/jms"
-write header content-length
+write http:status "302" "Found"
+write http:header "Location" "http://localhost:8081/jms"
+write http:content-length
 write close
 
 
-accept http://localhost:8081/jms
+accept "http://localhost:8081/jms"
 accepted
 connected
 
-read method "GET"
-read version "HTTP/1.1"
-read header "Upgrade" "websocket"
-read header "Sec-WebSocket-Version" "13"
+read http:method "GET"
+read http:version "HTTP/1.1"
+read http:header "Upgrade" "websocket"
+read http:header "Sec-WebSocket-Version" "13"
 read closed
 

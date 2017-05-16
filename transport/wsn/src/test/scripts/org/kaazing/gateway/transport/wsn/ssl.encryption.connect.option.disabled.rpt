@@ -15,7 +15,7 @@
 #
 
 #Proxy service with ssl.encryption.disabled in the connect options
-connect tcp://localhost:8556
+connect "tcp://localhost:8556"
 connected
 
 # write an un-encrypted message (hex code for "dodge this")

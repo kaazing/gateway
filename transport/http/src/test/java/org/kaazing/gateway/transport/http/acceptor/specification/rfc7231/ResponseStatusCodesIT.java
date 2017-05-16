@@ -61,7 +61,7 @@ public class ResponseStatusCodesIT {
     private final TestRule timeoutRule = new DisableOnDebug(new Timeout(5, SECONDS));
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).around(k3po).around(timeoutRule);
+    public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(contextRule).around(acceptor).around(k3po);
 
     @Test
     @Specification({"proxy.should.return.504.response.when.server.is.down/client"})

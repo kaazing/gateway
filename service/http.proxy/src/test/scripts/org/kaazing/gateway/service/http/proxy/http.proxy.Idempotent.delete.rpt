@@ -14,47 +14,47 @@
 # limitations under the License.
 #
 
- connect tcp://localhost:8110
- connected
+connect "tcp://localhost:8110"
+connected
 
- write "GET /get HTTP/1.1\r\n"
- write "Host: localhost:8110\r\n"
- write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
- write "Connection: keep-alive\r\n"
- write "Upgrade-Insecure-Requests: 1\r\n"
- write "\r\n"
+write "GET /get HTTP/1.1\r\n"
+write "Host: localhost:8110\r\n"
+write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
+write "Connection: keep-alive\r\n"
+write "Upgrade-Insecure-Requests: 1\r\n"
+write "\r\n"
 
- read status "200" /.*/
+read http:status "200" /.*/
 
- write "DELETE /examples/servlets/servlet/CookieExample HTTP/1.1\r\n"
- write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
- write "Host: localhost:8110\r\n"
- write "Accept-Language: en-US,en\r\n"
- write "Connection: keep-alive"
+write "DELETE /examples/servlets/servlet/CookieExample HTTP/1.1\r\n"
+write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
+write "Host: localhost:8110\r\n"
+write "Accept-Language: en-US,en\r\n"
+write "Connection: keep-alive"
 
- read "HTTP/1.1 200 OK\r\n"
- read "Content-Type: text/html;charset=UTF-8\r\n"
- read /Date: .*/ "\r\n"
- read "Server: Apache-Coyote/1.1\r\n"
- read "Transfer-Encoding: chunked\r\n"
- read "\r\n"
- read "14\r\n"
- read "0\r\n"
- read "\r\n"
+read "HTTP/1.1 200 OK\r\n"
+read "Content-Type: text/html;charset=UTF-8\r\n"
+read /Date: .*/ "\r\n"
+read "Server: Apache-Coyote/1.1\r\n"
+read "Transfer-Encoding: chunked\r\n"
+read "\r\n"
+read "14\r\n"
+read "0\r\n"
+read "\r\n"
 
 
- write "DELETE /examples/servlets/servlet/CookieExample HTTP/1.1\r\n"
- write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
- write "Host: localhost:8110\r\n"
- write "Accept-Language: en-US,en\r\n"
- write "Connection: keep-alive"
+write "DELETE /examples/servlets/servlet/CookieExample HTTP/1.1\r\n"
+write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
+write "Host: localhost:8110\r\n"
+write "Accept-Language: en-US,en\r\n"
+write "Connection: keep-alive"
 
- read "HTTP/1.1 404 Not Found\r\n"
- read "Date: Mon, 27 Jul 2009 12:28:53 GMT"
- read "Server: Apache/2.2.14 (Win32)""
- read "Content-type: text/html"
- read "Content-length: 30"
- read "Connection: Closed"
+read "HTTP/1.1 404 Not Found\r\n"
+read "Date: Mon, 27 Jul 2009 12:28:53 GMT"
+read "Server: Apache/2.2.14 (Win32)""
+read "Content-type: text/html"
+read "Content-length: 30"
+read "Connection: Closed"
 
  close
  closed
@@ -63,36 +63,36 @@
 # Origin server
 #
 
- accept tcp://localhost:8080
- accepted
- connected
+accept "tcp://localhost:8080"
+accepted
+connected
 
 
- read "GET /get HTTP/1.1\r\n"
- read /Via: 1.1 kaazing-.+/ "\r\n"
- read "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
- read "Upgrade-Insecure-Requests: 1\r\n"
- read "Host: localhost:8080\r\n"
- read "Connection: close\r\n"
- read "\r\n"
+read "GET /get HTTP/1.1\r\n"
+read /Via: 1.1 kaazing-.+/ "\r\n"
+read "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
+read "Upgrade-Insecure-Requests: 1\r\n"
+read "Host: localhost:8080\r\n"
+read "Connection: close\r\n"
+read "\r\n"
 
- write status "200" "OK"
+write http:status "200" "OK"
 
- read "DELETE /examples/servlets/servlet/CookieExample HTTP/1.1\r\n"
- read "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
- read "Host: localhost:8110\r\n"
- read "Accept-Language: en-US,en\r\n"
- read "Connection: keep-alive"
+read "DELETE /examples/servlets/servlet/CookieExample HTTP/1.1\r\n"
+read "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
+read "Host: localhost:8110\r\n"
+read "Accept-Language: en-US,en\r\n"
+read "Connection: keep-alive"
 
- write status "200" "OK"
+write http:status "200" "OK"
 
- read "DELETE /examples/servlets/servlet/CookieExample HTTP/1.1\r\n"
- read "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
- read "Host: localhost:8110\r\n"
- read "Accept-Language: en-US,en\r\n"
- read "Connection: keep-alive"
+read "DELETE /examples/servlets/servlet/CookieExample HTTP/1.1\r\n"
+read "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
+read "Host: localhost:8110\r\n"
+read "Accept-Language: en-US,en\r\n"
+read "Connection: keep-alive"
 
- write "HTTP/1.1 404 Not Found\r\n"
+write "HTTP/1.1 404 Not Found\r\n"
 
 # gateway(sender) closes the connection
 closed

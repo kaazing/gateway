@@ -17,7 +17,7 @@
 # Secure Long Polling test - Note that gateway sends Content-Length on the downstream responses
 # See the https urls for upstream and downstream
 
-connect tcp://localhost:9003
+connect "tcp://localhost:9003"
 connected
 
 write "GET /echo/;e/ct?.ki=p HTTP/1.1\r\n"
@@ -135,7 +135,7 @@ closed
 # ======= upstream 1 =======
 
 
-connect tcp://localhost:9003
+connect "tcp://localhost:9003"
 connected
 
 write await UPSTREAM
@@ -175,7 +175,7 @@ closed
 
 # ======= upstream 2 ===========
 
-connect tcp://localhost:9003
+connect "tcp://localhost:9003"
 connected
 
 write await UPSTREAMNEXT

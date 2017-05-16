@@ -33,6 +33,7 @@ import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpMethod;
@@ -104,7 +105,7 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     @Override
     protected void doSessionClosed(HttpAcceptSession session) throws Exception {
         if (wsebSession != null && (session.getStatus() != HttpStatus.SUCCESS_OK || wsebSession.getCloseException() != null)) {
-            wsebSession.reset(new IOException("Network connectivity has been lost or transport was closed at other end",
+            wsebSession.reset(new IOException(LoggingUtils.NETWORK_CONNECTIVITY_ERROR_MESSAGE,
                     wsebSession.getAndClearCloseException()).fillInStackTrace());
         }
 

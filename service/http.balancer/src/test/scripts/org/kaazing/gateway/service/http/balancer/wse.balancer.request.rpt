@@ -24,22 +24,22 @@ property redirectAddress "http://node.example.com:8001/echo/;e/ctm"
 connect  ${connectAddress}
 connected
 
-write method "GET"
-write header "Host" ${hostHeader}
-write header "Connection" "keep-alive"
-write header "X-Origin" ${originHeader}
-write header "X-Accept-Commands" "ping"
-write header "User-Agent" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36"
-write header "Content-Type" "text/plain; charset=utf-8"
-write header "X-WebSocket-Extensions" "x-kaazing-http-revalidate"
-write header "X-Sequence-No" "0"
-write header "Accept" "*/*"
-write header "Referer" ${refererHeader}
-write header "Accept-Encoding" "gzip, deflate, sdch"
-write header "Accept-Language" "en-US,en;q=0.8"
+write http:method "GET"
+write http:header "Host" ${hostHeader}
+write http:header "Connection" "keep-alive"
+write http:header "X-Origin" ${originHeader}
+write http:header "X-Accept-Commands" "ping"
+write http:header "User-Agent" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36"
+write http:header "Content-Type" "text/plain; charset=utf-8"
+write http:header "X-WebSocket-Extensions" "x-kaazing-http-revalidate"
+write http:header "X-Sequence-No" "0"
+write http:header "Accept" "*/*"
+write http:header "Referer" ${refererHeader}
+write http:header "Accept-Encoding" "gzip, deflate, sdch"
+write http:header "Accept-Language" "en-US,en;q=0.8"
 write close
 
-read status "200" /.*/
+read http:status "200" /.*/
 
 read "HTTP/1.1 302 Found\r\n"
 read "Location: " ${redirectAddress} "\r\n"

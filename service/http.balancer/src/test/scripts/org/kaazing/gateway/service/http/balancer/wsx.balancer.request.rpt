@@ -22,23 +22,23 @@ property redirectAddress "http://node.kaazing.com:8001/echo"
 connect ${connectAddress}
 connected
 
-write method "GET"
-write version "HTTP/1.1"
-write header "Host" ${hostHeader}
-write header "Connection" "Upgrade"
-write header "Upgrade" "websocket"
-write header "Sec-WebSocket-Version" "13"
-write header "Sec-WebSocket-Key" "dGhlIHNhbXBsZSBub25jZQ=="
-write header "Sec-WebSocket-Protocol" "x-kaazing-handshake"
+write http:method "GET"
+write http:version "HTTP/1.1"
+write http:header "Host" ${hostHeader}
+write http:header "Connection" "Upgrade"
+write http:header "Upgrade" "websocket"
+write http:header "Sec-WebSocket-Version" "13"
+write http:header "Sec-WebSocket-Key" "dGhlIHNhbXBsZSBub25jZQ=="
+write http:header "Sec-WebSocket-Protocol" "x-kaazing-handshake"
 
-read status "101" /.+/
-read version "HTTP/1.1"
-read header "Connection" "Upgrade"
-read header "Date" /.+/
-read header "Sec-WebSocket-Accept" "s3pPLMBiTxaQ9kYGzzhZRbK+xOo="
-read header "Sec-WebSocket-Protocol" "x-kaazing-handshake"
-read header "Server" /.+/
-read header "Upgrade" "websocket"
+read http:status "101" /.+/
+read http:version "HTTP/1.1"
+read http:header "Connection" "Upgrade"
+read http:header "Date" /.+/
+read http:header "Sec-WebSocket-Accept" "s3pPLMBiTxaQ9kYGzzhZRbK+xOo="
+read http:header "Sec-WebSocket-Protocol" "x-kaazing-handshake"
+read http:header "Server" /.+/
+read http:header "Upgrade" "websocket"
 
 # binary-encoded balancer directive
 read [0x82 0x04 0xEF 0x83 0xBF 0x4E]

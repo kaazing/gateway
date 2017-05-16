@@ -189,6 +189,21 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
         boolean sslEncryptionEnabled = isSslEncryptionEnabled(optionsCopy.remove("ssl.encryption"));
         result.put(SSL_ENCRYPTION_ENABLED, sslEncryptionEnabled);
 
+        String[] socksSslCiphers = getSslCiphers(optionsCopy.remove("socks.ssl.ciphers"));
+        if (socksSslCiphers != null) {
+            result.put("socks." + SSL_CIPHERS, socksSslCiphers);
+        }
+
+        String[] socksSslProtocols = getSslProtocols(optionsCopy.remove("socks.ssl.protocols"));
+        if (socksSslProtocols != null) {
+            result.put("socks." + SSL_PROTOCOLS, socksSslProtocols);
+        }
+
+        String socksSslVerifyClientValue = optionsCopy.remove("socks.ssl.verify-client");
+        boolean[] socksSslClientAuth = getVerifyClientProperties(socksSslVerifyClientValue);
+        result.put("socks." + SSL_WANT_CLIENT_AUTH, socksSslClientAuth[0]);
+        result.put("socks." + SSL_NEED_CLIENT_AUTH, socksSslClientAuth[1]);
+
         boolean serverHeaderEnabled = isHttpServerHeaderEnabled(optionsCopy.remove("http.server.header"));
         result.put(HTTP_SERVER_HEADER_ENABLED, serverHeaderEnabled);
 

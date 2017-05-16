@@ -16,21 +16,21 @@
 
 # wseb create request
 
-accept http://localhost:8011/path/;e/cb
+accept "http://localhost:8011/path/;e/cb"
 accepted
 connected
 
-read method "GET"
-read version "HTTP/1.1"
-# read header "X-WebSocket-Version" "wseb-1.1"
-read header "X-Sequence-No" /(?<sequence>[0-9]{1,3})/
+read http:method "GET"
+read http:version "HTTP/1.1"
+# read http:header "X-WebSocket-Version" "wseb-1.1"
+read http:header "X-Sequence-No" /(?<sequence>[0-9]{1,3})/
 read closed
 
-write status "201" "Created" 
-write version "HTTP/1.1"
-write header "X-WebSocket-Version" "wseb-1.1"
-write header "Content-Type" "text/plain;charset=utf-8"
-write header content-length
+write http:status "201" "Created" 
+write http:version "HTTP/1.1"
+write http:header "X-WebSocket-Version" "wseb-1.1"
+write http:header "Content-Type" "text/plain;charset=utf-8"
+write http:content-length
 write "http://localhost:8011/path/;e/ub/QD12TQhXT6I5KeCrDe6g0IC9qoDkIioh\n"
 write "http://localhost:8011/path/;e/db/QD12TQhXT6I5KeCrDe6g0IC9qoDkIioh\n"
 write close
@@ -39,20 +39,20 @@ write notify CREATED
 
 # wseb downstream request
 
-accept http://localhost:8011/path/;e/db/QD12TQhXT6I5KeCrDe6g0IC9qoDkIioh
+accept "http://localhost:8011/path/;e/db/QD12TQhXT6I5KeCrDe6g0IC9qoDkIioh"
 read await CREATED
 accepted
 connected
 
-read method "GET"
-read version "HTTP/1.1"
-read header "X-Sequence-No" ${wse:asString(sequence + 1)}
+read http:method "GET"
+read http:version "HTTP/1.1"
+read http:header "X-Sequence-No" ${wse:asString(sequence + 1)}
 read closed
 
-write status "200" "OK"
-write version "HTTP/1.1"
-write header "Content-Type" "application/octet-stream"
-write header "Connection" "close"
+write http:status "200" "OK"
+write http:version "HTTP/1.1"
+write http:header "Content-Type" "application/octet-stream"
+write http:header "Connection" "close"
 write flush
 
 write [0x01 0x30 0x30 0xff] # NO-OP
@@ -65,16 +65,16 @@ write notify PING_SENT
 
 # wseb upstream request from proxy service wse connect
 
-accept http://localhost:8011/path/;e/ub/QD12TQhXT6I5KeCrDe6g0IC9qoDkIioh
+accept "http://localhost:8011/path/;e/ub/QD12TQhXT6I5KeCrDe6g0IC9qoDkIioh"
 accepted
 connected
 
 read await CREATED
 
-read method "POST"
-read version "HTTP/1.1"
-# read header "Content-Type" "application/octet-stream"
-read header "X-Sequence-No" ${wse:asString(sequence + 1)}
+read http:method "POST"
+read http:version "HTTP/1.1"
+# read http:header "Content-Type" "application/octet-stream"
+read http:header "X-Sequence-No" ${wse:asString(sequence + 1)}
 
 read await PING_SENT
 
@@ -87,9 +87,9 @@ read [0x8a 0x00]
 #read [0x01 0x30 0x31 0xFF]
 #read closed
 
-#write status "200" "OK"
-#write version "HTTP/1.1"
-#write header content-length
+#write http:status "200" "OK"
+#write http:version "HTTP/1.1"
+#write http:content-length
 #write close
 
 

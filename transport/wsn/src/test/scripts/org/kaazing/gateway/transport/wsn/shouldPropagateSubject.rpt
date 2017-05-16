@@ -20,7 +20,7 @@
 ## Scenario is: connect with auth, send (any) mesage, expect to reveive the text "OK"
 
 # META INFO: Connect occured at epoch Fri Sep 26 09:31:25 PDT 2014  -  1.411666922082163E9
-connect tcp://127.0.0.1:8001
+connect "tcp://127.0.0.1:8001"
 # wait 0
 connected
 

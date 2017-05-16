@@ -66,8 +66,7 @@ public class WsebIdleTimeoutExtensionIT {
     private final TestRule timeoutRule = timeoutRule(5, SECONDS);
 
     @Rule
-    public final TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).
-            around(k3po).around(timeoutRule);
+    public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(contextRule).around(acceptor).around(k3po);
 
     private final ResourceAddressFactory resourceAddressFactory = ResourceAddressFactory.newResourceAddressFactory();
 

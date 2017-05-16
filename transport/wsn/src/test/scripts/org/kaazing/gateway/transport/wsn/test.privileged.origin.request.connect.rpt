@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-connect tcp://localhost:8084
+connect "tcp://localhost:8084"
 connected
 
 write "GET /echoAuth?.kl=Y&.kl=Y&.kl=Y HTTP/1.1\r\n"
