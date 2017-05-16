@@ -26,6 +26,11 @@ public enum InternalSystemProperty {
     // TODO: eliminate all use of System.getProperty and pull all used properties into this class
     //       (e.g. in NioSocketAcceptor)
 
+
+    // We are deliberately changing the default that Netty uses (availableProcessors() * 2):
+    DEBUG_GATEWAY_NAME("org.kaazing.gateway.server.GATEWAY_NAME", "Kaazing Gateway"),
+
+
     // transports
     DEBUG_NIOWORKER_POOL
             ("NioWorkerPool.DEBUG"), // true or false
