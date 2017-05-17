@@ -27,8 +27,8 @@ public enum InternalSystemProperty {
     //       (e.g. in NioSocketAcceptor)
 
 
-    // We are deliberately changing the default that Netty uses (availableProcessors() * 2):
-    DEBUG_GATEWAY_NAME("org.kaazing.gateway.server.GATEWAY_NAME", "Kaazing Gateway"),
+
+    DEBUG_GATEWAY_NAME("org.kaazing.gateway.server.GATEWAY_NAME", Defaults.DEFAULT_DEBUG_GATEWAY_NAME),
 
 
     // transports
@@ -189,6 +189,12 @@ public enum InternalSystemProperty {
 
     public boolean isSet(Properties configuration) {
         return configuration.containsKey(name);
+    }
+
+    public static class Defaults {
+
+        public static final String DEFAULT_DEBUG_GATEWAY_NAME = "Kaazing Gateway";
+
     }
 
 }

@@ -68,6 +68,7 @@ import org.kaazing.gateway.transport.NioBindException;
 import org.kaazing.gateway.transport.nio.TcpExtension;
 import org.kaazing.gateway.transport.nio.internal.AbstractNioAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioProtocol;
+import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.mina.core.service.IoAcceptorEx;
 import org.kaazing.mina.netty.socket.nio.DefaultNioSocketChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.nio.NioSocketChannelIoAcceptor;
@@ -296,7 +297,7 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
             final ConcurrentMap<NioWorker, Thread> threadsByWorker = new ConcurrentHashMap<>();
             final String gatewayDebugName = DEBUG_GATEWAY_NAME.getProperty(configuration);
             final ThreadNameDeterminer determiner = (currentThreadName, proposedThreadName) ->
-                    gatewayDebugName != null ? (gatewayDebugName + ":" + proposedThreadName) : proposedThreadName;
+                    !gatewayDebugName.equals(InternalSystemProperty.Defaults.DEFAULT_DEBUG_GATEWAY_NAME) ? (gatewayDebugName + ":" + proposedThreadName) : proposedThreadName;
             workerPool = new DistributedNioWorkerPool(newCachedThreadPool(), workerCount, determiner) {
                 @Override
                 public NioWorker nextWorker() {
