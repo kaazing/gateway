@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -53,12 +54,12 @@ public class DefaultClusterTopicTest extends AbstractClusterTopicTest {
         clusterContext1 = new DefaultClusterContext(clusterName,
             accepts,
             connects,
-            null);
+            new Properties());
 
         clusterContext2 = new DefaultClusterContext(clusterName,
             connects,
             accepts,
-            null);
+            new Properties());
 
         clusterContext1.start();
         clusterContext2.start();
