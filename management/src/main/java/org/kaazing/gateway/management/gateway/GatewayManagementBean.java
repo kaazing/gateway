@@ -20,6 +20,7 @@ import org.kaazing.gateway.management.ClusterManagementListener;
 import org.kaazing.gateway.management.ManagementBean;
 import org.kaazing.gateway.management.Utils.ManagementSessionType;
 import org.kaazing.gateway.management.update.check.ManagementUpdateCheck;
+import org.kaazing.gateway.server.util.ProductInfo;
 import org.kaazing.gateway.service.cluster.ClusterContext;
 
 /**
@@ -47,19 +48,7 @@ public interface GatewayManagementBean extends ManagementBean {
 
     String getHostAndPid();
 
-    String getProductTitle();
-
-    String getProductBuild();
-
-    String getProductEdition();
-
-    String getProductDependencies();
-
-    String getProductVersionMajor();
-
-    String getProductVersionMinor();
-
-    String getProductVersionPatch();
+    ProductInfo getProductInfo();
 
     long getTotalCurrentSessions();
 

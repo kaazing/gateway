@@ -17,9 +17,7 @@ package org.kaazing.gateway.service.update.check;
 
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductEdition;
-import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductTitle;
-import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductVersionPatch;
+import static org.kaazing.gateway.server.impl.ProductInfoReader.getProductInfoInstance;
 import static org.kaazing.gateway.service.update.check.GatewayVersion.parseGatewayVersion;
 
 import java.util.HashSet;
@@ -30,6 +28,7 @@ import java.util.concurrent.ScheduledFuture;
 
 import javax.annotation.Resource;
 
+import org.kaazing.gateway.server.util.ProductInfo;
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
@@ -54,14 +53,16 @@ public class UpdateCheckService implements Service {
     public static String MANAGEMENT_UPDATE_CHECK_LISTENER = "updateCheckListeners";
 
     public UpdateCheckService() {
-        productName = getGatewayProductTitle().replaceAll("\\s+", "");
+        ProductInfo productInfo = getProductInfoInstance();
+        productName = productInfo.getTitle().replaceAll("\\s+", "");
         try {
-            currentVersion = parseGatewayVersion(getGatewayProductVersionPatch());
+            String version = productInfo.getMajor() +"."+ productInfo.getMinor() +"."+ productInfo.getPatch();
+            currentVersion = parseGatewayVersion(version);
         } catch (Exception e) {
             throw new RuntimeException("Could not locate a product version associated with the jars on the classpath",
                     e);
         }
-        final String productEdition = getGatewayProductEdition().replaceAll("\\s+", "");
+        final String productEdition = productInfo.getEdition().replaceAll("\\s+", "");
         versionServiceUrl = (productEdition.toLowerCase().contains("enterprise")) ? "https://version.kaazing.com"
                 : "https://version.kaazing.org";
     }

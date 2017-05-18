@@ -16,9 +16,7 @@
 package org.kaazing.gateway.update.check;
 
 import static java.util.concurrent.TimeUnit.DAYS;
-import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductEdition;
-import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductTitle;
-import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductVersionPatch;
+import static org.kaazing.gateway.server.impl.ProductInfoReader.getProductInfoInstance;
 import static org.kaazing.gateway.update.check.GatewayVersion.parseGatewayVersion;
 
 import java.util.HashSet;
@@ -29,6 +27,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.kaazing.gateway.server.GatewayObserverFactorySpi;
 import org.kaazing.gateway.server.context.GatewayContext;
+import org.kaazing.gateway.server.util.ProductInfo;
 import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
@@ -94,14 +93,16 @@ public class UpdateCheckGatewayObserver implements GatewayObserverFactorySpi {
             return;
         }
 
-        productName = getGatewayProductTitle().replaceAll("\\s+", "");
-        currentVersion = parseGatewayVersion(getGatewayProductVersionPatch());
+        ProductInfo productInfo = getProductInfoInstance();
+        productName = productInfo.getTitle().replaceAll("\\s+", "");
+        String version = productInfo.getMajor() +"."+ productInfo.getMinor() +"."+ productInfo.getPatch();
+        currentVersion = parseGatewayVersion(version);
 
         String serviceUrl = InternalSystemProperty.UPDATE_CHECK_SERVICE_URL.getProperty(properties);
         if (serviceUrl != null) {
             versionServiceUrl = serviceUrl;
         } else {
-            versionServiceUrl = getGatewayProductEdition().toLowerCase().contains("enterprise") ? ENTERPRISE_URL : COMMUNITY_URL;
+            versionServiceUrl = productInfo.getEdition().toLowerCase().contains("enterprise") ? ENTERPRISE_URL : COMMUNITY_URL;
         }
 
         SchedulerProvider provider = (SchedulerProvider) injectables.get("schedulerProvider");

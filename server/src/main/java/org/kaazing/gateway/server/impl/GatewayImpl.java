@@ -16,6 +16,7 @@
 package org.kaazing.gateway.server.impl;
 
 import static java.lang.String.format;
+import static org.kaazing.gateway.server.impl.ProductInfoReader.getProductInfoInstance;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -43,6 +44,7 @@ import org.kaazing.gateway.server.config.june2016.GatewayConfigDocument;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.context.resolve.GatewayContextResolver;
+import org.kaazing.gateway.server.util.ProductInfo;
 import org.kaazing.gateway.server.util.version.DuplicateJarFinder;
 import org.slf4j.Logger;
 import org.w3c.dom.Element;
@@ -356,15 +358,14 @@ final class GatewayImpl implements Gateway {
     }
 
     private void displayVersionInfo() {
-        String gatewayProductTitle = VersionUtils.getGatewayProductTitle();
-        String gatewayProductVersion = VersionUtils.getGatewayProductVersion();
+        ProductInfo prodInfo = getProductInfoInstance();
 
-        if (gatewayProductVersion == null) {
+        if (prodInfo.getVersion() == null) {
             // The only case I know of where this happens is the development one.
             // In this case just return the title.
-            LOGGER.info(gatewayProductTitle);
+            LOGGER.info(prodInfo.getTitle());
         } else {
-            LOGGER.info(gatewayProductTitle + " (" + gatewayProductVersion + ")");
+            LOGGER.info(prodInfo.getTitle() + " (" + prodInfo.getVersion() + ")");
         }
     }
 

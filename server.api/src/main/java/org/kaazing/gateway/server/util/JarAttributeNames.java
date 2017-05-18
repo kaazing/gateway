@@ -13,15 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.server.impl;
+package org.kaazing.gateway.server.util;
 
-public class VersionUtilsConst {
+public class JarAttributeNames {
 
     public static final String KAAZING_PRODUCT = "Kaazing-Product";
-
-    public static final String IMPLEMENTATION_TITLE = "Implementation-Title";
-
-    public static final String IMPLEMENTATION_VERSION = "Implementation-Version";
 
     public static final String KAAZING_DEPENDENCIES = "Kaazing-Dependencies";
 

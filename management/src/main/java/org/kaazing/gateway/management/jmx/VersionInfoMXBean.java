@@ -15,20 +15,9 @@
  */
 package org.kaazing.gateway.management.jmx;
 
+import org.kaazing.gateway.server.util.ProductInfo;
 
 public interface VersionInfoMXBean {
 
-    String getProductTitle();
-
-    String getProductBuild();
-
-    String getProductEdition();
-
-    String getProductDependencies();
-
-    String getProductVersionMajor();
-
-    String getProductVersionMinor();
-
-    String getProductVersionPatch();
+  ProductInfo getPrductInfo();
 }

@@ -25,7 +25,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.kaazing.gateway.server.impl.VersionUtils;
+import org.kaazing.gateway.server.impl.ProductInfoReader;
+import org.kaazing.gateway.server.util.ProductInfo;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
@@ -68,16 +69,19 @@ public class DetectProductTest {
 
     @Before
     public void setupService() {
-        VersionUtils.reset(this.productEdition, this.productTitle, this.productVersion, this.productDependencies);
+        ProductInfo p = new ProductInfo();
+        p.setEdition(this.productEdition);
+        p.setTitle(this.productTitle);
+        p.setVersion(this.productVersion);
+        p.setDependencies(this.productDependencies);
+        ProductInfoReader.setProductInfo(p);
         BasicConfigurator.configure();
         this.service = new UpdateCheckService();
         this.listener = new MockUpdateCheckListener();
     }
 
-    @After
-    public void cleanupMockProduct() {
-        VersionUtils.reset();
-    }
+
+
 
     /**
      * Mock UpdateCheckListener that keeps track of all the events that it receives

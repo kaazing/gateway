@@ -16,7 +16,7 @@
 package org.kaazing.gateway.update.check;
 
 import static java.lang.String.format;
-import static org.kaazing.gateway.server.impl.VersionUtils.getGatewayProductTitle;
+import static org.kaazing.gateway.server.impl.ProductInfoReader.getProductInfoInstance;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +33,6 @@ class UpdateCheckLoggingListener implements UpdateCheckListener {
     public void newVersionAvailable(GatewayVersion currentVersion, GatewayVersion latestGatewayVersion) {
         logger.info(format(
                 "Update Check: New release available for download: %s %s (you are currently running %s)",
-                getGatewayProductTitle(), latestGatewayVersion, currentVersion));
+                getProductInfoInstance().getTitle(), latestGatewayVersion, currentVersion));
     }
 }

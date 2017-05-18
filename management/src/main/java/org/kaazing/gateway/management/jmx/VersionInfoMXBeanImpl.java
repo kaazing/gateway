@@ -17,6 +17,7 @@ package org.kaazing.gateway.management.jmx;
 
 import javax.management.ObjectName;
 import org.kaazing.gateway.management.gateway.GatewayManagementBean;
+import org.kaazing.gateway.server.util.ProductInfo;
 
 public class VersionInfoMXBeanImpl implements VersionInfoMXBean {
 
@@ -26,34 +27,7 @@ public class VersionInfoMXBeanImpl implements VersionInfoMXBean {
         this.gatewayManagementBean = gatewayManagementBean;
     }
 
-    @Override
-    public String getProductTitle() {
-        return gatewayManagementBean.getProductTitle();
-    }
-
-    @Override
-    public String getProductBuild() {
-        return gatewayManagementBean.getProductBuild();
-    }
-
-    @Override
-    public String getProductEdition() {
-        return gatewayManagementBean.getProductEdition();
-    }
-
-    @Override public String getProductDependencies() {
-        return gatewayManagementBean.getProductDependencies();
-    }
-
-    @Override public String getProductVersionMajor() {
-        return gatewayManagementBean.getProductVersionMajor();
-    }
-
-    @Override public String getProductVersionMinor() {
-        return gatewayManagementBean.getProductVersionMinor();
-    }
-
-    @Override public String getProductVersionPatch() {
-        return gatewayManagementBean.getProductVersionPatch();
+    @Override public ProductInfo getPrductInfo() {
+        return gatewayManagementBean.getProductInfo();
     }
 }
