@@ -15,7 +15,7 @@
 #
 
 # get.nonexistent.page.check.status.code.404
-connect tcp://localhost:8000
+connect "tcp://localhost:8000"
 connected
 
 write "GET /nonexistentpage.html HTTP/1.1\r\n"

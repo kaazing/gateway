@@ -632,7 +632,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         // newParent.getRemoteAddress(); httpSession.setLocalAddress((ResourceAddress)redirectRemoteAddress);
         upgradeFuture.setSession(newParent);
         if (!SslUtils.isSecure(newParent) && secure) {
-            throw new InvalidParameterException("Can not switch from a secure session to a non secure session");
+            throw new InvalidParameterException("Can not switch from a secure session to a non-secure session");
         }
 
         return super.setParent(newParent);

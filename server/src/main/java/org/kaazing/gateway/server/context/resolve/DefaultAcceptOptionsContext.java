@@ -164,7 +164,12 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
         result.put("ws[ws/draft-7x].ws[ws/draft-7x].maxMessageSize", wsMaxMessageSize);
 
         int httpKeepaliveTimeout = getHttpKeepaliveTimeout(httpKeepaliveTimeoutStr);
+
         result.put("http[http/1.1].keepAliveTimeout", httpKeepaliveTimeout);
+        result.put("http[x-kaazing-handshake].keepAliveTimeout", httpKeepaliveTimeout);
+        result.put("http[httpxe/1.1].keepAliveTimeout", httpKeepaliveTimeout);
+        result.put("http[httpxe/1.1].http[http/1.1].keepAliveTimeout", httpKeepaliveTimeout);
+
         if (wsInactivityTimeoutStr != null &&
             MILLISECONDS.convert(httpKeepaliveTimeout, SECONDS) < wsInactivityTimeout) {
             LOGGER.warn("http.keepalive.timeout={} should be greater-than-or-equal-to ws.inactivity.timeout={} in accept-options",
@@ -183,6 +188,21 @@ public class DefaultAcceptOptionsContext extends DefaultOptionsContext implement
 
         boolean sslEncryptionEnabled = isSslEncryptionEnabled(optionsCopy.remove("ssl.encryption"));
         result.put(SSL_ENCRYPTION_ENABLED, sslEncryptionEnabled);
+
+        String[] socksSslCiphers = getSslCiphers(optionsCopy.remove("socks.ssl.ciphers"));
+        if (socksSslCiphers != null) {
+            result.put("socks." + SSL_CIPHERS, socksSslCiphers);
+        }
+
+        String[] socksSslProtocols = getSslProtocols(optionsCopy.remove("socks.ssl.protocols"));
+        if (socksSslProtocols != null) {
+            result.put("socks." + SSL_PROTOCOLS, socksSslProtocols);
+        }
+
+        String socksSslVerifyClientValue = optionsCopy.remove("socks.ssl.verify-client");
+        boolean[] socksSslClientAuth = getVerifyClientProperties(socksSslVerifyClientValue);
+        result.put("socks." + SSL_WANT_CLIENT_AUTH, socksSslClientAuth[0]);
+        result.put("socks." + SSL_NEED_CLIENT_AUTH, socksSslClientAuth[1]);
 
         boolean serverHeaderEnabled = isHttpServerHeaderEnabled(optionsCopy.remove("http.server.header"));
         result.put(HTTP_SERVER_HEADER_ENABLED, serverHeaderEnabled);

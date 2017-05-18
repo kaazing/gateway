@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-connect tcp://localhost:8110
+connect "tcp://localhost:8110"
 connected
 
 write "GET /bytes/128 HTTP/1.1\r\n"
@@ -54,7 +54,7 @@ closed
 # Origin server
 #
 
-accept tcp://localhost:8080
+accept "tcp://localhost:8080"
 accepted
 connected
 

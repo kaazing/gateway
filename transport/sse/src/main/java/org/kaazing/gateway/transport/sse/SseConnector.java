@@ -42,6 +42,7 @@ import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpSession;
@@ -227,7 +228,7 @@ public class SseConnector extends AbstractBridgeConnector<SseSession> {
             }
         }
         else {
-            sseSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
+            sseSession.reset(new IOException(LoggingUtils.EARLY_TERMINATION_OF_IOSESSION_MESSAGE).fillInStackTrace());
         }
     }
 

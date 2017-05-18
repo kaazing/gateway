@@ -22,7 +22,7 @@
 # Conversation 1: create and upstream
 # -----------------------------------
 
-connect tcp://127.0.0.1:8001
+connect "tcp://127.0.0.1:8001"
 connected
 
 write "GET /basic/;e/ctm?.kn=1902872333548104 HTTP/1.1\r\n"
@@ -135,7 +135,7 @@ closed
 # Conversation 2: downstream
 # --------------------------
 
-connect tcp://127.0.0.1:8001
+connect "tcp://127.0.0.1:8001"
 connected
 
 write await CREATED

@@ -14,21 +14,21 @@
 # limitations under the License.
 #
 
-connect http://localhost:8000/
+connect "http://localhost:8000/"
 connected
 
-write method "GET"
-write version "HTTP/1.1"
-write header host
-write header "Max-Age" "86400"
-write parameter "service" "turn"
-write header "Authorization" "Basic dXNlcm5hbWU6" 
+write http:method "GET"
+write http:version "HTTP/1.1"
+write http:host
+write http:header "Max-Age" "86400"
+write http:parameter "service" "turn"
+write http:header "Authorization" "Basic dXNlcm5hbWU6" 
 write notify BARRIER
 
 read await BARRIER
-read version "HTTP/1.1"
-read header "Content-Type" "application/json"
-read header "Content-Length" /.*/
+read http:version "HTTP/1.1"
+read http:header "Content-Type" "application/json"
+read http:header "Content-Length" /.*/
 
 close
 closed

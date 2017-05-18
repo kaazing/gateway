@@ -16,7 +16,7 @@
 
 # create request for text
 
-connect tcp://localhost:8000
+connect "tcp://localhost:8000"
 connected
 
 write "GET /echo/;e/ct HTTP/1.1\r\n"
@@ -50,7 +50,7 @@ closed
 
 # create request for binary
 
-connect tcp://localhost:8000
+connect "tcp://localhost:8000"
 connected
 
 # Send create request

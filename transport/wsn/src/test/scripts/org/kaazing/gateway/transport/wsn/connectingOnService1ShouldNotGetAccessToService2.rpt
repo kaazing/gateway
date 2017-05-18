@@ -15,7 +15,7 @@
 #
 
 # This script is created from a wireshark trace of javascript 4.0.4 client connecting to 4.0.4 gateway
-connect tcp://127.0.0.1:8001
+connect "tcp://127.0.0.1:8001"
 connected
 
 # Connection request

@@ -16,7 +16,7 @@
 
 # create request (as done by older 3.5 clients which do not support PING)
 
-connect tcp://localhost:8001
+connect "tcp://localhost:8001"
 connected
 
 write "GET /echo/;e/ct?.kn=9027555582579225 HTTP/1.1\r\n"
@@ -112,7 +112,7 @@ closed
 
 
 # downstream on separate TCP connection
-connect tcp://localhost:8001
+connect "tcp://localhost:8001"
 connected
 
 

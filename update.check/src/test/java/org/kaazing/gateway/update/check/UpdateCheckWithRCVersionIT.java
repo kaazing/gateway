@@ -20,9 +20,7 @@ import static org.kaazing.gateway.util.InternalSystemProperty.UPDATE_CHECK;
 import static org.kaazing.gateway.util.InternalSystemProperty.UPDATE_CHECK_SERVICE_URL;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,7 +34,7 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.gateway.server.util.ProductInfo;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.MemoryAppender;
+import org.kaazing.test.util.LoggingRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class UpdateCheckWithRCVersionIT {
@@ -57,15 +55,7 @@ public class UpdateCheckWithRCVersionIT {
         }
     };
     private K3poRule k3po = new K3poRule();
-    private List<String> expectedPatterns = new ArrayList();
-    private List<String> forbiddenPatterns = new ArrayList();
-    private TestRule checkLogMessageRule = (base, description) -> new Statement() {
-        @Override
-        public void evaluate() throws Throwable {
-            base.evaluate();
-            MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, null, true);
-        }
-    };
+    private LoggingRule checkLogMessageRule = new LoggingRule();
 
     @Rule
     public final TestRule chain = RuleChain.outerRule(timeoutRule(5, SECONDS))
@@ -83,19 +73,17 @@ public class UpdateCheckWithRCVersionIT {
     @Test
     public void shouldNotifyOnUpdateCheckWithLatestVersion() throws Exception {
         k3po.finish();
-        expectedPatterns = Arrays.asList(
+        checkLogMessageRule.expectPatterns(Arrays.asList(
                 "Update Check: New release available for download: Kaazing (WebSocket )?Gateway 5.6.1 \\(you are currently running (\\d+).(\\d+).(\\d+)(\\-RC(\\d+))?()\\)"
-
-        );
+        ));
     }
 
     @Specification("shouldNotNotifyOnUpdateCheckWithLowerVersion")
     @Test
     public void shouldNotNotifyOnUpdateCheckWithLowerVersion() throws Exception {
         k3po.finish();
-        forbiddenPatterns = Arrays.asList(
+        checkLogMessageRule.forbidPatterns(Arrays.asList(
                 "Update Check: New release available for download: Kaazing (WebSocket )?Gateway 5.6.0 \\(you are currently running (\\d+).(\\d+).(\\d+)(\\-RC(\\d+))?()\\)"
-
-        );
+        ));
     }
 }

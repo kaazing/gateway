@@ -21,25 +21,25 @@
 property validCredentials ${http:loginBase64Encoder("joe:welcome")}
 property proxyAuthHeader ${http:append("Basic ", validCredentials)}
 
-connect http://localhost:8110/resource
+connect "http://localhost:8110/resource"
 connected
 
-write method "GET"
+write http:method "GET"
 write close
 
-read status "407" "Proxy Authentication Required"
-read header "Proxy-Authenticate" /Basic realm=.+/
+read http:status "407" "Proxy Authentication Required"
+read http:header "Proxy-Authenticate" /Basic realm=.+/
 read notify FIRST_DONE
 
 connect await FIRST_DONE
-connect http://localhost:8110/resource
+        "http://localhost:8110/resource"
 connected
 
-write method "GET"
-write header "Proxy-Authorization" ${proxyAuthHeader}
+write http:method "GET"
+write http:header "Proxy-Authorization" ${proxyAuthHeader}
 write close
 
-read status "200" "OK"
+read http:status "200" "OK"
 
 close
 closed
@@ -48,22 +48,22 @@ closed
 # server
 #
 
-accept http://localhost:8080/resource
+accept "http://localhost:8080/resource"
 accepted
 connected
 
-read method "GET"
+read http:method "GET"
 read closed
 
-write status "407" "Proxy Authentication Required"
-write header "Proxy-Authenticate" "Basic realm=\"Kaazing Gateway Demo\""
+write http:status "407" "Proxy Authentication Required"
+write http:header "Proxy-Authenticate" "Basic realm=\"Kaazing Gateway Demo\""
 write flush
 
 accepted
 connected
 
-read method "GET"
-read header "Proxy-Authorization" ${proxyAuthHeader}
+read http:method "GET"
+read http:header "Proxy-Authorization" ${proxyAuthHeader}
 
-write status "200" "OK"
+write http:status "200" "OK"
 write close

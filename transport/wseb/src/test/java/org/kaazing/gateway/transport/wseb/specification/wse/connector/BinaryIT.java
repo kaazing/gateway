@@ -19,6 +19,7 @@ import static org.junit.Assert.assertTrue;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Properties;
 import java.util.Random;
@@ -26,15 +27,18 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
+import org.hamcrest.core.AllOf;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.internal.matchers.ThrowableMessageMatcher;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.wseb.test.WsebConnectorRule;
 import org.kaazing.gateway.util.InternalSystemProperty;
@@ -67,8 +71,7 @@ public class BinaryIT {
             .setScriptRoot("org/kaazing/specification/wse/data");
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(connector).around(k3po).around(contextRule)
-            .around(timeoutRule);
+    public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(contextRule).around(connector).around(k3po);
 
     // This latch is needed to ensure messageReceived has fired before each test method exits
     private CountDownLatch received = new CountDownLatch(1);
@@ -91,6 +94,8 @@ public class BinaryIT {
                 oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
                 will(countDown(received));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).exceptionCaught(with(any(IoSessionEx.class)), 
+                        with(AllOf.allOf(any(IOException.class),ThrowableMessageMatcher.hasMessage(equal(LoggingUtils.NETWORK_CONNECTIVITY_ERROR_MESSAGE)))));
             }
         });
 
@@ -124,6 +129,8 @@ public class BinaryIT {
                 oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
                 will(countDown(received));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).exceptionCaught(with(any(IoSessionEx.class)), 
+                        with(AllOf.allOf(any(IOException.class),ThrowableMessageMatcher.hasMessage(equal(LoggingUtils.NETWORK_CONNECTIVITY_ERROR_MESSAGE)))));
             }
         });
 
@@ -158,6 +165,8 @@ public class BinaryIT {
                 oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
                 will(countDown(received));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).exceptionCaught(with(any(IoSessionEx.class)), 
+                        with(AllOf.allOf(any(IOException.class),ThrowableMessageMatcher.hasMessage(equal(LoggingUtils.NETWORK_CONNECTIVITY_ERROR_MESSAGE)))));
             }
         });
 
@@ -191,6 +200,8 @@ public class BinaryIT {
                 oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
                 will(countDown(received));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).exceptionCaught(with(any(IoSessionEx.class)), 
+                        with(AllOf.allOf(any(IOException.class),ThrowableMessageMatcher.hasMessage(equal(LoggingUtils.NETWORK_CONNECTIVITY_ERROR_MESSAGE)))));
             }
         });
 
@@ -224,6 +235,8 @@ public class BinaryIT {
                 oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
                 will(countDown(received));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).exceptionCaught(with(any(IoSessionEx.class)), 
+                        with(AllOf.allOf(any(IOException.class),ThrowableMessageMatcher.hasMessage(equal(LoggingUtils.NETWORK_CONNECTIVITY_ERROR_MESSAGE)))));
             }
         });
 

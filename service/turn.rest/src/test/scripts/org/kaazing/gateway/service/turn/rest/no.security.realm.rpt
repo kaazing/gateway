@@ -14,13 +14,13 @@
 # limitations under the License.
 #
 
-connect http://localhost:8002/
+connect "http://localhost:8002/"
 connected
 
-write method "GET"
-write version "HTTP/1.1"
-write header host
-write parameter "service" "turn"
+write http:method "GET"
+write http:version "HTTP/1.1"
+write http:host
+write http:parameter "service" "turn"
 
 close
 closed

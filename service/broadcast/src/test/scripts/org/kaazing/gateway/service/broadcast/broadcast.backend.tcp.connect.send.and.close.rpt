@@ -15,7 +15,7 @@
 #
 
 # broadcast.backend.tcp.connect.send.and.close
-accept tcp://localhost:7788
+accept "tcp://localhost:7788"
 accepted
 connected
 write "This is data that should be able to be sent through"

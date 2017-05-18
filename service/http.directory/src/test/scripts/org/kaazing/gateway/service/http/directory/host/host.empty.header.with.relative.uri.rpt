@@ -15,7 +15,7 @@
 #
 
 # When the Host header value is not present server should return 400 bad request.
-connect tcp://localhost:8000
+connect "tcp://localhost:8000"
 connected
 
 write "GET / HTTP/1.1\r\n"

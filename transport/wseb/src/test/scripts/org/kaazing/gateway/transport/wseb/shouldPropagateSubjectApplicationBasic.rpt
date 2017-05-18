@@ -25,7 +25,7 @@
 # Conversation 1: create, first upstream request and downstream
 # -------------------------------------------------------------
 
-connect tcp://127.0.0.1:8001
+connect "tcp://127.0.0.1:8001"
 connected
 
 write "GET /appbasic/;e/ctm?.kn=6230804942825066 HTTP/1.1\r\n"
@@ -225,7 +225,7 @@ closed
 
 # Conversation 2: upstream request to close wse connection
 
-connect tcp://127.0.0.1:8001
+connect "tcp://127.0.0.1:8001"
 # wait 0
 connected
 

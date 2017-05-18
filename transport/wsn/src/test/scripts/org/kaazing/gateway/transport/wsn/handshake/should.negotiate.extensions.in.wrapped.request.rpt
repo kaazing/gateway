@@ -18,7 +18,7 @@
 
 property writeMask ${ws:randomBytes(4)}
 
-connect tcp://127.0.0.1:8001
+connect "tcp://127.0.0.1:8001"
 connected
 
 write "GET /echo8001?.kl=Y HTTP/1.1\r\n"

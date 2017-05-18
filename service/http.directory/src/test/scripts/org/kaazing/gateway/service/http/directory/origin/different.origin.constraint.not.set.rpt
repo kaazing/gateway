@@ -15,7 +15,7 @@
 #
 
 # connect to a directory service that has no cross-origin constraint set and set origin on request to a different origin from that of service
-connect tcp://localhost:8000
+connect "tcp://localhost:8000"
 connected
 
 write "GET /index.html HTTP/1.1\r\n"

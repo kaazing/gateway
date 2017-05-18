@@ -34,6 +34,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class LoggingUtils {
+    // message used in all IOExceptions when connectivity is lost - moved here to have a unique message that can be used also in tests
+    public static final String NETWORK_CONNECTIVITY_ERROR_MESSAGE = "Network connectivity has been lost or transport was closed at other end";
+    public static final String EARLY_TERMINATION_OF_IOSESSION_MESSAGE = "Early termination of IO session";
+    
     private static final String HOST_PORT_FORMAT = "%s:%d";
     private static final TypedAttributeKey<String> LOG_ID_ATTRIBUTE
                 = new TypedAttributeKey<>(LoggingUtils.class, "logId");

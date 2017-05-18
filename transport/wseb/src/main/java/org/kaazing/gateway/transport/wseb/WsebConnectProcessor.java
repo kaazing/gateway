@@ -37,6 +37,7 @@ import org.kaazing.gateway.transport.BridgeConnectProcessor;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.http.HttpConnectProcessor;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
 import org.kaazing.gateway.transport.http.HttpHeaders;
@@ -348,7 +349,7 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
         protected void doSessionClosed(HttpSession session) throws Exception {
             if (session.getStatus() != HttpStatus.SUCCESS_OK || wsebSession.getCloseException() != null) {
                 wsebSession.reset(
-                        new IOException("Network connectivity has been lost or transport was closed at other end",
+                        new IOException(LoggingUtils.NETWORK_CONNECTIVITY_ERROR_MESSAGE,
                                 wsebSession.getAndClearCloseException()).fillInStackTrace());
             }
         }

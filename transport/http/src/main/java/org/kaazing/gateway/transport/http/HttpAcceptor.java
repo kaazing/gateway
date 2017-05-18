@@ -34,6 +34,7 @@ import static org.kaazing.gateway.transport.http.HttpAcceptFilter.ELEVATE_EMULAT
 import static org.kaazing.gateway.transport.http.HttpAcceptFilter.HOST_HEADER;
 import static org.kaazing.gateway.transport.http.HttpAcceptFilter.HTTP_SERIALIZE_REQUEST_FILTER;
 import static org.kaazing.gateway.transport.http.HttpAcceptFilter.MERGE_REQUEST;
+import static org.kaazing.gateway.transport.http.HttpAcceptFilter.PERSISTENCE;
 import static org.kaazing.gateway.transport.http.HttpAcceptFilter.PROTOCOL_HTTP;
 import static org.kaazing.gateway.transport.http.HttpAcceptFilter.PROTOCOL_HTTPXE;
 import static org.kaazing.gateway.transport.http.HttpStatus.CLIENT_NOT_FOUND;
@@ -358,7 +359,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
             DefaultHttpSession httpSession = SESSION_KEY.remove(session);
             if (httpSession != null && !httpSession.isClosing()) {
-                httpSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
+                httpSession.reset(new IOException(LoggingUtils.EARLY_TERMINATION_OF_IOSESSION_MESSAGE).fillInStackTrace());
             }
         }
 

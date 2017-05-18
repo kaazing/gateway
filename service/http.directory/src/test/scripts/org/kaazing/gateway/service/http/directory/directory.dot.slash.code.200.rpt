@@ -14,18 +14,18 @@
 # limitations under the License.
 #
 
-connect http://localhost:8006/
+connect "http://localhost:8006/"
 connected
 
-write method "GET"
-write version "HTTP/1.1"
-write header "User-Agent" "curl/7.37.1"
-write header host
-write header "Accept" "text/css"
+write http:method "GET"
+write http:version "HTTP/1.1"
+write http:header "User-Agent" "curl/7.37.1"
+write http:host
+write http:header "Accept" "text/css"
 write flush
 
-read status "200" "OK"
-read version "HTTP/1.1"
+read http:status "200" "OK"
+read http:version "HTTP/1.1"
 
 close
 closed
