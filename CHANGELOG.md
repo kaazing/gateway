@@ -1,5 +1,25 @@
 # Change Log
 
+## [5.6.2](https://github.com/kaazing/gateway/tree/5.6.2) (2017-05-18)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.6.1...5.6.2)
+
+**Closed issues:**
+
+- \(to be removed\) [\#911](https://github.com/kaazing/gateway/issues/911)
+
+**Merged pull requests:**
+
+- Merge 5.6.2 branch back to develop [\#919](https://github.com/kaazing/gateway/pull/919) ([danibusu](https://github.com/danibusu))
+- Added latch to make sure the future is set before waiting on it. [\#918](https://github.com/kaazing/gateway/pull/918) ([Anisotrop](https://github.com/Anisotrop))
+- Fix synchronization issues in tests. [\#917](https://github.com/kaazing/gateway/pull/917) ([Anisotrop](https://github.com/Anisotrop))
+- Fixed test [\#915](https://github.com/kaazing/gateway/pull/915) ([dpwspoon](https://github.com/dpwspoon))
+- Defaulted system properties to tests [\#914](https://github.com/kaazing/gateway/pull/914) ([dpwspoon](https://github.com/dpwspoon))
+- Added socks options to options context [\#913](https://github.com/kaazing/gateway/pull/913) ([dpwspoon](https://github.com/dpwspoon))
+- added element cross-site-constraint in xsd [\#912](https://github.com/kaazing/gateway/pull/912) ([claudiaop](https://github.com/claudiaop))
+- K3po scripts upgrade and test fixes [\#910](https://github.com/kaazing/gateway/pull/910) ([StCostea](https://github.com/StCostea))
+- Add token login module improvements from feedback [\#907](https://github.com/kaazing/gateway/pull/907) ([robinzimmermann](https://github.com/robinzimmermann))
+- Change HttpLoginSecurityFilter to return 401 when the client responds by sending a different scheme [\#898](https://github.com/kaazing/gateway/pull/898) ([stanculescu](https://github.com/stanculescu))
+
 ## [5.6.1](https://github.com/kaazing/gateway/tree/5.6.1) (2017-04-26)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.6.0...5.6.1)
 
