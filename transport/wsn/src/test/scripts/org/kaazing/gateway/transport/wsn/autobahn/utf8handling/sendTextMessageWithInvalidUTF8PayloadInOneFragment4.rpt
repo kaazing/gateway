@@ -24,7 +24,7 @@
 # The connection is failed immediately, since the payload is not valid UTF-8.
 
 
-connect tcp://localhost:8555
+connect "tcp://localhost:8555"
 connected
 
 write "GET /echo HTTP/1.1\r\n"

@@ -49,6 +49,7 @@ import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 import org.kaazing.gateway.security.auth.AuthenticationTokenCallbackHandler;
 import org.kaazing.gateway.security.auth.DefaultLoginResult;
 import org.kaazing.gateway.security.auth.InetAddressCallbackHandler;
+import org.kaazing.gateway.security.auth.LoginResultCallbackHandler;
 import org.kaazing.gateway.security.auth.YesLoginModule;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.server.spi.security.AuthenticationToken;
@@ -134,12 +135,10 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
      */
     static final ResultAwareLoginContext LOGIN_CONTEXT_OK;
 
-
-
     static {
         try {
-            LOGIN_CONTEXT_OK = new ResultAwareLoginContext("LOGIN_CONTEXT_OK", new Subject(), null,
-                                                           new SuccessConfiguration(), LOGIN_RESULT_OK);
+            LOGIN_CONTEXT_OK = new ResultAwareLoginContext("LOGIN_CONTEXT_OK", new Subject(),
+                    new LoginResultCallbackHandler(LOGIN_RESULT_OK), new SuccessConfiguration(), LOGIN_RESULT_OK);
         } catch (LoginException e) {
             throw new RuntimeException(e);
         }
@@ -300,11 +299,21 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         }
 
         DefaultLoginResult loginResult = null;
+        ResultAwareLoginContext loginContext = null;
+
+        String clientChallengeScheme = authToken.getScheme();
+        String expectedChallengeScheme = getBaseAuthScheme(realm.getChallengeScheme());
+
+        if (clientChallengeScheme != null && !clientChallengeScheme.equalsIgnoreCase(expectedChallengeScheme)) {
+            String challenge = sendChallengeResponse(nextFilter, session, httpRequest, new DefaultLoginResult(), realms, realmIndex, loginContexts);
+            if (loggerEnabled()) {
+                log(String.format("Login failed - Wrong schema was provided; Issued another challenge '%s'", challenge));
+            }
+            return false;
+        }
 
         // We have a token to validate, or pre-authorized subject or sufficient roles already.
         // Using the cached subject lets clients reconnect and not pay the price for hitting the login module every time.
-
-        ResultAwareLoginContext loginContext = null;
 
         if ( rolesAreSufficient ) {
             if ( loggerEnabled() ) {

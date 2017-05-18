@@ -52,6 +52,7 @@ public class JmxManagementServiceHandlerTest {
         try {
             gateway.start(gatewayConfiguration);
         } finally {
+            Thread.sleep(500); // https://github.com/kaazing/gateway/issues/883
             gateway.stop();
         }
     }

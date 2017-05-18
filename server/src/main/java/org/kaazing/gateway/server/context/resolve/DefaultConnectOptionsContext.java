@@ -111,6 +111,21 @@ public class DefaultConnectOptionsContext extends DefaultOptionsContext implemen
         result.put(SSL_WANT_CLIENT_AUTH, clientAuth[0]);
         result.put(SSL_NEED_CLIENT_AUTH, clientAuth[1]);
 
+        String[] socksSslCiphers = getSslCiphers(optionsCopy.remove("socks.ssl.ciphers"));
+        if (socksSslCiphers != null) {
+            result.put("socks." + SSL_CIPHERS, socksSslCiphers);
+        }
+
+        String[] socksSslProtocols = getSslProtocols(optionsCopy.remove("socks.ssl.protocols"));
+        if (socksSslProtocols != null) {
+            result.put("socks." + SSL_PROTOCOLS, socksSslProtocols);
+        }
+
+        String socksSslVerifyClientValue = optionsCopy.remove("socks.ssl.verify-client");
+        boolean[] socksSslClientAuth = getVerifyClientProperties(socksSslVerifyClientValue);
+        result.put("socks." + SSL_WANT_CLIENT_AUTH, socksSslClientAuth[0]);
+        result.put("socks." + SSL_NEED_CLIENT_AUTH, socksSslClientAuth[1]);
+
         String pipeTransport = getTransportURI("pipe.transport", optionsCopy.remove("pipe.transport"));
         if (pipeTransport != null) {
             result.put(PIPE_TRANSPORT, pipeTransport);

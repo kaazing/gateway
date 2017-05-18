@@ -48,6 +48,7 @@ import org.kaazing.gateway.transport.http.HttpAcceptorRule;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.test.util.ITUtil;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 /*
@@ -83,16 +84,16 @@ public class HttpSubjectSecurityIT {
     private DefaultLoginResult loginResultMock;
     private HttpRealmInfo[] realms;
 
-    @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery() {
         {
             setImposteriser(ClassImposteriser.INSTANCE);
             setThreadingPolicy(new Synchroniser());
         }
     };
+    private TestRule contextRule = ITUtil.toTestRule(context);
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(k3po).around(timeoutRule);
+    public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(contextRule).around(acceptor).around(k3po);
 
     @Before
     public void setUp() {

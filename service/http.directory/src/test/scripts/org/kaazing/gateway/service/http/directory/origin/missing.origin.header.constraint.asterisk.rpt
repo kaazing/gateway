@@ -15,7 +15,7 @@
 #
 
 # connect to a directory service that has no cross-origin constraint set and do not send any Origin header in the request.
-connect tcp://localhost:8002
+connect "tcp://localhost:8002"
 connected
 
 write "GET /index.html HTTP/1.1\r\n"

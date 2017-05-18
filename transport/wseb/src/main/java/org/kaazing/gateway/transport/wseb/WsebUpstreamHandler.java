@@ -29,6 +29,7 @@ import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpMethod;
@@ -180,7 +181,7 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         // session is long lived so we do not want to close it when the http session is closed
 
         if (session.getStatus() != HttpStatus.SUCCESS_OK || wsebSession.getCloseException() != null) {
-            wsebSession.reset(new IOException("Network connectivity has been lost or transport was closed at other end",
+            wsebSession.reset(new IOException(LoggingUtils.NETWORK_CONNECTIVITY_ERROR_MESSAGE,
                     wsebSession.getAndClearCloseException()).fillInStackTrace());
         }
     }

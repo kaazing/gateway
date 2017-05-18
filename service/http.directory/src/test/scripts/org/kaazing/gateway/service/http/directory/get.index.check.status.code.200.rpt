@@ -15,7 +15,7 @@
 #
 
 # get.index.check.status.code.200
-connect tcp://localhost:8000
+connect "tcp://localhost:8000"
 connected
 
 write "GET /index.html HTTP/1.1\r\n"

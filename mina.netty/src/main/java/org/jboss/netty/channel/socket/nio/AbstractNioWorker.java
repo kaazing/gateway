@@ -33,11 +33,7 @@ package org.jboss.netty.channel.socket.nio;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelState;
-import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.UpstreamChannelStateEvent;
-import org.jboss.netty.channel.UpstreamMessageEvent;
 import org.jboss.netty.channel.socket.Worker;
 import org.jboss.netty.channel.socket.nio.NioWorker.ReadDispatcher;
 import org.jboss.netty.channel.socket.nio.NioWorker.TcpReadDispatcher;
@@ -592,6 +588,10 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
     protected abstract boolean read(SelectionKey k);
 
     public void deregister(final AbstractNioChannel<?> channel) {
+        if (channel instanceof NioChildDatagramChannel) {
+            return;
+        }
+
         // avoid modifying selected keys from process(select)
         // use processTasks instead
         registerTask(new Runnable() {
@@ -617,6 +617,10 @@ public abstract class AbstractNioWorker extends AbstractNioSelector implements W
     }
 
     public void register(final AbstractNioChannel<?> channel) {
+        if (channel instanceof NioChildDatagramChannel) {
+            return;
+        }
+
         // avoid modifying selected keys from process(select)
         // use processTasks instead
         registerTask(new Runnable() {

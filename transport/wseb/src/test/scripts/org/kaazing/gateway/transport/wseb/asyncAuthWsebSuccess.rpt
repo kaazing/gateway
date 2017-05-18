@@ -15,7 +15,7 @@
 #
 
 # dotnet client
-connect tcp://localhost:8001
+connect "tcp://localhost:8001"
 connected
 
 write "POST /;post/jms/;e/cb HTTP/1.1\r\n"

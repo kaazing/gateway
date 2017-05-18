@@ -85,6 +85,7 @@ import org.kaazing.gateway.transport.CommitFuture;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptor;
@@ -945,7 +946,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         protected void doSessionClosed(HttpAcceptSession session) throws Exception {
             WsebSession wsebSession = SESSION_KEY.remove(session);
             if (wsebSession != null && !wsebSession.isClosing()) {
-                wsebSession.reset(new IOException("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
+                wsebSession.reset(new IOException(LoggingUtils.NETWORK_CONNECTIVITY_ERROR_MESSAGE).fillInStackTrace());
             }
 
             IoFilterChain filterChain = session.getFilterChain();

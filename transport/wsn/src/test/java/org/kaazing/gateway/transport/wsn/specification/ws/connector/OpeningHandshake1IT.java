@@ -16,24 +16,24 @@
 package org.kaazing.gateway.transport.wsn.specification.ws.connector;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
+import org.hamcrest.core.AllOf;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.internal.matchers.ThrowableMessageMatcher;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
-import org.kaazing.gateway.service.proxy.ProxyServiceExtensionSpi;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
@@ -52,7 +52,6 @@ import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -74,8 +73,7 @@ public class OpeningHandshake1IT {
     private TestRule contextRule = ITUtil.toTestRule(context);
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(connector).around(k3po).around(timeoutRule)
-            .around(contextRule);
+    public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(contextRule).around(connector).around(k3po);
 
     @BeforeClass
     public static void before() throws Exception {
@@ -99,7 +97,10 @@ public class OpeningHandshake1IT {
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
                 atMost(1).of(handler).sessionOpened(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).exceptionCaught(with(any(IoSessionEx.class)), 
+                        with(AllOf.allOf(any(IOException.class),ThrowableMessageMatcher.hasMessage(equal(LoggingUtils.EARLY_TERMINATION_OF_IOSESSION_MESSAGE)))));
             }
         });
 
@@ -120,7 +121,10 @@ public class OpeningHandshake1IT {
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
                 atMost(1).of(handler).sessionOpened(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).exceptionCaught(with(any(IoSessionEx.class)), 
+                        with(AllOf.allOf(any(IOException.class),ThrowableMessageMatcher.hasMessage(equal(LoggingUtils.EARLY_TERMINATION_OF_IOSESSION_MESSAGE)))));
             }
         });
 

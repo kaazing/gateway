@@ -19,7 +19,7 @@
 
 ## Original method name:replayInitialRequestResponseCycleForDraft76HandshakeExpectingASynthetic101ResponseWithExtendedHandshakeProtocolConfirmed
 
-connect tcp://127.0.0.1:8001
+connect "tcp://127.0.0.1:8001"
 connected
 
 # Connection request

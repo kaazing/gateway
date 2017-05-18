@@ -36,7 +36,6 @@ import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptorRule;
 import org.kaazing.gateway.transport.http.HttpHeaders;
-import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
@@ -64,7 +63,7 @@ public class ResponseHeaderFieldsIT {
     private final TestRule timeoutRule = new DisableOnDebug(new Timeout(5, SECONDS));
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).around(k3po).around(timeoutRule);
+    public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(contextRule).around(acceptor).around(k3po);
 
     @Ignore("BUG: What to do when unknown http method given")
     @Test

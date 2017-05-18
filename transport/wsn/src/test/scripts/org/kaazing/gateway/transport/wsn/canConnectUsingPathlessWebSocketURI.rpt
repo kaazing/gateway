@@ -19,7 +19,7 @@
 
 property writeMask ${ws:randomBytes(4)}
 
-connect tcp://127.0.0.1:8001
+connect "tcp://127.0.0.1:8001"
 connected
 
 # connect Request
@@ -64,7 +64,7 @@ write [0x03 0xE8]
 write option mask [0x00 0x00 0x00 0x00]
 
 # Response WS Connection Close
-read  [0x88 0x02 0x03 0xE8]
+read [0x88 0x02 0x03 0xE8]
 
 close
 closed
