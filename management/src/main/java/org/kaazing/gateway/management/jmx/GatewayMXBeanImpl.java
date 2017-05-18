@@ -16,7 +16,9 @@
 package org.kaazing.gateway.management.jmx;
 
 import javax.management.ObjectName;
+
 import org.kaazing.gateway.management.gateway.GatewayManagementBean;
+import org.kaazing.gateway.server.util.ProductInfo;
 
 /**
  * Implementation of the Gateway-level data bean for JMX.
@@ -52,18 +54,8 @@ public class GatewayMXBeanImpl implements GatewayMXBean {
     }
 
     @Override
-    public String getProductTitle() {
-        return gatewayManagementBean.getProductTitle();
-    }
-
-    @Override
-    public String getProductBuild() {
-        return gatewayManagementBean.getProductBuild();
-    }
-
-    @Override
-    public String getProductEdition() {
-        return gatewayManagementBean.getProductEdition();
+    public ProductInfo getProductInfo() {
+        return gatewayManagementBean.getProductInfo();
     }
 
     @Override

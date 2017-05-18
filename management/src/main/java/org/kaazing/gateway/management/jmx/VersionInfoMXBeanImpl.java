@@ -16,6 +16,7 @@
 package org.kaazing.gateway.management.jmx;
 
 import javax.management.ObjectName;
+
 import org.kaazing.gateway.management.gateway.GatewayManagementBean;
 import org.kaazing.gateway.server.util.ProductInfo;
 
