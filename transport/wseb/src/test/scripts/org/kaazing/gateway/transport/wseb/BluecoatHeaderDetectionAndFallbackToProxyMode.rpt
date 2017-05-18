@@ -16,7 +16,7 @@
 
 # create request (as done by .Net 3.5 client)
 
-connect tcp://localhost:8001
+connect "tcp://localhost:8001"
 connected
 
 # Send create request

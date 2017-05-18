@@ -14,17 +14,17 @@
 # limitations under the License.
 #
 
-connect http://localhost:8110/hello
+connect "http://localhost:8110/hello"
 connected
 
-write method "DELETE"
-write version "HTTP/1.1"
-write header host
-write header content-length
+write http:method "DELETE"
+write http:version "HTTP/1.1"
+write http:host
+write http:content-length
 write close
 
-read status "200" "OK"
-read version "HTTP/1.1"
+read http:status "200" "OK"
+read http:version "HTTP/1.1"
 
 close
 closed
@@ -33,15 +33,15 @@ closed
 # server
 #
 
-accept http://localhost:8080/hello
+accept "http://localhost:8080/hello"
 accepted
 connected
 
-read method "DELETE"
+read http:method "DELETE"
 read closed
 
-write status "200" "OK"
-write header content-length
+write http:status "200" "OK"
+write http:content-length
 write flush
 
 close

@@ -18,7 +18,7 @@
 # client
 #
 
-connect tcp://localhost:8110
+connect "tcp://localhost:8110"
 connected
 
 write "GET /manager/html?org.apache.catalina.filters.CSRF_NONCE=4658FCBFF001B039C9E963E713E47992 HTTP/1.1\r\n"
@@ -48,7 +48,7 @@ closed
 # server
 #
 
-accept tcp://localhost:8080
+accept "tcp://localhost:8080"
 accepted
 connected
 

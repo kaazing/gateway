@@ -25,7 +25,7 @@
 # If the close frame is processed before the text message write is complete (as can happen in asynchronous processing models)
 # the close frame is processed first and the text message may not be received or may only be partially received.
 
-connect tcp://localhost:8555
+connect "tcp://localhost:8555"
 connected
 
 write "GET /echo HTTP/1.1\r\n"

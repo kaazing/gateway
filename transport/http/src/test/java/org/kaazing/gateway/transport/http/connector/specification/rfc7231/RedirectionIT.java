@@ -15,17 +15,21 @@
  */
 package org.kaazing.gateway.transport.http.connector.specification.rfc7231;
 
-import static org.kaazing.test.util.ITUtil.createRuleChain;
+import java.io.IOException;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.hamcrest.core.AllOf;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.internal.matchers.ThrowableMessageMatcher;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
 import org.kaazing.gateway.transport.http.HttpConnectorRule;
 import org.kaazing.gateway.transport.http.HttpMethod;
@@ -33,6 +37,7 @@ import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.test.util.ITUtil;
 
 /**
  * Test to validate behavior as specified in <a href="https://tools.ietf.org/html/rfc7231#section-4">RFC 7231 section 4:
@@ -42,15 +47,16 @@ public class RedirectionIT {
     private final HttpConnectorRule connector = new HttpConnectorRule();
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7231/redirection");
 
-    @Rule
-    public TestRule chain = createRuleChain(connector, k3po);
-
-    @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery() {
         {
             setThreadingPolicy(new Synchroniser());
         }
     };
+
+    private TestRule contextRule = ITUtil.toTestRule(context);
+
+    @Rule
+    public TestRule chain = RuleChain.outerRule(contextRule).around(connector).around(k3po);
 
     private final IoHandler handler = context.mock(IoHandler.class);
 
@@ -69,6 +75,8 @@ public class RedirectionIT {
             allowing(handler).sessionOpened(with(any(IoSessionEx.class)));
             allowing(handler).sessionCreated(with(any(IoSessionEx.class)));
             allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            atMost(1).of(handler).exceptionCaught(with(any(IoSessionEx.class)), 
+                    with(AllOf.allOf(any(IOException.class),ThrowableMessageMatcher.hasMessage(equal(LoggingUtils.EARLY_TERMINATION_OF_IOSESSION_MESSAGE)))));
         }});
         connector.getConnectOptions().put("http.maximum.redirects", 1);
         connector.connect("http://localhost:8000/resource#fragment", handler, new ConnectSessionInitializer());
@@ -82,6 +90,8 @@ public class RedirectionIT {
             allowing(handler).sessionOpened(with(any(IoSessionEx.class)));
             allowing(handler).sessionCreated(with(any(IoSessionEx.class)));
             allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            atMost(1).of(handler).exceptionCaught(with(any(IoSessionEx.class)), 
+                    with(AllOf.allOf(any(IOException.class),ThrowableMessageMatcher.hasMessage(equal(LoggingUtils.EARLY_TERMINATION_OF_IOSESSION_MESSAGE)))));
         }});
         connector.getConnectOptions().put("http.maximum.redirects", 1);
         connector.connect("http://localhost:8000/resource#fragment", handler, new ConnectSessionInitializer());
@@ -95,6 +105,8 @@ public class RedirectionIT {
             allowing(handler).sessionOpened(with(any(IoSessionEx.class)));
             allowing(handler).sessionCreated(with(any(IoSessionEx.class)));
             allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            atMost(1).of(handler).exceptionCaught(with(any(IoSessionEx.class)), 
+                    with(AllOf.allOf(any(IOException.class),ThrowableMessageMatcher.hasMessage(equal(LoggingUtils.EARLY_TERMINATION_OF_IOSESSION_MESSAGE)))));
         }});
         connector.getConnectOptions().put("http.maximum.redirects", 1);
         connector.connect("http://localhost:8000/resource#fragment", handler, new ConnectSessionInitializer());

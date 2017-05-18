@@ -1168,7 +1168,7 @@
         </complexContent>
     </complexType>
 
-    <complexType name="redirectServiceType">
+    <complexType name="http.redirectServiceType">
         <annotation>
             <documentation>This type of service is for redirecting gateway.
             </documentation>
@@ -1210,7 +1210,10 @@
                     <element maxOccurs="unbounded" minOccurs="0"
                              name="authorization-constraint"
                              type="gateway:AuthorizationConstraintType"/>
-
+                             
+                    <element maxOccurs="unbounded" minOccurs="0"       
+                              name="cross-site-constraint"     
+                              type="gateway:CrossSiteConstraintType"/>
                 </sequence>
             </restriction>
         </complexContent>
@@ -1749,13 +1752,13 @@
                              name="location" type="anyURI">
                         <annotation/>
                     </element>
-                    <element maxOccurs="1" minOccurs="0"
-                             name="status-code" type="nonNegativeInteger">
-                        <annotation/>
-                    </element>
                     <element maxOccurs="unbounded" minOccurs="0"
                              name="cache-control" type="gateway:CollapsedString">
                         <annotation />
+                    </element>
+                    <element maxOccurs="1" minOccurs="0"
+                             name="status-code" type="nonNegativeInteger">
+                        <annotation/>
                     </element>
                 </sequence>
             </restriction>

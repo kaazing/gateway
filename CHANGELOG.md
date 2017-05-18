@@ -1,15 +1,55 @@
 # Change Log
 
-## [5.6.0-RC003](https://github.com/kaazing/gateway/tree/5.6.0-RC003) (2017-03-11)
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.5.0...5.6.0-RC003)
+## [5.6.1](https://github.com/kaazing/gateway/tree/5.6.1) (2017-04-26)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.6.0...5.6.1)
+
+**Fixed bugs:**
+
+- Errors in HTTP Requests [\#636](https://github.com/kaazing/gateway/issues/636)
+
+**Closed issues:**
+
+- ConnectionManagementIT.clientWithPipeliningMustNotRetryPipeliningImmediatelyAfterFailure failure [\#887](https://github.com/kaazing/gateway/issues/887)
+- Tech Debt:  Figure out internal API of nested properties with same name [\#677](https://github.com/kaazing/gateway/issues/677)
 
 **Merged pull requests:**
 
+- Add property CLUSTER\_BYPASS\_AWS\_CHECK in InternalSystemProperty [\#909](https://github.com/kaazing/gateway/pull/909) ([stanculescu](https://github.com/stanculescu))
+- Port balancer fix from https://github.com/kaazing/gateway/pull/905 to release [\#908](https://github.com/kaazing/gateway/pull/908) ([dpwspoon](https://github.com/dpwspoon))
+- Fixes redirect service type [\#904](https://github.com/kaazing/gateway/pull/904) ([DoruM](https://github.com/DoruM))
+- reverted sonar host url, new instance is not available from travis [\#903](https://github.com/kaazing/gateway/pull/903) ([AdrianCozma](https://github.com/AdrianCozma))
+-  Applied keepAliveTimeout to all layers properly.  No need for HTTPPersistanceFilter for HTTPXE when HTTP is directly over HTTP on the upper HTTP [\#901](https://github.com/kaazing/gateway/pull/901) ([dpwspoon](https://github.com/dpwspoon))
+- Fix require role for multiple http realms [\#897](https://github.com/kaazing/gateway/pull/897) ([danibusu](https://github.com/danibusu))
+- Update login module for a token use case [\#896](https://github.com/kaazing/gateway/pull/896) ([robinzimmermann](https://github.com/robinzimmermann))
+- Fix UpdateCheckIT.shouldNotifyOnUpdateCheck [\#895](https://github.com/kaazing/gateway/pull/895) ([stanculescu](https://github.com/stanculescu))
+- Ignored ClusterBalancerServiceIT on AWS  [\#893](https://github.com/kaazing/gateway/pull/893) ([adrian-galbenus](https://github.com/adrian-galbenus))
+- Log rule bug [\#892](https://github.com/kaazing/gateway/pull/892) ([StCostea](https://github.com/StCostea))
+- Fix for ClassCastException  [\#891](https://github.com/kaazing/gateway/pull/891) ([StCostea](https://github.com/StCostea))
+- Changed GatewayObserverApi interface to have default methods  [\#877](https://github.com/kaazing/gateway/pull/877) ([zahariaca](https://github.com/zahariaca))
+- updated parent version to latest [\#869](https://github.com/kaazing/gateway/pull/869) ([AdrianCozma](https://github.com/AdrianCozma))
+
+## [5.6.0](https://github.com/kaazing/gateway/tree/5.6.0) (2017-04-04)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.5.0...5.6.0)
+
+**Fixed bugs:**
+
+- Unknown Transfer Encoding Header Test failure [\#638](https://github.com/kaazing/gateway/issues/638)
+
+**Merged pull requests:**
+
+- catchup develop from release [\#889](https://github.com/kaazing/gateway/pull/889) ([danibusu](https://github.com/danibusu))
+- Adds http.redirect service [\#888](https://github.com/kaazing/gateway/pull/888) ([DoruM](https://github.com/DoruM))
+- Fix regression on update.check  [\#884](https://github.com/kaazing/gateway/pull/884) ([stanculescu](https://github.com/stanculescu))
 - make injected login modules return false on success [\#882](https://github.com/kaazing/gateway/pull/882) ([danibusu](https://github.com/danibusu))
 - Updated to latest k3po version 3.0.0-alpha-64 [\#881](https://github.com/kaazing/gateway/pull/881) ([sbadugu](https://github.com/sbadugu))
 - make injected login modules optional again [\#880](https://github.com/kaazing/gateway/pull/880) ([danibusu](https://github.com/danibusu))
+- Remove member when shutting down LifecycleEvent is triggered. [\#879](https://github.com/kaazing/gateway/pull/879) ([vmaraloiu](https://github.com/vmaraloiu))
+- Hook for custom parsing of login module options [\#878](https://github.com/kaazing/gateway/pull/878) ([DoruM](https://github.com/DoruM))
 - Fix for NPE generated when the scheme would be ommited in \<accept\> [\#876](https://github.com/kaazing/gateway/pull/876) ([zahariaca](https://github.com/zahariaca))
+- Implement update.check as a property [\#874](https://github.com/kaazing/gateway/pull/874) ([stanculescu](https://github.com/stanculescu))
+- Add udp.align option [\#872](https://github.com/kaazing/gateway/pull/872) ([Anisotrop](https://github.com/Anisotrop))
 - update gateway login challenge behavior [\#871](https://github.com/kaazing/gateway/pull/871) ([danibusu](https://github.com/danibusu))
+- ExceptionMonitor can receive a null session. [\#866](https://github.com/kaazing/gateway/pull/866) ([Anisotrop](https://github.com/Anisotrop))
 
 ## [5.5.0](https://github.com/kaazing/gateway/tree/5.5.0) (2017-02-28)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.4.1...5.5.0)

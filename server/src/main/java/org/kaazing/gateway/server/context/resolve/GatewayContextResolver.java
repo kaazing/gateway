@@ -235,7 +235,7 @@ public class GatewayContextResolver {
 
 
         SchedulerProvider schedulerProvider = new SchedulerProvider(configuration);
-        ClusterContext clusterContext = resolveCluster(clusterConfig);
+        ClusterContext clusterContext = resolveCluster(clusterConfig,configuration);
         DefaultSecurityContext securityContext = securityResolver.resolve(securityConfig);
         ExpiringState expiringState = resolveExpiringState(clusterContext);
         RealmsContext realmsContext = resolveRealms(securityConfig, securityContext, configuration, clusterContext, expiringState);
@@ -799,7 +799,7 @@ public class GatewayContextResolver {
         return uri;
     }
 
-    private ClusterContext resolveCluster(ClusterType clusterConfig) {
+    private ClusterContext resolveCluster(ClusterType clusterConfig, Properties configuration) {
         if (clusterConfig == null) {
             return new StandaloneClusterContext();
         }
@@ -834,7 +834,8 @@ public class GatewayContextResolver {
         return new DefaultClusterContext(clusterConfig.getName(),
                 accepts,
                 connects,
-                connectOptionsContext);
+                connectOptionsContext,
+                configuration);
     }
 
     private List<MemberId> processClusterMembers(String[] collection,

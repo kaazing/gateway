@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-connect tcp://localhost:8011
+connect "tcp://localhost:8011"
 connected
 
 write "GET /jms?.kl=Y HTTP/1.1\r\n"

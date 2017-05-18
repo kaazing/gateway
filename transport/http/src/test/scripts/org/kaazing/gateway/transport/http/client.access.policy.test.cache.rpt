@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-connect tcp://localhost:8004
+connect "tcp://localhost:8004"
 connected
 
 write "GET /clientaccesspolicy.xml HTTP/1.1\r\n"
@@ -71,7 +71,7 @@ close
 closed
 
 
-connect tcp://localhost:8004
+connect "tcp://localhost:8004"
 connected
 
 write "GET /clientaccesspolicy.xml HTTP/1.1\r\n"
@@ -128,7 +128,7 @@ close
 closed
 
 
-connect tcp://localhost:8004
+connect "tcp://localhost:8004"
 connected
 
 write "GET /clientaccesspolicy.xml HTTP/1.1\r\n"
@@ -185,7 +185,7 @@ close
 closed
 
 
-connect tcp://localhost:8004
+connect "tcp://localhost:8004"
 connected
 
 write "GET /clientaccesspolicy.xml HTTP/1.1\r\n"
@@ -242,7 +242,7 @@ close
 closed
 
 
-connect tcp://localhost:8002
+connect "tcp://localhost:8002"
 connected
 
 write "GET /clientaccesspolicy.xml HTTP/1.1\r\n"
@@ -281,7 +281,7 @@ close
 closed
 
 
-connect tcp://localhost:8002
+connect "tcp://localhost:8002"
 connected
 
 write "GET /clientaccesspolicy.xml HTTP/1.1\r\n"
@@ -320,7 +320,7 @@ close
 closed
 
 
-connect tcp://localhost:8002
+connect "tcp://localhost:8002"
 connected
 
 write "GET /clientaccesspolicy.xml HTTP/1.1\r\n"
@@ -359,7 +359,7 @@ close
 closed
 
 
-connect tcp://localhost:8005
+connect "tcp://localhost:8005"
 connected
 
 write "GET /clientaccesspolicy.xml HTTP/1.1\r\n"
@@ -379,7 +379,7 @@ close
 closed
 
 
-connect tcp://localhost:8005
+connect "tcp://localhost:8005"
 connected
 
 write "GET /clientaccesspolicy.xml HTTP/1.1\r\n"

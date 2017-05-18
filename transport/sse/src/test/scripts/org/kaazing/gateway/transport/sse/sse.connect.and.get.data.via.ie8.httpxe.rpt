@@ -16,7 +16,7 @@
 
 #Backend
 
-accept tcp://localhost:7556
+accept "tcp://localhost:7556"
 accepted
 connected
 write await CONNECTED_AND_CAN_SEND_DATA_FROM_BACKEND_TO_FRONT
@@ -25,7 +25,7 @@ close
 closed
 
 
-connect tcp://localhost:8005
+connect "tcp://localhost:8005"
 connected
 
 write "POST /sse?.kb=512&.kp=256&.kac=ex&.kct=application/x-message-http HTTP/1.1\r\n"

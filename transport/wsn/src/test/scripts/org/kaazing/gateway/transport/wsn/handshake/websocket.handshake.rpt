@@ -15,7 +15,7 @@
 #
 
 # echo.service.cross.origin.deny
-connect tcp://localhost:8010
+connect "tcp://localhost:8010"
 connected
 
 write "GET /jms?.kl=Y HTTP/1.1\r\n"

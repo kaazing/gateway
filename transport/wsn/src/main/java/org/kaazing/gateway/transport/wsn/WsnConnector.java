@@ -57,6 +57,7 @@ import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.UpgradeFuture;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
@@ -494,7 +495,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
         protected void doSessionClosed(IoSessionEx session) throws Exception {
             WsnSession wsnSession = SESSION_KEY.remove(session);
             if (wsnSession != null && !wsnSession.isClosing()) {
-                wsnSession.reset(new IOException("Early termination of IO session", wsnSession.getCloseException())
+                wsnSession.reset(new IOException(LoggingUtils.EARLY_TERMINATION_OF_IOSESSION_MESSAGE, wsnSession.getCloseException())
                                  .fillInStackTrace());
             }
         }

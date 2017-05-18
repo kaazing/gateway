@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-connect tcp://localhost:8005
+connect "tcp://localhost:8005"
 connected
 
 write "GET /clientaccesspolicy.xml HTTP/1.1\r\n"

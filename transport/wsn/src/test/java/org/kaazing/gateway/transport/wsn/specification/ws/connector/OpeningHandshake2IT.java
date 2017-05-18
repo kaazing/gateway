@@ -21,15 +21,18 @@ import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
+import org.hamcrest.core.AllOf;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.internal.matchers.ThrowableMessageMatcher;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
@@ -69,8 +72,7 @@ public class OpeningHandshake2IT {
     private TestRule contextRule = ITUtil.toTestRule(context);
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(connector).around(k3po).around(timeoutRule)
-            .around(contextRule);
+    public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(contextRule).around(connector).around(k3po);
 
     @BeforeClass
     public static void before() throws Exception {
@@ -92,7 +94,10 @@ public class OpeningHandshake2IT {
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
                 atMost(1).of(handler).sessionOpened(with(any(IoSessionEx.class)));
+                atMost(1).of(handler).exceptionCaught(with(any(IoSessionEx.class)), 
+                        with(AllOf.allOf(any(IOException.class),ThrowableMessageMatcher.hasMessage(equal(LoggingUtils.EARLY_TERMINATION_OF_IOSESSION_MESSAGE)))));
             }
         });
 

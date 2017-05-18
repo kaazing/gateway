@@ -16,7 +16,7 @@
 
 # curl 7.37.1 <---> Gateway <---> tomcat 8.0.1
 
-connect tcp://localhost:8110
+connect "tcp://localhost:8110"
 connected
 
 write "GET /info HTTP/1.1\r\n"
@@ -33,5 +33,5 @@ closed
 # tomcat server
 # Request is not forwarded to upstream
 #
-accept tcp://localhost:8081
+accept "tcp://localhost:8081"
 

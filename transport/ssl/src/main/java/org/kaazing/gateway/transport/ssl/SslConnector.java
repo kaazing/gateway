@@ -60,6 +60,7 @@ import org.kaazing.gateway.transport.BridgeSessionInitializerAdapter;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.LoggingUtils;
 import org.kaazing.gateway.transport.TransportKeySelector;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.ssl.bridge.filter.SslCertificateSelectionFilter;
@@ -367,7 +368,7 @@ public class SslConnector extends AbstractBridgeConnector<SslSession> {
         	if (sslSession != null) {
         	    if (!sslSession.isClosing()) {
         	        // behave similarly to connection reset by peer at NIO layer
-        	        sslSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
+        	        sslSession.reset(new IOException(LoggingUtils.EARLY_TERMINATION_OF_IOSESSION_MESSAGE).fillInStackTrace());
         	    }
         	}
         	else {

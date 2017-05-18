@@ -18,7 +18,7 @@
 # client
 #
 
-connect tcp://localhost:8110
+connect "tcp://localhost:8110"
 connected
 
 write "GET /shield/;e/db/AkDKBgEzhWxUvxWu8Jsqnf6qCeAm8TNt HTTP/1.1\r\n"
@@ -55,7 +55,7 @@ closed
 # server
 #
 
-accept tcp://localhost:8080
+accept "tcp://localhost:8080"
 accepted
 connected
 
@@ -89,7 +89,7 @@ closed
 
 # To simulate SLEEP
 # ============================================================================
-connect tcp://localhost:61234
+connect "tcp://localhost:61234"
 connected
 read await SLEEP_START
 read "WakeUp"

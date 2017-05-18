@@ -12,7 +12,7 @@ if [ ${TRAVIS_PULL_REQUEST} == "false" ]; then
     		export SONAR_BRANCH="release"
     	fi
         mvn -B -Psonar verify
-        mvn -B sonar:sonar -Dsonar.host.url=-Dsonar.host.url=https://sonarqube.kaazing.us -Dsonar.login=${SONAR_USER} -Dsonar.password=${SONAR_PASSWORD} -Dsonar.branch=${SONAR_BRANCH}
+        mvn -B sonar:sonar -Dsonar.host.url=https://repository.kaazing.com/secret-sauce/sonarqube -Dsonar.login=${SONAR_USER} -Dsonar.password=${SONAR_PASSWORD} -Dsonar.branch=${SONAR_BRANCH}
     else
         mvn -B verify
         echo "SonarQube analysis is performed only for commits on the develop, master and release/* branches (not for PRs)"

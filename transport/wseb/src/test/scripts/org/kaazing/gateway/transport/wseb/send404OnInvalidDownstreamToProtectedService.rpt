@@ -14,17 +14,17 @@
 # limitations under the License.
 #
 
-connect http://localhost:8001/echoAuth/;e/db
+connect "http://localhost:8001/echoAuth/;e/db"
 connected
 
-write method "GET"
-write header host
-write header "Content-Type" "text/plain"
-write header "User-Agent" "Java/1.8.0_45"
-write header "Accept" "text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2"
-write header "Connection" "keep-alive"
-write header "Content-Length" "3"
+write http:method "GET"
+write http:host
+write http:header "Content-Type" "text/plain"
+write http:header "User-Agent" "Java/1.8.0_45"
+write http:header "Accept" "text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2"
+write http:header "Connection" "keep-alive"
+write http:header "Content-Length" "3"
 write ">|<"
 write close
 
-read status "404" /.*/
+read http:status "404" /.*/

@@ -15,14 +15,14 @@
 #
 
 
-connect http://localhost:8000/resource
+connect "http://localhost:8000/resource"
 connected
 
-write method "GET"
-write header host
+write http:method "GET"
+write http:host
 write close
 
-read status /3\d\d/ /.*/
-read header "Location" "https://www.google.com"
-read header "Cache-Control" "no-store, no-cache, must-revalidate"
+read http:status /3\d\d/ /.*/
+read http:header "Location" "https://www.google.com"
+read http:header "Cache-Control" "no-store, no-cache, must-revalidate"
 # read notify FOLLOW_REDIRECT

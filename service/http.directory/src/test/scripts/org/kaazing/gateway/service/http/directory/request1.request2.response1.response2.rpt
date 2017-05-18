@@ -16,7 +16,7 @@
 
 # Script that pipelines two http GET requests, expects the responses for each to come back in order
 
-connect tcp://localhost:8000
+connect "tcp://localhost:8000"
 connected
 
 # Request 1
