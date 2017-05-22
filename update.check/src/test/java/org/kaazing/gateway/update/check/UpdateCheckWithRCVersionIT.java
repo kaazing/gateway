@@ -26,10 +26,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.kaazing.gateway.server.impl.VersionUtils;
+import org.junit.runners.model.Statement;
+import org.kaazing.gateway.server.impl.ProductInfoReader;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.gateway.server.util.ProductInfo;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.LoggingRule;
@@ -41,7 +43,14 @@ public class UpdateCheckWithRCVersionIT {
         {
             GatewayConfiguration configuration = createGatewayConfiguration();
             //The product information from the server JAR will be overridden by the call to reset
-            VersionUtils.reset("Gateway", "Kaazing WebSocket Gateway", "5.6.1-RC001", "");
+           // ProductInfoReader.reset("Gateway", "Kaazing WebSocket Gateway", "5.6.1-RC001", "");
+            ProductInfo p = new ProductInfo();
+            p.setEdition("Gateway");
+            p.setTitle("Kaazing WebSocket Gateway");
+            p.setVersion("5.6.1-RC001");
+            p.setDependencies("");
+            ProductInfoReader.setProductInfo(p);
+
             init(configuration);
         }
     };

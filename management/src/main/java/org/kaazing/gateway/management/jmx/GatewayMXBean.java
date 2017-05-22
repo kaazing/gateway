@@ -17,6 +17,8 @@ package org.kaazing.gateway.management.jmx;
 
 import javax.management.ObjectName;
 
+import org.kaazing.gateway.server.util.ProductInfo;
+
 public interface GatewayMXBean {
 
     ObjectName getObjectName();
@@ -25,11 +27,7 @@ public interface GatewayMXBean {
 
     String getId();
 
-    String getProductTitle();
-
-    String getProductBuild();
-
-    String getProductEdition();
+    ProductInfo getProductInfo();
 
     long getTotalCurrentSessions();
 

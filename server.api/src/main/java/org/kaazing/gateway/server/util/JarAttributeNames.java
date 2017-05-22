@@ -13,22 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.management.jmx;
+package org.kaazing.gateway.server.util;
 
-import javax.management.ObjectName;
+public class JarAttributeNames {
 
-import org.kaazing.gateway.management.gateway.GatewayManagementBean;
-import org.kaazing.gateway.server.util.ProductInfo;
+    public static final String KAAZING_PRODUCT = "Kaazing-Product";
 
-public class VersionInfoMXBeanImpl implements VersionInfoMXBean {
+    public static final String KAAZING_DEPENDENCIES = "Kaazing-Dependencies";
 
-    private final GatewayManagementBean gatewayManagementBean;
-
-    public VersionInfoMXBeanImpl(ObjectName name, GatewayManagementBean gatewayManagementBean) {
-        this.gatewayManagementBean = gatewayManagementBean;
-    }
-
-    @Override public ProductInfo getPrductInfo() {
-        return gatewayManagementBean.getProductInfo();
-    }
 }

@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.management.gateway;
 
+import static org.kaazing.gateway.server.impl.ProductInfoReader.getProductInfoInstance;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,7 +38,7 @@ import org.kaazing.gateway.management.context.ManagementContext;
 import org.kaazing.gateway.management.update.check.ManagementUpdateCheck;
 import org.kaazing.gateway.management.update.check.ManagementUpdateCheckFactory;
 import org.kaazing.gateway.server.context.GatewayContext;
-import org.kaazing.gateway.server.impl.VersionUtils;
+import org.kaazing.gateway.server.util.ProductInfo;
 import org.kaazing.gateway.service.cluster.ClusterContext;
 import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
@@ -81,9 +83,7 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
     private GatewayContext gatewayContext;
 
     // fields from VersionInfo
-    private String productTitle;
-    private String productBuild;
-    private String productEdition;
+    private ProductInfo productInfo;
 
     private final long startTime;
     private ClusterContext clusterContext;
@@ -114,9 +114,7 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
         this.clusterManagementListeners = new ArrayList<>();
         this.gatewayContext = gatewayContext;
 
-        this.productTitle = VersionUtils.getGatewayProductTitle();
-        this.productBuild = VersionUtils.getGatewayProductVersionBuild();
-        this.productEdition = VersionUtils.getGatewayProductEdition();
+        productInfo = getProductInfoInstance();
 
         ManagementUpdateCheck updateCheckerLookup;
         try {
@@ -140,19 +138,8 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
         return hostAndPid;
     }
 
-    @Override
-    public String getProductTitle() {
-        return productTitle;
-    }
-
-    @Override
-    public String getProductBuild() {
-        return productBuild;
-    }
-
-    @Override
-    public String getProductEdition() {
-        return productEdition;
+    @Override public ProductInfo getProductInfo() {
+        return productInfo;
     }
 
     @Override

@@ -16,12 +16,13 @@
 package org.kaazing.gateway.server;
 
 import org.junit.Test;
-import org.kaazing.gateway.server.impl.VersionUtils;
+import org.kaazing.gateway.server.util.ProductInfo;
 
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
+import static org.kaazing.gateway.server.impl.ProductInfoReader.getProductInfoInstance;
 
 public class SettingsIT {
 
@@ -30,9 +31,10 @@ public class SettingsIT {
      */
     @Test
     public void shouldHaveCommunityProductEditionAndTitle() throws IOException {
+        ProductInfo productInfo = getProductInfoInstance();
         assumeTrue("Disabled in IDE", System.getProperty("java.class.path").contains("gateway.server"));
-        assertEquals("Community.Gateway", VersionUtils.getGatewayProductEdition());
-        assertEquals("Kaazing Gateway", VersionUtils.getGatewayProductTitle());        
+        assertEquals("Community.Gateway", productInfo.getEdition());
+        assertEquals("Kaazing Gateway", productInfo.getTitle());
     }
 }
 
