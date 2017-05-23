@@ -34,6 +34,7 @@ import org.jmock.lib.action.CustomAction;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.kaazing.gateway.server.impl.ProductInfoReader;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
@@ -45,6 +46,7 @@ public class UpdateCheckServiceTest {
     @Before
     public void setupService() {
         BasicConfigurator.configure();
+        ProductInfoReader.setProductInfo(null);
         try {
             this.service = new UpdateCheckService();
         } catch (RuntimeException e) {
