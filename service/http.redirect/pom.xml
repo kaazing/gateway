@@ -74,6 +74,12 @@
                 <artifactId>specification.http</artifactId>
                 <version>${k3po.version}</version>
             </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.transport.wsn</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
