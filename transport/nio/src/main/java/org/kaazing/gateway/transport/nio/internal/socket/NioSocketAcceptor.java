@@ -16,8 +16,8 @@
 package org.kaazing.gateway.transport.nio.internal.socket;
 
 import static java.util.concurrent.Executors.newCachedThreadPool;
-import static org.kaazing.gateway.util.InternalSystemProperty.DEBUG_GATEWAY_NAME;
 import static org.kaazing.gateway.util.InternalSystemProperty.DEBUG_NIOWORKER_POOL;
+import static org.kaazing.gateway.util.InternalSystemProperty.GATEWAY_IDENTIFIER;
 import static org.kaazing.gateway.util.InternalSystemProperty.TCP_BACKLOG;
 import static org.kaazing.gateway.util.InternalSystemProperty.TCP_IP_TOS;
 import static org.kaazing.gateway.util.InternalSystemProperty.TCP_KEEP_ALIVE;
@@ -295,9 +295,9 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
                 System.out.println("NioWorkerPool.DEBUG=true");
             }
             final ConcurrentMap<NioWorker, Thread> threadsByWorker = new ConcurrentHashMap<>();
-            final String gatewayDebugName = DEBUG_GATEWAY_NAME.getProperty(configuration);
+            final String gatewayDebugName = GATEWAY_IDENTIFIER.getProperty(configuration);
             final ThreadNameDeterminer determiner = (currentThreadName, proposedThreadName) ->
-                    !gatewayDebugName.equals(InternalSystemProperty.Defaults.DEFAULT_DEBUG_GATEWAY_NAME) ? (gatewayDebugName + ":" + proposedThreadName) : proposedThreadName;
+                    !gatewayDebugName.equals(InternalSystemProperty.Defaults.DEFAULT_GATEWAY_IDENTIFIER) ? (gatewayDebugName + ":" + proposedThreadName) : proposedThreadName;
             workerPool = new DistributedNioWorkerPool(newCachedThreadPool(), workerCount, determiner) {
                 @Override
                 public NioWorker nextWorker() {

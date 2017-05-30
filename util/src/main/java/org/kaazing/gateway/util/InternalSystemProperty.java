@@ -26,11 +26,6 @@ public enum InternalSystemProperty {
     // TODO: eliminate all use of System.getProperty and pull all used properties into this class
     //       (e.g. in NioSocketAcceptor)
 
-
-
-    DEBUG_GATEWAY_NAME("org.kaazing.gateway.server.GATEWAY_NAME", Defaults.DEFAULT_DEBUG_GATEWAY_NAME),
-
-
     // transports
     DEBUG_NIOWORKER_POOL
             ("NioWorkerPool.DEBUG"), // true or false
@@ -131,7 +126,7 @@ public enum InternalSystemProperty {
      * The gateway identifiers should be different for each gateway.
      */
     GATEWAY_IDENTIFIER
-            ("org.kaazing.gateway.server.GATEWAY_IDENTIFIER", ""),
+            ("org.kaazing.gateway.server.GATEWAY_IDENTIFIER", Defaults.DEFAULT_GATEWAY_IDENTIFIER),
 
     // Internal system property checking if a newer version of the Gateway is available
     UPDATE_CHECK("org.kaazing.gateway.server.UPDATE_CHECK", "true"),
@@ -193,7 +188,7 @@ public enum InternalSystemProperty {
 
     public static class Defaults {
 
-        public static final String DEFAULT_DEBUG_GATEWAY_NAME = "Kaazing Gateway";
+        public static final String DEFAULT_GATEWAY_IDENTIFIER = "";
 
     }
 

@@ -76,7 +76,8 @@ public class MemoryAppender extends ConsoleAppender {
                                          Collection<Class<? extends Throwable>> expectedExceptionsRO,
                                          Collection<Class<? extends Throwable>> unexpectedExceptions,
                                          String filterPattern,
-                                         boolean verbose) {
+                                         boolean verbose,
+                                         boolean checkFormatted) {
         Set<String> encounteredPatterns = new TreeSet<>();
         List<String> encounteredUnexpectedMessages = new ArrayList<>();
         List<String> expectedPatterns = expectedPatternsRO == null ? Collections.emptyList() :
@@ -90,7 +91,12 @@ public class MemoryAppender extends ConsoleAppender {
         unexpectedExceptions = unexpectedExceptions == null ? Collections.emptyList() : unexpectedExceptions;
 
         for (LoggingEvent event : MemoryAppender.getEvents()) {
-            String message = event.getMessage().toString();
+            String message;
+            if (checkFormatted && lastInstance.getLayout() != null) {
+                message = lastInstance.getLayout().format(event);
+            } else {
+                message = event.getMessage().toString();
+            }
             if (filterPattern == null || message.matches(filterPattern)) {
                 ThrowableInformation ti = event.getThrowableInformation();
                 Throwable t = (ti != null && ti.getThrowable() != null) ? ti.getThrowable() : null;
@@ -132,7 +138,7 @@ public class MemoryAppender extends ConsoleAppender {
                 }
             }
         }
-        StringBuffer errorMessage = new StringBuffer();
+        StringBuilder errorMessage = new StringBuilder();
         if (!encounteredUnexpectedMessages.isEmpty()) {
             errorMessage.append("\n- the following unexpected messages were encountered: ");
             for (String message : encounteredUnexpectedMessages) {
@@ -163,6 +169,13 @@ public class MemoryAppender extends ConsoleAppender {
                                             String filterPattern,
                                             boolean verbose) {
         assertLogMessages(expectedPatternsRO, unexpectedPatterns, null, null, filterPattern, verbose);
+    }
+
+    public static void assertLogMessages(Collection<String> expectedPatternsRO, Collection<String> unexpectedPatterns,
+            Collection<Class<? extends Throwable>> expectedExceptionsRO,
+            Collection<Class<? extends Throwable>> unexpectedExceptions, String filterPattern, boolean verbose) {
+        assertLogMessages(expectedPatternsRO, unexpectedPatterns, expectedExceptionsRO, unexpectedExceptions, filterPattern,
+                verbose, false);
     }
 
     public static void printAllMessages() {
