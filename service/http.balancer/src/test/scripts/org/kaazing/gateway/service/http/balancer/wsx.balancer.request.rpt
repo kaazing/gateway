@@ -15,13 +15,16 @@
 #
 
 property writeMask ${httpx:randomBytes(4)}
+property hostHeader "gateway.kaazing.com:8001"
+property connectAddress "http://localhost:8001/echo"
+property redirectAddress "http://node.kaazing.com:8001/echo"
 
-connect "http://localhost:8001/echo"
+connect ${connectAddress}
 connected
 
 write http:method "GET"
 write http:version "HTTP/1.1"
-write http:header "Host" "gateway.kaazing.com:8001"
+write http:header "Host" ${hostHeader}
 write http:header "Connection" "Upgrade"
 write http:header "Upgrade" "websocket"
 write http:header "Sec-WebSocket-Version" "13"
@@ -37,6 +40,7 @@ read http:header "Sec-WebSocket-Protocol" "x-kaazing-handshake"
 read http:header "Server" /.+/
 read http:header "Upgrade" "websocket"
 
+# binary-encoded balancer directive
 read [0x82 0x04 0xEF 0x83 0xBF 0x4E]
 
 write [0x81 0xFE 0x00 0xA6] ${writeMask}
@@ -48,5 +52,11 @@ write "Sec-WebSocket-Extensions: x-kaazing-idle-timeout,x-kaazing-ping-pong,x-ka
 write "\r\n"
 write option mask [0x00 0x00 0x00 0x00]
 
-read [0x82 0x7E 0x00 0xCD]
-read /HTTP.+ 302 .+\r\n/
+read [0x82] [0..3]
+read "HTTP/1.1 302 Found\r\n"
+read /Date: .+\r\n/
+read "location: " ${redirectAddress} "\r\n"
+read /Sec-WebSocket-Extensions: .+\r\n/
+read "Server: Kaazing Gateway\r\n"
+read "Content-Length: 0\r\n"
+read "\r\n"

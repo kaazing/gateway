@@ -14,12 +14,16 @@
 # limitations under the License.
 #
 
-connect "http://localhost:8001/echo"
+property hostHeader "localhost:8001"
+property connectAddress "http://localhost:8001/echo"
+property redirectAddress "http://localhost:8001/echo1"
+
+connect ${connectAddress}
 connected
 
 write http:method "GET"
 write http:version "HTTP/1.1"
-write http:host
+write http:header "Host" ${hostHeader}
 write http:header "Upgrade" "websocket"
 write http:header "Connection" "Upgrade"
 write http:header "Sec-WebSocket-Key" "dGhlIHNhbXBsZSBub25jZQ=="
@@ -27,5 +31,5 @@ write http:header "Sec-WebSocket-Version" "13"
 
 read http:status "302" /.+/
 read http:version "HTTP/1.1"
-read http:header "location" "http://localhost:8001/echo1"
+read http:header "location" ${redirectAddress}
 

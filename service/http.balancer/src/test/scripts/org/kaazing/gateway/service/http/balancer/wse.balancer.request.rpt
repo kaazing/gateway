@@ -15,20 +15,26 @@
 #
 
 # TODO use new robot version that has "connect option" feature for physical binds
-connect "http://localhost:8001/echo/;e/ctm?.kn=3737770856823772"
+property hostHeader "gateway.example.com:8001"
+property originHeader ${http:append("http://", hostHeader)}
+property refererHeader ${http:append(originHeader, "/?.kr=xs")}
+property connectAddress "http://localhost:8001/echo/;e/ctm?.kn=3737770856823772"
+property redirectAddress "http://node.example.com:8001/echo/;e/ctm"
+
+connect  ${connectAddress}
 connected
 
 write http:method "GET"
-write http:header "Host" "gateway.example.com:8001"
+write http:header "Host" ${hostHeader}
 write http:header "Connection" "keep-alive"
-write http:header "X-Origin" "http://gateway.example.com:8001"
+write http:header "X-Origin" ${originHeader}
 write http:header "X-Accept-Commands" "ping"
 write http:header "User-Agent" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36"
 write http:header "Content-Type" "text/plain; charset=utf-8"
 write http:header "X-WebSocket-Extensions" "x-kaazing-http-revalidate"
 write http:header "X-Sequence-No" "0"
 write http:header "Accept" "*/*"
-write http:header "Referer" "http://gateway.example.com:8001/?.kr=xs"
+write http:header "Referer" ${refererHeader}
 write http:header "Accept-Encoding" "gzip, deflate, sdch"
 write http:header "Accept-Language" "en-US,en;q=0.8"
 write close
@@ -36,4 +42,4 @@ write close
 read http:status "200" /.*/
 
 read "HTTP/1.1 302 Found\r\n"
-read "Location: http://node.example.com:8001/echo/;e/ctm\r\n"
+read "Location: " ${redirectAddress} "\r\n"
