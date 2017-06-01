@@ -126,7 +126,7 @@ public enum InternalSystemProperty {
      * The gateway identifiers should be different for each gateway.
      */
     GATEWAY_IDENTIFIER
-            ("org.kaazing.gateway.server.GATEWAY_IDENTIFIER", ""),
+            ("org.kaazing.gateway.server.GATEWAY_IDENTIFIER", Defaults.DEFAULT_GATEWAY_IDENTIFIER),
 
     // Internal system property checking if a newer version of the Gateway is available
     UPDATE_CHECK("org.kaazing.gateway.server.UPDATE_CHECK", "true"),
@@ -184,6 +184,12 @@ public enum InternalSystemProperty {
 
     public boolean isSet(Properties configuration) {
         return configuration.containsKey(name);
+    }
+
+    public static class Defaults {
+
+        public static final String DEFAULT_GATEWAY_IDENTIFIER = "";
+
     }
 
 }

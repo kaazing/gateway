@@ -17,6 +17,7 @@ package org.kaazing.gateway.transport.nio.internal.socket;
 
 import static java.util.concurrent.Executors.newCachedThreadPool;
 import static org.kaazing.gateway.util.InternalSystemProperty.DEBUG_NIOWORKER_POOL;
+import static org.kaazing.gateway.util.InternalSystemProperty.GATEWAY_IDENTIFIER;
 import static org.kaazing.gateway.util.InternalSystemProperty.TCP_BACKLOG;
 import static org.kaazing.gateway.util.InternalSystemProperty.TCP_IP_TOS;
 import static org.kaazing.gateway.util.InternalSystemProperty.TCP_KEEP_ALIVE;
@@ -58,6 +59,7 @@ import org.jboss.netty.channel.socket.nio.NioSocketChannel;
 import org.jboss.netty.channel.socket.nio.NioWorker;
 import org.jboss.netty.channel.socket.nio.WorkerPool;
 import org.jboss.netty.util.ExternalResourceReleasable;
+import org.jboss.netty.util.ThreadNameDeterminer;
 import org.jboss.netty.util.internal.ExecutorUtil;
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
@@ -66,6 +68,7 @@ import org.kaazing.gateway.transport.NioBindException;
 import org.kaazing.gateway.transport.nio.TcpExtension;
 import org.kaazing.gateway.transport.nio.internal.AbstractNioAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioProtocol;
+import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.mina.core.service.IoAcceptorEx;
 import org.kaazing.mina.netty.socket.nio.DefaultNioSocketChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.nio.NioSocketChannelIoAcceptor;
@@ -274,7 +277,7 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
     }
 
 	public WorkerPool<NioWorker> initWorkerPool(Logger logger, String message, Properties configuration) {
-    	int workerCount = TCP_PROCESSOR_COUNT.getIntProperty(configuration);
+        int workerCount = TCP_PROCESSOR_COUNT.getIntProperty(configuration);
         if (logger.isDebugEnabled()) {
             String processorCount = configuration.getProperty(TCP_PROCESSOR_COUNT.getPropertyName());
             if (processorCount != null) {
@@ -287,42 +290,45 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
         }
         DistributedNioWorkerPool workerPool = currentWorkerPool.get();
         if (workerPool == null) {
-        	final boolean isDebug = "true".equals(DEBUG_NIOWORKER_POOL.getProperty(configuration));
-        	if (isDebug) {
-        		System.out.println("NioWorkerPool.DEBUG=true");
-        	}
-        	final ConcurrentMap<NioWorker, Thread> threadsByWorker = new ConcurrentHashMap<>();
-        	workerPool = new DistributedNioWorkerPool(newCachedThreadPool(), workerCount) {
-	        	@Override
-	        	public NioWorker nextWorker() {
-	        		NioWorker worker = CURRENT_WORKER.get();
-	        		if (worker == null) {
-	        			Thread currentThread = Thread.currentThread();
-	        			String threadName = currentThread.getName();
-	        			if (isDebug && !threadName.contains("boss")) {
-	        				new Exception("Worker not found on non-Boss thread, outbound connect on non-IoThread?").fillInStackTrace().printStackTrace();
-	        			}
-	        			// No association for acceptor boss thread or out-bound connect on non-IoThread
-	        			worker = super.nextWorker();
-	        		}
-	        		else if (isDebug) {
-	        			// Connector connect thread has association from Acceptor worker thread
-	        			assert worker != null;
-	        			Thread currentThread = Thread.currentThread();
-	        			String threadName = currentThread.getName();
-	        			if (threadName.contains("boss")) {
-	        				new Exception("Worker found unexpectedly on Boss thread").fillInStackTrace().printStackTrace();
-	        			}
-	        			Thread thread = threadsByWorker.get(worker);
-	        			if (thread == null) {
-	        				// remember association when first observed
-							Thread newThread = currentThread;
-	        				thread = threadsByWorker.putIfAbsent(worker, newThread);
-	        				// handle race condition where 2 threads compete for association
-	        				if (thread == null) {
-	        					thread = newThread;
-	        				}
-	        			}
+            final boolean isDebug = "true".equals(DEBUG_NIOWORKER_POOL.getProperty(configuration));
+            if (isDebug) {
+                System.out.println("NioWorkerPool.DEBUG=true");
+            }
+            final ConcurrentMap<NioWorker, Thread> threadsByWorker = new ConcurrentHashMap<>();
+            final String gatewayDebugName = GATEWAY_IDENTIFIER.getProperty(configuration);
+            final ThreadNameDeterminer determiner = (currentThreadName, proposedThreadName) ->
+                    !gatewayDebugName.equals(InternalSystemProperty.Defaults.DEFAULT_GATEWAY_IDENTIFIER) ? (gatewayDebugName + ":" + proposedThreadName) : proposedThreadName;
+            workerPool = new DistributedNioWorkerPool(newCachedThreadPool(), workerCount, determiner) {
+                @Override
+                public NioWorker nextWorker() {
+                    NioWorker worker = CURRENT_WORKER.get();
+                    if (worker == null) {
+                        Thread currentThread = Thread.currentThread();
+                        String threadName = currentThread.getName();
+                        if (isDebug && !threadName.contains("boss")) {
+                            new Exception("Worker not found on non-Boss thread, outbound connect on non-IoThread?").fillInStackTrace().printStackTrace();
+                        }
+                        // No association for acceptor boss thread or out-bound connect on non-IoThread
+                        worker = super.nextWorker();
+                    }
+                    else if (isDebug) {
+                        // Connector connect thread has association from Acceptor worker thread
+                        assert worker != null;
+                        Thread currentThread = Thread.currentThread();
+                        String threadName = currentThread.getName();
+                        if (threadName.contains("boss")) {
+                            new Exception("Worker found unexpectedly on Boss thread").fillInStackTrace().printStackTrace();
+                        }
+                        Thread thread = threadsByWorker.get(worker);
+                        if (thread == null) {
+                            // remember association when first observed
+                            Thread newThread = currentThread;
+                            thread = threadsByWorker.putIfAbsent(worker, newThread);
+                            // handle race condition where 2 threads compete for association
+                            if (thread == null) {
+                                thread = newThread;
+                            }
+                        }
 
                         // verify association is consistent throughout
                         if (thread != currentThread) {
@@ -355,7 +361,7 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
 	    private final AtomicInteger requestCount = new AtomicInteger(0);
 		private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
-		public DistributedNioWorkerPool(Executor workerExecutor, int workerCount) {
+		public DistributedNioWorkerPool(Executor workerExecutor, int workerCount, ThreadNameDeterminer determiner) {
 			if (workerExecutor == null) {
 				throw new NullPointerException("workerExecutor");
 			}
@@ -365,7 +371,7 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
 			DistributedNioWorker[] workers = new DistributedNioWorker[workerCount];
 			for (int i=0; i < workers.length; i++) {
 				// we cannot allow shutdown on idle, otherwise worker may end up running on a different thread
-				DistributedNioWorker worker = new DistributedNioWorker(workerExecutor);
+				DistributedNioWorker worker = new DistributedNioWorker(workerExecutor, determiner);
 				// we must set the current worker in the right thread local before any in-bound connections
 				FutureTask<NioWorker> future = new FutureTask<>(new SetCurrentWorkerTask(worker));
 				worker.executeInIoThread(future, /*alwaysAsync*/ true);
@@ -456,8 +462,8 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
         private final AtomicInteger channelCount;
         private final ChannelFutureListener closeListener;
 
-        public DistributedNioWorker(Executor executor) {
-            super(executor);
+        public DistributedNioWorker(Executor executor, ThreadNameDeterminer determiner) {
+            super(executor, determiner);
 
             this.channelCount = new AtomicInteger();
             this.closeListener = new ChannelFutureListener() {
