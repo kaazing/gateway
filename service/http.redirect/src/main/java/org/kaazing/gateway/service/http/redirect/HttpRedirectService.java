@@ -15,6 +15,7 @@
  */
 package org.kaazing.gateway.service.http.redirect;
 
+import java.util.Collection;
 import java.util.Properties;
 
 import javax.annotation.Resource;
@@ -33,7 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpRedirectService implements Service {
 
-    private final Logger logger = LoggerFactory.getLogger("service.directory");
+    private final Logger logger = LoggerFactory.getLogger("http.redirect");
 
     private HttpRedirectServiceHandler handler;
     private ServiceContext serviceContext;
@@ -47,7 +48,20 @@ public class HttpRedirectService implements Service {
 
     @Override
     public void init(ServiceContext serviceContext) throws Exception {
+        logger.info("Entering http.redirect init");
         EarlyAccessFeatures.HTTP_REDIRECT.assertEnabled(configuration, serviceContext.getLogger());
+
+        Collection<String> acceptURIs = serviceContext.getAccepts();
+        for (String acceptURI : acceptURIs) {
+            logger.info("acceptURI=" + acceptURI);
+            if (!(acceptURI.startsWith("http:") || acceptURI.startsWith("https:"))) {
+                logger.info("Throwing exception");
+                String msg = String.format(
+                        "The accept URI %s for service %s needs to start either with http: or with https:",
+                        acceptURI, serviceContext.getServiceName());
+                throw new IllegalArgumentException(msg);
+            }
+        }
 
         this.serviceContext = serviceContext;
         handler = new HttpRedirectServiceHandler(logger);

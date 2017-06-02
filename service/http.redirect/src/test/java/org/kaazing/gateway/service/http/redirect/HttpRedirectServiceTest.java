@@ -17,6 +17,8 @@ package org.kaazing.gateway.service.http.redirect;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Properties;
 
 import org.jmock.Expectations;
@@ -185,12 +187,15 @@ public class HttpRedirectServiceTest {
     private ServiceContext createServiceContext(DefaultServiceProperties sp) {
         ServiceContext serviceContext = context.mock(ServiceContext.class);
         Logger logger = context.mock(Logger.class);
-
+        Collection<String> accepts = new ArrayList<>();
+        accepts.add("http://localhost:8080");
         // expectations
         context.checking(new Expectations() {
             {
                 oneOf(serviceContext).getLogger();
                 will(returnValue(logger));
+                oneOf(serviceContext).getAccepts();
+                will(returnValue(accepts));
                 oneOf(serviceContext).getProperties();
                 will(returnValue(sp));
             }
@@ -198,6 +203,32 @@ public class HttpRedirectServiceTest {
         return serviceContext;
     }
 
+    @Test
+    public void shouldFailWithNonHttpAccept() throws Exception {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(
+                "The accept URI ws://localhost:8080/ for service foo needs to start either with http: or with https:");
+        Gateway gateway = new Gateway();
+        // @formatter:off
+        GatewayConfiguration configuration =
+                new GatewayConfigurationBuilder()
+                        .property(EarlyAccessFeatures.HTTP_REDIRECT.getPropertyName(), "true")
+                        .service()
+                            .accept("ws://localhost:8080/")
+                            .name("foo")
+                            .type("http.redirect")
+                            .property("location", "http://localhost:8080/")
+                            .property("status-code", "301")
+                            .property("cache-control", "no-store, no-cache, must-revalidate")
+                        .done()
+                    .done();
+        // @formatter:on
+        try {
+            gateway.start(configuration);
+        } finally {
+            gateway.stop();
+        }
+    }
     private HttpRedirectService createRedirectService() {
         Properties properties = new Properties();
         properties.setProperty("feature.http.redirect", "True");
