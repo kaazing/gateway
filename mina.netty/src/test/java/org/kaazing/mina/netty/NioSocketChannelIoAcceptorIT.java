@@ -214,7 +214,6 @@ public class NioSocketChannelIoAcceptorIT {
     public void disposeShouldStopAll_IO_Threads() throws Exception {
         shouldEchoBytes();
         disposeResources();
-        Thread.sleep(1000); // experience shows Timer.cancel() does not immediately stop the timer thread
         assertNoWorkerThreads("after disposeResources");
     }
 
@@ -302,22 +301,36 @@ public class NioSocketChannelIoAcceptorIT {
         assertEquals("filter.sessionCreated", actions.get(1));
     }
 
-    private void assertNoWorkerThreads(String when) {
-        Thread[] threads = new Thread[Thread.activeCount()];
-        Thread.enumerate(threads);
+    private void assertNoWorkerThreads(String when) throws Exception {
         int workersFound = 0;
         int bossesFound = 0;
         List<String> badThreads = new LinkedList<>();
-        for (Thread thread : threads) {
-            System.out.println(thread.getName());
-            if (thread.getName().matches(".*I/O worker.*")) {
-                badThreads.add(thread.getName());
-                workersFound++;
+        int tries = 10;
+        for (;;) {
+            Thread[] threads = new Thread[Thread.activeCount()];
+            Thread.enumerate(threads);
+            for (Thread thread : threads) {
+                if (thread == null) {
+                    // a thread died after the call to Thread.activeCount
+                    continue;
+                }
+                System.out.println(thread.getName());
+                if (thread.getName().matches(".*I/O worker.*")) {
+                    badThreads.add(thread.getName());
+                    workersFound++;
+                }
+                if (thread.getName().matches(".*boss")) {
+                    badThreads.add(thread.getName());
+                    bossesFound++;
+                }
             }
-            if (thread.getName().matches(".*boss")) {
-                badThreads.add(thread.getName());
-                bossesFound++;
+            if ((workersFound == 0 && bossesFound == 0) || --tries == 0) {
+                break;
             }
+            workersFound = 0;
+            bossesFound = 0;
+            badThreads.clear();
+            Thread.sleep(500); // experience shows Timer.cancel() does not immediately stop the timer thread
         }
         assertTrue(String.format("No worker or boss threads should be running %s, found %d workers, %d bosses: %s",
                 when, workersFound, bossesFound, badThreads), workersFound == 0 && bossesFound == 0);
@@ -401,6 +414,7 @@ public class NioSocketChannelIoAcceptorIT {
         int eos = socket.getInputStream().read();
         assertEquals(-1, eos);
 
+        socket.close();
         acceptor.unbind();
     }
 
@@ -445,6 +459,7 @@ public class NioSocketChannelIoAcceptorIT {
         int eos = socket.getInputStream().read();
         assertEquals(-1, eos);
 
+        socket.close();
         acceptor.unbind();
     }
 
