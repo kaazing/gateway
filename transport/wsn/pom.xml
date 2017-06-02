@@ -108,6 +108,12 @@
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
+            <artifactId>specification.httpx</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
             <artifactId>k3po.junit</artifactId>
         </dependency>
         <dependency>
