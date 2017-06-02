@@ -92,6 +92,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     private static final String HAZELCAST_SHUTDOWNHOOK_ENABLED_PROPERTY = "hazelcast.shutdownhook.enabled";
     private static final String HAZELCAST_PHONE_HOME_ENABLED_PROPERTY = "hazelcast.phone.home.enabled";
     private static final String HAZELCAST_VERSION_CHECK_ENABLED_PROPERTY = "hazelcast.version.check.enabled";
+    private static final String HAZELCAST_SOCKET_CONNECT_TIMEOUT_SECONDS = "hazelcast.socket.connect.timeout.seconds";
 
     private final Logger logger = LoggerFactory.getLogger(GL.CLUSTER_LOGGER_NAME);
 
@@ -175,6 +176,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         hazelCastConfig.getGroupConfig().setPassword("5942");
         hazelCastConfig.setProperty(HAZELCAST_PHONE_HOME_ENABLED_PROPERTY, "false");
         hazelCastConfig.setProperty(HAZELCAST_VERSION_CHECK_ENABLED_PROPERTY, "false");
+        hazelCastConfig.setProperty(HAZELCAST_SOCKET_CONNECT_TIMEOUT_SECONDS, "3");
 
         MapConfig mapConfig = hazelCastConfig.getMapConfig("serverSessions");
         mapConfig.setBackupCount(3);
