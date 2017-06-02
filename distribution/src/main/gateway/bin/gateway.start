@@ -79,7 +79,11 @@ if [[ "$_java" ]]; then
  # JAVA_VER=$(java -version 2>&1 | sed 's/.*version "\(.*\)\.\(.*\)\..*"/\1\2/; 1q')
  JAVA_VER=$(java -version 2>&1 | grep -i version | cut -d'"' -f2 | cut -d'.' -f1-2)
   if [[ "$JAVA_VER" < "1.8" ]]; then
-    echo "Java 8 or higher must be installed to start the Gateway"
+    if [ "$(uname)" == "Darwin" ]; then
+        echo "The gateway requires Java JRE 8 or higher to run. On Mac OSX installing the JRE doesn't automatically update your environment or path. See https://java.com/en/download/faq/java_mac.xml#cmdline for more information."        
+    else
+        echo "The gateway requires Java JRE 8 or higher to run."
+    fi
     exit 1
   fi
 fi
