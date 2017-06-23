@@ -231,7 +231,8 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
     }
 
     private boolean isSafe(char ch) {
-        return ((ch>='A' && ch<='Z') || (ch>='a' && ch<='z') || (ch>='0' && ch<='9') || "%&=$-_.+!*'(),,".indexOf(ch)>=0);
+        return ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z')
+                || (ch >= '0' && ch <= '9') || "%&=$-_.+!*'(),,".indexOf(ch) >= 0);
     }
 
     public HttpRequestLineDecodingState(IoBufferAllocatorEx<?> allocator) {
