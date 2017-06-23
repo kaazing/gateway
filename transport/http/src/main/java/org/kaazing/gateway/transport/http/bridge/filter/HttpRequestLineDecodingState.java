@@ -15,6 +15,9 @@
  */
 package org.kaazing.gateway.transport.http.bridge.filter;
 
+import static java.nio.charset.StandardCharsets.US_ASCII;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.net.URI;
 import java.nio.charset.CharsetDecoder;
 import java.util.regex.Pattern;
@@ -33,9 +36,6 @@ import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.filter.codec.statemachine.ConsumeToDynamicTerminatorDecodingState;
 import org.kaazing.mina.filter.codec.statemachine.ConsumeToLinearWhitespaceDecodingState;
 
-import static java.nio.charset.StandardCharsets.US_ASCII;
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 
 public abstract class HttpRequestLineDecodingState extends DecodingStateMachine {
 
@@ -48,7 +48,7 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
     private final CharsetDecoder utf8Decoder = UTF_8.newDecoder();
 
     private static final byte[] INITIAL_METHOD_BYTES;
-    
+
     static {
         HttpMethod[] httpMethods = HttpMethod.values();
         byte[] initialMethodBytes = new byte[httpMethods.length];
@@ -57,7 +57,7 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
         }
         INITIAL_METHOD_BYTES = initialMethodBytes;
     }
-    
+
     private final DecodingState VALIDATE_METHOD_START = new DecodingState() {
 
         @Override
@@ -70,7 +70,7 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
                     }
                 }
                 throw new ProtocolDecoderException("Unexpected start of HTTP request: " + in.getHexDump());
-            } 
+            }
             else {
                 return this;
             }
@@ -80,9 +80,9 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
         public DecodingState finishDecode(ProtocolDecoderOutput out) throws Exception {
             return null;
         }
-        
+
     };
-    
+
     private final DecodingState READ_METHOD = new ConsumeToLinearWhitespaceDecodingState(allocator) {
         @Override
         protected DecodingState finishDecode(IoBuffer buffer,
@@ -129,9 +129,15 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
             // to avoid mistakenly parsing the URI as having an authority
             request = MULTIPLE_LEADING_SLASHES.matcher(request).replaceAll(SINGLE_SLASH);
 
+            // encoding query
+            int index = request.indexOf('?');
+            if(index > 0) {
+                request = request.substring(0, index + 1) + escapeSpecialCharacters(request.substring(index + 1));
+            }
+
             // parse request as URI
             URI requestURI = new URI(request);
-            
+
             // canonicalize slashes in request path
             String path = requestURI.getPath();
             String canonicalPath = MULTIPLE_SLASHES.matcher(path).replaceAll(SINGLE_SLASH);
@@ -142,10 +148,10 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
                 String fragment = requestURI.getFragment();
                 requestURI = new URI(scheme, authority, canonicalPath, query, fragment);
             }
-            
+
             // output the canonical request URI
             out.write(requestURI);
-            
+
             return AFTER_READ_URI;
         }
 
@@ -204,6 +210,29 @@ public abstract class HttpRequestLineDecodingState extends DecodingStateMachine 
             return null;
         }
     };
+
+    private String escapeSpecialCharacters(String input) {
+        StringBuilder resultStr = new StringBuilder();
+        for (char ch : input.toCharArray()) {
+            if (isSafe(ch)) {
+                resultStr.append(ch);
+            } else{
+                resultStr.append('%');
+                resultStr.append(toHex(ch / 16));
+                resultStr.append(toHex(ch % 16));
+            }
+        }
+
+        return resultStr.toString();
+    }
+
+    private char toHex(int ch) {
+        return (char) (ch < 10 ? '0' + ch : 'A' + ch - 10);
+    }
+
+    private boolean isSafe(char ch) {
+        return ((ch>='A' && ch<='Z') || (ch>='a' && ch<='z') || (ch>='0' && ch<='9') || "%&=$-_.+!*'(),,".indexOf(ch)>=0);
+    }
 
     public HttpRequestLineDecodingState(IoBufferAllocatorEx<?> allocator) {
         super(allocator);
