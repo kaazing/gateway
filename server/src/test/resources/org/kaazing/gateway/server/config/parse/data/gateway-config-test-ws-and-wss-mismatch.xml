@@ -16,15 +16,16 @@
     limitations under the License.
 
 -->
-<gateway-config xmlns="http://xmlns.kaazing.com/2012/03/gateway">
+<gateway-config xmlns="http://xmlns.kaazing.org/2015/11/gateway">
     <cluster>
         <name>cfgTest</name>
         <accept>tcp://127.0.0.1:9001</accept>
         <connect>tcp://127.0.0.1:9002</connect>
-        <mode>peer</mode>
+        <!--<mode>peer</mode>-->
     </cluster>
 
     <service>
+        <name>Balancer</name>
         <accept>ws://my.example.com:8080/somePath</accept>
         <type>balancer</type>
         <accept-options>
@@ -32,6 +33,7 @@
         </accept-options>
     </service>
     <service>
+        <name>Echo</name>
         <accept>ws://my1.example.com:8080/somePath</accept>
         <accept>wss://my1.example.com:9090/somePath</accept>
         <balance>ws://my.example.com:8080/somePath</balance>

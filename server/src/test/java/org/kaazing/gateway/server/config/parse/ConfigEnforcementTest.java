@@ -19,9 +19,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
 import org.apache.log4j.PropertyConfigurator;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 /**
  * Unit tests for 4.0 configuration enforcement (KG-9163)
@@ -31,17 +35,21 @@ public class ConfigEnforcementTest {
 
     private static final boolean DEBUG = false;
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     @BeforeClass
     public static void init() {
         if (DEBUG) {
             PropertyConfigurator.configure("src/test/resources/log4j-trace.properties");
         }
-
         parser = new GatewayConfigParser();
     }
 
-    @Test(expected = GatewayConfigParserException.class)
+    @Test
     public void testNoBalancedService() throws Exception {
+        thrown.expectMessage("Detected orphaned balancer accept URI");
+        thrown.expect(GatewayConfigParserException.class);
         File configFile = null;
         try {
             configFile =
@@ -85,8 +93,10 @@ public class ConfigEnforcementTest {
         }
     }
 
-    @Test(expected = GatewayConfigParserException.class)
+    @Test
     public void testOrphanedBalancer() throws Exception {
+        thrown.expectMessage("Detected orphaned balancer accept URI");
+        thrown.expect(GatewayConfigParserException.class);
         File configFile = null;
         try {
             configFile =
@@ -114,8 +124,10 @@ public class ConfigEnforcementTest {
         }
     }
 
-    @Test(expected = GatewayConfigParserException.class)
+    @Test
     public void testWSandOrphanedWSS() throws Exception {
+        thrown.expectMessage("Detected orphaned balancer accept URI");
+        thrown.expect(GatewayConfigParserException.class);
         File configFile = null;
         try {
             configFile =
